@@ -181,7 +181,7 @@
     if (g === "yawn") { const old = m.dataset.mood; NIC.mascotReact(m, "sleepy"); setTimeout(() => NIC.mascotReact(m, old || "idle"), 1400); }
     m.classList.add("do-" + g);
     setTimeout(() => m.classList.remove("do-" + g), 1500);
-    if (g === "sneeze" && NIC.sfx) setTimeout(() => NIC.sfx.play("sneeze"), 380);
+    // idle gags are silent: sound only follows something the learner did
   };
 
   // ---------- poke: boing, random face, accessory swap; 5 quick pokes = dizzy ----------
