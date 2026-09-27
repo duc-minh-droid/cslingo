@@ -16,8 +16,9 @@
 
 **58 lessons and 16 boss quizzes.**
 
-- **The path.** Tap a node to see the lesson, press START. A sticky unit banner with a guidebook follows you as you scroll.
+- **The path.** Every lesson node has its own topic icon. Hover it to see what's inside (summary, steps, time, questions); tap it and press START. A sticky unit banner with a guidebook follows you as you scroll.
 - **The lesson player.** One screen at a time: read a step, pick an answer, press **CHECK**, and get a green or red sheet with the explanation. Wrong answers come back at the end.
+- **Figures that run.** Algorithm steps play like a video: play, pause, step, scrub and change speed, with the pseudocode line lit up. They pause to ask you to predict the next move, and you can drag points or edit weights to rerun them.
 - **Live demos.** Lessons come with a playground (evolving populations, roulette wheels, A* on a grid, fitness landscapes in 3-D…) with a tick-off checklist.
 - **Boss quizzes.** Nine question types: multiple choice, select-all, numeric, sliders, ordering, matching, sorting into buckets, clicking the diagram and spot-the-bug.
 - **Game layer.** XP, a daily streak, a daily goal, three daily quests with chests, and achievements that unlock hats and gadgets for the cast.
@@ -41,7 +42,7 @@ Then open http://localhost:8651.
 
 ## Tech
 
-Plain HTML/CSS/JS with no build step. Libraries: [Motion](https://motion.dev) for animation, [Chart.js](https://www.chartjs.org) for charts, [canvas-confetti](https://github.com/catdad/canvas-confetti) for confetti, and Microsoft's [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat, MIT) for icons. All are vendored in `vendor/`.
+Plain HTML/CSS/JS with no build step. Libraries: [Motion](https://motion.dev) and [GSAP](https://gsap.com) for animation, [KaTeX](https://katex.org) for maths, [three.js](https://threejs.org) for 3-D landscapes, [lottie-web](https://github.com/airbnb/lottie-web) for the (home-made) celebration animations, [Chart.js](https://www.chartjs.org) for charts, [canvas-confetti](https://github.com/catdad/canvas-confetti) for confetti, and Microsoft's [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat, MIT) for icons. All are vendored in `vendor/`.
 
 Tests run in the page (Playwright or DevTools). Load `tools/answer.js` and `tools/smoke.js`, then run `await smoke()`. It walks every lesson in the player and must return `errors: []`. `tools/boss-test.js` → `await bossTest()` answers every boss question through the real UI.
 

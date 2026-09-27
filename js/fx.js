@@ -180,5 +180,35 @@
     return () => mo.disconnect();
   }
 
-  NIC.fx = { ok, reduce, EASE, EASE_IO, enter, step, pop, shake, reveal, count, play, onView, celebrate, floatText, toast, watchStats, animate: run };
+  /**
+   * Play an in-house Lottie animation (assets/lottie.js) inside el. Loads lottie-web on first use.
+   * Resolves to the animation, or null (reduced motion, or the player failed to load); callers keep their static fallback.
+   */
+  function lottie(el, name, { loop = false, speed = 1, cls = "" } = {}) {
+    const data = window.CSL_LOTTIE && window.CSL_LOTTIE[name];
+    if (!el || !data || reduce() || !NIC.lazy) return Promise.resolve(null);
+    return NIC.lazy("vendor/lottie_light.min.js").then(() => {
+      if (!el.isConnected || !window.lottie) return null;
+      const box = document.createElement("div");
+      box.className = "lottie " + cls;
+      el.appendChild(box);
+      const a = window.lottie.loadAnimation({ container: box, renderer: "svg", loop, autoplay: true, animationData: JSON.parse(JSON.stringify(data)) });
+      a.setSpeed(speed);
+      if (!loop) a.addEventListener("complete", () => box.classList.add("done"));
+      return a;
+    }).catch(() => null);
+  }
+
+  /** Play a one-shot Lottie in a floating layer centred on anchor (it isn't clipped by the anchor's box). */
+  function lottieAt(anchor, name, { size = 150, dy = 0 } = {}) {
+    if (!anchor || reduce()) return;
+    const r = anchor.getBoundingClientRect();
+    const layer = document.createElement("div");
+    layer.className = "lottie-at";
+    layer.style.cssText = `left:${r.left + r.width / 2 - size / 2}px;top:${r.top + r.height / 2 - size / 2 + dy}px;width:${size}px;height:${size}px`;
+    document.body.appendChild(layer);
+    lottie(layer, name).then((a) => { if (!a) return layer.remove(); a.addEventListener("complete", () => layer.remove()); setTimeout(() => layer.remove(), 4000); });
+  }
+
+  NIC.fx = { lottie, lottieAt, ok, reduce, EASE, EASE_IO, enter, step, pop, shake, reveal, count, play, onView, celebrate, floatText, toast, watchStats, animate: run };
 })();

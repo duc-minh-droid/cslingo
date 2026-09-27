@@ -1,0 +1,29 @@
+/* Revise tab (#revise) — reuses .side-page, .sp-hero, .stat-grid/.pf-stat and .seg from shell/styles */
+.rv-hero .mascot { flex-shrink: 0; }
+.rv-stats { grid-template-columns: repeat(4, 1fr); margin: 0 0 16px; }
+.rv-setup { display: grid; gap: 14px; }
+.rv-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rv-row > b { font-weight: 900; color: var(--ink); }
+.rv-go { width: 100%; }
+.rv-empty { text-align: center; display: grid; gap: 8px; justify-items: center; padding: 28px; }
+.rv-empty b { font-size: 20px; font-weight: 900; color: var(--ink); }
+
+.rv-list { display: grid; gap: 8px; }
+.rv-sess { display: grid; grid-template-columns: minmax(0, 1fr) 120px auto; align-items: center; gap: 14px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 16px; background: #fff; }
+.rv-sess.has-due { border-color: var(--amber-edge); }
+.rv-sess-t { min-width: 0; }
+.rv-sess-t small { display: block; font-size: 11.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); }
+.rv-sess-t b { display: block; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-sess-bar { height: 12px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.rv-sess-bar span { display: block; height: 100%; border-radius: inherit; background: var(--teal); transform-origin: 0 50%; transition: transform 500ms var(--ease-out); }
+.rv-sess-n { text-align: right; display: grid; gap: 2px; }
+.rv-sess-n small { font-size: 12px; font-weight: 800; color: var(--text-faint); }
+.rv-due { font-weight: 900; color: var(--amber-ink); font-size: 13.5px; }
+.rv-ok { font-weight: 900; color: var(--teal-ink); font-size: 13.5px; }
+.pl-tag.blue { background: var(--blue-dim); color: var(--blue-ink); }
+
+@media (max-width: 640px) {
+  .rv-stats { grid-template-columns: repeat(2, 1fr); }
+  .rv-sess { grid-template-columns: minmax(0, 1fr) auto; }
+  .rv-sess-bar { grid-column: 1 / -1; grid-row: 2; }
+}

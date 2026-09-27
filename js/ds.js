@@ -6,7 +6,7 @@
   const reg = (m) => N.register({ subject: S, lecture: 1, ...m });
 
   // ---------- shared small builders ----------
-  const table = (head, rows) => `<table class="t" style="max-width:680px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${r.hl ? "hl" : r.bad ? "bad" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+  const table = (head, rows) => `<table class="t" style="max-width:680px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${(r.hl || (r[0] && r[0].hl)) ? "hl" : (r.bad || (r[0] && r[0].bad)) ? "bad" : ""}">${[].concat(r.c || (r[0] && r[0].c) || r).flat(2).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
   const flow = (items) => `<div class="mini-row">${items.map((it) => (Array.isArray(it) ? `<span class="pill ${it[1] || ""}">${it[0]}</span>` : `<span class="pill">${it}</span>`)).join('<span class="arrow">→</span>')}</div>`;
   const box = (label, sub, color) => `<div style="border:1px solid ${color || "var(--line-2)"};border-radius:10px;padding:8px 12px;background:var(--bg-2);min-width:110px"><b>${label}</b><br><span class="faint" style="font-size:12.5px">${sub}</span></div>`;
   function sorter(root, title, cats, items) {

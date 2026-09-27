@@ -191,3 +191,7 @@ svg.fig { width: 100%; display: block; overflow: visible; }
 }
 
 @media (prefers-reduced-motion: reduce) { .fb-fill { animation: none; } }
+.surface-gl { position: relative; display: block; width: 100%; border-radius: 14px; background: radial-gradient(ellipse at 50% 30%, #fff 0%, var(--panel-2) 100%); overflow: hidden; touch-action: pan-y; }
+.surface-gl canvas { display: block; }
+.surface-labels { position: absolute; inset: 0; pointer-events: none; }
+.surface-labels span { position: absolute; left: 0; top: 0; padding: 2px 8px; border-radius: 99px; background: rgba(255,255,255,.9); border: 2px solid var(--line); font-size: 12px; font-weight: 800; color: var(--text); white-space: nowrap; }

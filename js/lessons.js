@@ -7,7 +7,7 @@
   const row = (lbl, html, extra = "") => `<div class="genome-row"><span class="lbl">${lbl}</span>${html}${extra ? `<span class="mono dim">${extra}</span>` : ""}</div>`;
   const flow = (items) => `<div class="mini-row">${items.map((it) => (Array.isArray(it) ? `<span class="pill ${it[1] || ""}">${it[0]}</span>` : `<span class="pill">${it}</span>`)).join('<span class="arrow">→</span>')}</div>`;
   const chips = (arr) => `<div class="pop">${arr.map(([n, f, c]) => `<div class="chip ${c || ""}"><small>${n}</small><b>${f}</b></div>`).join("")}</div>`;
-  const table = (head, rows) => `<table class="t" style="max-width:640px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${r.hl ? "hl" : r.bad ? "bad" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+  const table = (head, rows) => `<table class="t" style="max-width:640px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${(r.hl || (r[0] && r[0].hl)) ? "hl" : (r.bad || (r[0] && r[0].bad)) ? "bad" : ""}">${[].concat(r.c || (r[0] && r[0].c) || r).flat(2).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
   function curve(fn, opts = {}) {
     const w = opts.w || 520, h = opts.h || 130, n = 120, pts = [];
     const vals = Array.from({ length: n + 1 }, (_, i) => fn(i / n)), mx = Math.max(...vals), mn = Math.min(0, ...vals);
@@ -101,6 +101,8 @@
         v: chips([["S11", "1.0", "new"], ["S12", "0.2", "new"]]) },
       { t: "Step 3: Update the population", b: `<p>Decide who stays. Three common rules:</p><p>① <b>Replace the entire population</b> with children.<br>② <b>Merge</b> old + new, then keep the best |P|.<br>③ <b>Replace some old</b> with some new (e.g. the weakest).</p>`,
         c: { q: "With rule ② (merge, keep best |P|), can the best solution ever be lost?", o: ["Yes, if the children are bad", "No: the best is always among the top |P|", "Only with mutation"], a: 1, why: "If you keep the best |P| of the merged pool, the current best always survives." } },
+      { t: "Watch it run", b: `<p>Here is one full generation on 6 short bit-strings. Fitness is the number of 1s. Press <b>play</b> or step with the arrows, and the code lights up as it goes.</p><p>Children are coloured by the parent each gene came from. It will pause and ask you to pick a tournament winner.</p>`,
+        v: (box, life) => NIC.runners.eaGen(box, life) },
       { t: "Then repeat, and the big design questions", b: `<p>Loop Select → Vary → Update until you run out of time. The hard part is the design choices:</p><p><b>How greedy should selection be?</b> Always the best means <i>bad results, quickly</i>. Almost random means <i>great results, too slowly</i>.<br><b>How to encode and how to vary?</b> Small mutation steps are preferred. Recombination is a principled way to take bigger steps. Large random steps are usually terrible.</p>` },
     ],
     guide: ["Press <b>Next stage</b> to walk through the 4 stages using the slide's numbers.", "At stage 4, click each <b>update rule</b> and compare the next population. Which rule loses S5 (0.9)?", "Drag the <b>greediness</b> slider below and read what happens at each extreme."],
@@ -331,6 +333,8 @@
     steps: [
       { t: "The wheel", b: `<p>Give each individual a slice of a roulette wheel <b>sized by its fitness</b>, then spin.</p><p><b>p<sub>i</sub> = f<sub>i</sub> / (sum of all f)</b></p><p>Example: fitnesses 2, 3, 5 (total 10):</p>`,
         v: bars([["f = 2", 20], ["f = 3", 30], ["f = 5", 50]]) },
+      { t: "Watch it run", b: `<p>Five individuals, five slices. Each spin lands on a random point, and the bigger your slice, the more often you get picked.</p><p>It will ask you to predict the favourite first. Tap a fitness value to change it and the wheel is redrawn.</p>`,
+        v: (box, life) => NIC.runners.roulette(box, life) },
       { t: "Problem 1: superfit individuals", b: `<p>Fitnesses <b>100</b>, 0.4, 0.3, 0.2, 0.1. The best gets 100/101 ≈ <b>99%</b> of the wheel and will take over immediately.</p>`,
         v: bars([["f = 100", 99, "var(--rose)"], ["f = 0.4", 0.4], ["f = 0.3", 0.3], ["f = 0.2", 0.2], ["f = 0.1", 0.1]]) },
       { t: "Problem 2: it depends on the exact numbers", b: `<p>Add 100 to every fitness: 200, 100.4, 100.3, 100.2, 100.1. The ranking is the same, but now the best only gets 200/601 ≈ <b>33%</b>.</p><span class="key">Roulette depends on <b>absolute</b> fitness values, so you have to design the fitness numbers very carefully.</span>`,
@@ -396,6 +400,8 @@
         v: row("Parent 1", g("ABCDEFGH", "p1")) + row("Parent 2", g("KLMNOPQR", "p2")) + row("Child 1", g("ABCDEPQR", (i) => (i < 5 ? "p1" : "p2")), "cut after 5") + row("Child 2", g("KLMNOFGH", (i) => (i < 5 ? "p2" : "p1"))) },
       { t: "2-point (and k-point) crossover", b: `<p>Two cuts: keep the outside from one parent and swap the middle. k-point extends this with k cuts, alternating segments.</p>`,
         v: row("Parent 1", g("ABCDEFGH", "p1")) + row("Parent 2", g("KLMNOPQR", "p2")) + row("Child 1", g("ABMNOPGH", (i) => (i >= 2 && i < 6 ? "p2" : "p1")), "cuts after 2 and 6") },
+      { t: "Watch it run", b: `<p>Watch the genes move. Blue came from parent 1 and orange from parent 2. First one cut, then two.</p><p>It will ask you to spot child 1. Drag the red cut marker to a new place and the run starts again.</p>`,
+        v: (box, life) => NIC.runners.crossover(box, life) },
       { t: "Uniform crossover", b: `<p>Flip a coin for <b>every gene</b>: a random <b>mask</b>, where 1 = swap this gene and 0 = keep it.</p>`,
         v: row("Parent 1", g("ABCDEFGH", "p1")) + row("Parent 2", g("KLMNOPQR", "p2")) + row("Mask", g("01001101")) + row("Child 1", g("ALCDOPGR", (i) => ("01001101"[i] === "1" ? "p2" : "p1"))),
         c: { q: "P1 = ABCD, P2 = WXYZ, mask 1010. Child 1?", o: ["WBYD", "AXCZ", "WXCD"], a: 0, why: "Swap positions 1 and 3: W B Y D." } },
@@ -443,7 +449,7 @@
     { t: "② merge, keep the best |P|", v: chips([["p1", 9, "elite"], ["c3", 7, "new"], ["p2", 6]]) },
     { t: "③ replace some: e.g. only the weakest", v: chips([["p1", 9], ["p2", 6], ["c3", 7, "new"]]) },
   ]));
-  addV("l2-generic", 5, FG.plot([{ f: (t) => 0.55 * (1 - Math.exp(-25 * t)), c: "rose", label: "always pick the best" }, { f: (t) => 0.95 * t * t, c: "violet", dash: "5 4", label: "almost random" }, { f: (t) => 0.9 * (1 - Math.exp(-5 * t)), c: "teal", label: "balanced" }], { x: [0, 1], y: [0, 1], xl: "time →", yl: "best found", h: 190 }));
+  addV("l2-generic", 6, FG.plot([{ f: (t) => 0.55 * (1 - Math.exp(-25 * t)), c: "rose", label: "always pick the best" }, { f: (t) => 0.95 * t * t, c: "violet", dash: "5 4", label: "almost random" }, { f: (t) => 0.9 * (1 - Math.exp(-5 * t)), c: "teal", label: "balanced" }], { x: [0, 1], y: [0, 1], xl: "time →", yl: "best found", h: 190 }));
   addV("l2-optim", 0, FG.cells([{ v: "20 kg", sub: "item 1" }, { v: "75 kg", sub: "item 2" }, { v: "60 kg", sub: "item 3" }, "→", { v: "≈ 100 kg?", c: "amber" }], { size: 70 }));
   addV("l2-optim", 2, `<table class="t" style="max-width:420px"><tr><th>subset</th><th class="num">weight</th><th class="num">f = |w − 100|</th></tr>${[["000", 0], ["001", 60], ["010", 75], ["011", 135], ["100", 20], ["101", 80], ["110", 95], ["111", 155]].map(([b, w]) => `<tr class="${b === "110" ? "hl" : ""}"><td class="mono">${b}</td><td class="num">${w}</td><td class="num">${Math.abs(w - 100)}</td></tr>`).join("")}</table>`);
   addV("l2-optim", 3, FG.bars([["000", 100, "dim"], ["001", 40, "dim"], ["010", 25, "dim"], ["011", 35, "dim"], ["100", 80, "dim"], ["101", 20, "dim"], ["110", 5, "teal", "best"], ["111", 55, "dim"]], { max: 100 }) + `<div class="fig-cap">Score all 8, keep the smallest f. Guaranteed optimal, but only because 8 is tiny.</div>`);
@@ -510,8 +516,8 @@
     { t: "generation 3: all copies of one", v: chips([["", 9, "winner"], ["", 9, "winner"], ["", 9, "winner"], ["", 9, "winner"]]) },
   ]));
   addV("l4-pressure", 3, FG.cells([{ v: "tournament size t" }, { v: "rank bias" }, { v: "elitism count" }], { label: "pressure knobs:", size: 120 }));
-  addV("l4-roulette", 2, FG.compare({ title: "Fitness 100, 0.4, 0.3, 0.2, 0.1", c: "rose", body: FG.bars([["best", 99, "rose", "%"]], { max: 100 }) }, { title: "Same +100 each", c: "violet", body: FG.bars([["best", 33, "violet", "%"]], { max: 100 }) }));
-  addV("l4-roulette", 3, FG.compare({ title: "Minimising (tour length)", c: "rose", body: "longest tour gets the <b>biggest</b> slice: the worst are favoured" }, { title: "Negative fitness", c: "rose", body: "a slice can't have negative size: roulette breaks" }));
+  addV("l4-roulette", 3, FG.compare({ title: "Fitness 100, 0.4, 0.3, 0.2, 0.1", c: "rose", body: FG.bars([["best", 99, "rose", "%"]], { max: 100 }) }, { title: "Same +100 each", c: "violet", body: FG.bars([["best", 33, "violet", "%"]], { max: 100 }) }));
+  addV("l4-roulette", 4, FG.compare({ title: "Minimising (tour length)", c: "rose", body: "longest tour gets the <b>biggest</b> slice: the worst are favoured" }, { title: "Negative fitness", c: "rose", body: "a slice can't have negative size: roulette breaks" }));
   addV("l4-rank", 2, FG.bars([["rank 4 (best)", 40, "teal", "%"], ["rank 3", 30, "teal", "%"], ["rank 2", 20, "teal", "%"], ["rank 1", 10, "teal", "%"]], { max: 40 }) + `<div class="fig-cap">Probability = rank / (1+2+3+4). The actual fitness numbers never appear.</div>`);
   addV("l4-tournament", 0, FG.frames([
     { t: "draw t = 2 at random (with replacement)", v: chips([["", 5, "picked"], ["", 2], ["", 8, "picked"], ["", 3]]) },

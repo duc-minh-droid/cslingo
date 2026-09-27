@@ -137,6 +137,94 @@
     { p: [5, 0], z: 15, enter: "y", why: "<b>Ratio test:</b> how far can x grow? Machine hours allow x ≤ 10, raw material allows x ≤ 5. The <b>tighter</b> limit wins, so x = 5 and raw material becomes binding. Now look along the raw-material edge: each extra y means ⅓ less x, a net gain of 2 − 3·⅓ = <b>+£1 per y</b>. So <b>y enters</b>." },
     { p: [4, 3], z: 18, enter: null, why: "Slide along the edge until machine hours bind at y = 3, x = 4. From here every neighbouring corner is worse ((5,0) → 15, (0,5) → 10). No move improves z, so this is <b>optimal</b>." },
   ];
+  /* Exact fractions for the tableau, shown as a/b. */
+  const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a) || 1);
+  const Q = (n, d = 1) => { const g = gcd(n, d), s = d < 0 ? -1 : 1; return { n: (s * n) / g, d: (s * d) / g }; };
+  const qa = (a, b) => Q(a.n * b.d + b.n * a.d, a.d * b.d), qs_ = (a, b) => Q(a.n * b.d - b.n * a.d, a.d * b.d);
+  const qm = (a, b) => Q(a.n * b.n, a.d * b.d), qdv = (a, b) => Q(a.n * b.d, a.d * b.n);
+  const qv = (a) => a.n / a.d, qt = (a) => (a.n < 0 ? "−" : "") + (a.d === 1 ? Math.abs(a.n) : `${Math.abs(a.n)}/${a.d}`);
+
+  /** Step-through simplex tableau on the 3.1 factory LP, with the current corner moving on the plot. */
+  function simplexRun(box, life) {
+    const VARS = ["x", "y", "s1", "s2"];
+    function* frames() {
+      // rows: s1: x + 2y + s1 = 10;  s2: 3x + y + s2 = 15.  gain row = reduced cost (z per unit) of each variable.
+      let rows = [{ b: "s1", a: [1, 2, 1, 0].map((v) => Q(v)), r: Q(10) }, { b: "s2", a: [3, 1, 0, 1].map((v) => Q(v)), r: Q(15) }];
+      let gain = [3, 2, 0, 0].map((v) => Q(v)), z = Q(0);
+      const vert = () => ["x", "y"].map((v) => { const row = rows.find((w) => w.b === v); return row ? qv(row.r) : 0; });
+      const trail = [[0, 0]];
+      const snap = (x) => ({ rows: rows.map((w) => ({ b: w.b, a: w.a.slice(), r: w.r })), gain: gain.slice(), z, p: vert(), trail: trail.slice(), ...x });
+      yield snap({ cap: `Start at the corner <b>(0, 0)</b>: make nothing. The slacks s1, s2 hold all the spare capacity, so <b>z = 0</b>.`, line: 0 });
+      for (let round = 0; round < 5; round++) {
+        const best = gain.reduce((m, g, j) => (qv(g) > qv(gain[m]) ? j : m), 0);
+        if (qv(gain[best]) <= 0) break;
+        const ev = VARS[best];
+        yield snap({ enter: best, line: 1, mood: "think", cap: `The gain row says how much z rises per unit. Largest is <b>${ev}: +${qt(gain[best])}</b>, so <b>${ev} enters</b>.`,
+          ask: { q: "Which variable <b>enters</b>? Tap its column heading.", pick: ".rn-tab-h[data-k]", a: ev, why: `Dantzig's rule: the largest positive gain is <b>${ev}</b> at +${qt(gain[best])} per unit.` } });
+        const ratios = rows.map((w) => (qv(w.a[best]) > 0 ? qdv(w.r, w.a[best]) : null));
+        const leave = ratios.reduce((m, q, i) => (q && (m < 0 || qv(q) < qv(ratios[m])) ? i : m), -1);
+        if (leave < 0) break;
+        const rt = rows.map((w, i) => (ratios[i] ? `${w.b}: ${qt(w.r)} ÷ ${qt(w.a[best])} = ${qt(ratios[i])}` : `${w.b}: no limit`)).join(", ");
+        yield snap({ enter: best, leave, ratios, line: 2, cap: `Ratio test: ${rt}. Smallest is <b>${qt(ratios[leave])}</b>, so <b>${rows[leave].b} leaves</b>.` });
+        const pr = rows[leave], pv = pr.a[best];
+        const np = { b: ev, a: pr.a.map((v) => qdv(v, pv)), r: qdv(pr.r, pv) };
+        rows = rows.map((w, i) => (i === leave ? np : { b: w.b, a: w.a.map((v, j) => qs_(v, qm(w.a[best], np.a[j]))), r: qs_(w.r, qm(w.a[best], np.r)) }));
+        const gb = gain[best];
+        gain = gain.map((g, j) => qs_(g, qm(gb, np.a[j])));
+        z = qa(z, qm(gb, np.r));
+        const p = vert();
+        trail.push(p);
+        yield snap({ piv: [leave, best], line: 3, mood: "happy", cap: `Pivot: ${ev} replaces ${pr.b}. Walk along an edge to the corner <b>(${p.map(nice).join(", ")})</b>, where <b>z = ${qt(z)}</b>.` });
+      }
+      yield snap({ done: true, line: 4, mood: "love", cap: `Every gain is now ≤ 0 (${VARS.map((v, j) => `${v}: ${qt(gain[j])}`).join(", ")}). No edge improves z, so <b>(${vert().map(nice).join(", ")})</b> with <b>z = ${qt(z)}</b> is optimal.` });
+    }
+    F.run(box, life, {
+      code: ["start at the origin: the slacks are basic", "enter: the column with the largest gain", "leave: the row with the smallest ratio", "pivot: move to the next corner", "stop when no gain is positive"],
+      build(stage) {
+        const lp = lpSVG({ active: { c1: true, c2: true }, showZ: false, W: 380, H: 290 });
+        const wrap = document.createElement("div"); wrap.className = "rn-tab-wrap";
+        wrap.innerHTML = `<table class="rn-tab"><thead><tr><th>basis</th>${VARS.map((v) => `<th class="rn-tab-h" data-k="${v}" data-c="${VARS.indexOf(v)}">${v}</th>`).join("")}<th>rhs</th><th class="rn-tab-rt">ratio</th></tr></thead>
+          <tbody>${[0, 1].map((i) => `<tr data-r="${i}"><th></th>${VARS.map((_, j) => `<td data-c="${j}"></td>`).join("")}<td class="rn-tab-rhs"></td><td class="rn-tab-rt"></td></tr>`).join("")}
+          <tr class="rn-tab-gain"><th>gain</th>${VARS.map((_, j) => `<td data-c="${j}"></td>`).join("")}<td class="rn-tab-rhs"></td><td class="rn-tab-rt"></td></tr></tbody></table>
+          <div class="rn-tab-plot">${lp.svg}</div>`;
+        stage.appendChild(wrap);
+        const svg = wrap.querySelector("svg");
+        svg.querySelectorAll(".fi, .draw").forEach((g) => g.classList.remove("fi", "draw"));
+        const NS = "http://www.w3.org/2000/svg";
+        const trail = document.createElementNS(NS, "polyline"); trail.setAttribute("class", "rn-tab-trail"); svg.appendChild(trail);
+        const dot = document.createElementNS(NS, "circle"); dot.setAttribute("class", "rn-tab-dot"); dot.setAttribute("r", 11); dot.setAttribute("cx", lp.X(0)); dot.setAttribute("cy", lp.Y(0)); svg.appendChild(dot);
+        return { wrap, svg, dot, trail, X: lp.X, Y: lp.Y };
+      },
+      draw(s, f, c) {
+        const body = s.wrap.querySelectorAll("tbody tr");
+        f.rows.forEach((w, i) => {
+          const tr = body[i];
+          F.rn.text(c, tr.querySelector("th"), w.b);
+          w.a.forEach((v, j) => F.rn.text(c, tr.querySelector(`td[data-c="${j}"]`), qt(v)));
+          F.rn.text(c, tr.querySelector(".rn-tab-rhs"), qt(w.r));
+          tr.querySelector(".rn-tab-rt").textContent = f.ratios ? (f.ratios[i] ? qt(f.ratios[i]) : "—") : "";
+          tr.classList.toggle("rn-tab-leave", f.leave === i);
+          tr.classList.toggle("rn-tab-new", !!f.piv && f.piv[0] === i);
+        });
+        const g = body[2];
+        f.gain.forEach((v, j) => F.rn.text(c, g.querySelector(`td[data-c="${j}"]`), qt(v)));
+        F.rn.text(c, g.querySelector(".rn-tab-rhs"), "z = " + qt(f.z));
+        s.wrap.querySelectorAll("[data-c]").forEach((e) => {
+          const j = +e.dataset.c;
+          e.classList.toggle("rn-tab-enter", f.enter === j);
+          e.classList.toggle("rn-tab-pos", e.closest(".rn-tab-gain") !== null && qv(f.gain[j]) > 0);
+        });
+        s.wrap.querySelectorAll(".rn-tab-rt").forEach((e) => e.classList.toggle("rn-tab-show", !!f.ratios));
+        s.wrap.classList.toggle("rn-tab-done", !!f.done);
+        const cx = s.X(f.p[0]), cy = s.Y(f.p[1]);
+        s.trail.setAttribute("points", f.trail.map(([a, b]) => `${s.X(a)},${s.Y(b)}`).join(" "));
+        F.rn.to(c, s.dot, { attr: { cx, cy } }, 0, 0.7);
+        s.dot.classList.toggle("rn-tab-opt", !!f.done);
+      },
+      frames,
+    });
+  }
+
   L["a3-simplex"] = {
     sum: "The simplex method never searches the inside of the polygon. It stands on a corner, picks an edge that improves the score, and walks to the next corner. When no edge improves, it stops, and that corner is optimal.",
     steps: [
@@ -149,6 +237,8 @@
         v: F.bars([["machine: x ≤ 10", 10, "violet"], ["material: x ≤ 5", 5, "amber", "tightest"]], { max: 10 }),
         c: { q: "Which constraint decides where you stop?", o: ["The loosest bound", "The tightest bound, because it's the first one you'd break", "A random one"], a: 1, why: "Push past the tightest bound and you've broken that constraint. That's the ratio test." } },
       { t: "Stop when no edge improves", b: `<p>At (4,3), every neighbouring corner has a lower z. All reduced costs are ≤ 0, and that's the certificate of optimality.</p><span class="key">Each pivot strictly improves z (in the normal non-degenerate case), and there are finitely many corners, so simplex always stops.</span>` },
+      { t: "Watch it run", b: `<p>Here is simplex as a <b>tableau</b>: one row per constraint, plus a <b>gain</b> row showing how much z rises per unit of each variable. The plot shows the corner it's standing on.</p><p>Press <b>play</b> or step with the arrows. It will pause and ask which variable enters.</p>`,
+        v: (box, life) => simplexRun(box, life) },
     ],
     guide: ["Press <b>Pivot</b> and read the explanation under the plot at each corner.", "At (5,0), check the maths: why is the net gain for y only £1?", "At (4,3), confirm both neighbours are worse. That's the stopping rule."],
   };

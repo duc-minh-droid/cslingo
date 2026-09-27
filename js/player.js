@@ -4,6 +4,7 @@
      NIC.player.open(mod, {home})      lesson: steps (+ quick checks) → Try it (demo + checklist) → predicts → mistakes → recap → complete → streak
                                        boss:   intro → questions → results → complete
      NIC.player.practice({home})       mixed review of missed questions + quick checks from finished lessons
+     NIC.player.revise({home, n, subjects})  shuffled revision deck from NIC.bank (finished sessions); answers update the Leitner boxes
    Content is never re-authored: steps come from NIC.LESSONS, predicts/takeaways/demo are lifted out of mod.render(). */
 (function () {
   const N = NIC, { el, qs, qsa, store } = N;
@@ -116,6 +117,20 @@
     show(0);
   }
 
+  function revise(opts = {}) {
+    if (S) close(true);
+    S = base("revise", opts);
+    S.who = opts.who || "chip"; S.mod = { id: "revise", num: "Revise", title: "Revision" };
+    mount("Revise");
+    const deck = N.bank ? N.bank.deck({ n: opts.n || 10, subjects: opts.subjects || null }) : [];
+    const title = (id) => { const m = N.modules.find((x) => x.id === id); return m ? `${m.num === "Boss" ? "Boss" : m.num} · ${stripTags(m.title)}` : ""; };
+    S.screens = deck.length
+      ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), practice: true }))]
+      : [{ kind: "note", who: "chip", mood: "sleepy", t: "Nothing to revise yet", b: "Finish a lesson first. Its questions join your revision deck." }];
+    sound("whoosh");
+    show(0);
+  }
+
   // =====================================================================
   //  Shell
   // =====================================================================
@@ -156,6 +171,7 @@
       c.classList.add("on");
       if (fx() && fx().ok && !reduce()) fx().animate(c, { transform: ["translate(-50%, 6px) scale(0.6)", "translate(-50%, 0px) scale(1.15)", "translate(-50%, 0px) scale(1)"] }, { duration: 0.45, ease: fx().EASE });
       if (S.combo === 3 || S.combo === 5 || S.combo % 10 === 0) sound("streak");
+      if (S.combo === 5 || S.combo % 10 === 0) setTimeout(() => fx() && fx().lottieAt(c, "combo", { size: 96, dy: -6 }), 120);
     } else c.classList.remove("on");
   }
 
@@ -224,7 +240,7 @@
       else foot("continue", { onGo: next });
     },
     q(node, sc) {
-      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag rose">Mistake to fix</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
+      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag rose">Mistake to fix</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       askQ(qs(".pl-qwrap", node), sc, {});
     },
     try(node, sc) {
@@ -264,6 +280,11 @@
         <div class="pl-kinds">${B.qs.length} questions · ${kinds.join(" · ")}</div>${S.refHTML ? `<div class="card pl-ref-card">${S.refHTML}</div>` : ""}</div>`;
       foot("continue", { label: "Start", onGo: next });
     },
+    reviseIntro(node, sc) {
+      node.innerHTML = `<div class="pl-in pl-center">${N.mascot({ who: "chip", size: 150, mood: "determined", acc: ["propeller"], act: "dance" })}
+        <div class="pl-tag blue">Revision</div><h1>${sc.n} mixed questions</h1><p class="lede">Shuffled from ${sc.mods} session${sc.mods === 1 ? "" : "s"} you've finished. Questions you miss come back sooner.</p></div>`;
+      foot("continue", { label: "Start", onGo: next });
+    },
     practiceIntro(node, sc) {
       node.innerHTML = `<div class="pl-in pl-center">${N.mascot({ who: "berry", size: 150, mood: "determined", acc: ["headphones"], act: "headbang" })}
         <div class="pl-tag violet">Practice</div><h1>${sc.n} quick questions</h1><p class="lede">${sc.fixes ? `${sc.fixes} of them are things you got wrong before.` : "A mixed refresh from the lessons you've finished."}</p></div>`;
@@ -290,6 +311,7 @@
       if (fx()) fx().count(qs("#brN", node), c, { from: 0, dur: 0.9 });
       setTimeout(() => N.mascotReact(qs(".ring-m", node), pct === 1 ? "love" : pct >= 0.8 ? "happy" : "sad"), 900);
       if (pct === 1 && fx()) setTimeout(() => fx().celebrate(qs(".pl-ring", node), { big: true }), 900);
+      if (pct >= 0.8 && fx()) setTimeout(() => fx().lottieAt(qs(".pl-ring", node), "trophy", { size: 220 }), 1000);
       if (pct === 1) game().unlock("perfect");
       S.bossPct = pct;
       qsa("[data-retry]", node).forEach((b) => b.addEventListener("click", () => {
@@ -303,7 +325,7 @@
     complete(node) {
       const acc = S.firstTotal ? S.firstRight / S.firstTotal : 1;
       const secs = Math.round((Date.now() - S.start) / 1000);
-      const lessonXP = S.kind === "practice" ? 5 : S.kind === "boss" ? (S.bossPct >= 0.8 ? 20 : 5) : S.review ? 5 : 10;
+      const lessonXP = S.kind === "practice" || S.kind === "revise" ? 5 : S.kind === "boss" ? (S.bossPct >= 0.8 ? 20 : 5) : S.review ? 5 : 10;
       const total = S.xp + lessonXP;
       game().award(total, S.kind);
       const res = game().lessonDone({ acc, review: S.review });
@@ -316,7 +338,7 @@
         <div class="pd-cast">${others.slice(0, 2).map((w, k) => N.mascot({ who: w, size: 78, mood: "happy", act: acts[k], acc: [hats[k]] })).join("")}
           ${N.mascot({ who: S.who, size: 150, mood: "laugh", act: "dance", acc: ["party"], cls: "pd-star" })}
           ${others.slice(2, 4).map((w, k) => N.mascot({ who: w, size: 78, mood: k ? "love" : "happy", act: acts[k + 2], acc: [hats[k + 2]] })).join("")}</div>
-        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "boss" ? "Quiz complete!" : "Lesson complete!"}</h1>
+        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? "Quiz complete!" : "Lesson complete!"}</h1>
         <div class="pd-cards">
           <div class="pd-card c-gold"><b>Total XP</b><span>${IC.bolt}<i data-v="${total}">0</i></span></div>
           <div class="pd-card c-green"><b>${label}</b><span>${IC.target}<i data-v="${Math.round(acc * 100)}">0</i>%</span></div>
@@ -348,6 +370,7 @@
         <div class="ps-week">${wk.map((d) => `<div class="ps-day ${d.on ? "on" : ""} ${d.today ? "today" : ""}"><span>${d.label}</span><i>${d.on ? IC.ok : ""}</i></div>`).join("")}</div>
         <p class="lede">${r.streak === 1 ? "Day one. Come back tomorrow to keep it going." : "Practise every day to keep your streak alive."}</p></div>`;
       sound("flame");
+      if (fx()) fx().lottie(qs(".ps-flame", node), "flame", { cls: "ps-lottie" });
       setTimeout(() => {
         const nEl = qs("#psN", node);
         if (fx()) { fx().count(nEl, r.streak, { from: r.streakFrom, dur: 0.6 }); if (fx().ok && !reduce()) fx().animate(qs(".ps-num", node), { transform: ["scale(1)", "scale(1.5)", "scale(1)"] }, { duration: 0.5, ease: fx().EASE }); } else nEl.textContent = r.streak;
@@ -410,6 +433,7 @@
     game().answered(ok);
     // persistence
     if (sc.bossIdx !== undefined) { const st = store.get("nic.quiz", {}); st[sc.idKey] = { v, ok }; store.set("nic.quiz", st); if (ok) game().track("boss"); window.dispatchEvent(new Event("nic:progress")); }
+    if (sc.revId && first && N.bank) N.bank.record(sc.revId, ok);
     if (sc.pred) { const p = store.get("nic.predict", {}); if (!(sc.pred in p)) { p[sc.pred] = ok; store.set("nic.predict", p); N.updateScore && N.updateScore(); } }
     if (ok) {
       if (sc.practice && missed.all().some((m) => m.k === sc.key)) { game().track("practice"); game().unlock("fixer"); }
@@ -507,8 +531,8 @@
   const state = () => {
     if (!S) return { open: false };
     const sc = S.screens[S.i] || {};
-    return { open: true, kind: sc.kind, Q: sc.Q || null, key: sc.key, i: S.i, n: S.screens.length, foot: S.foot.className.replace("pl-foot ", ""), goDisabled: S.go.disabled };
+    return { open: true, who: S.who, kind: sc.kind, Q: sc.Q || null, key: sc.key, i: S.i, n: S.screens.length, foot: S.foot.className.replace("pl-foot ", ""), goDisabled: S.go.disabled };
   };
 
-  N.player = { open, practice, close, state, isOpen: () => !!S, missed };
+  N.player = { open, practice, revise, close, state, isOpen: () => !!S, missed };
 })();

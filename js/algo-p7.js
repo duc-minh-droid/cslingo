@@ -10,7 +10,7 @@
   // ---------- shared small builders ----------
   const table = (head, rows, mw = 640) =>
     `<table class="t" style="max-width:${mw}px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows
-      .map((r) => `<tr class="${r.hl ? "hl" : r.bad ? "bad" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`)
+      .map((r) => `<tr class="${(r.hl || (r[0] && r[0].hl)) ? "hl" : (r.bad || (r[0] && r[0].bad)) ? "bad" : ""}">${[].concat(r.c || (r[0] && r[0].c) || r).flat(2).map((c) => `<td>${c}</td>`).join("")}</tr>`)
       .join("")}</table>`;
   const flow = (items) =>
     `<div class="mini-row">${items.map((it) => (Array.isArray(it) ? `<span class="pill ${it[1] || ""}">${it[0]}</span>` : `<span class="pill">${it}</span>`)).join('<span class="arrow">→</span>')}</div>`;
@@ -368,11 +368,11 @@
   L["a7-entropy"] = {
     sum: "Some messages are predictable, some are full of surprises. <b>Entropy</b> measures the average surprise — and it's the hard lower bound on compression.",
     steps: [
-      { t: "Information is surprise", b: `<p>A message that says what you already expected tells you nothing. A coin flip tells you something. Shannon's measure:</p><p class="mono">I(x) = −log₂ p(x)</p><p>Each halving of probability adds exactly <b>one bit</b> — that's why log₂ is the right unit.</p>`,
+      { t: "Information is surprise", b: `<p>A message that says what you already expected tells you nothing. A coin flip tells you something. Shannon's measure:</p><p>$$I(x) = -\\log_2 p(x)$$</p><p>Each halving of probability adds exactly <b>one bit</b> — that's why log₂ is the right unit.</p>`,
         v: table(["p", "−log₂p", "meaning"], [["1", "0 bits", "certainty — no news"], ["1/2", "1 bit", "one yes/no"], ["1/4", "2 bits", ""], ["1/8", "3 bits", ""], ["1/16", "4 bits", ""]]) },
-      { t: "Average the surprise → entropy", b: `<p>Weight each surprise by how often it happens: <span class="mono">H = Σ p(x)·(−log₂ p(x))</span>.</p><p>Loaded die: A 0.5, B 0.25, C 0.125, D 0.125 → H = 0.5·1 + 0.25·2 + 0.125·3 + 0.125·3 = <b>1.75 bits</b>.</p>`,
+      { t: "Average the surprise → entropy", b: `<p>Weight each surprise by how often it happens: $H = \\sum_x p(x)\\,\\bigl(-\\log_2 p(x)\\bigr)$.</p><p>Loaded die: A 0.5, B 0.25, C 0.125, D 0.125 → H = 0.5·1 + 0.25·2 + 0.125·3 + 0.125·3 = <b>1.75 bits</b>.</p>`,
         c: { q: "A source always sends A (p=1). Its entropy?", o: ["1 bit", "0 bits — a certain event carries no information", "2 bits"], a: 1, why: "−log₂1 = 0. Certainty = no news = nothing to compress or send." } },
-      { t: "Uniform is the maximum", b: `<p>For n equally likely symbols, H = <b>log₂n</b> — the largest possible for that alphabet. Any skew lowers it. Four uniform symbols → 2 bits; the loaded die → 1.75.</p><span class="key">Entropy is a property of the <b>distribution</b>, not the alphabet. Same symbols, different probabilities → different entropy.</span>`,
+      { t: "Uniform is the maximum", b: `<p>For n equally likely symbols, $H = \\log_2 n$ — the largest possible for that alphabet. Any skew lowers it. Four uniform symbols → 2 bits; the loaded die → 1.75.</p><span class="key">Entropy is a property of the <b>distribution</b>, not the alphabet. Same symbols, different probabilities → different entropy.</span>`,
         c: { q: "Two sources share the alphabet {A,B,C,D} but use different probabilities. Same entropy?", o: ["Yes — same alphabet", "No — entropy depends on the distribution, not the alphabet", "Only if both are uniform"], a: 1, why: "Relabelling changes nothing; changing probabilities changes everything." } },
       { t: "Entropy is the compression floor", b: `<p>The ideal code length for symbol x is −log₂p(x) bits — often fractional (like 2.32). Real codewords use <b>whole bits</b>, so H is a <b>lower bound</b>: you can approach it (coding blocks of symbols together), never beat it on average.</p><span class="analogy">Entropy is to compression what a speed limit is to a road: you can get arbitrarily close, but no honest driver goes faster.</span>` },
       { t: "Predictable = compressible", b: `<p>MISSISSIPPI's letters: I,S=4, P=2, M=1 out of 11 → H ≈ 1.82 bits, below the uniform 2 — the skew is the compressible part. English text is far more skewed, which is why it compresses so well.</p>` },
@@ -389,7 +389,7 @@
         v: flow([["D .12 + E .08 → DE .20", "teal"], ["C .20 + DE .20 → CDE .40", "violet"], ["A .35 + B .25 → AB .60", "amber"], ["AB .60 + CDE .40 → 1.00 ✓", "rose"]]),
         c: { q: "After the first merge, the queue holds C .20, DE .20, B .25, A .35. Next merge?", o: ["A and B", "C and DE — merged nodes re-enter the queue like symbols", "D and E again"], a: 1, why: "The merged node competes on its total probability. That's what makes a tree rather than a flat assignment." } },
       { t: "Why the rarest first? (the proof sketch)", b: `<p>Each leaf's depth = how many bits it costs <i>every time that symbol appears</i>. The deepest positions are the most expensive — so the two <b>rarest</b> symbols should pay that cost.</p><p><b>Exchange argument:</b> take any optimal tree, swap its deepest leaves for the two rarest symbols — cost never increases. Then the smaller problem is solved the same way. Greedy choice + optimal substructure = a proof, not luck.</p>` },
-      { t: "Reading off the codes", b: `<p>Walk from the root: 0 = first branch, 1 = second. Lecture set gives A=00, B=01, C=10, D=110, E=111 — frequent symbols at depth 2, rare D,E at depth 3.</p><p>Average length L = Σ p·len = .35·2+.25·2+.20·2+.12·3+.08·3 = <b>2.20</b> bits. Entropy H ≈ <b>2.15</b>. <b>L ≥ H always</b> — the gap pays for integer lengths.</p>`,
+      { t: "Reading off the codes", b: `<p>Walk from the root: 0 = first branch, 1 = second. Lecture set gives A=00, B=01, C=10, D=110, E=111 — frequent symbols at depth 2, rare D,E at depth 3.</p><p>Average length $L = \\sum p \\cdot \\text{len} = 0.35 \\cdot 2 + 0.25 \\cdot 2 + 0.20 \\cdot 2 + 0.12 \\cdot 3 + 0.08 \\cdot 3 = \\mathbf{2.20}$ bits. Entropy H ≈ <b>2.15</b>. <b>L ≥ H always</b> — the gap pays for integer lengths.</p>`,
         c: { q: "L = 2.20 vs H ≈ 2.15. Which is true?", o: ["Bug — L must equal H", "L ≥ H is the law; the gap is integer rounding of fractional ideals", "H was miscomputed"], a: 1, why: "Entropy is a bound. Equal needs power-of-two probabilities (see the Loaded die preset)." } },
       { t: "What Huffman needs (and doesn't do)", b: `<p>Huffman is <b>static</b>: it needs the symbol frequencies gathered in advance, and the tree/table must travel with the message. It learns <b>symbol skew</b>, not repeated phrases — that's LZW's job (next module).</p><span class="analogy">Huffman is a tailor measuring you once and sewing a suit. LZW is a tailor who adjusts the suit while you walk.</span>` },
     ],
@@ -430,4 +430,223 @@
     { t: "…then immediately uses AA → emit 1", v: FG.cells([{ v: "0" }, { v: "1", c: "amber" }]) },
     { t: "Decoder gets 1 before it has built it → rule: previous + its first char = A + A", v: FG.cells([{ v: "A" }, "+", { v: "A", c: "amber" }, "=", { v: "AA", c: "teal" }]) },
   ]));
+
+  /* ---------- step-through runners (NIC.fig.run) ---------- */
+  const SVGNS = "http://www.w3.org/2000/svg";
+
+  /** Huffman tree building: the queue is the top row; each merge drops two roots under a new parent. Counts are editable. */
+  function huffmanRun(box, life) {
+    const SYM = [["A", 35], ["B", 25], ["C", 20], ["D", 12], ["E", 8]];
+    const n = SYM.length, W = 460, H = 330, TOP = 40, DY = 58, SLOT = (W - 40) / n;
+    // same tie rules as the demo: bit 0 goes to the larger child; on a tie a leaf beats a merged node, then the older node
+    const kidsOrder = (x, y) => {
+      if (x.f !== y.f) return x.f > y.f ? [x, y] : [y, x];
+      if (x.leaf !== y.leaf) return x.leaf ? [x, y] : [y, x];
+      return x.id < y.id ? [x, y] : [y, x];
+    };
+    function layout(roots) {
+      const pos = {}; let slot = 0;
+      const place = (nd, d) => {
+        if (nd.leaf) { pos[nd.id] = [20 + SLOT / 2 + slot++ * SLOT, TOP + d * DY]; return; }
+        nd.kids.forEach((k) => place(k, d + 1));
+        pos[nd.id] = [(pos[nd.kids[0].id][0] + pos[nd.kids[1].id][0]) / 2, TOP + d * DY];
+      };
+      roots.forEach((r) => place(r, 0));
+      return pos;
+    }
+    function* frames() {
+      let id = 0;
+      const leaves = SYM.map(([s, f]) => ({ id: id++, label: s, f, leaf: true }));
+      const all = leaves.slice();
+      let queue = leaves.slice();
+      const sorted = () => queue.slice().sort((a, b) => a.f - b.f || a.id - b.id);
+      const total = leaves.reduce((s, l) => s + l.f, 0);
+      const snap = (x) => {
+        const roots = sorted();
+        return { pos: layout(roots), roots: roots.map((r) => r.id), nodes: all.map((nd) => ({ id: nd.id, label: nd.label, f: nd.f, kids: nd.kids ? nd.kids.map((k) => k.id) : null })), sel: [], codes: null, ...x };
+      };
+      yield snap({ cap: `The queue holds ${n} symbols, sorted by count (out of <b>${total}</b> symbols of text). Smallest on the left.`, line: 0 });
+      for (let m = 0; queue.length > 1; m++) {
+        const q = sorted(), [x, y] = q;
+        const ties = q.filter((nd) => nd.f <= y.f).map((nd) => nd.label);
+        const ask = m === 1 || m === 2 ? { q: "Which two merge next? Tap one of them.", pick: ".rn-huf-node.rn-huf-root", a: ties, why: `The two smallest counts always merge: <b>${x.label} (${x.f})</b> and <b>${y.label} (${y.f})</b>.` } : null;
+        yield snap({ sel: [x.id, y.id], ask, cap: `The two smallest counts: <b>${x.label}</b> (${x.f}) and <b>${y.label}</b> (${y.f}).`, line: 1 });
+        const kids = kidsOrder(x, y), nd = { id: id++, label: kids.map((k) => k.label).join(""), f: x.f + y.f, leaf: false, kids };
+        all.push(nd);
+        queue = queue.filter((k) => k !== x && k !== y);
+        queue.push(nd);
+        yield snap({ sel: [nd.id], cap: `Merge them into <b>${nd.label}</b>: ${x.f} + ${y.f} = <b>${nd.f}</b>. It goes back in the queue like any symbol.`, line: 2 });
+      }
+      const codes = {};
+      const walk = (nd, s) => { if (nd.leaf) codes[nd.id] = s || "0"; else { walk(nd.kids[0], s + "0"); walk(nd.kids[1], s + "1"); } };
+      walk(queue[0], "");
+      const bits = leaves.reduce((s, l) => s + l.f * codes[l.id].length, 0), fixed = Math.ceil(lg2(n)) * total;
+      yield snap({ codes, line: 3, mood: "love",
+        cap: `One node left: the root. Read 0/1 down the branches: ${leaves.map((l) => `${l.label} = <b>${codes[l.id]}</b>`).join(", ")}. Total <b>${bits} bits</b> (${(bits / total).toFixed(2)} per symbol), vs ${fixed} with fixed ${Math.ceil(lg2(n))}-bit codes.` });
+    }
+    const nodeCount = 2 * n - 1;
+    FG.run(box, life, {
+      code: ["queue = every symbol, sorted by count", "take the two smallest, x and y", "parent = x + y; put it back in the queue", "one node left: read 0/1 down to each leaf"],
+      build(stage, api) {
+        const svg = document.createElementNS(SVGNS, "svg");
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "fig rn-svg rn-huf"); svg.style.maxHeight = H + "px";
+        let edges = "", nodes = "";
+        for (let k = n; k < nodeCount; k++) edges += `<g class="rn-huf-e" data-p="${k}"><line class="rn-huf-l0" x1="0" y1="0" x2="0" y2="0"/><line class="rn-huf-l1" x1="0" y1="0" x2="0" y2="0"/><text class="rn-huf-bit rn-huf-b0" x="0" y="0">0</text><text class="rn-huf-bit rn-huf-b1" x="0" y="0">1</text></g>`;
+        for (let k = 0; k < nodeCount; k++) {
+          const leaf = k < n;
+          nodes += `<g class="rn-huf-node ${leaf ? "rn-huf-leaf" : ""}" data-k="" transform="translate(${W / 2} ${TOP})" style="opacity:0"><g class="rn-huf-in">${leaf
+            ? `<rect class="rn-huf-box" x="-20" y="-17" width="40" height="34" rx="10"/><text class="rn-huf-s" y="6">${SYM[k][0]}</text><g class="rn-huf-f"><rect x="-17" y="21" width="34" height="20" rx="7"/><text y="35">${SYM[k][1]}</text></g><text class="rn-huf-code" y="58" style="opacity:0"></text>`
+            : `<circle class="rn-huf-box" r="19"/><text class="rn-huf-s rn-huf-sum" y="5"></text>`}</g></g>`;
+        }
+        svg.innerHTML = `<g>${edges}</g><g>${nodes}</g>`;
+        stage.appendChild(svg);
+        const s = {
+          nodes: [...svg.querySelectorAll(".rn-huf-node")].map((g) => ({ g, inner: g.querySelector(".rn-huf-in"), sum: g.querySelector(".rn-huf-sum"), fr: g.querySelector(".rn-huf-f text"), code: g.querySelector(".rn-huf-code") })),
+          edges: {},
+        };
+        svg.querySelectorAll(".rn-huf-e").forEach((g) => (s.edges[g.dataset.p] = { g, l: [g.querySelector(".rn-huf-l0"), g.querySelector(".rn-huf-l1")], b: [g.querySelector(".rn-huf-b0"), g.querySelector(".rn-huf-b1")] }));
+        SYM.forEach((sym, k) => api.edit(s.nodes[k].g.querySelector(".rn-huf-f"), { get: () => sym[1], set: (v) => { sym[1] = v; s.nodes[k].fr.textContent = v; }, min: 1, max: 60 }));
+        return s;
+      },
+      draw(s, f, c) {
+        const byId = {}; f.nodes.forEach((nd) => (byId[nd.id] = nd));
+        const prevIds = new Set(c.prev ? c.prev.nodes.map((nd) => nd.id) : []);
+        const now = { instant: true };
+        s.nodes.forEach((h, id) => {
+          const nd = byId[id];
+          if (!nd) { FG.rn.to(c, h.g, { opacity: 0 }, 0, 0.2); return; }
+          h.g.dataset.k = nd.label;
+          const [x, y] = f.pos[id], tr = `translate(${x} ${y})`, fresh = !c.instant && !prevIds.has(id);
+          if (fresh) { FG.rn.to(now, h.g, { attr: { transform: tr }, opacity: 0 }); FG.rn.to(c, h.g, { opacity: 1 }, 0.3, 0.3); FG.rn.pulse(c, h.inner, 0.55); }
+          else FG.rn.to(c, h.g, { attr: { transform: tr }, opacity: 1 });
+          h.g.classList.toggle("rn-huf-root", f.roots.includes(id));
+          h.g.classList.toggle("rn-huf-sel", f.sel.includes(id));
+          if (h.sum) h.sum.textContent = nd.f;
+          if (h.fr) h.fr.textContent = nd.f;
+          if (h.code) { if (f.codes) h.code.textContent = f.codes[id]; FG.rn.to(c, h.code, { opacity: f.codes ? 1 : 0 }, 0.1, 0.3); }
+        });
+        Object.entries(s.edges).forEach(([pid, e]) => {
+          const nd = byId[pid];
+          if (!nd) { FG.rn.to(c, e.g, { opacity: 0 }, 0, 0.2); return; }
+          const [px, py] = f.pos[pid], fresh = !c.instant && !prevIds.has(+pid);
+          nd.kids.forEach((kid, b) => {
+            const [cx, cy] = f.pos[kid], leaf = kid < n;
+            const at = { x1: px, y1: py + 19, x2: cx, y2: cy - (leaf ? 17 : 19) };
+            FG.rn.to(fresh ? now : c, e.l[b], { attr: at });
+            const mx = (px + cx) / 2 + (b ? 9 : -9), my = (py + 19 + cy - 18) / 2 + 4;
+            FG.rn.to(fresh ? now : c, e.b[b], { attr: { x: mx, y: my } });
+            FG.rn.to(c, e.b[b], { opacity: f.codes ? 1 : 0 }, 0.1, 0.3);
+          });
+          if (fresh) { FG.rn.to(now, e.g, { opacity: 0 }); FG.rn.to(c, e.g, { opacity: 1 }, 0.3, 0.3); }
+          else FG.rn.to(c, e.g, { opacity: 1 });
+        });
+      },
+      frames,
+    });
+  }
+
+  /** LZW encoding: cursor over the input, the current string w, the dictionary growing, codes going out. The message is editable. */
+  function lzwRun(box, life) {
+    const ALPHA = ["A", "B", "N", "D"], MAXLEN = 16, SLOTS = ALPHA.length + MAXLEN;
+    let text = "BANANABANDANA";
+    function* frames() {
+      const s = text, dict = new Map(ALPHA.map((ch, i) => [ch, i]));
+      // pre-pass: which checks get a question (a multi-letter "yes", then the last multi-letter check if it isn't adjacent)
+      const checks = []; { let w = ""; const d = new Set(ALPHA); for (let p = 0; p < s.length; p++) { const wc = w + s[p]; checks.push({ p, wc, has: d.has(wc) }); if (d.has(wc)) w = wc; else { d.add(wc); w = s[p]; } } }
+      const multi = checks.filter((k) => k.wc.length > 1), asks = new Set();
+      const firstYes = multi.find((k) => k.has) || multi[0];
+      if (firstYes) asks.add(firstYes.p);
+      const last = multi[multi.length - 1];
+      if (last && firstYes && last.p - firstYes.p >= 2) asks.add(last.p);
+      let w = "";
+      const out = [], entries = ALPHA.map((ch, i) => [i, ch]);
+      const snap = (x) => ({ w, out: out.slice(), entries: entries.map((e) => e.slice()), cur: -1, wr: [0, 0], wc: "", yn: "", add: -1, hit: -1, ...x });
+      yield snap({ cap: `Start with the alphabet: ${ALPHA.map((ch, i) => `${ch} = ${i}`).join(", ")}. The current string <b>w</b> is empty.`, line: 0 });
+      for (let p = 0; p < s.length; p++) {
+        const ch = s[p], wc = w + ch, has = dict.has(wc);
+        yield snap({ cur: p, wr: [p - w.length, p], wc, cap: `Read <b>${ch}</b>. Is w + c = <b>${wc}</b> in the dictionary?`, line: 1 });
+        const ask = asks.has(p) ? { q: `Is <b>${wc}</b> already in the dictionary? Tap yes or no.`, pick: ".rn-lzw-yn", a: has ? "yes" : "no",
+          why: has ? `${wc} was added earlier as entry <b>${dict.get(wc)}</b>, so w just grows.` : `${wc} has never been seen, so it becomes entry <b>${dict.size}</b>.` } : null;
+        if (has) {
+          w = wc;
+          yield snap({ cur: p, wr: [p + 1 - w.length, p + 1], wc, yn: "yes", hit: dict.get(wc), ask, line: 2, cap: `Yes, <b>${wc}</b> is entry ${dict.get(wc)}. Keep it: w = <b>${wc}</b>.` });
+        } else {
+          const code = dict.get(w), nc = dict.size;
+          out.push(code); dict.set(wc, nc); entries.push([nc, wc]);
+          const pw = w; w = ch;
+          yield snap({ cur: p, wr: [p, p + 1], wc, yn: "no", add: nc, ask, line: 3, cap: `No. Output <b>${code}</b> (for ${pw}), add <b>${wc} = ${nc}</b>, and restart w = <b>${ch}</b>.` });
+        }
+      }
+      const code = dict.get(w);
+      out.push(code);
+      yield snap({ cur: -1, wr: [s.length - w.length, s.length], line: 4, mood: "love", hit: code,
+        cap: `End of input: output <b>${code}</b> for w = ${w}. That's <b>${out.length} codes</b> for ${s.length} letters: ${out.join(", ")}.` });
+    }
+    FG.run(box, life, {
+      code: ["dictionary = the alphabet; w = empty", "read the next letter c", "if w + c is in it: w = w + c", "else: output code(w), add w + c, w = c", "at the end: output code(w)"],
+      build(stage, api) {
+        const root = el(`<div class="rn-lzw">
+          <label class="rn-lzw-in">Message <input type="text" maxlength="${MAXLEN}" value="${text}" spellcheck="false" autocomplete="off" aria-label="Message to encode (letters A, B, N, D)"><span>A B N D only</span></label>
+          <div class="rn-lzw-tape">${Array.from({ length: MAXLEN }, () => `<span class="rn-lzw-cell"></span>`).join("")}</div>
+          <div class="rn-lzw-mid">
+            <div class="rn-lzw-box"><small>w</small><b class="rn-lzw-w">·</b></div>
+            <div class="rn-lzw-box rn-lzw-ask"><small>w + c in the dictionary?</small><div><b class="rn-lzw-wc">·</b><span class="rn-lzw-yn" data-k="yes">yes</span><span class="rn-lzw-yn" data-k="no">no</span></div></div>
+          </div>
+          <div class="rn-lzw-row"><small>output</small><div class="rn-lzw-out">${Array.from({ length: MAXLEN }, () => `<span class="rn-lzw-code"></span>`).join("")}</div></div>
+          <div class="rn-lzw-row"><small>dictionary</small><div class="rn-lzw-dict">${Array.from({ length: SLOTS }, () => `<span class="rn-lzw-ent"><i></i><b></b></span>`).join("")}</div></div>
+        </div>`);
+        stage.appendChild(root);
+        const inp = qs("input", root);
+        let t = 0;
+        inp.addEventListener("keydown", (e) => e.stopPropagation());
+        inp.addEventListener("input", () => {
+          const v = inp.value.toUpperCase().replace(/[^ABND]/g, "").slice(0, MAXLEN);
+          if (v !== inp.value) inp.value = v;
+          clearTimeout(t);
+          if (v.length < 2) return;
+          t = setTimeout(() => { text = v; api.recompute(); }, 500);
+        });
+        life.onCleanup(() => clearTimeout(t));
+        return { root, cells: qsa(".rn-lzw-cell", root), w: qs(".rn-lzw-w", root), wc: qs(".rn-lzw-wc", root), yn: qsa(".rn-lzw-yn", root), codes: qsa(".rn-lzw-code", root), ents: qsa(".rn-lzw-ent", root) };
+      },
+      draw(s, f, c) {
+        s.cells.forEach((cell, k) => {
+          cell.hidden = k >= text.length;
+          cell.textContent = text[k] || "";
+          cell.classList.toggle("rn-lzw-done", k < f.wr[0]);
+          cell.classList.toggle("rn-lzw-inw", k >= f.wr[0] && k < f.wr[1]);
+          cell.classList.toggle("rn-lzw-cur", k === f.cur && !f.yn);
+        });
+        FG.rn.text(c, s.w, f.w || "·");
+        FG.rn.text(c, s.wc, f.wc || "·");
+        s.yn.forEach((b) => { b.classList.toggle("rn-lzw-on", b.dataset.k === f.yn); b.classList.toggle("rn-lzw-off", !!f.yn && b.dataset.k !== f.yn); });
+        const pOut = c.prev ? c.prev.out.length : 0, pEnt = c.prev ? c.prev.entries.length : 0;
+        s.codes.forEach((el2, k) => {
+          const on = k < f.out.length;
+          el2.hidden = !on;
+          if (!on) return;
+          el2.textContent = f.out[k];
+          if (k >= pOut && !c.instant) { FG.rn.to({ instant: true }, el2, { opacity: 0, scale: 0.4 }); FG.rn.to(c, el2, { opacity: 1, scale: 1 }, 0.1, 0.35); }
+          else FG.rn.to({ instant: true }, el2, { opacity: 1, scale: 1 });
+        });
+        s.ents.forEach((en, k) => {
+          const e = f.entries[k];
+          en.hidden = !e;
+          if (!e) return;
+          en.firstChild.textContent = e[0]; en.lastChild.textContent = e[1];
+          en.classList.toggle("rn-lzw-new", e[0] === f.add);
+          en.classList.toggle("rn-lzw-hit", e[0] === f.hit);
+          if (k >= pEnt && !c.instant) { FG.rn.to({ instant: true }, en, { opacity: 0, y: -8 }); FG.rn.to(c, en, { opacity: 1, y: 0 }, 0.15, 0.35); }
+          else FG.rn.to({ instant: true }, en, { opacity: 1, y: 0 });
+        });
+      },
+      frames,
+    });
+  }
+
+  const addStep = (id, at, step) => { if (L[id]) L[id].steps.splice(at, 0, step); };
+  addStep("a7-huffman", 2, { t: "Watch it run", b: `<p>Here is the merge on the lecture set, as counts per 100 symbols. Press <b>play</b> or step with the arrows. The top row is always the queue.</p><p>It will pause and ask you to pick the next pair. Tap a count to change it and the tree rebuilds.</p>`,
+    v: (box, life) => huffmanRun(box, life) });
+  addStep("a7-lzw", 2, { t: "Watch it run", b: `<p>The encoder on BANANABANDANA. Press <b>play</b> or step with the arrows: the cursor reads one letter at a time, and each new pair joins the dictionary.</p><p>It will pause and ask you to predict. Type your own message (A, B, N, D only) and the run restarts.</p>`,
+    v: (box, life) => lzwRun(box, life) });
 })();

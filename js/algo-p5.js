@@ -146,6 +146,107 @@
   });
 
   /* ============ 5.3 Graham scan ============ */
+  /** Step-through Graham scan on a draggable copy of PTS: pivot, angle sort, then push/pop with the turn test. */
+  function grahamRun(box, life) {
+    const P = Object.fromEntries(Object.entries(PTS).map(([k, v]) => [k, v.slice()]));
+    const names = Object.keys(P);
+    const lt = (o, a, b) => -cross(P[o], P[a], P[b]); // > 0 = left turn (maths orientation, y up)
+    const sgn = (v) => (v > 0 ? "+" + v : v < 0 ? "−" + -v : "0");
+    function* frames() {
+      const pivot = names.reduce((m, n) => (P[n][1] > P[m][1] || (P[n][1] === P[m][1] && P[n][0] < P[m][0]) ? n : m));
+      const ang = (n) => Math.atan2(-(P[n][1] - P[pivot][1]), P[n][0] - P[pivot][0]);
+      const d2 = (n) => (P[n][0] - P[pivot][0]) ** 2 + (P[n][1] - P[pivot][1]) ** 2;
+      const order = names.filter((n) => n !== pivot).sort((a, b) => ang(a) - ang(b) || d2(a) - d2(b));
+      const stack = [], popped = [];
+      const snap = (x) => ({ pivot, order, sorted: true, stack: stack.slice(), popped: popped.slice(), ...x });
+      yield snap({ sorted: false, cap: `Start at the <b>lowest</b> point, <b>${pivot}</b>. Nothing is lower, so it must be on the hull. It's the pivot.`, line: 0 });
+      yield snap({ cap: `Sort the rest by angle around ${pivot}, sweeping anticlockwise: <b>${order.join(" → ")}</b>.`, line: 1 });
+      stack.push(pivot, order[0]);
+      yield snap({ cap: `Push the pivot and the first point: stack = <b>${stack.join(" ")}</b>.`, line: 2 });
+      let asks = 0, results = 0;
+      for (let k = 1; k < order.length; k++) {
+        const p = order[k];
+        for (;;) {
+          const a = stack[stack.length - 2], t = stack[stack.length - 1], v = Math.round(lt(a, t, p));
+          yield snap({ cand: p, test: [a, t, p], cap: `Next point: <b>${p}</b>. Test the turn ${a} → ${t} → ${p}. Keep ${t}, or pop it?`, line: 3 });
+          const pop = v <= 0;
+          results++;
+          const ask = asks < 2 && results >= 2 && (asks === 0 ? pop : !pop)
+            ? { q: `Walking ${a} → ${t} → ${p}: <b>keep</b> ${t} on the stack, or <b>pop</b> it? Tap a button.`, pick: ".rn-hull-btn", a: pop ? "pop" : "keep",
+                why: `The cross product is <b>${sgn(v)}</b>: ${pop ? `${v === 0 ? "a straight line" : "a right turn"}, so ${t} is a dent and gets popped.` : `a left turn, so ${t} stays and ${p} is pushed.`}` }
+            : null;
+          if (ask) asks++;
+          if (pop) {
+            stack.pop(); popped.push(t);
+            yield snap({ cand: p, gone: t, res: "pop", ask, mood: "surprised", cap: `${a} → ${t} → ${p}: cross = <b>${sgn(v)}</b>, ${v === 0 ? "straight on" : "a <b>right</b> turn"}. ${t} dents the hull: <b>pop ${t}</b>.`, line: 4 });
+            if (stack.length < 2) break;
+          } else {
+            stack.push(p);
+            yield snap({ cand: p, res: "keep", ask, cap: `${a} → ${t} → ${p}: cross = <b>${sgn(v)}</b>, a <b>left</b> turn. Keep ${t} and <b>push ${p}</b>: stack = ${stack.join(" ")}.`, line: 5 });
+            break;
+          }
+        }
+        if (stack[stack.length - 1] !== p) stack.push(p);
+      }
+      yield snap({ closed: true, mood: "love", cap: `All points done. Close back to ${pivot}. The stack is the hull: <b>${stack.join(" ")}</b> (${popped.length} popped).`, line: 6 });
+    }
+    F.run(box, life, {
+      code: ["p0 = lowest point (the pivot)", "sort the rest by angle around p0", "push p0 and the first point", "for each next point p: test top two + p", "  not a left turn: pop the top, test again", "  left turn: push p", "close the hull back to p0"],
+      build(stage, api) {
+        const NS = "http://www.w3.org/2000/svg";
+        const svgEl = document.createElementNS(NS, "svg");
+        svgEl.setAttribute("viewBox", "0 0 470 290"); svgEl.setAttribute("class", "fig rn-svg rn-hull"); svgEl.style.maxHeight = "290px";
+        svgEl.innerHTML = `<g class="rn-hull-rays">${names.map((n) => `<line data-r="${n}"/>`).join("")}</g>
+          <polyline class="rn-hull-chain" points=""/><line class="rn-hull-try" style="opacity:0"/>
+          <g class="rn-hull-pts">${names.map((n) => `<g class="rn-hull-pt" data-k="${n}"><g class="rn-hull-body"><circle class="rn-halo" r="22"/><circle class="rn-hull-c" r="16"/><text class="rn-hull-l" y="5">${n}</text></g><g class="rn-hull-ord" transform="translate(15 -15)"><circle r="9"/><text y="4"></text></g></g>`).join("")}</g>
+          <g class="rn-hull-btns">${[["keep", "Keep", 340], ["pop", "Pop", 408]].map(([k, t, x]) => `<g class="rn-hull-btn" data-k="${k}" transform="translate(${x} 22)"><rect x="-30" y="-14" width="60" height="28" rx="10"/><text y="5">${t}</text></g>`).join("")}</g>`;
+        stage.appendChild(svgEl);
+        const stk = document.createElement("div"); stk.className = "rn-hull-stack"; stage.appendChild(stk);
+        const q = (s) => svgEl.querySelector(s);
+        const scene = { svgEl, stk, q, last: null, pt: (n) => q(`.rn-hull-pt[data-k="${n}"]`) };
+        names.forEach((n) => api.drag(scene.pt(n), {
+          move(x, y) { P[n] = [Math.round(x), Math.round(y)]; if (scene.last) draw(scene, scene.last, { instant: true, prev: null, i: 0 }); },
+          end() { api.recompute("Points moved. Rescanning from the start."); },
+        }));
+        return scene;
+      },
+      draw,
+      frames,
+    });
+    function draw(s, f, c) {
+      s.last = f;
+      const at = (n) => P[n];
+      names.forEach((n) => {
+        const g = s.pt(n), [x, y] = at(n), k = f.order.indexOf(n);
+        g.setAttribute("transform", `translate(${x} ${y})`);
+        g.classList.toggle("rn-hull-pivot", n === f.pivot);
+        g.classList.toggle("rn-hull-on", f.stack.includes(n) && n !== f.pivot);
+        g.classList.toggle("rn-hull-cand", n === f.cand);
+        g.classList.toggle("rn-hull-top", !!f.test && n === f.test[1]);
+        g.classList.toggle("rn-hull-out", f.popped.includes(n));
+        const ord = g.querySelector(".rn-hull-ord");
+        ord.querySelector("text").textContent = k >= 0 ? k + 1 : "";
+        F.rn.to(c, ord, { opacity: f.sorted && k >= 0 ? 1 : 0 }, 0, 0.3);
+        const ray = s.q(`[data-r="${n}"]`), [px, py] = at(f.pivot);
+        ["x1", "y1", "x2", "y2"].forEach((a, j) => ray.setAttribute(a, [px, py, x, y][j]));
+        F.rn.to(c, ray, { opacity: f.sorted && n !== f.pivot ? 1 : 0 }, 0, 0.3);
+        if (n === f.cand && c.prev && c.prev.cand !== n) F.rn.pulse(c, g.querySelector(".rn-hull-body"));
+      });
+      const chain = f.stack.concat(f.closed ? [f.pivot] : []);
+      s.q(".rn-hull-chain").setAttribute("points", chain.map((n) => at(n).join(",")).join(" "));
+      s.q(".rn-hull-chain").classList.toggle("rn-hull-closed", !!f.closed);
+      const tr = s.q(".rn-hull-try");
+      if (f.test) { const [a, b] = [at(f.test[1]), at(f.test[2])]; tr.setAttribute("x1", a[0]); tr.setAttribute("y1", a[1]); tr.setAttribute("x2", b[0]); tr.setAttribute("y2", b[1]); }
+      F.rn.to(c, tr, { opacity: f.test ? 1 : 0 }, 0, 0.25);
+      const live = !!f.test || !!f.res;
+      s.q(".rn-hull-btns").classList.toggle("rn-hull-idle", !live);
+      s.q('.rn-hull-btn[data-k="keep"]').classList.toggle("rn-hull-yes", f.res === "keep");
+      s.q('.rn-hull-btn[data-k="pop"]').classList.toggle("rn-hull-no", f.res === "pop");
+      if (f.res && c.prev && !c.prev.res) F.rn.pulse(c, s.q(`.rn-hull-btn[data-k="${f.res}"]`));
+      s.stk.innerHTML = `<small>stack</small>${f.stack.map((n, j) => `<span class="rn-hull-cell ${j === f.stack.length - 1 ? "top" : ""}">${n}</span>`).join("")}${f.gone ? `<span class="rn-hull-cell gone">${f.gone}</span>` : ""}`;
+    }
+  }
+
   L["a5-graham"] = {
     sum: "Graham scan sorts the points by angle around the lowest point, then walks them in order with a <b>stack</b>. Any point that makes a right turn gets popped. Sort once, scan once: <b>O(n log n)</b>.",
     steps: [
@@ -158,6 +259,8 @@
           { t: "E → G is a left turn: push G", v: F.cells([{ v: "C" }, { v: "D" }, { v: "E" }, { v: "G", c: "teal" }]) },
         ]),
         c: { q: "Why does a point get popped?", o: ["It's far away", "It makes a right turn (or straight line), so it's inside the hull", "The sort order was wrong"], a: 1, why: "A wrong-direction turn means the middle point sits inside the edge that skips it." } },
+      { t: "Watch it run", b: `<p>Here is the whole scan on seven points. Press <b>play</b> or step with the arrows. The small numbers show the sorted order, and the green chain is the stack.</p><p>It will pause and ask you to keep or pop. Drag any point and the scan reruns.</p>`,
+        v: (box, life) => grahamRun(box, life) },
       { t: "Where the time goes", b: `<p>Every point is pushed once and popped at most once, so the scan is O(n). The <b>sort</b> costs O(n log n), and that dominates.</p><p>Compared with gift wrapping at O(n·h): Graham wins when the hull is big, and wrapping wins when it's tiny.</p>` },
     ],
     guide: ["Press <b>Scan ▸</b> and watch the stack on the right.", "Before each step, predict: will the next point push, or pop something first?", "At the end the stack holds exactly the hull: C D E G A."],

@@ -207,3 +207,79 @@ body.in-lesson { overflow: hidden; }
 /* toasts sit under the top bar */
 .toast { top: 72px; z-index: 200; }
 .toast .mascot { flex-shrink: 0; }
+
+/* ---------- Path tooltip (hover/focus preview of a lesson) + node popover details ---------- */
+.p-row:has(.pt-tip) { z-index: 25; }
+.pt-tip { position: absolute; top: -6px; width: 280px; z-index: 25; padding: 14px 16px; border-radius: 16px; background: var(--panel); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); pointer-events: none; text-align: left; }
+.pt-tip.pt-right { left: 56px; transform-origin: 0 40px; }
+.pt-tip.pt-left { right: 56px; transform-origin: 100% 40px; }
+.pt-tip::before { content: ""; position: absolute; top: 36px; width: 14px; height: 14px; background: var(--panel); border: 2px solid var(--line); transform: rotate(45deg); }
+.pt-right::before { left: -9px; border-width: 0 0 2px 2px; }
+.pt-left::before { right: -9px; border-width: 2px 2px 0 0; }
+.pt-tip small { display: block; font-size: 12px; font-weight: 800; color: var(--u); text-transform: uppercase; letter-spacing: .05em; }
+.pt-tip > b { display: block; margin: 2px 0 6px; font-size: 17px; font-weight: 900; line-height: 1.25; color: var(--text); }
+.pt-tip p b { color: var(--text); }
+.pt-tip p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.45; color: var(--text-dim); }
+.pt-h { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); margin: 4px 0 2px; }
+.pt-list { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.5; color: var(--text); }
+.pt-list li::marker { color: var(--u); font-weight: 900; }
+.pt-more { font-size: 12px; color: var(--text-faint); font-weight: 700; padding-left: 20px; }
+.pt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pt-chips span { font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 99px; background: var(--u-soft); color: var(--u-lip); }
+.pt-chips .pt-run { background: #fff4d6; color: #b37400; }
+.node-pop .np-more { margin: -4px 0 10px; font-size: 13px; }
+.node-pop .np-more summary { cursor: pointer; font-weight: 800; opacity: 0.9; }
+.node-pop .pt-list { color: #fff; margin-top: 4px; }
+.node-pop .pt-list li::marker { color: #fff; }
+.node-pop .pt-more { color: rgba(255,255,255,.8); }
+.node-pop .pt-chips { margin: 0 0 12px; }
+.node-pop .pt-chips span { background: rgba(255,255,255,.22); color: #fff; }
+@media (max-width: 640px) { .pt-tip { display: none; } }
+
+/* ---------- Topic icons on path nodes ---------- */
+.p-face .p-topic { width: 38px; height: 38px; display: grid; place-items: center; }
+.p-face .p-topic svg { width: 38px; height: 38px; }
+.p-row.st-new:not(.cur) .p-topic, .p-row:not(.st-done):not(.st-started):not(.cur) .p-topic { filter: grayscale(1) opacity(.55); }
+.p-face { position: relative; }
+.p-badge { position: absolute; right: -16px; bottom: -14px; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: var(--u); display: grid; place-items: center; box-shadow: 0 2px 0 rgba(0,0,0,.12); }
+.p-badge svg { width: 15px !important; height: 15px !important; }
+
+/* ---------- Course banner, patterns, empty states, onboarding (js/art.js) ---------- */
+.ab-banner { position: relative; height: 150px; margin: 18px 0 10px; border-radius: 20px; overflow: hidden; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
+.ab-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ab-m { position: absolute; bottom: 4px; }
+.ab-m0 { right: 22px; }
+.ab-m1 { right: 118px; bottom: 10px; }
+.ab-text { position: absolute; left: 20px; top: 18px; display: flex; flex-direction: column; gap: 2px; max-width: 55%; }
+.ab-text b { font-size: 24px; font-weight: 900; color: var(--text); line-height: 1.1; text-shadow: 0 2px 0 rgba(255,255,255,.7); }
+.ab-text span { font-size: 13px; font-weight: 800; color: var(--text-dim); }
+@media (max-width: 480px) { .ab-banner { height: 128px; } .ab-m1 { display: none; } .ab-text b { font-size: 20px; } }
+.ab-drift { animation: ab-drift 24s ease-in-out infinite alternate; }
+@keyframes ab-drift { to { transform: translateX(40px); } }
+.ab-sun { animation: ab-bob 5s ease-in-out infinite; transform-origin: 520px 42px; }
+@keyframes ab-bob { 50% { transform: scale(1.06); } }
+.ab-blink { animation: ab-blink 1.4s steps(2) infinite; }
+@keyframes ab-blink { 50% { opacity: .25; } }
+.ab-wave { animation: ab-wave 3s linear infinite; }
+@keyframes ab-wave { to { transform: translateX(40px); } }
+.ab-drop { animation: ab-drop 2.6s ease-in-out infinite; }
+@keyframes ab-drop { 50% { transform: translateY(-6px); } }
+.ab-vine { animation: ab-dash 6s linear infinite; }
+@keyframes ab-dash { to { stroke-dashoffset: -44; } }
+.ab-sparkle { animation: ab-bob 2.2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+@media (prefers-reduced-motion: reduce) { .ab-drift, .ab-sun, .ab-blink, .ab-wave, .ab-drop, .ab-vine, .ab-sparkle { animation: none; } }
+.unit-sticky .us-in { background-image: var(--pat, none); background-size: auto; }
+.ab-empty-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 18px; }
+.ab-empty { width: 200px; height: auto; }
+.ab-empty-card b { font-size: 17px; font-weight: 900; }
+.ob-modal { max-width: 520px; }
+.ob-hero { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.ob-bubble { flex: 1; font-weight: 700; }
+.ob h2 { font-size: 16px; margin: 14px 0 8px; }
+.ob-courses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ob-c { appearance: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border: 2px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 3px 0 var(--line); font: inherit; cursor: pointer; color: var(--text); }
+.ob-c b { font-size: 13.5px; font-weight: 900; line-height: 1.2; }
+.ob-c small { font-size: 11.5px; color: var(--text-faint); font-weight: 800; }
+.ob-c.on { border-color: var(--blue-edge); background: var(--blue-dim); box-shadow: 0 3px 0 var(--blue-edge); }
+.ob-go { width: 100%; margin-top: 16px; }
+@media (max-width: 480px) { .ob-courses { grid-template-columns: 1fr; } .ob-c { flex-direction: row; gap: 10px; text-align: left; } }

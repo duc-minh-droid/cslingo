@@ -400,7 +400,43 @@ window.NIC = (function () {
     return `<table class="t matrix"><tr><th></th>${c.map((x) => `<th>${x}</th>`).join("")}</tr>${c.map((a) => `<tr><th>${a}</th>${c.map((b) => a === b ? `<td class="faint">–</td>` : `<td class="${isHl(a, b) ? "hl" : ""}">${TSP.D[a][b]}</td>`).join("")}</tr>`).join("")}</table>`;
   }
 
+  // ---------- Lazy vendor loading (plain <script>/<link> tags, so it works over file:// too) ----------
+  const base = (document.currentScript && document.currentScript.src.replace(/js\/core\.js.*$/, "")) || "";
+  const loading = {};
+  /** Load vendor scripts/styles once, in order. lazy("vendor/three.min.js") → Promise. */
+  function lazy(...srcs) {
+    return srcs.reduce((p, src) => p.then(() => loading[src] || (loading[src] = new Promise((ok, bad) => {
+      const css = src.endsWith(".css"), t = document.createElement(css ? "link" : "script");
+      if (css) { t.rel = "stylesheet"; t.href = base + src; } else { t.src = base + src; }
+      t.onload = () => ok(); t.onerror = () => { delete loading[src]; bad(new Error("failed to load " + src)); };
+      document.head.appendChild(t);
+    }))), Promise.resolve());
+  }
+
+  /** Typeset $…$ (inline) and $$…$$ (display) maths inside root with KaTeX. Loads KaTeX on first use. */
+  const HAS_TEX = /\$\$[\s\S]+?\$\$|\$[^$\s][^$]*?\$/;
+  function tex(root) {
+    if (!root || !HAS_TEX.test(root.textContent)) return Promise.resolve(false);
+    return lazy("vendor/katex/katex.min.css", "vendor/katex/katex.min.js", "vendor/katex/auto-render.min.js").then(() => {
+      window.renderMathInElement(root, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false, ignoredClasses: ["katex"] });
+      return true;
+    }).catch(() => false);
+  }
+  // Typeset anything added to the page later (lesson screens, feedback sheets, the guidebook…), like emoji.js does.
+  {
+    let q = new Set(), pend = false;
+    const flush = () => { pend = false; const s = q; q = new Set(); s.forEach((n) => n.isConnected && !n.closest(".katex") && tex(n)); };
+    const start = () => new MutationObserver((recs) => {
+      recs.forEach((r) => r.addedNodes.forEach((n) => { if (n.nodeType === 1 && HAS_TEX.test(n.textContent)) q.add(n); else if (n.nodeType === 3 && n.parentElement && HAS_TEX.test(n.nodeValue)) q.add(n.parentElement); }));
+      if (q.size && !pend) { pend = true; setTimeout(flush, 0); }
+    }).observe(document.body, { childList: true, subtree: true });
+    document.body ? start() : document.addEventListener("DOMContentLoaded", start);
+  }
+  /** One maths string → HTML (sync once KaTeX is loaded; falls back to the raw text before that). */
+  const texStr = (s, display = false) => (window.katex ? window.katex.renderToString(s, { throwOnError: false, displayMode: display }) : esc(s));
+
   return {
+    lazy, tex, texStr,
     modules, register, qs, qsa, el, esc, rnd, randint, choice, shuffle, gauss, clamp, fmt,
     setupCanvas, colors, lineChart, barChart, roundRect, store, updateScore, predict, lesson, guide, takeaways, LESSONS: {}, header, lifecycle,
     slider, seg, LANDSCAPES, makeLandscape, drawLandscape, TSP, tspSVG, matrixHTML,

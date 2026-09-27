@@ -6,7 +6,7 @@
   const reg = (m) => N.register({ subject: S, lecture: 9, ...m });
 
   /* ---------- tiny HTML builders for lesson visuals ---------- */
-  const table = (head, rows) => `<table class="t" style="max-width:680px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${r.hl ? "hl" : r.bad ? "bad" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+  const table = (head, rows) => `<table class="t" style="max-width:680px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows.map((r) => `<tr class="${(r.hl || (r[0] && r[0].hl)) ? "hl" : (r.bad || (r[0] && r[0].bad)) ? "bad" : ""}">${[].concat(r.c || (r[0] && r[0].c) || r).flat(2).map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
   const flow = (items) => `<div class="mini-row">${items.map((it) => (Array.isArray(it) ? `<span class="pill ${it[1] || ""}">${it[0]}</span>` : `<span class="pill">${it}</span>`)).join('<span class="arrow">→</span>')}</div>`;
   const genomes = (xs, cls) => `<span class="genome">${xs.map((c, i) => `<span class="gene ${typeof cls === "function" ? cls(i) : cls || ""}" style="min-width:26px;height:28px;font-size:13px">${c}</span>`).join("")}</span>`;
 
@@ -339,7 +339,7 @@
       { t: "Three hand DFTs worth memorising (N = 4)", b: `<p>For N = 4 the rotating vector only ever takes values 1, −j, −1, j, so these fit on paper:</p>`,
         v: table(["Signal x", "X[0]", "X[1]", "X[2]", "X[3]"], [["constant [1, 1, 1, 1]", "4", "0", "0", "0"], ["impulse [1, 0, 0, 0]", "1", "1", "1", "1"], ["alternating [1, −1, 1, −1]", "0", "0", "4", "0"]]) + `<p class="dim" style="margin-top:8px">Constant = all energy at k = 0 (DC). Impulse = every frequency at once. Alternating = the Nyquist bin k = N/2.</p>`,
         c: { q: "[0, 1, 0, −1] is one cycle of a sine at bin 1. Which bins light up?", o: ["only k = 1", "k = 1 and k = 3 — real signals give symmetric spectra", "all four equally"], a: 1, why: "Bin 3 is 'negative frequency' −1 in disguise. Real signals always produce these conjugate pairs — half the spectrum is redundant." } },
-      { t: "Aliasing: sampling too slowly", b: `<p>Sample a 7 Hz sine at 8 Hz and the dots are <b>identical</b> to a 1 Hz sine. Any frequency above <code>fs/2</code> folds back and impersonates a lower one.</p><span class="key">Rule: fs &gt; 2·f<sub>max</sub>. A true 60 Hz tone sampled at 100 Hz appears at <b>40 Hz</b> — and afterwards nothing can tell you it was fake.</span>`,
+      { t: "Aliasing: sampling too slowly", b: `<p>Sample a 7 Hz sine at 8 Hz and the dots are <b>identical</b> to a 1 Hz sine. Any frequency above <code>fs/2</code> folds back and impersonates a lower one.</p><span class="key">Rule: $f_s > 2 f_{\\max}$. A true 60 Hz tone sampled at 100 Hz appears at <b>40 Hz</b> — and afterwards nothing can tell you it was fake.</span>`,
         c: { q: "Sampled at 80 Hz, the spectrum shows a peak at 35 Hz. The signal…", o: ["definitely contains 35 Hz", "might really contain 45 Hz — it folds past the 40 Hz limit: 80 − 45 = 35", "contains only DC"], a: 1, why: "Folding is irreversible: real 35 Hz and aliased 45 Hz are indistinguishable once sampled." } },
       { t: "Leakage: the window edge", b: `<p>If your N samples hold a <b>whole number of cycles</b>, energy lands in one bin. If not, the window's edges look like a sudden jump, and the energy <b>smears into neighbouring bins</b>.</p><p>The fix is multiplying by a Hann/Hamming window to taper the edges — it <i>reduces</i> leakage but never removes it, and it costs resolution. A different cause than aliasing, with a different fix.</p>` },
       { t: "Reading the playground", b: `<p><b>Top canvas</b>: the faint line is the true continuous signal; the dots are the 100 samples the computer actually gets (fs = 100 Hz). <b>Bottom canvas</b>: the magnitude spectrum — bin k sits at k·fs/N = k Hz, and everything past 50 Hz is unreachable (the shaded zone folds left).</p>` },
@@ -363,7 +363,7 @@
       { t: "Recurse to the leaves", b: `<p>Apply the split again to each half, and again, until every problem has size 1 — and the DFT of one number is <b>the number itself</b>.</p><p>For N = 8 the leaves come out in a strange order:</p>`,
         v: genomes([0, 4, 2, 6, 1, 5, 3, 7]) + `<p class="dim" style="margin-top:8px">Leaf position → index = <b>reverse the bits</b>: position 001 lands index 100 = 4; position 011 lands 110 = 6. This is the famous bit-reversed order.</p>`,
         c: { q: "In the leaf order 0 4 2 6 1 5 3 7, which index sits at position 6?", o: ["6", "3", "5"], a: 1, why: "Position 6 = 110 in binary; reversed = 011 = 3." } },
-      { t: "Butterflies climb back up", b: `<p>Each level merges pairs of results with one butterfly per pair: <code>a + W·b</code> and <code>a − W·b</code> — one multiply, one add, one subtract.</p><p>Per level: work ∝ N. Number of levels: log₂N. Total: <b>O(N log N)</b>.</p><span class="analogy">Mergesort does exactly the same accounting trick — halve the problem, do linear work to recombine.</span>`,
+      { t: "Butterflies climb back up", b: `<p>Each level merges pairs of results with one butterfly per pair: <code>a + W·b</code> and <code>a − W·b</code> — one multiply, one add, one subtract.</p><p>Per level: work $\\propto N$. Number of levels: $\\log_2 N$. Total: $O(N \\log N)$.</p><span class="analogy">Mergesort does exactly the same accounting trick — halve the problem, do linear work to recombine.</span>`,
         c: { q: "N = 1024 → how many levels, and roughly how much work?", o: ["1024 levels, ~1M ops", "10 levels, ~10k ops", "2 levels, ~2k ops"], a: 1, why: "log₂1024 = 10 levels × N work each ≈ N·log₂N = 10,240 ops vs N² = 1,048,576 — about 100× less." } },
       { t: "Why powers of two?", b: `<p>The halving must terminate at length 1, so radix-2 FFT needs <b>N = 2^k</b>. Odd sizes break the even/odd chain.</p><p>Real libraries handle other lengths with mixed-radix steps or by zero-padding up to the next power of two. Same result either way — the FFT always equals the DFT.</p>` },
       { t: "The payoff, in numbers", b: `<p>At N = 10⁶: direct DFT ≈ 10¹² ops, FFT ≈ 2 × 10⁷ ops — <b>~50,000× less work</b>. That's the difference between \"impossible in real time\" and \"runs on a phone\", and it's why the FFT genuinely changed the world (audio, Wi-Fi, JPEG, MRI…).</p>` },
@@ -393,4 +393,95 @@
   addV("a9-fft", 3, `<svg class="fig" viewBox="0 0 360 170" style="max-height:170px"><g class="fi"><circle cx="50" cy="45" r="16" fill="var(--panel-2)" stroke="var(--teal)" stroke-width="2"/><text x="50" y="50" class="fig-n">a</text></g><g class="fi"><circle cx="50" cy="125" r="16" fill="var(--panel-2)" stroke="var(--amber)" stroke-width="2"/><text x="50" y="130" class="fig-n">b</text></g><path d="M66 45 L290 45 M66 125 L290 125 M66 45 L290 125 M66 125 L290 45" stroke="var(--line-2)" stroke-width="2" fill="none" class="draw"/><rect x="150" y="113" width="42" height="24" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="171" y="130" class="fig-sub" style="fill:var(--violet)">×W</text><g class="fi"><text x="300" y="50" class="fig-box" style="text-anchor:start">a + W·b</text><text x="300" y="130" class="fig-box" style="text-anchor:start">a − W·b</text></g></svg><div class="fig-cap">One multiply by W, shared by both outputs: that's the butterfly.</div>`);
   addV("a9-fft", 4, FG.cells([{ v: 8, c: "teal" }, "→", { v: 4, c: "teal" }, "→", { v: 2, c: "teal" }, "→", { v: 1, c: "teal" }]) + FG.cells([{ v: 6, c: "rose" }, "→", { v: 3, c: "rose" }, "→", { v: "1.5 ✗", c: "rose" }]) + `<div class="fig-cap">Powers of two halve cleanly down to 1; other sizes get zero-padded or use mixed-radix steps.</div>`);
   addV("a9-fft", 5, FG.bars([["direct DFT, N = 10⁶", 12, "rose", "10¹² ops"], ["FFT, N = 10⁶", 7.3, "teal", "2 × 10⁷ ops"]], { max: 12, fmt: () => "" }) + `<div class="fig-cap">Bar length is log-scaled: the real gap is about 50,000×.</div>`);
+
+  /* ---------- step-through runner: the 8-point butterfly network ---------- */
+  function fftRun(box, life) {
+    const NP = 8, BITS = 3, x = [3, 1, 0, 2, 1, 0, 2, 1];
+    const rev = (r) => { let o = 0; for (let b = 0; b < BITS; b++) o |= ((r >> b) & 1) << (BITS - 1 - b); return o; };
+    const cx = { re: 0, im: 0 };
+    const add = (a, b) => ({ re: a.re + b.re, im: a.im + b.im }), sub = (a, b) => ({ re: a.re - b.re, im: a.im - b.im });
+    const mul = (a, b) => ({ re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re });
+    const r2 = (v) => { const t = Math.round(v * 100) / 100; return t === 0 ? 0 : t; };
+    const sn = (v) => (v < 0 ? "−" : "") + Math.abs(v);
+    const fc = (z) => { const re = r2(z.re), im = r2(z.im); if (!im) return sn(re); const ims = Math.abs(im) + "i"; if (!re) return (im < 0 ? "−" : "") + ims; return `${sn(re)} ${im < 0 ? "−" : "+"} ${ims}`; };
+    const BW = 92, BH = 26, X0 = 78, DX = 150, Y0 = 58, DYR = 34, W = 610, H = Y0 + DYR * 7 + 26;
+    const colX = (s) => X0 + s * DX, rowY = (r) => Y0 + r * DYR;
+    function* frames() {
+      let a = Array.from({ length: NP }, (_, r) => ({ re: x[rev(r)], im: 0 }));
+      const cols = [a.map((z, r) => `x${rev(r)} = ${fc(z)}`), ...[1, 2, 3].map(() => Array(NP).fill(""))];
+      const done = [];
+      const snap = (o) => ({ cols: cols.map((cl) => cl.slice()), done: done.slice(), cur: null, ...o });
+      yield snap({ cap: "The 8 samples, reordered bit-reversed (row 1 holds x4). Each one is already a size-1 DFT. Tap a sample to change it." });
+      for (let s = 0; s < BITS; s++) {
+        const h = 1 << s, m = 2 * h, nxt = a.slice();
+        for (let g = 0; g < NP; g += m) for (let j = 0; j < h; j++) {
+          const t = g + j, u = t + h, ang = (-2 * Math.PI * j) / m, w = { re: Math.cos(ang), im: Math.sin(ang) };
+          const wb = mul(w, a[u]);
+          nxt[t] = add(a[t], wb); nxt[u] = sub(a[t], wb);
+          cols[s + 1][t] = fc(nxt[t]); cols[s + 1][u] = fc(nxt[u]);
+          done.push(`${s}:${t}`);
+          const ask = s === 1 && t === 0 ? { q: "New stage, new partners. Which row does row <b>0</b> pair with now? Tap it.", pick: ".rn-fft-n.rn-fft-c1", a: String(u),
+            why: `In stage ${s + 1} partners sit <b>${h}</b> rows apart, so row 0 pairs with row ${u}.` } : null;
+          yield snap({ cur: { s, t, u }, ask,
+            cap: `Stage ${s + 1} (size ${m}): rows <b>${t}</b> and <b>${u}</b>, W = <b>${fc(w)}</b>. Top: a + W·b = <b>${fc(nxt[t])}</b>. Bottom: a − W·b = <b>${fc(nxt[u])}</b>.` });
+        }
+        a = nxt;
+      }
+      // check against the direct O(N²) sum
+      let err = 0;
+      for (let k = 0; k < NP; k++) {
+        let z = { ...cx };
+        for (let t = 0; t < NP; t++) { const an = (-2 * Math.PI * k * t) / NP; z = add(z, { re: x[t] * Math.cos(an), im: x[t] * Math.sin(an) }); }
+        err = Math.max(err, Math.hypot(z.re - a[k].re, z.im - a[k].im));
+      }
+      yield snap({ mood: "love", cap: `Done: row k now holds X[k], in normal order. ${err < 1e-9 ? "It matches the direct DFT exactly" : "Check failed against the direct DFT"}, using <b>12 butterflies</b> instead of 64 multiply-adds.` });
+    }
+    FG.run(box, life, {
+      build(stage, api) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("class", "fig rn-svg rn-fft");
+        let lines = "", nodes = "";
+        for (let s = 0; s < BITS; s++) {
+          const h = 1 << s;
+          for (let r = 0; r < NP; r++) {
+            const p = r ^ h, top = Math.min(r, p);
+            [r, p].forEach((to) => (lines += `<line class="rn-fft-e" data-b="${s}:${top}" x1="${colX(s) + BW / 2}" y1="${rowY(r)}" x2="${colX(s + 1) - BW / 2}" y2="${rowY(to)}"/>`));
+          }
+        }
+        const heads = ["input (bit-reversed)", "stage 1", "stage 2", "stage 3 = X[k]"];
+        for (let s = 0; s <= BITS; s++) for (let r = 0; r < NP; r++)
+          nodes += `<g class="rn-fft-n rn-fft-c${s}" data-k="${r}" transform="translate(${colX(s)} ${rowY(r)})"><g class="rn-fft-in-g"><rect x="${-BW / 2}" y="${-BH / 2}" width="${BW}" height="${BH}" rx="8"/><text y="4.5"></text></g></g>`;
+        svg.innerHTML = `${heads.map((t, s) => `<text class="rn-fft-h" x="${colX(s)}" y="24">${t}</text>`).join("")}
+          ${Array.from({ length: NP }, (_, r) => `<text class="rn-fft-row" x="14" y="${rowY(r) + 4}">${r}</text><text class="rn-fft-row" x="${colX(3) + BW / 2 + 18}" y="${rowY(r) + 4}">X${r}</text>`).join("")}
+          <g>${lines}</g><g>${nodes}</g>`;
+        const wrap = el(`<div class="rn-fft-wrap"></div>`);
+        wrap.appendChild(svg); stage.appendChild(wrap);
+        const s = { lines: qsa(".rn-fft-e", svg), node: (col, r) => { const g = svg.querySelector(`.rn-fft-c${col}[data-k="${r}"]`); return { g, inner: g.firstChild, t: g.querySelector("text") }; } };
+        for (let r = 0; r < NP; r++) {
+          const n0 = s.node(0, r);
+          api.edit(n0.g, { get: () => x[rev(r)], set: (v) => { x[rev(r)] = v; n0.t.textContent = `x${rev(r)} = ${v}`; }, min: -5, max: 9 });
+        }
+        return s;
+      },
+      draw(s, f, c) {
+        const cur = f.cur, key = cur && `${cur.s}:${cur.t}`;
+        s.lines.forEach((ln) => {
+          ln.classList.toggle("rn-fft-hot", ln.dataset.b === key);
+          ln.classList.toggle("rn-fft-did", ln.dataset.b !== key && f.done.includes(ln.dataset.b));
+        });
+        for (let col = 0; col <= BITS; col++) for (let r = 0; r < NP; r++) {
+          const h = s.node(col, r), v = f.cols[col][r], was = c.prev ? c.prev.cols[col][r] : "";
+          const isIn = !!cur && col === cur.s && (r === cur.t || r === cur.u), isOut = !!cur && col === cur.s + 1 && (r === cur.t || r === cur.u);
+          h.g.classList.toggle("rn-fft-in", isIn);
+          h.g.classList.toggle("rn-fft-out", isOut);
+          h.g.classList.toggle("rn-fft-empty", !v);
+          h.t.textContent = v || "";
+          if (isOut && v && v !== was) FG.rn.pulse(c, h.inner, 0.2);
+        }
+      },
+      frames,
+    });
+  }
+  if (L["a9-fft"]) L["a9-fft"].steps.splice(4, 0, { t: "Watch it run", b: `<p>All 12 butterflies of an 8-point FFT. Press <b>play</b> or step with the arrows: each step combines one pair of rows and writes two new values.</p><p>It will pause once and ask you to predict a pair. Tap an input sample to change it and the run recomputes.</p>`,
+    v: (box, life) => fftRun(box, life) });
 })();

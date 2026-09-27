@@ -34,6 +34,61 @@
     return { steps, settled };
   }
 
+  /** Step-through Dijkstra: one frame per settle and per edge relaxation. Weights are editable. */
+  function dijkstraRun(box, life) {
+    const W = BASE.map((e) => e.slice());
+    const names = Object.keys(GPOS);
+    function* frames() {
+      const adj = {}; names.forEach((n) => (adj[n] = []));
+      W.forEach(([a, b, w]) => { adj[a].push([b, w]); adj[b].push([a, w]); });
+      const dist = Object.fromEntries(names.map((n) => [n, n === "A" ? 0 : Infinity])), parent = {}, done = [];
+      const snap = (x) => ({ dist: { ...dist }, parent: { ...parent }, done: done.slice(), ...x });
+      yield snap({ cap: "Start: A is 0 away from itself. Everything else is <b>∞</b> (not reached yet).", line: 0 });
+      for (let round = 0; ; round++) {
+        const open = names.filter((n) => !done.includes(n) && dist[n] < Infinity);
+        if (!open.length) break;
+        const cur = open.reduce((a, b) => (dist[b] < dist[a] ? b : a));
+        const tie = open.filter((n) => dist[n] === dist[cur]);
+        done.push(cur);
+        const ask = round >= 1 && round <= 3 && round !== 2 ? { q: "Which node gets <b>settled</b> next? Tap it.", pick: ".rn-node.s-tent", a: tie, why: `The smallest tentative distance always settles next: <b>${cur} = ${dist[cur]}</b>.` } : null;
+        yield snap({ cur, cap: `Settle <b>${cur}</b>: its ${dist[cur]} is the smallest tentative distance, so it's final.`, line: 1, ask, mood: "happy" });
+        for (const [nb, w] of adj[cur]) {
+          if (done.includes(nb)) continue;
+          const nd = dist[cur] + w, old = dist[nb], better = nd < old;
+          if (better) { dist[nb] = nd; parent[nb] = cur; }
+          yield snap({ cur, edge: [cur, nb], better, cap: `Relax ${cur}→${nb}: ${dist[cur]} + ${w} = <b>${nd}</b> ${better ? `&lt; ${old === Infinity ? "∞" : old}, so update ${nb} to ${nd}.` : `≥ ${old}, keep ${old}.`}`, line: better ? 3 : 2 });
+        }
+      }
+      yield snap({ cap: `Done. The green edges are the <b>shortest-path tree</b>: A→E costs ${dist.E}.`, line: 4, mood: "love" });
+    }
+    F.run(box, life, {
+      code: ["dist[A] = 0; all others = ∞", "u = unsettled node with smallest dist; settle u", "for each edge u→v: try dist[u] + w", "  if smaller: dist[v] = it, parent[v] = u", "repeat until every reached node is settled"],
+      build(stage, api) {
+        const g = F.graphScene(stage, { nodes: GPOS, edges: W, w: 460, h: 300, editable: true });
+        W.forEach((e) => { const h = g.edge(e[0], e[1]); api.edit(h.wbox, { get: () => e[2], set: (v) => { e[2] = v; h.wt.textContent = v; h.wt.dataset.v = v; }, min: 1, max: 9 }); });
+        return g;
+      },
+      draw(g, f, c) {
+        names.forEach((n) => {
+          const h = g.node(n), st = n === f.cur ? "s-cur" : f.done.includes(n) ? "s-done" : f.dist[n] < Infinity ? "s-tent" : "";
+          h.g.setAttribute("class", `rn-node ${st}`);
+          const moved = !c.prev || c.prev.dist[n] !== f.dist[n];
+          F.rn.num(c, h.tag, f.dist[n]);
+          if (moved && c.prev) F.rn.pulse(c, h.tagBox);
+          if (n === f.cur && (!c.prev || c.prev.cur !== n)) F.rn.pulse(c, h.body);
+        });
+        W.forEach(([a, b]) => {
+          const h = g.edge(a, b), tree = f.parent[b] === a || f.parent[a] === b;
+          const hot = !!f.edge && g.key(f.edge[0], f.edge[1]) === g.key(a, b);
+          h.g.classList.toggle("try", hot);
+          h.hot.classList.toggle("amber", tree && hot);
+          F.rn.stroke(c, h.hot, tree);
+        });
+      },
+      frames,
+    });
+  }
+
   L["a2-dijkstra"] = {
     sum: "Dijkstra finds the shortest route from one start node to every other node. It grows outward like a ripple, and each node it <b>settles</b> is final. That only works because no road has a negative length.",
     steps: [
@@ -48,6 +103,8 @@
           { t: "Check the shortcut: C→B costs 1, so 2 + 1 = 3", v: F.cells([{ v: "2", c: "teal" }, "+", { v: "1" }, "=", { v: "3", c: "amber" }]) },
           { t: "3 < 4, so update B to 3 (via C)", v: F.cells([{ v: "A", sub: "0", c: "teal" }, { v: "C", sub: "2", c: "teal" }, { v: "B", sub: "3 ✓", c: "amber" }]) },
         ]) },
+      { t: "Watch it run", b: `<p>Here is the whole algorithm on a five-node graph. Press <b>play</b> or step with the arrows. The code on the right lights up the line being run.</p><p>It will pause and ask you to predict the next node. Tap a weight to change it and the run recomputes.</p>`,
+        v: (box, life) => dijkstraRun(box, life) },
       { t: "Why negative edges break it", b: `<p>The safety argument assumed a detour can only <b>add</b> cost. A negative edge <i>subtracts</i>.</p><p>Here Dijkstra settles B at 2, since it's the smallest. But A → C → B costs 3 + (−2) = <b>1</b>. B was locked in too early.</p><span class="key">Negative edges: use Bellman–Ford instead.</span>`,
         v: F.graph({ nodes: { A: { x: 60, y: 100, sub: "0" }, B: { x: 230, y: 40, sub: "settled at 2 ✗" }, C: { x: 230, y: 165, sub: "3" } }, edges: [["A", "B", 2], ["A", "C", 3], ["C", "B", "−2", "rose"]], hl: { B: "rose" }, directed: true, w: 330, h: 205 }),
         c: { q: "A graph has a negative edge. What can go wrong with Dijkstra?", o: ["Nothing, it still works", "It can lock in a node before finding a cheaper route through the negative edge", "It just runs slower"], a: 1, why: "The \"settled means final\" guarantee depends on non-negative weights." } },
@@ -110,6 +167,87 @@
   });
 
   /* ============ 2.2 A* vs Dijkstra ============ */
+  /** Step-through A* on a small grid: one frame per expansion. Tap a cell to toggle a wall. */
+  function astarRun(box, life) {
+    const GW = 10, GH = 7, CS = 40, S = [1, 3], T = [8, 3];
+    const kOf = (x, y) => x + "," + y, SK = kOf(...S), TK = kOf(...T);
+    const walls = new Set([1, 2, 3, 4].map((y) => kOf(5, y)));
+    const hOf = (x, y) => Math.abs(x - T[0]) + Math.abs(y - T[1]);
+    function* frames() {
+      const g = { [SK]: 0 }, parent = {}, closed = [], open = new Map([[SK, 0]]);
+      let order = 0; const seq = { [SK]: order++ };
+      const fOf = (k) => { const [x, y] = k.split(",").map(Number); return g[k] + hOf(x, y); };
+      const snap = (x) => ({ g: { ...g }, open: [...open.keys()], closed: closed.slice(), path: [], ...x });
+      yield snap({ cap: `Start: the open set holds only the start. g = <b>0</b>, h = <b>${hOf(...S)}</b>, so f = <b>${hOf(...S)}</b>.`, line: 0 });
+      let asked = 0, lastAsk = -9;
+      for (let round = 0; open.size; round++) {
+        const keys = [...open.keys()], fmin = Math.min(...keys.map(fOf));
+        // lowest f; ties go to the smaller h, then the older cell
+        const cur = keys.filter((k) => fOf(k) === fmin).sort((a, b) => fOf(a) - g[a] - (fOf(b) - g[b]) || seq[a] - seq[b])[0];
+        const ties = keys.filter((k) => fOf(k) === fmin);
+        const [cx, cy] = cur.split(",").map(Number), cg = g[cur], ch = hOf(cx, cy);
+        let ask = null;
+        if (asked < 2 && round >= 2 && round - lastAsk >= 3 && ties.length < keys.length && cur !== TK) {
+          asked++; lastAsk = round;
+          ask = { q: "Which cell does A* expand next? Tap it.", pick: ".rn-gc.open", a: ties, why: `The lowest f in the open set wins: g ${cg} + h ${ch} = <b>f ${cg + ch}</b>.` };
+        }
+        open.delete(cur);
+        if (cur === TK) {
+          const path = []; for (let k = TK; k; k = parent[k]) path.push(k);
+          yield snap({ path, cap: `The goal has the lowest f, so stop. Path cost <b>${cg}</b>, found after expanding <b>${closed.length + 1}</b> cells. The solid green cells are the path.`, line: 2, mood: "love", ask });
+          return;
+        }
+        closed.push(cur);
+        let added = 0;
+        [[1, 0], [0, 1], [-1, 0], [0, -1]].forEach(([dx, dy]) => {
+          const nx = cx + dx, ny = cy + dy, nk = kOf(nx, ny);
+          if (nx < 0 || ny < 0 || nx >= GW || ny >= GH || walls.has(nk) || closed.includes(nk)) return;
+          if (g[nk] === undefined || cg + 1 < g[nk]) { g[nk] = cg + 1; parent[nk] = cur; if (!open.has(nk)) { seq[nk] = order++; added++; } open.set(nk, 1); }
+        });
+        yield snap({ cur, cap: `Expand the <b>orange</b> cell: g = <b>${cg}</b>, h = <b>${ch}</b>, f = <b>${cg + ch}</b>, the lowest in the open set. ${added ? `It adds <b>${added}</b> new cell${added > 1 ? "s" : ""} to the open set.` : "No new neighbours."}`, line: added ? 4 : 3, ask });
+      }
+      yield snap({ cap: "The open set is empty: <b>no path exists</b>. Tap a wall to remove it.", line: 1, mood: "sad" });
+    }
+    F.run(box, life, {
+      code: ["open = {start}; g[start] = 0", "cur = open cell with the lowest f = g + h", "if cur is the goal: stop, trace the path back", "move cur from open to closed", "for each free neighbour n: g[n] = g[cur] + 1, add n to open"],
+      build(stage, api) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", `0 0 ${GW * CS} ${GH * CS}`); svg.setAttribute("class", "fig rn-svg rn-astar"); svg.style.maxHeight = GH * CS + "px";
+        let html = "";
+        for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
+          const k = kOf(x, y), fixed = k === SK || k === TK;
+          html += `<g class="rn-gc${fixed ? (k === SK ? " rn-gc-start" : " rn-gc-goal") : " rn-gc-free"}" data-k="${k}" transform="translate(${x * CS} ${y * CS})"><rect x="2" y="2" width="${CS - 4}" height="${CS - 4}" rx="7"/><text x="${CS / 2}" y="${CS / 2 + 5}">${k === SK ? "S" : k === TK ? "G" : ""}</text></g>`;
+        }
+        svg.innerHTML = `<g>${html}</g>`;
+        stage.appendChild(svg);
+        const cells = {};
+        svg.querySelectorAll(".rn-gc").forEach((c) => (cells[c.dataset.k] = { g: c, t: c.querySelector("text") }));
+        svg.querySelectorAll(".rn-gc-free").forEach((c) => c.addEventListener("click", () => {
+          if (stage.querySelector(".rn-pickable")) return;   // a predict is waiting: that click is an answer
+          const k = c.dataset.k;
+          walls.has(k) ? walls.delete(k) : walls.add(k);
+          N.sfx && N.sfx.play("select");
+          api.recompute(walls.has(k) ? "Wall added. Replaying from the start." : "Wall removed. Replaying from the start.");
+        }));
+        return { svg, cells };
+      },
+      draw(sc, f, c) {
+        const open = new Set(f.open), closed = new Set(f.closed), path = new Set(f.path);
+        Object.entries(sc.cells).forEach(([k, h]) => {
+          const [x, y] = k.split(",").map(Number);
+          h.g.classList.toggle("wall", walls.has(k));
+          h.g.classList.toggle("open", open.has(k));
+          h.g.classList.toggle("closed", closed.has(k));
+          h.g.classList.toggle("cur", k === f.cur);
+          h.g.classList.toggle("path", path.has(k));
+          if (k !== SK && k !== TK) h.t.textContent = !path.has(k) && (open.has(k) || closed.has(k) || k === f.cur) && f.g[k] !== undefined ? f.g[k] + hOf(x, y) : "";
+          if ((k === f.cur && (!c.prev || c.prev.cur !== k)) || (path.has(k) && !c.prev?.path.length)) F.rn.pulse(c, h.g.querySelector("rect"), path.has(k) ? 0.03 * f.path.length - 0.03 * f.path.indexOf(k) : 0);
+        });
+      },
+      frames,
+    });
+  }
+
   L["a2-astar"] = {
     sum: "A* is Dijkstra plus a sense of direction. It ranks nodes by <b>f = g + h</b>: the real distance travelled so far plus an estimate of what's left. As long as the estimate never overestimates, A* still finds the shortest path, and it explores far less.",
     steps: [
@@ -118,6 +256,8 @@
       { t: "A* adds an estimate of the distance left", b: `<p>Each frontier cell gets a score <code>f = g + h</code>:</p><p><b>g</b> = real cost from the start (known).<br><b>h</b> = a <i>guess</i> of the cost to the goal, such as the grid (Manhattan) distance.</p><p>The cell with the smallest f is expanded next, so cells heading toward the goal win.</p>`,
         v: F.compare({ title: "Cell P", c: "violet", body: "g = 3, h = 5<br><b>f = 8</b>" }, { title: "Cell Q  ← expanded first", c: "teal", body: "g = 4, h = 2<br><b>f = 6</b>" }) + `<div class="fig-cap">Q is further from the start but much closer to the goal, and that makes it more promising.</div>`,
         c: { q: "What happens if h = 0 for every cell?", o: ["A* gets faster", "A* becomes exactly Dijkstra: f = g", "A* breaks"], a: 1, why: "With no estimate there's no sense of direction left. It's plain distance-from-start ordering." } },
+      { t: "Watch it run", b: `<p>A* goes from <b>S</b> to <b>G</b> around a wall. Each number is a cell's <b>f</b>. <b style="color:var(--violet)">Purple</b> cells are the open set (waiting), <b style="color:var(--teal)">green</b> ones are closed (done) and <b style="color:var(--amber)">orange</b> is the cell being expanded.</p><p>It will ask you to predict the next cell. Tap any empty cell to add or remove a wall.</p>`,
+        v: (box, life) => astarRun(box, life) },
       { t: "The one rule: never overestimate", b: `<p>A* is guaranteed to find the shortest path if h is <b>admissible</b>, meaning it never guesses higher than the true remaining cost.</p><p>On an open grid, Manhattan distance is admissible because no real path can be shorter. Doubling it makes A* greedier and faster, but it may skip the true shortest path.</p>`,
         v: F.bars([["true cost left", 10, "teal"], ["h = Manhattan", 8, "violet", "OK: ≤ 10"], ["h = 2 × Manhattan", 16, "rose", "overestimates"]], { max: 16 }),
         c: { q: "h = 2 × Manhattan distance. What's the result?", o: ["Always optimal and faster", "Fewer cells explored, but the path may not be the shortest", "No change"], a: 1, why: "Overestimating breaks admissibility, so a good path can be passed over." } },

@@ -111,6 +111,111 @@
   });
 
   /* ============ 4.2 Prim vs Kruskal ============ */
+  const NAMES = Object.keys(POS);
+  const nice = (k) => k.replace("-", "–");
+  /** Shared scene for the MST runners: graph with editable weights and pickable edges (data-k "A-B"). */
+  function mstScene(stage, api, W, kind) {
+    const g = F.graphScene(stage, { nodes: POS, edges: W, w: 480, h: 270, editable: true });
+    g.svg.classList.add("rn-mst", "rn-mst-" + kind);
+    W.forEach((e) => {
+      const h = g.edge(e[0], e[1]);
+      h.g.dataset.k = g.key(e[0], e[1]);
+      const hit = h.g.querySelector(".rn-base").cloneNode(); hit.setAttribute("class", "rn-hit"); hit.removeAttribute("marker-end");
+      h.g.insertBefore(hit, h.g.firstChild);
+      api.edit(h.wbox, { get: () => e[2], set: (v) => { e[2] = v; h.wt.textContent = v; h.wt.dataset.v = v; }, min: 1, max: 9 });
+    });
+    return g;
+  }
+  function mstDraw(g, W, f, c) {
+    NAMES.forEach((n) => {
+      const h = g.node(n), st = f.newNode === n ? "s-cur" : f.inTree.includes(n) ? "s-done" : "";
+      h.g.setAttribute("class", `rn-node ${st}`);
+      if (f.tags) F.rn.text(c, h.tag, f.tags[n]);
+      if (f.newNode === n && (!c.prev || c.prev.newNode !== n)) F.rn.pulse(c, h.body);
+    });
+    W.forEach(([a, b]) => {
+      const k = g.key(a, b), h = g.edge(a, b), tree = f.tree.includes(k);
+      h.g.classList.toggle("try", f.cands.includes(k) || f.edge === k && !tree);
+      h.g.classList.toggle("reject", f.rejected.includes(k));
+      h.g.classList.toggle("rn-todo", !tree && !f.rejected.includes(k) && !f.done);
+      h.hot.classList.toggle("amber", f.edge === k && tree);
+      F.rn.stroke(c, h.hot, tree);
+      if (f.edge === k && (!c.prev || c.prev.edge !== k)) F.rn.pulse(c, h.wbox);
+    });
+  }
+  const sumW = (W, keys) => W.filter(([a, b]) => keys.includes(ek(...[a, b].sort()))).reduce((s, e) => s + e[2], 0);
+
+  /** Prim from A, one frame per edge added. Weights are editable. */
+  function primRun(box, life) {
+    const W = EDGES.map((e) => e.slice());
+    function* frames() {
+      const inT = ["A"], tree = [];
+      const crossing = () => W.filter(([a, b]) => inT.includes(a) !== inT.includes(b)).sort((x, y) => x[2] - y[2]);
+      const snap = (x) => ({ inTree: inT.slice(), tree: tree.slice(), rejected: [], cands: crossing().map(([a, b]) => ek(...[a, b].sort())), ...x });
+      yield snap({ cap: "Start with the tree <b>{A}</b>. The orange dashed edges cross from the tree to the rest of the graph.", line: 0 });
+      for (let pick = 1; inT.length < NAMES.length; pick++) {
+        const cr = crossing(), [a, b, w] = cr[0], nu = inT.includes(a) ? b : a, k = ek(...[a, b].sort());
+        const ties = cr.filter((e) => e[2] === w).map(([x, y]) => ek(...[x, y].sort()));
+        const ask = pick === 2 || pick === 3 ? { q: "Which edge does Prim add next? Tap it.", pick: ".rn-edge.rn-todo", a: ties, why: `The cheapest edge crossing out of the tree: <b>${nice(k)} (${w})</b>.` } : null;
+        inT.push(nu); tree.push(k);
+        const done = inT.length === NAMES.length;
+        yield snap({ edge: k, newNode: nu, done, ask, line: 2, mood: done ? "love" : "happy",
+          cap: `Cheapest crossing edge: <b>${nice(k)} (${w})</b>. Add it, and <b>${nu}</b> joins the tree. Total so far <b>${sumW(W, tree)}</b>.` });
+      }
+      yield snap({ done: true, cands: [], line: 3, mood: "love", cap: `Every node is in. The minimum spanning tree has <b>${tree.length}</b> edges and total weight <b>${sumW(W, tree)}</b>.` });
+    }
+    F.run(box, life, {
+      code: ["tree = {A}", "look at edges with exactly one end in the tree", "add the cheapest one and its new node", "repeat until every node is in"],
+      build: (stage, api) => mstScene(stage, api, W, "prim"),
+      draw: (g, f, c) => mstDraw(g, W, f, c),
+      frames,
+    });
+  }
+
+  /** Kruskal: sorted edges, one frame per accept or reject. Weights are editable. */
+  function kruskalRun(box, life) {
+    const W = EDGES.map((e) => e.slice());
+    function* frames() {
+      const comp = Object.fromEntries(NAMES.map((n) => [n, n]));
+      const find = (x) => (comp[x] === x ? x : (comp[x] = find(comp[x])));
+      const label = () => { const m = {}; NAMES.forEach((n) => { const r = find(n); m[r] = m[r] || n; }); return Object.fromEntries(NAMES.map((n) => [n, m[find(n)]])); };
+      const sorted = W.slice().sort((x, y) => x[2] - y[2]), tree = [], rejected = [];
+      const touched = () => NAMES.filter((n) => tree.some((k) => k.split("-").includes(n)));
+      const snap = (x) => ({ inTree: touched(), tree: tree.slice(), rejected: rejected.slice(), cands: [], tags: label(), ...x });
+      // plan the decisions first so a reject can ask about the next edge that is actually added
+      const plan = [];
+      { const c2 = { ...comp }, f2 = (x) => (c2[x] === x ? x : (c2[x] = f2(c2[x])));
+        sorted.forEach(([a, b]) => { const ok = f2(a) !== f2(b); if (ok) c2[f2(a)] = f2(b); plan.push(ok); }); }
+      const accIdx = plan.map((ok, i) => (ok ? i : -1)).filter((i) => i >= 0);
+      const rejAsk = plan.findIndex((ok, i) => !ok && accIdx.some((j) => j > i));
+      const askAt = new Set([accIdx[1], rejAsk >= 0 ? rejAsk : accIdx[3]].filter((i) => i !== undefined));
+      yield snap({ line: 0, cap: `Sort every edge by weight: ${sorted.map(([a, b, w]) => `${a}${b} ${w}`).join(" · ")}. Each node starts in its own group (the letter above it).` });
+      for (let i = 0; i < sorted.length; i++) {
+        const [a, b, w] = sorted[i], k = ek(...[a, b].sort()), ok = find(a) !== find(b);
+        let ask = null;
+        if (askAt.has(i)) {
+          const j = accIdx.find((x) => x >= i), [na, nb, nw] = sorted[j], nk = ek(...[na, nb].sort());
+          // ties: any unused edge of the same weight whose ends are in different groups right now
+          const ties = sorted.slice(i).filter(([x, y, ww]) => ww === nw && find(x) !== find(y)).map(([x, y]) => ek(...[x, y].sort()));
+          ask = { q: "Which edge is added next? Tap it.", pick: ".rn-edge.rn-todo", a: ties.length ? ties : [nk],
+            why: ok ? `It's the cheapest edge left, and its ends are in different groups: <b>${nice(nk)} (${nw})</b>.` : `${nice(k)} (${w}) is next in the list, but its ends are already connected, so it's skipped. The next edge added is <b>${nice(nk)} (${nw})</b>.` };
+        }
+        if (ok) { comp[find(a)] = find(b); tree.push(k); } else rejected.push(k);
+        const full = tree.length === NAMES.length - 1;
+        yield snap({ edge: k, ask, line: ok ? 2 : 3, mood: ok ? "happy" : "surprised",
+          cap: ok ? `Next: <b>${nice(k)} (${w})</b>. ${a} and ${b} are in different groups, so take it and merge them. Total <b>${sumW(W, tree)}</b>${full ? `. That's ${tree.length} edges: a spanning tree` : ""}.`
+            : `Next: <b>${nice(k)} (${w})</b>. ${a} and ${b} are already in the same group, so <b>reject</b> it: it would close a loop.` });
+      }
+      yield snap({ done: true, line: 1, mood: "love", cap: `List finished. The tree has <b>${tree.length}</b> edges, total weight <b>${sumW(W, tree)}</b>, and <b>${rejected.length}</b> edge${rejected.length === 1 ? " was" : "s were"} rejected.` });
+    }
+    F.run(box, life, {
+      code: ["sort all edges by weight", "for each edge (u, v) in that order:", "  if u, v in different groups: take it, merge groups", "  else: reject it (it would close a loop)"],
+      build: (stage, api) => mstScene(stage, api, W, "kruskal"),
+      draw: (g, f, c) => mstDraw(g, W, f, c),
+      frames,
+    });
+  }
+
   L["a4-mst"] = {
     sum: "Two greedy algorithms, same answer. <b>Prim</b> grows one tree outward from a starting node. <b>Kruskal</b> takes edges cheapest-first from anywhere, merging little trees and skipping any edge that would make a loop.",
     steps: [
@@ -120,9 +225,13 @@
           { t: "Tree {A, C}: cheapest way out is C–B (2)", v: F.cells([{ v: "AC", c: "teal" }, "→", { v: "B", c: "amber" }]) },
           { t: "…until all 5 nodes are in: 4 edges total", v: F.cells([{ v: "ACBDE", c: "teal" }]) },
         ]) },
+      { t: "Watch Prim run", b: `<p>Prim grows a tree from A. <b style="color:var(--amber)">Orange</b> dashed edges cross from the tree to the rest; the cheapest one is added in <b style="color:var(--teal)">green</b>.</p><p>It will ask you to pick the next edge. Tap a weight to change it and the run recomputes.</p>`,
+        v: (box, life) => primRun(box, life) },
       { t: "Kruskal: cheapest edges first, skip loops", b: `<p>Sort <i>all</i> edges by weight. Walk down the list and take each edge <b>unless its two ends are already connected</b>. Early on you have a forest of small trees that gradually merge.</p><p>A <b>union-find</b> structure answers \"already connected?\" almost instantly.</p>`,
         v: F.cells([{ v: "DE 1", c: "teal" }, { v: "BC 2", c: "teal" }, { v: "AC 3", c: "teal" }, { v: "AB 4", sub: "loop ✗", c: "rose" }, { v: "BD 5", c: "teal" }, { v: "CD 6", sub: "loop ✗", c: "rose" }, { v: "CE 7", sub: "loop ✗", c: "rose" }]),
         c: { q: "What's the main difference between Prim and Kruskal?", o: ["They give different answers", "Prim grows one connected tree; Kruskal merges separate trees in weight order", "Only speed"], a: 1, why: "Same optimum (both use the cut property), different intermediate structure." } },
+      { t: "Watch Kruskal run", b: `<p>Kruskal walks the sorted list. The letter above each node is its group. An edge joining two groups is taken in <b style="color:var(--teal)">green</b>; one inside a group is <b style="color:var(--rose)">rejected</b>.</p><p>It will ask you to pick the next edge added. Tap a weight to change it.</p>`,
+        v: (box, life) => kruskalRun(box, life) },
       { t: "Edge cases worth knowing", b: `<p><b>Ties:</b> either choice is fine. Several different MSTs can have the same total.<br><b>Disconnected graph:</b> no spanning tree exists. Kruskal ends with a <i>spanning forest</i> of fewer than n − 1 edges.<br><b>Which is faster?</b> Prim with a heap suits dense graphs. Kruskal's sort dominates, O(m log m), which suits sparse graphs.</p>`,
         c: { q: "The graph is disconnected. What does Kruskal do?", o: ["Crash", "Produce a spanning forest: components stay separate, with fewer than n − 1 edges", "Add fake edges"], a: 1, why: "It can't merge components that have no edges between them. Honest output: a forest." } },
     ],

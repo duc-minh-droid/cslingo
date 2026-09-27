@@ -4,7 +4,7 @@
      NIC.game.track(metric, n=1)      advance quests / achievements (metrics below)
      NIC.game.lessonDone({acc, review, secs}) → {first today?, streak}
      NIC.game.on(event, fn)           events: xp, goal, quest, ach, streak
-   Metrics: xp, lesson, acc90, combo, demo, boss, practice */
+   Metrics: xp, lesson, acc90, combo, demo, boss, practice, predict (a runner guess right) */
 (function () {
   const { store } = NIC;
   const K = { xp: "nic.xp", days: "nic.activeDays", goal: "nic.goal", quests: "nic.quests", ach: "nic.ach", stats: "nic.stats" };
@@ -59,6 +59,7 @@
     { id: "demo", t: "Tick every step of a demo checklist", m: "demo", n: 1 },
     { id: "boss5", t: "Answer 5 boss questions right", m: "boss", n: 5 },
     { id: "practice3", t: "Fix 3 mistakes in Practice", m: "practice", n: 3 },
+    { id: "predict3", t: "Predict 3 steps in a running figure", m: "predict", n: 3 },
   ];
   function seeded(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296); }
   function quests() {
