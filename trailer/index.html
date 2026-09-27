@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSLingo trailer</title>
+  <meta name="description" content="A 30-second trailer for CSLingo: computer science, one bite at a time." />
+  <meta name="theme-color" content="#58cc02" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/cast.css" />
+  <style>
+    html, body { height: 100%; margin: 0; background: #0b0f1a; overflow: hidden; }
+    body { display: grid; place-items: center; }
+    .frame { position: relative; width: 1280px; height: 720px; transform-origin: 50% 50%; overflow: hidden; border-radius: 0; background: #fff; }
+    .scene { position: absolute; inset: 0; overflow: hidden; }
+    .bg-green { background: #58cc02; } .bg-blue { background: #1cb0f6; } .bg-violet { background: #ce82ff; } .bg-orange { background: #ff9600; } .bg-ink { background: #131f24; } .bg-white { background: #fff; }
+    .big { font: 900 108px/1 var(--sans); letter-spacing: -0.04em; color: #fff; margin: 0; }
+    .mid { font: 900 64px/1.05 var(--sans); letter-spacing: -0.03em; color: #fff; margin: 0; }
+    .small { font: 800 26px/1.3 var(--sans); color: rgba(255, 255, 255, 0.92); margin: 0; }
+    .ink { color: #3c3c3c !important; }
+    .abs { position: absolute; }
+    .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .logo { font: 900 150px/1 var(--sans); letter-spacing: -0.05em; color: #fff; display: flex; }
+    .logo span { display: inline-block; }
+    .logo .cs { color: #d7ffb8; }
+    .logo.onwhite { color: #58cc02; } .logo.onwhite .cs { color: #1cb0f6; }
+    .tag { font: 900 20px var(--sans); letter-spacing: .12em; text-transform: uppercase; padding: 8px 16px; border-radius: 12px; background: #fff; color: #58a700; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15); display: inline-block; }
+    .browser { position: absolute; width: 760px; border-radius: 18px; background: #fff; box-shadow: 0 10px 0 rgba(0, 0, 0, 0.18), 0 30px 60px rgba(0, 0, 0, 0.25); overflow: hidden; }
+    .browser .bar { height: 34px; background: #f2f2f2; display: flex; align-items: center; gap: 7px; padding: 0 14px; border-bottom: 2px solid #e5e5e5; }
+    .browser .bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; } .browser .bar i:nth-child(2) { background: #febc2e; } .browser .bar i:nth-child(3) { background: #28c840; }
+    .browser .bar span { margin-left: 12px; font: 800 13px var(--sans); color: #999; background: #fff; padding: 3px 14px; border-radius: 8px; }
+    .browser .shot { position: relative; width: 100%; aspect-ratio: 1200 / 760; }
+    .browser .shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .sticker { display: inline-block; font: 900 30px var(--sans); letter-spacing: .06em; text-transform: uppercase; padding: 18px 44px; border-radius: 18px; background: #58cc02; color: #fff; box-shadow: 0 7px 0 #58a700; }
+    .sticker.orange { background: #ff9600; box-shadow: 0 7px 0 #cd7900; }
+    .sticker.white { background: #fff; color: #58cc02; box-shadow: 0 7px 0 rgba(0, 0, 0, 0.18); }
+    .xp { font: 900 56px var(--sans); color: #ffc800; text-shadow: 0 4px 0 #cd7900; }
+    .strike { position: relative; display: inline-block; }
+    .strike::after { content: ""; position: absolute; left: -8px; right: -8px; top: 52%; height: 12px; border-radius: 6px; background: #ff4b4b; transform: scaleX(var(--s, 0)); transform-origin: 0 50%; }
+    .slide-card { position: absolute; width: 220px; height: 140px; border-radius: 12px; background: #2a3a42; border: 3px solid #3a4d57; }
+    .slide-card::before { content: ""; position: absolute; left: 18px; right: 60px; top: 22px; height: 14px; border-radius: 7px; background: #4b6470; box-shadow: 0 30px 0 #3a4d57, 0 52px 0 #3a4d57, 0 74px 0 #3a4d57; }
+    .shape { position: absolute; border-radius: 50%; }
+    .stat { display: flex; flex-direction: column; align-items: center; padding: 16px 26px; border-radius: 20px; background: #fff; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.16); }
+    .stat b { font: 900 60px/1 var(--sans); color: #58cc02; } .stat span { font: 900 17px var(--sans); color: #777; text-transform: uppercase; letter-spacing: .08em; margin-top: 6px; }
+    .url { font: 900 30px var(--sans); color: #fff; background: #1cb0f6; padding: 12px 26px; border-radius: 16px; box-shadow: 0 6px 0 #1899d6; }
+    .flame-n { font: 900 200px/1 var(--sans); color: #ff9600; text-shadow: 0 10px 0 #ffd28a; }
+    .controls { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: rgba(19, 31, 36, 0.55); }
+    .controls[hidden] { display: none; }
+    .controls .btn { font-size: 20px; padding: 16px 30px; }
+    .controls a.btn { text-decoration: none; }
+    .flash { position: absolute; inset: 0; background: #fff; pointer-events: none; opacity: 0; z-index: 40; }
+    .scrub { position: absolute; left: 0; bottom: 0; height: 6px; background: #58cc02; z-index: 45; transform-origin: 0 50%; }
+  </style>
+</head>
+<body>
+  <div class="frame" id="frame">
+    <div id="stage"></div>
+    <div class="flash" id="flash"></div>
+    <div class="scrub" id="scrub"></div>
+    <div class="controls" id="controls">
+      <div class="logo onwhite" style="font-size:96px;background:#fff;padding:10px 34px;border-radius:28px;box-shadow:0 8px 0 rgba(0,0,0,.2)"><span class="cs">cs</span><span>lingo</span></div>
+      <button class="btn primary big" id="play">▶ Play trailer (sound on)</button>
+      <button class="btn big" id="playMute">Play muted</button>
+    </div>
+  </div>
+  <script src="../vendor/motion.js"></script>
+  <script src="../vendor/confetti.browser.js"></script>
+  <script src="../js/core.js"></script>
+  <script src="../js/fx.js"></script>
+  <script src="../js/cast.js"></script>
+  <script src="../js/sfx.js"></script>
+  <script>
+  (function () {
+    const M = window.Motion, A = (el, kf, o) => M.animate(el, kf, o);
+    const $ = (s, r = document) => r.querySelector(s);
+    const stage = $("#stage"), frame = $("#frame");
+    const params = new URLSearchParams(location.search);
+    const REC = params.has("rec");
+    const EASE = [0.23, 1, 0.32, 1], BACK = [0.34, 1.56, 0.64, 1];
+    let muted = true;
+    const snd = (n) => { if (!muted && NIC.sfx) NIC.sfx.play(n); };
+    const mascot = (o) => NIC.mascot({ poke: false, ...o });
+    const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+    const browser = (src, style = "") => `<div class="browser" style="${style}"><div class="bar"><i></i><i></i><i></i><span>duc-minh-droid.github.io/cslingo</span></div><div class="shot"><img src="shots/${src}.png" alt=""></div></div>`;
+
+    // fit the 1280×720 frame to the window
+    const fit = () => { const s = Math.min(innerWidth / 1280, innerHeight / 720); frame.style.transform = `scale(${s})`; };
+    addEventListener("resize", fit); fit();
+
+    function scene(cls, html) { stage.innerHTML = ""; const s = el(`<div class="scene ${cls}">${html}</div>`); stage.appendChild(s); return s; }
+    const flash = () => A($("#flash"), { opacity: [0.9, 0] }, { duration: 0.35, ease: "easeOut" });
+    const pop = (e, d = 0, from = 0.3) => A(e, { opacity: [0, 1], transform: [`scale(${from})`, "scale(1)"] }, { type: "spring", bounce: 0.45, duration: 0.6, delay: d });
+    const rise = (e, d = 0, y = 40) => A(e, { opacity: [0, 1], transform: [`translateY(${y}px)`, "translateY(0px)"] }, { duration: 0.5, delay: d, ease: EASE });
+    const words = (node, d = 0, step = 0.12) => { const ws = node.textContent.split(" "); node.innerHTML = ws.map((w) => `<span style="display:inline-block;opacity:0">${w}&nbsp;</span>`).join(""); [...node.children].forEach((w, i) => A(w, { opacity: [0, 1], transform: ["translateY(30px) scale(1.4)", "translateY(0px) scale(1)"] }, { duration: 0.4, delay: d + i * step, ease: BACK })); };
+    const at = (t, fn) => timers.push(setTimeout(fn, t * 1000));
+    let timers = [];
+
+    const SCENES = [
+      // 1 — logo burst
+      [0, () => {
+        const s = scene("bg-white", `<div class="abs" id="burst" style="left:640px;top:360px;width:10px;height:10px;border-radius:50%;background:#58cc02;transform:translate(-50%,-50%)"></div>
+          <div class="center"><div class="logo" id="logo"><span class="cs">c</span><span class="cs">s</span><span>l</span><span>i</span><span>n</span><span>g</span><span>o</span></div>
+          <p class="small" id="tag" style="margin-top:18px;font-size:32px;opacity:0">computer science, one bite at a time</p></div>
+          <div class="abs" id="m1" style="left:540px;top:440px;opacity:0">${mascot({ who: "sprout", size: 200, mood: "laugh", acc: ["party"], act: "dance" })}</div>`);
+        A($("#burst", s), { transform: ["translate(-50%,-50%) scale(1)", "translate(-50%,-50%) scale(320)"] }, { duration: 0.7, ease: [0.7, 0, 0.3, 1] });
+        [...$("#logo", s).children].forEach((c, i) => A(c, { opacity: [0, 1], transform: ["translateY(-260px) rotate(-20deg)", "translateY(0px) rotate(0deg)"] }, { type: "spring", bounce: 0.5, duration: 0.8, delay: 0.35 + i * 0.07 }));
+        at(0.45, () => snd("whoosh"));
+        at(0.9, () => snd("pop"));
+        A($("#logo", s), { transform: ["translateY(0px)", "translateY(-70px)"] }, { delay: 1.4, duration: 0.5, ease: EASE });
+        rise($("#tag", s), 1.5);
+        A($("#m1", s), { opacity: [0, 1], transform: ["translateY(200px)", "translateY(-10px)"] }, { delay: 1.6, type: "spring", bounce: 0.4, duration: 0.8 });
+        at(1.7, () => snd("squeak"));
+      }],
+      // 2 — the problem
+      [3.2, () => {
+        const s = scene("bg-ink", `${Array.from({ length: 10 }, (_, i) => `<div class="slide-card" style="left:${60 + (i * 127) % 1100}px;top:-200px;transform:rotate(${(i % 3 - 1) * 12}deg)"></div>`).join("")}
+          <div class="center" style="align-items:flex-start;padding-left:120px">
+            <p class="mid strike" id="p1" style="opacity:0">80-slide lectures.</p>
+            <p class="mid strike" id="p2" style="opacity:0;margin-top:18px">3am cramming.</p>
+            <p class="mid" id="p3" style="opacity:0;margin-top:18px;color:#ff4b4b">Zero fun.</p></div>
+          <div class="abs" id="m2" style="right:130px;top:240px;opacity:0">${mascot({ who: "berry", size: 230, mood: "cry", act: "cry" })}</div>`);
+        s.querySelectorAll(".slide-card").forEach((c, i) => A(c, { transform: [c.style.transform, `translateY(${900 + (i % 4) * 40}px) ${c.style.transform.replace(/-?\d+deg/, (d) => parseInt(d) * 3 + "deg")}`] }, { duration: 2.4, delay: i * 0.12, ease: "easeIn" }));
+        ["#p1", "#p2", "#p3"].forEach((q, i) => { rise($(q, s), 0.15 + i * 0.7, 30); at(0.2 + i * 0.7, () => snd(i === 2 ? "wrong" : "tick")); });
+        at(0.75, () => A($("#p1", s), { "--s": [0, 1] }, { duration: 0.3 }));
+        at(1.45, () => A($("#p2", s), { "--s": [0, 1] }, { duration: 0.3 }));
+        pop($("#m2", s), 1.6);
+        at(1.8, () => snd("sad"));
+      }],
+      // 3 — the flip
+      [6.4, () => {
+        flash(); snd("whoosh");
+        const s = scene("bg-green", `<div class="center"><p class="big" id="q" style="max-width:1100px;font-size:96px">What if studying felt like a game?</p></div>
+          <div class="abs" style="left:80px;bottom:40px" id="a">${mascot({ who: "chip", size: 110, mood: "surprised", acc: ["propeller"] })}</div>
+          <div class="abs" style="right:80px;bottom:40px" id="b">${mascot({ who: "pebble", size: 110, mood: "shocked", acc: ["shades"] })}</div>`);
+        words($("#q", s), 0.1, 0.1);
+        pop($("#a", s), 0.6); pop($("#b", s), 0.75);
+        at(0.8, () => snd("pop"));
+      }],
+      // 4 — the path
+      [8.2, () => {
+        flash(); snd("whoosh");
+        const s = scene("bg-blue", `<div class="abs" style="left:80px;top:170px;width:360px"><div class="tag" id="t" style="color:#1899d6">Step 1</div><p class="mid" id="h" style="margin-top:18px">Follow the path.</p><p class="small" id="d" style="margin-top:14px">Bite-sized lessons, one idea at a time, across 3 CS modules.</p></div>
+          <div id="br">${browser("home", "left:470px;top:70px")}</div>
+          <div class="abs" id="pm" style="left:120px;bottom:30px">${mascot({ who: "pebble", size: 120, act: "juggle", acc: ["party"], mood: "happy" })}</div>`);
+        rise($("#t", s), 0.1); rise($("#h", s), 0.2); rise($("#d", s), 0.35);
+        A($("#br .browser", s), { opacity: [0, 1], transform: ["perspective(1200px) rotateY(-28deg) translateX(200px) scale(0.9)", "perspective(1200px) rotateY(-8deg) translateX(0px) scale(1)"] }, { duration: 0.8, ease: EASE });
+        pop($("#pm", s), 0.6);
+        at(1.8, () => { const img = el(`<img src="shots/popover.png" alt="" style="opacity:0">`); $(".shot", s).appendChild(img); A(img, { opacity: [0, 1] }, { duration: 0.3 }); A($(".browser", s), { transform: ["perspective(1200px) rotateY(-8deg) scale(1)", "perspective(1200px) rotateY(0deg) scale(1.08)"] }, { duration: 1.4, ease: EASE }); snd("pop"); });
+      }],
+      // 5 — check
+      [12.2, () => {
+        flash(); snd("whoosh");
+        const s = scene("bg-white", `<div id="br">${browser("pick", "left:60px;top:90px;width:720px")}</div>
+          <div class="abs" style="left:830px;top:120px;width:400px"><p class="mid ink" id="h1" style="opacity:0">Pick.</p><p class="mid ink" id="h2" style="opacity:0;color:#1cb0f6 !important">Check.</p><p class="mid ink" id="h3" style="opacity:0;color:#58cc02 !important">Nailed it.</p></div>
+          <div class="abs" id="btn" style="left:880px;top:470px;opacity:0"><span class="sticker">Check</span></div>
+          <div class="abs xp" id="xp" style="left:1060px;top:410px;opacity:0">+1 XP</div>
+          <div class="abs" id="combo" style="left:840px;top:590px;opacity:0"><span class="sticker orange" style="font-size:24px;padding:12px 26px">🔥 5 in a row</span></div>`);
+        A($(".browser", s), { opacity: [0, 1], transform: ["translateY(80px) rotate(-3deg)", "translateY(0px) rotate(-1.5deg)"] }, { duration: 0.6, ease: EASE });
+        rise($("#h1", s), 0.2); at(0.25, () => snd("select"));
+        rise($("#h2", s), 0.8); pop($("#btn", s), 0.8);
+        at(1.5, () => { A($("#btn .sticker", s), { transform: ["translateY(0px)", "translateY(7px)", "translateY(0px)"], boxShadow: ["0 7px 0 #58a700", "0 0px 0 #58a700", "0 7px 0 #58a700"] }, { duration: 0.25 }); });
+        at(1.65, () => { const img = el(`<img src="shots/correct.png" alt="" style="opacity:0">`); $(".shot", s).appendChild(img); A(img, { opacity: [0, 1] }, { duration: 0.2 }); snd("correct"); rise($("#h3", s), 0, 20); NIC.fx.celebrate($("#btn", s), { silent: true }); });
+        at(1.9, () => A($("#xp", s), { opacity: [0, 1, 1, 0], transform: ["translateY(20px) scale(0.5)", "translateY(-20px) scale(1.2)", "translateY(-50px) scale(1)", "translateY(-80px)"] }, { duration: 1.4, times: [0, 0.2, 0.7, 1] }));
+        at(2.4, () => { pop($("#combo", s), 0, 0.2); snd("streak"); });
+      }],
+      // 6 — demos
+      [16.4, () => {
+        flash(); snd("whoosh");
+        const s = scene("bg-violet", `<div class="abs" style="left:0;right:0;top:44px;text-align:center"><p class="mid" id="h">Live demos. Not dead slides.</p></div>
+          <div id="b1">${browser("demo", "left:60px;top:170px;width:620px")}</div><div id="b2">${browser("roulette", "left:600px;top:210px;width:620px")}</div>
+          <div class="abs" id="bm" style="left:560px;top:520px">${mascot({ who: "byte", size: 150, act: "spin", acc: ["tophat", "monocle"], mood: "smug" })}</div>`);
+        words($("#h", s), 0, 0.09);
+        A($("#b1 .browser", s), { opacity: [0, 1], transform: ["translateX(-500px) rotate(-12deg)", "translateX(0px) rotate(-4deg)"] }, { type: "spring", bounce: 0.3, duration: 0.9, delay: 0.2 });
+        A($("#b2 .browser", s), { opacity: [0, 1], transform: ["translateX(600px) rotate(12deg)", "translateX(0px) rotate(4deg)"] }, { type: "spring", bounce: 0.3, duration: 0.9, delay: 0.5 });
+        pop($("#bm", s), 1.1);
+        at(0.3, () => snd("pop")); at(0.6, () => snd("pop")); at(1.2, () => snd("squeak"));
+        at(2.4, () => A($("#b2 .browser", s), { transform: ["translateX(0px) rotate(4deg)", "translateX(-40px) rotate(0deg) scale(1.05)"] }, { duration: 1.2, ease: EASE }));
+      }],
+      // 7 — boss
+      [20.2, () => {
+        flash(); snd("whoosh");
+        const s = scene("bg-orange", `<div class="abs" style="left:70px;top:180px;width:420px"><div class="tag" style="color:#cd7900">16 boss quizzes</div><p class="big" id="h" style="margin-top:18px;font-size:120px">Beat the boss.</p></div>
+          <div id="br">${browser("boss", "left:520px;top:110px;width:700px")}</div>
+          <div class="abs" id="bm" style="left:430px;top:460px">${mascot({ who: "byte", size: 190, mood: "determined", acc: ["crown"] })}</div>`);
+        rise($(".tag", s), 0.1); words($("#h", s), 0.2, 0.15);
+        A($(".browser", s), { opacity: [0, 1], transform: ["scale(1.4) rotate(6deg)", "scale(1) rotate(2deg)"] }, { duration: 0.5, ease: EASE, delay: 0.3 });
+        at(0.8, () => { A($(".browser", s), { transform: ["rotate(2deg) translateX(0px)", "rotate(1deg) translateX(-10px)", "rotate(3deg) translateX(10px)", "rotate(2deg) translateX(0px)"] }, { duration: 0.35, repeat: 3 }); snd("wrong"); });
+        pop($("#bm", s), 0.9);
+      }],
+      // 8 — rewards
+      [23.6, () => {
+        flash(); snd("flame");
+        const who = ["sprout", "pebble", "byte", "chip", "berry"], hats = ["wizard", "viking", "propeller", "chef", "detective"];
+        const s = scene("bg-white", `<div class="abs" style="left:0;right:0;top:40px;text-align:center"><p class="mid ink" id="h">Streaks. Quests. Silly hats.</p></div>
+          <div class="abs" style="left:470px;top:130px;display:flex;align-items:center;gap:6px" id="fl">${mascot({ who: "blaze", size: 210, mood: "laugh", act: "dance", acc: ["shades"] })}<span class="flame-n" id="n">6</span></div>
+          <div class="abs" style="left:0;right:0;bottom:40px;display:flex;justify-content:center;gap:34px" id="row">${who.map((w, i) => mascot({ who: w, size: 120, acc: [hats[i]], act: ["juggle", "headbang", "wave", "sleep", "dance"][i], mood: ["happy", "laugh", "wink", "sleepy", "love"][i] })).join("")}</div>`);
+        words($("#h", s), 0, 0.12);
+        pop($("#fl", s), 0.2);
+        at(1.1, () => { $("#n", s).textContent = "7"; A($("#n", s), { transform: ["scale(1)", "scale(1.5)", "scale(1)"] }, { duration: 0.5, ease: BACK }); snd("streak"); });
+        [...$("#row", s).children].forEach((m, i) => { pop(m, 0.9 + i * 0.12); at(0.95 + i * 0.12, () => snd("squeak")); });
+      }],
+      // 9 — outro
+      [27.4, () => {
+        flash(); snd("fanfare");
+        const cast = ["sprout", "pebble", "byte", "blaze", "chip", "berry"];
+        const s = scene("bg-green", `<div class="center" style="justify-content:flex-start;padding-top:70px">
+            <div class="logo" id="logo" style="font-size:170px"><span class="cs">cs</span><span>lingo</span></div>
+            <div style="display:flex;gap:18px;margin-top:22px" id="stats"><div class="stat"><b>3</b><span>courses</span></div><div class="stat"><b>58</b><span>lessons</span></div><div class="stat"><b>16</b><span>boss quizzes</span></div></div>
+            <p class="small" id="free" style="margin-top:22px;font-size:28px">Free · runs in your browser · no sign-up</p>
+            <div class="url" id="url" style="margin-top:18px">duc-minh-droid.github.io/cslingo</div></div>
+          <div class="abs" style="left:0;right:0;bottom:12px;display:flex;justify-content:space-between;padding:0 40px" id="row">${cast.map((w, i) => mascot({ who: w, size: 100, act: "dance", mood: i % 2 ? "laugh" : "happy", acc: [["party", "crown", "wizard", "shades", "propeller", "beanie"][i]] })).join("")}</div>`);
+        A($("#logo", s), { opacity: [0, 1], transform: ["scale(2.4) rotate(-6deg)", "scale(1) rotate(0deg)"] }, { type: "spring", bounce: 0.35, duration: 0.8 });
+        [...$("#stats", s).children].forEach((c, i) => pop(c, 0.5 + i * 0.12));
+        rise($("#free", s), 1); pop($("#url", s), 1.3);
+        [...$("#row", s).children].forEach((m, i) => A(m, { opacity: [0, 1], transform: ["translateY(160px)", "translateY(0px)"] }, { type: "spring", bounce: 0.4, duration: 0.7, delay: 0.3 + i * 0.07 }));
+        at(0.5, () => { confetti({ particleCount: 160, spread: 110, startVelocity: 50, origin: { y: 0.55 }, colors: ["#fff", "#ffc800", "#1cb0f6", "#ff4b4b", "#ce82ff"] }); });
+        at(1.4, () => { confetti({ particleCount: 70, angle: 60, spread: 60, origin: { x: 0, y: 0.8 } }); confetti({ particleCount: 70, angle: 120, spread: 60, origin: { x: 1, y: 0.8 } }); });
+      }],
+    ];
+    const LENGTH = 32;
+
+    function play(withSound) {
+      muted = !withSound;
+      timers.forEach(clearTimeout); timers = [];
+      $("#controls").hidden = true;
+      SCENES.forEach(([t, fn]) => at(t, fn));
+      A($("#scrub"), { transform: ["scaleX(0)", "scaleX(1)"] }, { duration: LENGTH, ease: "linear" });
+      at(LENGTH, () => { if (REC) return; const c = $("#controls"); c.hidden = false; $("#play").textContent = "↻ Replay with sound"; if (!$("#open")) c.insertAdjacentHTML("beforeend", `<a class="btn big" id="open" href="../">Open CSLingo →</a>`); });
+    }
+    $("#play").addEventListener("click", () => play(true));
+    $("#playMute").addEventListener("click", () => play(false));
+    if (REC) { $("#controls").hidden = true; $("#scrub").style.display = "none"; document.body.style.background = "#fff"; setTimeout(() => play(false), 600); }
+    window.__trailer = { play, LENGTH };
+  })();
+  </script>
+</body>
+</html>
