@@ -124,6 +124,9 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - **To use a new emoji:** add `"<char>": "<fluent-emoji-flat name>"` to `MAP` in `tools/emoji-build.py`, run `python tools/emoji-build.py`, and commit the regenerated `vendor/fluent-emoji.js`. Names are listed at https://icon-sets.iconify.design/fluent-emoji-flat/. Fluent has no flags, so use a stand-in icon.
 - Emoji inside `<canvas>` can't be swapped, so don't use them there. Plain typographic marks (✓ ✗ → ← ★ ▸ ① ② ③) are text, not emoji, and are fine.
 
+**CSS class names**
+- Shell and player classes are prefixed (`tb-`, `pl-`, `p-`, `pc-`, `us-`, `pd-`, `ps-`, `q-`) so they can't collide with the short classes that module demos use (`pop`, `chip`, `gene`, `cell`, `stat`…). New shell-level classes must be prefixed too. An unprefixed `.pop` once turned every population demo into full-screen overlays.
+
 **Copy**
 - Short and friendly. One idea per step. UK spelling.
 
@@ -217,7 +220,7 @@ NIC.registerBoss({
   // optional: matrix: true (shows the TSP matrix), aside: "<html>" reference card
   qs: [
     { type: "mcq", q: "…", o: ["…", "…"], a: 0, why: "…" },
-    { type: "num", q: "…", ans: 42, tol: 0.5, unit: "ms", why: "…" },
+    { type: "slider", q: "Estimate…", min: 0, max: 100, step: 5, ans: 40, tol: 10, unit: "ms", why: "…" },
   ],
 });
 ```
@@ -228,7 +231,7 @@ Question types (defined in the header of `js/quiz.js`):
 |---|---|
 | `mcq` | `o, a` |
 | `multi` | `o, a:[...]` |
-| `num` | `ans, tol, unit` |
+| `num` | `ans, tol, unit` (**don't use in boss quizzes**, see below) |
 | `slider` | `min, max, step, ans, tol, unit, live` |
 | `order` | `items` (in the correct order) |
 | `match` | `pairs` |
@@ -239,6 +242,7 @@ Question types (defined in the header of `js/quiz.js`):
 - Every question type can also take an optional `fig` and `hint`.
 - Use `NIC.qfig.graph/points/curve` for pick diagrams.
 - Aim for 7–10 questions that mix at least 3 types, with new scenarios only (§5).
+- **No calculator.** Learners take quizzes without one, so never ask for a typed answer (`num`). Every question must be solvable with mental arithmetic: offer the numbers as `mcq` options (spread far enough apart to tell by estimating), use a `slider` with a generous tolerance for estimates, or ask about the reasoning instead of the digits. Give a `hint` that breaks any arithmetic into easy steps.
 
 ## 7. Testing (required before you finish)
 
