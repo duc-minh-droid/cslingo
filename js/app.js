@@ -136,7 +136,7 @@
     quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="faint">New ones every day</span></div></div>
       ${game.quests().map((q) => `<div class="q-row ${q.done ? "done" : ""}"><div class="q-t"><b>${q.t}</b><span class="q-bar"><span style="transform:scaleX(${q.prog / q.n})"></span><i>${q.prog}/${q.n}</i></span></div>
         ${q.claimed ? `<span class="q-got">${IC.check}</span>` : q.done ? `<button class="q-claim" data-q="${q.id}">${IC.chest}<span>Claim</span></button>` : `<span class="q-chest">${IC.chest}</span>`}</div>`).join("")}`,
-    me: () => `<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Practice mistakes</span></button>
+    me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Practice mistakes</span></button>
       <button class="menu-row" data-act="sound">${IC.sound}<span>Sound: <b>${NIC.sfx.on() ? "on" : "off"}</b></span><kbd>M</kbd></button><button class="menu-row danger" data-act="reset">${IC.reset}<span>Reset all progress</span></button>`,
   };
   const POP_MOUNT = {
@@ -174,8 +174,45 @@
       qsa("[data-go]", card).forEach((b) => b.addEventListener("click", () => { closePop(); location.hash = b.dataset.go; }));
       qs('[data-act="sound"]', card).addEventListener("click", () => { NIC.sfx.set(!NIC.sfx.on()); qs('[data-act="sound"] b', card).textContent = NIC.sfx.on() ? "on" : "off"; });
       qs('[data-act="reset"]', card).addEventListener("click", resetAll);
+      wireSync(card);
     },
   };
+
+  // ---------- account sync (js/sync.js) ----------
+  const IC_CLOUD = `<svg viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.4 9.1 4.5 4.5 0 0 0 7 18z" fill="currentColor"/></svg>`;
+  function syncRow() {
+    if (!NIC.sync) return "";
+    const em = NIC.sync.email();
+    return em ? `<div class="menu-row sy-row">${IC_CLOUD}<span>Synced<small>${esc(em)}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
+      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Sign in with your email</small></span></button>`;
+  }
+  function wireSync(root) {
+    const i = qs('[data-act="signin"]', root), o = qs('[data-act="signout"]', root);
+    if (i) i.addEventListener("click", () => { closePop(); signInModal(); });
+    if (o) o.addEventListener("click", async () => { if (!confirm("Sign out of sync on this device? Your progress stays here and in your account.")) return; await NIC.sync.signOut(); closePop(); renderTop(); route(); });
+  }
+  function signInModal() {
+    const m = modal(`<div class="sy">
+      <div class="ob-hero">${NIC.mascot({ who: "chip", size: 96, mood: "happy", act: "wave", acc: ["propeller"] })}<div class="bubble ob-bubble">Sign in once on each device and your progress follows you. No password: I'll email you a link.</div></div>
+      <form class="sy-form"><input class="sy-email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Email address"><button class="btn big primary" type="submit">Email me a link</button></form>
+      <p class="faint sy-msg">Open the link in this same browser. You'll stay signed in here after that.</p></div>`, { cls: "sy-modal" });
+    const f = qs(".sy-form", m), msg = qs(".sy-msg", m), btn = qs("button[type=submit]", m);
+    setTimeout(() => qs(".sy-email", m).focus(), 50);
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      btn.disabled = true; btn.textContent = "Sending…";
+      try {
+        await NIC.sync.signIn(qs(".sy-email", m).value.trim());
+        f.remove(); msg.classList.remove("faint");
+        msg.innerHTML = `<b>Check your email.</b> Click the link in it, in this browser, and you're in. You can close this.`;
+        NIC.sfx.play("check");
+      } catch (err) {
+        btn.disabled = false; btn.textContent = "Email me a link";
+        msg.innerHTML = `<b style="color:var(--rose-ink)">Couldn't send it:</b> ${esc(err.message || String(err))}`;
+      }
+    });
+  }
+  if (NIC.sync) NIC.sync.on(() => renderTop());
 
   function modal(html, { cls = "" } = {}) {
     const m = el(`<div class="modal-back"><div class="modal ${cls}" role="dialog" aria-modal="true"><button class="modal-x" aria-label="Close">✕</button>${html}</div></div>`);
@@ -400,6 +437,7 @@
       <div class="ach-grid">${game.ACH.map((a) => `<div class="ach ${ach[a.id] ? "got" : ""}">${NIC.mascot({ who: "sprout", size: 64, acc: [a.acc], mood: ach[a.id] ? "happy" : "sleepy", poke: !!ach[a.id] })}${ach[a.id] ? "" : `<span class="ach-lock">${IC.lock}</span>`}<b>${a.t}</b><span>${a.d}</span><small>${ach[a.id] ? `Unlocked ${NIC.cast.ACC[a.acc].name}` : `Unlocks ${NIC.cast.ACC[a.acc].name}`}</small></div>`).join("")}</div>
       <h2>Settings</h2>
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
+        ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Sign in to sync</button>`}</div>` : ""}
         <div class="set-row"><b>Sound effects</b><button class="btn" id="pfSound">${NIC.sfx.on() ? "On" : "Off"}</button></div>
         <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>
     </div>`);
@@ -407,6 +445,7 @@
     qsa("[data-g]", page).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); qsa("[data-g]", page).forEach((x) => x.classList.toggle("on", x === b)); renderTop(); }));
     qs("#pfSound", page).addEventListener("click", (e) => { NIC.sfx.set(!NIC.sfx.on()); e.target.textContent = NIC.sfx.on() ? "On" : "Off"; });
     qs("#pfReset", page).addEventListener("click", resetAll);
+    wireSync(page);
     fx.enter(qsa(".shelf-spot, .pf-stat, .ach", page), { stagger: 0.03 });
     life.onCleanup(NIC.cast.idle(page));
   }

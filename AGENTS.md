@@ -34,6 +34,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, problems`. |
 | `js/bank-nic.js bank-ds.js bank-algo.js` | Revision questions, about 5 per module (session). |
 | `js/revise.js` + `css/revise.css` | The **Revise** tab (`#revise`): `NIC.revisePage(main, life, {names})`. Sessions run in `NIC.player.revise({home, n, subjects})`. |
+| `js/sync.js` | Optional account sync `NIC.sync` (Supabase project `cslingo`, table `public.progress`, one row per user, row-level security). Magic-link sign-in; it mirrors every `nic.*` localStorage key. Newest side wins; it never reloads mid-lesson. `vendor/supabase.js` loads only when signed in or returning from a link. |
 | `js/player.js` + `css/player.css` | Full-screen lesson player `NIC.player`. |
 | `js/app.js` + `css/shell.css` | `SUBJECTS` (the course/lecture catalogue), routing, path home, top bar and popovers, dock, Practice and Profile pages. |
 | `css/styles.css` | Theme tokens and base components (buttons, cards, tags, answer tiles, tables, genomes, chips). |

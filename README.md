@@ -28,7 +28,7 @@
 
 ## Privacy
 
-Everything you do (progress, XP, streak, quests) is stored **only in your browser's `localStorage`**. There is no backend, no account, and no analytics. The only network request is the Google Fonts stylesheet.
+Everything you do (progress, XP, streak, quests) is stored in your browser's `localStorage`. You can optionally sign in with an email link to sync it across your devices; it's then also kept in a private Supabase row that only your account can read. There are no analytics.
 
 ## Run it locally
 
