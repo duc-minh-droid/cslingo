@@ -183,8 +183,8 @@
   function syncRow() {
     if (!NIC.sync) return "";
     const em = NIC.sync.email();
-    return em ? `<div class="menu-row sy-row">${IC_CLOUD}<span>Synced<small>${esc(em)}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
-      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Sign in with your email</small></span></button>`;
+    return em ? `<div class="menu-row sy-row">${IC_CLOUD}<span>Synced<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
+      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Sign in to your account</small></span></button>`;
   }
   function wireSync(root) {
     const i = qs('[data-act="signin"]', root), o = qs('[data-act="signout"]', root);
@@ -193,22 +193,23 @@
   }
   function signInModal() {
     const m = modal(`<div class="sy">
-      <div class="ob-hero">${NIC.mascot({ who: "chip", size: 96, mood: "happy", act: "wave", acc: ["propeller"] })}<div class="bubble ob-bubble">Sign in once on each device and your progress follows you. No password: I'll email you a link.</div></div>
-      <form class="sy-form"><input class="sy-email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Email address"><button class="btn big primary" type="submit">Email me a link</button></form>
-      <p class="faint sy-msg">Open the link in this same browser. You'll stay signed in here after that.</p></div>`, { cls: "sy-modal" });
+      <div class="ob-hero">${NIC.mascot({ who: "chip", size: 96, mood: "happy", act: "wave", acc: ["propeller"] })}<div class="bubble ob-bubble">Sign in once on each device and your progress follows you. You stay signed in after that.</div></div>
+      <form class="sy-form"><input class="sy-email" name="u" required autocomplete="username" placeholder="Username" aria-label="Username">
+        <input class="sy-email" name="p" type="password" required autocomplete="current-password" placeholder="Password" aria-label="Password">
+        <button class="btn big primary" type="submit">Sign in</button></form>
+      <p class="faint sy-msg"></p></div>`, { cls: "sy-modal" });
     const f = qs(".sy-form", m), msg = qs(".sy-msg", m), btn = qs("button[type=submit]", m);
-    setTimeout(() => qs(".sy-email", m).focus(), 50);
+    setTimeout(() => f.u.focus(), 50);
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
-      btn.disabled = true; btn.textContent = "Sending…";
+      btn.disabled = true; btn.textContent = "Signing in…";
       try {
-        await NIC.sync.signIn(qs(".sy-email", m).value.trim());
-        f.remove(); msg.classList.remove("faint");
-        msg.innerHTML = `<b>Check your email.</b> Click the link in it, in this browser, and you're in. You can close this.`;
-        NIC.sfx.play("check");
+        await NIC.sync.signIn(f.u.value.trim(), f.p.value);
+        m.remove(); NIC.sfx.play("check");
       } catch (err) {
-        btn.disabled = false; btn.textContent = "Email me a link";
-        msg.innerHTML = `<b style="color:var(--rose-ink)">Couldn't send it:</b> ${esc(err.message || String(err))}`;
+        btn.disabled = false; btn.textContent = "Sign in";
+        msg.innerHTML = `<b style="color:var(--rose-ink)">Couldn't sign in:</b> ${esc(err.message || String(err))}`;
+        if (fx.ok) fx.shake(f);
       }
     });
   }

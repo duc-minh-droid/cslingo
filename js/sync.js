@@ -1,6 +1,7 @@
 /* Account sync (optional). Progress still lives in localStorage; signing in copies it to a Supabase row so it follows you.
      NIC.sync.user()          → {email} when signed in, else null
-     NIC.sync.signIn(email)   → sends a magic link (PKCE flow, so the link comes back as ?code=…, not a #hash that would fight the router)
+     NIC.sync.signIn(name, pw) → username + password sign-in. A bare username maps to <name>@cslingo.app (no email is ever sent).
+                                The account is made by the owner in the Supabase dashboard; the app has no sign-up, so nobody else can join.
      NIC.sync.signOut()
      NIC.sync.on(fn)          → called with the user (or null) whenever that changes
    Table public.progress (user_id = auth.uid(), data jsonb = {"nic.*": raw localStorage string}), protected by row-level security.
@@ -117,10 +118,10 @@
     pending: () => !!localStorage.getItem("nic.syncUser"),
     email: () => { try { return JSON.parse(localStorage.getItem("nic.syncUser")); } catch { return null; } },
     on: (fn) => { subs.push(fn); },
-    async signIn(email) {
+    async signIn(name, password) {
       const c = await client();
-      const back = location.origin + location.pathname;
-      const { error } = await c.auth.signInWithOtp({ email, options: { emailRedirectTo: back, shouldCreateUser: true } });
+      const email = name.includes("@") ? name : `${name.toLowerCase()}@cslingo.app`;
+      const { error } = await c.auth.signInWithPassword({ email, password });
       if (error) throw error;
     },
     async signOut() { const c = await client(); await push({ force: true }); await c.auth.signOut(); localStorage.removeItem("nic.syncAt"); },
