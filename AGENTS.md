@@ -16,6 +16,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 |---|---|
 | `index.html` | Shell: `#topbar`, `#pop`, `#main`, `#dock`, and **every script tag in load order**. |
 | `js/core.js` | `window.NIC` helpers: DOM (`el/qs/qsa/esc`), `store`, `register`, `header`, `predict`, `guide`, `takeaways`, `slider`, `seg`, `lifecycle`, `setupCanvas`, `colors()`, canvas `lineChart/barChart` (fallbacks), landscapes, TSP data. |
+| `js/emoji.js` + `vendor/fluent-emoji.js` | Swaps emoji characters for Fluent Emoji (Flat) SVG icons, in HTML and inside SVG figures. |
 | `js/fx.js` | Motion wrappers `NIC.fx`: `enter/step/pop/shake/reveal/count/play/onView/celebrate/floatText/toast/watchStats/animate`. |
 | `js/cast.js` + `css/cast.css` | Mascot cast. `NIC.mascot({...})`, `NIC.mascotReact`, `NIC.cast.surprise/idle`, `NIC.feedback`. |
 | `js/game.js` | XP, streak, goal, quests, achievements: `NIC.game`. |
@@ -83,6 +84,7 @@ Never rename these keys, because that wipes users' progress. The Reset buttons a
 | Motion (motion.dev UMD) | `vendor/motion.js` | All JS animation, via `NIC.fx` or `Motion.animate/inView`. |
 | Chart.js 4 | `vendor/chart.umd.js` | Every line/bar chart, through `NIC.lineChart/barChart`. |
 | canvas-confetti | `vendor/confetti.browser.js` | `NIC.fx.celebrate`. |
+| Fluent Emoji (Flat), Microsoft, MIT | `vendor/fluent-emoji.js` (generated) | All pictographic icons in content (see §4 Emoji). |
 | Google Fonts: Nunito | `<link>` in `index.html` | Only external request; falls back to system font offline. |
 
 Don't add a framework or bundler. If you need a new library, vendor a UMD build into `vendor/`, add a `<script>` before the files that use it, and make the code degrade gracefully if it's missing.
@@ -115,6 +117,12 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - Moods: `idle happy laugh sad cry surprised wink love dizzy sleepy determined smug shocked think`.
 - Actions: `dance juggle sleep skate headbang spin wave peek cry`.
 - Accessories are listed in `NIC.cast.ACC`.
+
+**Emoji → Fluent Emoji icons**
+- Never ship native emoji glyphs; they look different on every OS and clash with the theme. `js/emoji.js` automatically replaces every *mapped* emoji in the page with a flat Fluent SVG. It handles HTML text and SVG `<text>` labels (the icon goes beside the label, or centred if the label was only the emoji).
+- In new code you can type a mapped emoji (🧬 🧠 🐜 💥 📬 🎩 ✂ ✈ 🔁 🐞 💀 🚐 🚚 📈 🤖 🎯 🐒 🦎 🚗 📡 📅 💧 🥾 🔥 ⚠) or write `NIC.emo("fire")`.
+- **To use a new emoji:** add `"<char>": "<fluent-emoji-flat name>"` to `MAP` in `tools/emoji-build.py`, run `python tools/emoji-build.py`, and commit the regenerated `vendor/fluent-emoji.js`. Names are listed at https://icon-sets.iconify.design/fluent-emoji-flat/. Fluent has no flags, so use a stand-in icon.
+- Emoji inside `<canvas>` can't be swapped, so don't use them there. Plain typographic marks (✓ ✗ → ← ★ ▸ ① ② ③) are text, not emoji, and are fine.
 
 **Copy**
 - Short and friendly. One idea per step. UK spelling.
@@ -172,7 +180,7 @@ Put it in the course's file (for example `js/ds.js`, or a new `js/algo-pN.js`):
 })();
 ```
 
-Then add `<script src="js/<file>.js"></script>` to `index.html`. Put it after `js/charts.js`, `js/fig.js` and `js/quiz.js`, and before `js/player.js` and `js/app.js`.
+Then add `<script src="js/<file>.js"></script>` to `index.html`. Put it after `js/emoji.js`, `js/charts.js`, `js/fig.js` and `js/quiz.js`, and before `js/player.js` and `js/app.js`.
 
 Rules:
 - `predict` ids must be globally unique.

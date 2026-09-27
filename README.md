@@ -41,7 +41,7 @@ Then open http://localhost:8651.
 
 ## Tech
 
-Plain HTML/CSS/JS with no build step. Libraries: [Motion](https://motion.dev) for animation, [Chart.js](https://www.chartjs.org) for charts and [canvas-confetti](https://github.com/catdad/canvas-confetti) for confetti. All three are vendored in `vendor/`.
+Plain HTML/CSS/JS with no build step. Libraries: [Motion](https://motion.dev) for animation, [Chart.js](https://www.chartjs.org) for charts, [canvas-confetti](https://github.com/catdad/canvas-confetti) for confetti, and Microsoft's [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat, MIT) for icons. All are vendored in `vendor/`.
 
 Tests run in the page (Playwright or DevTools). Load `tools/answer.js` and `tools/smoke.js`, then run `await smoke()`. It walks every lesson in the player and must return `errors: []`. `tools/boss-test.js` → `await bossTest()` answers every boss question through the real UI.
 
