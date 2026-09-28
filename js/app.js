@@ -69,6 +69,7 @@
   //  Icons
   // =====================================================================
   const IC = {
+    clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
     star: `<svg viewBox="0 0 24 24"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
     check: `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     trophy: `<svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 13v4M8 21h8l-1-4H9z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
@@ -137,6 +138,8 @@
   }
   document.addEventListener("pointerdown", (e) => { if (popKind && !e.target.closest(".pop-card, [data-pop]")) closePop(); if (!e.target.closest(".p-node, .node-pop")) closeNodePop(); });
 
+  /** Time until the daily quests roll over at local midnight, Duolingo style ("8 HOURS"). */
+  const questsLeft = () => { const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1), h = Math.floor((m - n) / 36e5); return h >= 1 ? `${h} HOUR${h === 1 ? "" : "S"} LEFT` : `${Math.ceil((m - n) / 6e4)} MIN LEFT`; };
   const POPS = {
     course: () => `<h3>Your courses</h3>${SUBJ_ORDER.map((k) => { const S = SUBJECTS[k], p = progress(inSubj(k)); return `<button class="pc-row ${k === course ? "on" : ""}" data-s="${k}">${NIC.mascot({ who: S.who, size: 44, poke: false, mood: k === course ? "happy" : "idle" })}<span class="pc-t"><b>${S.name}</b><small>${S.code} · ${p.d}/${p.n} done</small><span class="pc-bar"><span style="transform:scaleX(${p.f})"></span></span></span></button>`; }).join("")}
       <label class="pc-search">${IC.search}<input type="search" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd>/</kbd></label><div class="pc-res"></div>`,
@@ -147,7 +150,7 @@
       <div class="sk-freeze">${NIC.emo("ice")}<span><b>${game.freezes()}</b> streak freeze${game.freezes() === 1 ? "" : "s"}</span><small>Covers a missed day automatically. Finish all 3 daily quests to earn one (max 2).</small></div>`; },
     xp: () => { const tx = game.todayXP(), g = game.goal(); return `<div class="pop-hero">${ring(tx / g, 34, 10)}<div><b class="big-n">${tx}<small> / ${g} XP</small></b><span>today · ${game.totalXP()} XP total</span></div></div>
       <h4>Daily goal</h4><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === g ? "on" : ""}">${t}<small>${v}</small></button>`).join("")}</div>`; },
-    quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="faint">New ones every day</span></div></div>
+    quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="q-left">${IC.clock}${questsLeft()}</span></div></div>
       ${game.quests().map((q) => `<div class="q-row ${q.done ? "done" : ""}"><div class="q-t"><b>${q.t}</b><span class="q-bar"><span style="transform:scaleX(${q.prog / q.n})"></span><i>${q.prog}/${q.n}</i></span></div>
         ${q.claimed ? `<span class="q-got">${IC.check}</span>` : q.done ? `<button class="q-claim" data-q="${q.id}">${IC.chest}<span>Claim</span></button>` : `<span class="q-chest">${IC.chest}</span>`}</div>`).join("")}`,
     me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Practice mistakes</span></button>
@@ -277,6 +280,43 @@
     { who: "chip", act: "juggle", acc: ["wizard"], mood: "determined" },
   ];
 
+  /** A round button that appears when the current lesson is scrolled off screen and takes you back to it. */
+  function jumpButton(page) {
+    const cur = qs(".p-row.cur", page); if (!cur || !window.IntersectionObserver) return;
+    const b = el(`<button class="p-jump" aria-label="Jump to your current lesson" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`);
+    page.appendChild(b);
+    b.addEventListener("click", () => { cur.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "center" }); NIC.sfx.play("whoosh"); });
+    const io = new IntersectionObserver(([e]) => { b.hidden = e.isIntersecting; b.classList.toggle("up", e.boundingClientRect.top < 0); }, { threshold: 0.2 });
+    io.observe(qs(".p-node", cur)); life.onCleanup(() => io.disconnect());
+  }
+
+  /** A unit's path: its lessons, with a reward chest after every third lesson (like Duolingo's path chests). */
+  function pathItems(list, lec) {
+    const out = []; let n = 0;
+    list.forEach((m, k) => {
+      out.push({ m });
+      if (!isBoss(m) && ++n % 3 === 0 && k < list.length - 1) out.push({ chest: `${subjOf(m)}-${lec}-${n}`, after: m.id });
+    });
+    return out;
+  }
+  const CHEST = (open) => `<svg viewBox="0 0 64 56" class="p-chest-svg">${open
+    ? '<path d="M8 20h48l-4-12H12z" fill="#e0a800"/><rect x="6" y="22" width="52" height="28" rx="6" fill="#cd7900"/><rect x="6" y="22" width="52" height="8" fill="#a85f00"/><rect x="27" y="22" width="10" height="12" rx="3" fill="#ffc800"/>'
+    : '<rect x="6" y="20" width="52" height="30" rx="7" fill="#cd7900"/><path d="M6 27a13 13 0 0 1 13-13h26a13 13 0 0 1 13 13v3H6z" fill="#ff9600"/><rect x="6" y="28" width="52" height="5" fill="#a85f00"/><rect x="16" y="14" width="6" height="36" fill="#a85f00" opacity=".5"/><rect x="42" y="14" width="6" height="36" fill="#a85f00" opacity=".5"/><rect x="26" y="25" width="12" height="13" rx="3.5" fill="#ffc800"/><circle cx="32" cy="31" r="2" fill="#a85f00"/>'}</svg>`;
+  function chestRow(it, i) {
+    const opened = !!store.get("nic.chests", {})[it.chest], ready = !opened && status(modules.find((x) => x.id === it.after)) === "done";
+    return `<div class="p-row p-chest-row ${opened ? "opened" : ready ? "ready" : "locked"}" style="--k:${zig(i).toFixed(3)};top:${i * ROW}px" data-chest="${it.chest}">
+      <button class="p-chest" aria-label="${opened ? "Opened chest" : ready ? "Open reward chest" : "Reward chest: finish the lesson before it"}" ${ready ? "" : "disabled"}>${CHEST(opened)}</button></div>`;
+  }
+  function openChest(row) {
+    const id = row.dataset.chest, c = store.get("nic.chests", {});
+    if (c[id]) return;
+    c[id] = NIC.game.today(); store.set("nic.chests", c);
+    const b = qs(".p-chest", row), xp = 5 + Math.floor(Math.random() * 6);
+    NIC.sfx.play("chest");
+    fx.lottieAt(b, "chest", { size: 190, dy: -40 });
+    setTimeout(() => { b.innerHTML = CHEST(true); b.disabled = true; row.className = row.className.replace(/\bready\b/, "opened"); game.award(xp, "chest"); fx.floatText(b, `+${xp} XP`, "#ff9600"); fx.celebrate(b, { silent: true }); }, 650);
+  }
+
   /** The boss in this course with the lowest score under 80%, if any. */
   function weakBoss(s) {
     const q = store.get("nic.quiz", {});
@@ -319,8 +359,10 @@
         const castRow = Math.min(list.length - 1, 2);
         return `<section class="unit u-${col}" data-u="${u}" data-lbl="${esc(lbl)}" data-ttl="${esc(ttl)}" data-p="${p.d}/${p.n}" data-lec="${lec}">
           ${u ? `<div class="unit-divider"><span>${lbl} · ${ttl}</span></div>` : ""}
-          <div class="path" style="height:${list.length * ROW + 20}px">
-            ${list.map((m, i) => {
+          <div class="path" style="height:${pathItems(list, lec).length * ROW + 20}px">
+            ${pathItems(list, lec).map((it, i) => {
+              if (it.chest) return chestRow(it, i);
+              const m = it.m;
               const st = status(m), boss = isBoss(m), cur = resume === m;
               const topic = !boss && window.FLUENT_EMOJI && FLUENT_EMOJI.topics && FLUENT_EMOJI.topics[m.id];
               const ic = topic ? NIC.emo(topic, "p-topic") + (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "") : st === "done" ? (boss ? IC.trophy : IC.check) : boss ? IC.trophy : cur ? IC.play : IC.star;
@@ -340,6 +382,8 @@
     qsa(".p-node", page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); nodePop(b.closest(".p-row")); }));
     wireTips(page);
     rail();
+    qsa(".p-chest-row.ready", page).forEach((r) => qs(".p-chest", r).addEventListener("click", (e) => { e.stopPropagation(); openChest(r); }));
+    jumpButton(page);
     qsa("[data-to]", page).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to; }));
     stickyHeader(page);
     // entrance: nodes pop in unit by unit as they scroll into view
@@ -365,7 +409,7 @@
 
   function popUnit(u, delay) {
     if (!fx.ok || fx.reduce()) return;
-    qsa(".p-node", u).forEach((n, i) => fx.animate(n, { opacity: [0, 1], transform: ["scale(0.3)", "scale(1)"] }, { type: "spring", duration: 0.55, bounce: 0.45, delay: delay + i * 0.06 }).finished.then(() => { n.style.transform = ""; n.style.opacity = ""; }).catch(() => {}));
+    qsa(".p-node, .p-chest", u).forEach((n, i) => fx.animate(n, { opacity: [0, 1], transform: ["scale(0.3)", "scale(1)"] }, { type: "spring", duration: 0.55, bounce: 0.45, delay: delay + i * 0.06 }).finished.then(() => { n.style.transform = ""; n.style.opacity = ""; }).catch(() => {}));
     const c = qs(".p-cast .mascot", u);
     if (c) fx.animate(c, { opacity: [0, 1], transform: ["translateY(30px) scale(0.7)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.6, bounce: 0.4, delay: delay + 0.3 });
   }

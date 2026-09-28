@@ -342,3 +342,21 @@ body.in-lesson { overflow: hidden; }
   .rail .goal-seg { display: grid; grid-template-columns: repeat(2, 1fr); }
   .rail .pop-hero .mascot { transform: scale(.8); transform-origin: left center; }
 }
+
+/* ---------- Path reward chests + jump-to-current (Duolingo path) ---------- */
+.p-chest { appearance: none; position: absolute; left: -38px; top: 12px; width: 76px; height: 70px; padding: 0; border: 0; background: none; cursor: pointer; }
+.p-chest-svg { width: 76px; height: 66px; display: block; filter: drop-shadow(0 5px 0 rgba(0,0,0,.12)); transition: transform 150ms ease; }
+.p-chest-row.locked .p-chest-svg { filter: grayscale(1) opacity(.5) drop-shadow(0 5px 0 rgba(0,0,0,.08)); }
+.p-chest-row.locked .p-chest, .p-chest-row.opened .p-chest { cursor: default; }
+.p-chest-row.opened .p-chest-svg { filter: grayscale(.7) opacity(.6); }
+.p-chest-row.ready .p-chest-svg { animation: chestWiggle 2.4s ease-in-out infinite; }
+@keyframes chestWiggle { 0%, 70%, 100% { transform: rotate(0); } 75% { transform: rotate(-8deg) scale(1.05); } 80% { transform: rotate(7deg) scale(1.05); } 85% { transform: rotate(-4deg); } 90% { transform: rotate(0); } }
+@media (hover: hover) { .p-chest-row.ready .p-chest:hover .p-chest-svg { transform: scale(1.08); } }
+.p-jump { position: fixed; z-index: 41; right: max(16px, calc(50% - 300px)); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: 52px; height: 52px; border-radius: 16px; border: 2px solid var(--line); background: #fff; color: var(--blue); box-shadow: 0 4px 0 var(--line); display: grid; place-items: center; cursor: pointer; }
+.p-jump svg { width: 24px; height: 24px; }
+.p-jump.up svg { transform: rotate(180deg); }
+.p-jump[hidden] { display: none; }
+.p-jump:active { transform: translateY(4px); box-shadow: 0 0 0 var(--line); }
+.q-left { display: inline-flex; align-items: center; gap: 5px; color: var(--amber-ink); font-size: 12.5px; font-weight: 900; letter-spacing: .04em; }
+.q-left svg { width: 15px; height: 15px; }
+.pt-chips svg { width: 12px; height: 12px; vertical-align: -1px; margin-right: 3px; }

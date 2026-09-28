@@ -18,6 +18,7 @@
   const reduce = () => fx() && fx().reduce();
 
   const IC = {
+    retry: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12a4 4 0 1 0 1.2-2.85M8 7.5v2.4h2.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     x: `<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
     ok: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#58cc02" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     no: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M8 8l8 8M16 8l-8 8" stroke="#ff4b4b" stroke-width="3.2" stroke-linecap="round"/></svg>`,
@@ -161,7 +162,7 @@
   }
 
   function progress() {
-    const content = S.screens.filter((x) => !["complete", "streak"].includes(x.kind)).length;
+    const content = S.screens.filter((x) => !["complete", "streak", "hype"].includes(x.kind)).length;
     const f = Math.min(1, S.i / Math.max(1, content));
     const fill = qs(".pl-fill", S.root);
     fill.style.transform = `scaleX(${f})`;
@@ -170,6 +171,7 @@
 
   function combo() {
     const c = qs(".pl-combo", S.root);
+    qs(".pl-bar", S.root).classList.toggle("hot", S.combo >= 5);
     if (S.combo >= 3) {
       c.textContent = `${S.combo} IN A ROW`;
       c.classList.add("on");
@@ -181,6 +183,7 @@
 
   /** Footer: mode = continue | check | ok | no | hidden */
   function foot(mode, { label, onGo, fb = "", enabled = true, danger = false } = {}) {
+    if (S.go) S.go.classList.remove("pl-go-blue");
     S.foot.className = `pl-foot f-${mode}`;
     const fbEl = qs(".pl-fb", S.foot);
     fbEl.innerHTML = fb;
@@ -250,7 +253,7 @@
       else foot("continue", { onGo: next });
     },
     q(node, sc) {
-      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag rose">Mistake to fix</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
+      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       askQ(qs(".pl-qwrap", node), sc, {});
     },
     try(node, sc) {
@@ -302,6 +305,19 @@
         <div class="pl-tag orange">Boss quiz</div><h1>${S.mod.title}</h1><p class="lede">${B.lede || ""}</p>
         <div class="pl-kinds">${B.qs.length} questions · ${kinds.join(" · ")}</div>${S.refHTML ? `<div class="card pl-ref-card">${S.refHTML}</div>` : ""}</div>`;
       foot("continue", { label: "Start", onGo: next });
+    },
+    hype(node, sc) {
+      const pal = ["sprout", "pebble", "byte", "blaze", "chip", "berry"].filter((w) => w !== S.who);
+      const buddy = pal[(sc.n / 5) % pal.length | 0];
+      const lines = [["That's " + sc.n + " in a row!", "I am SO proud of you!"], [sc.n + " in a row?!", "You're on fire today!"], ["Unstoppable!", sc.n + " right, no misses!"]][(sc.n / 5 - 1) % 3];
+      node.innerHTML = `<div class="pl-in pl-center pl-hype">
+        <div class="ph-stage">
+          <div class="ph-who ph-a"><div class="bubble ph-bub">${lines[0]}</div>${N.mascot({ who: S.who, size: 150, mood: "laugh", act: "dance", acc: ["party"] })}</div>
+          <div class="ph-who ph-b"><div class="bubble ph-bub">${lines[1]}</div>${N.mascot({ who: buddy, size: 130, mood: "love", act: "spin", acc: ["crown"] })}</div>
+        </div></div>`;
+      sound("streak");
+      if (fx()) { setTimeout(() => fx().lottieAt(qs(".ph-stage", node), "combo", { size: 180, dy: -40 }), 150); if (fx().ok && !reduce()) qsa(".ph-bub", node).forEach((b, k) => fx().animate(b, { opacity: [0, 1], transform: ["translateY(10px) scale(0.8)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.45, bounce: 0.45, delay: 0.2 + k * 0.35 })); }
+      foot("continue", { onGo: next });
     },
     reviseIntro(node, sc) {
       node.innerHTML = `<div class="pl-in pl-center">${N.mascot({ who: "chip", size: 150, mood: "determined", acc: ["propeller"], act: "dance" })}
@@ -361,7 +377,7 @@
         <div class="pd-cast">${others.slice(0, 2).map((w, k) => N.mascot({ who: w, size: 78, mood: "happy", act: acts[k], acc: [hats[k]] })).join("")}
           ${N.mascot({ who: S.who, size: 150, mood: "laugh", act: "dance", acc: ["party"], cls: "pd-star" })}
           ${others.slice(2, 4).map((w, k) => N.mascot({ who: w, size: 78, mood: k ? "love" : "happy", act: acts[k + 2], acc: [hats[k + 2]] })).join("")}</div>
-        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? (S.bossPct >= 0.8 ? "Boss beaten!" : "Quiz complete!") : "Lesson complete!"}</h1>
+        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? (S.bossPct >= 0.8 ? "Boss beaten!" : "Quiz complete!") : acc === 1 ? pickOne(["Learning legend!", "Flawless!", "Perfect lesson!"]) : acc >= 0.8 ? pickOne(["Lesson complete!", "Nicely done!", "Brain gains!"]) : "Lesson complete!"}</h1>
         ${S.kind === "boss" && S.bossScore ? `<div class="pd-boss">${S.bossPerfect ? "Perfect score" : "Score"}: <b>${S.bossScore}</b></div>` : ""}
         <div class="pd-cards">
           <div class="pd-card c-gold"><b>Total XP</b><span>${IC.bolt}<i data-v="${total}">0</i></span></div>
@@ -386,6 +402,7 @@
       }
       N.lastFinished = S.mod.id;
       foot("continue", { onGo: () => (res.firstToday ? (S.screens.push({ kind: "streak" }), next()) : close()) });
+      S.go.classList.add("pl-go-blue"); // Duolingo's lesson-complete button is blue
     },
     streak(node) {
       const r = S.streakRes, wk = game().week();
@@ -468,6 +485,7 @@
       if (first) S.xp += S.kind === "boss" ? 2 : 1;
       S.combo++; S.wrongRun = 0;
       game().track("combo", S.combo);
+      if (S.combo >= 5 && S.combo % 5 === 0 && S.kind !== "boss") S.screens.splice(S.i + 1, 0, { kind: "hype", n: S.combo });
     } else {
       S.combo = 0; S.wrongRun++;
       const ref = sc.bossIdx !== undefined ? { boss: S.boss.id, i: sc.bossIdx } : { Q };

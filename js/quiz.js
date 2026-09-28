@@ -103,36 +103,46 @@
       answer: (Q) => Q.items.map((t, k) => `${k + 1}. ${t}`).join("  "),
     },
     match: {
-      label: "Match each pair",
-      /* Tap a left tile, then its partner on the right (Duolingo style). Tap a paired tile to undo it. v[k] = index of the right chosen for left k. */
+      label: "Tap the matching pairs",
+      /* Duolingo style: tap one tile on each side. A right pair flashes green and fades out; a wrong pair flashes red.
+         Answer value: {pairs:[right index per left], miss: wrong tries}. Right = no wrong tries (an array of indices also grades). */
       render(Q, box, submit, idKey) {
         const rights = seeded(Q.pairs.map((p) => p[1]), idKey + "m");
-        box.innerHTML = `<div class="q-match"><div class="qm-col">${Q.pairs.map(([l], k) => `<button class="qm-t qm-l" data-k="${k}" aria-pressed="false">${l}</button>`).join("")}</div>
-          <div class="qm-col">${rights.map(([r, i]) => `<button class="qm-t qm-r" data-i="${i}" aria-pressed="false">${r}</button>`).join("")}</div></div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
-        const pair = Q.pairs.map(() => -1), chk = qs("[data-check]", box);
-        let armed = null; // a left index waiting for its partner
-        const paint = () => {
-          qsa(".qm-l", box).forEach((b) => { const k = +b.dataset.k; b.className = `qm-t qm-l${pair[k] >= 0 ? " paired p" + (k % 5) : ""}${armed === k ? " sel" : ""}`; b.setAttribute("aria-pressed", pair[k] >= 0 || armed === k); });
-          qsa(".qm-r", box).forEach((b) => { const k = pair.indexOf(+b.dataset.i); b.className = `qm-t qm-r${k >= 0 ? " paired p" + (k % 5) : ""}`; b.setAttribute("aria-pressed", k >= 0); });
-          chk.disabled = pair.includes(-1);
+        box.innerHTML = `<div class="q-match"><div class="qm-col">${Q.pairs.map(([l], k) => `<button class="qm-t qm-l" data-k="${k}">${l}</button>`).join("")}</div>
+          <div class="qm-col">${rights.map(([r, i]) => `<button class="qm-t qm-r" data-i="${i}">${r}</button>`).join("")}</div></div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        const chk = qs("[data-check]", box);
+        let pick = { l: null, r: null }, miss = 0, done = 0;
+        const clear = () => qsa(".qm-t.sel", box).forEach((b) => { b.classList.remove("sel"); b.setAttribute("aria-pressed", "false"); });
+        const tryPair = () => {
+          if (!pick.l || !pick.r) return;
+          const L = pick.l, R = pick.r; pick = { l: null, r: null };
+          if (+L.dataset.k === +R.dataset.i) {
+            [L, R].forEach((b) => { b.classList.remove("sel"); b.classList.add("good"); b.disabled = true; });
+            N.sfx && N.sfx.play("select");
+            setTimeout(() => [L, R].forEach((b) => { b.classList.remove("good"); b.classList.add("gone"); }), 450);
+            if (++done === Q.pairs.length) { chk.disabled = false; N.sfx && N.sfx.play("check"); }
+          } else {
+            miss++;
+            [L, R].forEach((b) => { b.classList.remove("sel"); b.classList.add("bad"); if (N.fx) N.fx.shake(b); });
+            N.sfx && N.sfx.play("retry");
+            setTimeout(() => [L, R].forEach((b) => b.classList.remove("bad")), 500);
+          }
         };
-        qsa(".qm-l", box).forEach((b) => (b.onclick = () => { const k = +b.dataset.k; if (pair[k] >= 0) { pair[k] = -1; armed = k; } else armed = armed === k ? null : k; paint(); N.sfx && N.sfx.play("select"); }));
-        qsa(".qm-r", box).forEach((b) => (b.onclick = () => {
-          const i = +b.dataset.i, had = pair.indexOf(i);
-          if (armed === null) { if (had >= 0) { pair[had] = -1; armed = had; paint(); } return; }
-          if (had >= 0) pair[had] = -1;
-          pair[armed] = i; armed = null; paint();
-          N.sfx && N.sfx.play("pop");
-          if (N.fx) N.fx.pop(b);
+        qsa(".qm-t", box).forEach((b) => (b.onclick = () => {
+          if (b.disabled) return;
+          const side = b.classList.contains("qm-l") ? "l" : "r";
+          if (pick[side] === b) { pick[side] = null; b.classList.remove("sel"); return; }
+          if (pick[side]) pick[side].classList.remove("sel");
+          pick[side] = b; b.classList.add("sel"); b.setAttribute("aria-pressed", "true");
+          if (!(pick.l && pick.r)) N.sfx && N.sfx.play("tap");
+          tryPair();
         }));
-        chk.onclick = () => submit(pair.slice());
-        paint();
+        chk.onclick = () => submit({ pairs: Q.pairs.map((_, k) => k), miss });
       },
-      grade: (Q, v) => v.every((x, k) => x === k),
-      reveal(Q, box, v) {
-        qsa(".qm-t", box).forEach((b) => (b.disabled = true));
-        qsa(".qm-l", box).forEach((b) => { const k = +b.dataset.k, ok = v[k] === k; b.classList.add(ok ? "right" : "wrong"); if (!ok) b.insertAdjacentHTML("beforeend", `<span class="qm-fix">✓ ${Q.pairs[k][1]}</span>`); });
-        qsa(".qm-r", box).forEach((b) => { const k = v.indexOf(+b.dataset.i); b.classList.add(k === +b.dataset.i ? "right" : "wrong"); });
+      grade: (Q, v) => (Array.isArray(v) ? v.every((x, k) => x === k) : v && v.miss === 0),
+      reveal(Q, box, v, ok) {
+        qsa(".qm-t", box).forEach((b) => { b.disabled = true; b.classList.remove("gone"); b.classList.add(ok ? "right" : "shown"); });
+        if (!ok && v && v.miss) box.insertAdjacentHTML("beforeend", `<div class="q-correct">${v.miss} wrong pairing${v.miss === 1 ? "" : "s"} on the way. The pairs are:</div>`);
         qsa(".q-actions", box).forEach((a) => a.remove());
       },
       answer: (Q) => Q.pairs.map(([l, r]) => `${String(l).replace(/<[^>]+>/g, "")} → ${String(r).replace(/<[^>]+>/g, "")}`).join(" · "),

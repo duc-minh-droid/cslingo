@@ -152,3 +152,18 @@
 .ps-flame .ps-lottie { position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; transform: translate(-50%, -58%); z-index: -1; opacity: .9; }
 .pd-boss { margin: -6px 0 14px; font-size: 16px; font-weight: 800; color: var(--text-dim); }
 .pd-boss b { color: var(--amber-ink); font-size: 20px; }
+
+/* ---------- Duolingo touches: streak-gold progress bar, "N in a row" hype screen, previous-mistake tag ---------- */
+.pl-bar.hot .pl-fill { background: var(--amber); }
+.pl-bar.hot .pl-fill::after { background: rgba(255, 255, 255, 0.45); }
+.pl-hype { min-height: 55vh; justify-content: center; }
+.ph-stage { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding-top: 70px; }
+.ph-who { position: relative; display: flex; flex-direction: column; align-items: center; }
+.ph-bub { position: absolute; bottom: calc(100% - 6px); white-space: nowrap; font-weight: 800; font-size: 16px; padding: 10px 14px; }
+.ph-a .ph-bub { right: 30%; }
+.ph-b .ph-bub { left: 30%; }
+.ph-stage::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 4px; height: 22px; border-radius: 50%; background: var(--line); z-index: -1; }
+.pl-prev { display: inline-flex; align-items: center; gap: 6px; }
+.pl-prev svg { width: 16px; height: 16px; }
+@media (max-width: 480px) { .ph-bub { font-size: 14px; white-space: normal; width: 150px; } .ph-a .ph-bub { right: 10%; } .ph-b .ph-bub { left: 0; } }
+.pl-go.pl-go-blue { background: var(--blue); border-color: var(--blue); box-shadow: 0 5px 0 var(--blue-ink); }

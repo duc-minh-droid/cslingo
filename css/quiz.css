@@ -54,8 +54,6 @@
 .qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease, border-color 150ms ease; }
 .qm-t:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .qm-t.sel { border-color: var(--blue-edge); background: var(--blue-dim); box-shadow: 0 3px 0 var(--blue-edge); }
-.qm-t.paired { --pc: var(--blue); border-color: var(--pc); box-shadow: 0 3px 0 var(--pc); background: color-mix(in srgb, var(--pc) 12%, #fff); }
-.qm-t.p1 { --pc: var(--violet); } .qm-t.p2 { --pc: var(--amber); } .qm-t.p3 { --pc: var(--teal); } .qm-t.p4 { --pc: var(--rose); }
 .qm-t.right { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); }
 .qm-t.wrong { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); }
 .qm-fix { display: block; margin-top: 4px; font-weight: 800; color: var(--teal-ink); font-size: 13px; }
@@ -88,3 +86,8 @@
 .qc-line:disabled { cursor: default; }
 .qc-line.right { background: var(--teal-dim); }
 .qc-line.wrong { background: var(--rose-dim); }
+
+.qm-t.good { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); color: var(--teal-ink); }
+.qm-t.bad { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); color: var(--rose-ink); }
+.qm-t.gone { opacity: .45; background: var(--bg-2); color: var(--text-faint); box-shadow: 0 0 0 var(--line); transform: translateY(3px); transition: opacity 250ms ease, transform 250ms ease; }
+.qm-t.shown { opacity: .75; }
