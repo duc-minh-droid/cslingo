@@ -6,6 +6,15 @@
 (function () {
   const D = window.FLUENT_EMOJI;
   if (!D) return;
+  // Our own sticker badges for the plain marks lessons use a lot: ✓ ✗ and ①–④ (a coloured coin with a darker lip, like the buttons).
+  const coin = (top, lip, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="13.2" r="10.4" fill="${lip}"/><circle cx="12" cy="11.6" r="10.4" fill="${top}"/>${inner}</svg>`;
+  const MARKS = {
+    "mk-check": coin("#58cc02", "#58a700", '<path d="M7.1 11.9l3.3 3.2 6.5-6.6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>'),
+    "mk-cross": coin("#ff4b4b", "#ea2b2b", '<path d="M8.4 8l7.2 7.2M15.6 8l-7.2 7.2" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round"/>'),
+  };
+  ["①", "②", "③", "④", "⑤"].forEach((c, k) => { MARKS[`mk-${k + 1}`] = coin("#1cb0f6", "#1899d6", `<text x="12" y="16" text-anchor="middle" font-family="Nunito, ui-rounded, sans-serif" font-weight="900" font-size="13" fill="#fff">${k + 1}</text>`); D.map[c] = `mk-${k + 1}`; });
+  Object.assign(D.svg, MARKS);
+  D.map["✓"] = "mk-check"; D.map["✔"] = "mk-check"; D.map["✗"] = "mk-cross"; D.map["✘"] = "mk-cross";
   const SVGNS = "http://www.w3.org/2000/svg";
   const keys = Object.keys(D.map).sort((a, b) => b.length - a.length);
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -15,7 +24,9 @@
 
   NIC.emo = (x, cls = "") => {
     const n = nameOf(x);
-    return n ? `<span class="emo ${cls}" role="img" aria-label="${n.replace(/-/g, " ")}">${D.svg[n]}</span>` : String(x);
+    if (!n) return String(x);
+    const mk = n.startsWith("mk-"), label = mk ? { "mk-check": "correct", "mk-cross": "wrong" }[n] || n.slice(3) : n.replace(/-/g, " ");
+    return `<span class="emo ${mk ? "emo-mk" : ""} ${cls}" role="img" aria-label="${label}">${D.svg[n]}</span>`;
   };
 
   function htmlNode(t) {

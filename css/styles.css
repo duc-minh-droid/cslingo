@@ -304,3 +304,5 @@ table.matrix td.hl { background: var(--amber-dim); color: var(--amber-ink); bord
 .emo-svg { overflow: visible; pointer-events: none; }
 .fig-cells .cell:has(.emo) { flex-direction: row; flex-wrap: wrap; justify-content: center; column-gap: 5px; height: auto; min-height: 38px; padding: 5px 10px; }
 .fig-cells .cell:has(.emo) small { flex-basis: 100%; text-align: center; }
+.emo-mk { width: 1.1em; height: 1.1em; vertical-align: -0.18em; }
+.emo-mk + .emo-mk { margin-left: 2px; }
