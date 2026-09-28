@@ -346,14 +346,14 @@ NIC.bank.add("ds-replication", [
 
 ## 8. Publishing
 
-The vault folder is the source. The mirror clone lives at `~/Desktop/cslingo`, with GitHub Pages serving `main` /root.
+The vault folder is the source. The mirror clone lives at `<vault>/.publish/cslingo` (its own git repo, gitignored by the vault), with GitHub Pages serving `main` /root.
 
 ```bash
 cd "<vault>/Nature inspired/Visualizer"
-cp -r index.html serve.py README.md AGENTS.md CLAUDE.md .nojekyll manifest.webmanifest sw.js css js vendor tools trailer assets ~/Desktop/cslingo/
-rm -rf ~/Desktop/cslingo/vendor/rive          # unused runtime (2.4 MB); only publish it once a .riv is in use
-python tools/stamp.py ~/Desktop/cslingo       # stamps ?v=<build> on every asset URL in the mirror's index.html
-cd ~/Desktop/cslingo && git add -A && git commit -m "…" && git push
+cp -r index.html serve.py README.md AGENTS.md CLAUDE.md .nojekyll manifest.webmanifest sw.js css js vendor tools trailer assets <vault>/.publish/cslingo/
+rm -rf <vault>/.publish/cslingo/vendor/rive          # unused runtime (2.4 MB); only publish it once a .riv is in use
+python tools/stamp.py <vault>/.publish/cslingo       # stamps ?v=<build> on every asset URL in the mirror's index.html
+cd <vault>/.publish/cslingo && git add -A && git commit -m "…" && git push
 ```
 
 - **Always stamp.** Without a new `?v=` browsers mix cached old files with new ones for up to 10 minutes (Pages sends `max-age=600`), and the service worker keeps an old cache. The vault copy stays at `?v=dev`.

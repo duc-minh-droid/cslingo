@@ -30,3 +30,10 @@
 .pl-go.pl-go-blue:hover { background: var(--blue); border-color: var(--blue); filter: brightness(1.05); }
 /* screens take focus by script (tabindex=-1) for screen readers; no ring around the whole screen */
 .pl-screen:focus, .pl-screen:focus-visible { outline: none; }
+
+/* back button beside the quit ✕ (hidden on the first screen, questions-only sessions and end screens) */
+.pl-back[hidden] { display: none; }
+.pl-back:hover { transform: none; }
+.pl-back:hover svg { transform: translateX(-2px); }
+.pl-back svg { transition: transform var(--dur-2) var(--ease-spring); }
+@media (max-width: 480px) { .pl-top .pl-back { margin-left: -6px; } }

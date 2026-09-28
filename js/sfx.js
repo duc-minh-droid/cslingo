@@ -105,8 +105,8 @@
 
   // Generic tap for controls that don't have their own sound (answers, lesson nav and checklists do).
   document.addEventListener("pointerdown", (e) => {
-    const t = e.target.closest(".btn, .seg button, .tabs button, .tb-btn, .dock button, .pl-x, .boss-dots button, .gene.click, .city, .chip-btn");
-    if (!t || t.disabled || t.matches("[data-nav], .opt, .guide-item, #soundToggle, .pl-go, .p-node, .mascot")) return;
+    const t = e.target.closest(".btn, .seg button, .tabs button, [role=tab], .tb-btn, .dock button, .pl-x, .pl-ref, .modal-x, .si-eye, .td-main, .td-chip, .pc-row, .menu-row, .np-restart, .sy-out, .boss-dots button, .gene.click, .city, .chip-btn");
+    if (!t || t.disabled || t.matches("[data-nav], .opt, .guide-item, #soundToggle, .pl-go, .pl-back, .p-node, .mascot, .ob-c, .pf-sw")) return;
     play("tap");
   }, true);
 

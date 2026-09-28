@@ -18,6 +18,7 @@
   const reduce = () => fx() && fx().reduce();
 
   const IC = {
+    back: `<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     retry: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12a4 4 0 1 0 1.2-2.85M8 7.5v2.4h2.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     x: `<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
     ok: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#58cc02" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
@@ -145,7 +146,7 @@
     const from = S.opts.from || N.player.originRect || null;
     N.player.originRect = null;
     const root = el(`<div class="player" role="dialog" aria-modal="true" aria-label="${stripTags(S.mod.title)}">
-      <header class="pl-top"><button class="pl-x" aria-label="Quit lesson">${IC.x}</button>
+      <header class="pl-top"><button class="pl-x" aria-label="Quit lesson">${IC.x}</button><button class="pl-x pl-back" aria-label="Previous screen" title="Back" hidden>${IC.back}</button>
         <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="pl-fill"></span><span class="pl-combo"></span></div>
         <span class="pl-retry" hidden title="Mistakes to fix">${IC.retry}<b>0</b></span>
         <span class="pl-chip">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
@@ -158,6 +159,7 @@
     S.root = root; S.stage = qs(".pl-stage", root); S.foot = qs(".pl-foot", root); S.go = qs(".pl-go", root);
     S.go.addEventListener("click", onGoClick);
     qs(".pl-x", root).addEventListener("click", askQuit);
+    qs(".pl-back", root).addEventListener("click", goBack);
     const ref = qs(".pl-ref", root), drawer = qs(".pl-drawer", root);
     const closeDrawer = () => {
       if (drawer.hidden || drawer.classList.contains("m-ghost")) return;
@@ -255,6 +257,7 @@
     if (t < (S.lockUntil || 0) && !webdriver()) return;
     const go = S.onGo, s = S, inner = qs(".pl-foot-in", S.foot);
     const sheet = /\bf-(ok|no)\b/.test(S.foot.className);
+    if (sheet || /\bf-continue\b/.test(S.foot.className)) sound("step"); // Check is followed by correct/wrong instead
     if (!sheet || S.kbd || webdriver() || !fx() || !fx().ok || !fx().exit) return go();
     S.leavingSheet = true;
     const F = fx();
@@ -328,6 +331,7 @@
     S.stage.appendChild(node);
     S.stage.scrollTop = 0;
     S.graded = false;
+    const bk = qs(".pl-back", S.root); if (bk) bk.hidden = prevIdx() < 0;
     qs(".pl-ref", S.root).hidden = !S.refHTML;
     if (S.refHTML) qs(".pl-drawer", S.root).innerHTML = S.refHTML;
     progress();
@@ -343,6 +347,21 @@
     if (vis && F && !S.kbd) F.play(vis); // keyboard moves don't animate
   }
   const next = () => { S.i++; show(S.kbd ? 0 : 1); };
+
+  /** Back: the nearest earlier teaching screen (steps, notes, try-its, intros). Questions, retries and end screens are
+      skipped, so going back reviews the material without re-answering; Continue then walks forward again. */
+  const NO_BACK = ["q", "complete", "streak", "hype", "mistakes", "bossResult"];
+  function prevIdx() {
+    if (!S || NO_BACK.slice(1).includes((S.screens[S.i] || {}).kind)) return -1;
+    for (let j = S.i - 1; j >= 0; j--) { const x = S.screens[j]; if (x && !x.retry && !NO_BACK.includes(x.kind)) return j; }
+    return -1;
+  }
+  function goBack() {
+    if (!S || S.leavingSheet) return;
+    const j = prevIdx(); if (j < 0) return;
+    sound("back");
+    S.i = j; show(S.kbd ? 0 : -1);
+  }
   const goldRect = () => { const c = S && qs(".pd-card.c-gold", S.stage); return c ? c.getBoundingClientRect() : null; };
 
   const presenter = (html, mood = "idle", who = S.who) => `<div class="pl-ask">${N.mascot({ who, size: 88, mood, cls: "pl-presenter" })}<div class="bubble pl-prompt">${html}</div></div>`;
@@ -684,6 +703,7 @@
       return;
     }
     if (e.key === "Enter" && !S.go.disabled) { e.preventDefault(); kbd(() => S.go.click()); }
+    if (e.key === "ArrowLeft" && !qs(".pl-back", S.root).hidden && !(e.target.closest && e.target.closest(".rn, .pl-body"))) { e.preventDefault(); kbd(goBack); }
   }
 
   function close(silent = false) {
