@@ -7,14 +7,8 @@
    shell) carry an extra `html` or parent selector.
    ===================================================================== */
 :root {
-  /* durations — mirrored in NIC.fx.DUR (seconds) */
-  --dur-press: 40ms;   /* squash on press: instant */
-  --dur-1: 90ms;       /* hovers, tiny state changes */
-  --dur-2: 160ms;      /* exits and fades */
-  --dur-3: 240ms;      /* entrances, springy releases */
-  --dur-4: 320ms;      /* sheets, page assembly */
-  --dur-bar: 420ms;    /* lesson progress fill */
-  /* easings: --ease-out, --ease-in-out and --ease-spring live in styles.css */
+  /* durations (--dur-press, --dur-1…4, --dur-bar) and --ease-out, --ease-in-out, --ease-spring live in styles.css,
+     so pages that load styles.css without this file (trailer/) still resolve them */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-pop: cubic-bezier(0.34, 1.8, 0.64, 1); /* bigger overshoot for small pops */
   --m-shine: rgba(255, 255, 255, 0.55);         /* highlight swept over coloured fills */
@@ -22,15 +16,17 @@
 
 /* ---------- tactile press: instant squash down, springy release ---------- */
 html :is(.btn, .predict .opt, .lesson-check .opt, .chip-btn, .qm-t, .td-main, .td-chip, .p-jump, .us-guide, .ob-c, .pl-ref) {
-  transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease, filter 150ms ease, opacity 150ms ease;
+  transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease, filter var(--dur-2) ease, opacity var(--dur-2) ease;
 }
 html :is(.btn, .predict .opt, .lesson-check .opt, .chip-btn, .qm-t, .td-main, .td-chip, .p-jump, .us-guide, .ob-c, .pl-ref):active:not(:disabled) {
-  transition-duration: var(--dur-press), var(--dur-press), 150ms, 150ms, 150ms, 150ms, 150ms;
+  transition-duration: var(--dur-press), var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
 }
-html :is(.tb-btn, .dock button, .seg button) { transition: transform var(--dur-3) var(--ease-spring), background-color 150ms ease, color 150ms ease, border-color 150ms ease; }
-html :is(.tb-btn, .dock button, .seg button):active { transition-duration: var(--dur-press), 150ms, 150ms, 150ms; }
-html .p-node { transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), filter 150ms ease; }
-html .p-node:active { transition-duration: var(--dur-press), var(--dur-press), 150ms; }
+html :is(.tb-btn, .dock button, .seg button) { transition: transform var(--dur-3) var(--ease-spring), background-color var(--dur-2) ease, color var(--dur-2) ease, border-color var(--dur-2) ease; }
+html :is(.tb-btn, .dock button, .seg button):active { transition-duration: var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2); }
+html .p-node { transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), filter var(--dur-2) ease; }
+html .p-node:active { transition-duration: var(--dur-press), var(--dur-press), var(--dur-2); }
+/* a matched pair leaves the board: it fades and sinks (quiz.css sets the end state) */
+html .qm-t.gone { transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out), background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease, box-shadow var(--dur-2) ease; }
 
 /* ---------- a selected answer tile springs (the right one bounces, a wrong one shakes: NIC.fx) ---------- */
 @keyframes m-sel { 0% { transform: scale(0.97); } 55% { transform: scale(1.015); } 100% { transform: scale(1); } }
@@ -52,7 +48,7 @@ html .node-pop { transform-origin: calc(50% + var(--ax, 0px)) -8px; }
 .m-ghost, .m-ghost * { pointer-events: none !important; }
 
 /* ---------- lesson progress bar: springy fill, shine on advance, pulse while hot ---------- */
-.player .pl-fill { transition: transform var(--dur-bar) var(--ease-spring); }
+.player .pl-fill { transition: transform var(--dur-bar) var(--ease-spring), background-color var(--dur-4) var(--ease-out); } /* colour: the hot (combo) fill fades in */
 .pl-fill::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 34%; background: var(--m-shine); opacity: 0; transform: translateX(-110%) skewX(-24deg); pointer-events: none; }
 .pl-bar.m-shine .pl-fill::before { animation: m-shine 700ms var(--ease-out) 80ms; }
 @keyframes m-shine { 0% { opacity: 0; transform: translateX(-110%) skewX(-24deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateX(320%) skewX(-24deg); } }

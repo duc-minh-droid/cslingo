@@ -12,7 +12,7 @@
 .tb-logo b { color: var(--blue); font-weight: 900; }
 @media (max-width: 480px) { .tb-logo { font-size: 20px; } .tb-course span { display: none; } }
 .tb-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
-.tb-btn { appearance: none; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 10px; border: 2px solid transparent; border-radius: 14px; background: transparent; font: inherit; font-weight: 900; font-size: 16px; color: var(--text-faint); cursor: pointer; transition: background-color 150ms ease, transform 120ms var(--ease-out); -webkit-tap-highlight-color: transparent; }
+.tb-btn { appearance: none; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 10px; border: 2px solid transparent; border-radius: 14px; background: transparent; font: inherit; font-weight: 900; font-size: 16px; color: var(--text-faint); cursor: pointer; -webkit-tap-highlight-color: transparent; } /* transitions: css/motion.css */
 .tb-btn:active { transform: scale(0.94); }
 @media (hover: hover) and (pointer: fine) { .tb-btn:hover { background: var(--bg-2); } }
 .tb-btn > svg { width: 26px; height: 26px; }
@@ -26,11 +26,11 @@
 .tb-xp .ring { width: 26px; height: 26px; }
 .ring-v { transition: stroke-dashoffset 700ms var(--ease-out); }
 .tb-quest { position: relative; }
-.tb-quest .tb-dot { position: absolute; top: 7px; right: 6px; width: 11px; height: 11px; border-radius: 50%; background: var(--rose); border: 2px solid var(--panel); transform: scale(0); transition: transform 300ms var(--ease-spring); }
+.tb-quest .tb-dot { position: absolute; top: 7px; right: 6px; width: 11px; height: 11px; border-radius: 50%; background: var(--rose); border: 2px solid var(--panel); transform: scale(0); transition: transform var(--dur-4) var(--ease-spring); }
 .tb-quest.ready .tb-dot { transform: scale(1); }
 .tb-quest.ready > svg { animation: chestJiggle 2.4s ease-in-out infinite; }
 @keyframes chestJiggle { 0%, 80%, 100% { transform: rotate(0); } 84% { transform: rotate(-12deg); } 88% { transform: rotate(10deg); } 92% { transform: rotate(-6deg); } }
-@keyframes flicker { from { transform: scale(1) rotate(-3deg); } to { transform: scale(1.1, 1.05) rotate(3deg); } }
+@keyframes flicker { from { transform: scale(1) rotate(-3deg); } to { transform: scale(1.12, 1.05) rotate(3deg); } } /* also the toast icon (ux.css) */
 
 /* popovers */
 .tb-pop { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
@@ -43,13 +43,13 @@
 .pop-hero .big-n { font-size: 34px; font-weight: 900; color: var(--ink); line-height: 1; }
 .pop-hero .big-n small { font-size: 16px; color: var(--text-faint); }
 .pop-hero .ring { width: 88px; height: 88px; flex-shrink: 0; }
-.pc-row { appearance: none; width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 6px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel); font: inherit; text-align: left; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease; }
+.pc-row { appearance: none; width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 6px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel); font: inherit; text-align: left; cursor: pointer; transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease; }
 .pc-row.on { border-color: var(--blue-edge); background: var(--blue-dim); }
 @media (hover: hover) and (pointer: fine) { .pc-row:not(.on):hover { background: var(--bg-2); } }
 .pc-t { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .pc-t small { color: var(--text-dim); font-weight: 700; }
 .pc-bar, .q-bar { position: relative; display: block; height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
-.pc-bar span, .q-bar span { position: absolute; inset: 0; background: var(--teal); border-radius: inherit; transform-origin: 0 50%; transition: transform 600ms var(--ease-out); }
+.pc-bar span, .q-bar span { position: absolute; inset: 0; background: var(--teal); border-radius: inherit; transform-origin: 0 50%; transition: transform var(--dur-bar) var(--ease-out); }
 .pc-search { position: relative; display: flex; align-items: center; margin-top: 8px; }
 .pc-search svg { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--text-faint); pointer-events: none; }
 .pc-search input { width: 100%; padding: 9px 36px; border-radius: 14px; font-size: 14px; }
@@ -89,7 +89,7 @@
 
 /* ---------- dock ---------- */
 .dock { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 4px; padding: 6px; background: var(--panel); border: 2px solid var(--line); border-radius: 22px; box-shadow: 0 4px 0 var(--line); }
-.dock button { appearance: none; display: flex; align-items: center; gap: 8px; padding: 9px 14px; border: 2px solid transparent; border-radius: 16px; background: transparent; font: inherit; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); cursor: pointer; transition: background-color 150ms ease, color 150ms ease, transform 120ms var(--ease-out); }
+.dock button { appearance: none; display: flex; align-items: center; gap: 8px; padding: 9px 14px; border: 2px solid transparent; border-radius: 16px; background: transparent; font: inherit; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); cursor: pointer; } /* transitions: css/motion.css */
 .dock button svg { width: 22px; height: 22px; }
 .dock button:active { transform: scale(0.93); }
 .dock button.on { background: var(--blue-dim); border-color: var(--blue-edge); color: var(--blue); }
@@ -104,12 +104,12 @@ body.in-lesson { overflow: hidden; }
 .u-violet { --u: var(--violet); --u-lip: var(--violet-lip); --u-soft: var(--violet-dim); }
 .u-orange { --u: var(--amber); --u-lip: var(--amber-lip); --u-soft: var(--amber-dim); }
 .unit-sticky { position: sticky; top: 64px; z-index: 20; margin-bottom: 18px; }
-.us-in { display: flex; align-items: center; gap: 12px; padding: 14px 16px 14px 20px; border-radius: 18px; background: var(--u); box-shadow: 0 var(--lip) 0 var(--u-lip); color: #fff; transition: background-color 300ms ease, box-shadow 300ms ease; }
+.us-in { display: flex; align-items: center; gap: 12px; padding: 14px 16px 14px 20px; border-radius: 18px; background: var(--u); box-shadow: 0 var(--lip) 0 var(--u-lip); color: #fff; transition: background-color var(--dur-4) ease, box-shadow var(--dur-4) ease; }
 .unit-sticky .us-in { background: var(--u); }
 .us-t { flex: 1; min-width: 0; }
 .us-t small { display: block; font-size: 12.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; opacity: 0.85; }
 .us-t h2 { color: #fff; margin: 2px 0 0; font-size: 20px; line-height: 1.2; }
-.us-guide { appearance: none; display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 14px; background: transparent; color: #fff; font: inherit; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; box-shadow: 0 3px 0 var(--u-lip); transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease; }
+.us-guide { appearance: none; display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 14px; background: transparent; color: #fff; font: inherit; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; box-shadow: 0 3px 0 var(--u-lip); transition: transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out, background-color var(--dur-2) ease; }
 .us-guide svg { width: 20px; height: 20px; }
 .us-guide:hover { background: rgba(255, 255, 255, 0.14); }
 .us-guide:active { transform: translateY(3px); box-shadow: none; }
@@ -126,22 +126,21 @@ body.in-lesson { overflow: hidden; }
   --nc: var(--line); --nl: var(--node-off-lip); --nf: var(--node-off-ic);
   appearance: none; position: absolute; left: -36px; top: 14px; width: 72px; height: 66px; border: 0; padding: 0; border-radius: 50%;
   background: var(--nc); box-shadow: 0 7px 0 var(--nl); color: var(--nf); cursor: pointer;
-  display: grid; place-items: center; transition: transform 110ms ease-out, box-shadow 110ms ease-out, filter 150ms ease;
+  display: grid; place-items: center; transition: transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out, filter var(--dur-2) ease;
   -webkit-tap-highlight-color: transparent;
 }
-.p-face { display: grid; place-items: center; transition: transform 260ms var(--ease-spring); }
+.p-face { display: grid; place-items: center; transition: transform var(--dur-3) var(--ease-spring); }
 .p-face svg { width: 32px; height: 32px; }
 .p-row.st-started .p-node, .p-row.st-done .p-node, .p-row.cur .p-node { --nc: var(--u); --nl: var(--u-lip); --nf: #fff; }
 .p-row.boss .p-node { width: 84px; height: 76px; left: -42px; top: 10px; }
 .p-row.boss.st-done .p-node { --nc: var(--gold); --nl: #e0a800; --nf: #fff; }
 .p-ring { position: absolute; left: -11px; top: -11px; width: calc(100% + 22px); height: calc(100% + 26px); pointer-events: none; overflow: visible; }
-.p-row.cur .p-node::after { content: ""; position: absolute; inset: -12px -12px -18px; border-radius: 50%; border: 4px solid var(--u-soft); animation: ring 1.8s var(--ease-out) infinite; pointer-events: none; }
-@keyframes ring { 0% { transform: scale(0.92); opacity: 1; } 100% { transform: scale(1.18); opacity: 0; } }
+.p-row.cur .p-node::after { content: ""; position: absolute; inset: -12px -12px -18px; border-radius: 50%; border: 4px solid var(--u-soft); pointer-events: none; } /* breathes: css/motion.css m-breathe */
 @media (hover: hover) and (pointer: fine) { .p-node:hover { filter: brightness(1.06); } .p-node:hover .p-face { transform: scale(1.14) rotate(-8deg); } }
 .p-node:active { transform: translateY(7px); box-shadow: 0 0 0 var(--nl); }
-.p-bubble { position: absolute; left: 0; top: -38px; transform: translateX(-50%); z-index: 2; background: var(--panel); color: var(--u); border: 2px solid var(--line); border-radius: 12px; padding: 5px 12px; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; pointer-events: none; animation: bubbleBob 1.4s ease-in-out infinite; }
+.p-bubble { position: absolute; left: 0; top: -38px; transform: translateX(-50%); z-index: 2; background: var(--panel); color: var(--u); border: 2px solid var(--line); border-radius: 12px; padding: 5px 12px; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; pointer-events: none; animation: bubbleBob 2.2s ease-in-out infinite; } /* in step with m-breathe (motion.css) */
 .p-bubble::after { content: ""; position: absolute; left: 50%; top: 100%; width: 12px; height: 12px; background: var(--panel); border: 2px solid var(--line); border-top: 0; border-left: 0; transform: translate(-50%, -6px) rotate(45deg); }
-@keyframes bubbleBob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-6px); } }
+@keyframes bubbleBob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
 .p-cast { position: absolute; z-index: 1; }
 .p-cast.left { left: 2%; } .p-cast.right { right: 2%; }
 @media (max-width: 480px) { .p-cast .mascot { --ms: 76px !important; } .p-cast.left { left: -4px; } .p-cast.right { right: -4px; } }
@@ -268,6 +267,8 @@ body.in-lesson { overflow: hidden; }
 @keyframes ab-dash { to { stroke-dashoffset: -44; } }
 .ab-sparkle { animation: ab-bob 2.2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
 @media (prefers-reduced-motion: reduce) { .ab-drift, .ab-sun, .ab-blink, .ab-wave, .ab-drop, .ab-vine, .ab-sparkle { animation: none; } }
+/* reduced motion: the shell's idle loops stop (flame flicker, chest jiggle/wiggle, the Start bubble bob) */
+@media (prefers-reduced-motion: reduce) { .tb-streak.lit > svg, .tb-quest.ready > svg, .q-claim, .p-chest-row.ready .p-chest-svg, .p-bubble { animation: none; } }
 .unit-sticky .us-in { background-image: var(--pat, none); background-size: auto; }
 .ab-empty-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 18px; }
 .ab-empty { width: 200px; height: auto; }
@@ -305,7 +306,7 @@ body.in-lesson { overflow: hidden; }
 
 /* ---------- Study flow: Today card, Practice tabs, dock badge, path end, resume, reset ---------- */
 .td-card { margin: 0 0 14px; display: grid; gap: 8px; }
-.td-main { appearance: none; display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 2px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 4px 0 var(--line); font: inherit; color: var(--text); text-align: left; cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
+.td-main { appearance: none; display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border: 2px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 4px 0 var(--line); font: inherit; color: var(--text); text-align: left; cursor: pointer; transition: transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out; }
 .td-main:active { transform: translateY(4px); box-shadow: 0 0 0 var(--line); }
 .td-ic { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--teal); color: #fff; box-shadow: 0 3px 0 var(--teal-lip); }
 .td-ic svg { width: 24px; height: 24px; }
@@ -345,7 +346,7 @@ body.in-lesson { overflow: hidden; }
 
 /* ---------- Path reward chests + jump-to-current (Duolingo path) ---------- */
 .p-chest { appearance: none; position: absolute; left: -38px; top: 12px; width: 76px; height: 70px; padding: 0; border: 0; background: none; cursor: pointer; }
-.p-chest-svg { width: 76px; height: 66px; display: block; filter: drop-shadow(0 5px 0 rgba(0,0,0,.12)); transition: transform 150ms ease; }
+.p-chest-svg { width: 76px; height: 66px; display: block; filter: drop-shadow(0 5px 0 rgba(0,0,0,.12)); transition: transform var(--dur-2) ease; }
 .p-chest-row.locked .p-chest-svg { filter: grayscale(1) opacity(.5) drop-shadow(0 5px 0 rgba(0,0,0,.08)); }
 .p-chest-row.locked .p-chest, .p-chest-row.opened .p-chest { cursor: default; }
 .p-chest-row.opened .p-chest-svg { filter: grayscale(.7) opacity(.6); }

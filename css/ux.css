@@ -13,12 +13,12 @@ button:focus:not(:focus-visible) { outline: none; }
 /* ---------- Lesson ---------- */
 .lesson { padding: 22px 28px 20px; }
 .lesson-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.lesson-x { appearance: none; order: -1; width: 34px; height: 34px; border-radius: 10px; border: 0; background: transparent; color: var(--text-faint); cursor: pointer; display: grid; place-items: center; transition: background-color 150ms ease, color 150ms ease, transform 250ms var(--ease-spring); }
+.lesson-x { appearance: none; order: -1; width: 34px; height: 34px; border-radius: 10px; border: 0; background: transparent; color: var(--text-faint); cursor: pointer; display: grid; place-items: center; transition: background-color var(--dur-2) ease, color var(--dur-2) ease, transform var(--dur-3) var(--ease-spring); }
 .lesson-x svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 @media (hover: hover) and (pointer: fine) { .lesson-x:hover { background: var(--bg-2); color: var(--text); transform: rotate(-40deg); } }
 .lesson-dots { display: flex; gap: 5px; flex: 1; min-width: 140px; }
 .lesson-dots button { position: relative; flex: 1; height: 16px; border: 0; padding: 0; border-radius: 99px; background: var(--line); cursor: pointer; overflow: hidden; }
-.lesson-dots button i { position: absolute; inset: 0; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); border-radius: inherit; transition: transform 420ms var(--ease-out), background-color 200ms ease; }
+.lesson-dots button i { position: absolute; inset: 0; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); border-radius: inherit; transition: transform var(--dur-bar) var(--ease-out), background-color var(--dur-2) ease; }
 .lesson-dots button.seen i, .lesson-dots button.cur i { transform: scaleX(1); }
 .lesson-dots button.cur i { background: var(--teal); }
 .lesson-dots button.seen i { background: #89e219; }
@@ -69,10 +69,10 @@ button:focus:not(:focus-visible) { outline: none; }
 
 /* guide checklist */
 .guide-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.guide-item { appearance: none; width: 100%; display: flex; align-items: flex-start; gap: 12px; text-align: left; font: inherit; font-weight: 600; color: var(--text); background: transparent; border: 2px solid transparent; border-radius: 14px; padding: 8px 10px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
+.guide-item { appearance: none; width: 100%; display: flex; align-items: flex-start; gap: 12px; text-align: left; font: inherit; font-weight: 600; color: var(--text); background: transparent; border: 2px solid transparent; border-radius: 14px; padding: 8px 10px; cursor: pointer; transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease; }
 @media (hover: hover) and (pointer: fine) { .guide-item:hover { background: var(--bg-2); border-color: var(--line); } }
-.gi-box { flex-shrink: 0; width: 26px; height: 26px; margin-top: 0; border-radius: 9px; border: 2px solid var(--line-2); box-shadow: 0 2px 0 var(--line-2); background: var(--panel); display: grid; place-items: center; transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease; }
-.gi-box svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; transition: stroke-dashoffset 260ms var(--ease-out) 60ms; }
+.gi-box { flex-shrink: 0; width: 26px; height: 26px; margin-top: 0; border-radius: 9px; border: 2px solid var(--line-2); box-shadow: 0 2px 0 var(--line-2); background: var(--panel); display: grid; place-items: center; transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease, box-shadow var(--dur-2) ease; }
+.gi-box svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; transition: stroke-dashoffset var(--dur-3) var(--ease-out) var(--dur-press); }
 .gi-n { display: none; }
 .guide-item.done .gi-box { background: var(--teal); border-color: var(--teal); box-shadow: 0 2px 0 var(--teal-lip); }
 .guide-item.done .gi-box svg { stroke-dashoffset: 0; }
@@ -88,7 +88,7 @@ button:focus:not(:focus-visible) { outline: none; }
 
 /* predict */
 .predict .opt { display: flex; gap: 12px; align-items: center; }
-.opt-l { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; border: 2px solid var(--line); font-size: 13px; font-weight: 900; color: var(--text-faint); transition: border-color 150ms ease, color 150ms ease, background-color 150ms ease; }
+.opt-l { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; border: 2px solid var(--line); font-size: 13px; font-weight: 900; color: var(--text-faint); transition: border-color var(--dur-2) ease, color var(--dur-2) ease, background-color var(--dur-2) ease; }
 .predict .opt.right .opt-l { border-color: var(--teal); color: #fff; background: var(--teal); }
 .predict .opt.wrong .opt-l { border-color: var(--rose); color: #fff; background: var(--rose); }
 
@@ -97,9 +97,9 @@ button:focus:not(:focus-visible) { outline: none; }
 .boss-meta small { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; font-weight: 900; color: var(--text-faint); }
 .boss-meta b { font-size: 26px; font-weight: 900; color: var(--teal); }
 .boss-bar { position: relative; flex: 1; height: 16px; border-radius: 99px; background: var(--line); overflow: hidden; }
-.boss-bar span { position: relative; display: block; height: 100%; border-radius: inherit; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); transition: transform 500ms var(--ease-out); }
+.boss-bar span { position: relative; display: block; height: 100%; border-radius: inherit; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); transition: transform var(--dur-bar) var(--ease-out); }
 .boss-dots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.boss-dots button { appearance: none; width: 36px; height: 36px; border-radius: 12px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); background: var(--panel); color: var(--text-dim); font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; transition: border-color 150ms ease, background-color 150ms ease, transform 90ms ease-out, box-shadow 90ms ease-out; }
+.boss-dots button { appearance: none; width: 36px; height: 36px; border-radius: 12px; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); background: var(--panel); color: var(--text-dim); font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; transition: border-color var(--dur-2) ease, background-color var(--dur-2) ease, transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out; }
 .boss-dots button:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .boss-dots button.ok { background: var(--teal); border-color: var(--teal); box-shadow: 0 3px 0 var(--teal-lip); color: #fff; }
 .boss-dots button.no { background: var(--rose); border-color: var(--rose); box-shadow: 0 3px 0 var(--rose-lip); color: #fff; }
@@ -156,7 +156,7 @@ svg.fig { width: 100%; display: block; overflow: visible; }
   padding: 9px 12px; border-radius: 14px; background: var(--panel); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); color: var(--text); font-size: 13.5px; font-weight: 600; line-height: 1.45;
   pointer-events: none; z-index: 30; white-space: normal; text-transform: none; letter-spacing: 0;
   opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.94); transform-origin: 50% 100%;
-  transition: opacity 150ms ease, transform 220ms var(--ease-spring);
+  transition: opacity var(--dur-2) ease, transform var(--dur-3) var(--ease-spring);
 }
 .term:focus::after { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 @media (hover: hover) and (pointer: fine) { .term:hover::after { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); transition-delay: 120ms; } }
@@ -166,9 +166,10 @@ svg.fig { width: 100%; display: block; overflow: visible; }
 .spark.rib { width: 7px; height: 14px; border-radius: 3px; }
 
 /* 3-D surface */
+.surface-box { position: relative; } /* the GL version fades in over the canvas one (js/fig.js surfaceGL) */
 .surface3d { cursor: grab; touch-action: none; }
 .surface3d:active { cursor: grabbing; }
-.surface-hint { font-size: 12.5px; font-weight: 800; color: var(--text-faint); text-align: center; margin-top: 6px; transition: opacity 300ms ease; }
+.surface-hint { font-size: 12.5px; font-weight: 800; color: var(--text-faint); text-align: center; margin-top: 6px; transition: opacity var(--dur-4) ease; }
 
 /* ---------- Charts (Chart.js boxes) ---------- */
 .chart-box { position: relative; width: 100%; padding: 10px 8px 6px; }
@@ -180,7 +181,6 @@ svg.fig { width: 100%; display: block; overflow: visible; }
 .toast svg { width: 30px; height: 30px; animation: flicker 0.6s ease-in-out infinite alternate; transform-origin: 50% 90%; }
 .toast b { color: var(--amber-ink); font-size: 17px; font-weight: 900; }
 .toast span { color: var(--text-dim); }
-@keyframes flicker { from { transform: scale(1) rotate(-3deg); } to { transform: scale(1.12, 1.05) rotate(3deg); } }
 .stat b, .fb-v, .boss-meta b { display: inline-block; transform-origin: 0% 60%; }
 .stat b.flash { animation: statFlash 700ms ease-out; }
 @keyframes statFlash { 0% { color: var(--blue); } 100% { } }

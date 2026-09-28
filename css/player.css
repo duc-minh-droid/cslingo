@@ -3,13 +3,13 @@
    ===================================================================== */
 .player { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: flex; flex-direction: column; }
 .pl-top { flex-shrink: 0; display: flex; align-items: center; gap: 14px; width: 100%; max-width: 1040px; margin: 0 auto; padding: 18px 20px 10px; }
-.pl-x { appearance: none; width: 40px; height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--text-faint); cursor: pointer; display: grid; place-items: center; transition: background-color 150ms ease, color 150ms ease, transform 200ms var(--ease-spring); }
+.pl-x { appearance: none; width: 40px; height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--text-faint); cursor: pointer; display: grid; place-items: center; transition: background-color var(--dur-2) ease, color var(--dur-2) ease, transform var(--dur-2) var(--ease-spring); }
 .pl-x svg { width: 24px; height: 24px; }
 .pl-x:hover { background: var(--bg-2); color: var(--text); transform: rotate(90deg); }
 .pl-bar { position: relative; flex: 1; height: 18px; border-radius: 99px; background: var(--line); }
-.pl-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); transition: transform 600ms var(--ease-spring); overflow: hidden; }
+.pl-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); transition: transform var(--dur-bar) var(--ease-spring); overflow: hidden; }
 .pl-fill::after { content: ""; position: absolute; left: 10px; right: 10px; top: 4px; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.35); }
-.pl-combo { position: absolute; left: 50%; top: -22px; transform: translate(-50%, 0); font-size: 12px; font-weight: 900; letter-spacing: .08em; color: var(--amber); white-space: nowrap; opacity: 0; transition: opacity 200ms ease; }
+.pl-combo { position: absolute; left: 50%; top: -22px; transform: translate(-50%, 0); font-size: 12px; font-weight: 900; letter-spacing: .08em; color: var(--amber); white-space: nowrap; opacity: 0; transition: opacity var(--dur-2) ease; }
 .pl-combo.on { opacity: 1; }
 .pl-chip { font-size: 13px; font-weight: 900; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; min-width: 38px; text-align: right; }
 .pl-ref { appearance: none; width: 40px; height: 40px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--blue); cursor: pointer; display: grid; place-items: center; box-shadow: 0 3px 0 var(--line); }
@@ -63,7 +63,7 @@
   .pl-try-side { position: sticky; top: 0; z-index: 6; order: -1; }
   .pl-try-side .guide { padding: 10px 14px; }
   .pl-try-side .guide .card-head { cursor: pointer; margin: 0; }
-  .pl-try-side .guide .card-head::after { content: "▾"; margin-left: auto; color: var(--text-faint); font-weight: 900; transition: transform 200ms ease; }
+  .pl-try-side .guide .card-head::after { content: "▾"; margin-left: auto; color: var(--text-faint); font-weight: 900; transition: transform var(--dur-2) ease; }
   .pl-try-side .guide.open .card-head::after { transform: rotate(180deg); }
   .pl-try-side .guide:not(.open) .guide-list { display: none; }
 }
@@ -71,7 +71,7 @@
 .pl-recap .takeaways { margin: 0; }
 
 /* ---------- footer ---------- */
-.pl-foot { flex-shrink: 0; border-top: 2px solid var(--line); background: var(--panel); transition: background-color 200ms ease, border-color 200ms ease; }
+.pl-foot { flex-shrink: 0; border-top: 2px solid var(--line); background: var(--panel); transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease; }
 .pl-foot-in { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 1040px; margin: 0 auto; padding: 18px 20px calc(22px + env(safe-area-inset-bottom, 0px)); min-height: 96px; }
 .pl-fb { flex: 1; min-width: 0; }
 .pl-actions { flex-shrink: 0; display: flex; gap: 10px; }

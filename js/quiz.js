@@ -24,6 +24,8 @@
   }
   const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
   const fmtNum = (v) => (Number.isInteger(v) ? String(v) : String(+(+v).toFixed(4)));
+  /** The corrected answer under a graded question: appended, then revealed (fade + small drop). */
+  const correct = (box, html) => { box.insertAdjacentHTML("beforeend", `<div class="q-correct">${html}</div>`); if (N.fx && N.fx.reveal) N.fx.reveal(box.lastElementChild); };
 
   const TYPES = {
     mcq: {
@@ -61,7 +63,7 @@
         chk.onclick = () => submit(+inp.value);
       },
       grade: (Q, v) => Math.abs(v - Q.ans) <= (Q.tol ?? 1e-9),
-      reveal(Q, box, v, ok) { const inp = qs("input", box); inp.value = fmtNum(v); inp.disabled = true; inp.classList.add(ok ? "right" : "wrong"); const c = qs("[data-check]", box); if (c) c.remove(); if (!ok) box.insertAdjacentHTML("beforeend", `<div class="q-correct">Answer: <b>${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}</b>${Q.tol ? ` <span class="faint">(±${fmtNum(Q.tol)} accepted)</span>` : ""}</div>`); return inp; },
+      reveal(Q, box, v, ok) { const inp = qs("input", box); inp.value = fmtNum(v); inp.disabled = true; inp.classList.add(ok ? "right" : "wrong"); const c = qs("[data-check]", box); if (c) c.remove(); if (!ok) correct(box, `Answer: <b>${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}</b>${Q.tol ? ` <span class="faint">(±${fmtNum(Q.tol)} accepted)</span>` : ""}`); return inp; },
       answer: (Q) => fmtNum(Q.ans) + (Q.unit ? " " + Q.unit : ""),
     },
     slider: {
@@ -75,7 +77,7 @@
         qs("[data-check]", box).onclick = () => submit(+r.value);
       },
       grade: (Q, v) => Math.abs(v - Q.ans) <= Q.tol,
-      reveal(Q, box, v, ok) { const r = qs("input", box); r.value = v; r.disabled = true; r.dispatchEvent(new Event("input")); r.oninput = null; qs(".q-slider", box).classList.add(ok ? "right" : "wrong"); const c = qs("[data-check]", box); if (c) c.remove(); if (Q.live) qs(".q-live", box).innerHTML = Q.live(Q.ans); box.insertAdjacentHTML("beforeend", `<div class="q-correct">${ok ? "Within range." : "Not quite."} Target: <b>${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}</b> <span class="faint">(±${fmtNum(Q.tol)})</span></div>`); return qs(".q-slider", box); },
+      reveal(Q, box, v, ok) { const r = qs("input", box); r.value = v; r.disabled = true; r.dispatchEvent(new Event("input")); r.oninput = null; qs(".q-slider", box).classList.add(ok ? "right" : "wrong"); const c = qs("[data-check]", box); if (c) c.remove(); if (Q.live) qs(".q-live", box).innerHTML = Q.live(Q.ans); correct(box, `${ok ? "Within range." : "Not quite."} Target: <b>${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}</b> <span class="faint">(±${fmtNum(Q.tol)})</span>`); return qs(".q-slider", box); },
       answer: (Q) => `≈ ${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}`,
     },
     order: {
@@ -98,7 +100,11 @@
       grade: (Q, v) => v.every((x, k) => x === k),
       reveal(Q, box, v) {
         qsa(".qo-slot", box).forEach((s, k) => { qs(".qo-v", s).innerHTML = Q.items[v[k]] + (v[k] === k ? "" : ` <span class="qo-fix">→ ${Q.items[k]}</span>`); qs(".qo-v", s).classList.remove("faint"); s.classList.add(v[k] === k ? "right" : "wrong"); });
-        qs(".qo-pool", box).remove(); qsa(".q-actions", box).forEach((a) => a.remove());
+        // the emptied pool fades away, then leaves the layout
+        const pool = qs(".qo-pool", box);
+        pool.classList.add("m-ghost");
+        if (N.fx && N.fx.exit) N.fx.exit(pool, { scale: 0.98, dur: N.fx.DUR.s }).then(() => pool.remove()); else pool.remove();
+        qsa(".q-actions", box).forEach((a) => a.remove());
       },
       answer: (Q) => Q.items.map((t, k) => `${k + 1}. ${t}`).join("  "),
     },
@@ -125,7 +131,7 @@
             miss++;
             [L, R].forEach((b) => { b.classList.remove("sel"); b.classList.add("bad"); if (N.fx) N.fx.shake(b); });
             N.sfx && N.sfx.play("retry");
-            setTimeout(() => [L, R].forEach((b) => b.classList.remove("bad")), 500);
+            setTimeout(() => [L, R].forEach((b) => b.classList.remove("bad")), 320); // ends with the shake
           }
         };
         qsa(".qm-t", box).forEach((b) => (b.onclick = () => {
@@ -142,7 +148,7 @@
       grade: (Q, v) => (Array.isArray(v) ? v.every((x, k) => x === k) : v && v.miss === 0),
       reveal(Q, box, v, ok) {
         qsa(".qm-t", box).forEach((b) => { b.disabled = true; b.classList.remove("gone"); b.classList.add(ok ? "right" : "shown"); });
-        if (!ok && v && v.miss) box.insertAdjacentHTML("beforeend", `<div class="q-correct">${v.miss} wrong pairing${v.miss === 1 ? "" : "s"} on the way. The pairs are:</div>`);
+        if (!ok && v && v.miss) correct(box, `${v.miss} wrong pairing${v.miss === 1 ? "" : "s"} on the way. The pairs are:`);
         qsa(".q-actions", box).forEach((a) => a.remove());
       },
       answer: (Q) => Q.pairs.map(([l, r]) => `${String(l).replace(/<[^>]+>/g, "")} → ${String(r).replace(/<[^>]+>/g, "")}`).join(" · "),
@@ -222,7 +228,7 @@
       const stage = el(`<div class="boss-stage"></div>`);
       root.appendChild(stage);
       const firstOpen = () => { const s = get(); return B.qs.findIndex((_, i) => !(key(i) in s)); };
-      let cur = Math.max(0, firstOpen());
+      let cur = Math.max(0, firstOpen()), swapTok = 0;
       const stats = () => { const s = get(); let c = 0, a = 0; B.qs.forEach((_, i) => { if (key(i) in s) { a++; if (s[key(i)].ok) c++; } }); return { c, a }; };
       function upd() {
         const { c, a } = stats(), s = get();
@@ -254,13 +260,22 @@
         T.render(Q, body, (v) => { const ok = T.grade(Q, v); const st = get(); st[key(i)] = { v, ok }; store.set("nic.quiz", st); reveal(v, ok, true); upd(); window.dispatchEvent(new Event("nic:progress")); }, key(i));
         if (key(i) in s) reveal(s[key(i)].v, s[key(i)].ok, false);
         qsa("[data-go]", node).forEach((b) => b.addEventListener("click", () => { const g = +b.dataset.go; if (i + g >= n) results(); else showQ(i + g, g); }));
-        stage.innerHTML = ""; stage.appendChild(node);
-        if (fx.play) fx.play(node);
-        if (fx.step && dir) fx.step(node, dir);
+        // the old question leaves first, then the new one runs a single entrance (a slide; its figure draws itself)
+        const tok = ++swapTok, old = stage.firstElementChild;
+        const put = () => {
+          if (tok !== swapTok) return;
+          stage.innerHTML = ""; stage.appendChild(node);
+          if (fx.play) fx.play(node);
+          if (dir && fx.ok && fx.animate && fx.clean) {
+            const r = fx.reduce && fx.reduce();
+            fx.clean(node, fx.animate(node, r ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${18 * dir}px)`, "translateX(0px)"] }, { duration: fx.DUR.m, ease: fx.EASE }));
+          }
+        };
+        if (old && dir && fx.ok && fx.exit) { old.classList.add("m-ghost"); fx.exit(old, { x: -12 * dir, scale: 1, dur: fx.DUR.xs }).then(put); } else put();
         upd();
       }
       function results() {
-        cur = n;
+        cur = n; swapTok++; // cancels a question swap still waiting on its exit
         const { c, a } = stats(), s = get(), pct = c / n;
         const missed = B.qs.map((Q, i) => [Q, i]).filter(([, i]) => key(i) in s && !s[key(i)].ok);
         const msg = a < n ? "Some questions are still unanswered. Use the numbers above to jump back." : pct === 1 ? "Perfect. This one is locked in." : pct >= 0.8 ? "Pass: solid grasp. Skim the misses below, then move on." : "Not yet. Revisit the modules behind the misses, then try again.";

@@ -108,8 +108,25 @@
         <button class="tb-btn tb-me" data-pop="me" aria-label="Menu">${NIC.mascot({ who: "sprout", size: 30, poke: false, acc: ["beanie"] })}</button>
       </div></div>`;
     qsa("[data-pop]", top).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); togglePop(b.dataset.pop, b); }));
+    if (doneToday) ignite();
     topBump(tx, st, tx / g);
     if (qs(".rail")) rail();
+  }
+  /** The first time each day the flame is lit on screen, it ignites (css/motion-app.css). The day is kept outside nic.* so it never syncs. */
+  let igniteT = 0;
+  function ignite() {
+    if (document.body.classList.contains("in-lesson")) return; // wait until the top bar is visible again
+    const d = game.today();
+    let seen = null; try { seen = localStorage.getItem("csl.ignite"); } catch {}
+    if (seen === d || igniteT) return;
+    try { localStorage.setItem("csl.ignite", d); } catch {}
+    // a beat later, so the renders that follow a lesson closing don't restart it
+    igniteT = setTimeout(() => {
+      igniteT = 0;
+      const b = qs(".tb-streak.lit", top); if (!b) return;
+      b.classList.add("ignite");
+      setTimeout(() => { const n = qs(".tb-streak", top); if (n) n.classList.remove("ignite"); }, 1400);
+    }, 300);
   }
   /** XP or streak went up (lesson, chest, quest): count up and bump once the bar is visible again, so you see it after a lesson. */
   let topShown = null;
@@ -117,19 +134,43 @@
     if (document.body.classList.contains("in-lesson")) return;
     const was = topShown; topShown = { tx, st, f };
     if (!was) return;
-    const up = (sel, from, to) => { const b = qs(sel, top), n = b && qs("b", b); if (!n) return; n.textContent = from; fx.count(n, to, { from, dur: 0.6 }); fx.bump(b, { scale: 1.18, y: -2 }); };
-    if (tx > was.tx) up(".tb-xp", was.tx, tx);
+    const up = (sel, from, to, wait = 0) => {
+      const b = qs(sel, top), n = b && qs("b", b); if (!n) return; n.textContent = from;
+      const go = () => { if (!n.isConnected) return; fx.count(n, to, { from, dur: fx.DUR.bar }); fx.bump(b, { scale: 1.18, y: -2 }); };
+      wait ? setTimeout(go, wait) : go();
+    };
+    // XP earned in a lesson flies to the counter first (flyXP); the count starts when it lands
+    if (tx > was.tx) up(".tb-xp", was.tx, tx, flying() ? FLY_MS : 0);
     if (st > was.st) up(".tb-streak", was.st, st);
     const rv = qs(".tb-xp .ring-v", top);
     if (rv && was.f !== f) { const L = 2 * Math.PI * 9; rv.style.strokeDashoffset = L * (1 - Math.min(1, was.f)); void rv.getBoundingClientRect(); rv.style.strokeDashoffset = L * (1 - Math.min(1, f)); }
+  }
+  /** After a complete screen the player leaves NIC.player.lastXP = {n, rect}: a "+n XP" chip flies from there to the counter. */
+  const FLY_MS = 520;
+  const flying = () => { const x = NIC.player && NIC.player.lastXP; return !!(x && x.n && x.rect && fx.ok && !fx.reduce()); };
+  function flyXP() {
+    const x = NIC.player && NIC.player.lastXP; if (!x) return;
+    const go = flying(); NIC.player.lastXP = null;
+    const t = qs(".tb-xp", top); if (!go || !t) return;
+    const a = t.getBoundingClientRect(), r = x.rect;
+    const chip = el(`<span class="tb-fly" aria-hidden="true">+${x.n} XP</span>`);
+    document.body.appendChild(chip);
+    const w = chip.offsetWidth, h = chip.offsetHeight;
+    const x0 = r.left + r.width / 2 - w / 2, y0 = r.top + r.height / 2 - h / 2, x1 = a.left + a.width / 2 - w / 2, y1 = a.top + a.height / 2 - h / 2;
+    const done = () => chip.remove();
+    fx.animate(chip, { opacity: [0, 1, 1, 0.4], transform: [`translate(${x0}px, ${y0 + 10}px) scale(0.8)`, `translate(${x0}px, ${y0}px) scale(1.1)`, `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) + (y0 - y1) * 0.25}px) scale(1)`, `translate(${x1}px, ${y1}px) scale(0.5)`] },
+      { duration: FLY_MS / 1000, ease: fx.EASE_IO, times: [0, 0.18, 0.55, 1] }).finished.then(done, done);
   }
 
   const pop = qs("#pop");
   let popKind = null;
   function closePop() {
-    if (!popKind) return; popKind = null;
+    if (!popKind) return;
+    const kind = popKind; popKind = null;
     // exit: the card leaves as a ghost on <body> (it's position: fixed, so it stays put) while #pop is free for the next one
     const card = qs(".pop-card", pop);
+    // focus was inside the card (keyboard): hand it back to the top-bar button that opened it
+    if (card && card.contains(document.activeElement)) { const t = qs(`[data-pop="${kind}"]`, top); if (t) t.focus({ preventScroll: true }); }
     if (card && fx.ok && fx.exit) { card.classList.add("m-ghost"); card.style.zIndex = 45; document.body.appendChild(card); fx.exit(card, { y: -6, scale: 0.95 }).then(() => card.remove()); }
     pop.hidden = true; pop.innerHTML = "";
   }
@@ -144,8 +185,9 @@
   }
   RAIL_MQ.addEventListener && RAIL_MQ.addEventListener("change", rail);
 
-  function togglePop(kind, anchor) {
+  function togglePop(kind, anchor, { instant = false } = {}) {
     if (popKind === kind) return closePop();
+    if (popKind) closePop(); // switching (streak, then goal): the old card ghost-exits while the new one springs in
     popKind = kind;
     pop.innerHTML = `<div class="pop-card pop-${kind}">${POPS[kind]()}</div>`;
     pop.hidden = false;
@@ -155,7 +197,7 @@
     const left = Math.max(12, Math.min(innerWidth - w - 12, r.left + r.width / 2 - w / 2));
     card.style.left = left + "px"; card.style.top = r.bottom + 10 + "px";
     card.style.setProperty("--ax", r.left + r.width / 2 - left + "px");
-    if (fx.ok) fx.animate(card, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(-8px) scale(0.94)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.35, bounce: 0.3 });
+    if (fx.ok && !instant) fx.clean(card, fx.animate(card, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(-8px) scale(0.94)", "translateY(0px) scale(1)"] }, { ...fx.SPRING_UI }));
     (POP_MOUNT[kind] || (() => {}))(card);
   }
   document.addEventListener("pointerdown", (e) => { if (popKind && !e.target.closest(".pop-card, [data-pop]")) closePop(); if (!e.target.closest(".p-node, .node-pop")) closeNodePop(); });
@@ -191,28 +233,39 @@
       };
       inp.addEventListener("input", run);
       inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { const h = qs(".pc-hit", res); if (h) h.click(); } });
-      if (card.dataset.focus !== "no") setTimeout(() => inp.focus(), 30);
+      // touch: the keyboard would cover the course list, so only focus the search with a real pointer
+      if (card.dataset.focus !== "no" && !matchMedia("(pointer: coarse)").matches) setTimeout(() => inp.focus(), 30);
     },
-    xp(card) { qsa("[data-g]", card).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); renderTop(); closePop(); })); },
+    xp(card) {
+      const seg = qs(".goal-seg", card); segPill(seg, false);
+      qsa("[data-g]", card).forEach((b) => b.addEventListener("click", () => {
+        game.setGoal(+b.dataset.g); pickSeg(seg, b); renderTop();
+        setTimeout(() => { if (popKind === "xp" && card.isConnected) closePop(); }, 200); // let the choice be seen
+      }));
+    },
     quests(card) {
       qsa(".q-claim", card).forEach((b) => b.addEventListener("click", () => {
+        if (b.disabled) return; b.disabled = true;
         const row = b.closest(".q-row");
         NIC.sfx.play("chest");
         fx.lottieAt(b, "chest", { size: 170, dy: -30 });
-        if (fx.ok && !fx.reduce()) fx.animate(b, { transform: ["rotate(0)", "rotate(-12deg)", "rotate(12deg)", "rotate(-8deg)", "scale(1.3)", "scale(1)"] }, { duration: 0.6 });
-        setTimeout(() => {
+        const wob = fx.ok && !fx.reduce() ? fx.animate(b, { transform: ["rotate(0)", "rotate(-12deg)", "rotate(12deg)", "rotate(-8deg)", "scale(1.3)", "scale(1)"] }, { duration: fx.DUR.bar }) : null;
+        const payoff = () => {
           const n = game.claim(b.dataset.q);
           fx.floatText(b, `+${n} XP`, "#ff9600"); fx.celebrate(b, { silent: true });
-          b.outerHTML = `<span class="q-got">${IC.check}</span>`;
+          const got = el(`<span class="q-got">${IC.check}</span>`);
+          b.replaceWith(got);
+          fx.springIn(got, { from: 0.2, rot: -30, bounce: fx.SPRING_POP.bounce, dur: fx.SPRING_POP.duration });
           row.classList.add("claimed");
           renderTop();
-        }, 550);
+        };
+        wob ? wob.finished.then(payoff, payoff) : payoff();
       }));
     },
     me(card) {
       qsa("[data-go]", card).forEach((b) => b.addEventListener("click", () => { closePop(); location.hash = b.dataset.go; }));
       qs('[data-act="sound"]', card).addEventListener("click", () => { NIC.sfx.set(!NIC.sfx.on()); qs('[data-act="sound"] b', card).textContent = NIC.sfx.on() ? "on" : "off"; });
-      qs('[data-act="reset"]', card).addEventListener("click", resetAll);
+      qs('[data-act="reset"]', card).addEventListener("click", () => resetAll(() => qs('[data-pop="me"]', top)));
       wireSync(card);
     },
   };
@@ -222,49 +275,60 @@
   function syncRow() {
     if (!NIC.sync) return "";
     const em = NIC.sync.email();
-    return em ? `<div class="menu-row sy-row">${IC_CLOUD}<span>Synced<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
+    return em ? `<div class="menu-row sy-row ${NIC.sync.busy && NIC.sync.busy() ? "busy" : ""}">${IC_CLOUD}<i class="sy-dot" title="Saving to your account"></i><span>Synced<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
       : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Sign in to your account</small></span></button>`;
   }
   function wireSync(root) {
     const i = qs('[data-act="signin"]', root), o = qs('[data-act="signout"]', root);
-    if (i) i.addEventListener("click", () => { closePop(); signInModal(); });
-    if (o) o.addEventListener("click", async () => { if (!confirm("Sign out of sync on this device? Your progress stays here and in your account.")) return; await NIC.sync.signOut(); closePop(); renderTop(); route(); });
+    const ret = root.classList.contains("pop-card") ? () => qs('[data-pop="me"]', top) : null; // opened from the menu: focus goes back to its button
+    if (i) i.addEventListener("click", () => { closePop(); signInModal(ret); });
+    // signing out changes the user, and NIC.sync.on below re-renders (one route, not two)
+    if (o) o.addEventListener("click", async () => { if (!confirm("Sign out of sync on this device? Your progress stays here and in your account.")) return; closePop(); await NIC.sync.signOut(); });
   }
-  function signInModal() {
+  function signInModal(ret) {
     const m = modal(`<div class="sy">
       <div class="ob-hero">${NIC.mascot({ who: "chip", size: 96, mood: "happy", act: "wave", acc: ["propeller"] })}<div class="bubble ob-bubble">Sign in once on each device and your progress follows you. You stay signed in after that.</div></div>
       <form class="sy-form"><input class="sy-email" name="u" required autocomplete="username" placeholder="Username" aria-label="Username">
         <input class="sy-email" name="p" type="password" required autocomplete="current-password" placeholder="Password" aria-label="Password">
         <button class="btn big primary" type="submit">Sign in</button></form>
-      <p class="faint sy-msg"></p></div>`, { cls: "sy-modal" });
-    const f = qs(".sy-form", m), msg = qs(".sy-msg", m), btn = qs("button[type=submit]", m);
-    setTimeout(() => f.u.focus(), 50);
+      <p class="faint sy-msg"></p></div>`, { cls: "sy-modal", ret });
+    const f = qs(".sy-form", m), msg = qs(".sy-msg", m), btn = qs("button[type=submit]", m); // modal() focuses the username field
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
-      btn.disabled = true; btn.textContent = "Signing in…";
+      btn.disabled = true; btn.innerHTML = `Signing in<span class="sy-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`; btn.setAttribute("aria-busy", "true");
       try {
         await NIC.sync.signIn(f.u.value.trim(), f.p.value);
-        m.remove(); NIC.sfx.play("check");
+        m.close(); NIC.sfx.play("check");
       } catch (err) {
-        btn.disabled = false; btn.textContent = "Sign in";
+        btn.disabled = false; btn.textContent = "Sign in"; btn.removeAttribute("aria-busy");
         msg.innerHTML = `<b style="color:var(--rose-ink)">Couldn't sign in:</b> ${esc(err.message || String(err))}`;
+        fx.reveal(msg);
         if (fx.ok) fx.shake(f);
       }
     });
   }
-  if (NIC.sync) NIC.sync.on(() => renderTop());
+  // signed in or out: the top bar and (on Profile) the sync row change
+  if (NIC.sync) NIC.sync.on(() => { renderTop(); if (lastRoute && lastRoute.tab === "profile" && !NIC.player.isOpen()) route(); });
+  // a pending dot on the sync row while progress is being pushed (js/sync.js fires nic:sync)
+  const syncBusy = () => qsa(".sy-row", document).forEach((r) => r.classList.toggle("busy", !!(NIC.sync && NIC.sync.busy && NIC.sync.busy())));
+  window.addEventListener("nic:sync", syncBusy);
 
-  function modal(html, { cls = "" } = {}) {
+  /** Shared modal. ret: element (or function returning one) to focus on close when focus has nowhere else to go. */
+  function modal(html, { cls = "", ret = null } = {}) {
     const m = el(`<div class="modal-back"><div class="modal ${cls}" role="dialog" aria-modal="true"><button class="modal-x" aria-label="Close">✕</button>${html}</div></div>`);
     document.body.appendChild(m);
     NIC.shield(true);
     // close hands focus and the page back at once (so another modal can open straight away), then animates out and removes
+    const back = () => { // shield(false) refocuses the element that opened it; if that's gone (a closed popover), use ret
+      const a = document.activeElement, t = typeof ret === "function" ? ret() : ret;
+      if (t && t.isConnected && (!a || a === document.body || m.contains(a))) t.focus({ preventScroll: true });
+    };
     const close = () => {
       if (m._open === false) return; m._open = false;
-      document.removeEventListener("keydown", onK); NIC.shield(false);
+      document.removeEventListener("keydown", onK); NIC.shield(false); back();
       if (!fx.ok || !fx.exit || !m.isConnected) return m.remove();
       m.classList.add("m-ghost");
-      Promise.all([fx.exit(qs(".modal", m), { y: 14, scale: 0.96 }), fx.exit(m, { scale: 1, dur: 0.18 })]).then(() => m.remove());
+      Promise.all([fx.exit(qs(".modal", m), { y: 14, scale: 0.96 }), fx.exit(m, { scale: 1, dur: fx.DUR.s })]).then(() => m.remove());
     };
     m.close = close;
     new MutationObserver((r, o) => { if (!m.isConnected) { o.disconnect(); document.removeEventListener("keydown", onK); if (m._open !== false) { m._open = false; NIC.shield(false); } } }).observe(document.body, { childList: true }); // callers may just m.remove()
@@ -273,17 +337,19 @@
     document.addEventListener("keydown", onK);
     m.addEventListener("click", (e) => { if (e.target === m || e.target.closest(".modal-x")) close(); });
     if (fx.ok) {
-      fx.clean(m, fx.animate(m, { opacity: [0, 1] }, { duration: 0.18 }), ["opacity"]);
-      fx.animate(qs(".modal", m), fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.94)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.42, bounce: 0.3 });
+      fx.clean(m, fx.animate(m, { opacity: [0, 1] }, { duration: fx.DUR.s }), ["opacity"]);
+      const box = qs(".modal", m);
+      fx.clean(box, fx.animate(box, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.94)", "translateY(0px) scale(1)"] }, { ...fx.SPRING }));
     }
     return m;
   }
+  NIC.modal = modal;
 
-  function resetAll() {
+  function resetAll(ret) {
     closePop();
     const m = modal(`<div class="rs">${NIC.mascot({ who: "berry", size: 96, mood: "shocked" })}<h2>Reset everything?</h2>
       <p>Lessons, quizzes, XP, streak, quests, achievements and revision history on this device will be wiped.${NIC.sync && NIC.sync.email() ? " Your synced account will be overwritten too." : ""} This can't be undone.</p>
-      <div class="controls"><button class="btn" data-k="no">Keep my progress</button><button class="btn rose" data-k="yes">Reset</button></div></div>`, { cls: "rs-modal" });
+      <div class="controls"><button class="btn" data-k="no">Keep my progress</button><button class="btn rose" data-k="yes">Reset</button></div></div>`, { cls: "rs-modal", ret: typeof ret === "function" ? ret : null });
     m.addEventListener("click", (e) => {
       const b = e.target.closest("[data-k]"); if (!b) return;
       if (b.dataset.k === "yes") {
@@ -318,7 +384,15 @@
     const b = el(`<button class="p-jump" aria-label="Jump to your current lesson" hidden><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`);
     page.appendChild(b);
     b.addEventListener("click", () => { cur.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "center" }); NIC.sfx.play("whoosh"); });
-    const io = new IntersectionObserver(([e]) => { b.hidden = e.isIntersecting; b.classList.toggle("up", e.boundingClientRect.top < 0); }, { threshold: 0.2 });
+    let shown = false;
+    const io = new IntersectionObserver(([e]) => {
+      b.classList.toggle("up", e.boundingClientRect.top < 0); // the arrow flips with a transition (css/motion-app.css)
+      const want = !e.isIntersecting;
+      if (want === shown) return; shown = want;
+      if (want) { b.hidden = false; fx.springIn(b, { from: 0.5, bounce: 0.4, dur: fx.SPRING_UI.duration }); }
+      else if (!fx.ok || b.hidden) b.hidden = true;
+      else { b.classList.add("m-ghost"); fx.exit(b, { scale: 0.6 }).then(() => { b.classList.remove("m-ghost"); b.style.opacity = ""; b.style.transform = ""; if (!shown) b.hidden = true; }); }
+    }, { threshold: 0.2 });
     io.observe(qs(".p-node", cur)); life.onCleanup(() => io.disconnect());
   }
 
@@ -346,7 +420,15 @@
     const b = qs(".p-chest", row), xp = 5 + Math.floor(Math.random() * 6);
     NIC.sfx.play("chest");
     fx.lottieAt(b, "chest", { size: 190, dy: -40 });
-    setTimeout(() => { b.innerHTML = CHEST(true); b.disabled = true; row.className = row.className.replace(/\bready\b/, "opened"); game.award(xp, "chest"); fx.floatText(b, `+${xp} XP`, "#ff9600"); fx.celebrate(b, { silent: true }); }, 650);
+    b.disabled = true;
+    // the lid swaps while the chest is still bright and it bumps; it greys to "opened" a beat later (css/motion-app.css fades the filter)
+    setTimeout(() => {
+      b.innerHTML = CHEST(true);
+      row.classList.remove("ready"); row.classList.add("paying");
+      fx.bump(qs(".p-chest-svg", b), { scale: 1.22, y: -6 });
+      game.award(xp, "chest"); fx.floatText(b, `+${xp} XP`, "#ff9600"); fx.celebrate(b, { silent: true });
+      setTimeout(() => { row.classList.remove("paying"); row.classList.add("opened"); }, 1200);
+    }, fx.ok && !fx.reduce() ? 650 : 0);
   }
 
   /** The boss in this course with the lowest score under 80%, if any. */
@@ -374,7 +456,23 @@
       ${rest.length ? `<div class="td-more">${rest.slice(0, 3).map((a) => `<button class="td-chip" data-to="${a.to}">${a.icon}<span>${a.t}</span></button>`).join("")}</div>` : ""}</div>`;
   }
 
-  function home(s) {
+  /** Where the path is scrolled to: the first row on screen and its offset (content above can change height, e.g. the Up next card). */
+  const pathKey = (r) => r.dataset.id || r.dataset.chest;
+  function pathAnchor() {
+    const r = qsa(".p-row", main).find((x) => x.getBoundingClientRect().top >= 80);
+    return { y: window.scrollY, key: r ? pathKey(r) : null, top: r ? r.getBoundingClientRect().top : 0 };
+  }
+  /** Put that row back at the same place; again next frame, after late layout (emoji icons, fonts) above it settles. */
+  function restorePath(page, a) {
+    const go = () => {
+      if (!page.isConnected) return;
+      const r = a.key && qsa(".p-row", page).find((x) => pathKey(x) === a.key);
+      window.scrollTo(0, r ? window.scrollY + r.getBoundingClientRect().top - a.top : a.y);
+    };
+    go(); requestAnimationFrame(go);
+  }
+  /** quiet: the same path is being rebuilt (lesson closed, theme flip), so nothing re-enters. at: a pathAnchor() to restore. */
+  function home(s, { quiet = false, at = null } = {}) {
     const S = SUBJECTS[s], all = inSubj(s), P = progress(all);
     const lastId = store.get("nic.last", {})[s], last = modules.find((m) => m.id === lastId);
     const next = all.find((m) => status(m) !== "done");
@@ -410,6 +508,7 @@
         ${P.d === P.n ? `<div class="pe-acts"><button class="btn primary" data-to="practice/due">Revise this course</button>${weakBoss(s) ? `<button class="btn" data-to="${weakBoss(s).id}">Retry ${esc(weakBoss(s).title)}</button>` : ""}</div>` : ""}</div>
     </div>`);
     main.appendChild(page);
+    if (at) restorePath(page, at);
     if (NIC.art) page.style.setProperty("--pat", NIC.art.pattern({ nic: "leaves", ds: "waves", algo: "circuit" }[s] || "dots"));
     qsa(".p-node", page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); nodePop(b.closest(".p-row")); }));
     wireTips(page);
@@ -417,12 +516,14 @@
     qsa(".p-chest-row.ready", page).forEach((r) => qs(".p-chest", r).addEventListener("click", (e) => { e.stopPropagation(); openChest(r); }));
     jumpButton(page);
     qsa("[data-to]", page).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to; }));
-    stickyHeader(page);
+    stickyHeader(page, quiet);
     // entrance: nodes on the first screen spring in one after another; the rest spring in as they scroll into view
-    const pops = qsa(".p-node, .p-chest, .p-cast .mascot", page);
-    let k0 = 0;
-    pops.forEach((n) => { if (n.getBoundingClientRect().top < innerHeight * 0.92) popNode(n, 0.05 + k0++ * 0.05); });
-    life.onCleanup(fx.onView(pops, { run: (n) => popNode(n, 0) }));
+    if (!quiet) {
+      const pops = qsa(".p-node, .p-chest, .p-cast .mascot", page);
+      let k0 = 0;
+      pops.forEach((n) => { if (n.getBoundingClientRect().top < innerHeight * 0.92) popNode(n, 0.05 + k0++ * 0.05); });
+      life.onCleanup(fx.onView(pops, { run: (n) => popNode(n, 0) }));
+    }
     life.onCleanup(NIC.cast.idle(page));
     // came back from a finished lesson: glide to the next node and nudge it
     if (NIC.lastFinished) {
@@ -436,7 +537,7 @@
           if (mark && mark.isConnected) fx.springIn(mark, { from: 0, rot: -40, bounce: 0.6, delay: 0.12 });
         }, 500);
       }, 200);
-    } else {
+    } else if (!at) { // first visit: bring the current lesson on screen
       const cur = qs(".p-row.cur", page);
       if (cur && cur.getBoundingClientRect().top > innerHeight * 0.75) cur.scrollIntoView({ block: "center" });
     }
@@ -446,37 +547,39 @@
   function popNode(n, delay) {
     if (n.classList.contains("mascot")) {
       if (!fx.ok) return;
-      const a = fx.animate(n, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.7)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.6, bounce: 0.4, delay: delay + 0.2 });
+      const a = fx.animate(n, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.7)", "translateY(0px) scale(1)"] }, { ...fx.SPRING_POP, bounce: 0.4, delay: delay + 0.2 });
       fx.clean(n, a);
       return;
     }
     fx.springIn(n, { delay, from: 0.3, bounce: 0.45 });
     const mark = n.closest(".st-done") && (qs(".p-badge", n) || qs(".p-face > svg", n));
-    if (mark && !fx.reduce()) fx.springIn(mark, { delay: delay + 0.2, from: 0, rot: -30, bounce: 0.6, dur: 0.5 });
+    if (mark && !fx.reduce()) fx.springIn(mark, { delay: delay + 0.2, from: 0, rot: -30, bounce: 0.6, dur: fx.SPRING_POP.duration });
   }
 
   /** The sticky banner shows whichever unit you're scrolling through. */
-  function stickyHeader(page) {
+  function stickyHeader(page, quiet) {
     const box = qs(".unit-sticky", page), inn = qs(".us-in", box), units = qsa(".unit", page);
     let curU = -1;
-    const paint = (u) => {
+    const paint = (u, still = false) => {
       if (u === curU) return; const dir = u > curU ? 1 : -1; curU = u;
       const sec = units[u];
       box.className = `unit-sticky u-${UNIT_COLORS[u % 4]}`;
       inn.innerHTML = `<div class="us-t"><small>${sec.dataset.lbl} · ${sec.dataset.p}</small><h2>${sec.dataset.ttl}</h2></div><button class="us-guide">${IC.book}<span>Guidebook</span></button>`;
       qs(".us-guide", inn).addEventListener("click", () => guidebook(sec));
-      if (fx.ok && !fx.reduce() && dir) fx.animate(inn, { opacity: [0, 1], transform: [`translateY(${10 * dir}px)`, "translateY(0px)"] }, { duration: 0.25, ease: fx.EASE });
+      // the banner is sticky: never leave an inline transform on it
+      if (!still && fx.ok && !fx.reduce()) fx.clean(inn, fx.animate(inn, { opacity: [0, 1], transform: [`translateY(${10 * dir}px)`, "translateY(0px)"] }, { duration: fx.DUR.m, ease: fx.EASE }));
     };
-    const spy = () => {
+    const unitAt = () => {
       const y = box.getBoundingClientRect().bottom;
       let u = 0; units.forEach((sec, k) => { if (sec.getBoundingClientRect().top < y + 10) u = k; });
-      paint(u);
+      return u;
     };
+    const spy = () => paint(unitAt());
     let q = false;
     const onScroll = () => { if (!q) { q = true; requestAnimationFrame(() => { q = false; spy(); }); } };
     window.addEventListener("scroll", onScroll, { passive: true });
     life.onCleanup(() => window.removeEventListener("scroll", onScroll));
-    paint(0);
+    paint(unitAt(), quiet); // a restored scroll may start in a later unit
   }
 
   function guidebook(sec) {
@@ -507,7 +610,7 @@
     clearTimeout(tipT); if (!tipEl) return;
     const g = tipEl; tipEl = null;
     if (!fx.ok || !fx.exit || !g.isConnected) return g.remove();
-    g.classList.add("m-ghost"); fx.exit(g, { scale: 0.96, dur: 0.12 }).then(() => g.remove());
+    g.classList.add("m-ghost"); fx.exit(g, { scale: 0.96, dur: fx.DUR.xs }).then(() => g.remove());
   }
   function showTip(row) {
     if (nodePopEl || (tipEl && tipEl.parentElement === row)) return;
@@ -523,7 +626,7 @@
       const r = tipEl.getBoundingClientRect(), dockTop = (qs("#dock") && qs("#dock").getBoundingClientRect().top) || innerHeight, over = r.bottom - (dockTop - 10);
       if (over > 0) { const up = Math.min(over, r.height - 70); tipEl.style.top = `${-6 - up}px`; tipEl.style.setProperty("--ay", `${36 + up}px`); }
     }
-    if (fx.ok) fx.animate(tipEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${side === "left" ? 8 : -8}px) scale(0.92)`, "translateX(0px) scale(1)"] }, { type: "spring", duration: 0.35, bounce: 0.3 });
+    if (fx.ok) fx.clean(tipEl, fx.animate(tipEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${side === "left" ? 8 : -8}px) scale(0.92)`, "translateX(0px) scale(1)"] }, { ...fx.SPRING_UI }));
   }
   function wireTips(page) {
     if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -542,7 +645,7 @@
     if (!nodePopEl) return;
     const g = nodePopEl; nodePopEl = null;
     if (!fx.ok || !fx.exit || !g.isConnected) return g.remove();
-    g.classList.add("m-ghost"); fx.exit(g, { base: "translateX(-50%)", y: -8, scale: 0.9, dur: 0.14 }).then(() => g.remove());
+    g.classList.add("m-ghost"); fx.exit(g, { base: "translateX(-50%)", y: -8, scale: 0.9, dur: fx.DUR.s }).then(() => g.remove());
   }
   function nodePop(row) {
     const had = nodePopEl && nodePopEl.parentElement === row;
@@ -559,10 +662,21 @@
     }
     NIC.sfx.play("pop");
     // grows out of its node: transform-origin sits on the arrow tip (css/motion.css)
-    if (fx.ok) fx.animate(nodePopEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateX(-50%) translateY(-12px) scale(0.6)", "translateX(-50%) translateY(0px) scale(1)"] }, { type: "spring", duration: 0.38, bounce: 0.35 });
-    qs(".np-go", nodePopEl).addEventListener("click", (e) => { e.stopPropagation(); closeNodePop(); location.hash = m.id; });
+    // cleaned afterwards: the CSS translateX(-50%) takes over again
+    if (fx.ok) fx.clean(nodePopEl, fx.animate(nodePopEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateX(-50%) translateY(-12px) scale(0.6)", "translateX(-50%) translateY(0px) scale(1)"] }, { ...fx.SPRING }));
+    // START: the node squashes and the player grows out of it (js/player.js reads originRect)
+    const launch = () => {
+      const node = qs(".p-node", row);
+      closeNodePop();
+      if (node) {
+        if (fx.ok && !fx.reduce()) fx.clean(node, fx.animate(node, { transform: ["scale(1)", "scale(0.86)", "scale(1)"] }, { duration: fx.DUR.m, ease: fx.EASE, times: [0, 0.4, 1] }), ["transform"]);
+        NIC.player.originRect = node.getBoundingClientRect();
+      }
+      location.hash = m.id;
+    };
+    qs(".np-go", nodePopEl).addEventListener("click", (e) => { e.stopPropagation(); launch(); });
     const rs = qs(".np-restart", nodePopEl);
-    if (rs) rs.addEventListener("click", (e) => { e.stopPropagation(); const p = store.get("nic.lessonPos", {}); delete p[m.id]; store.set("nic.lessonPos", p); closeNodePop(); location.hash = m.id; });
+    if (rs) rs.addEventListener("click", (e) => { e.stopPropagation(); const p = store.get("nic.lessonPos", {}); delete p[m.id]; store.set("nic.lessonPos", p); launch(); });
     setTimeout(() => { if (nodePopEl) qs(".np-go", nodePopEl).focus({ preventScroll: true }); }, 30);
     const r = nodePopEl.getBoundingClientRect();
     if (r.bottom > innerHeight - 90) window.scrollBy({ top: r.bottom - innerHeight + 110, behavior: fx.reduce() ? "auto" : "smooth" });
@@ -574,12 +688,25 @@
   function practicePage(tab) {
     const miss = NIC.player.missed.all(), due = NIC.bank ? NIC.bank.stats().due : 0;
     tab = tab || (miss.length && !due ? "mistakes" : "due");
-    const tabs = el(`<div class="page side-page pr-tabs-wrap"><div class="seg pr-tabs" role="tablist">
-      <button role="tab" data-t="due" aria-selected="${tab === "due"}" class="${tab === "due" ? "on" : ""}">Due reviews${due ? ` <i class="pr-n">${due}</i>` : ""}</button>
-      <button role="tab" data-t="mistakes" aria-selected="${tab === "mistakes"}" class="${tab === "mistakes" ? "on" : ""}">Mistakes${miss.length ? ` <i class="pr-n">${miss.length}</i>` : ""}</button></div></div>`);
-    main.appendChild(tabs);
-    qsa("[data-t]", tabs).forEach((b) => b.addEventListener("click", () => { location.hash = "practice/" + b.dataset.t; }));
-    if (tab === "due") { NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])) }); return; }
+    // the tabs are built once; switching Due <-> Mistakes (or coming back from a session) only swaps the panel below them
+    let tabs = qs(".pr-tabs-wrap", main);
+    const was = tabs ? tabs.dataset.tab : null;
+    if (!tabs) {
+      tabs = el(`<div class="page side-page pr-tabs-wrap"><div class="seg pr-tabs" role="tablist">
+        <button role="tab" data-t="due" aria-selected="false"></button><button role="tab" data-t="mistakes" aria-selected="false"></button></div></div>`);
+      main.appendChild(tabs);
+      qsa("[data-t]", tabs).forEach((b) => b.addEventListener("click", () => { location.hash = "practice/" + b.dataset.t; }));
+    } else while (tabs.nextSibling) tabs.nextSibling.remove();
+    tabs.dataset.tab = tab;
+    const seg = qs(".pr-tabs", tabs);
+    qs('[data-t="due"]', seg).innerHTML = `Due reviews${due ? ` <i class="pr-n">${due}</i>` : ""}`;
+    qs('[data-t="mistakes"]', seg).innerHTML = `Mistakes${miss.length ? ` <i class="pr-n">${miss.length}</i>` : ""}`;
+    if (!was) segPill(seg, false);
+    pickSeg(seg, qs(`[data-t="${tab}"]`, seg));
+    const inPlace = !!was, before = main.children.length;
+    // one animation per change: the panel slides in from the side of the tab you picked (nothing when it's the same tab again)
+    const slide = () => { if (inPlace && was !== tab) fx.enter(Array.from(main.children).slice(before), { x: tab === "due" ? -14 : 14, y: 0, stagger: 0, dur: fx.DUR.m }); };
+    if (tab === "due") { NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])), calm: calm || inPlace }); slide(); return; }
     const page = el(`<div class="page side-page">
       <div class="sp-hero u-violet">${NIC.mascot({ who: "berry", size: 140, mood: "determined", act: "headbang", acc: ["headphones"] })}<div><h1>Practice</h1><p>Mistakes you made land here. Fix them and they're gone. The rest is a mixed refresh from lessons you've finished.</p></div></div>
       <div class="card sp-card"><div class="sp-stat"><b>${miss.length}</b><span>mistakes waiting</span></div><button class="btn big primary" id="pStart">Start practice</button></div>
@@ -588,7 +715,7 @@
     </div>`);
     main.appendChild(page);
     qs("#pStart", page).addEventListener("click", () => NIC.player.practice({ home: "practice/mistakes" }));
-    fx.enter(Array.from(page.children), { stagger: 0.06 });
+    if (inPlace) slide(); else if (!calm) fx.enter(Array.from(page.children), { stagger: 0.05 });
   }
 
   function profilePage() {
@@ -611,19 +738,22 @@
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
         ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Sign in to sync</button>`}</div>` : ""}
         ${NIC.theme ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[["system", "System", IC.themeSys], ["light", "Light", IC.sun], ["dark", "Dark", IC.moon]].map(([v, t, ic]) => `<button role="radio" data-theme-pick="${v}" aria-checked="${NIC.theme.get() === v}" class="${NIC.theme.get() === v ? "on" : ""}">${ic}${t}</button>`).join("")}</div></div>` : ""}
-        <div class="set-row"><b>Sound effects</b><button class="btn" id="pfSound">${NIC.sfx.on() ? "On" : "Off"}</button></div>
+        <div class="set-row"><b id="pfSoundL">Sound effects</b><button class="pf-sw ${NIC.sfx.on() ? "on" : ""}" id="pfSound" role="switch" aria-checked="${NIC.sfx.on()}" aria-labelledby="pfSoundL"><i></i></button></div>
         <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>
     </div>`);
     main.appendChild(page);
-    qsa("[data-g]", page).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); qsa("[data-g]", page).forEach((x) => x.classList.toggle("on", x === b)); renderTop(); }));
-    qs("#pfSound", page).addEventListener("click", (e) => { NIC.sfx.set(!NIC.sfx.on()); e.target.textContent = NIC.sfx.on() ? "On" : "Off"; });
+    const goalSeg = qs(".goal-seg", page), themeSeg = qs(".theme-seg", page);
+    segPill(goalSeg, false); segPill(themeSeg, false);
+    qsa("[data-g]", page).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); pickSeg(goalSeg, b); renderTop(); }));
+    const snd = qs("#pfSound", page);
+    snd.addEventListener("click", () => { NIC.sfx.set(!NIC.sfx.on()); const on = NIC.sfx.on(); snd.classList.toggle("on", on); snd.setAttribute("aria-checked", on); });
     qs("#pfReset", page).addEventListener("click", resetAll);
     qsa("[data-theme-pick]", page).forEach((b) => b.addEventListener("click", () => {
-      qsa("[data-theme-pick]", page).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); });
+      pickSeg(themeSeg, b);
       NIC.sfx.play("select"); NIC.theme.set(b.dataset.themePick, { from: b });
     }));
     wireSync(page);
-    fx.enter(qsa(".shelf-spot, .pf-stat, .ach", page), { stagger: 0.03 });
+    if (!calm) fx.enter(qsa(".shelf-spot, .pf-stat, .ach", page), { stagger: 0.03 });
     life.onCleanup(NIC.cast.idle(page));
   }
 
@@ -642,23 +772,54 @@
       if (window.ResizeObserver) new ResizeObserver(() => dockInd(false)).observe(dock); // fonts, phone layout
     }
     const b = qs("button.on", dock); if (!b) return;
+    flipInd(ind, b, animate);
+  }
+  /** Move a sliding indicator onto button b: jump to the new box, then animate from the old one (transform-origin is the centre). */
+  function flipInd(ind, b, animate) {
     const box = { x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight }, was = ind._box;
     ind._box = box;
     Object.assign(ind.style, { left: box.x + "px", top: box.y + "px", width: box.w + "px", height: box.h + "px" });
-    if (animate && was && was.w && box.w && (was.x !== box.x || was.w !== box.w) && fx.ok && !fx.reduce()) {
-      const dx = was.x + was.w / 2 - (box.x + box.w / 2); // transform-origin is the centre (css/motion.css)
-      const a = fx.animate(ind, { transform: [`translateX(${dx}px) scaleX(${was.w / box.w})`, "translateX(0px) scaleX(1)"] }, { ...fx.SPRING_UI });
+    if (animate && was && was.w && box.w && box.h && (was.x !== box.x || was.y !== box.y || was.w !== box.w) && fx.ok && !fx.reduce()) {
+      const dx = was.x + was.w / 2 - (box.x + box.w / 2), dy = was.y + was.h / 2 - (box.y + box.h / 2);
+      const a = fx.animate(ind, { transform: [`translate(${dx}px, ${dy}px) scale(${was.w / box.w}, ${was.h / box.h})`, "translate(0px, 0px) scale(1, 1)"] }, { ...fx.SPRING_UI });
       fx.clean(ind, a, ["transform"]);
     }
   }
+  /** Any single-choice .seg gets one pill that slides to the button marked .on (goal, theme, practice tabs). Call again after the choice changes. */
+  function segPill(seg, animate = true) {
+    if (!seg) return;
+    let ind = seg.querySelector(":scope > .seg-ind");
+    if (!ind) {
+      ind = el(`<i class="seg-ind" aria-hidden="true"></i>`); seg.prepend(ind); seg.classList.add("m-pill");
+      if (window.ResizeObserver) { const ro = new ResizeObserver(() => (seg.isConnected ? segPill(seg, false) : ro.disconnect())); ro.observe(seg); }
+    }
+    const b = seg.querySelector(":scope > button.on");
+    ind.classList.toggle("off", !b);
+    if (b) flipInd(ind, b, animate);
+  }
+  /** Mark b as the chosen button of seg (class + ARIA) and slide the pill to it. */
+  function pickSeg(seg, b) {
+    qsa(":scope > button", seg).forEach((x) => {
+      x.classList.toggle("on", x === b);
+      if (x.hasAttribute("aria-checked")) x.setAttribute("aria-checked", x === b);
+      if (x.hasAttribute("aria-selected")) x.setAttribute("aria-selected", x === b);
+    });
+    segPill(seg);
+  }
+  NIC.segPill = segPill;
   const setDock = (k) => {
     qsa("button", dock).forEach((b) => b.classList.toggle("on", b.dataset.to === k));
     const moved = dockK !== null && dockK !== k; dockK = k;
     dockInd(moved);
     if (moved) fx.bump(qs(`button[data-to="${k}"] svg`, dock), { scale: 1.25, y: -4 });
     const n = (NIC.bank ? NIC.bank.stats().due : 0) + NIC.player.missed.all().length, bd = qs(".dk-badge", dock);
-    bd.hidden = !n; bd.textContent = n > 99 ? "99+" : n;
-    if (n && dockN !== null && n !== dockN) dockN ? fx.bump(bd, { scale: 1.35 }) : fx.springIn(bd, { from: 0.2, bounce: 0.6 });
+    if (n) { bd.hidden = false; bd.classList.remove("m-ghost"); bd.textContent = n > 99 ? "99+" : n; }
+    else if (!bd.hidden) {
+      // count reached 0: the badge shrinks away instead of vanishing
+      if (dockN && fx.ok) { bd.classList.add("m-ghost"); fx.exit(bd, { scale: 0.3 }).then(() => { if (bd.classList.contains("m-ghost")) { bd.hidden = true; bd.classList.remove("m-ghost"); } bd.style.opacity = ""; bd.style.transform = ""; }); }
+      else bd.hidden = true;
+    }
+    if (n && dockN !== null && n !== dockN) dockN ? fx.bump(bd, { scale: 1.35 }) : fx.springIn(bd, { from: 0.2, bounce: fx.SPRING_POP.bounce, dur: fx.SPRING_POP.duration });
     dockN = n;
   };
 
@@ -675,8 +836,13 @@
       <button class="btn big primary ob-go">Let's go</button></div>`, { cls: "ob-modal" });
     const finish = () => { store.set("nic.onboarded", true); };
     qsa(".ob-c", m).forEach((b) => b.addEventListener("click", () => { pick = b.dataset.c; qsa(".ob-c", m).forEach((x) => x.classList.toggle("on", x === b)); NIC.sfx.play("select"); }));
-    qsa("[data-g]", m).forEach((b) => b.addEventListener("click", () => { goal = +b.dataset.g; qsa("[data-g]", m).forEach((x) => x.classList.toggle("on", x === b)); NIC.sfx.play("select"); }));
-    qs(".ob-go", m).addEventListener("click", () => { finish(); game.setGoal(goal); setCourse(pick); m.remove(); NIC.sfx.play("complete"); location.hash = SUBJECTS[pick].home; route(); });
+    const obSeg = qs(".ob-goal", m); segPill(obSeg, false);
+    qsa("[data-g]", m).forEach((b) => b.addEventListener("click", () => { goal = +b.dataset.g; pickSeg(obSeg, b); NIC.sfx.play("select"); }));
+    qs(".ob-go", m).addEventListener("click", () => {
+      finish(); game.setGoal(goal); setCourse(pick); m.close(); NIC.sfx.play("complete");
+      const h = SUBJECTS[pick].home;
+      if (location.hash.slice(1) !== h) location.hash = h; else route(); // the hashchange routes; only route by hand when the hash is already there
+    });
     qs(".modal-x", m).addEventListener("click", finish);
     m.addEventListener("click", (e) => { if (e.target === m) finish(); });
   }
@@ -690,38 +856,61 @@
     const id = location.hash.slice(1) || store.get("nic.lastHome", "home");
     const mod = modules.some((m) => m.id === id), prev = lastRoute, tok = ++routeTok;
     lastRoute = { id, mod, tab: tabOf(id) };
-    const go = () => { if (tok === routeTok) render(); }; // a newer route wins over a transition still waiting to run
-    if (mod || !prev || prev.mod || prev.id === id || NIC.player.isOpen() || !fx.swap) return go();
-    fx.swap(go, { dir: Math.sign(TABS.indexOf(lastRoute.tab) - TABS.indexOf(prev.tab)), el: main });
+    const go = (sw) => { if (tok === routeTok) render(!!sw); }; // a newer route wins over a transition still waiting to run
+    const inTabs = prev && prev.tab === "practice" && lastRoute.tab === "practice" && !prev.mod && !mod; // Due <-> Mistakes: the panel changes in place
+    if (mod || !prev || prev.mod || prev.id === id || inTabs || NIC.player.isOpen() || !fx.swap) return go();
+    fx.swap(() => go(true), { dir: Math.sign(TABS.indexOf(lastRoute.tab) - TABS.indexOf(prev.tab)), el: main });
   }
-  function render() {
+  /* homeIn: the course whose path is in #main right now (null for other pages). scrollMem: path scroll per course home. */
+  let homeIn = null, calm = false;
+  const scrollMem = {};
+  function render(swapped = false) {
     const id = location.hash.slice(1) || store.get("nic.lastHome", "home");
+    const mod = modules.find((m) => m.id === id);
+    const page = id.split("/")[0];
+    calm = swapped; // the page transition already moved the page: skip in-page staggers
+    const lesson = (m) => {
+      const s = subjOf(m);
+      store.set("nic.lastHome", SUBJECTS[s].home); setCourse(s);
+      const last = store.get("nic.last", {}); last[s] = m.id; store.set("nic.last", last);
+      document.title = `${m.num} ${m.title} · CSLingo`;
+      NIC.player.lastXP = null;
+      NIC.player.open(m, { home: SUBJECTS[s].home, who: SUBJECTS[s].who });
+    };
+    // a lesson opened from its own course's path: keep the path as it is under the player
+    if (mod && homeIn === subjOf(mod) && life && qs(".path-page", main)) { closePop(); closeNodePop(); hideTip(); lesson(mod); return; }
+    // Due / Mistakes tabs: only the panel below the tabs changes
+    if ((page === "practice" || page === "revise") && !mod && qs(".pr-tabs", main) && life) {
+      closePop(); if (NIC.player.isOpen()) NIC.player.close(true);
+      renderTop(); setDock("practice"); practicePage(page === "revise" ? "due" : id.split("/")[1]); flyXP(); return;
+    }
+    const wasHome = homeIn, wasAt = homeIn ? pathAnchor() : null;
+    if (homeIn) scrollMem[SUBJECTS[homeIn].home] = wasAt;
+    homeIn = null;
     if (life) life.dispose();
     life = lifecycle();
     closePop(); closeNodePop();
     main.innerHTML = "";
-    const mod = modules.find((m) => m.id === id);
     if (!mod && NIC.player.isOpen()) NIC.player.close(true);
-    const page = id.split("/")[0];
     if (page === "practice" || page === "profile" || page === "revise") {
       renderTop(); setDock(page === "profile" ? "profile" : "practice");
       document.title = `${page === "profile" ? "Profile" : "Practice"} · CSLingo`;
       page === "profile" ? profilePage() : practicePage(page === "revise" ? "due" : id.split("/")[1]);
-      window.scrollTo(0, 0); return;
+      window.scrollTo(0, 0); flyXP(); return;
     }
     setDock("learn");
     if (!mod) {
       const s = SUBJ_ORDER.find((k) => SUBJECTS[k].home === id) || "nic";
       store.set("nic.lastHome", SUBJECTS[s].home); setCourse(s);
       document.title = `${SUBJECTS[s].name} · CSLingo`;
-      window.scrollTo(0, 0); home(s); return;
+      // the same path again (lesson closed, theme flip, reset): keep the scroll and skip the entrance; coming back from another page: restore its scroll
+      const again = wasHome === s, at = again ? wasAt : scrollMem[SUBJECTS[s].home];
+      window.scrollTo(0, 0); home(s, { quiet: again, at }); homeIn = s; flyXP(); return;
     }
     const s = subjOf(mod);
-    store.set("nic.lastHome", SUBJECTS[s].home); setCourse(s);
-    const last = store.get("nic.last", {}); last[s] = mod.id; store.set("nic.last", last);
-    document.title = `${mod.num} ${mod.title} · CSLingo`;
-    home(s);
-    NIC.player.open(mod, { home: SUBJECTS[s].home, who: SUBJECTS[s].who });
+    window.scrollTo(0, 0);
+    home(s); homeIn = s;
+    lesson(mod);
   }
 
   // =====================================================================
@@ -731,7 +920,8 @@
   game.on("freeze", (d) => fx.toast(`${NIC.emo("ice")}<b>${d.earned ? "Streak freeze earned!" : "Streak freeze used"}</b><span>${d.earned ? `You have ${d.left}. It covers a day you miss.` : "Yesterday was covered, so your streak is safe."}</span>`, { tone: "blue", ms: 3200 }));
   // canvases and charts bake colours in when drawn: redraw the page when the theme flips (never under an open lesson)
   if (NIC.theme) NIC.theme.onChange(() => { if (!NIC.player.isOpen() && qs("canvas", main)) route(); });
-  game.on("goal", (d) => { setTimeout(() => fx.lottieAt(qs(".tb-xp"), "levelup", { size: 160 }), 150); fx.toast(`${NIC.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>Daily goal reached!</b><span>${d.today} XP today</span>`, { ms: 2400 }); NIC.sfx.play("achieve"); });
+  // level-up burst: on the complete screen's gold XP card while a lesson is open (the top bar is hidden then)
+  game.on("goal", (d) => { setTimeout(() => fx.lottieAt((NIC.player.isOpen() && qs(".player .pd-card.c-gold")) || qs(".tb-xp", top), "levelup", { size: 160 }), 150); fx.toast(`${NIC.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>Daily goal reached!</b><span>${d.today} XP today</span>`, { ms: 2400 }); NIC.sfx.play("achieve"); });
   game.on("quest", (q) => { if (q.done) { fx.toast(`${IC.chest}<b>Quest complete!</b><span>${q.t}. Claim it from the chest.</span>`, { ms: 2600 }); setTimeout(() => NIC.sfx.play("chest"), 200); renderTop(); } });
   game.on("ach", (a) => { setTimeout(() => { fx.toast(`${NIC.mascot({ who: "sprout", size: 44, mood: "laugh", acc: [a.acc], poke: false })}<b>${a.t}!</b><span>Unlocked: ${NIC.cast.ACC[a.acc].name}</span>`, { ms: 2800 }); NIC.sfx.play("achieve"); }, 900); });
 
@@ -739,7 +929,7 @@
   document.addEventListener("keydown", (e) => {
     if (NIC.player.isOpen() || e.ctrlKey || e.metaKey || e.altKey) return;
     const typing = /input|textarea|select/i.test(document.activeElement.tagName);
-    if (e.key === "/" && !typing) { e.preventDefault(); const b = qs('[data-pop="course"]', top); if (popKind !== "course") togglePop("course", b); }
+    if (e.key === "/" && !typing) { e.preventDefault(); const b = qs('[data-pop="course"]', top); if (popKind !== "course") togglePop("course", b, { instant: true }); } // keyboard: no animation
     if (e.key === "Escape") { closePop(); closeNodePop(); }
     if ((e.key === "m" || e.key === "M") && !typing) NIC.sfx.set(!NIC.sfx.on());
   });
@@ -750,6 +940,7 @@
   window.addEventListener("hashchange", route);
   if (NIC.cast) NIC.cast.course = SUBJECTS[course].who;
   updateScore();
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // the path restores its own scroll (scrollMem)
   route();
   setTimeout(onboarding, 400);
   // offline + installable: only on the deployed site (dev servers and file:// would cache stale work)

@@ -433,7 +433,14 @@ window.NIC = (function () {
   function tex(root) {
     if (!root || !HAS_TEX.test(root.textContent)) return Promise.resolve(false);
     return lazy("vendor/katex/katex.min.css", "vendor/katex/katex.min.js", "vendor/katex/auto-render.min.js").then(() => {
+      const had = new Set(root.querySelectorAll(".katex"));
       window.renderMathInElement(root, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false, ignoredClasses: ["katex"] });
+      // the raw $…$ text was on screen a moment ago: fade the typeset maths in (opacity only, so reduced motion keeps it)
+      const fx = window.NIC && window.NIC.fx, fresh = [...root.querySelectorAll(".katex")].filter((k) => !had.has(k) && !k.parentElement.closest(".katex"));
+      if (fx && fx.ok && fresh.length) {
+        const a = fx.animate(fresh, { opacity: [0, 1] }, { duration: fx.DUR.s, ease: fx.EASE });
+        fresh.forEach((k) => fx.clean(k, a, ["opacity"]));
+      }
       return true;
     }).catch(() => false);
   }

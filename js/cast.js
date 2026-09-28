@@ -170,7 +170,7 @@
       shocked: ["translateY(0px) scale(1)", "translateY(-16px) scale(0.9,1.12)", "translateY(0px) scale(1.04,0.96)", "translateY(0px) scale(1)"],
       dizzy: ["rotate(0deg)", "rotate(-12deg)", "rotate(10deg)", "rotate(-8deg)", "rotate(0deg)"],
     }[mood] || ["scale(0.92)", "scale(1)"];
-    f.animate(m, { transform: K }, { duration: 0.55, ease: f.EASE });
+    f.clean(m, f.animate(m, { transform: K }, { duration: f.DUR.m + f.DUR.l, ease: f.EASE }), ["transform"]);
   };
 
   // ---------- one-shot gags ----------
@@ -204,7 +204,9 @@
     const dizzy = pokes.length >= 5;
     if (dizzy) pokes = [];
     NIC.mascotReact(m, dizzy ? "dizzy" : POKE_MOODS[Math.floor(Math.random() * POKE_MOODS.length)]);
-    const f = fx(); if (f && f.ok && !f.reduce()) f.animate(m, { transform: ["scale(1,1)", "scale(1.18,0.82)", "scale(0.9,1.12)", "scale(1.04,0.97)", "scale(1,1)"] }, { duration: 0.5, ease: "easeOut" });
+    // the squash plays on the inner svg, so it layers with mascotReact's motion on the outer span instead of cancelling it
+    const f = fx(), s = m.querySelector(".mascot-svg");
+    if (f && f.ok && !f.reduce() && s) f.clean(s, f.animate(s, { transform: ["scale(1,1)", "scale(1.18,0.82)", "scale(0.9,1.12)", "scale(1.04,0.97)", "scale(1,1)"] }, { duration: f.DUR.bar, ease: "easeOut" }), ["transform"]);
     if (NIC.sfx) NIC.sfx.play(dizzy ? "dizzy" : "squeak");
     const pool = cast.unlocked ? cast.unlocked() : HATS;
     const cur = (m.dataset.acc || "").split(",").filter(Boolean);

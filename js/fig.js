@@ -175,7 +175,9 @@
     cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
     const loop = () => { if (!cv.isConnected) return; if (auto) { yaw += 0.0035; draw(); } life.frame(loop); };
     draw(); life.frame(loop); life.onResize(draw);
-    return { setPoints(p) { pts = p; draw(); }, setPath(p) { path = p; draw(); }, redraw: draw };
+    return { setPoints(p) { pts = p; draw(); }, setPath(p) { path = p; draw(); }, redraw: draw,
+      /** Current camera, so the three.js upgrade can carry it across. */
+      view: () => ({ yaw, pitch, auto, dragging: !!dragging }) };
   }
 
   /**
@@ -190,24 +192,33 @@
     life.onCleanup(() => (dead = true));
     const api = { setPoints(p) { opts = { ...opts, points: p }; impl.setPoints(p); }, setPath(p) { opts = { ...opts, path: p }; impl.setPath(p); }, redraw: () => impl.redraw() };
     const gl = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
-    if (gl && NIC.lazy) NIC.lazy("vendor/three.min.js").then(() => {
+    // swap in the GL version once three.js is here, but never mid-drag (the canvas would vanish under the pointer)
+    const upgrade = () => {
       if (dead || !holder.isConnected || !window.THREE) return;
-      const next = surfaceGL(holder, life, opts);
+      const v = impl.view ? impl.view() : null;
+      if (v && v.dragging) { setTimeout(upgrade, 120); return; }
+      const next = surfaceGL(holder, life, opts, v);
       if (next) impl = next;
-    }).catch(() => {});
+    };
+    if (gl && NIC.lazy) NIC.lazy("vendor/three.min.js").then(upgrade).catch(() => {});
     return api;
   }
 
-  function surfaceGL(holder, life, opts) {
+  /** `view` = the canvas version's camera ({yaw, pitch, auto}); the GL mesh fades in over it from the same angle. */
+  function surfaceGL(holder, life, opts, view) {
     const T = window.THREE, o = { height: 320, x: [0, 1], y: [0, 1], ...opts, n: Math.max(48, opts.n || 0) };
     let renderer;
     try { renderer = new T.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return null; }
-    holder.innerHTML = "";
+    const old = [...holder.children];
     const wrap = document.createElement("div");
     wrap.className = "viz surface3d surface-gl";
     wrap.style.height = o.height + "px";
     wrap.setAttribute("aria-label", opts.label || "3D surface: drag to rotate");
+    // lay the GL box over the canvas one until it has faded in (see the crossfade after the first render)
+    const oldCv = old.find((c) => c.tagName === "CANVAS");
+    if (oldCv) wrap.style.cssText += `;position:absolute;left:${oldCv.offsetLeft}px;top:${oldCv.offsetTop}px;width:${oldCv.offsetWidth}px;opacity:0`;
     holder.appendChild(wrap);
+    old.filter((c) => c !== oldCv).forEach((c) => c.remove()); // the old hint; the new one takes its place in the flow
     const hint = document.createElement("div"); hint.className = "surface-hint"; hint.textContent = "drag to rotate"; holder.appendChild(hint);
     const labels = document.createElement("div"); labels.className = "surface-labels";
     renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
@@ -242,7 +253,8 @@
     const extra = new T.Group(); scene.add(extra);
     const toW = (xv, yv, lift = 0) => new T.Vector3((xv - o.x[0]) / (o.x[1] - o.x[0]) - 0.5, nz(o.f(xv, yv)) * H + lift, (yv - o.y[0]) / (o.y[1] - o.y[0]) - 0.5);
     let pts = o.points || [], path = o.path || [], tags = [];
-    let yaw = -0.7, pitch = 0.62, auto = !NIC.fx.reduce(), drag = null, dirty = true, W = 0;
+    let yaw = view ? view.yaw : -0.7, pitch = view ? Math.max(0.12, Math.min(1.4, view.pitch)) : 0.62, auto = view ? view.auto : !NIC.fx.reduce(), drag = null, dirty = true, W = 0;
+    if (!auto) hint.style.opacity = "0";
     const disposeGroup = () => { extra.children.slice().forEach((c) => { extra.remove(c); if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }); };
     function rebuild() {
       disposeGroup(); labels.innerHTML = ""; tags = [];
@@ -282,6 +294,12 @@
     }
     const loop = () => { if (!wrap.isConnected) return; if (auto) { yaw += 0.0035; dirty = true; } if (dirty) render(); life.frame(loop); };
     size(); rebuild(); render(); life.frame(loop); life.onResize(size);
+    // crossfade: the GL box (already drawn from the same angle) fades in over the canvas, then takes its place in the flow
+    if (oldCv) {
+      const settle = () => { oldCv.remove(); ["position", "left", "top", "width", "opacity"].forEach((p) => (wrap.style[p] = "")); size(); };
+      const fx = NIC.fx, a = fx && fx.ok ? fx.clean(wrap, fx.animate(wrap, { opacity: [0, 1] }, { duration: fx.DUR.m, ease: fx.EASE }), ["opacity"]) : null;
+      a ? a.finished.then(settle, settle) : settle();
+    }
     life.onCleanup(() => { disposeGroup(); geo.dispose(); mesh.material.dispose(); wire.geometry.dispose(); wire.material.dispose(); base.geometry.dispose(); base.material.dispose(); renderer.dispose(); if (renderer.forceContextLoss) renderer.forceContextLoss(); });
     return { setPoints(p) { pts = p || []; rebuild(); }, setPath(p) { path = p || []; rebuild(); }, redraw: () => (dirty = true) };
   }

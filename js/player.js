@@ -80,7 +80,7 @@
       S.screens = lessonScreens(mod);
       const pos = store.get("nic.lessonPos", {})[mod.id] || 0;
       S.i = pos > 0 && pos < S.screens.length ? pos : 0;
-      if (S.i > 0 && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Picked up where you left off. "Start over" is in the lesson's popover.</span>`, { tone: "blue", ms: 2600 }), 400);
+      if (S.i > 0 && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Picked up where you left off. "Start over" is in the lesson's popover.</span>`, { tone: "blue", ms: 2600, live: true }), 400);
     }
     if (!S.screens.length) S.screens.push({ kind: "note", t: "Nothing here yet", b: "This module has no lesson steps." });
     const v = store.get("nic.visited", {}); v[mod.id] = true; store.set("nic.visited", v);
@@ -138,10 +138,16 @@
   // =====================================================================
   //  Shell
   // =====================================================================
+  const webdriver = () => !!navigator.webdriver; // tools/*.js click straight through: no Continue guard, no sheet exit
+
   function mount(chip) {
+    // the path sets NIC.player.originRect (the tapped node) just before the hash change; opts.from works too
+    const from = S.opts.from || N.player.originRect || null;
+    N.player.originRect = null;
     const root = el(`<div class="player" role="dialog" aria-modal="true" aria-label="${stripTags(S.mod.title)}">
       <header class="pl-top"><button class="pl-x" aria-label="Quit lesson">${IC.x}</button>
         <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="pl-fill"></span><span class="pl-combo"></span></div>
+        <span class="pl-retry" hidden title="Mistakes to fix">${IC.retry}<b>0</b></span>
         <span class="pl-chip">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
       <div class="pl-stage"></div>
       <footer class="pl-foot"><div class="pl-foot-in"><div class="pl-fb" aria-live="polite"></div><div class="pl-actions"><button class="btn big primary pl-go">Continue</button></div></div></footer>
@@ -150,54 +156,140 @@
     document.body.classList.add("in-lesson");
     N.shield(true);
     S.root = root; S.stage = qs(".pl-stage", root); S.foot = qs(".pl-foot", root); S.go = qs(".pl-go", root);
-    S.go.addEventListener("click", () => { if (!S.go.disabled && S.onGo) S.onGo(); });
+    S.go.addEventListener("click", onGoClick);
     qs(".pl-x", root).addEventListener("click", askQuit);
-    const ref = qs(".pl-ref", root);
-    ref.addEventListener("click", () => { const d = qs(".pl-drawer", root); d.hidden = !d.hidden; if (!d.hidden && fx()) fx().reveal(d); });
+    const ref = qs(".pl-ref", root), drawer = qs(".pl-drawer", root);
+    const closeDrawer = () => {
+      if (drawer.hidden || drawer.classList.contains("m-ghost")) return;
+      drawer.classList.add("m-ghost"); // no pointer events while it leaves
+      (fx() && fx().exit ? fx().exit(drawer, { y: -6, scale: 0.98, dur: fx().DUR.s }) : Promise.resolve()).then(() => {
+        const clear = () => { drawer.style.opacity = ""; drawer.style.transform = ""; };
+        drawer.hidden = true; drawer.classList.remove("m-ghost"); clear(); requestAnimationFrame(() => setTimeout(clear, 0)); // Motion can write its last frame late
+      });
+    };
+    ref.addEventListener("click", () => {
+      if (!drawer.hidden && !drawer.classList.contains("m-ghost")) return closeDrawer();
+      drawer.classList.remove("m-ghost"); drawer.style.opacity = ""; drawer.style.transform = "";
+      drawer.hidden = false; if (fx()) fx().reveal(drawer);
+    });
+    // a tap anywhere outside the drawer (and its button) closes it
+    root.addEventListener("pointerdown", (e) => { if (!drawer.hidden && !drawer.contains(e.target) && !ref.contains(e.target)) closeDrawer(); });
     S.keys = (e) => onKey(e);
     document.addEventListener("keydown", S.keys);
-    if (fx() && fx().ok) fx().animate(root, reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(40px)", "translateY(0px)"] }, { duration: 0.32, ease: fx().EASE });
+    if (fx() && fx().ok) {
+      const F = fx();
+      if (reduce()) F.clean(root, F.animate(root, { opacity: [0, 1] }, { duration: F.DUR.m, ease: F.EASE }), ["opacity"]);
+      else if (from && from.width) {
+        // grow out of the tapped path node
+        root.style.transformOrigin = `${from.left + from.width / 2}px ${from.top + from.height / 2}px`;
+        F.clean(root, F.animate(root, { opacity: [0, 1], transform: ["scale(0.9)", "scale(1)"] }, F.SPRING_UI), ["transform", "opacity", "transformOrigin"]);
+      } else F.clean(root, F.animate(root, { opacity: [0, 1], transform: ["translateY(40px)", "translateY(0px)"] }, { duration: F.DUR.l, ease: F.EASE }));
+    }
+    if (fx() && fx().preloadLottie) fx().preloadLottie();
     S.stopIdle = N.cast ? N.cast.idle(root) : () => {};
     if (fx()) S.life.onCleanup(fx().watchStats(root));
   }
 
+  // screens that count towards the bar: the main run (plus the recap), not the mistakes round or the payoff
+  const MAIN = (x) => !x.retry && !["mistakes", "complete", "streak", "hype"].includes(x.kind);
+
   function progress() {
-    const content = S.screens.filter((x) => !["complete", "streak", "hype"].includes(x.kind)).length;
-    const f = Math.min(1, S.i / Math.max(1, content));
+    // the denominator is fixed when the session starts (S.total), so queued retries never pull the bar back
+    if (!S.total) S.total = Math.max(1, S.screens.filter(MAIN).length + (S.kind === "lesson" && S.recap ? 1 : 0)); // + the recap finish() adds
+    const total = S.total;
+    const sc = S.screens[S.i] || {};
+    const done = ["complete", "streak"].includes(sc.kind) ? total : S.screens.slice(0, S.i).filter(MAIN).length;
+    const f = Math.max(S.barF || 0, Math.min(1, done / total));
     const fill = qs(".pl-fill", S.root), bar = qs(".pl-bar", S.root);
     fill.style.transform = `scaleX(${f})`;
     bar.setAttribute("aria-valuenow", Math.round(f * 100));
+    // the mistakes round is its own state: the bar holds and turns orange (css/motion-player.css)
+    bar.classList.toggle("retry", !!sc.retry || sc.kind === "mistakes");
     // moving forward sweeps a shine across the fill (css/motion.css .m-shine)
     if (f > (S.barF || 0)) { bar.classList.remove("m-shine"); void bar.offsetWidth; bar.classList.add("m-shine"); }
     S.barF = f;
+    retryChip(false);
   }
 
-  function combo() {
-    const c = qs(".pl-combo", S.root);
+  /** Mistakes still to fix (queued retries not yet passed). Bumps when a wrong answer adds one. */
+  function retryChip(bump) {
+    const chip = qs(".pl-retry", S.root); if (!chip) return;
+    const n = S.screens.filter((x, j) => x.retry && j > S.i).length + (S.screens[S.i] && S.screens[S.i].retry && !S.graded ? 1 : 0);
+    qs("b", chip).textContent = n;
+    const was = chip.hidden;
+    chip.hidden = !n;
+    if (!n || !fx()) return;
+    if (was) fx().springIn(chip, { from: 0.4, bounce: 0.5, dur: 0.4 });
+    else if (bump) fx().bump(chip, { scale: 1.3, y: -3 });
+  }
+
+  function combo(prev = 0) {
+    const c = qs(".pl-combo", S.root), F = fx(), anim = F && F.ok && !reduce();
     qs(".pl-bar", S.root).classList.toggle("hot", S.combo >= 5);
+    clearTimeout(S.comboT);
+    const clear = () => { c.style.transform = ""; c.style.opacity = ""; };
     if (S.combo >= 3) {
       c.textContent = `${S.combo} IN A ROW`;
-      c.classList.add("on");
-      if (fx() && fx().ok && !reduce()) fx().animate(c, { transform: ["translate(-50%, 6px) scale(0.6)", "translate(-50%, 0px) scale(1.15)", "translate(-50%, 0px) scale(1)"] }, { duration: 0.45, ease: fx().EASE });
+      c.classList.remove("mini"); c.classList.add("on"); clear();
+      if (anim) F.clean(c, F.animate(c, { transform: ["translate(-50%, 6px) scale(0.6)", "translate(-50%, 0px) scale(1)"] }, F.SPRING_POP), ["transform"]);
       if (S.combo === 3 || S.combo === 5 || S.combo % 10 === 0) sound("streak");
       if (S.combo === 5 || S.combo % 10 === 0) setTimeout(() => fx() && fx().lottieAt(c, "combo", { size: 96, dy: -6 }), 120);
-    } else c.classList.remove("on");
+    } else if (S.combo >= 1) {
+      // 1–2 in a row: a small "+1" pops over the bar and fades
+      c.textContent = "+1";
+      c.classList.add("on", "mini"); clear();
+      if (anim) F.clean(c, F.animate(c, { transform: ["translate(-50%, 6px) scale(0.5)", "translate(-50%, 0px) scale(1)"] }, F.SPRING_POP), ["transform"]);
+      S.comboT = setTimeout(() => c.classList.remove("on"), 900);
+    } else if (prev >= 3 && c.classList.contains("on") && anim && F.exit) {
+      // the combo broke: the chip drops and fades
+      F.exit(c, { y: 10, scale: 0.9, base: "translate(-50%, 0px)", dur: F.DUR.m }).then(() => {
+        if (S && S.combo === 0) { c.classList.remove("on", "mini"); clear(); requestAnimationFrame(() => setTimeout(clear, 0)); }
+      });
+    } else c.classList.remove("on", "mini");
+  }
+
+  /** CONTINUE / CHECK. A green or red sheet slides away first; presses right after it lands are ignored. */
+  function onGoClick() {
+    if (!S || S.go.disabled || !S.onGo || S.leavingSheet) return;
+    const t = performance.now();
+    if (t < (S.lockUntil || 0) && !webdriver()) return;
+    const go = S.onGo, s = S, inner = qs(".pl-foot-in", S.foot);
+    const sheet = /\bf-(ok|no)\b/.test(S.foot.className);
+    if (!sheet || S.kbd || webdriver() || !fx() || !fx().ok || !fx().exit) return go();
+    S.leavingSheet = true;
+    const F = fx();
+    F.exit(inner, { y: reduce() ? 0 : Math.min(inner.offsetHeight, 160), scale: 1, dur: F.DUR.s }).then(() => {
+      if (S !== s) return;
+      S.leavingSheet = false;
+      const clear = () => { inner.style.transform = ""; inner.style.opacity = ""; };
+      go(); clear(); requestAnimationFrame(() => setTimeout(clear, 0));
+    });
   }
 
   /** Footer: mode = continue | check | ok | no | hidden */
   function foot(mode, { label, onGo, fb = "", enabled = true, danger = false } = {}) {
     if (S.go) S.go.classList.remove("pl-go-blue");
-    S.foot.className = `pl-foot f-${mode}`;
+    const sheet = mode === "ok" || mode === "no";
+    // the green/red sheet overlays the stage instead of growing the footer, so the stage keeps its height
+    const footH = sheet ? S.foot.offsetHeight : 0;
+    S.foot.className = `pl-foot f-${mode}${sheet ? " f-sheet" : ""}`;
+    if (sheet) S.foot.style.setProperty("--pl-foot-h", `${footH}px`); else S.foot.style.removeProperty("--pl-foot-h");
     const fbEl = qs(".pl-fb", S.foot);
     fbEl.innerHTML = fb;
     S.go.textContent = label || (mode === "check" ? "Check" : mode === "no" ? "Got it" : "Continue");
     S.go.disabled = !enabled;
     S.go.className = `btn big pl-go ${mode === "no" || danger ? "rose" : "primary"}`;
     S.onGo = onGo;
-    if ((mode === "ok" || mode === "no") && fx() && fx().ok) {
-      const inner = qs(".pl-foot-in", S.foot);
-      fx().animate(S.foot, reduce() ? { opacity: [0.4, 1] } : { transform: ["translateY(100%)", "translateY(0%)"] }, { duration: 0.32, ease: fx().EASE });
-      if (!reduce()) fx().animate(inner, { opacity: [0, 1] }, { duration: 0.2, delay: 0.08 });
+    const inner = qs(".pl-foot-in", S.foot);
+    // pad the stage by the overlap, so what the sheet covers can still be scrolled into view
+    S.stage.style.setProperty("--pl-sheet-pad", sheet ? `${Math.max(0, inner.offsetHeight - footH)}px` : "0px");
+    S.sheetMs = 0;
+    if (sheet) S.lockUntil = performance.now() + 250;
+    if (sheet && fx() && fx().ok && !S.kbd) {
+      const F = fx();
+      S.sheetMs = F.DUR.m * 1000;
+      S.lockUntil = performance.now() + S.sheetMs + 250;
+      F.clean(inner, F.animate(inner, reduce() ? { opacity: [0, 1] } : { transform: ["translateY(100%)", "translateY(0%)"] }, { duration: F.DUR.m, ease: F.EASE }));
       // the verdict icon pops, the title slides in beside it, the +XP chip lands last
       if (!reduce() && fx().springIn) {
         fx().springIn(qs(".pl-fb-h svg", fbEl), { from: 0.2, rot: mode === "ok" ? -45 : 45, bounce: 0.55, dur: 0.5, delay: 0.1 });
@@ -223,27 +315,35 @@
     qsa(".pl-screen.leaving", S.stage).forEach((x) => x.remove());
     const old = qs(".pl-screen", S.stage);
     const node = el(`<div class="pl-screen" data-kind="${sc.kind}"></div>`);
+    const F = fx(), anim = !!(F && F.ok && dir);
     if (old) {
-      if (fx() && fx().ok && !reduce() && dir) {
-        fx().animate(old, { opacity: [1, 0], transform: ["translateX(0px)", `translateX(${-40 * dir}px)`] }, { duration: 0.18, ease: "easeIn" }).finished.then(() => old.remove()).catch(() => old.remove());
+      if (anim && !reduce() && F.exit) {
+        // pin the leaving screen where it is on screen before the stage scrolls back to the top
+        const y = S.stage.scrollTop;
         old.classList.add("leaving");
+        old.style.top = `${-y}px`;
+        F.exit(old, { x: -24 * dir, scale: 1, dur: F.DUR.s }).then(() => old.remove());
       } else old.remove();
     }
     S.stage.appendChild(node);
     S.stage.scrollTop = 0;
+    S.graded = false;
     qs(".pl-ref", S.root).hidden = !S.refHTML;
     if (S.refHTML) qs(".pl-drawer", S.root).innerHTML = S.refHTML;
     progress();
     (RENDER[sc.kind] || RENDER.note)(node, sc);
     node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true }); // Tab starts inside the new screen
-    if (fx() && fx().ok && dir) {
-      const a = fx().animate(node, reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${40 * dir}px)`, "translateX(0px)"] }, { duration: 0.3, delay: old ? 0.08 : 0, ease: fx().EASE });
-      if (a) a.finished.then(() => (node.style.transform = "")).catch(() => {});
-      if (!reduce()) qsa(".pl-in > *", node).forEach((p, k) => fx().animate(p, { opacity: [0, 1], transform: ["translateY(12px)", "translateY(0px)"] }, { duration: 0.32, delay: 0.1 + k * 0.05, ease: fx().EASE }));
+    const vis = qs(".lesson-visual", node);
+    // two layers at most: the screen slides in, then either its figure draws itself or its blocks rise
+    const draws = !!(vis && qs(".draw, .fi", vis));
+    if (anim) {
+      F.clean(node, F.animate(node, reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${24 * dir}px)`, "translateX(0px)"] }, { duration: F.DUR.m, delay: old && !reduce() ? F.DUR.xs : 0, ease: F.EASE }));
+      if (!reduce() && !draws) qsa(".pl-in > *", node).forEach((p, k) => F.clean(p, F.animate(p, { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] }, { duration: F.DUR.m, delay: F.DUR.xs + k * 0.04, ease: F.EASE })));
     }
-    const vis = qs(".lesson-visual", node); if (vis && fx()) fx().play(vis);
+    if (vis && F && !S.kbd) F.play(vis); // keyboard moves don't animate
   }
-  const next = () => { S.i++; show(1); };
+  const next = () => { S.i++; show(S.kbd ? 0 : 1); };
+  const goldRect = () => { const c = S && qs(".pd-card.c-gold", S.stage); return c ? c.getBoundingClientRect() : null; };
 
   const presenter = (html, mood = "idle", who = S.who) => `<div class="pl-ask">${N.mascot({ who, size: 88, mood, cls: "pl-presenter" })}<div class="bubble pl-prompt">${html}</div></div>`;
 
@@ -325,7 +425,7 @@
           <div class="ph-who ph-b"><div class="bubble ph-bub">${lines[1]}</div>${N.mascot({ who: buddy, size: 130, mood: "love", act: "spin", acc: ["crown"] })}</div>
         </div></div>`;
       sound("streak");
-      if (fx()) { setTimeout(() => fx().lottieAt(qs(".ph-stage", node), "combo", { size: 180, dy: -40 }), 150); if (fx().ok && !reduce()) qsa(".ph-bub", node).forEach((b, k) => fx().animate(b, { opacity: [0, 1], transform: ["translateY(10px) scale(0.8)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.45, bounce: 0.45, delay: 0.2 + k * 0.35 })); }
+      if (fx()) { const F = fx(); setTimeout(() => F.lottieAt(qs(".ph-stage", node), "combo", { size: 180, dy: -40 }), 150); if (F.ok && !reduce()) qsa(".ph-bub", node).forEach((b, k) => F.clean(b, F.animate(b, { opacity: [0, 1], transform: ["translateY(10px) scale(0.8)", "translateY(0px) scale(1)"] }, { ...F.SPRING_POP, delay: 0.2 + k * 0.35 }))); }
       foot("continue", { onGo: next });
     },
     reviseIntro(node, sc) {
@@ -389,28 +489,32 @@
         <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? (S.bossPct >= 0.8 ? "Boss beaten!" : "Quiz complete!") : acc === 1 ? pickOne(["Learning legend!", "Flawless!", "Perfect lesson!"]) : acc >= 0.8 ? pickOne(["Lesson complete!", "Nicely done!", "Brain gains!"]) : "Lesson complete!"}</h1>
         ${S.kind === "boss" && S.bossScore ? `<div class="pd-boss">${S.bossPerfect ? "Perfect score" : "Score"}: <b>${S.bossScore}</b></div>` : ""}
         <div class="pd-cards">
-          <div class="pd-card c-gold"><b>Total XP</b><span>${IC.bolt}<i data-v="${total}">0</i></span></div>
+          <div class="pd-card c-gold" data-xp="${total}"><b>Total XP</b><span>${IC.bolt}<i data-v="${total}">0</i></span></div>
           <div class="pd-card c-green"><b>${label}</b><span>${IC.target}<i data-v="${Math.round(acc * 100)}">0</i>%</span></div>
           <div class="pd-card c-blue"><b>${secs < 180 ? "Speedy" : "Time"}</b><span>${IC.clock}<i class="pd-time">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</i></span></div>
         </div></div>`;
       sound("fanfare");
       if (fx()) setTimeout(() => fx().celebrate(qs(".pd-title", node), { big: true, silent: true }), 250);
       if (S.bossPerfect && fx()) setTimeout(() => fx().lottieAt(qs(".pd-star", node) || qs(".pd-title", node), "trophy", { size: 220 }), 700);
+      S.xpTotal = total;
       qsa(".pd-card", node).forEach((card, k) => setTimeout(() => {
-        const i = qs("i[data-v]", card);
-        if (!fx() || !fx().ok) { card.style.opacity = 1; if (i) i.textContent = i.dataset.v; return; }
-        if (i) fx().count(i, +i.dataset.v, { from: 0, dur: 0.7 });
+        const i = qs("i[data-v]", card), F = fx();
+        if (!F || !F.ok) { card.style.opacity = 1; if (i) i.textContent = i.dataset.v; return; }
+        if (i) F.count(i, +i.dataset.v, { from: 0, dur: 0.7 }); // count() sets the final value at once under reduced motion
+        const shown = () => (card.style.opacity = 1); // .pd-card starts at opacity 0 in CSS, so opacity stays inline
+        if (reduce()) { F.animate(card, { opacity: [0, 1] }, { duration: F.DUR.m }).finished.then(shown).catch(shown); return; } // fade only, no ticks
         let t = 0; const iv = setInterval(() => { sound("tick"); if (++t > 5) clearInterval(iv); }, 90);
-        fx().animate(card, { transform: ["scale(0.7)", "scale(1.08)", "scale(1)"], opacity: [0, 1] }, { duration: 0.4, ease: fx().EASE }).finished.then(() => (card.style.opacity = 1)).catch(() => {});
-      }, 500 + k * 260));
-      qs(".pl-combo", S.root).classList.remove("on");
+        F.clean(card, F.animate(card, { transform: ["scale(0.7)", "scale(1)"], opacity: [0, 1] }, F.SPRING_POP), ["transform"]).finished.then(shown).catch(shown);
+      }, reduce() ? 300 + k * 120 : 500 + k * 260));
+      qs(".pl-combo", S.root).classList.remove("on", "mini");
       if (S.kind === "lesson") {
         const d = store.get("nic.lessonDone", {}); d[S.mod.id] = true; store.set("nic.lessonDone", d);
         const p = store.get("nic.lessonPos", {}); delete p[S.mod.id]; store.set("nic.lessonPos", p);
         window.dispatchEvent(new Event("nic:progress"));
       }
       N.lastFinished = S.mod.id;
-      foot("continue", { onGo: () => (res.firstToday ? (S.screens.push({ kind: "streak" }), next()) : close()) });
+      S.completed = true;
+      foot("continue", { onGo: () => { S.goldRect = goldRect(); res.firstToday ? (S.screens.push({ kind: "streak" }), next()) : close(); } });
       S.go.classList.add("pl-go-blue"); // Duolingo's lesson-complete button is blue
     },
     streak(node) {
@@ -424,8 +528,9 @@
       if (fx()) fx().lottie(qs(".ps-flame", node), "flame", { cls: "ps-lottie" });
       setTimeout(() => {
         const nEl = qs("#psN", node);
-        if (fx()) { fx().count(nEl, r.streak, { from: r.streakFrom, dur: 0.6 }); if (fx().ok && !reduce()) fx().animate(qs(".ps-num", node), { transform: ["scale(1)", "scale(1.5)", "scale(1)"] }, { duration: 0.5, ease: fx().EASE }); } else nEl.textContent = r.streak;
-        const t = qs(".ps-day.today", node); if (t && fx() && fx().ok && !reduce()) fx().animate(t, { transform: ["scale(0.5)", "scale(1.25)", "scale(1)"] }, { type: "spring", duration: 0.6, bounce: 0.5 });
+        const F = fx();
+        if (F) { F.count(nEl, r.streak, { from: r.streakFrom, dur: 0.6 }); F.bump(qs(".ps-num", node), { scale: 1.5 }); } else nEl.textContent = r.streak;
+        const t = qs(".ps-day.today", node); if (t && F && F.ok && !reduce()) F.clean(t, F.animate(t, { transform: ["scale(0.5)", "scale(1)"] }, F.SPRING_POP), ["transform"]);
         sound("streak");
       }, 450);
       foot("continue", { onGo: () => close() });
@@ -446,17 +551,23 @@
     const fig = qs(".q-fig", wrap), body = qs(".q-body", wrap);
     if (Q.fig && type !== "pick") { try { typeof Q.fig === "function" ? Q.fig(fig) : (fig.innerHTML = Q.fig); } catch (e) { console.error(e); } }
     const hb = qs("[data-hint]", wrap);
-    if (hb) hb.onclick = () => { qs(".q-hint-t", wrap).hidden = false; hb.remove(); };
+    if (hb) hb.onclick = () => { const t = qs(".q-hint-t", wrap); t.hidden = false; hb.remove(); if (fx()) fx().reveal(t); };
     let pending, answered = false;
     const grade = (v) => {
       if (answered) return; answered = true;
       const ok = TT.grade(Q, v);
       qsa(".sel", body).forEach((x) => x.classList.remove("sel"));
       const focus = TT.reveal(Q, body, v, ok);
-      setTimeout(() => { const t = focus || qs(".right, .wrong", body); if (t && t.scrollIntoView) t.scrollIntoView({ block: "nearest", behavior: reduce() ? "auto" : "smooth" }); }, 360);
       const h = qs(".q-hint", wrap); if (h) h.remove();
       if (fx() && focus) ok ? (fx().bounce || fx().pop)(focus) : fx().shake(focus);
       result(sc, ok, v);
+      // once the sheet has landed, bring the graded answer into view above it (the stage is padded by the overlap)
+      const s = S, kbd = S.kbd;
+      S.life.timeout(() => {
+        if (S !== s || !wrap.isConnected) return;
+        const t = focus || qs(".right, .wrong", body);
+        if (t && t.scrollIntoView) t.scrollIntoView({ block: "nearest", behavior: reduce() || kbd ? "auto" : "smooth" });
+      }, (S.sheetMs || 0) + 20);
     };
     TT.render(Q, body, (v) => {
       if (answered) return;
@@ -478,8 +589,8 @@
   }
 
   function result(sc, ok, v) {
-    const Q = sc.Q, first = !sc.retry;
-    S.answered++;
+    const Q = sc.Q, first = !sc.retry, prevCombo = S.combo;
+    S.answered++; S.graded = true;
     if (first) { S.firstTotal++; if (ok) S.firstRight++; }
     game().answered(ok);
     // persistence
@@ -504,10 +615,14 @@
         if (S.retries[sc.key] <= 2) queueMistake(sc);
       }
     }
-    combo();
+    combo(prevCombo);
+    retryChip(!ok);
     const answer = T()[Q.type || "mcq"].answer(Q);
     const why = Q.why ? `<div class="pl-why">${Q.why}</div>` : "";
     const mood = ok ? pickOne(CHEER) : S.wrongRun >= 3 ? "dizzy" : pickOne(["sad", "surprised", "shocked"]);
+    // the presenter who asked the question reacts too (compact quick checks have none)
+    const pres = qs(".pl-screen:not(.leaving) .pl-presenter", S.stage);
+    if (pres && N.mascotReact) N.mascotReact(pres, mood);
     const who = sc.retry ? "berry" : S.who;
     const fb = ok
       ? `<div class="pl-fb-row">${N.mascot({ who, size: 64, mood, poke: false })}<div class="pl-fb-t"><div class="pl-fb-h">${IC.ok}<b>${pickOne(PRAISE)}</b>${first ? `<span class="pl-xp">+${S.kind === "boss" ? 2 : 1} XP</span>` : ""}</div>${why}</div></div>`
@@ -543,8 +658,8 @@
       <button class="btn big primary" data-m="stay">Keep learning</button><button class="btn big ghost pl-quit-btn" data-m="quit">End session</button></div>`;
     m.hidden = false;
     sound("sad");
-    if (fx() && fx().ok) fx().animate(qs(".pl-sheet", m), reduce() ? { opacity: [0, 1] } : { transform: ["translateY(60px) scale(0.96)", "translateY(0px) scale(1)"], opacity: [0, 1] }, { type: "spring", duration: 0.45, bounce: 0.3 });
-    if (fx() && fx().ok) fx().clean(m, fx().animate(m, { opacity: [0, 1] }, { duration: 0.18 }), ["opacity"]);
+    if (fx() && fx().ok) fx().clean(qs(".pl-sheet", m), fx().animate(qs(".pl-sheet", m), reduce() ? { opacity: [0, 1] } : { transform: ["translateY(60px) scale(0.96)", "translateY(0px) scale(1)"], opacity: [0, 1] }, reduce() ? { duration: fx().DUR.m } : fx().SPRING));
+    if (fx() && fx().ok) fx().clean(m, fx().animate(m, { opacity: [0, 1] }, { duration: fx().DUR.s }), ["opacity"]);
     qs('[data-m="stay"]', m).onclick = () => {
       sound("pop");
       if (!fx() || !fx().exit || !fx().ok) { m.hidden = true; return; }
@@ -561,12 +676,14 @@
     if (e.key === "Escape") { e.preventDefault(); if (!m.hidden) m.hidden = true; else askQuit(); return; }
     if (!m.hidden) { if (e.key === "Enter") { e.preventDefault(); m.hidden = true; } return; }
     if (typing) return;
+    // keyboard moves take the no-animation path: no slide between screens, no sheet slide (S.kbd is read synchronously)
+    const kbd = (fn) => { const s = S; s.kbd = true; try { fn(); } finally { s.kbd = false; } };
     if (/^[1-9]$/.test(e.key)) {
       const opts = qsa(".pl-screen:not(.leaving) .pl-body .opt, .pl-screen:not(.leaving) .pl-body .qc-line", S.stage).filter((b) => !b.disabled);
-      const b = opts[+e.key - 1]; if (b) { e.preventDefault(); b.click(); }
+      const b = opts[+e.key - 1]; if (b) { e.preventDefault(); kbd(() => b.click()); }
       return;
     }
-    if (e.key === "Enter" && !S.go.disabled) { e.preventDefault(); S.go.click(); }
+    if (e.key === "Enter" && !S.go.disabled) { e.preventDefault(); kbd(() => S.go.click()); }
   }
 
   function close(silent = false) {
@@ -580,7 +697,13 @@
     N.shield(false);
     const root = s.root;
     const gone = () => root.remove();
-    if (!silent && N.fx && N.fx.ok && !reduce()) N.fx.animate(root, { opacity: [1, 0], transform: ["translateY(0px)", "translateY(30px)"] }, { duration: 0.22, ease: "easeIn" }).finished.then(gone).catch(gone);
+    if (!silent && s.completed) {
+      // the app flies the XP from the gold card to the top-bar counter (NIC.player.lastXP)
+      const card = qs(".pd-card.c-gold[data-xp]", root);
+      const r = card ? card.getBoundingClientRect() : s.goldRect;
+      N.player.lastXP = { n: s.xpTotal || 0, rect: r && r.width ? r : null };
+    }
+    if (!silent && N.fx && N.fx.ok && N.fx.exit) { root.classList.add("m-ghost"); N.fx.exit(root, { y: 30, scale: 1, dur: N.fx.DUR.m }).then(gone); }
     else gone();
     if (!silent) {
       const h = s.opts.home || "home";
@@ -595,5 +718,7 @@
     return { open: true, who: S.who, kind: sc.kind, Q: sc.Q || null, key: sc.key, i: S.i, n: S.screens.length, foot: S.foot.className.replace("pl-foot ", ""), goDisabled: S.go.disabled };
   };
 
-  N.player = { open, practice, revise, close, state, isOpen: () => !!S, missed };
+  /* originRect: set by the path right before opening, so the player grows out of the tapped node (read once, then cleared).
+     lastXP: {n, rect} of the gold XP card, set as the player closes after a complete screen (the app flies it to the counter). */
+  N.player = { open, practice, revise, close, state, isOpen: () => !!S, missed, originRect: null, lastXP: null };
 })();

@@ -67,16 +67,21 @@
 
   function choose(local, cloud, cloudT) {
     const n = (d) => { try { return Object.keys(JSON.parse(d["nic.lessonDone"] || "{}")).length; } catch { return 0; } };
-    const box = N.el(`<div class="modal-back"><div class="modal sy-choose" role="dialog" aria-modal="true">
-      ${N.mascot({ who: "chip", size: 90, mood: "think" })}<h2>Two sets of progress</h2>
+    const html = `${N.mascot({ who: "chip", size: 90, mood: "think" })}<h2>Two sets of progress</h2>
       <p>This browser has <b>${n(local)}</b> finished lessons. Your account has <b>${n(cloud)}</b>. Which should win?</p>
-      <div class="controls"><button class="btn primary" data-k="cloud">Use my account's</button><button class="btn" data-k="local">Use this browser's</button></div></div></div>`);
-    document.body.appendChild(box);
-    N.shield(true);
-    const done = () => { box.remove(); N.shield(false); document.removeEventListener("keydown", esc); };
-    const esc = (e) => { if (e.key === "Escape") done(); };  // Esc = decide later; nothing is overwritten
-    document.addEventListener("keydown", esc);
-    box.querySelector("[data-k]").focus();
+      <div class="controls"><button class="btn primary" data-k="cloud">Use my account's</button><button class="btn" data-k="local">Use this browser's</button></div>`;
+    // the shared modal (js/app.js) animates in and out, and Esc / ✕ / the backdrop close it: decide later, nothing is overwritten
+    let box, done;
+    if (N.modal) { box = N.modal(html, { cls: "sy-choose" }); done = () => box.close(); }
+    else {
+      box = N.el(`<div class="modal-back"><div class="modal sy-choose" role="dialog" aria-modal="true">${html}</div></div>`);
+      document.body.appendChild(box);
+      N.shield(true);
+      const esc = (e) => { if (e.key === "Escape") done(); };
+      done = () => { box.remove(); N.shield(false); document.removeEventListener("keydown", esc); };
+      document.addEventListener("keydown", esc);
+      box.querySelector("[data-k]").focus();
+    }
     box.addEventListener("click", async (e) => {
       const b = e.target.closest("[data-k]"); if (!b) return;
       done();
@@ -97,14 +102,20 @@
   let waiting = null;
   const stamp = (t) => localStorage.setItem("nic.syncAt", String(t || Date.now()));
 
+  /* busy: a push is waiting or in flight. The menu's sync row shows a pending dot (js/app.js listens for nic:sync). */
+  let busy = false, inFlight = 0;
+  const setBusy = (b) => { if (b === busy) return; busy = b; window.dispatchEvent(new CustomEvent("nic:sync", { detail: { busy } })); };
   async function push(now) {
     if (!sb || !user || applying) return;
     clearTimeout(pushT);
-    if (!now) { pushT = setTimeout(() => push(true), 2500); return; }
-    if (!now.force && !localStorage.getItem("nic.syncDirty") && localStorage.getItem("nic.syncAt")) return;
+    if (!now) { setBusy(true); pushT = setTimeout(() => push(true), 2500); return; }
+    if (!now.force && !localStorage.getItem("nic.syncDirty") && localStorage.getItem("nic.syncAt")) { if (!inFlight) setBusy(false); return; }
     const t = new Date();
-    const { error } = await sb.from("progress").upsert({ user_id: user.id, data: snapshot(), updated_at: t.toISOString() });
-    if (error) console.error("sync push failed", error); else { localStorage.removeItem("nic.syncDirty"); stamp(t.getTime()); }
+    inFlight++; setBusy(true);
+    try {
+      const { error } = await sb.from("progress").upsert({ user_id: user.id, data: snapshot(), updated_at: t.toISOString() });
+      if (error) console.error("sync push failed", error); else { localStorage.removeItem("nic.syncDirty"); stamp(t.getTime()); }
+    } finally { inFlight--; if (!inFlight) setBusy(false); }
   }
   const toast = (t, s) => N.fx && N.fx.toast(`${N.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>${t}</b><span>${s}</span>`, { tone: "blue", ms: 2800 });
 
@@ -120,6 +131,7 @@
 
   N.sync = {
     user: () => user,
+    busy: () => busy,
     pending: () => !!localStorage.getItem("nic.syncUser"),
     email: () => { try { return JSON.parse(localStorage.getItem("nic.syncUser")); } catch { return null; } },
     on: (fn) => { subs.push(fn); },

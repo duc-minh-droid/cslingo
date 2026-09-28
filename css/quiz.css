@@ -34,7 +34,7 @@
 
 /* order */
 .qo-slots { display: grid; gap: 8px; margin-bottom: 14px; }
-.qo-slot { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 12px; border-radius: 14px; border: 2px dashed var(--line-2); background: var(--bg-2); transition: border-color 150ms ease, background-color 150ms ease; }
+.qo-slot { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 12px; border-radius: 14px; border: 2px dashed var(--line-2); background: var(--bg-2); transition: border-color var(--dur-2) ease, background-color var(--dur-2) ease; }
 .qo-slot.filled { border-style: solid; border-color: var(--blue-edge); background: var(--blue-dim); }
 .qo-slot.right { border-style: solid; border-color: var(--teal); background: var(--teal-dim); }
 .qo-slot.wrong { border-style: solid; border-color: var(--rose); background: var(--rose-dim); }
@@ -42,7 +42,7 @@
 .qo-v { font-weight: 700; }
 .qo-fix { font-weight: 800; color: var(--teal-ink); margin-left: 6px; }
 .qo-pool { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip-btn { appearance: none; font: inherit; font-weight: 800; font-size: 14px; color: var(--text); background: var(--panel); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); border-radius: 12px; padding: 8px 12px; cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out, opacity 150ms ease; }
+.chip-btn { appearance: none; font: inherit; font-weight: 800; font-size: 14px; color: var(--text); background: var(--panel); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); border-radius: 12px; padding: 8px 12px; cursor: pointer; transition: transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out, opacity var(--dur-2) ease; }
 .chip-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .chip-btn:disabled { opacity: 0.35; cursor: default; }
 
@@ -51,7 +51,7 @@
 /* cat */
 .q-match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .qm-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease, border-color 150ms ease; }
+.qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform var(--dur-1) ease-out, box-shadow var(--dur-1) ease-out, background-color var(--dur-2) ease, border-color var(--dur-2) ease; }
 .qm-t:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .qm-t.sel { border-color: var(--blue-edge); background: var(--blue-dim); box-shadow: 0 3px 0 var(--blue-edge); }
 .qm-t.right { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); }
@@ -67,7 +67,7 @@
 
 /* pick (click on diagram) */
 .q-pick svg { width: 100%; display: block; }
-.q-pick .pickable { cursor: pointer; transition: opacity 150ms ease, filter 150ms ease; }
+.q-pick .pickable { cursor: pointer; transition: opacity var(--dur-2) ease, filter var(--dur-2) ease; }
 @media (hover: hover) and (pointer: fine) { .q-pick .pickable:hover { filter: drop-shadow(0 0 5px rgba(28, 176, 246, 0.7)); } }
 .q-pick .pickable:focus-visible { outline: none; filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.9)); }
 .q-pick .sel { filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.95)); }
@@ -78,7 +78,7 @@
 
 /* bug */
 .q-code { border-radius: 16px; border: 2px solid var(--line); overflow: hidden; background: var(--bg-2); }
-.qc-line { appearance: none; display: flex; width: 100%; align-items: center; gap: 12px; text-align: left; font: inherit; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 6px 12px; cursor: pointer; transition: background-color 120ms ease; }
+.qc-line { appearance: none; display: flex; width: 100%; align-items: center; gap: 12px; text-align: left; font: inherit; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 6px 12px; cursor: pointer; transition: background-color var(--dur-1) ease; }
 .qc-line:last-child { border-bottom: 0; }
 .qc-line code { background: none; border: 0; padding: 0; white-space: pre; font-size: 13.5px; }
 .qc-n { width: 22px; flex-shrink: 0; font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
@@ -89,5 +89,5 @@
 
 .qm-t.good { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); color: var(--teal-ink); }
 .qm-t.bad { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); color: var(--rose-ink); }
-.qm-t.gone { opacity: .45; background: var(--bg-2); color: var(--text-faint); box-shadow: 0 0 0 var(--line); transform: translateY(3px); transition: opacity 250ms ease, transform 250ms ease; }
+.qm-t.gone { opacity: .45; background: var(--bg-2); color: var(--text-faint); box-shadow: 0 0 0 var(--line); transform: translateY(3px); } /* transition: css/motion.css */
 .qm-t.shown { opacity: .75; }

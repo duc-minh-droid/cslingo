@@ -5,6 +5,8 @@
   const root = document.documentElement;
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   const KEY = "csl.theme";
+  // Theme reveal: the circle grows over this long. A full-screen wipe, so it runs longer than UI motion (--dur-* tops out at 420ms).
+  const REVEAL_MS = 480, REVEAL_EASE = "cubic-bezier(0.23, 1, 0.32, 1)"; // --ease-out
   const get = () => { try { const t = localStorage.getItem(KEY); return t === "light" || t === "dark" ? t : "system"; } catch { return "system"; } };
   const resolved = () => (get() === "system" ? (mq.matches ? "dark" : "light") : get());
   const listeners = [];
@@ -31,7 +33,7 @@
     const vt = document.startViewTransition(apply);
     vt.ready.then(() => {
       root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-        { duration: 480, easing: "cubic-bezier(0.23, 1, 0.32, 1)", pseudoElement: "::view-transition-new(root)" });
+        { duration: REVEAL_MS, easing: REVEAL_EASE, pseudoElement: "::view-transition-new(root)" });
     }).catch(() => {});
     vt.finished.finally(() => root.classList.remove("theme-vt"));
   }

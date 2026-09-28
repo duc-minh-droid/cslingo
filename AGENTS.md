@@ -40,7 +40,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/app.js` + `css/shell.css` | `SUBJECTS` (the course/lecture catalogue), routing, path home, top bar and popovers, dock, Practice and Profile pages. |
 | `css/styles.css` | Theme tokens and base components (buttons, cards, tags, answer tiles, tables, genomes, chips). |
 | `css/ux.css` | Lesson typography, guide, takeaways, figures, tooltips, effects. |
-| `css/motion.css` | Motion tokens (`--dur-*`), tactile presses, selection springs, dock indicator, lesson-bar shine, page transitions (see §4 Motion). |
+| `css/motion.css` | Tactile presses, selection springs, dock indicator, lesson-bar shine, page transitions (see §4 Motion). |
 | `css/quiz.css` | Styles for the boss question types. |
 | `vendor/` | Vendored libraries (see §3). Never load these from a CDN. |
 | `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`. |
@@ -126,8 +126,8 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - Reduced motion keeps fades only. Keyboard actions never animate.
 - Idle loops belong in CSS so reduced motion can switch them off.
 
-**Motion tokens and helpers** (`css/motion.css` + `js/fx.js`)
-- Durations: `--dur-press` 40ms (squash on press), `--dur-1` 90, `--dur-2` 160 (exits, fades), `--dur-3` 240 (entrances, springy releases), `--dur-4` 320, `--dur-bar` 420 (lesson bar). JS mirrors them as `NIC.fx.DUR` in seconds. Easings: `--ease-out`, `--ease-spring`, `--ease-in-out` (styles.css), plus `--ease-in` and `--ease-pop`. Springs: `fx.SPRING` (feedback), `fx.SPRING_UI` (indicators, popovers), `fx.SPRING_POP` (badges, icons).
+**Motion tokens and helpers** (tokens in `css/styles.css`; `css/motion.css` + `js/fx.js`)
+- Durations: `--dur-press` 40ms (squash on press), `--dur-1` 90, `--dur-2` 160 (exits, fades), `--dur-3` 240 (entrances, springy releases), `--dur-4` 320, `--dur-bar` 420 (lesson bar); JS also has `DUR.xl` 1.2s for celebrations only. JS mirrors them as `NIC.fx.DUR` in seconds. Easings: `--ease-out`, `--ease-spring`, `--ease-in-out` (styles.css), plus `--ease-in` and `--ease-pop`. Springs: `fx.SPRING` (feedback), `fx.SPRING_UI` (indicators, popovers), `fx.SPRING_POP` (badges, icons).
 - Presses: `motion.css` gives buttons, answer tiles, chips, path nodes and dock/top-bar buttons an instant squash on `:active` and a spring on release. New tappable stickers should join that selector list rather than define their own transition.
 - Helpers: `fx.bounce(el)` correct answer, `fx.shake(el)` wrong, `fx.bump(el, {scale, y})` a counter or icon changed, `fx.springIn(el, {delay, from, rot})` something appears (path nodes, check marks, badges), `fx.exit(el, {x, y, scale, base})` returns a promise to remove on, `fx.onView(els, {run})` below-the-fold reveal, `fx.swap(update, {dir, el})` page change via View Transitions (`dir` 1/-1 slides, 0 crossfades; falls back to a plain update plus fade).
 - Clean up: Motion leaves the last frame as inline style, sometimes one frame after `finished`. Wrap animations with `fx.clean(el, anim, props)` (all the helpers above already do), so `:active`, hover and sticky positioning keep working.

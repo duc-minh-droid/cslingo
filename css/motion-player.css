@@ -1,0 +1,32 @@
+/* =====================================================================
+   Lesson player motion (js/player.js): the overlaid feedback sheet, the retry state of the bar,
+   the retry counter chip and the small "+1" combo chip. Load after css/motion.css.
+   ===================================================================== */
+
+/* ---------- feedback sheet overlays the stage ----------
+   In f-ok / f-no the footer keeps the height it had before (--pl-foot-h, set in JS) and the sheet
+   (.pl-foot-in) sits on top of the stage, so the stage never shrinks in one step. The stage is padded by the
+   overlap (--pl-sheet-pad) so what the sheet covers can still be scrolled into view. */
+.player .pl-foot { position: relative; z-index: 3; }
+.player .pl-foot.f-sheet { min-height: var(--pl-foot-h, 0px); background: var(--panel); border-color: var(--line); }
+.player .pl-foot.f-sheet .pl-foot-in { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; }
+/* full-bleed colour behind the centred sheet: a spread shadow clipped to the sheet's own height */
+.player .pl-foot.f-ok.f-sheet .pl-foot-in { background: var(--teal-dim); box-shadow: 0 0 0 100vmax var(--teal-dim); clip-path: inset(0 -100vmax); }
+.player .pl-foot.f-no.f-sheet .pl-foot-in { background: var(--rose-dim); box-shadow: 0 0 0 100vmax var(--rose-dim); clip-path: inset(0 -100vmax); }
+.player .pl-stage { padding-bottom: var(--pl-sheet-pad, 0px); scroll-padding-bottom: var(--pl-sheet-pad, 0px); }
+
+/* ---------- progress bar: the mistakes round is its own state ---------- */
+.pl-bar.retry .pl-fill { background: var(--amber); }
+
+/* ---------- retry counter chip (mistakes still to fix) ---------- */
+.pl-retry { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 900; color: var(--amber-ink); }
+.pl-retry[hidden] { display: none; }
+.pl-retry svg { width: 22px; height: 22px; color: var(--amber); }
+
+/* ---------- combo chip: small "+1" at 1–2 in a row ---------- */
+.pl-combo.mini { color: var(--teal-ink); letter-spacing: 0; font-size: 13px; }
+
+/* complete screen's blue button stays blue on hover (.btn.primary:hover would turn it green) */
+.pl-go.pl-go-blue:hover { background: var(--blue); border-color: var(--blue); filter: brightness(1.05); }
+/* screens take focus by script (tabindex=-1) for screen readers; no ring around the whole screen */
+.pl-screen:focus, .pl-screen:focus-visible { outline: none; }

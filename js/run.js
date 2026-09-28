@@ -19,6 +19,8 @@
   const G = () => window.gsap;
   if (window.gsap) window.gsap.registerPlugin(...[window.DrawSVGPlugin, window.MotionPathPlugin].filter(Boolean));
   const reduce = () => N.fx && N.fx.reduce();
+  const FX = () => (N.fx && N.fx.ok ? N.fx : null); // Motion helpers, or null without Motion
+  const DUR = (N.fx && N.fx.DUR) || { xs: 0.09, s: 0.16, m: 0.24, l: 0.32 };
   const SVGNS = "http://www.w3.org/2000/svg";
   const I = {
     back: '<svg viewBox="0 0 24 24"><path d="M6 5v14M19 5.5v13L9 12z" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
@@ -51,7 +53,7 @@
     /** A quick scale bounce to draw the eye. */
     pulse(c, el, at = 0) {
       if (!el || c.instant || !G() || reduce()) return;
-      c.tl.fromTo(el, { scale: 1 }, { scale: 1.22, duration: 0.16, yoyo: true, repeat: 1, ease: "power1.inOut", transformOrigin: "50% 50%" }, at);
+      c.tl.fromTo(el, { scale: 1 }, { scale: 1.22, duration: DUR.s, yoyo: true, repeat: 1, ease: "power1.inOut", transformOrigin: "50% 50%" }, at);
     },
     /** Show or hide a stroke by drawing it along its length. */
     stroke(c, el, on, at = 0) {
@@ -60,13 +62,13 @@
       el.dataset.on = on ? "1" : "0";
       if (!g || !window.DrawSVGPlugin || c.instant || reduce() || wasOn === on) { el.style.strokeDasharray = ""; el.style.strokeDashoffset = ""; el.style.opacity = on ? 1 : 0; if (g) g.set(el, { drawSVG: "0% 100%", opacity: on ? 1 : 0 }); return; }
       if (on) c.tl.fromTo(el, { drawSVG: "0% 0%", opacity: 1 }, { drawSVG: "0% 100%", duration: 0.5, ease: "power2.inOut" }, at);
-      else c.tl.to(el, { opacity: 0, duration: 0.25 }, at);
+      else c.tl.to(el, { opacity: 0, duration: DUR.m }, at);
     },
     /** Swap text with a small fade. */
     text(c, el, s, at = 0) {
       if (!el || el.textContent === String(s)) return;
       if (c.instant || !G() || reduce()) { el.textContent = s; return; }
-      c.tl.to(el, { opacity: 0, duration: 0.12 }, at).call(() => (el.textContent = s), null, at + 0.12).to(el, { opacity: 1, duration: 0.18 }, at + 0.12);
+      c.tl.to(el, { opacity: 0, duration: DUR.xs }, at).call(() => (el.textContent = s), null, at + DUR.xs).to(el, { opacity: 1, duration: DUR.s }, at + DUR.xs);
     },
     /** Toggle a class at the frame's start (for CSS-driven states). */
     cls(c, el, name, on) { if (el) el.classList.toggle(name, !!on); },
@@ -137,7 +139,7 @@
       const f = frames[k], c = { tl, instant: instant || reduce() || !g, prev: frames[k - 1] || null, i: k };
       try { o.draw(scene, f, c); } catch (e) { console.error(e); }
       num.textContent = `${k + 1}/${frames.length}`;
-      if (cap.innerHTML !== (f.cap || "")) { cap.innerHTML = f.cap || ""; if (!c.instant && N.fx && N.fx.ok) N.fx.animate(cap, { opacity: [0, 1], transform: ["translateY(4px)", "translateY(0px)"] }, { duration: 0.22 }); }
+      if (cap.innerHTML !== (f.cap || "")) { cap.innerHTML = f.cap || ""; const x = FX(); if (!c.instant && x) x.clean(cap, x.animate(cap, { opacity: [0, 1], transform: ["translateY(4px)", "translateY(0px)"] }, { duration: DUR.m, ease: x.EASE })); }
       root.querySelectorAll(".rn-code li").forEach((li, n) => li.classList.toggle("on", n === f.line));
       scrub.value = k; scrub.style.setProperty("--p", frames.length > 1 ? k / (frames.length - 1) : 1);
       $('[data-a="back"]').disabled = k === 0;
@@ -167,10 +169,12 @@
       asking = { k, A, wasPlaying };
       const picks = [...stage.querySelectorAll(A.pick)];
       picks.forEach((p) => p.classList.add("rn-pickable"));
-      askBox.hidden = false;
+      askBox.hidden = false; askBox.classList.remove("m-ghost");
       askBox.innerHTML = `<div class="rn-q"><span class="rn-qtag">Predict</span>${A.q}</div><button class="rn-skip">Show me</button>`;
       N.sfx && N.sfx.play("pop");
-      if (N.fx && N.fx.ok && !reduce()) N.fx.animate(askBox, { opacity: [0, 1], transform: ["translateY(6px) scale(0.97)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.35, bounce: 0.3 });
+      const x = FX();
+      if (x) x.clean(askBox, reduce() ? x.animate(askBox, { opacity: [0, 1] }, { duration: DUR.s })
+        : x.animate(askBox, { opacity: [0, 1], transform: ["translateY(6px) scale(0.97)", "translateY(0px) scale(1)"] }, x.SPRING_UI));
       const m = root.querySelector(".rn-m"); if (m && N.mascotReact) N.mascotReact(m, "determined");
       askBox.querySelector(".rn-skip").onclick = () => resolve(null);
       asking.onPick = (e) => { const p = e.target.closest(A.pick); if (p && stage.contains(p)) resolve(p.dataset.k); };
@@ -190,8 +194,23 @@
         if (ok && N.game) { N.game.award(1, "predict"); N.game.track("predict"); }
       }
       askBox.innerHTML = `<div class="rn-res ${skipped ? "" : ok ? "ok" : "no"}"><b>${skipped ? "Here's what happens." : ok ? "Spot on!" : `Not quite: it's ${right.join(" or ")}.`}</b> ${A.why || ""}</div>`;
+      if (FX()) FX().reveal(askBox.firstElementChild);
       goto(k);
-      life.timeout(() => { if (!asking) askBox.hidden = true; if (wasPlaying && playing) timer = life.timeout(tick, 1300 / speed); }, ok || skipped ? 2200 : 3400);
+      life.timeout(() => { if (!asking) hideAsk(); if (wasPlaying && playing) timer = life.timeout(tick, 1300 / speed); }, ok || skipped ? 2200 : 3400);
+    }
+    /** Fade the ask/result box out, then hide it (unless a new ask took it over meanwhile). */
+    function hideAsk() {
+      if (askBox.hidden) return;
+      const x = FX();
+      if (!x) { askBox.hidden = true; return; }
+      askBox.classList.add("m-ghost");
+      x.exit(askBox, { y: 4, scale: 0.98 }).then(() => {
+        askBox.classList.remove("m-ghost");
+        if (asking) return;
+        askBox.hidden = true;
+        const clear = () => { if (asking) return; askBox.style.opacity = ""; askBox.style.transform = ""; };
+        clear(); requestAnimationFrame(() => setTimeout(clear, 0)); // Motion can write its last frame a frame late
+      });
     }
 
     // ---------- direct manipulation ----------
@@ -208,15 +227,20 @@
       });
     }
     let pop = null;
+    const EDIT_BASE = "translate(-50%, -100%)"; // .rn-edit's CSS transform
     function editor(el, h) {
       el.classList.add("rn-editable");
       el.addEventListener("click", (e) => {
         if (asking) return;
         e.stopPropagation(); stop();
-        if (pop) pop.remove();
+        closeEdit();
         const r = el.getBoundingClientRect(), rr = root.getBoundingClientRect();
         pop = N.el(`<div class="rn-edit" style="left:${r.left - rr.left + r.width / 2}px;top:${r.top - rr.top - 8}px"><button data-d="-1">−</button><b>${h.get()}</b><button data-d="1">+</button></div>`);
         root.appendChild(pop);
+        // spring up out of the weight; the CSS transform (anchor above the weight) stays in every frame
+        const x = FX();
+        if (x) x.clean(pop, reduce() ? x.animate(pop, { opacity: [0, 1] }, { duration: DUR.s })
+          : x.animate(pop, { opacity: [0, 1], transform: [`${EDIT_BASE} translateY(6px) scale(0.8)`, `${EDIT_BASE} translateY(0px) scale(1)`] }, x.SPRING_POP));
         const val = pop.querySelector("b");
         pop.addEventListener("click", (ev) => {
           ev.stopPropagation();
@@ -227,7 +251,16 @@
         });
       });
     }
-    const closePop = (e) => { if (pop && !pop.contains(e.target)) { pop.remove(); pop = null; } };
+    /** Close the weight editor with a short exit; a new one can open straight away. */
+    function closeEdit() {
+      if (!pop) return;
+      const p = pop; pop = null;
+      const x = FX();
+      if (!x) { p.remove(); return; }
+      p.classList.add("m-ghost");
+      x.exit(p, { y: 4, scale: 0.9, base: EDIT_BASE }).then(() => p.remove());
+    }
+    const closePop = (e) => { if (pop && !pop.contains(e.target)) closeEdit(); };
     document.addEventListener("pointerdown", closePop);
     life.onCleanup(() => { document.removeEventListener("pointerdown", closePop); stop(); if (tl) tl.kill(); });
 

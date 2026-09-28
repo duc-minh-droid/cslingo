@@ -7,7 +7,8 @@
   const SIZES = [5, 10, 20];
   const plain = (h) => String(h).replace(/<[^>]+>/g, "");
 
-  function page(main, life, { names = {} } = {}) {
+  /** calm: the page already arrived with a page transition (or only the panel changed), so skip the staggered entrance. */
+  function page(main, life, { names = {}, calm = false } = {}) {
     const prefs = { n: 10, subjects: null, ...store.get("nic.revPrefs", {}) };
     const R = store.get("nic.rev", {});
     const pool = N.bank.all({ learnedOnly: true });
@@ -45,26 +46,64 @@
     </div>`);
     main.appendChild(node);
 
+    const fx = N.fx || {};
+    let painted = false;
+    /** The value in a stat tile: numbers count to their new value, anything else (the "–" placeholder) is set as text. */
+    const setStat = (b, v, fmt) => {
+      if (typeof v !== "number" || !painted || !fx.count) { b.textContent = typeof v === "number" ? fmt(v) : v; if (typeof v === "number") b.dataset.v = v; else delete b.dataset.v; return; }
+      if (b.dataset.v === undefined) { b.textContent = fmt(v); b.dataset.v = v; return; }
+      fx.count(b, v, { from: +b.dataset.v, fmt, dur: fx.DUR ? fx.DUR.l : 0.3 });
+    };
+    /** One session row. Updated in place later so the bar's CSS transition runs. */
+    const rowHTML = (r) => `<div class="rv-sess" data-id="${r.m.id}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${r.m.num === "Boss" ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div>
+          <div class="rv-sess-bar"><span></span></div><div class="rv-sess-n"></div></div>`;
+    const fillRow = (row, r) => {
+      const f = r.n ? r.mastered / r.n : 0;
+      row.classList.toggle("has-due", !!r.due);
+      qs(".rv-sess-bar", row).title = `${r.mastered} of ${r.n} mastered`;
+      qs(".rv-sess-bar span", row).style.transform = `scaleX(${f})`;
+      qs(".rv-sess-n", row).innerHTML = `${r.due ? `<span class="rv-due">${r.due} due</span>` : `<span class="rv-ok">all caught up</span>`}<small>${r.seen}/${r.n} seen</small>`;
+    };
+
     function paint() {
       const S = N.bank.stats({ subjects: prefs.subjects });
-      qs(".rv-stats", node).innerHTML = [
-        ["#ff9600", `<circle cx="12" cy="12" r="9" fill="none" stroke="#ff9600" stroke-width="3"/><path d="M12 7v5l3 2" stroke="#ff9600" stroke-width="3" stroke-linecap="round" fill="none"/>`, S.due, "due now"],
-        ["#58cc02", `<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#58cc02" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`, S.mastered, "mastered"],
-        ["#1cb0f6", `<circle cx="12" cy="12" r="9" fill="none" stroke="#1cb0f6" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#1cb0f6"/>`, S.seen ? `${Math.round(S.accuracy * 100)}%` : "–", "accuracy"],
-        ["#ce82ff", ICON.replace(/currentColor/g, "#ce82ff"), S.available, "questions"],
-      ].map(([, svg, v, t]) => `<div class="pf-stat"><svg viewBox="0 0 24 24">${svg.replace(/^<svg[^>]*>|<\/svg>$/g, "")}</svg><b>${v}</b><span>${t}</span></div>`).join("");
+      const stats = qs(".rv-stats", node), pct = (v) => `${Math.round(v)}%`, int = (v) => Math.round(v).toLocaleString();
+      const tiles = [
+        [`<circle cx="12" cy="12" r="9" fill="none" stroke="#ff9600" stroke-width="3"/><path d="M12 7v5l3 2" stroke="#ff9600" stroke-width="3" stroke-linecap="round" fill="none"/>`, S.due, "due now", int],
+        [`<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#58cc02" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`, S.mastered, "mastered", int],
+        [`<circle cx="12" cy="12" r="9" fill="none" stroke="#1cb0f6" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#1cb0f6"/>`, S.seen ? Math.round(S.accuracy * 100) : "–", "accuracy", pct],
+        [ICON.replace(/currentColor/g, "#ce82ff"), S.available, "questions", int],
+      ];
+      if (!stats.children.length) stats.innerHTML = tiles.map(([svg, , t]) => `<div class="pf-stat"><svg viewBox="0 0 24 24">${svg.replace(/^<svg[^>]*>|<\/svg>$/g, "")}</svg><b></b><span>${t}</span></div>`).join("");
+      tiles.forEach(([, v, , fmt], k) => setStat(qs("b", stats.children[k]), v, fmt));
       qsa(".rv-subj button", node).forEach((b) => b.classList.toggle("on", b.dataset.s === "*" ? !prefs.subjects : !!prefs.subjects && prefs.subjects.includes(b.dataset.s) || (!prefs.subjects && subjects.length === 1)));
       qsa(".rv-size button", node).forEach((b) => b.classList.toggle("on", +b.dataset.n === prefs.n));
       const go = qs(".rv-go", node), avail = pool.filter(inScope).length;
       go.textContent = `Start ${Math.min(prefs.n, avail)} questions`;
       go.disabled = !avail;
-      const list = rows.filter((r) => inScope({ subject: r.m.subject || "nic" }));
-      qs(".rv-list", node).innerHTML = list.map((r) => {
-        const f = r.n ? r.mastered / r.n : 0, boss = r.m.num === "Boss";
-        return `<div class="rv-sess ${r.due ? "has-due" : ""}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${boss ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div>
-          <div class="rv-sess-bar" title="${r.mastered} of ${r.n} mastered"><span style="transform:scaleX(${f})"></span></div>
-          <div class="rv-sess-n">${r.due ? `<span class="rv-due">${r.due} due</span>` : `<span class="rv-ok">all caught up</span>`}<small>${r.seen}/${r.n} seen</small></div></div>`;
-      }).join("");
+      // patch the list: rows that leave fade out, rows that stay keep their node (their bar animates), new rows enter
+      const list = rows.filter((r) => inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
+      const want = new Set(list.map((r) => r.m.id)), have = {};
+      Array.from(box.children).forEach((row) => {
+        if (row.classList.contains("m-ghost")) return;
+        if (want.has(row.dataset.id)) { have[row.dataset.id] = row; return; }
+        if (!painted || !fx.ok || !fx.exit) return row.remove();
+        row.classList.add("m-ghost"); fx.exit(row, { scale: 1, dur: fx.DUR.s }).then(() => row.remove());
+      });
+      const added = [];
+      let at = null; // insert in list order, after the previous kept row
+      list.forEach((r) => {
+        let row = have[r.m.id];
+        if (!row) { row = el(rowHTML(r)); added.push(row); }
+        fillRow(row, r);
+        const ref = at ? at.nextSibling : box.firstChild;
+        if (row !== ref) box.insertBefore(row, ref);
+        at = row;
+      });
+      // ghosts that are fading out go to the end, out of the way of the kept order
+      Array.from(box.children).filter((x) => x.classList.contains("m-ghost")).forEach((g) => box.appendChild(g));
+      if (painted && added.length && fx.enter) fx.enter(added, { y: 6, stagger: 0.03, dur: fx.DUR.m });
+      painted = true;
     }
     const save = () => store.set("nic.revPrefs", { n: prefs.n, subjects: prefs.subjects });
     qsa(".rv-subj button", node).forEach((b) => b.addEventListener("click", () => {
@@ -81,7 +120,7 @@
     qsa(".rv-size button", node).forEach((b) => b.addEventListener("click", () => { prefs.n = +b.dataset.n; N.sfx && N.sfx.play("select"); save(); paint(); }));
     qs(".rv-go", node).addEventListener("click", () => N.player.revise({ home: "practice/due", n: prefs.n, subjects: prefs.subjects }));
     paint();
-    if (N.fx && N.fx.enter) N.fx.enter(Array.from(node.children), { stagger: 0.05 });
+    if (!calm && fx.enter) fx.enter(Array.from(node.children), { stagger: 0.03 }); // 7 blocks, total stagger under 200ms
   }
 
   N.revisePage = page;
