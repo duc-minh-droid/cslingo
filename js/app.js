@@ -276,7 +276,7 @@
     if (!NIC.sync) return "";
     const em = NIC.sync.email();
     return em ? `<div class="menu-row sy-row ${NIC.sync.busy && NIC.sync.busy() ? "busy" : ""}">${IC_CLOUD}<i class="sy-dot" title="Saving to your account"></i><span>Synced<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
-      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Sign in to your account</small></span></button>`;
+      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Log in to your account</small></span></button>`;
   }
   function wireSync(root) {
     const i = qs('[data-act="signin"]', root), o = qs('[data-act="signout"]', root);
@@ -285,25 +285,49 @@
     // signing out changes the user, and NIC.sync.on below re-renders (one route, not two)
     if (o) o.addEventListener("click", async () => { if (!confirm("Sign out of sync on this device? Your progress stays here and in your account.")) return; closePop(); await NIC.sync.signOut(); });
   }
+  /** Duolingo-style "Log in" screen: full-screen on phones, a centred column on desktop. Username maps to <name>@cslingo.app. */
   function signInModal(ret) {
-    const m = modal(`<div class="sy">
-      <div class="ob-hero">${NIC.mascot({ who: "chip", size: 96, mood: "happy", act: "wave", acc: ["propeller"] })}<div class="bubble ob-bubble">Sign in once on each device and your progress follows you. You stay signed in after that.</div></div>
-      <form class="sy-form"><input class="sy-email" name="u" required autocomplete="username" placeholder="Username" aria-label="Username">
-        <input class="sy-email" name="p" type="password" required autocomplete="current-password" placeholder="Password" aria-label="Password">
-        <button class="btn big primary" type="submit">Sign in</button></form>
-      <p class="faint sy-msg"></p></div>`, { cls: "sy-modal", ret });
-    const f = qs(".sy-form", m), msg = qs(".sy-msg", m), btn = qs("button[type=submit]", m); // modal() focuses the username field
+    const eye = (on) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/>${on ? "" : '<path d="M4 20L20 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'}</svg>`;
+    const m = modal(`<div class="si">
+      <h1 class="si-h">Log in</h1>
+      <form class="si-form" novalidate>
+        <div class="si-group">
+          <label class="si-field"><span class="sr-only">Username</span><input name="u" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Username"></label>
+          <label class="si-field si-pw"><span class="sr-only">Password</span><input name="p" type="password" required autocomplete="current-password" placeholder="Password">
+            <button type="button" class="si-eye" aria-label="Show password" aria-pressed="false">${eye(false)}</button></label>
+        </div>
+        <p class="si-msg" role="alert" hidden></p>
+        <button class="btn big si-go" type="submit">Log in</button>
+      </form>
+      <div class="si-or"><span>How it works</span></div>
+      <p class="si-foot">${NIC.mascot({ who: "chip", size: 44, mood: "happy", poke: false })}<span>Log in once on each device and your progress follows you. You stay logged in after that.</span></p>
+    </div>`, { cls: "si-modal", ret });
+    m.classList.add("si-back");
+    const f = qs(".si-form", m), msg = qs(".si-msg", m), btn = qs(".si-go", m), eyeB = qs(".si-eye", m), grp = qs(".si-group", m);
+    const label = "Log in";
+    eyeB.addEventListener("click", () => {
+      const show = f.p.type === "password"; f.p.type = show ? "text" : "password";
+      eyeB.innerHTML = eye(show); eyeB.setAttribute("aria-pressed", show); eyeB.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      f.p.focus({ preventScroll: true });
+    });
+    const clearErr = () => { grp.classList.remove("bad"); if (!msg.hidden) msg.hidden = true; };
+    f.u.addEventListener("input", clearErr); f.p.addEventListener("input", clearErr);
+    const fail = (text) => {
+      msg.textContent = text; msg.hidden = false; grp.classList.add("bad");
+      fx.reveal(msg); if (fx.ok) fx.shake(grp); NIC.sfx.play("wrong");
+    };
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
-      btn.disabled = true; btn.innerHTML = `Signing in<span class="sy-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`; btn.setAttribute("aria-busy", "true");
+      const u = f.u.value.trim(), pw = f.p.value;
+      if (!u || !pw) { fail(!u ? "Enter your username." : "Enter your password."); (u ? f.p : f.u).focus(); return; }
+      btn.disabled = true; btn.innerHTML = `Logging in<span class="sy-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`; btn.setAttribute("aria-busy", "true");
       try {
-        await NIC.sync.signIn(f.u.value.trim(), f.p.value);
+        await NIC.sync.signIn(u, pw);
         m.close(); NIC.sfx.play("check");
       } catch (err) {
-        btn.disabled = false; btn.textContent = "Sign in"; btn.removeAttribute("aria-busy");
-        msg.innerHTML = `<b style="color:var(--rose-ink)">Couldn't sign in:</b> ${esc(err.message || String(err))}`;
-        fx.reveal(msg);
-        if (fx.ok) fx.shake(f);
+        btn.disabled = false; btn.textContent = label; btn.removeAttribute("aria-busy");
+        const t = String((err && err.message) || err);
+        fail(/invalid|credential|password/i.test(t) ? "Wrong username or password." : `Couldn't log in: ${t}`);
       }
     });
   }
@@ -736,7 +760,7 @@
       <div class="ach-grid">${game.ACH.map((a) => `<div class="ach ${ach[a.id] ? "got" : ""}">${NIC.mascot({ who: "sprout", size: 64, acc: [a.acc], mood: ach[a.id] ? "happy" : "sleepy", poke: !!ach[a.id] })}${ach[a.id] ? "" : `<span class="ach-lock">${IC.lock}</span>`}<b>${a.t}</b><span>${a.d}</span><small>${ach[a.id] ? `Unlocked ${NIC.cast.ACC[a.acc].name}` : `Unlocks ${NIC.cast.ACC[a.acc].name}`}</small></div>`).join("")}</div>
       <h2>Settings</h2>
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
-        ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Sign in to sync</button>`}</div>` : ""}
+        ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in to sync</button>`}</div>` : ""}
         ${NIC.theme ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[["system", "System", IC.themeSys], ["light", "Light", IC.sun], ["dark", "Dark", IC.moon]].map(([v, t, ic]) => `<button role="radio" data-theme-pick="${v}" aria-checked="${NIC.theme.get() === v}" class="${NIC.theme.get() === v ? "on" : ""}">${ic}${t}</button>`).join("")}</div></div>` : ""}
         <div class="set-row"><b id="pfSoundL">Sound effects</b><button class="pf-sw ${NIC.sfx.on() ? "on" : ""}" id="pfSound" role="switch" aria-checked="${NIC.sfx.on()}" aria-labelledby="pfSoundL"><i></i></button></div>
         <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>

@@ -372,3 +372,31 @@ body.in-lesson { overflow: hidden; }
 :root[data-theme-now="dark"] .ab-cloud { opacity: .28; }
 :root[data-theme-now="dark"] .ab-scene { filter: brightness(.88) saturate(.92); }
 :root[data-theme-now="dark"] .ab-text b { text-shadow: 0 2px 0 rgba(0, 0, 0, .35); }
+
+/* ---------- Log in (Duolingo style): full-screen page, grouped fields, blue LOG IN ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.modal-back.si-back { background: var(--bg); padding: 0; place-items: stretch; }
+.modal.si-modal { width: 100%; max-width: none; max-height: none; height: 100%; border-radius: 0; background: var(--bg); padding: calc(76px + env(safe-area-inset-top, 0px)) 20px 32px; display: flex; justify-content: center; align-items: flex-start; }
+.si-modal .modal-x { left: 12px; right: auto; top: calc(12px + env(safe-area-inset-top, 0px)); width: 44px; height: 44px; background: none; color: var(--text-faint); font-size: 22px; }
+.si-modal .modal-x:hover { color: var(--text); }
+.si { width: min(380px, 100%); display: flex; flex-direction: column; gap: 14px; }
+.si-h { margin: 0 0 8px; text-align: center; font-size: 26px; font-weight: 900; color: var(--ink); }
+.si-form { display: flex; flex-direction: column; gap: 14px; }
+.si-group { border: 2px solid var(--line); border-radius: 16px; background: var(--bg-2); overflow: hidden; transition: border-color var(--dur-2) ease; }
+.si-group:focus-within { border-color: var(--blue-edge); }
+.si-group.bad { border-color: var(--rose); }
+.si-field { display: flex; align-items: center; margin: 0; }
+.si-field + .si-field { border-top: 2px solid var(--line); }
+.si-field input { flex: 1; min-width: 0; font: inherit; font-size: 17px; font-weight: 700; color: var(--ink); background: transparent; border: 0; outline: none; padding: 14px 16px; }
+.si-field input::placeholder { color: var(--text-faint); font-weight: 700; }
+.si-field:focus-within { background: var(--panel); }
+.si-eye { appearance: none; flex: none; width: 44px; height: 44px; margin-right: 4px; border: 0; border-radius: 12px; background: none; color: var(--text-faint); display: grid; place-items: center; cursor: pointer; }
+.si-eye svg { width: 22px; height: 22px; }
+.si-eye[aria-pressed="true"] { color: var(--blue); }
+.si-msg { margin: -4px 4px 0; color: var(--rose-ink); font-weight: 800; font-size: 14px; }
+.btn.si-go, .btn.si-go:hover { --b: var(--blue); --lipc: var(--blue-lip); width: 100%; background: var(--blue); border-color: var(--blue); color: #fff; text-transform: uppercase; letter-spacing: .06em; }
+.btn.si-go:disabled { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 var(--lip) 0 var(--blue-lip); transform: none; opacity: .75; cursor: progress; }
+.si-or { display: flex; align-items: center; gap: 12px; margin-top: 10px; color: var(--text-faint); font-size: 12.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.si-or::before, .si-or::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+.si-foot { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--text-dim); font-size: 14px; font-weight: 700; line-height: 1.45; }
+.si-foot .mascot { flex: none; }
