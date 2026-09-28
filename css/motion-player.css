@@ -37,3 +37,14 @@
 .pl-back:hover svg { transform: translateX(-2px); }
 .pl-back svg { transition: transform var(--dur-2) var(--ease-spring); }
 @media (max-width: 480px) { .pl-top .pl-back { margin-left: -6px; } }
+
+/* quick check: the step's figure/table travels with the question (open when the question refers to it) */
+.pl-look { margin: 0 0 16px; border: 2px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 3px 0 var(--line); }
+.pl-look > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 14px; cursor: pointer; font-weight: 800; font-size: 14px; color: var(--blue-ink); user-select: none; }
+.pl-look > summary::-webkit-details-marker { display: none; }
+.pl-look > summary svg { width: 20px; height: 20px; flex: none; }
+.pl-look > summary span { flex: 1; min-width: 0; }
+.pl-look-car { width: 10px; height: 10px; border-right: 3px solid currentColor; border-bottom: 3px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); transition: transform var(--dur-2) var(--ease-out); }
+.pl-look[open] .pl-look-car { transform: rotate(225deg) translate(-2px, -2px); }
+.pl-look-in { padding: 0 14px 14px; margin: 0; overflow-x: auto; }
+.pl-look-in > :first-child { margin-top: 0; }

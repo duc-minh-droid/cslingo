@@ -55,7 +55,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 - `#<moduleId>`: renders the path underneath and opens the **lesson player** on that module.
 
 **The player** (`player.js`) builds screens from data. Nothing in a module is written for the player directly:
-1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes an MCQ that you answer with CHECK.
+1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. The back button (and ←) returns to the previous teaching screen, skipping questions.
 2. **Try it:** whatever `mod.render(root, life)` appends, minus its `header`, `.predict` and `.takeaways` nodes. `L.guide` becomes the tick-off checklist beside it.
 3. **Predict screens:** every `NIC.predict({...})` card that `render()` created. The player reads `node.__opts` and turns it into a question.
 4. **Mistakes round:** wrong answers are asked again at the end.

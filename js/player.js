@@ -348,6 +348,25 @@
   }
   const next = () => { S.i++; show(S.kbd ? 0 : 1); };
 
+  /** A quick check has its own screen, so bring its step's figure (and any table in the step text) along with it.
+      Open when the question points at it ("using the table…"), otherwise a tap-to-open card, so the options stay on screen. */
+  const REFERS = /\b(table|graph|chart|figure|diagram|plot|matrix|picture|curve|grid|map|above|shown|drawn|from the)\b/i;
+  function lookBack(node, sc) {
+    const s = (N.LESSONS[S.mod.id] || { steps: [] }).steps[sc.k];
+    if (!s) return;
+    const tmp = el(`<div>${s.b || ""}</div>`);
+    const fromBody = qsa("table, .fig, svg, pre", tmp).filter((x) => !x.parentElement.closest("table, .fig, svg, pre"));
+    if (!s.v && !fromBody.length) return;
+    const open = REFERS.test(stripTags(sc.Q.q || ""));
+    const box = el(`<details class="pl-look"${open ? " open" : ""}><summary>${IC.book}<span>From step ${sc.k + 1}: ${stripTags(s.t)}</span><i class="pl-look-car" aria-hidden="true"></i></summary><div class="pl-look-in lesson-visual"></div></details>`);
+    const vis = qs(".pl-look-in", box);
+    fromBody.forEach((x) => vis.appendChild(x));
+    if (typeof s.v === "function") { const d = el(`<div></div>`); vis.appendChild(d); try { s.v(d, S.life); } catch (e) { console.error(e); } }
+    else if (s.v) vis.insertAdjacentHTML("beforeend", s.v);
+    qs(".pl-quiz", node).insertBefore(box, qs(".pl-qwrap", node));
+    box.addEventListener("toggle", () => { sound(box.open ? "pop" : "tap"); if (box.open && fx()) { fx().reveal(vis); setTimeout(() => window.dispatchEvent(new Event("nic:resize")), 30); } });
+  }
+
   /** Back: the nearest earlier teaching screen (steps, notes, try-its, intros). Questions, retries and end screens are
       skipped, so going back reviews the material without re-answering; Continue then walks forward again. */
   const NO_BACK = ["q", "complete", "streak", "hype", "mistakes", "bossResult"];
@@ -382,6 +401,7 @@
     },
     q(node, sc) {
       node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
+      if (sc.check) lookBack(node, sc);
       askQ(qs(".pl-qwrap", node), sc, {});
     },
     try(node, sc) {
