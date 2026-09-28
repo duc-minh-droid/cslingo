@@ -130,7 +130,7 @@
     const deck = N.bank ? N.bank.deck({ n: opts.n || 10, subjects: opts.subjects || null }) : [];
     const title = (id) => { const m = N.modules.find((x) => x.id === id); return m ? `${m.num === "Boss" ? "Boss" : m.num} · ${stripTags(m.title)}` : ""; };
     S.screens = deck.length
-      ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), practice: true }))]
+      ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), mod: d.mod, practice: true }))]
       : [{ kind: "note", who: "chip", mood: "sleepy", t: "Nothing to revise yet", b: "Finish a lesson first. Its questions join your revision deck." }];
     sound("whoosh");
     show(0);
@@ -346,32 +346,70 @@
     }
     if (vis && F && !S.kbd) F.play(vis); // keyboard moves don't animate
   }
-  const next = () => { S.i++; show(S.kbd ? 0 : 1); };
+  const next = () => {
+    S.i++;
+    while (S.screens[S.i] && S.screens[S.i].kind === "q" && !S.screens[S.i].retry && S.gradedKeys && S.gradedKeys.has(S.screens[S.i].key)) S.i++;
+    show(S.kbd ? 0 : 1);
+  };
 
-  /** A quick check has its own screen, so bring its step's figure (and any table in the step text) along with it.
-      Open when the question points at it ("using the table…"), otherwise a tap-to-open card, so the options stay on screen. */
-  const REFERS = /\b(table|graph|chart|figure|diagram|plot|matrix|picture|curve|grid|map|above|shown|drawn|from the)\b/i;
-  function lookBack(node, sc) {
-    const s = (N.LESSONS[S.mod.id] || { steps: [] }).steps[sc.k];
-    if (!s) return;
-    const tmp = el(`<div>${s.b || ""}</div>`);
-    const fromBody = qsa("table, .fig, svg, pre", tmp).filter((x) => !x.parentElement.closest("table, .fig, svg, pre"));
-    if (!s.v && !fromBody.length) return;
-    const open = REFERS.test(stripTags(sc.Q.q || ""));
-    const box = el(`<details class="pl-look"${open ? " open" : ""}><summary>${IC.book}<span>From step ${sc.k + 1}: ${stripTags(s.t)}</span><i class="pl-look-car" aria-hidden="true"></i></summary><div class="pl-look-in lesson-visual"></div></details>`);
+  /** Every question screen brings the material it depends on, because it no longer sits under it:
+      - a lesson quick check (also in Practice and Revise): its step's figure `v` and any table/figure in the step text
+      - a boss question (also in Practice and Revise): the boss's reference card (distance matrix, aside)
+      - a predict: the live demo from the Try-it screen
+      The card is open when the question points at it ("using the table…", a tour like ABDCE, the demo), otherwise
+      it is a tap-to-open card, so the options stay on screen. */
+  const REFERS = /\b(table|graph|chart|figure|diagram|plot|matrix|picture|curve|grid|map|above|below|shown|drawn|from the|demo|highlighted|dashed|round trip|tour|length of|distance)\b|[A-Z]\s*(→|->)\s*[A-Z]|\b[A-H]{4,}\b/i;
+  function stepOf(sc) {
+    if (sc.check && S.mod) return { mod: S.mod.id, k: sc.k };
+    const m = /^step:(.+):(\d+)$/.exec(sc.key || "");
+    if (m) return { mod: m[1], k: +m[2] };
+    if (sc.Q && sc.Q.step != null && sc.mod) return { mod: sc.mod, k: sc.Q.step };
+    return null;
+  }
+  function bossOf(sc) {
+    const id = S.kind === "boss" && S.boss ? S.boss.id : sc.idKey ? String(sc.idKey).replace(/-\d+$/, "") : sc.mod;
+    const B = id && N.bossDef && N.bossDef(id);
+    return B && (B.matrix || B.aside) ? B : null;
+  }
+  function contextCard(node, sc) {
+    const q = stripTags((sc.Q && sc.Q.q) || "");
+    let title = "", fill = null, open = REFERS.test(q), demo = false;
+    const st = stepOf(sc), B = st ? null : bossOf(sc);
+    if (st) {
+      const s = ((N.LESSONS[st.mod] || {}).steps || [])[st.k];
+      if (!s) return;
+      const tmp = el(`<div>${s.b || ""}</div>`);
+      const fromBody = qsa("table, .fig, svg, pre", tmp).filter((x) => !x.parentElement.closest("table, .fig, svg, pre"));
+      if (!s.v && !fromBody.length) return;
+      title = `From ${st.mod === (S.mod && S.mod.id) ? `step ${st.k + 1}` : "the lesson"}: ${stripTags(s.t)}`;
+      fill = (vis) => {
+        fromBody.forEach((x) => vis.appendChild(x));
+        if (typeof s.v === "function") { const d = el(`<div></div>`); vis.appendChild(d); try { s.v(d, S.life); } catch (e) { console.error(e); } }
+        else if (s.v) vis.insertAdjacentHTML("beforeend", s.v);
+      };
+    } else if (B) {
+      title = B.matrix ? "Distance matrix" : "Reference";
+      fill = (vis) => { vis.innerHTML = `${B.matrix ? `<div style="max-width:360px">${N.matrixHTML()}</div>` : ""}${B.aside || ""}`; };
+    } else if (sc.pred && S.demo) {
+      title = "The demo"; demo = true;
+      open = open || /\b(run|press|turn|slider|drag|click|tap|points?|watch|toggle|switch)\b/i.test(q);
+      fill = (vis) => vis.appendChild(S.demo); // the live demo moves here (the Try-it screen takes it back if you return)
+    } else return;
+    const box = el(`<details class="pl-look${demo ? " pl-look-demo" : ""}"${open ? " open" : ""}><summary>${IC.book}<span>${title}</span><i class="pl-look-car" aria-hidden="true"></i></summary><div class="pl-look-in lesson-visual"></div></details>`);
     const vis = qs(".pl-look-in", box);
-    fromBody.forEach((x) => vis.appendChild(x));
-    if (typeof s.v === "function") { const d = el(`<div></div>`); vis.appendChild(d); try { s.v(d, S.life); } catch (e) { console.error(e); } }
-    else if (s.v) vis.insertAdjacentHTML("beforeend", s.v);
+    fill(vis);
     qs(".pl-quiz", node).insertBefore(box, qs(".pl-qwrap", node));
-    box.addEventListener("toggle", () => { sound(box.open ? "pop" : "tap"); if (box.open && fx()) { fx().reveal(vis); setTimeout(() => window.dispatchEvent(new Event("nic:resize")), 30); } });
+    const resize = () => setTimeout(() => window.dispatchEvent(new Event("nic:resize")), 30);
+    if (open) resize();
+    box.addEventListener("toggle", () => { sound(box.open ? "pop" : "tap"); if (box.open) { if (fx()) fx().reveal(vis); resize(); } });
   }
 
   /** Back: the nearest earlier teaching screen (steps, notes, try-its, intros). Questions, retries and end screens are
       skipped, so going back reviews the material without re-answering; Continue then walks forward again. */
   const NO_BACK = ["q", "complete", "streak", "hype", "mistakes", "bossResult"];
   function prevIdx() {
-    if (!S || NO_BACK.slice(1).includes((S.screens[S.i] || {}).kind)) return -1;
+    // lessons only: boss quizzes, Practice and Revise are tests, so there is no going back to change an answer
+    if (!S || S.kind !== "lesson" || NO_BACK.slice(1).includes((S.screens[S.i] || {}).kind)) return -1;
     for (let j = S.i - 1; j >= 0; j--) { const x = S.screens[j]; if (x && !x.retry && !NO_BACK.includes(x.kind)) return j; }
     return -1;
   }
@@ -401,7 +439,7 @@
     },
     q(node, sc) {
       node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
-      if (sc.check) lookBack(node, sc);
+      contextCard(node, sc);
       askQ(qs(".pl-qwrap", node), sc, {});
     },
     try(node, sc) {
@@ -629,7 +667,7 @@
 
   function result(sc, ok, v) {
     const Q = sc.Q, first = !sc.retry, prevCombo = S.combo;
-    S.answered++; S.graded = true;
+    S.answered++; S.graded = true; (S.gradedKeys = S.gradedKeys || new Set()).add(sc.key);
     if (first) { S.firstTotal++; if (ok) S.firstRight++; }
     game().answered(ok);
     // persistence

@@ -55,7 +55,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 - `#<moduleId>`: renders the path underneath and opens the **lesson player** on that module.
 
 **The player** (`player.js`) builds screens from data. Nothing in a module is written for the player directly:
-1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. The back button (and ←) returns to the previous teaching screen, skipping questions.
+1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. Boss questions show the boss's `matrix`/`aside` card inline, and predicts show the live demo (`contextCard` in player.js; it works in Practice and Revise too). The back button (and ←) exists in lessons only. It returns to the previous teaching screen, skips questions, and questions you already answered are skipped on the way forward. Boss quizzes, Practice and Revise have no back button.
 2. **Try it:** whatever `mod.render(root, life)` appends, minus its `header`, `.predict` and `.takeaways` nodes. `L.guide` becomes the tick-off checklist beside it.
 3. **Predict screens:** every `NIC.predict({...})` card that `render()` created. The player reads `node.__opts` and turns it into a question.
 4. **Mistakes round:** wrong answers are asked again at the end.
@@ -174,6 +174,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - **Numbers must be right.** Verify every number shown in a figure, reveal, quiz answer or tolerance with a quick `node -e` calculation before writing it.
 - **Assessment integrity.** Boss and practice questions are original. Never copy, paraphrase or reskin official exam or past-paper questions, scenarios or values. Build new scenarios from the lecture objectives (see `boss-ds.js`, which uses a made-up music app, "Tunely").
 - **Scope.** Respect course scope notes (for example Data Science = concepts, not SQL syntax).
+- **Every question stands on its own.** Boss and bank questions also turn up alone in Practice and Revise, in any order. So never write "same map", "the table", "as before" or "the tour above" unless that exact data is in the question's own text or its `fig`. Restate the numbers instead. The player shows context automatically only in these cases: a quick check gets its step's figure, a boss question gets the boss `matrix`/`aside` card, and a predict gets the live demo.
 - **Every lesson step should have a figure.** Use `v:` with `NIC.fig.*` or small HTML. Strokes marked `.draw` and items marked `.fi` animate in automatically.
 - **Guide items** describe actions in the demo ("Press **Run**…"). Mention predicts as "the questions after the demo", not "below".
 

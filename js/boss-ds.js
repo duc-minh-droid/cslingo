@@ -19,7 +19,7 @@
         why: "Durable state lives in a database, hot repeated reads go to a cache, word search needs an index, and periodic big computations are batch jobs." },
       { type: "slider", q: "Tunely logs these 10 response times (see chart). Estimate the <b>mean</b>.", fig: rtFig, min: 0, max: 700, step: 5, start: 150, ans: 333.5, tol: 25, unit: "ms", hint: "Add them in easy chunks: the eight small ones come to about 1,000.",
         why: "Sum = 3335 ms, divided by 10 = <b>333.5 ms</b>. One slow request (1900 ms) drags it far above what most users see." },
-      { type: "mcq", q: "Same data. The median is 125 ms. Which single number best describes a <b>typical</b> user's experience, and which one should the on-call engineer watch?",
+      { type: "mcq", q: "Using the latency figure shown: the median is 125 ms. Which single number best describes a <b>typical</b> user's experience, and which one should the on-call engineer watch?",
         fig: rtFig,
         o: ["Typical: the mean (333.5). Watch: the mean", "Typical: the median (125). Watch: a high percentile such as p90 or p99", "Typical: the maximum. Watch: the minimum", "Typical: the median. Watch: the median"], a: 1,
         why: "Half of requests beat the median, so it reflects the typical user. The slow tail (the 450 and 1900 ms requests) is what hurts, and only high percentiles show it." },

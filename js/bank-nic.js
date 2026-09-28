@@ -206,7 +206,7 @@
   B.add("l4-replacement", [
     M("Population 0.4, 0.7, 0.2, 0.5 (maximising). A child scores 0.45. Which slot does <b>replace first weaker</b> (scanning from slot 1) overwrite?", ["Slot 1 (0.4)", "Slot 3 (0.2)", "Slot 4 (0.5)", "None"], 0,
       "Slot 1 (0.4) is already weaker than 0.45, so the scan stops there."),
-    M("Same population and child. Which slot does <b>replace weakest</b> overwrite?", ["Slot 1 (0.4)", "Slot 3 (0.2)", "Slot 2 (0.7)", "None"], 1, "The weakest member is 0.2 in slot 3."),
+    M("Population 0.4, 0.7, 0.2, 0.5 (maximising). A child scores 0.45. Which slot does <b>replace weakest</b> overwrite?", ["Slot 1 (0.4)", "Slot 3 (0.2)", "Slot 2 (0.7)", "None"], 1, "The weakest member is 0.2 in slot 3."),
     M("Which replacement strategy is cheaper to run?", ["Replace weakest", "Replace first weaker", "They cost the same", "Neither needs any comparisons"], 1, "First weaker can stop scanning early; weakest must check everyone."),
     M("A child scores lower than every member. What happens under both strategies?", ["It replaces the weakest anyway", "It's discarded", "It replaces the best", "It replaces a random member"], 1, "Both only replace a member the child beats."),
     { type: "cat", q: "Which strategy is described?", buckets: ["Replace weakest", "Replace first weaker"],
@@ -225,7 +225,7 @@
   ]);
   B.add("l4-roulette", [
     M("Roulette wheel, fitnesses 2, 3, 5 and 10. Probability of picking the fitness-10 individual?", ["0.10", "0.25", "0.5", "0.75"], 2, "10 / (2 + 3 + 5 + 10) = 10/20 = 0.5."),
-    M("Same wheel, 20 spins. About how many times do you expect the fitness-3 individual to be picked?", ["1", "3", "5", "10"], 1, "Its share is 3/20, so 20 × 3/20 = 3."),
+    M("Roulette wheel, fitnesses 2, 3, 5 and 10. In 20 spins, about how many times do you expect the fitness-3 individual to be picked?", ["1", "3", "5", "10"], 1, "Its share is 3/20, so 20 × 3/20 = 3."),
     M("One individual owns 95% of the wheel. What happens next?", ["Nothing special", "Its copies take over the population almost immediately", "It's never picked", "The wheel resizes"], 1, "The superfit problem: roulette hands it nearly every parent slot."),
     M("You're minimising tour length but feed raw lengths into roulette. What goes wrong, and one fix?", ["Nothing", "Long tours get the biggest slices; use 1/length or rank selection", "Short tours are favoured too strongly; add 100", "It only works with integers"], 1, "Roulette rewards big numbers, so it favours the worst tours unless transformed."),
     TF("Roulette selection can use negative fitness values directly.", false, "A slice can't have negative size, so fitness must be shifted or transformed first."),

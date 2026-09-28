@@ -36,7 +36,7 @@
       if (learnedOnly && !done[m.id]) return;
       (BANK[m.id] || []).forEach((Q) => push(m, "bank", Q));
       const L = N.LESSONS[m.id];
-      if (L) L.steps.forEach((s) => { if (s.c) push(m, "check", { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why }); });
+      if (L) L.steps.forEach((s, k) => { if (s.c) push(m, "check", { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why, step: k }); }); // step: the player shows that step's figure with it
     });
     return out;
   }

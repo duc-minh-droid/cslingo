@@ -45,7 +45,7 @@
   B.add("a2-dijkstra", [
     { type: "pick", q: "Dijkstra from S. <b>Click every node whose tentative distance gets lowered after it was first set.</b>", fig: Qf.graph(GD, ED, { pick: "nodes", w: 510, h: 260 }), a: ["B", "C"],
       why: "B starts at 5 (from S), then drops to 3 via A. C starts at 8 (via A), then drops to 5 via B. A and T are set once." },
-    M("Same map. Shortest distance from S to T?", ["5", "6", "8", "9"], 1, "S→A→B→C→T = 2 + 1 + 2 + 1 = 6.", { fig: Qf.graph(GD, ED, { w: 510, h: 260 }) }),
+    M("Using the map shown, what is the shortest distance from S to T?", ["5", "6", "8", "9"], 1, "S→A→B→C→T = 2 + 1 + 2 + 1 = 6.", { fig: Qf.graph(GD, ED, { w: 510, h: 260 }) }),
     M("Every edge has weight 1. Dijkstra then behaves like…", ["Depth-first search", "Breadth-first search", "Random search", "Prim's algorithm"], 1, "It settles nodes in order of hop count, exactly like BFS."),
     M("Why can one negative edge break Dijkstra?", ["Negatives can't be stored", "A settled node could later be reached more cheaply, but Dijkstra never revisits settled nodes", "It makes the graph directed", "It creates an infinite loop always"], 1, "The \"settled means final\" rule assumes paths never get cheaper."),
     M("With a binary heap, Dijkstra's running time is about…", ["O(V)", "O((V + E) log V)", "O(V³)", "O(2^V)"], 1, "Each node is popped once and each edge can trigger a heap update."),
