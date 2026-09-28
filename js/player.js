@@ -46,7 +46,9 @@
 
   function lessonScreens(mod) {
     const L = N.LESSONS[mod.id] || { steps: [] };
-    const out = L.steps.map((s, k) => ({ kind: "step", k, s, Q: s.c ? { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why || "" } : null, key: `step:${mod.id}:${k}` }));
+    // each quick check gets its own screen straight after its step (like Duolingo), so the options are never below the fold
+    const out = L.steps.flatMap((s, k) => [{ kind: "step", k, s, Q: null, key: `read:${mod.id}:${k}` }]
+      .concat(s.c ? [{ kind: "q", check: true, k, Q: { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why || "" }, key: `step:${mod.id}:${k}` }] : []));
     // lift the demo, predicts and takeaways out of the module's own page
     const holder = el(`<div class="pl-holder" aria-hidden="true"></div>`);
     document.body.appendChild(holder);
@@ -77,6 +79,7 @@
       S.screens = lessonScreens(mod);
       const pos = store.get("nic.lessonPos", {})[mod.id] || 0;
       S.i = pos > 0 && pos < S.screens.length ? pos : 0;
+      if (S.i > 0 && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Picked up where you left off. "Start over" is in the lesson's popover.</span>`, { tone: "blue", ms: 2600 }), 400);
     }
     if (!S.screens.length) S.screens.push({ kind: "note", t: "Nothing here yet", b: "This module has no lesson steps." });
     const v = store.get("nic.visited", {}); v[mod.id] = true; store.set("nic.visited", v);
@@ -140,10 +143,11 @@
         <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="pl-fill"></span><span class="pl-combo"></span></div>
         <span class="pl-chip">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
       <div class="pl-stage"></div>
-      <footer class="pl-foot"><div class="pl-foot-in"><div class="pl-fb"></div><div class="pl-actions"><button class="btn big primary pl-go">Continue</button></div></div></footer>
+      <footer class="pl-foot"><div class="pl-foot-in"><div class="pl-fb" aria-live="polite"></div><div class="pl-actions"><button class="btn big primary pl-go">Continue</button></div></div></footer>
       <div class="pl-modal" hidden></div><div class="pl-drawer" hidden></div></div>`);
     document.body.appendChild(root);
     document.body.classList.add("in-lesson");
+    N.shield(true);
     S.root = root; S.stage = qs(".pl-stage", root); S.foot = qs(".pl-foot", root); S.go = qs(".pl-go", root);
     S.go.addEventListener("click", () => { if (!S.go.disabled && S.onGo) S.onGo(); });
     qs(".pl-x", root).addEventListener("click", askQuit);
@@ -198,6 +202,11 @@
   function show(dir = 1) {
     const sc = S.screens[S.i];
     if (!sc) return finish();
+    if (sc.kind === "bossResult" && S.answered) {
+      const B = S.boss, st = store.get("nic.quiz", {}), n = B.qs.length, c = B.qs.filter((_, i) => st[`${B.id}-${i}`] && st[`${B.id}-${i}`].ok).length;
+      S.bossPct = c / n; S.bossScore = `${c}/${n}`;
+      if (c === n) { game().unlock("perfect"); S.bossPerfect = true; S.i++; return finish(); } // nothing to review: go straight to the payoff
+    }
     if (S.kind === "lesson" && !["complete", "streak"].includes(sc.kind)) { const p = store.get("nic.lessonPos", {}); p[S.mod.id] = S.i; store.set("nic.lessonPos", p); }
     qsa(".pl-screen.leaving", S.stage).forEach((x) => x.remove());
     const old = qs(".pl-screen", S.stage);
@@ -214,6 +223,7 @@
     if (S.refHTML) qs(".pl-drawer", S.root).innerHTML = S.refHTML;
     progress();
     (RENDER[sc.kind] || RENDER.note)(node, sc);
+    node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true }); // Tab starts inside the new screen
     if (fx() && fx().ok && dir) {
       const a = fx().animate(node, reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${40 * dir}px)`, "translateX(0px)"] }, { duration: 0.3, delay: old ? 0.08 : 0, ease: fx().EASE });
       if (a) a.finished.then(() => (node.style.transform = "")).catch(() => {});
@@ -240,7 +250,7 @@
       else foot("continue", { onGo: next });
     },
     q(node, sc) {
-      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag rose">Mistake to fix</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
+      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag rose">Mistake to fix</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       askQ(qs(".pl-qwrap", node), sc, {});
     },
     try(node, sc) {
@@ -254,8 +264,21 @@
         const g = N.guide(sc.guide);
         g.removeAttribute("id");
         qs(".pl-try-side", node).appendChild(g);
+        // phones: the checklist is a sticky chip above the demo; tap it to open
+        const head = qs(".card-head", g);
+        head.setAttribute("role", "button"); head.setAttribute("tabindex", "0");
+        head.addEventListener("click", () => g.classList.toggle("open"));
+        // pressing a demo button ticks the step that names it in bold ("Press <b>Run</b>…")
+        const items = qsa(".guide-item", g).map((b) => ({ b, keys: qsa("b", b).map((x) => x.textContent.trim().toLowerCase()).filter(Boolean) }));
+        qs(".pl-try-demo", node).addEventListener("click", (e) => {
+          const btn = e.target.closest("button, input[type=checkbox], input[type=range], select"); if (!btn) return;
+          const label = (btn.textContent || btn.getAttribute("aria-label") || (btn.closest("label") && btn.closest("label").textContent) || "").trim().toLowerCase();
+          if (!label) return;
+          const hit = items.find((it) => !it.b.classList.contains("done") && it.keys.some((k) => k.length > 1 && (label === k || label.includes(k) || k.includes(label))));
+          if (hit) S.life.timeout(() => { if (S && hit.b.isConnected) hit.b.click(); }, 250);
+        }, true);
         g.addEventListener("nic:guide-done", () => {
-          if (S.demoXP) return; S.demoXP = true; S.xp += 5;
+          if (!S || S.demoXP) return; S.demoXP = true; S.xp += 5;
           game().track("demo");
           if (fx()) fx().floatText(qs(".guide-count", g) || g, "+5 XP", "#ff9600");
           foot("continue", { onGo: next, fb: `<div class="pl-fb-row">${N.mascot({ who: "chip", size: 52, mood: "love" })}<b>Demo complete! +5 XP</b></div>` });
@@ -328,7 +351,7 @@
       const lessonXP = S.kind === "practice" || S.kind === "revise" ? 5 : S.kind === "boss" ? (S.bossPct >= 0.8 ? 20 : 5) : S.review ? 5 : 10;
       const total = S.xp + lessonXP;
       game().award(total, S.kind);
-      const res = game().lessonDone({ acc, review: S.review });
+      const res = game().lessonDone({ acc, review: S.review, kind: S.kind });
       S.streakRes = res;
       const others = ["sprout", "pebble", "byte", "blaze", "chip", "berry"].filter((w) => w !== S.who);
       const hats = N.cast ? N.cast.HATS.slice().sort(() => Math.random() - 0.5) : [];
@@ -338,7 +361,8 @@
         <div class="pd-cast">${others.slice(0, 2).map((w, k) => N.mascot({ who: w, size: 78, mood: "happy", act: acts[k], acc: [hats[k]] })).join("")}
           ${N.mascot({ who: S.who, size: 150, mood: "laugh", act: "dance", acc: ["party"], cls: "pd-star" })}
           ${others.slice(2, 4).map((w, k) => N.mascot({ who: w, size: 78, mood: k ? "love" : "happy", act: acts[k + 2], acc: [hats[k + 2]] })).join("")}</div>
-        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? "Quiz complete!" : "Lesson complete!"}</h1>
+        <h1 class="pd-title">${S.kind === "practice" ? "Practice complete!" : S.kind === "revise" ? "Revision complete!" : S.kind === "boss" ? (S.bossPct >= 0.8 ? "Boss beaten!" : "Quiz complete!") : "Lesson complete!"}</h1>
+        ${S.kind === "boss" && S.bossScore ? `<div class="pd-boss">${S.bossPerfect ? "Perfect score" : "Score"}: <b>${S.bossScore}</b></div>` : ""}
         <div class="pd-cards">
           <div class="pd-card c-gold"><b>Total XP</b><span>${IC.bolt}<i data-v="${total}">0</i></span></div>
           <div class="pd-card c-green"><b>${label}</b><span>${IC.target}<i data-v="${Math.round(acc * 100)}">0</i>%</span></div>
@@ -346,6 +370,7 @@
         </div></div>`;
       sound("fanfare");
       if (fx()) setTimeout(() => fx().celebrate(qs(".pd-title", node), { big: true, silent: true }), 250);
+      if (S.bossPerfect && fx()) setTimeout(() => fx().lottieAt(qs(".pd-star", node) || qs(".pd-title", node), "trophy", { size: 220 }), 700);
       qsa(".pd-card", node).forEach((card, k) => setTimeout(() => {
         const i = qs("i[data-v]", card);
         if (!fx() || !fx().ok) { card.style.opacity = 1; if (i) i.textContent = i.dataset.v; return; }
@@ -384,7 +409,7 @@
   // =====================================================================
   //  Asking a question (reuses the boss engine's question types)
   // =====================================================================
-  const SELECT = { mcq: (b, v) => qsa(".opt", b).forEach((o) => o.classList.toggle("sel", +o.dataset.k === v)), bug: (b, v) => qsa(".qc-line", b).forEach((o) => o.classList.toggle("sel", +o.dataset.k === v)) };
+  const SELECT = { mcq: (b, v) => qsa(".opt", b).forEach((o) => { o.classList.toggle("sel", +o.dataset.k === v); o.setAttribute("aria-checked", +o.dataset.k === v); }), bug: (b, v) => qsa(".qc-line", b).forEach((o) => o.classList.toggle("sel", +o.dataset.k === v)) };
 
   function askQ(wrap, sc, { compact = false } = {}) {
     const Q = sc.Q, type = Q.type || "mcq", TT = T()[type];
@@ -433,7 +458,9 @@
     game().answered(ok);
     // persistence
     if (sc.bossIdx !== undefined) { const st = store.get("nic.quiz", {}); st[sc.idKey] = { v, ok }; store.set("nic.quiz", st); if (ok) game().track("boss"); window.dispatchEvent(new Event("nic:progress")); }
-    if (sc.revId && first && N.bank) N.bank.record(sc.revId, ok);
+    // one review log for everything: lesson checks, boss questions and Practice fixes all move the question's Leitner box
+    const bid = sc.revId || (N.bank && (sc.key.match(/^(?:step|boss):([^:]+):/) || [])[1] && N.bank.idFor(sc.key.split(":")[1], Q));
+    if (bid && first && N.bank) N.bank.record(bid, ok);
     if (sc.pred) { const p = store.get("nic.predict", {}); if (!(sc.pred in p)) { p[sc.pred] = ok; store.set("nic.predict", p); N.updateScore && N.updateScore(); } }
     if (ok) {
       if (sc.practice && missed.all().some((m) => m.k === sc.key)) { game().track("practice"); game().unlock("fixer"); }
@@ -517,6 +544,7 @@
     s.life.dispose();
     if (s.holder) s.holder.remove();
     document.body.classList.remove("in-lesson");
+    N.shield(false);
     const root = s.root;
     const gone = () => root.remove();
     if (!silent && N.fx && N.fx.ok && !reduce()) N.fx.animate(root, { opacity: [1, 0], transform: ["translateY(0px)", "translateY(30px)"] }, { duration: 0.22, ease: "easeIn" }).finished.then(gone).catch(gone);

@@ -128,7 +128,10 @@ window.NIC = (function () {
   // ---------- Progress (predictions + visited) ----------
   const store = {
     get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
-    set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
+    set(k, v) {
+      try { localStorage.setItem(k, JSON.stringify(v)); }
+      catch (e) { if (!store.warned && N_fx()) { store.warned = true; N_fx().toast("<b>Progress can't be saved</b><span>This browser is blocking storage (private mode or full).</span>", { tone: "rose", ms: 4000 }); } }
+    },
   };
   function updateScore() {
     const s = store.get("nic.predict", {});
@@ -258,7 +261,7 @@ window.NIC = (function () {
 
   /** "What to do" checklist — tick each item off as you do it in the playground. */
   function guide(items) {
-    const node = el(`<div class="card guide" id="try"><div class="card-head"><span class="tag amber">What to do below</span><span class="faint guide-count"></span></div>
+    const node = el(`<div class="card guide" id="try"><div class="card-head"><span class="tag amber">What to do</span><span class="faint guide-count"></span></div>
       <ol class="guide-list">${items.map((t, k) => `<li><button class="guide-item" data-k="${k}" aria-pressed="false"><span class="gi-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="gi-n">${k + 1}</span><span class="gi-t">${t}</span></button></li>`).join("")}</ol></div>`);
     const upd = () => { const n = qsa(".guide-item.done", node).length; qs(".guide-count", node).textContent = n ? `${n} of ${items.length} done` : "tick them off as you go"; };
     qsa(".guide-item", node).forEach((b) => b.addEventListener("click", (e) => {
@@ -400,14 +403,25 @@ window.NIC = (function () {
     return `<table class="t matrix"><tr><th></th>${c.map((x) => `<th>${x}</th>`).join("")}</tr>${c.map((a) => `<tr><th>${a}</th>${c.map((b) => a === b ? `<td class="faint">–</td>` : `<td class="${isHl(a, b) ? "hl" : ""}">${TSP.D[a][b]}</td>`).join("")}</tr>`).join("")}</table>`;
   }
 
+  const N_fx = () => window.NIC && window.NIC.fx;
+  /** Make everything behind a dialog unreachable (Tab, clicks, screen readers) and give focus back afterwards. */
+  const shieldStack = [];
+  function shield(on) {
+    const els = ["#main", "#topbar", "#dock", "#pop"].map((s) => document.querySelector(s)).filter(Boolean);
+    if (on) { shieldStack.push(document.activeElement); els.forEach((e) => e.setAttribute("inert", "")); }
+    else { const back = shieldStack.pop(); if (!shieldStack.length) els.forEach((e) => e.removeAttribute("inert")); if (back && back.isConnected && back.focus) back.focus({ preventScroll: true }); }
+  }
+
   // ---------- Lazy vendor loading (plain <script>/<link> tags, so it works over file:// too) ----------
   const base = (document.currentScript && document.currentScript.src.replace(/js\/core\.js.*$/, "")) || "";
+  const BUILD = ((document.currentScript && document.currentScript.src.match(/[?&]v=([^&]+)/)) || [])[1] || "dev"; // set by tools/stamp.py
   const loading = {};
   /** Load vendor scripts/styles once, in order. lazy("vendor/three.min.js") → Promise. */
   function lazy(...srcs) {
     return srcs.reduce((p, src) => p.then(() => loading[src] || (loading[src] = new Promise((ok, bad) => {
       const css = src.endsWith(".css"), t = document.createElement(css ? "link" : "script");
-      if (css) { t.rel = "stylesheet"; t.href = base + src; } else { t.src = base + src; }
+      const url = base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD;
+      if (css) { t.rel = "stylesheet"; t.href = url; } else { t.src = url; }
       t.onload = () => ok(); t.onerror = () => { delete loading[src]; bad(new Error("failed to load " + src)); };
       document.head.appendChild(t);
     }))), Promise.resolve());
@@ -436,7 +450,7 @@ window.NIC = (function () {
   const texStr = (s, display = false) => (window.katex ? window.katex.renderToString(s, { throwOnError: false, displayMode: display }) : esc(s));
 
   return {
-    lazy, tex, texStr,
+    BUILD, lazy, tex, texStr, shield,
     modules, register, qs, qsa, el, esc, rnd, randint, choice, shuffle, gauss, clamp, fmt,
     setupCanvas, colors, lineChart, barChart, roundRect, store, updateScore, predict, lesson, guide, takeaways, LESSONS: {}, header, lifecycle,
     slider, seg, LANDSCAPES, makeLandscape, drawLandscape, TSP, tspSVG, matrixHTML,

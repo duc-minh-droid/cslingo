@@ -17,13 +17,15 @@
   const modById = (id) => N.modules.find((m) => m.id === id);
   const subjOf = (m) => (m && m.subject) || "nic";
 
+  /** The revision id of a question (also used by lessons and Practice, so every answer feeds one Leitner log). */
+  const idFor = (modId, Q) => `${modId}:${hash(plain(Q.q) + JSON.stringify(Q.o || Q.items || Q.pairs || Q.buckets || ""))}`;
   function add(modId, qs) { (BANK[modId] = BANK[modId] || []).push(...qs); }
 
   /** Every question the bank knows about, tagged with its module. `learnedOnly` filters to finished work. */
   function all({ learnedOnly = false, subjects = null } = {}) {
     const done = N.store.get("nic.lessonDone", {}), quiz = N.store.get("nic.quiz", {});
     const out = [];
-    const push = (m, src, Q) => { if (!subjects || subjects.includes(subjOf(m))) out.push({ id: `${m.id}:${hash(plain(Q.q) + JSON.stringify(Q.o || Q.items || Q.pairs || Q.buckets || ""))}`, mod: m.id, subject: subjOf(m), lecture: m.lecture, src, Q }); };
+    const push = (m, src, Q) => { if (!subjects || subjects.includes(subjOf(m))) out.push({ id: idFor(m.id, Q), mod: m.id, subject: subjOf(m), lecture: m.lecture, src, Q }); };
     N.modules.forEach((m) => {
       if (m.num === "Boss") {
         const B = N.bossDef && N.bossDef(m.id);
@@ -95,5 +97,5 @@
     return out;
   }
 
-  N.bank = { add, all, deck, record, stats, problems, raw: BANK };
+  N.bank = { add, all, deck, record, stats, problems, idFor, raw: BANK };
 })();

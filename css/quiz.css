@@ -47,16 +47,18 @@
 .chip-btn:disabled { opacity: 0.35; cursor: default; }
 
 /* match */
-.q-match { display: grid; gap: 8px; }
-.qm-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--line); background: #fff; }
-.qm-l { flex: 1 1 240px; font-weight: 700; }
-.qm-arrow { color: var(--text-faint); font-weight: 900; }
-.qm-row select { flex: 1 1 200px; font: inherit; font-weight: 700; padding: 8px 10px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg-2); }
-.qm-row.right { border-color: var(--teal); background: var(--teal-dim); }
-.qm-row.wrong { border-color: var(--rose); background: var(--rose-dim); }
-.qm-fix { flex-basis: 100%; font-weight: 800; color: var(--teal-ink); font-size: 14px; }
 
 /* cat */
+.q-match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qm-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease, border-color 150ms ease; }
+.qm-t:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
+.qm-t.sel { border-color: var(--blue-edge); background: var(--blue-dim); box-shadow: 0 3px 0 var(--blue-edge); }
+.qm-t.paired { --pc: var(--blue); border-color: var(--pc); box-shadow: 0 3px 0 var(--pc); background: color-mix(in srgb, var(--pc) 12%, #fff); }
+.qm-t.p1 { --pc: var(--violet); } .qm-t.p2 { --pc: var(--amber); } .qm-t.p3 { --pc: var(--teal); } .qm-t.p4 { --pc: var(--rose); }
+.qm-t.right { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); }
+.qm-t.wrong { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); }
+.qm-fix { display: block; margin-top: 4px; font-weight: 800; color: var(--teal-ink); font-size: 13px; }
 .q-cat { display: grid; gap: 8px; }
 .qc-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--line); background: #fff; }
 .qc-t { flex: 1 1 260px; font-weight: 700; }

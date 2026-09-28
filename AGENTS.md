@@ -119,7 +119,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 
 **Sound**
 - Sound only follows something the learner did. Never add a timer-driven or idle sound. The sneeze gag was removed for exactly this reason.
-- Reuse the names in `SOUNDS` (`js/sfx.js`): `tap, select, step, back, correct, wrong, retry, check, pop, complete, streak, fanfare, whoosh, flame, chest, achieve, sad, squeak, dizzy, tick`.
+- Reuse the names in `SOUNDS` (`js/sfx.js`): `tap, select, step, back, correct, wrong, retry, check, pop, complete, streak, fanfare, whoosh, flame, chest, achieve, sad, squeak, dizzy, tick`. The sneeze sound was deleted; don't bring it back.
 
 **Canvas**
 - Canvas cannot resolve `var(--x)`. Always use `NIC.colors().teal` and so on, or hex values.
@@ -333,9 +333,14 @@ The vault folder is the source. The mirror clone lives at `~/Desktop/cslingo`, w
 
 ```bash
 cd "<vault>/Nature inspired/Visualizer"
-cp -r index.html serve.py README.md AGENTS.md CLAUDE.md .nojekyll css js vendor tools trailer ~/Desktop/cslingo/
+cp -r index.html serve.py README.md AGENTS.md CLAUDE.md .nojekyll manifest.webmanifest sw.js css js vendor tools trailer assets ~/Desktop/cslingo/
+rm -rf ~/Desktop/cslingo/vendor/rive          # unused runtime (2.4 MB); only publish it once a .riv is in use
+python tools/stamp.py ~/Desktop/cslingo       # stamps ?v=<build> on every asset URL in the mirror's index.html
 cd ~/Desktop/cslingo && git add -A && git commit -m "…" && git push
 ```
+
+- **Always stamp.** Without a new `?v=` browsers mix cached old files with new ones for up to 10 minutes (Pages sends `max-age=600`), and the service worker keeps an old cache. The vault copy stays at `?v=dev`.
+- The service worker (`sw.js`) only registers on the https site, never on localhost or file://.
 
 - Never copy vault notes, `MEMORY.md`, progress logs or lecture PDFs into the mirror. It is public.
 - Pages rebuilds in about a minute after the push.

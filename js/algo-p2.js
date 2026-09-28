@@ -103,7 +103,7 @@
           { t: "Check the shortcut: C→B costs 1, so 2 + 1 = 3", v: F.cells([{ v: "2", c: "teal" }, "+", { v: "1" }, "=", { v: "3", c: "amber" }]) },
           { t: "3 < 4, so update B to 3 (via C)", v: F.cells([{ v: "A", sub: "0", c: "teal" }, { v: "C", sub: "2", c: "teal" }, { v: "B", sub: "3 ✓", c: "amber" }]) },
         ]) },
-      { t: "Watch it run", b: `<p>Here is the whole algorithm on a five-node graph. Press <b>play</b> or step with the arrows. The code on the right lights up the line being run.</p><p>It will pause and ask you to predict the next node. Tap a weight to change it and the run recomputes.</p>`,
+      { t: "Watch it run", b: `<p>Here is the whole algorithm on a five-node graph. Press <b>play</b> or step with the arrows. The code panel lights up the line being run.</p><p>It will pause and ask you to predict the next node. Tap a weight to change it and the run recomputes.</p>`,
         v: (box, life) => dijkstraRun(box, life) },
       { t: "Why negative edges break it", b: `<p>The safety argument assumed a detour can only <b>add</b> cost. A negative edge <i>subtracts</i>.</p><p>Here Dijkstra settles B at 2, since it's the smallest. But A → C → B costs 3 + (−2) = <b>1</b>. B was locked in too early.</p><span class="key">Negative edges: use Bellman–Ford instead.</span>`,
         v: F.graph({ nodes: { A: { x: 60, y: 100, sub: "0" }, B: { x: 230, y: 40, sub: "settled at 2 ✗" }, C: { x: 230, y: 165, sub: "3" } }, edges: [["A", "B", 2], ["A", "C", 3], ["C", "B", "−2", "rose"]], hl: { B: "rose" }, directed: true, w: 330, h: 205 }),

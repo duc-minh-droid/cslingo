@@ -27,7 +27,7 @@
     });
 
     const head = `<div class="sp-hero u-blue rv-hero">${N.mascot({ who: "chip", size: 130, mood: pool.length ? "determined" : "sleepy", act: pool.length ? "dance" : "sleep", acc: ["propeller"] })}
-      <div><h1>Revise</h1><p>A shuffled mix from every session you've finished. Get one right and it comes back later; miss it and it comes back soon.</p></div></div>`;
+      <div><h1>Due reviews</h1><p>A shuffled mix from every session you've finished. Get one right and it comes back later; miss it and it comes back soon.</p></div></div>`;
     if (!pool.length) {
       main.appendChild(el(`<div class="page side-page">${head}<div class="card rv-empty"><b>Nothing to revise yet</b><p class="faint">Finish a lesson and its questions join your deck here.</p><a class="btn big primary" href="#home">Go to lessons</a></div></div>`));
       return;
@@ -79,7 +79,7 @@
       N.sfx && N.sfx.play("select"); save(); paint();
     }));
     qsa(".rv-size button", node).forEach((b) => b.addEventListener("click", () => { prefs.n = +b.dataset.n; N.sfx && N.sfx.play("select"); save(); paint(); }));
-    qs(".rv-go", node).addEventListener("click", () => N.player.revise({ home: "revise", n: prefs.n, subjects: prefs.subjects }));
+    qs(".rv-go", node).addEventListener("click", () => N.player.revise({ home: "practice/due", n: prefs.n, subjects: prefs.subjects }));
     paint();
     if (N.fx && N.fx.enter) N.fx.enter(Array.from(node.children), { stagger: 0.05 });
   }

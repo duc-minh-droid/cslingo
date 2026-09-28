@@ -104,11 +104,23 @@
         <button class="tb-btn tb-me" data-pop="me" aria-label="Menu">${NIC.mascot({ who: "sprout", size: 30, poke: false, acc: ["beanie"] })}</button>
       </div></div>`;
     qsa("[data-pop]", top).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); togglePop(b.dataset.pop, b); }));
+    if (qs(".rail")) rail();
   }
 
   const pop = qs("#pop");
   let popKind = null;
   function closePop() { if (!popKind) return; popKind = null; pop.hidden = true; pop.innerHTML = ""; }
+  /** Wide screens: streak, daily goal and quests sit in a rail beside the path (Duolingo web layout). */
+  const RAIL_MQ = matchMedia("(min-width: 1240px)");
+  function rail() {
+    let r = qs(".rail");
+    if (!RAIL_MQ.matches || !qs(".path-page", main)) { if (r) r.remove(); return; }
+    if (!r) { r = el(`<aside class="rail" aria-label="Your progress"></aside>`); main.appendChild(r); }
+    r.innerHTML = ["streak", "xp", "quests"].map((k) => `<section class="rail-card pop-card pop-${k}" data-k="${k}">${POPS[k]()}</section>`).join("");
+    qsa(".rail-card", r).forEach((c) => (POP_MOUNT[c.dataset.k] || (() => {}))(c));
+  }
+  RAIL_MQ.addEventListener && RAIL_MQ.addEventListener("change", rail);
+
   function togglePop(kind, anchor) {
     if (popKind === kind) return closePop();
     popKind = kind;
@@ -129,8 +141,10 @@
     course: () => `<h3>Your courses</h3>${SUBJ_ORDER.map((k) => { const S = SUBJECTS[k], p = progress(inSubj(k)); return `<button class="pc-row ${k === course ? "on" : ""}" data-s="${k}">${NIC.mascot({ who: S.who, size: 44, poke: false, mood: k === course ? "happy" : "idle" })}<span class="pc-t"><b>${S.name}</b><small>${S.code} · ${p.d}/${p.n} done</small><span class="pc-bar"><span style="transform:scaleX(${p.f})"></span></span></span></button>`; }).join("")}
       <label class="pc-search">${IC.search}<input type="search" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd>/</kbd></label><div class="pc-res"></div>`,
     streak: () => { const st = game.streak(), wk = game.week(); return `<div class="pop-hero">${NIC.mascot({ who: "blaze", size: 90, mood: st ? "happy" : "sleepy", act: st ? "dance" : "sleep", acc: st >= 7 ? ["crown"] : st >= 3 ? ["shades"] : [] })}<div><b class="big-n">${st}</b><span>day streak</span></div></div>
-      <div class="ps-week small">${wk.map((d) => `<div class="ps-day ${d.on ? "on" : ""} ${d.today ? "today" : ""}"><span>${d.label}</span><i>${d.on ? IC.check : ""}</i></div>`).join("")}</div>
-      <p class="faint">${wk.find((d) => d.today).on ? "Today's lesson is done. See you tomorrow!" : "Finish a lesson today to keep the flame alive."}</p>`; },
+      <div class="ps-week small">${wk.map((d) => `<div class="ps-day ${d.on ? "on" : ""} ${d.frozen ? "frozen" : ""} ${d.today ? "today" : ""}"><span>${d.label}</span><i>${d.frozen ? NIC.emo("ice") : d.on ? IC.check : ""}</i></div>`).join("")}</div>
+      ${!game.doneToday() && st && new Date().getHours() >= 18 ? `<div class="sk-risk">${NIC.emo("fire")}<b>Streak at risk!</b> Finish one lesson or practice before midnight.</div>` : ""}
+      <p class="faint">${game.doneToday() ? "Today's done. See you tomorrow!" : "Finish a lesson or practice today to keep the flame alive."}</p>
+      <div class="sk-freeze">${NIC.emo("ice")}<span><b>${game.freezes()}</b> streak freeze${game.freezes() === 1 ? "" : "s"}</span><small>Covers a missed day automatically. Finish all 3 daily quests to earn one (max 2).</small></div>`; },
     xp: () => { const tx = game.todayXP(), g = game.goal(); return `<div class="pop-hero">${ring(tx / g, 34, 10)}<div><b class="big-n">${tx}<small> / ${g} XP</small></b><span>today · ${game.totalXP()} XP total</span></div></div>
       <h4>Daily goal</h4><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === g ? "on" : ""}">${t}<small>${v}</small></button>`).join("")}</div>`; },
     quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="faint">New ones every day</span></div></div>
@@ -218,7 +232,11 @@
   function modal(html, { cls = "" } = {}) {
     const m = el(`<div class="modal-back"><div class="modal ${cls}" role="dialog" aria-modal="true"><button class="modal-x" aria-label="Close">✕</button>${html}</div></div>`);
     document.body.appendChild(m);
-    const close = () => { m.remove(); document.removeEventListener("keydown", onK); };
+    NIC.shield(true);
+    const close = () => { if (m._open === false) return; m._open = false; m.remove(); document.removeEventListener("keydown", onK); NIC.shield(false); };
+    m.close = close;
+    new MutationObserver((r, o) => { if (!m.isConnected) { o.disconnect(); document.removeEventListener("keydown", onK); if (m._open !== false) { m._open = false; NIC.shield(false); } } }).observe(document.body, { childList: true }); // callers may just m.remove()
+    setTimeout(() => { const f = m.querySelector("input, .modal button:not(.modal-x)"); if (f) f.focus(); }, 30);
     const onK = (e) => { if (e.key === "Escape") close(); };
     document.addEventListener("keydown", onK);
     m.addEventListener("click", (e) => { if (e.target === m || e.target.closest(".modal-x")) close(); });
@@ -227,9 +245,19 @@
   }
 
   function resetAll() {
-    if (!confirm("Reset all progress: lessons, quizzes, XP, streak, quests and achievements?")) return;
-    ["nic.predict", "nic.visited", "nic.quiz", "nic.lessonPos", "nic.lessonSeen", "nic.lessonDone", "nic.last", "nic.xp", "nic.activeDays", "nic.quests", "nic.ach", "nic.stats", "nic.missed"].forEach((k) => localStorage.removeItem(k));
-    closePop(); updateScore(); renderTop(); route();
+    closePop();
+    const m = modal(`<div class="rs">${NIC.mascot({ who: "berry", size: 96, mood: "shocked" })}<h2>Reset everything?</h2>
+      <p>Lessons, quizzes, XP, streak, quests, achievements and revision history on this device will be wiped.${NIC.sync && NIC.sync.email() ? " Your synced account will be overwritten too." : ""} This can't be undone.</p>
+      <div class="controls"><button class="btn" data-k="no">Keep my progress</button><button class="btn rose" data-k="yes">Reset</button></div></div>`, { cls: "rs-modal" });
+    m.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-k]"); if (!b) return;
+      if (b.dataset.k === "yes") {
+        Object.keys(localStorage).filter((k) => k.startsWith("nic.") && !/^nic\.sync/.test(k)).forEach((k) => localStorage.removeItem(k));
+        localStorage.setItem("nic.syncDirty", "1"); localStorage.setItem("nic.onboarded", "true");
+        updateScore(); renderTop(); route();
+      }
+      m.close();
+    });
   }
 
   // =====================================================================
@@ -249,6 +277,31 @@
     { who: "chip", act: "juggle", acc: ["wizard"], mood: "determined" },
   ];
 
+  /** The boss in this course with the lowest score under 80%, if any. */
+  function weakBoss(s) {
+    const q = store.get("nic.quiz", {});
+    return inSubj(s).filter(isBoss).map((m) => { const B = NIC.bossDef(m.id); if (!B) return null; const n = B.qs.length, c = B.qs.filter((_, i) => q[`${m.id}-${i}`] && q[`${m.id}-${i}`].ok).length; return { m, f: c / n }; })
+      .filter((x) => x && x.f < 0.8).sort((a, b) => a.f - b.f).map((x) => x.m)[0] || null;
+  }
+
+  /** "What should I do now?" One primary action (continue > due reviews > next lesson) plus the others as chips. */
+  function todayCard(s, all, next) {
+    const pos = store.get("nic.lessonPos", {});
+    const started = all.find((m) => status(m) !== "done" && pos[m.id] > 0);
+    const due = NIC.bank ? NIC.bank.stats({ subjects: [s] }).due : 0;
+    const miss = NIC.player.missed.all().length;
+    const acts = [];
+    if (started) { const L = NIC.LESSONS[started.id]; acts.push({ k: "cont", to: started.id, t: `Continue ${esc(started.title)}`, sub: L ? `You stopped partway through` : "", icon: IC.play }); }
+    if (due >= 5) acts.push({ k: "due", to: "practice/due", t: `Review ${due} due question${due === 1 ? "" : "s"}`, sub: "Short spaced reviews keep it stuck", icon: IC.reset });
+    if (next && (!started || next !== started)) acts.push({ k: "next", to: next.id, t: `${status(next) === "new" && !Object.keys(store.get("nic.lessonDone", {})).length ? "Start" : "Next"}: ${esc(next.title)}`, sub: `${next.num === "Boss" ? "Boss quiz" : "Lesson " + next.num}`, icon: IC.star });
+    if (due > 0 && due < 5) acts.push({ k: "due", to: "practice/due", t: `Review ${due} due`, icon: IC.reset });
+    if (miss) acts.push({ k: "miss", to: "practice/mistakes", t: `Fix ${miss} mistake${miss === 1 ? "" : "s"}`, icon: IC.dumbbell });
+    if (!acts.length) return "";
+    const [top, ...rest] = acts;
+    return `<div class="td-card"><button class="td-main" data-to="${top.to}"><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
+      ${rest.length ? `<div class="td-more">${rest.slice(0, 3).map((a) => `<button class="td-chip" data-to="${a.to}">${a.icon}<span>${a.t}</span></button>`).join("")}</div>` : ""}</div>`;
+  }
+
   function home(s) {
     const S = SUBJECTS[s], all = inSubj(s), P = progress(all);
     const lastId = store.get("nic.last", {})[s], last = modules.find((m) => m.id === lastId);
@@ -257,6 +310,7 @@
     const lecs = Object.entries(S.lectures).filter(([lec]) => inLec(s, lec).length);
     const page = el(`<div class="page path-page">
       ${NIC.art ? NIC.art.banner(s, { title: S.name, sub: `${S.code} · ${P.d}/${P.n} lessons done` }) : ""}
+      ${todayCard(s, all, next)}
       <div class="unit-sticky"><div class="us-in"></div></div>
       ${lecs.map(([lec, title], u) => {
         const list = inLec(s, lec), p = progress(list), col = UNIT_COLORS[u % 4];
@@ -270,7 +324,7 @@
               const st = status(m), boss = isBoss(m), cur = resume === m;
               const topic = !boss && window.FLUENT_EMOJI && FLUENT_EMOJI.topics && FLUENT_EMOJI.topics[m.id];
               const ic = topic ? NIC.emo(topic, "p-topic") + (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "") : st === "done" ? (boss ? IC.trophy : IC.check) : boss ? IC.trophy : cur ? IC.play : IC.star;
-              const L = NIC.LESSONS[m.id], pos = (store.get("nic.lessonPos", {})[m.id] || 0), frac = st === "started" && L ? Math.min(0.95, pos / (L.steps.length + 2)) : 0;
+              const L = NIC.LESSONS[m.id], pos = (store.get("nic.lessonPos", {})[m.id] || 0), frac = st === "started" && L ? Math.min(0.95, pos / (L.steps.length + L.steps.filter((x) => x.c).length + 2)) : 0;
               return `<div class="p-row st-${st} ${boss ? "boss" : ""} ${cur ? "cur" : ""}" style="--k:${zig(i).toFixed(3)};top:${i * ROW}px" data-id="${m.id}">
                 <button class="p-node" aria-label="${m.num} ${esc(m.title)}">${cur || st === "started" ? `<svg class="p-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#e5e5e5" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--u)" stroke-width="8" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289 * (1 - frac)}" transform="rotate(-90 50 50)"/></svg>` : ""}<span class="p-face">${ic}</span></button>
                 ${cur ? `<span class="p-bubble">${status(m) === "started" ? "Continue" : P.d ? "Jump in" : "Start"}</span>` : ""}</div>`;
@@ -278,12 +332,15 @@
             <div class="p-cast ${side}" style="top:${castRow * ROW - 10}px">${NIC.mascot({ who: cast.who || S.who, size: 110, act: cast.act, acc: cast.acc, mood: cast.mood || "idle" })}</div>
           </div></section>`;
       }).join("")}
-      <div class="path-end ${P.d === P.n ? "won" : ""}">${NIC.mascot({ who: S.who, size: 100, mood: P.d === P.n ? "love" : "determined", acc: ["crown"], act: P.d === P.n ? "dance" : "" })}<b>${P.d === P.n ? "Course complete!" : `${P.n - P.d} to go`}</b><span class="faint">${S.name} · ${P.d}/${P.n} done</span></div>
+      <div class="path-end ${P.d === P.n ? "won" : ""}">${NIC.mascot({ who: S.who, size: 100, mood: P.d === P.n ? "love" : "determined", acc: ["crown"], act: P.d === P.n ? "dance" : "" })}<b>${P.d === P.n ? "Course complete!" : `${P.n - P.d} to go`}</b><span class="faint">${S.name} · ${P.d}/${P.n} done</span>
+        ${P.d === P.n ? `<div class="pe-acts"><button class="btn primary" data-to="practice/due">Revise this course</button>${weakBoss(s) ? `<button class="btn" data-to="${weakBoss(s).id}">Retry ${esc(weakBoss(s).title)}</button>` : ""}</div>` : ""}</div>
     </div>`);
     main.appendChild(page);
     if (NIC.art) page.style.setProperty("--pat", NIC.art.pattern({ nic: "leaves", ds: "waves", algo: "circuit" }[s] || "dots"));
     qsa(".p-node", page).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); nodePop(b.closest(".p-row")); }));
     wireTips(page);
+    rail();
+    qsa("[data-to]", page).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to; }));
     stickyHeader(page);
     // entrance: nodes pop in unit by unit as they scroll into view
     const units = qsa(".unit", page);
@@ -372,6 +429,10 @@
       <b>${m.title}</b>${I.boss ? `<p>${m.blurb || ""}</p><div class="pt-h">Covers</div>` : `<p>${I.sum}</p><div class="pt-h">Inside</div>`}
       ${infoList(I)}${infoChips(I)}</div>`);
     row.appendChild(tipEl);
+    { // keep it above the dock: slide it up and move the arrow down to stay on the node
+      const r = tipEl.getBoundingClientRect(), dockTop = (qs("#dock") && qs("#dock").getBoundingClientRect().top) || innerHeight, over = r.bottom - (dockTop - 10);
+      if (over > 0) { const up = Math.min(over, r.height - 70); tipEl.style.top = `${-6 - up}px`; tipEl.style.setProperty("--ay", `${36 + up}px`); }
+    }
     if (fx.ok) fx.animate(tipEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateX(${side === "left" ? 8 : -8}px) scale(0.92)`, "translateX(0px) scale(1)"] }, { type: "spring", duration: 0.35, bounce: 0.3 });
   }
   function wireTips(page) {
@@ -395,11 +456,18 @@
     const m = modules.find((x) => x.id === row.dataset.id), st = status(m), I = lessonInfo(m), boss = isBoss(m);
     const btn = boss ? (st === "done" ? "Retake quiz" : st === "started" ? "Continue quiz" : "Start quiz +20 XP") : st === "done" ? "Review +5 XP" : st === "started" ? "Continue" : "Start +10 XP";
     nodePopEl = el(`<div class="node-pop"><b>${m.title}</b><small>${boss ? "Boss quiz" : `Lesson ${I.idx} of ${I.of} · ${m.num}`}</small><p>${m.blurb || ""}</p>
-      <details class="np-more"><summary>${boss ? "What it covers" : "What's inside"}</summary>${infoList(I)}</details>${infoChips(I)}<button class="btn big np-go">${btn}</button></div>`);
+      <details class="np-more"><summary>${boss ? "What it covers" : "What's inside"}</summary>${infoList(I)}</details>${infoChips(I)}<button class="btn big np-go">${btn}</button>${!boss && st === "started" && (store.get("nic.lessonPos", {})[m.id] || 0) > 0 ? `<button class="np-restart">Start over</button>` : ""}</div>`);
     row.appendChild(nodePopEl);
+    { // stay inside the screen on phones; the arrow keeps pointing at the node
+      const r = nodePopEl.getBoundingClientRect(), dx = r.right > innerWidth - 12 ? r.right - (innerWidth - 12) : r.left < 12 ? r.left - 12 : 0;
+      if (dx) { nodePopEl.style.marginLeft = `${-dx}px`; nodePopEl.style.setProperty("--ax", `${dx}px`); }
+    }
     NIC.sfx.play("pop");
     if (fx.ok) fx.animate(nodePopEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateX(-50%) translateY(-10px) scale(0.85)", "translateX(-50%) translateY(0px) scale(1)"] }, { type: "spring", duration: 0.4, bounce: 0.35 });
     qs(".np-go", nodePopEl).addEventListener("click", (e) => { e.stopPropagation(); closeNodePop(); location.hash = m.id; });
+    const rs = qs(".np-restart", nodePopEl);
+    if (rs) rs.addEventListener("click", (e) => { e.stopPropagation(); const p = store.get("nic.lessonPos", {}); delete p[m.id]; store.set("nic.lessonPos", p); closeNodePop(); location.hash = m.id; });
+    setTimeout(() => { if (nodePopEl) qs(".np-go", nodePopEl).focus({ preventScroll: true }); }, 30);
     const r = nodePopEl.getBoundingClientRect();
     if (r.bottom > innerHeight - 90) window.scrollBy({ top: r.bottom - innerHeight + 110, behavior: fx.reduce() ? "auto" : "smooth" });
   }
@@ -407,8 +475,15 @@
   // =====================================================================
   //  Practice + Profile pages
   // =====================================================================
-  function practicePage() {
-    const miss = NIC.player.missed.all();
+  function practicePage(tab) {
+    const miss = NIC.player.missed.all(), due = NIC.bank ? NIC.bank.stats().due : 0;
+    tab = tab || (miss.length && !due ? "mistakes" : "due");
+    const tabs = el(`<div class="page side-page pr-tabs-wrap"><div class="seg pr-tabs" role="tablist">
+      <button role="tab" data-t="due" aria-selected="${tab === "due"}" class="${tab === "due" ? "on" : ""}">Due reviews${due ? ` <i class="pr-n">${due}</i>` : ""}</button>
+      <button role="tab" data-t="mistakes" aria-selected="${tab === "mistakes"}" class="${tab === "mistakes" ? "on" : ""}">Mistakes${miss.length ? ` <i class="pr-n">${miss.length}</i>` : ""}</button></div></div>`);
+    main.appendChild(tabs);
+    qsa("[data-t]", tabs).forEach((b) => b.addEventListener("click", () => { location.hash = "practice/" + b.dataset.t; }));
+    if (tab === "due") { NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])) }); return; }
     const page = el(`<div class="page side-page">
       <div class="sp-hero u-violet">${NIC.mascot({ who: "berry", size: 140, mood: "determined", act: "headbang", acc: ["headphones"] })}<div><h1>Practice</h1><p>Mistakes you made land here. Fix them and they're gone. The rest is a mixed refresh from lessons you've finished.</p></div></div>
       <div class="card sp-card"><div class="sp-stat"><b>${miss.length}</b><span>mistakes waiting</span></div><button class="btn big primary" id="pStart">Start practice</button></div>
@@ -416,7 +491,7 @@
       ${miss.length ? `<div class="card"><h3>Waiting to be fixed</h3><ul class="sp-list">${miss.slice(-6).reverse().map((x) => { const Q = x.boss ? (NIC.bossDef(x.boss) || { qs: [] }).qs[x.i] : x.Q; return Q ? `<li>${Q.q}</li>` : ""; }).join("")}</ul></div>` : ""}
     </div>`);
     main.appendChild(page);
-    qs("#pStart", page).addEventListener("click", () => NIC.player.practice({ home: "practice" }));
+    qs("#pStart", page).addEventListener("click", () => NIC.player.practice({ home: "practice/mistakes" }));
     fx.enter(Array.from(page.children), { stagger: 0.06 });
   }
 
@@ -431,7 +506,7 @@
       <div class="stat-grid">
         <div class="pf-stat">${IC.flame.replace('fill="currentColor"', 'fill="#ff9600"')}<b>${game.streak()}</b><span>Day streak</span></div>
         <div class="pf-stat"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#ffc800" stroke="#ff9600" stroke-width="1.6" stroke-linejoin="round"/></svg><b>${game.totalXP()}</b><span>Total XP</span></div>
-        <div class="pf-stat">${IC.check.replace('stroke="currentColor"', 'stroke="#58cc02"')}<b>${st.lessons || 0}</b><span>Lessons done</span></div>
+        <div class="pf-stat">${IC.check.replace('stroke="currentColor"', 'stroke="#58cc02"')}<b>${Object.keys(store.get("nic.lessonDone", {})).length}</b><span>Lessons done</span></div>
         <div class="pf-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#1cb0f6" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#1cb0f6"/></svg><b>${st.answered ? Math.round((100 * st.right) / st.answered) : 0}%</b><span>Accuracy</span></div>
       </div>
       <h2>Achievements</h2>${!game.ACH.some((a) => ach[a.id]) && NIC.art ? `<div class="card ab-empty-card">${NIC.art.empty("achievements")}<b>No achievements yet</b><span class="faint">Finish your first lesson to unlock your first hat.</span></div>` : ""}
@@ -455,9 +530,13 @@
   //  Dock + routing
   // =====================================================================
   const dock = qs("#dock");
-  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span></button><button data-to="revise" aria-label="Revise">${NIC.revisePage.icon}<span>Revise</span></button><button data-to="profile" aria-label="Profile">${IC.face}<span>Profile</span></button>`;
+  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" hidden></i></button><button data-to="profile" aria-label="Profile">${IC.face}<span>Profile</span></button>`;
   qsa("button", dock).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to === "learn" ? SUBJECTS[course].home : b.dataset.to; }));
-  const setDock = (k) => qsa("button", dock).forEach((b) => b.classList.toggle("on", b.dataset.to === k));
+  const setDock = (k) => {
+    qsa("button", dock).forEach((b) => b.classList.toggle("on", b.dataset.to === k));
+    const n = (NIC.bank ? NIC.bank.stats().due : 0) + NIC.player.missed.all().length, bd = qs(".dk-badge", dock);
+    bd.hidden = !n; bd.textContent = n > 99 ? "99+" : n;
+  };
 
   /** First visit: pick a course and a daily goal, with Sprout waving. Shown once. */
   function onboarding() {
@@ -486,10 +565,11 @@
     main.innerHTML = "";
     const mod = modules.find((m) => m.id === id);
     if (!mod && NIC.player.isOpen()) NIC.player.close(true);
-    if (id === "practice" || id === "profile" || id === "revise") {
-      renderTop(); setDock(id);
-      document.title = `${id === "practice" ? "Practice" : id === "revise" ? "Revise" : "Profile"} · CSLingo`;
-      id === "practice" ? practicePage() : id === "revise" ? NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])) }) : profilePage();
+    const page = id.split("/")[0];
+    if (page === "practice" || page === "profile" || page === "revise") {
+      renderTop(); setDock(page === "profile" ? "profile" : "practice");
+      document.title = `${page === "profile" ? "Profile" : "Practice"} · CSLingo`;
+      page === "profile" ? profilePage() : practicePage(page === "revise" ? "due" : id.split("/")[1]);
       window.scrollTo(0, 0); return;
     }
     setDock("learn");
@@ -511,6 +591,7 @@
   //  Game events → top bar + toasts
   // =====================================================================
   game.on("xp", () => renderTop());
+  game.on("freeze", (d) => fx.toast(`${NIC.emo("ice")}<b>${d.earned ? "Streak freeze earned!" : "Streak freeze used"}</b><span>${d.earned ? `You have ${d.left}. It covers a day you miss.` : "Yesterday was covered, so your streak is safe."}</span>`, { tone: "blue", ms: 3200 }));
   game.on("goal", (d) => { setTimeout(() => fx.lottieAt(qs(".tb-xp"), "levelup", { size: 160 }), 150); fx.toast(`${NIC.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>Daily goal reached!</b><span>${d.today} XP today</span>`, { ms: 2400 }); NIC.sfx.play("achieve"); });
   game.on("quest", (q) => { if (q.done) { fx.toast(`${IC.chest}<b>Quest complete!</b><span>${q.t}. Claim it from the chest.</span>`, { ms: 2600 }); setTimeout(() => NIC.sfx.play("chest"), 200); renderTop(); } });
   game.on("ach", (a) => { setTimeout(() => { fx.toast(`${NIC.mascot({ who: "sprout", size: 44, mood: "laugh", acc: [a.acc], poke: false })}<b>${a.t}!</b><span>Unlocked: ${NIC.cast.ACC[a.acc].name}</span>`, { ms: 2800 }); NIC.sfx.play("achieve"); }, 900); });
@@ -532,4 +613,7 @@
   updateScore();
   route();
   setTimeout(onboarding, 400);
+  // offline + installable: only on the deployed site (dev servers and file:// would cache stale work)
+  if ("serviceWorker" in navigator && location.protocol === "https:" && !/^(localhost|127\.|\[::1\])/.test(location.hostname))
+    addEventListener("load", () => navigator.serviceWorker.register(`sw.js?v=${NIC.BUILD}`).catch(() => {}));
 })();

@@ -105,7 +105,7 @@
     const who = o.who || (N.player && N.player.state && N.player.state().who) || "sprout";
     const root = N.el(`<div class="rn" tabindex="0" aria-label="Step-through figure. Arrow keys step, space plays.">
       <div class="rn-grid ${o.code ? "has-code" : ""}"><div class="rn-stage"></div>${o.code ? `<ol class="rn-code">${o.code.map((l, n) => `<li data-n="${n + 1}"><code>${N.esc(l)}</code></li>`).join("")}</ol>` : ""}</div>
-      <div class="rn-cap">${N.mascot ? N.mascot({ who, size: 46, mood: "idle", cls: "rn-m" }) : ""}<div class="rn-bubble"><span class="rn-n"></span><span class="rn-t"></span></div></div>
+      <div class="rn-dock"><div class="rn-cap">${N.mascot ? N.mascot({ who, size: 46, mood: "idle", cls: "rn-m" }) : ""}<div class="rn-bubble" aria-live="polite"><span class="rn-n"></span><span class="rn-t"></span></div></div>
       <div class="rn-ask" hidden></div>
       <div class="rn-bar">
         <button class="rn-b" data-a="back" aria-label="Step back">${I.back}</button>
@@ -114,7 +114,7 @@
         <input class="rn-scrub" type="range" min="0" max="1" value="0" aria-label="Scrub through the steps">
         <button class="rn-b rn-speed" data-a="speed" aria-label="Speed">1×</button>
         <button class="rn-b" data-a="again" aria-label="Restart">${I.again}</button>
-      </div></div>`);
+      </div></div></div>`);
     box.appendChild(root);
     const $ = (s) => root.querySelector(s);
     const stage = $(".rn-stage"), cap = $(".rn-t"), num = $(".rn-n"), scrub = $(".rn-scrub"), askBox = $(".rn-ask"), playBtn = $(".rn-play");

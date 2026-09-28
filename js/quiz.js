@@ -29,7 +29,7 @@
     mcq: {
       label: "Choose one",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="opts">${Q.o.map((o, k) => `<button class="opt" data-k="${k}"><span class="opt-l">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`).join("")}</div>`;
+        box.innerHTML = `<div class="opts" role="radiogroup">${Q.o.map((o, k) => `<button class="opt" role="radio" aria-checked="false" data-k="${k}"><span class="opt-l">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`).join("")}</div>`;
         qsa(".opt", box).forEach((b) => (b.onclick = () => submit(+b.dataset.k)));
       },
       grade: (Q, v) => v === Q.a,
@@ -104,16 +104,35 @@
     },
     match: {
       label: "Match each pair",
+      /* Tap a left tile, then its partner on the right (Duolingo style). Tap a paired tile to undo it. v[k] = index of the right chosen for left k. */
       render(Q, box, submit, idKey) {
         const rights = seeded(Q.pairs.map((p) => p[1]), idKey + "m");
-        box.innerHTML = `<div class="q-match">${Q.pairs.map(([l], k) => `<div class="qm-row" data-k="${k}"><span class="qm-l">${l}</span><span class="qm-arrow">→</span><select aria-label="match for ${esc(String(l).replace(/<[^>]+>/g, ""))}"><option value="">choose…</option>${rights.map(([r, i]) => `<option value="${i}">${String(r).replace(/<[^>]+>/g, "")}</option>`).join("")}</select></div>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
-        const sels = qsa("select", box), chk = qs("[data-check]", box);
-        sels.forEach((s) => (s.onchange = () => (chk.disabled = sels.some((x) => x.value === ""))));
-        chk.onclick = () => submit(sels.map((s) => +s.value));
+        box.innerHTML = `<div class="q-match"><div class="qm-col">${Q.pairs.map(([l], k) => `<button class="qm-t qm-l" data-k="${k}" aria-pressed="false">${l}</button>`).join("")}</div>
+          <div class="qm-col">${rights.map(([r, i]) => `<button class="qm-t qm-r" data-i="${i}" aria-pressed="false">${r}</button>`).join("")}</div></div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        const pair = Q.pairs.map(() => -1), chk = qs("[data-check]", box);
+        let armed = null; // a left index waiting for its partner
+        const paint = () => {
+          qsa(".qm-l", box).forEach((b) => { const k = +b.dataset.k; b.className = `qm-t qm-l${pair[k] >= 0 ? " paired p" + (k % 5) : ""}${armed === k ? " sel" : ""}`; b.setAttribute("aria-pressed", pair[k] >= 0 || armed === k); });
+          qsa(".qm-r", box).forEach((b) => { const k = pair.indexOf(+b.dataset.i); b.className = `qm-t qm-r${k >= 0 ? " paired p" + (k % 5) : ""}`; b.setAttribute("aria-pressed", k >= 0); });
+          chk.disabled = pair.includes(-1);
+        };
+        qsa(".qm-l", box).forEach((b) => (b.onclick = () => { const k = +b.dataset.k; if (pair[k] >= 0) { pair[k] = -1; armed = k; } else armed = armed === k ? null : k; paint(); N.sfx && N.sfx.play("select"); }));
+        qsa(".qm-r", box).forEach((b) => (b.onclick = () => {
+          const i = +b.dataset.i, had = pair.indexOf(i);
+          if (armed === null) { if (had >= 0) { pair[had] = -1; armed = had; paint(); } return; }
+          if (had >= 0) pair[had] = -1;
+          pair[armed] = i; armed = null; paint();
+          N.sfx && N.sfx.play("pop");
+          if (N.fx) N.fx.pop(b);
+        }));
+        chk.onclick = () => submit(pair.slice());
+        paint();
       },
       grade: (Q, v) => v.every((x, k) => x === k),
       reveal(Q, box, v) {
-        qsa(".qm-row", box).forEach((r, k) => { const s = qs("select", r); s.value = v[k]; s.disabled = true; r.classList.add(v[k] === k ? "right" : "wrong"); if (v[k] !== k) r.insertAdjacentHTML("beforeend", `<span class="qm-fix">✓ ${Q.pairs[k][1]}</span>`); });
+        qsa(".qm-t", box).forEach((b) => (b.disabled = true));
+        qsa(".qm-l", box).forEach((b) => { const k = +b.dataset.k, ok = v[k] === k; b.classList.add(ok ? "right" : "wrong"); if (!ok) b.insertAdjacentHTML("beforeend", `<span class="qm-fix">✓ ${Q.pairs[k][1]}</span>`); });
+        qsa(".qm-r", box).forEach((b) => { const k = v.indexOf(+b.dataset.i); b.classList.add(k === +b.dataset.i ? "right" : "wrong"); });
         qsa(".q-actions", box).forEach((a) => a.remove());
       },
       answer: (Q) => Q.pairs.map(([l, r]) => `${String(l).replace(/<[^>]+>/g, "")} → ${String(r).replace(/<[^>]+>/g, "")}`).join(" · "),

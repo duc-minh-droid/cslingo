@@ -10,7 +10,7 @@ async function bossTest() {
     for (let guard = 0; guard < 80; guard++) {
       const st = NIC.player.state();
       if (!st.open) break;
-      if (st.kind === "bossResult") break;
+      if (st.kind === "bossResult" || st.kind === "complete") break; // a perfect run skips straight to complete
       if (st.Q && /check/.test(st.foot)) {
         try { const ok = await answerCurrent(); if (!ok) failures.push(`${m.id} ${st.key} (${st.Q.type || "mcq"}) graded wrong`); }
         catch (e) { failures.push(`${m.id} ${st.key}: ${e.message}`); break; }

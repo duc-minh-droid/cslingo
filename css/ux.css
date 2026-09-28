@@ -195,3 +195,10 @@ svg.fig { width: 100%; display: block; overflow: visible; }
 .surface-gl canvas { display: block; }
 .surface-labels { position: absolute; inset: 0; pointer-events: none; }
 .surface-labels span { position: absolute; left: 0; top: 0; padding: 2px 8px; border-radius: 99px; background: rgba(255,255,255,.9); border: 2px solid var(--line); font-size: 12px; font-weight: 800; color: var(--text); white-space: nowrap; }
+
+/* Tap targets: at least 44px for anything you press (WCAG 2.5.5 / Duolingo-sized) */
+.pl-x, .pl-ref { width: 44px; height: 44px; }
+.modal-x { width: 44px; height: 44px; }
+.rn-b { min-width: 44px; height: 44px; }
+.seg button, .qc-row button, .qo-pool .chip-btn, .qc-seg button { min-height: 44px; }
+.ob-modal { padding: 20px 20px 22px; }

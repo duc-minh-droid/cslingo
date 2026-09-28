@@ -11,7 +11,7 @@ MAP = {
     "🎩": "top-hat", "✂": "scissors", "✈": "airplane", "🔁": "repeat-button", "🐞": "lady-beetle",
     "💀": "skull", "🚐": "minibus", "🚚": "delivery-truck", "📈": "chart-increasing", "🤖": "robot",
     "🎯": "bullseye", "🐒": "monkey", "🦎": "lizard", "🚗": "automobile", "📡": "satellite-antenna",
-    "📅": "calendar", "💧": "droplet", "🥾": "hiking-boot", "🔥": "fire", "⚠": "warning",
+    "📅": "calendar", "💧": "droplet", "🥾": "hiking-boot", "🔥": "fire", "🧊": "ice", "⚠": "warning",
     "🇬🇧": "crown", "🇺🇸": "statue-of-liberty",  # Fluent has no flags: London / New York stand-ins
 }
 # Topic icon for each lesson's path node (module id -> Fluent name). Add one when you add a module.

@@ -106,7 +106,7 @@
   // ---------- extras used by actions ----------
   const EXTRAS = `
     <g class="x x-balls"><circle class="xb b1" r="6" fill="#ff4b4b"/><circle class="xb b2" r="6" fill="#1cb0f6"/><circle class="xb b3" r="6" fill="#ffc800"/></g>
-    <g class="x x-zzz" style="font:900 14px var(--sans)" fill="#1cb0f6"><text class="xz z1" x="84" y="30">z</text><text class="xz z2" x="92" y="20">Z</text><text class="xz z3" x="100" y="8">Z</text></g>
+    <g class="x x-zzz" aria-hidden="true" style="font:900 14px var(--sans)" fill="#1cb0f6"><text class="xz z1" x="84" y="30">z</text><text class="xz z2" x="92" y="20">Z</text><text class="xz z3" x="100" y="8">Z</text></g>
     <g class="x x-notes" fill="#ce82ff"><path class="xn n1" d="M92 30 v-12 l8 -2 v12" stroke="#ce82ff" stroke-width="2.5" fill="none"/><circle class="xn n1" cx="90" cy="31" r="3"/><path class="xn n2" d="M22 26 v-12" stroke="#ce82ff" stroke-width="2.5"/><circle class="xn n2" cx="20" cy="27" r="3"/></g>
     <g class="x x-stars" fill="#ffc800"><path class="xs s1" d="M0 -6 l1.8 4 4.2 .5 -3.1 2.9 .8 4.2 -3.7 -2.1 -3.7 2.1 .8 -4.2 -3.1 -2.9 4.2 -.5z"/><path class="xs s2" d="M0 -6 l1.8 4 4.2 .5 -3.1 2.9 .8 4.2 -3.7 -2.1 -3.7 2.1 .8 -4.2 -3.1 -2.9 4.2 -.5z"/><path class="xs s3" d="M0 -6 l1.8 4 4.2 .5 -3.1 2.9 .8 4.2 -3.7 -2.1 -3.7 2.1 .8 -4.2 -3.1 -2.9 4.2 -.5z"/></g>
     <g class="x x-puff" fill="#e5e5e5"><circle cx="100" cy="80" r="8"/><circle cx="110" cy="72" r="6"/><circle cx="112" cy="86" r="5"/></g>

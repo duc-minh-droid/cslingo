@@ -33,15 +33,22 @@
 
   // ---------- streak ----------
   const days = () => store.get(K.days, []);
+  // Streak freeze: finishing all three daily quests earns one (hold up to 2). A missed day is covered automatically.
+  const frz = () => store.get("nic.freeze", { n: 0, used: [] });
+  const covered = () => new Set([...days(), ...frz().used]);
+  function applyFreeze() {
+    const f = frz(), set = covered(), y = addDays(today(), -1);
+    if (f.n > 0 && !set.has(y) && set.has(addDays(today(), -2))) { f.n--; f.used = [...f.used, y].slice(-60); store.set("nic.freeze", f); emit("freeze", { date: y, left: f.n }); }
+  }
   function streak() {
-    const set = new Set(days());
+    const set = covered();
     let d = set.has(today()) ? today() : addDays(today(), -1), n = 0;
     while (set.has(d)) { n++; d = addDays(d, -1); }
     return n;
   }
   const week = () => { // Mon..Sun of the current week: [{date, label, on, today}]
-    const now = new Date(), dow = (now.getDay() + 6) % 7, set = new Set(days());
-    return Array.from({ length: 7 }, (_, i) => { const s = addDays(today(), i - dow); return { date: s, label: "MTWTFSS"[i], on: set.has(s), today: s === today() }; });
+    const now = new Date(), dow = (now.getDay() + 6) % 7, set = new Set(days()), fz = new Set(frz().used);
+    return Array.from({ length: 7 }, (_, i) => { const s = addDays(today(), i - dow); return { date: s, label: "MTWTFSS"[i], on: set.has(s) || fz.has(s), frozen: fz.has(s) && !set.has(s), today: s === today() }; });
   };
 
   // ---------- stats ----------
@@ -78,6 +85,7 @@
     const q = store.get(K.quests); const it = q && q.list.find((x) => x.id === id);
     if (!it || !it.done || it.claimed) return 0;
     it.claimed = true; store.set(K.quests, q);
+    if (q.list.every((x) => x.claimed)) { const f = frz(); if (f.n < 2) { f.n++; store.set("nic.freeze", f); emit("freeze", { earned: true, left: f.n }); } }
     award(10, "quest");
     emit("quest", { id, claimed: true });
     return 10;
@@ -122,9 +130,11 @@
   const unlockedAcc = () => { const s = achState(); return [...FREE, ...ACH.filter((a) => s[a.id]).map((a) => a.acc)]; };
 
   // ---------- lesson completion ----------
-  function lessonDone({ acc = 1, review = false } = {}) {
+  /** kind: "lesson" | "boss" | "practice" | "revise". Practice and revision keep the streak alive but aren't lessons. */
+  function lessonDone({ acc = 1, review = false, kind = "lesson" } = {}) {
     const t = today(), list = days(), first = !list.includes(t), before = streak();
     if (first) { list.push(t); store.set(K.days, list.slice(-400)); }
+    if (kind === "practice" || kind === "revise") { if (first) emit("streak", { from: before, to: streak() }); return { firstToday: first, streakFrom: before, streak: streak(), review }; }
     const s = bump("lessons");
     track("lesson");
     if (acc >= 0.9) track("acc90");
@@ -139,6 +149,7 @@
   function answered(ok) { const s = stats(); s.answered++; if (ok) s.right++; store.set(K.stats, s); }
 
   NIC.game = { today, award, track, on, goal, setGoal: (g) => { store.set(K.goal, g); emit("xp", { n: 0, total: xpState().total, today: todayXP() }); },
-    todayXP, totalXP: () => xpState().total, streak, week, quests, claim, claimable, stats, answered, lessonDone, unlock, ACH, achState, unlockedAcc, FREE };
+    todayXP, totalXP: () => xpState().total, streak, freezes: () => frz().n, doneToday: () => days().includes(today()), week, quests, claim, claimable, stats, answered, lessonDone, unlock, ACH, achState, unlockedAcc, FREE };
   if (NIC.cast) NIC.cast.unlocked = unlockedAcc;
+  applyFreeze();
 })();

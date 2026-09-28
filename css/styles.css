@@ -1,3 +1,6 @@
+/* Nunito (variable, SIL OFL; vendor/fonts/LICENSE.txt), self-hosted so the app makes no third-party requests */
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 200 1000; font-display: swap; src: url("../vendor/fonts/nunito-latin-wght-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Nunito"; font-style: normal; font-weight: 200 1000; font-display: swap; src: url("../vendor/fonts/nunito-latin-ext-wght-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 /* =====================================================================
    CSLingo — "storybook" theme
    White paper canvas, chunky rounded type, one saturated green for progress,
@@ -14,8 +17,8 @@
   --line: #e5e5e5;
   --line-2: #d4d4d4;
   --text: #4b4b4b;
-  --text-dim: #777777;
-  --text-faint: #a0a0a0;
+  --text-dim: #6b6b6b;
+  --text-faint: #767676;
   --ink: #3c3c3c;
 
   --teal: #58cc02;            /* "Eager green" — progress, correct, primary */
@@ -71,7 +74,7 @@ kbd { font-family: var(--sans); font-weight: 800; font-size: 11px; color: var(--
 
 
 /* ---------- Main ---------- */
-.main { max-width: 640px; margin: 0 auto; padding: 18px 16px 120px; }
+.main { max-width: 640px; margin: 0 auto; padding: 18px 16px 120px; overflow-x: clip; }
 
 .kicker {
   display: inline-block; color: var(--teal-ink); background: var(--teal-dim);

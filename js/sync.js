@@ -72,9 +72,14 @@
       <p>This browser has <b>${n(local)}</b> finished lessons. Your account has <b>${n(cloud)}</b>. Which should win?</p>
       <div class="controls"><button class="btn primary" data-k="cloud">Use my account's</button><button class="btn" data-k="local">Use this browser's</button></div></div></div>`);
     document.body.appendChild(box);
+    N.shield(true);
+    const done = () => { box.remove(); N.shield(false); document.removeEventListener("keydown", esc); };
+    const esc = (e) => { if (e.key === "Escape") done(); };  // Esc = decide later; nothing is overwritten
+    document.addEventListener("keydown", esc);
+    box.querySelector("[data-k]").focus();
     box.addEventListener("click", async (e) => {
       const b = e.target.closest("[data-k]"); if (!b) return;
-      box.remove();
+      done();
       if (b.dataset.k === "cloud") apply(cloud, cloudT); else { await push({ force: true }); toast("Progress saved to your account", "Your account now matches this browser."); }
     });
   }
