@@ -10,12 +10,25 @@
   const EASE_IO = [0.77, 0, 0.175, 1];
   const list = (t) => (!t ? [] : t instanceof Element ? [t] : Array.from(t));
   const run = (el, kf, opts) => (ok ? M.animate(el, kf, opts) : null);
+  /* Motion tokens, in seconds. They mirror the --dur-* custom properties in css/motion.css. */
+  const DUR = { press: 0.04, xs: 0.09, s: 0.16, m: 0.24, l: 0.32, bar: 0.42 };
+  const SPRING = { type: "spring", duration: 0.4, bounce: 0.3 };       // feedback settle
+  const SPRING_UI = { type: "spring", duration: 0.35, bounce: 0.2 };   // indicators, popovers
+  const SPRING_POP = { type: "spring", duration: 0.5, bounce: 0.55 };  // badges, icons, check marks
+  /** Drop the inline styles Motion leaves behind once `a` finishes, so CSS (:active, sticky, hover) keeps working. */
+  // Motion can write the final frame one frame after `finished` resolves (seen on animations started during page load),
+  // so clear once now and once more after the next frame.
+  const clean = (el, a, props = ["transform", "opacity"]) => {
+    const clear = () => props.forEach((p) => (el.style[p] = ""));
+    if (a) a.finished.then(() => { clear(); requestAnimationFrame(() => setTimeout(clear, 0)); }).catch(() => {});
+    return a;
+  };
 
-  /** Staggered entrance: fade + small rise. Used for page assembly and freshly inserted content. */
-  function enter(targets, { y = 8, delay = 0, stagger = 0.045, dur = 0.3 } = {}) {
+  /** Staggered entrance: fade + small rise (or slide, with x). Used for page assembly and freshly inserted content. */
+  function enter(targets, { y = 8, x = 0, delay = 0, stagger = 0.045, dur = 0.3 } = {}) {
     const els = list(targets).filter(Boolean);
     if (!ok || !els.length) return;
-    const kf = reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translateY(${y}px)`, "translateY(0px)"] };
+    const kf = reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: [`translate(${x}px, ${y}px)`, "translate(0px, 0px)"] };
     els.forEach((el, i) => {
       const a = run(el, kf, { duration: reduce() ? 0.2 : dur, delay: delay + i * stagger, ease: EASE });
       // leave no inline transform behind (sticky children, tooltips and z-stacking stay sane)
@@ -41,13 +54,67 @@
   /** Positive feedback: a small spring settle. */
   function pop(el) {
     if (!ok || !el || reduce()) return;
-    run(el, { transform: ["scale(0.96)", "scale(1)"] }, { type: "spring", duration: 0.4, bounce: 0.25 });
+    clean(el, run(el, { transform: ["scale(0.96)", "scale(1)"] }, { type: "spring", duration: 0.4, bounce: 0.25 }), ["transform"]);
+  }
+
+  /** Correct answer: the tile hops up a touch and settles (Duolingo's happy bounce). */
+  function bounce(el) {
+    if (!ok || !el || reduce()) return null;
+    return clean(el, run(el, { transform: ["scale(1)", "scale(1.05)", "scale(0.985)", "scale(1)"] }, { duration: 0.42, ease: EASE, times: [0, 0.3, 0.65, 1] }), ["transform"]);
+  }
+
+  /** Something changed (a counter, a selected icon): quick springy scale bump, optionally with a hop. */
+  function bump(el, { scale = 1.2, y = 0 } = {}) {
+    if (!ok || !el || reduce()) return null;
+    return clean(el, run(el, { transform: ["translateY(0px) scale(1)", `translateY(${y}px) scale(${scale})`, `translateY(0px) scale(${1 - (scale - 1) / 4})`, "translateY(0px) scale(1)"] }, { duration: 0.4, ease: EASE, times: [0, 0.35, 0.7, 1] }), ["transform"]);
+  }
+
+  /** Spring an element in from a small scale (path nodes, badges, check marks). Reduced motion: fade only. */
+  function springIn(el, { delay = 0, from = 0.3, rot = 0, bounce: b = 0.45, dur = 0.55 } = {}) {
+    if (!el) return null;
+    if (!ok) { el.style.opacity = ""; return null; }
+    const a = reduce() ? run(el, { opacity: [0, 1] }, { duration: 0.2, delay })
+      : run(el, { opacity: [0, 1], transform: [`scale(${from}) rotate(${rot}deg)`, "scale(1) rotate(0deg)"] }, { type: "spring", duration: dur, bounce: b, delay });
+    return clean(el, a);
+  }
+
+  /** Exit animation; resolves when done (at once without Motion) so the caller can remove the element.
+      `base` keeps a transform the element already has in CSS (e.g. "translateX(-50%)"). */
+  function exit(el, { x = 0, y = 0, scale = 0.96, dur = DUR.s, base = "" } = {}) {
+    if (!ok || !el) return Promise.resolve();
+    const kf = reduce() || (!x && !y && scale === 1) ? { opacity: [1, 0] } : { opacity: [1, 0], transform: [`${base} translate(0px, 0px) scale(1)`, `${base} translate(${x}px, ${y}px) scale(${scale})`] };
+    const a = run(el, kf, { duration: dur, ease: [0.4, 0, 1, 1] });
+    return a ? a.finished.catch(() => {}) : Promise.resolve();
   }
 
   /** Negative feedback: short horizontal shake (element is disabled afterwards, so it can't be re-triggered rapidly). */
   function shake(el) {
     if (!ok || !el || reduce()) return;
-    run(el, { transform: ["translateX(0px)", "translateX(-5px)", "translateX(5px)", "translateX(-3px)", "translateX(2px)", "translateX(0px)"] }, { duration: 0.32, ease: "easeOut" });
+    clean(el, run(el, { transform: ["translateX(0px)", "translateX(-5px)", "translateX(5px)", "translateX(-3px)", "translateX(2px)", "translateX(0px)"] }, { duration: 0.32, ease: "easeOut" }), ["transform"]);
+  }
+
+  /**
+   * Page change. Runs update() inside a View Transition when the browser has one, so the old page slides out
+   * (dir 1 = forward/right, -1 = back/left, 0 = crossfade; see css/motion.css). update() then runs a frame later.
+   * Without the API it runs update() at once and fades `el` in. Returns true when a transition started.
+   */
+  let vtCur = null;
+  function swap(update, { dir = 0, el = null } = {}) {
+    const d = document.documentElement;
+    const safe = () => { try { update(); } catch (e) { setTimeout(() => { throw e; }); } }; // surface errors like a normal route would
+    if (!document.startViewTransition) {
+      update();
+      if (el && ok) clean(el, run(el, { opacity: [0, 1] }, { duration: DUR.s, ease: EASE }), ["opacity"]);
+      return false;
+    }
+    d.dataset.vt = reduce() || !dir ? "fade" : dir > 0 ? "fwd" : "back";
+    let t;
+    try { t = document.startViewTransition(safe); } catch { delete d.dataset.vt; update(); return false; }
+    vtCur = t;
+    [t.ready, t.updateCallbackDone].forEach((p) => p && p.catch(() => {})); // a skipped transition rejects these
+    const done = () => { if (vtCur === t) { vtCur = null; delete d.dataset.vt; } };
+    t.finished.then(done, done);
+    return true;
   }
 
   /** Reveal content that was just unhidden (explanations, feedback). */
@@ -88,8 +155,9 @@
     });
   }
 
-  /** Scroll-reveal for cards below the fold. Fires once; content is never left hidden if Motion is missing. */
-  function onView(targets) {
+  /** Scroll-reveal for cards below the fold. Fires once; content is never left hidden if Motion is missing.
+      `run(el)` replaces the default fade-rise (it must restore opacity, as enter and springIn do). */
+  function onView(targets, { run: show = (el) => enter(el, { y: 12 }) } = {}) {
     const els = list(targets), stops = [];
     if (!ok || !M.inView) return () => {};
     const vh = window.innerHeight;
@@ -97,7 +165,7 @@
       if (el.getBoundingClientRect().top < vh * 0.92) return; // already on screen — the page entrance covers it
       el.style.opacity = "0";
       let stop = null;
-      stop = M.inView(el, () => { enter(el, { y: 12 }); if (stop) stop(); }, { margin: "0px 0px -8% 0px" });
+      stop = M.inView(el, () => { show(el); if (stop) stop(); }, { margin: "0px 0px -8% 0px" });
       stops.push(stop);
     });
     return () => stops.forEach((s) => s && s());
@@ -210,5 +278,5 @@
     lottie(layer, name).then((a) => { if (!a) return layer.remove(); a.addEventListener("complete", () => layer.remove()); setTimeout(() => layer.remove(), 4000); });
   }
 
-  NIC.fx = { lottie, lottieAt, ok, reduce, EASE, EASE_IO, enter, step, pop, shake, reveal, count, play, onView, celebrate, floatText, toast, watchStats, animate: run };
+  NIC.fx = { lottie, lottieAt, ok, reduce, EASE, EASE_IO, DUR, SPRING, SPRING_UI, SPRING_POP, clean, enter, step, pop, bounce, bump, springIn, exit, swap, shake, reveal, count, play, onView, celebrate, floatText, toast, watchStats, animate: run };
 })();

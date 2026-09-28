@@ -15,7 +15,7 @@
   Chart.defaults.font.family = css("--sans") || "Nunito, system-ui, sans-serif";
   Chart.defaults.font.weight = 700;
   Chart.defaults.font.size = 11.5;
-  Chart.defaults.color = "#a0a0a0";
+  Chart.defaults.color = css("--text-faint") || "#a0a0a0";
 
   /** colour + alpha for hex (#rgb/#rrggbb) or rgb()/rgba() strings */
   function alpha(c, a) {
@@ -60,8 +60,8 @@
   };
 
   const tooltip = {
-    backgroundColor: "#fff", borderColor: "#e5e5e5", borderWidth: 2, cornerRadius: 12, padding: 10,
-    titleColor: "#4b4b4b", bodyColor: "#4b4b4b", titleFont: { weight: 900 }, bodyFont: { weight: 700 },
+    get backgroundColor() { return css("--panel"); }, get borderColor() { return css("--line"); }, borderWidth: 2, cornerRadius: 12, padding: 10,
+    get titleColor() { return css("--ink"); }, get bodyColor() { return css("--text"); }, titleFont: { weight: 900 }, bodyFont: { weight: 700 },
     boxPadding: 5, usePointStyle: true, caretSize: 6, displayColors: true,
   };
 
@@ -125,14 +125,14 @@
       data: s.data.map((v, i) => ({ x: i, y: clean(v) })),
       borderColor: s.color, backgroundColor: s.color, pointBackgroundColor: s.color,
       borderWidth: s.width || 3, borderDash: s.dash || [], borderCapStyle: "round", borderJoinStyle: "round",
-      pointRadius: s.dots ? 3.5 : 0, pointHoverRadius: 6, pointHoverBorderWidth: 3, pointHoverBorderColor: "#fff",
+      pointRadius: s.dots ? 3.5 : 0, pointHoverRadius: 6, pointHoverBorderWidth: 3, pointHoverBorderColor: css("--panel"),
       tension: 0.25, spanGaps: false,
       fill: k === 0 && !s.dash && series.length <= 3 ? "origin" : false,
       ...(k === 0 && !s.dash ? { backgroundColor: (c) => { const a = c.chart.chartArea; if (!a) return alpha(s.color, 0.12); const g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom); g.addColorStop(0, alpha(s.color, 0.28)); g.addColorStop(1, alpha(s.color, 0.02)); return g; } } : {}),
     }));
     const scales = () => ({
       x: { type: "linear", min: 0, max: n - 1, grid: { display: false }, border: { display: false }, ticks: { maxTicksLimit: 6, precision: 0 }, title: { display: !!opts.xLabel, text: opts.xLabel || "", align: "start", font: { weight: 800 } } },
-      y: { min: opts.yMin, max: opts.yMax, grid: { color: "#f0f0f0", lineWidth: 2 }, border: { display: false }, ticks: { maxTicksLimit: 5 } },
+      y: { min: opts.yMin, max: opts.yMax, grid: { color: css("--line-soft"), lineWidth: 2 }, border: { display: false }, ticks: { maxTicksLimit: 5 } },
     });
     return upsert(canvas, "line", (b, reduce) => {
       const names = opts.names || legendNames(b, series.length);
@@ -185,7 +185,7 @@
     const dec = opts.decimals ?? 2;
     const scales = () => ({
       x: { grid: { display: false }, border: { display: false }, ticks: { autoSkip: !labels.some((l) => l === ""), maxRotation: 0 } },
-      y: { min: 0, max: opts.yMax, grid: { color: "#f0f0f0", lineWidth: 2 }, border: { display: false }, ticks: { maxTicksLimit: 5, callback: (v) => (+v).toFixed(dec) } },
+      y: { min: 0, max: opts.yMax, grid: { color: css("--line-soft"), lineWidth: 2 }, border: { display: false }, ticks: { maxTicksLimit: 5, callback: (v) => (+v).toFixed(dec) } },
     });
     return upsert(canvas, "bar", (b, reduce) => ({
       type: "bar",

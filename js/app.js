@@ -69,6 +69,9 @@
   //  Icons
   // =====================================================================
   const IC = {
+    sun: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+    moon: `<svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>`,
+    themeSys: `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 4v13" stroke="currentColor" stroke-width="2.2"/><path d="M12 4h6a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6z" fill="currentColor"/><path d="M8 21h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
     clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
     star: `<svg viewBox="0 0 24 24"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
     check: `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
@@ -86,7 +89,7 @@
     sound: `<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
     reset: `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   };
-  const ring = (f, r = 9, w = 3.5, col = "#ffc800") => { const L = 2 * Math.PI * r; return `<svg class="ring" viewBox="0 0 ${2 * r + w * 2} ${2 * r + w * 2}"><circle cx="${r + w}" cy="${r + w}" r="${r}" fill="none" stroke="#e5e5e5" stroke-width="${w}"/><circle class="ring-v" cx="${r + w}" cy="${r + w}" r="${r}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L * (1 - Math.min(1, f))}" transform="rotate(-90 ${r + w} ${r + w})"/></svg>`; };
+  const ring = (f, r = 9, w = 3.5, col = "#ffc800") => { const L = 2 * Math.PI * r; return `<svg class="ring" viewBox="0 0 ${2 * r + w * 2} ${2 * r + w * 2}"><circle cx="${r + w}" cy="${r + w}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${w}"/><circle class="ring-v" cx="${r + w}" cy="${r + w}" r="${r}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L * (1 - Math.min(1, f))}" transform="rotate(-90 ${r + w} ${r + w})"/></svg>`; };
 
   // =====================================================================
   //  Top bar + popovers + modal
@@ -105,12 +108,31 @@
         <button class="tb-btn tb-me" data-pop="me" aria-label="Menu">${NIC.mascot({ who: "sprout", size: 30, poke: false, acc: ["beanie"] })}</button>
       </div></div>`;
     qsa("[data-pop]", top).forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); togglePop(b.dataset.pop, b); }));
+    topBump(tx, st, tx / g);
     if (qs(".rail")) rail();
+  }
+  /** XP or streak went up (lesson, chest, quest): count up and bump once the bar is visible again, so you see it after a lesson. */
+  let topShown = null;
+  function topBump(tx, st, f) {
+    if (document.body.classList.contains("in-lesson")) return;
+    const was = topShown; topShown = { tx, st, f };
+    if (!was) return;
+    const up = (sel, from, to) => { const b = qs(sel, top), n = b && qs("b", b); if (!n) return; n.textContent = from; fx.count(n, to, { from, dur: 0.6 }); fx.bump(b, { scale: 1.18, y: -2 }); };
+    if (tx > was.tx) up(".tb-xp", was.tx, tx);
+    if (st > was.st) up(".tb-streak", was.st, st);
+    const rv = qs(".tb-xp .ring-v", top);
+    if (rv && was.f !== f) { const L = 2 * Math.PI * 9; rv.style.strokeDashoffset = L * (1 - Math.min(1, was.f)); void rv.getBoundingClientRect(); rv.style.strokeDashoffset = L * (1 - Math.min(1, f)); }
   }
 
   const pop = qs("#pop");
   let popKind = null;
-  function closePop() { if (!popKind) return; popKind = null; pop.hidden = true; pop.innerHTML = ""; }
+  function closePop() {
+    if (!popKind) return; popKind = null;
+    // exit: the card leaves as a ghost on <body> (it's position: fixed, so it stays put) while #pop is free for the next one
+    const card = qs(".pop-card", pop);
+    if (card && fx.ok && fx.exit) { card.classList.add("m-ghost"); card.style.zIndex = 45; document.body.appendChild(card); fx.exit(card, { y: -6, scale: 0.95 }).then(() => card.remove()); }
+    pop.hidden = true; pop.innerHTML = "";
+  }
   /** Wide screens: streak, daily goal and quests sit in a rail beside the path (Duolingo web layout). */
   const RAIL_MQ = matchMedia("(min-width: 1240px)");
   function rail() {
@@ -236,14 +258,24 @@
     const m = el(`<div class="modal-back"><div class="modal ${cls}" role="dialog" aria-modal="true"><button class="modal-x" aria-label="Close">✕</button>${html}</div></div>`);
     document.body.appendChild(m);
     NIC.shield(true);
-    const close = () => { if (m._open === false) return; m._open = false; m.remove(); document.removeEventListener("keydown", onK); NIC.shield(false); };
+    // close hands focus and the page back at once (so another modal can open straight away), then animates out and removes
+    const close = () => {
+      if (m._open === false) return; m._open = false;
+      document.removeEventListener("keydown", onK); NIC.shield(false);
+      if (!fx.ok || !fx.exit || !m.isConnected) return m.remove();
+      m.classList.add("m-ghost");
+      Promise.all([fx.exit(qs(".modal", m), { y: 14, scale: 0.96 }), fx.exit(m, { scale: 1, dur: 0.18 })]).then(() => m.remove());
+    };
     m.close = close;
     new MutationObserver((r, o) => { if (!m.isConnected) { o.disconnect(); document.removeEventListener("keydown", onK); if (m._open !== false) { m._open = false; NIC.shield(false); } } }).observe(document.body, { childList: true }); // callers may just m.remove()
     setTimeout(() => { const f = m.querySelector("input, .modal button:not(.modal-x)"); if (f) f.focus(); }, 30);
     const onK = (e) => { if (e.key === "Escape") close(); };
     document.addEventListener("keydown", onK);
     m.addEventListener("click", (e) => { if (e.target === m || e.target.closest(".modal-x")) close(); });
-    if (fx.ok) fx.animate(qs(".modal", m), fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.96)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.45, bounce: 0.25 });
+    if (fx.ok) {
+      fx.clean(m, fx.animate(m, { opacity: [0, 1] }, { duration: 0.18 }), ["opacity"]);
+      fx.animate(qs(".modal", m), fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.94)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.42, bounce: 0.3 });
+    }
     return m;
   }
 
@@ -368,7 +400,7 @@
               const ic = topic ? NIC.emo(topic, "p-topic") + (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "") : st === "done" ? (boss ? IC.trophy : IC.check) : boss ? IC.trophy : cur ? IC.play : IC.star;
               const L = NIC.LESSONS[m.id], pos = (store.get("nic.lessonPos", {})[m.id] || 0), frac = st === "started" && L ? Math.min(0.95, pos / (L.steps.length + L.steps.filter((x) => x.c).length + 2)) : 0;
               return `<div class="p-row st-${st} ${boss ? "boss" : ""} ${cur ? "cur" : ""}" style="--k:${zig(i).toFixed(3)};top:${i * ROW}px" data-id="${m.id}">
-                <button class="p-node" aria-label="${m.num} ${esc(m.title)}">${cur || st === "started" ? `<svg class="p-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#e5e5e5" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--u)" stroke-width="8" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289 * (1 - frac)}" transform="rotate(-90 50 50)"/></svg>` : ""}<span class="p-face">${ic}</span></button>
+                <button class="p-node" aria-label="${m.num} ${esc(m.title)}">${cur || st === "started" ? `<svg class="p-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--u)" stroke-width="8" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289 * (1 - frac)}" transform="rotate(-90 50 50)"/></svg>` : ""}<span class="p-face">${ic}</span></button>
                 ${cur ? `<span class="p-bubble">${status(m) === "started" ? "Continue" : P.d ? "Jump in" : "Start"}</span>` : ""}</div>`;
             }).join("")}
             <div class="p-cast ${side}" style="top:${castRow * ROW - 10}px">${NIC.mascot({ who: cast.who || S.who, size: 110, act: cast.act, acc: cast.acc, mood: cast.mood || "idle" })}</div>
@@ -386,12 +418,11 @@
     jumpButton(page);
     qsa("[data-to]", page).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to; }));
     stickyHeader(page);
-    // entrance: nodes pop in unit by unit as they scroll into view
-    const units = qsa(".unit", page);
-    units.forEach((u, k) => {
-      if (u.getBoundingClientRect().top < innerHeight) popUnit(u, 0.05 + k * 0.1);
-      else if (fx.ok && window.Motion && Motion.inView) { let stop = null; stop = Motion.inView(u, () => { popUnit(u, 0); stop && stop(); }, { margin: "0px 0px -10% 0px" }); life.onCleanup(() => stop && stop()); }
-    });
+    // entrance: nodes on the first screen spring in one after another; the rest spring in as they scroll into view
+    const pops = qsa(".p-node, .p-chest, .p-cast .mascot", page);
+    let k0 = 0;
+    pops.forEach((n) => { if (n.getBoundingClientRect().top < innerHeight * 0.92) popNode(n, 0.05 + k0++ * 0.05); });
+    life.onCleanup(fx.onView(pops, { run: (n) => popNode(n, 0) }));
     life.onCleanup(NIC.cast.idle(page));
     // came back from a finished lesson: glide to the next node and nudge it
     if (NIC.lastFinished) {
@@ -399,7 +430,11 @@
       const target = qs(".p-row.cur", page) || qs(`.p-row[data-id="${fin}"]`, page);
       if (target) setTimeout(() => {
         target.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "center" });
-        setTimeout(() => { const n = qs(".p-node", target); if (fx.ok && !fx.reduce()) fx.animate(n, { transform: ["scale(1)", "scale(1.2)", "scale(0.95)", "scale(1)"] }, { duration: 0.6, ease: fx.EASE }); NIC.sfx.play("pop"); }, 500);
+        setTimeout(() => {
+          fx.bump(qs(".p-node", target), { scale: 1.2 }); NIC.sfx.play("pop");
+          const mark = qs(`.p-row[data-id="${fin}"] .p-badge, .p-row.st-done[data-id="${fin}"] .p-face > svg`, page); // the check mark you just earned
+          if (mark && mark.isConnected) fx.springIn(mark, { from: 0, rot: -40, bounce: 0.6, delay: 0.12 });
+        }, 500);
       }, 200);
     } else {
       const cur = qs(".p-row.cur", page);
@@ -407,11 +442,17 @@
     }
   }
 
-  function popUnit(u, delay) {
-    if (!fx.ok || fx.reduce()) return;
-    qsa(".p-node, .p-chest", u).forEach((n, i) => fx.animate(n, { opacity: [0, 1], transform: ["scale(0.3)", "scale(1)"] }, { type: "spring", duration: 0.55, bounce: 0.45, delay: delay + i * 0.06 }).finished.then(() => { n.style.transform = ""; n.style.opacity = ""; }).catch(() => {}));
-    const c = qs(".p-cast .mascot", u);
-    if (c) fx.animate(c, { opacity: [0, 1], transform: ["translateY(30px) scale(0.7)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.6, bounce: 0.4, delay: delay + 0.3 });
+  /** One path item springs in; a finished node's check mark pops a beat later. Mascots rise instead. */
+  function popNode(n, delay) {
+    if (n.classList.contains("mascot")) {
+      if (!fx.ok) return;
+      const a = fx.animate(n, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(30px) scale(0.7)", "translateY(0px) scale(1)"] }, { type: "spring", duration: 0.6, bounce: 0.4, delay: delay + 0.2 });
+      fx.clean(n, a);
+      return;
+    }
+    fx.springIn(n, { delay, from: 0.3, bounce: 0.45 });
+    const mark = n.closest(".st-done") && (qs(".p-badge", n) || qs(".p-face > svg", n));
+    if (mark && !fx.reduce()) fx.springIn(mark, { delay: delay + 0.2, from: 0, rot: -30, bounce: 0.6, dur: 0.5 });
   }
 
   /** The sticky banner shows whichever unit you're scrolling through. */
@@ -462,7 +503,12 @@
   };
 
   let tipEl = null, tipT = 0;
-  function hideTip() { clearTimeout(tipT); if (tipEl) { tipEl.remove(); tipEl = null; } }
+  function hideTip() {
+    clearTimeout(tipT); if (!tipEl) return;
+    const g = tipEl; tipEl = null;
+    if (!fx.ok || !fx.exit || !g.isConnected) return g.remove();
+    g.classList.add("m-ghost"); fx.exit(g, { scale: 0.96, dur: 0.12 }).then(() => g.remove());
+  }
   function showTip(row) {
     if (nodePopEl || (tipEl && tipEl.parentElement === row)) return;
     hideTip();
@@ -492,7 +538,12 @@
   }
 
   let nodePopEl = null;
-  function closeNodePop() { if (nodePopEl) { nodePopEl.remove(); nodePopEl = null; } }
+  function closeNodePop() {
+    if (!nodePopEl) return;
+    const g = nodePopEl; nodePopEl = null;
+    if (!fx.ok || !fx.exit || !g.isConnected) return g.remove();
+    g.classList.add("m-ghost"); fx.exit(g, { base: "translateX(-50%)", y: -8, scale: 0.9, dur: 0.14 }).then(() => g.remove());
+  }
   function nodePop(row) {
     const had = nodePopEl && nodePopEl.parentElement === row;
     closeNodePop(); hideTip();
@@ -507,7 +558,8 @@
       if (dx) { nodePopEl.style.marginLeft = `${-dx}px`; nodePopEl.style.setProperty("--ax", `${dx}px`); }
     }
     NIC.sfx.play("pop");
-    if (fx.ok) fx.animate(nodePopEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateX(-50%) translateY(-10px) scale(0.85)", "translateX(-50%) translateY(0px) scale(1)"] }, { type: "spring", duration: 0.4, bounce: 0.35 });
+    // grows out of its node: transform-origin sits on the arrow tip (css/motion.css)
+    if (fx.ok) fx.animate(nodePopEl, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateX(-50%) translateY(-12px) scale(0.6)", "translateX(-50%) translateY(0px) scale(1)"] }, { type: "spring", duration: 0.38, bounce: 0.35 });
     qs(".np-go", nodePopEl).addEventListener("click", (e) => { e.stopPropagation(); closeNodePop(); location.hash = m.id; });
     const rs = qs(".np-restart", nodePopEl);
     if (rs) rs.addEventListener("click", (e) => { e.stopPropagation(); const p = store.get("nic.lessonPos", {}); delete p[m.id]; store.set("nic.lessonPos", p); closeNodePop(); location.hash = m.id; });
@@ -558,6 +610,7 @@
       <h2>Settings</h2>
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
         ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Sign in to sync</button>`}</div>` : ""}
+        ${NIC.theme ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[["system", "System", IC.themeSys], ["light", "Light", IC.sun], ["dark", "Dark", IC.moon]].map(([v, t, ic]) => `<button role="radio" data-theme-pick="${v}" aria-checked="${NIC.theme.get() === v}" class="${NIC.theme.get() === v ? "on" : ""}">${ic}${t}</button>`).join("")}</div></div>` : ""}
         <div class="set-row"><b>Sound effects</b><button class="btn" id="pfSound">${NIC.sfx.on() ? "On" : "Off"}</button></div>
         <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>
     </div>`);
@@ -565,6 +618,10 @@
     qsa("[data-g]", page).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); qsa("[data-g]", page).forEach((x) => x.classList.toggle("on", x === b)); renderTop(); }));
     qs("#pfSound", page).addEventListener("click", (e) => { NIC.sfx.set(!NIC.sfx.on()); e.target.textContent = NIC.sfx.on() ? "On" : "Off"; });
     qs("#pfReset", page).addEventListener("click", resetAll);
+    qsa("[data-theme-pick]", page).forEach((b) => b.addEventListener("click", () => {
+      qsa("[data-theme-pick]", page).forEach((x) => { x.classList.toggle("on", x === b); x.setAttribute("aria-checked", x === b); });
+      NIC.sfx.play("select"); NIC.theme.set(b.dataset.themePick, { from: b });
+    }));
     wireSync(page);
     fx.enter(qsa(".shelf-spot, .pf-stat, .ach", page), { stagger: 0.03 });
     life.onCleanup(NIC.cast.idle(page));
@@ -576,10 +633,33 @@
   const dock = qs("#dock");
   dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" hidden></i></button><button data-to="profile" aria-label="Profile">${IC.face}<span>Profile</span></button>`;
   qsa("button", dock).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to === "learn" ? SUBJECTS[course].home : b.dataset.to; }));
+  /* The blue "on" pill is one indicator that slides between tabs (FLIP: jump to the new box, animate from the old one). */
+  let dockK = null, dockN = null;
+  function dockInd(animate) {
+    let ind = qs(".dk-ind", dock);
+    if (!ind) {
+      ind = el(`<i class="dk-ind" aria-hidden="true"></i>`); dock.prepend(ind); dock.classList.add("m-ind");
+      if (window.ResizeObserver) new ResizeObserver(() => dockInd(false)).observe(dock); // fonts, phone layout
+    }
+    const b = qs("button.on", dock); if (!b) return;
+    const box = { x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight }, was = ind._box;
+    ind._box = box;
+    Object.assign(ind.style, { left: box.x + "px", top: box.y + "px", width: box.w + "px", height: box.h + "px" });
+    if (animate && was && was.w && box.w && (was.x !== box.x || was.w !== box.w) && fx.ok && !fx.reduce()) {
+      const dx = was.x + was.w / 2 - (box.x + box.w / 2); // transform-origin is the centre (css/motion.css)
+      const a = fx.animate(ind, { transform: [`translateX(${dx}px) scaleX(${was.w / box.w})`, "translateX(0px) scaleX(1)"] }, { ...fx.SPRING_UI });
+      fx.clean(ind, a, ["transform"]);
+    }
+  }
   const setDock = (k) => {
     qsa("button", dock).forEach((b) => b.classList.toggle("on", b.dataset.to === k));
+    const moved = dockK !== null && dockK !== k; dockK = k;
+    dockInd(moved);
+    if (moved) fx.bump(qs(`button[data-to="${k}"] svg`, dock), { scale: 1.25, y: -4 });
     const n = (NIC.bank ? NIC.bank.stats().due : 0) + NIC.player.missed.all().length, bd = qs(".dk-badge", dock);
     bd.hidden = !n; bd.textContent = n > 99 ? "99+" : n;
+    if (n && dockN !== null && n !== dockN) dockN ? fx.bump(bd, { scale: 1.35 }) : fx.springIn(bd, { from: 0.2, bounce: 0.6 });
+    dockN = n;
   };
 
   /** First visit: pick a course and a daily goal, with Sprout waving. Shown once. */
@@ -601,7 +681,20 @@
     m.addEventListener("click", (e) => { if (e.target === m) finish(); });
   }
 
+  /* Page changes animate through fx.swap (View Transitions): dock tabs slide left/right in tab order, other page changes crossfade.
+     Opening a lesson, the first render, re-rendering the same page and leaving the player all render at once (tests rely on it). */
+  const TABS = ["learn", "practice", "profile"];
+  const tabOf = (id) => { const p = id.split("/")[0]; return p === "profile" ? "profile" : p === "practice" || p === "revise" ? "practice" : "learn"; };
+  let routeTok = 0, lastRoute = null;
   function route() {
+    const id = location.hash.slice(1) || store.get("nic.lastHome", "home");
+    const mod = modules.some((m) => m.id === id), prev = lastRoute, tok = ++routeTok;
+    lastRoute = { id, mod, tab: tabOf(id) };
+    const go = () => { if (tok === routeTok) render(); }; // a newer route wins over a transition still waiting to run
+    if (mod || !prev || prev.mod || prev.id === id || NIC.player.isOpen() || !fx.swap) return go();
+    fx.swap(go, { dir: Math.sign(TABS.indexOf(lastRoute.tab) - TABS.indexOf(prev.tab)), el: main });
+  }
+  function render() {
     const id = location.hash.slice(1) || store.get("nic.lastHome", "home");
     if (life) life.dispose();
     life = lifecycle();
@@ -636,6 +729,8 @@
   // =====================================================================
   game.on("xp", () => renderTop());
   game.on("freeze", (d) => fx.toast(`${NIC.emo("ice")}<b>${d.earned ? "Streak freeze earned!" : "Streak freeze used"}</b><span>${d.earned ? `You have ${d.left}. It covers a day you miss.` : "Yesterday was covered, so your streak is safe."}</span>`, { tone: "blue", ms: 3200 }));
+  // canvases and charts bake colours in when drawn: redraw the page when the theme flips (never under an open lesson)
+  if (NIC.theme) NIC.theme.onChange(() => { if (!NIC.player.isOpen() && qs("canvas", main)) route(); });
   game.on("goal", (d) => { setTimeout(() => fx.lottieAt(qs(".tb-xp"), "levelup", { size: 160 }), 150); fx.toast(`${NIC.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>Daily goal reached!</b><span>${d.today} XP today</span>`, { ms: 2400 }); NIC.sfx.play("achieve"); });
   game.on("quest", (q) => { if (q.done) { fx.toast(`${IC.chest}<b>Quest complete!</b><span>${q.t}. Claim it from the chest.</span>`, { ms: 2600 }); setTimeout(() => NIC.sfx.play("chest"), 200); renderTop(); } });
   game.on("ach", (a) => { setTimeout(() => { fx.toast(`${NIC.mascot({ who: "sprout", size: 44, mood: "laugh", acc: [a.acc], poke: false })}<b>${a.t}!</b><span>Unlocked: ${NIC.cast.ACC[a.acc].name}</span>`, { ms: 2800 }); NIC.sfx.play("achieve"); }, 900); });

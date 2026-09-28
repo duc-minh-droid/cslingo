@@ -417,7 +417,7 @@
         if (prev) { ctx.beginPath(); prev.forEach((p, k) => (k ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])))); ctx.closePath(); ctx.strokeStyle = C.line_2; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]); }
         ctx.beginPath(); tri.forEach((v, k) => (k ? ctx.lineTo(X(v.p[0]), Y(v.p[1])) : ctx.moveTo(X(v.p[0]), Y(v.p[1])))); ctx.closePath();
         ctx.fillStyle = "rgba(206,130,255,0.22)"; ctx.fill(); ctx.strokeStyle = C.violet; ctx.lineWidth = 2; ctx.stroke();
-        tri.forEach((v, k) => { ctx.beginPath(); ctx.arc(X(v.p[0]), Y(v.p[1]), 6, 0, 7); ctx.fillStyle = k === 0 ? C.teal : k === 2 ? C.rose : C.amber; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke(); });
+        tri.forEach((v, k) => { ctx.beginPath(); ctx.arc(X(v.p[0]), Y(v.p[1]), 6, 0, 7); ctx.fillStyle = k === 0 ? C.teal : k === 2 ? C.rose : C.amber; ctx.fill(); ctx.strokeStyle = C.panel; ctx.lineWidth = 2; ctx.stroke(); });
       }
       function mount() {
         const st = qs("#stage", card); st.innerHTML = ""; s3 = null;
@@ -426,7 +426,7 @@
       }
       function upd3() {
         if (!s3) return;
-        s3.setPoints([...tri.map((v, k) => ({ x: v.p[0], y: v.p[1], c: ["#58cc02", "#ff9600", "#ff4b4b"][k], r: 5 })), { x: MIN[0], y: MIN[1], c: "#4b4b4b", r: 3, label: "★" }]);
+        s3.setPoints([...tri.map((v, k) => ({ x: v.p[0], y: v.p[1], c: ["#58cc02", "#ff9600", "#ff4b4b"][k], r: 5 })), { x: MIN[0], y: MIN[1], c: NIC.colors().text, r: 3, label: "★" }]);
         s3.setPath(trail);
       }
       function refresh() {

@@ -460,11 +460,11 @@
             const a2 = a + pi * Math.PI * 2;
             ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, a, a2); ctx.closePath();
             ctx.fillStyle = PALETTE[i % PALETTE.length] + (hl === -1 || hl === i ? "ee" : "44"); ctx.fill();
-            ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+            ctx.strokeStyle = NIC.colors().panel; ctx.lineWidth = 2; ctx.stroke();
             if (pi > 0.035) { const m = (a + a2) / 2; ctx.fillStyle = "#fff"; ctx.font = "800 12px " + getComputedStyle(document.body).fontFamily; ctx.textAlign = "center"; ctx.fillText("f" + (i + 1), cx + Math.cos(m) * R * 0.68, cy + Math.sin(m) * R * 0.68 + 4); }
             a = a2;
           });
-          ctx.beginPath(); ctx.arc(cx, cy, 16, 0, 7); ctx.fillStyle = "#fff"; ctx.fill();
+          ctx.beginPath(); ctx.arc(cx, cy, 16, 0, 7); ctx.fillStyle = NIC.colors().panel; ctx.fill();
         }
         ctx.fillStyle = N.colors().text; ctx.beginPath(); ctx.moveTo(cx - 10, 4); ctx.lineTo(cx + 10, 4); ctx.lineTo(cx, 22); ctx.closePath(); ctx.fill();
         const tot = counts.reduce((a, b) => a + b, 0);

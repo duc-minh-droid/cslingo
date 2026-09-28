@@ -164,9 +164,12 @@
   function progress() {
     const content = S.screens.filter((x) => !["complete", "streak", "hype"].includes(x.kind)).length;
     const f = Math.min(1, S.i / Math.max(1, content));
-    const fill = qs(".pl-fill", S.root);
+    const fill = qs(".pl-fill", S.root), bar = qs(".pl-bar", S.root);
     fill.style.transform = `scaleX(${f})`;
-    qs(".pl-bar", S.root).setAttribute("aria-valuenow", Math.round(f * 100));
+    bar.setAttribute("aria-valuenow", Math.round(f * 100));
+    // moving forward sweeps a shine across the fill (css/motion.css .m-shine)
+    if (f > (S.barF || 0)) { bar.classList.remove("m-shine"); void bar.offsetWidth; bar.classList.add("m-shine"); }
+    S.barF = f;
   }
 
   function combo() {
@@ -195,6 +198,12 @@
       const inner = qs(".pl-foot-in", S.foot);
       fx().animate(S.foot, reduce() ? { opacity: [0.4, 1] } : { transform: ["translateY(100%)", "translateY(0%)"] }, { duration: 0.32, ease: fx().EASE });
       if (!reduce()) fx().animate(inner, { opacity: [0, 1] }, { duration: 0.2, delay: 0.08 });
+      // the verdict icon pops, the title slides in beside it, the +XP chip lands last
+      if (!reduce() && fx().springIn) {
+        fx().springIn(qs(".pl-fb-h svg", fbEl), { from: 0.2, rot: mode === "ok" ? -45 : 45, bounce: 0.55, dur: 0.5, delay: 0.1 });
+        fx().enter(qs(".pl-fb-h b", fbEl), { x: -12, y: 0, delay: 0.14, dur: 0.24 });
+        fx().springIn(qs(".pl-xp", fbEl), { from: 0.4, bounce: 0.6, dur: 0.45, delay: 0.26 });
+      }
       const m = qs(".mascot", fbEl); if (m) setTimeout(() => N.mascotReact(m, m.dataset.mood), 120);
     }
   }
@@ -340,7 +349,7 @@
       const msg = pct === 1 ? "Perfect. This one is locked in." : pct >= 0.8 ? "Pass! Skim the misses, then move on." : "Not yet. Review the misses and have another go.";
       const R = 54, L = 2 * Math.PI * R;
       node.innerHTML = `<div class="pl-in pl-center">
-        <div class="pl-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="#e5e5e5" stroke-width="14"/><circle class="ring-fg" cx="70" cy="70" r="${R}" fill="none" stroke="${pct >= 0.8 ? "#58cc02" : "#ff9600"}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" transform="rotate(-90 70 70)"/></svg>
+        <div class="pl-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--line)" stroke-width="14"/><circle class="ring-fg" cx="70" cy="70" r="${R}" fill="none" stroke="${pct >= 0.8 ? "#58cc02" : "#ff9600"}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${L}" stroke-dashoffset="${L}" transform="rotate(-90 70 70)"/></svg>
           <div class="ring-n"><b id="brN">0</b><span>/ ${n}</span></div>${N.mascot({ who: S.who, size: 70, mood: "idle", acc: pct === 1 ? ["crown"] : [], cls: "ring-m" })}</div>
         <h1>${pct >= 0.8 ? "Boss beaten!" : "Boss still standing"}</h1><p class="lede">${msg}</p>
         ${miss.length ? `<div class="pl-miss">${miss.map(([Q, i]) => `<div class="pl-miss-row"><span class="pl-tag rose">Q${i + 1}</span><div><div>${Q.q}</div><div class="faint">Answer: <b>${T()[Q.type || "mcq"].answer(Q)}</b></div></div></div>`).join("")}</div>` : ""}
@@ -446,7 +455,7 @@
       const focus = TT.reveal(Q, body, v, ok);
       setTimeout(() => { const t = focus || qs(".right, .wrong", body); if (t && t.scrollIntoView) t.scrollIntoView({ block: "nearest", behavior: reduce() ? "auto" : "smooth" }); }, 360);
       const h = qs(".q-hint", wrap); if (h) h.remove();
-      if (fx() && focus) ok ? fx().pop(focus) : fx().shake(focus);
+      if (fx() && focus) ok ? (fx().bounce || fx().pop)(focus) : fx().shake(focus);
       result(sc, ok, v);
     };
     TT.render(Q, body, (v) => {
@@ -535,7 +544,13 @@
     m.hidden = false;
     sound("sad");
     if (fx() && fx().ok) fx().animate(qs(".pl-sheet", m), reduce() ? { opacity: [0, 1] } : { transform: ["translateY(60px) scale(0.96)", "translateY(0px) scale(1)"], opacity: [0, 1] }, { type: "spring", duration: 0.45, bounce: 0.3 });
-    qs('[data-m="stay"]', m).onclick = () => { m.hidden = true; sound("pop"); };
+    if (fx() && fx().ok) fx().clean(m, fx().animate(m, { opacity: [0, 1] }, { duration: 0.18 }), ["opacity"]);
+    qs('[data-m="stay"]', m).onclick = () => {
+      sound("pop");
+      if (!fx() || !fx().exit || !fx().ok) { m.hidden = true; return; }
+      m.style.pointerEvents = "none"; // the sheet drops away, then the layer hides
+      Promise.all([fx().exit(qs(".pl-sheet", m), { y: 40, scale: 0.97, dur: 0.18 }), fx().exit(m, { scale: 1, dur: 0.18 })]).then(() => { m.hidden = true; m.style.pointerEvents = ""; requestAnimationFrame(() => setTimeout(() => (m.style.opacity = ""), 0)); });
+    };
     qs('[data-m="quit"]', m).onclick = () => close();
   }
 

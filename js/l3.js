@@ -318,7 +318,7 @@
           ctx.fillStyle = lastOk ? C.violet : C.rose; ctx.beginPath(); ctx.arc(X(lastMut), Y(L.f(lastMut)), 5, 0, 7); ctx.fill();
           ctx.strokeStyle = lastOk ? C.violet : C.rose; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(X(lastMut), Y(L.f(lastMut))); ctx.lineTo(X(lastMut), h - 18); ctx.stroke(); ctx.setLineDash([]);
         }
-        ctx.fillStyle = C.teal; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+        ctx.fillStyle = C.teal; ctx.strokeStyle = C.panel; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(X(cur), Y(L.f(cur)), 8, 0, 7); ctx.fill(); ctx.stroke();
         qs("#ev", card).textContent = evals; qs("#cf", card).textContent = L.f(cur).toFixed(3); qs("#gm", card).textContent = L.max.toFixed(3);
         qs("#desc", card).innerHTML = DESC[kind];

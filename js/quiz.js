@@ -117,7 +117,7 @@
           if (!pick.l || !pick.r) return;
           const L = pick.l, R = pick.r; pick = { l: null, r: null };
           if (+L.dataset.k === +R.dataset.i) {
-            [L, R].forEach((b) => { b.classList.remove("sel"); b.classList.add("good"); b.disabled = true; });
+            [L, R].forEach((b) => { b.classList.remove("sel"); b.classList.add("good"); b.disabled = true; if (N.fx && N.fx.bounce) N.fx.bounce(b); });
             N.sfx && N.sfx.play("select");
             setTimeout(() => [L, R].forEach((b) => { b.classList.remove("good"); b.classList.add("gone"); }), 450);
             if (++done === Q.pairs.length) { chk.disabled = false; N.sfx && N.sfx.play("check"); }
@@ -249,7 +249,7 @@
           const ex = qs(".explain", node);
           N.feedback(ex, ok ? "ok" : "no", `<span class="verdict ${ok ? "ok" : "no"}">${ok ? "Correct!" : "Not quite."}</span>${Q.why}`, first);
           qs('[data-go="1"]', node).style.display = "";
-          if (first && fx.reveal) { fx.reveal(ex); if (focus) ok ? fx.pop(focus) : fx.shake(focus); }
+          if (first && fx.reveal) { fx.reveal(ex); if (focus) ok ? (fx.bounce || fx.pop)(focus) : fx.shake(focus); }
         };
         T.render(Q, body, (v) => { const ok = T.grade(Q, v); const st = get(); st[key(i)] = { v, ok }; store.set("nic.quiz", st); reveal(v, ok, true); upd(); window.dispatchEvent(new Event("nic:progress")); }, key(i));
         if (key(i) in s) reveal(s[key(i)].v, s[key(i)].ok, false);
@@ -300,7 +300,7 @@
       const lbl = wt !== undefined ? `<text x="${mx}" y="${my + 4}" text-anchor="middle" style="font:800 13px var(--sans);fill:var(--text-dim)">${wt}</text>` : "";
       return pick === "edges" ? `<g data-pick="${a}-${b}">${vis}<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="transparent" stroke-width="18"/>${lbl}</g>` : vis + lbl;
     }).join("");
-    const nd = Object.entries(nodes).map(([k, [x, y]]) => `<g ${pick === "nodes" ? `data-pick="${k}"` : ""}><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${hl[k] || "var(--line-2)"}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" style="font:900 15px var(--sans);fill:var(--ink)">${k}</text></g>`).join("");
+    const nd = Object.entries(nodes).map(([k, [x, y]]) => `<g ${pick === "nodes" ? `data-pick="${k}"` : ""}><circle cx="${x}" cy="${y}" r="${r}" fill="var(--panel)" stroke="${hl[k] || "var(--line-2)"}" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" style="font:900 15px var(--sans);fill:var(--ink)">${k}</text></g>`).join("");
     return `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px"><defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--line-2)"/></marker></defs>${ed}${nd}</svg>`;
   };
   /** Points on a grid (maths coordinates, y up). P = {A:[x,y]}; range [0..max]. */
@@ -308,7 +308,7 @@
     const X = (x) => 30 + (x / max) * (w - 50), Y = (y) => h - 30 - (y / max) * (h - 50);
     const grid = Array.from({ length: max + 1 }, (_, i) => `<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(max)}" stroke="var(--line)"/><line x1="${X(0)}" y1="${Y(i)}" x2="${X(max)}" y2="${Y(i)}" stroke="var(--line)"/><text x="${X(i)}" y="${Y(0) + 16}" text-anchor="middle" style="font:700 11px var(--sans);fill:var(--text-faint)">${i}</text><text x="${X(0) - 10}" y="${Y(i) + 4}" text-anchor="end" style="font:700 11px var(--sans);fill:var(--text-faint)">${i}</text>`).join("");
     const pl = poly ? `<polygon points="${poly.map((n) => `${X(P[n][0])},${Y(P[n][1])}`).join(" ")}" fill="var(--teal-dim)" stroke="var(--teal)" stroke-width="2"/>` : "";
-    const pts = Object.entries(P).map(([k, [x, y]]) => `<g ${pick ? `data-pick="${k}"` : ""}><circle cx="${X(x)}" cy="${Y(y)}" r="11" fill="#fff" stroke="var(--line-2)" stroke-width="3"/><text x="${X(x)}" y="${Y(y) + 4}" text-anchor="middle" style="font:900 11px var(--sans);fill:var(--ink)">${k}</text></g>`).join("");
+    const pts = Object.entries(P).map(([k, [x, y]]) => `<g ${pick ? `data-pick="${k}"` : ""}><circle cx="${X(x)}" cy="${Y(y)}" r="11" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${X(x)}" y="${Y(y) + 4}" text-anchor="middle" style="font:900 11px var(--sans);fill:var(--ink)">${k}</text></g>`).join("");
     return `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px">${grid}${pl}${pts}</svg>`;
   };
   /** 1-D landscape with clickable candidate spots. f(x) on [0,1]; spots [[x, id]]; start marker at sx. */
@@ -316,7 +316,7 @@
     let lo = Infinity, hi = -Infinity; for (let i = 0; i <= 200; i++) { const v = f(i / 200); lo = Math.min(lo, v); hi = Math.max(hi, v); }
     const X = (x) => 16 + x * (w - 32), Y = (v) => h - 24 - ((v - lo) / (hi - lo || 1)) * (h - 60);
     const d = Array.from({ length: 201 }, (_, i) => `${i ? "L" : "M"}${X(i / 200).toFixed(1)} ${Y(f(i / 200)).toFixed(1)}`).join(" ");
-    const sp = spots.map(([x, id]) => `<g data-pick="${id}"><circle cx="${X(x)}" cy="${Y(f(x))}" r="13" fill="#fff" stroke="var(--line-2)" stroke-width="3"/><text x="${X(x)}" y="${Y(f(x)) + 5}" text-anchor="middle" style="font:900 12px var(--sans);fill:var(--ink)">${id}</text></g>`).join("");
+    const sp = spots.map(([x, id]) => `<g data-pick="${id}"><circle cx="${X(x)}" cy="${Y(f(x))}" r="13" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${X(x)}" y="${Y(f(x)) + 5}" text-anchor="middle" style="font:900 12px var(--sans);fill:var(--ink)">${id}</text></g>`).join("");
     const st = sx !== null ? `<g><circle cx="${X(sx)}" cy="${Y(f(sx))}" r="8" fill="var(--rose)"/><text x="${X(sx)}" y="${Y(f(sx)) + 24}" text-anchor="middle" style="font:800 12px var(--sans);fill:var(--rose-ink)">start</text></g>` : "";
     return `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px"><path d="${d} L${X(1)} ${h - 24} L${X(0)} ${h - 24} Z" fill="var(--teal-dim)"/><path d="${d}" fill="none" stroke="var(--teal)" stroke-width="3"/>${st}${sp}${label ? `<text x="${w / 2}" y="${h - 4}" text-anchor="middle" style="font:700 11px var(--sans);fill:var(--text-faint)">${label}</text>` : ""}</svg>`;
   };

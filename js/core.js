@@ -48,6 +48,7 @@ window.NIC = (function () {
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   const COLORS = {};
   function colors() {
+    if (COLORS._t !== document.documentElement.dataset.themeNow) { Object.keys(COLORS).forEach((k) => delete COLORS[k]); COLORS._t = document.documentElement.dataset.themeNow; }
     if (!COLORS.teal) ["teal", "rose", "violet", "amber", "blue", "text", "text-dim", "text-faint", "line", "line-2", "bg-2", "panel", "panel-2"].forEach((k) => (COLORS[k.replace("-", "_")] = css("--" + k)));
     return COLORS;
   }

@@ -157,15 +157,15 @@
       if (path.length > 1) {
         ctx.beginPath();
         path.forEach(([xv, yv], k) => { const [u, v] = toU(xv, yv); const [px, py] = proj(u, v, nz(o.f(xv, yv)) + 0.02, W, H); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
-        ctx.strokeStyle = "#4b4b4b"; ctx.lineWidth = 2; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]);
+        ctx.strokeStyle = NIC.colors().text; ctx.lineWidth = 2; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]);
       }
       pts.forEach((p) => {
         const [u, v] = toU(p.x, p.y), z = nz(o.f(p.x, p.y));
         const [px, py] = proj(u, v, z + 0.03, W, H), [bx, by] = proj(u, v, 0, W, H);
         ctx.strokeStyle = "rgba(75,75,75,0.35)"; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(px, py); ctx.stroke();
         ctx.beginPath(); ctx.arc(px, py, p.r || 6, 0, 7); ctx.fillStyle = p.c || "#fff"; ctx.fill();
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
-        if (p.label) { ctx.font = "600 12px " + getComputedStyle(document.documentElement).getPropertyValue("--sans"); ctx.fillStyle = "#4b4b4b"; ctx.textAlign = "center"; ctx.fillText(p.label, px, py - 12); }
+        ctx.strokeStyle = NIC.colors().panel; ctx.lineWidth = 2.5; ctx.stroke();
+        if (p.label) { ctx.font = "600 12px " + getComputedStyle(document.documentElement).getPropertyValue("--sans"); ctx.fillStyle = NIC.colors().text; ctx.textAlign = "center"; ctx.fillText(p.label, px, py - 12); }
       });
     }
     const stopAuto = () => { if (auto) { auto = false; hint.style.opacity = "0"; } };
@@ -234,7 +234,7 @@
     geo.computeVertexNormals();
     const mesh = new T.Mesh(geo, new T.MeshLambertMaterial({ vertexColors: true, side: T.DoubleSide }));
     const wire = new T.LineSegments(new T.WireframeGeometry(geo), new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 }));
-    const base = new T.Mesh(new T.PlaneGeometry(1.08, 1.08).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: 0xe9eef2, transparent: true, opacity: 0.7 }));
+    const base = new T.Mesh(new T.PlaneGeometry(1.08, 1.08).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: new T.Color(NIC.colors().panel_2), transparent: true, opacity: 0.7 }));
     base.position.y = -0.004;
     scene.add(base, mesh, wire);
 
@@ -248,7 +248,7 @@
       disposeGroup(); labels.innerHTML = ""; tags = [];
       if (path.length > 1) {
         const curve = new T.CatmullRomCurve3(path.map(([xv, yv]) => toW(xv, yv, 0.012)));
-        extra.add(new T.Mesh(new T.TubeGeometry(curve, Math.max(16, path.length * 6), 0.006, 6, false), new T.MeshBasicMaterial({ color: 0x4b4b4b })));
+        extra.add(new T.Mesh(new T.TubeGeometry(curve, Math.max(16, path.length * 6), 0.006, 6, false), new T.MeshBasicMaterial({ color: new T.Color(NIC.colors().text) })));
       }
       pts.forEach((p) => {
         const w = toW(p.x, p.y, 0.02), r = ((p.r || 6) / 6) * 0.022;
@@ -257,7 +257,7 @@
         const ring = new T.Mesh(new T.SphereGeometry(r * 1.4, 20, 14), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, side: T.BackSide }));
         ring.position.copy(w); extra.add(ring);
         const stem = new T.BufferGeometry().setFromPoints([new T.Vector3(w.x, 0, w.z), w]);
-        extra.add(new T.Line(stem, new T.LineBasicMaterial({ color: 0x4b4b4b, transparent: true, opacity: 0.35 })));
+        extra.add(new T.Line(stem, new T.LineBasicMaterial({ color: new T.Color(NIC.colors().text), transparent: true, opacity: 0.35 })));
         if (p.label) { const d = document.createElement("span"); d.textContent = p.label; labels.appendChild(d); tags.push([d, w.clone().add(new T.Vector3(0, r + 0.03, 0))]); }
       });
       dirty = true;

@@ -16,8 +16,9 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 |---|---|
 | `index.html` | Shell: `#topbar`, `#pop`, `#main`, `#dock`, and **every script tag in load order**. |
 | `js/core.js` | `NIC.lazy(src…)` (load vendor files on demand), `NIC.tex(root)` (KaTeX; runs automatically on everything added to the page), plus `window.NIC` helpers: DOM (`el/qs/qsa/esc`), `store`, `register`, `header`, `predict`, `guide`, `takeaways`, `slider`, `seg`, `lifecycle`, `setupCanvas`, `colors()`, canvas `lineChart/barChart` (fallbacks), landscapes, TSP data. |
+| `js/theme.js` | `NIC.theme.get/set/now/onChange`: System/Light/Dark, stored as `csl.theme`; circular reveal on switch (View Transitions). |
 | `js/emoji.js` + `vendor/fluent-emoji.js` | Swaps emoji characters for Fluent Emoji (Flat) SVG icons, in HTML and inside SVG figures. |
-| `js/fx.js` | Motion wrappers `NIC.fx`: `enter/step/pop/shake/reveal/count/play/onView/celebrate/floatText/toast/watchStats/animate`. |
+| `js/fx.js` | Motion wrappers `NIC.fx`: `enter/step/pop/bounce/bump/springIn/exit/swap/clean/shake/reveal/count/play/onView/celebrate/floatText/toast/watchStats/animate`, tokens `DUR/SPRING*`. |
 | `js/cast.js` + `css/cast.css` | Mascot cast. `NIC.mascot({...})`, `NIC.mascotReact`, `NIC.cast.surprise/idle`, `NIC.feedback`. |
 | `js/game.js` | XP, streak, goal, quests, achievements: `NIC.game`. |
 | `js/sfx.js` | Web Audio synth `NIC.sfx.play(name)` and the mute toggle. |
@@ -39,6 +40,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/app.js` + `css/shell.css` | `SUBJECTS` (the course/lecture catalogue), routing, path home, top bar and popovers, dock, Practice and Profile pages. |
 | `css/styles.css` | Theme tokens and base components (buttons, cards, tags, answer tiles, tables, genomes, chips). |
 | `css/ux.css` | Lesson typography, guide, takeaways, figures, tooltips, effects. |
+| `css/motion.css` | Motion tokens (`--dur-*`), tactile presses, selection springs, dock indicator, lesson-bar shine, page transitions (see §4 Motion). |
 | `css/quiz.css` | Styles for the boss question types. |
 | `vendor/` | Vendored libraries (see §3). Never load these from a CDN. |
 | `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`. |
@@ -106,16 +108,31 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 ## 4. Design rules (keep the Duolingo feel)
 
 **Look**
-- White canvas and Nunito, 700–900 weight for UI.
+- White canvas (or the dark night palette, below) and Nunito, 700–900 weight for UI.
 - Green `--teal` (#58cc02) means progress or correct. Blue `--blue` (#1cb0f6) means interactive or selected. Red `--rose` means wrong, orange `--amber` means streak/XP/attention, violet `--violet` means predict/boss/practice. Variable names are legacy (`--teal` is green) because JS reads them. Don't rename them.
 - Components are stickers: a 2px border plus a solid "lip" (`box-shadow: 0 4px 0 <darker>`) that squashes on `:active`. Use `.btn`, `.btn.primary`, `.btn.ghost`, `.btn.small`, `.btn.big`, `.card`, `.tag`, `.pill`, `.seg`, `.stat`, `.callout`. Don't invent new button styles.
 - No gradients, glass effects or soft drop shadows on UI chrome.
 - Lesson prose names colours as **green / blue / purple / red / orange**, never teal, violet, rose or amber.
 
+**Dark mode** (Duolingo night palette: page `#131f24`, raised `#202f36`, lines `#37464f`)
+- Tokens are redefined in `css/styles.css` under `@media (prefers-color-scheme: dark)` and `:root[data-theme="dark"]`. The viewer picks System, Light or Dark in Profile > Settings. `js/theme.js` stores it as `csl.theme`, outside `nic.*`, so it is neither synced nor reset. An inline script in `index.html` applies it before first paint.
+- `html[data-theme-now]` is always the resolved theme (`light`/`dark`). Use `:root[data-theme-now="dark"] .x` for the rare dark-only override, as the banner night sky does.
+- Never hardcode `#fff` or greys for surfaces, outlines or text. Use `var(--panel)` (cards), `var(--bg)`, `var(--bg-2)`/`var(--panel-2)` (raised or sunken), `var(--line)`, `var(--line-soft)`, `var(--text)`, `var(--ink)`. `#fff` is only for text or icons on a coloured fill (green button, node, badge).
+- `--x-ink` is the *text* shade of a colour: darker in light mode, lighter in dark mode. `--x-lip` is the dark sticker edge (box-shadow, border, stroke) and stays dark in both. Use lips for lips.
+- SVG strings can use `fill="var(--panel)"`. Canvas and three.js read `NIC.colors()`, which refreshes when the theme flips. `NIC.theme.onChange` redraws pages with canvases, but never under an open lesson.
+
 **Motion**
 - Use transform and opacity only. UI motion stays under 300 ms. Use a spring for feedback (`fx.pop`) and a shake for wrong answers (`fx.shake`).
 - Reduced motion keeps fades only. Keyboard actions never animate.
 - Idle loops belong in CSS so reduced motion can switch them off.
+
+**Motion tokens and helpers** (`css/motion.css` + `js/fx.js`)
+- Durations: `--dur-press` 40ms (squash on press), `--dur-1` 90, `--dur-2` 160 (exits, fades), `--dur-3` 240 (entrances, springy releases), `--dur-4` 320, `--dur-bar` 420 (lesson bar). JS mirrors them as `NIC.fx.DUR` in seconds. Easings: `--ease-out`, `--ease-spring`, `--ease-in-out` (styles.css), plus `--ease-in` and `--ease-pop`. Springs: `fx.SPRING` (feedback), `fx.SPRING_UI` (indicators, popovers), `fx.SPRING_POP` (badges, icons).
+- Presses: `motion.css` gives buttons, answer tiles, chips, path nodes and dock/top-bar buttons an instant squash on `:active` and a spring on release. New tappable stickers should join that selector list rather than define their own transition.
+- Helpers: `fx.bounce(el)` correct answer, `fx.shake(el)` wrong, `fx.bump(el, {scale, y})` a counter or icon changed, `fx.springIn(el, {delay, from, rot})` something appears (path nodes, check marks, badges), `fx.exit(el, {x, y, scale, base})` returns a promise to remove on, `fx.onView(els, {run})` below-the-fold reveal, `fx.swap(update, {dir, el})` page change via View Transitions (`dir` 1/-1 slides, 0 crossfades; falls back to a plain update plus fade).
+- Clean up: Motion leaves the last frame as inline style, sometimes one frame after `finished`. Wrap animations with `fx.clean(el, anim, props)` (all the helpers above already do), so `:active`, hover and sticky positioning keep working.
+- Exits: popovers, the node popover, tooltips and modals close through an exit animation. State resets at once (a new one can open straight away, focus and `inert` come back at once); the leaving element gets `.m-ghost` (no pointer events) and is removed when the exit ends. `m.remove()` on a modal still removes it instantly.
+- Routing: `route()` renders synchronously for lessons, the first render, a re-render of the same page and leaving the player. Only dock-tab and page changes go through `fx.swap`, one frame later. Tests that set `location.hash` to a module id are unaffected.
 
 **Sound**
 - Sound only follows something the learner did. Never add a timer-driven or idle sound. The sneeze gag was removed for exactly this reason.

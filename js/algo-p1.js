@@ -360,7 +360,7 @@
             <text x="${x}" y="${y + 5}" fill="var(--text)" font-size="14" font-weight="700" text-anchor="middle">${k}</text>
             ${g.out[k].length ? "" : `<text x="${x}" y="${y + 34}" fill="var(--rose)" font-size="10" text-anchor="middle" font-family="var(--mono)">dead end</text>`}`);
         }
-        parts.push(`<circle id="dot" r="8" fill="var(--amber)" stroke="#fff" stroke-width="2" cx="${P[cur][0]}" cy="${P[cur][1]}"/><circle id="tp" r="8" fill="none" stroke="var(--amber)" stroke-width="2" cx="${P[cur][0]}" cy="${P[cur][1]}" opacity="0"/>`);
+        parts.push(`<circle id="dot" r="8" fill="var(--amber)" stroke="var(--panel)" stroke-width="2" cx="${P[cur][0]}" cy="${P[cur][1]}"/><circle id="tp" r="8" fill="none" stroke="var(--amber)" stroke-width="2" cx="${P[cur][0]}" cy="${P[cur][1]}" opacity="0"/>`);
         return `<svg class="viz" viewBox="0 0 540 210" style="max-height:230px">${parts.join("")}</svg>`;
       }
       function reset() {

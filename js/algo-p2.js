@@ -318,7 +318,7 @@
         const { ctx } = N.setupCanvas(qs("#cv", card), H * CS);
         const C = N.colors(), cv = (c) => (c.startsWith("var(--") ? C[c.slice(6, -1).replace("-", "_")] || c : c);
         const cell = (x, y, c) => { ctx.fillStyle = cv(c); ctx.fillRect(x * CS + 1, y * CS + 1, CS - 2, CS - 2); };
-        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) cell(x, y, walls.has(x + "," + y) ? "#4b4b4b" : "#ececec");
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) cell(x, y, walls.has(x + "," + y) ? NIC.colors().text : NIC.colors().line);
         if (res) {
           res.expanded.forEach((k) => { const [x, y] = k.split(",").map(Number); if (!res.path.has(k)) cell(x, y, "rgba(206,130,255,0.35)"); });
           res.path.forEach((k) => { const [x, y] = k.split(",").map(Number); cell(x, y, "var(--teal)"); });

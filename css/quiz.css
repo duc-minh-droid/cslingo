@@ -24,7 +24,7 @@
 .q-num input.right { border-color: var(--teal); background: var(--teal-dim); color: var(--teal-ink); }
 .q-num input.wrong { border-color: var(--rose); background: var(--rose-dim); color: var(--rose-ink); }
 .q-unit { font-weight: 800; color: var(--text-dim); }
-.q-slider { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; border: 2px solid var(--line); background: #fff; }
+.q-slider { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; border: 2px solid var(--line); background: var(--panel); }
 .q-slider input { flex: 1; width: auto; accent-color: var(--blue); }
 .q-slider output { min-width: 90px; text-align: right; font-size: 20px; font-weight: 900; color: var(--blue-ink); }
 .q-slider.right { border-color: var(--teal); background: var(--teal-dim); }
@@ -38,11 +38,11 @@
 .qo-slot.filled { border-style: solid; border-color: var(--blue-edge); background: var(--blue-dim); }
 .qo-slot.right { border-style: solid; border-color: var(--teal); background: var(--teal-dim); }
 .qo-slot.wrong { border-style: solid; border-color: var(--rose); background: var(--rose-dim); }
-.qo-n { width: 26px; height: 26px; flex-shrink: 0; display: grid; place-items: center; border-radius: 8px; background: #fff; border: 2px solid var(--line); font-weight: 900; font-size: 13px; }
+.qo-n { width: 26px; height: 26px; flex-shrink: 0; display: grid; place-items: center; border-radius: 8px; background: var(--panel); border: 2px solid var(--line); font-weight: 900; font-size: 13px; }
 .qo-v { font-weight: 700; }
 .qo-fix { font-weight: 800; color: var(--teal-ink); margin-left: 6px; }
 .qo-pool { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip-btn { appearance: none; font: inherit; font-weight: 800; font-size: 14px; color: var(--text); background: #fff; border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); border-radius: 12px; padding: 8px 12px; cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out, opacity 150ms ease; }
+.chip-btn { appearance: none; font: inherit; font-weight: 800; font-size: 14px; color: var(--text); background: var(--panel); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); border-radius: 12px; padding: 8px 12px; cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out, opacity 150ms ease; }
 .chip-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .chip-btn:disabled { opacity: 0.35; cursor: default; }
 
@@ -51,14 +51,14 @@
 /* cat */
 .q-match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .qm-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease, border-color 150ms ease; }
+.qm-t { appearance: none; min-height: 48px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: 0 3px 0 var(--line); font: inherit; font-weight: 700; font-size: 15px; color: var(--text); text-align: left; cursor: pointer; overflow-wrap: anywhere; transition: transform 90ms ease-out, box-shadow 90ms ease-out, background-color 150ms ease, border-color 150ms ease; }
 .qm-t:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .qm-t.sel { border-color: var(--blue-edge); background: var(--blue-dim); box-shadow: 0 3px 0 var(--blue-edge); }
 .qm-t.right { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-edge); }
 .qm-t.wrong { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); }
 .qm-fix { display: block; margin-top: 4px; font-weight: 800; color: var(--teal-ink); font-size: 13px; }
 .q-cat { display: grid; gap: 8px; }
-.qc-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--line); background: #fff; }
+.qc-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; border-radius: 14px; border: 2px solid var(--line); background: var(--panel); }
 .qc-t { flex: 1 1 260px; font-weight: 700; }
 .qc-seg button.right { background: var(--teal); color: #fff; }
 .qc-seg button.wrong { background: var(--rose); color: #fff; }
