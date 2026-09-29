@@ -68,14 +68,14 @@
       root.appendChild(predict({
         id: "a7-entropy-1",
         q: "Drag A to 32 and the rest near 0. Entropy H becomes…",
-        opts: ["≈ 2 bits — still four symbols", "≈ 0 bits — a near-certain source carries almost no information", "≈ 1 bit — halfway"],
+        opts: ["about 2 bits, since there are still four symbols", "about 0 bits: a near-certain source says almost nothing", "about 1 bit, halfway between the two extremes"],
         a: 1,
         why: "Entropy is a property of the <b>distribution</b>, not the alphabet. Four symbols where one is near-certain ≈ no news per symbol → H ≈ 0. That's why English text (very predictable) compresses so well.",
       }));
       root.appendChild(predict({
         id: "a7-entropy-2",
         q: "For a 4-symbol alphabet, when is entropy at its <b>maximum</b>?",
-        opts: ["When one symbol dominates", "When all four are equally likely — H = log₂4 = 2 bits, the ceiling", "When probabilities are powers of two"],
+        opts: ["When one symbol dominates", "When all four are equally likely", "When probabilities are powers of two"],
         a: 1,
         why: "Uniform is the max: log₂n bits for n symbols. Any skew lowers H — and the gap between H and the ceiling is exactly the compressible headroom (try the 'Saved vs fixed 2-bit' stat).",
       }));
@@ -206,14 +206,14 @@
       root.appendChild(predict({
         id: "a7-huffman-1",
         q: "Lecture set: after merging D+E → .20, the queue is C .20, DE .20, B .25, A .35. Which two merge next?",
-        opts: ["A and B — the two biggest", "C and DE — merged nodes re-enter the queue and compete like symbols", "D and E again"],
+        opts: ["A and B, the two biggest remaining nodes", "C and DE: the merged node competes like any symbol", "D and E again, since they were merged last"],
         a: 1,
         why: "The two smallest are now C (.20) and the new node DE (.20) — a tie. The merged node is just another queue entry; that's what makes the result a <b>tree</b>, not a flat table.",
       }));
       root.appendChild(predict({
         id: "a7-huffman-2",
         q: "When does Huffman's average length L equal the entropy H <b>exactly</b>?",
-        opts: ["Never", "When all probabilities are powers of two — the ideal lengths are already integers", "With enough symbols"],
+        opts: ["Never, because codewords are whole bits", "When all probabilities are powers of two", "Whenever there are enough symbols"],
         a: 1,
         why: "Try the Loaded die preset: .5 .25 .125 .125 → ideals 1, 2, 3, 3 — all integers → L = 1.75 = H. Otherwise L > H by a small gap.",
       }));
@@ -343,14 +343,14 @@
       root.appendChild(predict({
         id: "a7-lzw-1",
         q: "The decoder receives a code <b>one slot past</b> its dictionary (the missing-entry case — try encoding <code>AAA</code>). The entry must be…",
-        opts: ["Corrupt — reject it", "prev output + its own <b>first</b> character (p + first(p))", "prev output + its own last character"],
+        opts: ["Corrupt, so the decoder should reject it", "previous output + its own first character", "previous output + its own last character"],
         a: 1,
         why: "It arises exactly when the encoder just created an entry and reused it instantly — a repeating pattern like XYXY…. p + first(p) is the only consistent value. Try <code>AAA</code>: codes 0,1 — code 1 arrives before entry 1 exists, and decodes to AA.",
       }));
       root.appendChild(predict({
         id: "a7-lzw-2",
         q: "Huffman needs its frequency table sent with the message. LZW sends <b>nothing</b>, yet both sides end with identical dictionaries. How?",
-        opts: ["They guess", "Both process the same stream in the same order, so the same new entries appear at the same positions — the dictionary is derived from the data itself", "The dictionary is fixed in advance"],
+        opts: ["The decoder guesses the likely entries", "Both process the same stream in the same order", "The dictionary is agreed in advance"],
         a: 1,
         why: "Same input, same rule, same order → same table. The price: you can't decode mid-stream, and a lost codeword makes the dictionaries diverge (pair LZW with a CRC).",
       }));
@@ -371,9 +371,9 @@
       { t: "Information is surprise", b: `<p>A message that says what you already expected tells you nothing. A coin flip tells you something. Shannon's measure:</p><p>$$I(x) = -\\log_2 p(x)$$</p><p>Each halving of probability adds exactly <b>one bit</b> — that's why log₂ is the right unit.</p>`,
         v: table(["p", "−log₂p", "meaning"], [["1", "0 bits", "certainty — no news"], ["1/2", "1 bit", "one yes/no"], ["1/4", "2 bits", ""], ["1/8", "3 bits", ""], ["1/16", "4 bits", ""]]) },
       { t: "Average the surprise → entropy", b: `<p>Weight each surprise by how often it happens: $H = \\sum_x p(x)\\,\\bigl(-\\log_2 p(x)\\bigr)$.</p><p>Loaded die: A 0.5, B 0.25, C 0.125, D 0.125 → H = 0.5·1 + 0.25·2 + 0.125·3 + 0.125·3 = <b>1.75 bits</b>.</p>`,
-        c: { q: "A source always sends A (p=1). Its entropy?", o: ["1 bit", "0 bits — a certain event carries no information", "2 bits"], a: 1, why: "−log₂1 = 0. Certainty = no news = nothing to compress or send." } },
+        c: { q: "A source always sends A (p=1). Its entropy?", o: ["1 bit", "0 bits", "2 bits"], a: 1, why: "−log₂1 = 0. Certainty = no news = nothing to compress or send." } },
       { t: "Uniform is the maximum", b: `<p>For n equally likely symbols, $H = \\log_2 n$ — the largest possible for that alphabet. Any skew lowers it. Four uniform symbols → 2 bits; the loaded die → 1.75.</p><span class="key">Entropy is a property of the <b>distribution</b>, not the alphabet. Same symbols, different probabilities → different entropy.</span>`,
-        c: { q: "Two sources share the alphabet {A,B,C,D} but use different probabilities. Same entropy?", o: ["Yes — same alphabet", "No — entropy depends on the distribution, not the alphabet", "Only if both are uniform"], a: 1, why: "Relabelling changes nothing; changing probabilities changes everything." } },
+        c: { q: "Two sources share the alphabet {A,B,C,D} but use different probabilities. Same entropy?", o: ["Yes, because they share exactly the same four-symbol alphabet", "No: entropy depends on the probabilities", "Only if both sources list the symbols in the same order"], a: 1, why: "Relabelling changes nothing; changing probabilities changes everything." } },
       { t: "Entropy is the compression floor", b: `<p>The ideal code length for symbol x is −log₂p(x) bits — often fractional (like 2.32). Real codewords use <b>whole bits</b>, so H is a <b>lower bound</b>: you can approach it (coding blocks of symbols together), never beat it on average.</p><span class="analogy">Entropy is to compression what a speed limit is to a road: you can get arbitrarily close, but no honest driver goes faster.</span>` },
       { t: "Predictable = compressible", b: `<p>MISSISSIPPI's letters: I,S=4, P=2, M=1 out of 11 → H ≈ 1.82 bits, below the uniform 2 — the skew is the compressible part. English text is far more skewed, which is why it compresses so well.</p>` },
     ],
@@ -384,13 +384,13 @@
     sum: "Huffman's trick: repeatedly merge the two <b>least</b> probable nodes into a tree, then read codewords off the branches. Greedy — and provably optimal.",
     steps: [
       { t: "Codes without separators", b: `<p>To decode a bit stream with no spaces, codewords must be <b>prefix-free</b>: no codeword may be a prefix of another.</p><p>A=0, B=10, C=110, D=111 → <code>010110</code> decodes left-to-right as 0|10|110 = <b>ABC</b>, unambiguously. But A=0, B=01 makes <code>01</code> ambiguous (B, or A-then-…).</p><span class="key">Prefix-free = every codeword is a <b>leaf</b> in a binary tree. That's the whole geometry.</span>`,
-        c: { q: "A=0, B=1, C=01 — prefix-free?", o: ["Yes", "No — A is a prefix of C; \"01\" is ambiguous", "Can't tell"], a: 1, why: "Any codeword that's a prefix of another breaks unique decodability." } },
+        c: { q: "A=0, B=1, C=01 — prefix-free?", o: ["Yes, all three codes are different", "No: A is a prefix of C, so \"01\" is ambiguous", "It can't be told without the probabilities"], a: 1, why: "Any codeword that's a prefix of another breaks unique decodability." } },
       { t: "The greedy merge", b: `<p>Probabilities: A .35, B .25, C .20, D .12, E .08. Rule: <b>merge the two smallest</b>, put the sum back in the queue, repeat until one node (the root) remains.</p>`,
         v: flow([["D .12 + E .08 → DE .20", "teal"], ["C .20 + DE .20 → CDE .40", "violet"], ["A .35 + B .25 → AB .60", "amber"], ["AB .60 + CDE .40 → 1.00 ✓", "rose"]]),
-        c: { q: "After the first merge, the queue holds C .20, DE .20, B .25, A .35. Next merge?", o: ["A and B", "C and DE — merged nodes re-enter the queue like symbols", "D and E again"], a: 1, why: "The merged node competes on its total probability. That's what makes a tree rather than a flat assignment." } },
+        c: { q: "After the first merge, the queue holds C .20, DE .20, B .25, A .35. Next merge?", o: ["A and B", "C and DE", "D and E again"], a: 1, why: "The merged node competes on its total probability. That's what makes a tree rather than a flat assignment." } },
       { t: "Why the rarest first? (the proof sketch)", b: `<p>Each leaf's depth = how many bits it costs <i>every time that symbol appears</i>. The deepest positions are the most expensive — so the two <b>rarest</b> symbols should pay that cost.</p><p><b>Exchange argument:</b> take any optimal tree, swap its deepest leaves for the two rarest symbols — cost never increases. Then the smaller problem is solved the same way. Greedy choice + optimal substructure = a proof, not luck.</p>` },
       { t: "Reading off the codes", b: `<p>Walk from the root: 0 = first branch, 1 = second. Lecture set gives A=00, B=01, C=10, D=110, E=111 — frequent symbols at depth 2, rare D,E at depth 3.</p><p>Average length $L = \\sum p \\cdot \\text{len} = 0.35 \\cdot 2 + 0.25 \\cdot 2 + 0.20 \\cdot 2 + 0.12 \\cdot 3 + 0.08 \\cdot 3 = \\mathbf{2.20}$ bits. Entropy H ≈ <b>2.15</b>. <b>L ≥ H always</b> — the gap pays for integer lengths.</p>`,
-        c: { q: "L = 2.20 vs H ≈ 2.15. Which is true?", o: ["Bug — L must equal H", "L ≥ H is the law; the gap is integer rounding of fractional ideals", "H was miscomputed"], a: 1, why: "Entropy is a bound. Equal needs power-of-two probabilities (see the Loaded die preset)." } },
+        c: { q: "L = 2.20 vs H ≈ 2.15. Which is true?", o: ["Bug — L must equal H", "L ≥ H is the law", "H was miscomputed"], a: 1, why: "Entropy is a bound. Equal needs power-of-two probabilities (see the Loaded die preset)." } },
       { t: "What Huffman needs (and doesn't do)", b: `<p>Huffman is <b>static</b>: it needs the symbol frequencies gathered in advance, and the tree/table must travel with the message. It learns <b>symbol skew</b>, not repeated phrases — that's LZW's job (next module).</p><span class="analogy">Huffman is a tailor measuring you once and sewing a suit. LZW is a tailor who adjusts the suit while you walk.</span>` },
     ],
     guide: ["Click the two smallest chips yourself — wrong picks get corrected with a hint.", "On the Lecture preset, watch the merged nodes re-enter the queue and get merged again.", "Read the final tree: 0/1 on the branches give each codeword; check A=00 … E=111 in the table.", "Switch to <b>Loaded die</b> and Finish — notice L equals H exactly (all probabilities are powers of two)."],
@@ -400,15 +400,15 @@
     sum: "LZW needs no table sent with the message: encoder and decoder grow the <b>same</b> dictionary from the data itself.",
     steps: [
       { t: "The shared-dictionary trick", b: `<p>Huffman must send its frequency table along with the data. LZW sends <b>nothing</b> — yet both sides build identical dictionaries.</p><p>Start from a shared initial alphabet (each letter gets a code). <b>Encoder:</b> find the longest w already in the dict; when w+c isn't there, emit code(w) and <b>add w+c</b>. <b>Decoder:</b> each code outputs a string; then <b>add (previous output + first char of current)</b>. Same stream, same order → same entries at the same positions.</p>`,
-        c: { q: "Why must decoding start at the beginning?", o: ["Tradition", "Dictionary entries are built from earlier outputs — mid-stream, a code refers to an entry you never built", "It doesn't have to"], a: 1, why: "The dictionary is cumulative state. Huffman's fixed codebook allows mid-stream decoding; LZW's doesn't." } },
+        c: { q: "Why must decoding start at the beginning?", o: ["Because the codes are stored in order", "Dictionary entries are built from earlier outputs", "It doesn't: any code can be decoded alone"], a: 1, why: "The dictionary is cumulative state. Huffman's fixed codebook allows mid-stream decoding; LZW's doesn't." } },
       { t: "Encoder: longest match wins", b: `<p>BANANABANDANA with alphabet A,B,N,D (codes 0–3; new entries start at 4):</p>`,
         v: table(["w", "c", "action"], [["B", "A", "BA new → emit B(1), add BA→4"], ["A", "N", "AN new → emit A(0), add AN→5"], ["N", "A", "NA new → emit N(2), add NA→6"], ["AN", "A", "ANA new → emit AN(5), add ANA→7"], ["…", "", "full stream: <b>1, 0, 2, 5, 0, 4, 2, 3, 7</b> — 9 codes for 13 chars"]], 720) },
       { t: "Decoder rebuilds the same table", b: `<p>Receiving 1,0,2,5,… with only the alphabet: code 1→B, 0→A (add BA→4), 2→N (add AN→5), 5→AN (add NA→6). Same entries, same numbers — <b>synchronised</b>.</p><span class="key">The dictionary is derived from the data itself: nothing to transmit, but both sides must stay in perfect sync.</span>` },
       { t: "The missing-entry case", b: `<p>Encode <code>AAA</code>: the encoder emits <b>0, 1</b> — but entry 1 (\"AA\") was <i>just</i> created and instantly reused, so it reaches the decoder before the decoder has built it.</p><p>Rule: an unknown code = <b>previous output + its own first character</b>: A + A = AA ✓. This happens exactly for immediately-repeating patterns (<code>XYXY…</code>).</p>`,
-        c: { q: "A code arrives one slot past the dictionary. The entry must be…", o: ["impossible — corrupt stream", "prev output + its own first char, p + first(p)", "prev output + its last char"], a: 1, why: "p + last(p) is the classic wrong guess. The entry is the one the encoder just added and reused." } },
+        c: { q: "A code arrives one slot past the dictionary. The entry must be…", o: ["impossible, so the stream must be corrupt", "previous output + its own first character", "previous output + its own last character"], a: 1, why: "p + last(p) is the classic wrong guess. The entry is the one the encoder just added and reused." } },
       { t: "Huffman vs LZW: different redundancy", b: `<p>Huffman exploits <b>which symbols</b> appear (skewed frequencies). LZW exploits <b>which sequences</b> repeat — \"BANANA\" compresses regardless of letter frequencies.</p>`,
         v: table(["", "Huffman", "LZW"], [["Learns", "symbol probabilities", "repeated sequences"], ["Model sent?", "yes — tree/frequencies", "no — rebuilt on the fly"], ["Decode mid-stream?", "yes (fixed codebook)", "no (state-dependent)"], ["Corruption", "boundary desync, may resync", "dictionary diverges — damage grows"], ["Shines on", "skewed symbols", "repeated phrases, GIF palettes"]], 720),
-        c: { q: "Which wins on uniform symbols but a highly repetitive message?", o: ["Huffman — it always wins", "LZW — the repeated phrases, not the symbol skew, are the redundancy", "Neither"], a: 1, why: "Sequence-level redundancy is dictionary coding's home turf." } },
+        c: { q: "Which wins on uniform symbols but a highly repetitive message?", o: ["Huffman: it always beats LZW on any kind of text", "LZW: the repeated phrases are the redundancy", "Neither can compress this message, because the symbols are uniform"], a: 1, why: "Sequence-level redundancy is dictionary coding's home turf." } },
     ],
     guide: ["Step through <b>BANANABANDANA</b>: 13 chars → 9 codes. Watch each new dictionary entry appear.", "Switch to <b>Decode</b> and run: the dictionary rebuilds identically — it was never sent.", "Type <b>AAA</b>, encode (2 codes), then decode — the <b>missing entry</b> row fires: prev + its own first char.", "Try a random string with no repeats — LZW can't compress what never repeats."],
   };

@@ -7,7 +7,8 @@ async function bossTest() {
   localStorage.removeItem("nic.quiz");
   for (const m of bosses) {
     location.hash = m.id; await wait(250);
-    for (let guard = 0; guard < 80; guard++) {
+    // time budget, not a step count: screen transitions got longer with the motion passes
+    for (const end = Date.now() + 20000; Date.now() < end; ) {
       const st = NIC.player.state();
       if (!st.open) break;
       if (st.kind === "bossResult" || st.kind === "complete") break; // a perfect run skips straight to complete
@@ -17,6 +18,7 @@ async function bossTest() {
       }
       document.querySelector(".pl-go").click(); await wait(40);
     }
+    NIC.bossDef(m.id).qs.forEach((Q, i) => { if (Q.type === "num") failures.push(`${m.id} Q${i + 1}: typed-answer question (use mcq or slider)`); });
     const n = NIC.bossDef(m.id).qs.length, q = JSON.parse(localStorage.getItem("nic.quiz") || "{}");
     const right = Array.from({ length: n }, (_, i) => q[`${m.id}-${i}`]).filter((x) => x && x.ok).length;
     if (right !== n) failures.push(`${m.id}: ${right}/${n} stored as correct`);

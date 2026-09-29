@@ -141,7 +141,7 @@
       qsa("#sys button", card).forEach((b) => (b.onclick = () => show(b.dataset.k)));
       show("evo");
       root.appendChild(el(`<div class="callout teal"><b>Why bother?</b> Nature-inspired methods tend to give <b>good results in reasonable time</b> on a huge range of real problems. EAs optimise complex systems on modest hardware, neural networks beat classical pattern-recognition methods, and swarm methods model emergent behaviour. The lecture's twist: all three natural systems were themselves produced by <b>evolution</b>.</div>`));
-      root.appendChild(predict({ id: "l1-what-1", q: "Which natural system inspires algorithms for <b>finding shortest paths</b>, like routing?", opts: ["Brains", "Ant colonies (collective behaviour)", "Evolution only"], a: 1,
+      root.appendChild(predict({ id: "l1-what-1", q: "Which natural system inspires algorithms for <b>finding shortest paths</b>, like routing?", opts: ["Brains (neural networks)", "Ant colonies (collective behaviour)", "Evolution (genetic algorithms)"], a: 1,
         why: "Ants lay pheromone trails, shorter paths get reinforced faster, and the colony converges on a short route. That's <b>Ant Colony Optimisation</b>, the basis of your CA1." }));
       root.appendChild(takeaways([
         "<b>Nature</b>: evolution, brains, collective behaviour.",
@@ -187,7 +187,7 @@
       qs("#rs", card).onclick = () => { stop(); qs("#msg", card).style.display = "none"; reset(); };
       reset();
       root.appendChild(el(`<div class="callout"><b>Honest caveat:</b> "keep if better" is exactly the lecture's trial-and-error flowchart, and it wins easily <i>here</i> because every correct letter can be improved on its own. On genuinely hard problems a single keep-if-better solution gets <b>stuck</b>. That's why real evolution adds more ingredients (next module).</div>`));
-      root.appendChild(predict({ id: "l1-monkey-1", q: "What is the single key difference between the monkey and \"keep if better\"?", opts: ["Keep-if-better types faster", "Keep-if-better <b>keeps its progress</b> and builds on it; the monkey throws everything away each try", "The monkey uses a bigger alphabet"], a: 1,
+      root.appendChild(predict({ id: "l1-monkey-1", q: "What is the single key difference between the monkey and \"keep if better\"?", opts: ["Keep-if-better tries far more strings per second", "Keep-if-better keeps its progress and builds on it", "The monkey is allowed a much bigger alphabet"], a: 1,
         why: "This is <b>cumulative selection</b>: small improvements are kept and built on. Randomness proposes changes, and selection decides what's kept. Randomness alone (the monkey) is hopeless." }));
       root.appendChild(takeaways([
         "Evolution uses <b>trial and error</b>: randomly change, and keep the change if it's better.",
@@ -244,7 +244,7 @@
       };
       life.onResize(draw);
       init();
-      root.appendChild(predict({ id: "l1-ing-1", q: "The lecture says selection should have a <b>relatively weak</b> bias towards the fittest, and that even the least fit should still have some chance. Why not just always breed the best?", opts: ["Breeding only the best is slower to compute", "Everyone quickly becomes a copy of the current best, so the population collapses onto one hill (often not the highest) and stops exploring", "The best might have a bug"], a: 1,
+      root.appendChild(predict({ id: "l1-ing-1", q: "The lecture says selection should have a <b>relatively weak</b> bias towards the fittest, and that even the least fit should still have some chance. Why not just always breed the best?", opts: ["Breeding only the best is slower to compute", "Everyone quickly becomes a copy of the current best", "The best might have a bug"], a: 1,
         why: "Strong bias means fast but premature convergence. Weak bias keeps diversity, so other hills stay explored. Try it: Strong bias + Test, then Weak bias + Test. (Lecture 2: \"always select the best? Bad results, quickly.\")" }));
       root.appendChild(takeaways([
         "Ingredient 1 (<b>required</b>): a <b>population</b> competing for resources.",
@@ -372,7 +372,7 @@
         <tr><td>Car design</td><td>A car shape</td><td>Distance covered on terrain (maximise)</td></tr>
         <tr><td>Circuits, water networks, antennas</td><td>A design</td><td>Closeness of fit to the spec</td></tr></table>
         <p class="dim" style="margin-top:10px">Size of S: tiny (8 here), huge (all timetables for 500 exams over 3 weeks, typically ~10<sup>30</sup>), or <b>infinite</b> (all real numbers).</p></div>`));
-      root.appendChild(predict({ id: "l2-opt-1", q: "Exhaustive search worked for 3 items (2<sup>3</sup> = 8). How many subsets would 60 items have?", opts: ["60²= 3,600", "2⁶⁰ ≈ 1.15 × 10¹⁸", "60! "], a: 1,
+      root.appendChild(predict({ id: "l2-opt-1", q: "Exhaustive search worked for 3 items (2<sup>3</sup> = 8). How many subsets would 60 items have?", opts: ["60² = 3,600", "2⁶⁰ ≈ 1.15 × 10¹⁸", "60! ≈ 8.3 × 10⁸¹"], a: 1,
         why: "Each item is in or out, so there are 2<sup>60</sup> ≈ 1.15 × 10<sup>18</sup> subsets. At a billion checks a second that's about <b>36 years</b>. Enumeration only works for tiny S." }));
       root.appendChild(takeaways([
         "<b>Optimisation</b> = find the best solution you can (usually quickly) from a set <b>S</b> of candidates.",
@@ -406,7 +406,7 @@
       }
       life.onResize(draw);
       draw();
-      root.appendChild(predict({ id: "l2-cx-1", q: "A problem is called <b>hard (intractable)</b> when…", opts: ["It has a large search space", "No polynomial-time exact algorithm is <b>known</b>: the fastest known exact method is roughly exponential, not much better than exhaustive search", "Computers can't represent its solutions"], a: 1,
+      root.appendChild(predict({ id: "l2-cx-1", q: "A problem is called <b>hard (intractable)</b> when…", opts: ["It has a large search space", "No polynomial-time exact algorithm is <b>known</b>", "Computers can't represent its solutions"], a: 1,
         why: "Sorting has a huge search space (n! orderings) but is <b>easy</b>, because an n log n algorithm exists. \"Hard\" is about the best <i>known</i> exact algorithm being exponential. The lecture's point for you: <b>almost all important real-world problems are technically hard.</b>" }));
       root.appendChild(takeaways([
         "Complexity = how the running time of the <b>fastest known exact algorithm</b> grows with problem size n.",
@@ -472,7 +472,7 @@
         draw(cands.map(key));
       };
       draw();
-      root.appendChild(predict({ id: "l2-mst-1", q: "Turn on the degree ≤ 2 constraint and run Prim. What happens, and what does it show?", opts: ["Prim still finds the optimum, because greedy always works on trees", "Greedy gets 20 while the best feasible tree costs 19: add a constraint and the easy problem loses its guaranteed fast algorithm", "No tree satisfies the constraint"], a: 1,
+      root.appendChild(predict({ id: "l2-mst-1", q: "Turn on the degree ≤ 2 constraint and run Prim. What happens, and what does it show?", opts: ["Prim still finds the optimum, because greedy always works on trees", "Greedy gets 20 while the best feasible tree costs 19", "No tree satisfies the constraint"], a: 1,
         why: "Unconstrained, Prim is guaranteed optimal in polynomial time: an <b>easy</b> problem. With the degree constraint, greedy picks A–C, C–D, B–D, B–E = 20, but D–A–C–E–B costs 19. <b>Degree-constrained MST is hard</b>, and real-world MST problems almost always have constraints like this." }));
       root.appendChild(takeaways([
         "<b>MST</b>: the cheapest tree connecting all nodes (n − 1 edges, no cycles). It's <b>easy</b>: Prim's algorithm is polynomial and guaranteed optimal.",
@@ -537,7 +537,7 @@
       qs("#rs", card).onclick = () => { stop(); init(); };
       life.onResize(draw);
       init();
-      root.appendChild(predict({ id: "l2-ap-1", q: "You have <b>1 second</b> to produce a delivery route. Which method, and why?", opts: ["The EA, because it gives the better answer eventually", "Nearest neighbour: simple methods get good solutions fast, and the EA only wins if you can afford to wait", "Exhaustive search: it's guaranteed optimal"], a: 1,
+      root.appendChild(predict({ id: "l2-ap-1", q: "You have <b>1 second</b> to produce a delivery route. Which method, and why?", opts: ["The EA, because it finds the better answer eventually", "Nearest neighbour: it gets a good route almost instantly", "Exhaustive search, because it's guaranteed optimal"], a: 1,
         why: "That's the lecture's quality-vs-time curve: a <b>simple method gets good solutions fast</b>, a <b>sophisticated method is slow but better eventually</b>. The right choice depends on your time budget. Exhaustive search: 24!/2 ≈ 3 × 10<sup>23</sup> tours. No." }));
       root.appendChild(takeaways([
         "<b>Exact</b> algorithm: guaranteed to return an optimal solution. Only practical for easy problems or tiny instances.",

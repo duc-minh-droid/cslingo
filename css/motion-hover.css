@@ -1,0 +1,80 @@
+/* =====================================================================
+   Motion layer, part 4: hover and disclosure motion.
+   - Hover: sticker components lift 2px and their lip grows to match, so the
+     press (translateY(lip), lip → 0) reads as pushing a raised key down.
+     Icons nudge. All hover motion is gated to real pointers (no false hovers
+     on touch) and stays near-imperceptible: these are tens-per-day actions.
+   - Dropdowns: every <details> opens and closes with height + fade
+     (js/motion-details.js), carets rotate, popover rows cascade in.
+   Uses the tokens from styles.css / motion.css. Transform + opacity only,
+   plus box-shadow on the lip (a paint-only change, matched to the press).
+   ===================================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+  /* ---------- sticker lift: buttons, answer tiles, match tiles, chips ---------- */
+  html :is(.btn, .predict .opt, .lesson-check .opt, .pl-body .opt, .qm-t, .chip-btn, .pl-ref):hover:not(:disabled):not(:active) {
+    transform: translateY(-2px);
+  }
+  html .btn:hover:not(:disabled):not(:active) { box-shadow: 0 calc(var(--lip) + 2px) 0 var(--lipc); }
+  html :is(.predict .opt, .lesson-check .opt, .pl-body .opt):hover:not(:disabled):not(:active):not(.sel) { box-shadow: 0 calc(var(--lip) + 2px) 0 var(--line-2); border-color: var(--line-2); }
+  html .pl-body .opt.sel:hover:not(:disabled):not(:active) { box-shadow: 0 calc(var(--lip) + 2px) 0 var(--blue-edge); }
+  html .qm-t:hover:not(:disabled):not(:active):not(.sel) { box-shadow: 0 5px 0 var(--line-2); border-color: var(--line-2); }
+  /* the letter badge on an answer tile wakes up */
+  html :is(.predict .opt, .lesson-check .opt, .pl-body .opt):hover:not(:disabled) .opt-l { border-color: var(--blue-edge); color: var(--blue); transform: scale(1.08); }
+  .opt-l { transition: border-color var(--dur-2) ease, color var(--dur-2) ease, transform var(--dur-3) var(--ease-spring); }
+
+  /* ---------- rows and cards that open something: slide a touch toward the action ---------- */
+  html :is(.pc-row, .guide-item, .gb-mod, .rv-sess):hover:not(:disabled) { transform: translateX(3px); }
+  html :is(.pc-row, .guide-item, .gb-mod, .rv-sess) { transition: transform var(--dur-3) var(--ease-spring), background-color var(--dur-2) ease, border-color var(--dur-2) ease; }
+  html .pager a:hover { transform: translateY(-2px); }
+  html .pager a { transition: transform var(--dur-3) var(--ease-spring), background-color var(--dur-2) ease; }
+
+  /* ---------- icon buttons: top bar, dock, player chrome ---------- */
+  html .tb-btn:hover > svg, html .tb-btn:hover > img { transform: translateY(-2px) scale(1.08); }
+  html .tb-btn > :is(svg, img) { transition: transform var(--dur-3) var(--ease-spring); }
+  html .dock button:not(.on):hover svg { transform: translateY(-2px) rotate(-6deg); }
+  html .dock button svg { transition: transform var(--dur-3) var(--ease-spring); }
+  html .pl-x:hover svg, html .pl-x:hover { transform: rotate(90deg); }
+  html .pl-x, html .pl-x svg { transition: transform var(--dur-3) var(--ease-spring); }
+  html .seg button:not(.on):hover { transform: translateY(-1px); }
+
+  /* ---------- disclosure summaries ---------- */
+  html details > summary:hover { opacity: 1; }
+  html .pl-look > summary:hover { background: var(--bg-2); }
+  html .pl-look > summary:hover .pl-look-car { transform: translateY(1px) rotate(45deg); }
+  html .pl-look[open] > summary:hover .pl-look-car { transform: rotate(225deg) translate(-3px, -3px); }
+}
+
+/* ---------- carets turn instead of snapping ---------- */
+.pl-look > summary { transition: background-color var(--dur-2) ease; border-radius: 14px; }
+.pl-look-car { transition: transform var(--dur-3) var(--ease-spring); }
+.np-more > summary { list-style: none; display: inline-flex; align-items: center; gap: 6px; }
+.np-more > summary::-webkit-details-marker { display: none; }
+.np-more > summary::after { content: ""; width: 7px; height: 7px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform var(--dur-3) var(--ease-spring); }
+.np-more[open] > summary::after { transform: translateY(1px) rotate(225deg); }
+/* the body of a <details> being animated by js/motion-details.js */
+details.m-anim { overflow: hidden; }
+
+/* ---------- dropdown contents cascade in (top-bar popovers, lesson popover) ---------- */
+@keyframes m-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.tb-pop .pop-card > *, .node-pop > * { animation: m-rise var(--dur-3) var(--ease-out) both; }
+.tb-pop .pop-card > :nth-child(2), .node-pop > :nth-child(2) { animation-delay: 30ms; }
+.tb-pop .pop-card > :nth-child(3), .node-pop > :nth-child(3) { animation-delay: 60ms; }
+.tb-pop .pop-card > :nth-child(4), .node-pop > :nth-child(4) { animation-delay: 90ms; }
+.tb-pop .pop-card > :nth-child(5), .node-pop > :nth-child(5) { animation-delay: 120ms; }
+.tb-pop .pop-card > :nth-child(n+6), .node-pop > :nth-child(n+6) { animation-delay: 150ms; }
+/* course list rows inside the course picker cascade too */
+.tb-pop .pc-row { animation: m-rise var(--dur-3) var(--ease-out) both; }
+.tb-pop .pc-row:nth-of-type(2) { animation-delay: 40ms; }
+.tb-pop .pc-row:nth-of-type(3) { animation-delay: 80ms; }
+.tb-pop .pc-row:nth-of-type(n+4) { animation-delay: 120ms; }
+/* the ghost left behind on close must not replay the cascade */
+.m-ghost > *, .m-ghost .pc-row { animation: none !important; }
+
+/* ---------- reduced motion: keep the fades, drop the movement ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html :is(.btn, .predict .opt, .lesson-check .opt, .pl-body .opt, .qm-t, .chip-btn, .pl-ref, .pc-row, .guide-item, .gb-mod, .rv-sess, .pager a, .seg button, .pl-x):hover { transform: none !important; }
+  html :is(.tb-btn, .dock button, .pl-x):hover :is(svg, img), html :is(.predict .opt, .lesson-check .opt, .pl-body .opt):hover .opt-l { transform: none !important; }
+  html :is(.tb-btn, .dock button, .pl-x) :is(svg, img), .opt-l, .pl-look-car, .np-more > summary::after { transition-property: opacity, color, border-color, background-color; }
+  @keyframes m-rise { from { opacity: 0; } to { opacity: 1; } }
+}

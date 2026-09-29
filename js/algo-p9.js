@@ -175,7 +175,7 @@
 
       root.appendChild(predict({ id: "a9-dft-1",
         q: "Set Wave 1 to 10 Hz amp 1, Wave 2 to 20 Hz amp 0.5, Wave 3 amp 0. What does the spectrum show?",
-        opts: ["One peak at 10 Hz — the waves merge", "Two peaks: a tall one at 10 Hz and a half-height one at 20 Hz", "A bump at every frequency"],
+        opts: ["One peak at 15 Hz, where the two waves average out", "Two peaks: tall at 10 Hz, half-height at 20 Hz", "A small bump at every frequency up to 20 Hz"],
         a: 1, why: "The spectrum is just the recipe: which frequencies, how strong. Amplitude maps to bar height." }));
       root.appendChild(predict({ id: "a9-dft-2",
         q: "A true <b>60 Hz</b> hum sampled at fs = 100 Hz appears in the spectrum at…",
@@ -313,7 +313,7 @@
         a: 1, why: "Each split groups by the <i>lowest</i> remaining bit, so leaves end up in <b>bit-reversed</b> position order. Option C is only the first split." }));
       root.appendChild(predict({ id: "a9-fft-2",
         q: "Doubling N makes the direct DFT ~4× slower. The FFT gets slower by…",
-        opts: ["also ~4×", "a bit more than 2× — N doubles and one extra level is added", "8×"],
+        opts: ["Also about 4×, same as the DFT", "A bit more than 2×", "About 8×, since it's recursive"],
         a: 1, why: "Ratio = 2·(log₂N + 1)/log₂N. For N = 1024→2048 that's 2·11/10 = <b>2.2×</b>. The N² vs N·log N gap is why the FFT changed the world." }));
       root.appendChild(takeaways([
         "One split: X[k] = E[k] + W·O[k], and X[k + N/2] = E[k] − W·O[k] — the same two sub-results produce <b>two</b> outputs.",
@@ -335,12 +335,12 @@
       { t: "Two questions for one signal", b: `<p>A wiggling signal can be asked two different questions:</p>`,
         v: table(["Question", "Where the answer lives"], [["How does the value move over time?", "the <b>time domain</b> — the wiggle you plot"], ["Which frequencies are inside, and how strong?", "the <b>frequency domain</b> — the spectrum"]]) + `<p class="dim" style="margin-top:8px">A messy-looking wiggle might be just two spikes in the spectrum. The DFT is a <b>decomposition</b>, not a transformation into something else.</p>` },
       { t: "How each bin listens", b: `<p>Output bin <code>X[k]</code> answers: <i>"how much of frequency k is in this signal?"</i> It multiplies every sample by a vector rotating at exactly k cycles per window and adds up the products.</p><p><b>Matching frequency</b>: every product points the same direction → they <b>add</b> → big number.<br><b>Mismatched</b>: products point all around the circle → they <b>cancel</b> → ≈ 0.</p>`,
-        c: { q: "A signal contains only the frequency of bin 3. What does bin k = 5 return?", o: ["a large value", "≈ 0 — the products walk around the circle and cancel", "a negative number"], a: 1, why: "Cancellation is what makes the DFT selective. Each bin answers its own private question." } },
+        c: { q: "A signal contains only the frequency of bin 3. What does bin k = 5 return?", o: ["a large value, since every bin picks up some of every frequency", "about 0: the products cancel around the circle", "a negative number of roughly the same size as bin 3"], a: 1, why: "Cancellation is what makes the DFT selective. Each bin answers its own private question." } },
       { t: "Three hand DFTs worth memorising (N = 4)", b: `<p>For N = 4 the rotating vector only ever takes values 1, −j, −1, j, so these fit on paper:</p>`,
         v: table(["Signal x", "X[0]", "X[1]", "X[2]", "X[3]"], [["constant [1, 1, 1, 1]", "4", "0", "0", "0"], ["impulse [1, 0, 0, 0]", "1", "1", "1", "1"], ["alternating [1, −1, 1, −1]", "0", "0", "4", "0"]]) + `<p class="dim" style="margin-top:8px">Constant = all energy at k = 0 (DC). Impulse = every frequency at once. Alternating = the Nyquist bin k = N/2.</p>`,
-        c: { q: "[0, 1, 0, −1] is one cycle of a sine at bin 1. Which bins light up?", o: ["only k = 1", "k = 1 and k = 3 — real signals give symmetric spectra", "all four equally"], a: 1, why: "Bin 3 is 'negative frequency' −1 in disguise. Real signals always produce these conjugate pairs — half the spectrum is redundant." } },
+        c: { q: "[0, 1, 0, −1] is one cycle of a sine at bin 1. Which bins light up?", o: ["only k = 1", "k = 1 and k = 3", "all four equally"], a: 1, why: "Bin 3 is 'negative frequency' −1 in disguise. Real signals always produce these conjugate pairs — half the spectrum is redundant." } },
       { t: "Aliasing: sampling too slowly", b: `<p>Sample a 7 Hz sine at 8 Hz and the dots are <b>identical</b> to a 1 Hz sine. Any frequency above <code>fs/2</code> folds back and impersonates a lower one.</p><span class="key">Rule: $f_s > 2 f_{\\max}$. A true 60 Hz tone sampled at 100 Hz appears at <b>40 Hz</b> — and afterwards nothing can tell you it was fake.</span>`,
-        c: { q: "Sampled at 80 Hz, the spectrum shows a peak at 35 Hz. The signal…", o: ["definitely contains 35 Hz", "might really contain 45 Hz — it folds past the 40 Hz limit: 80 − 45 = 35", "contains only DC"], a: 1, why: "Folding is irreversible: real 35 Hz and aliased 45 Hz are indistinguishable once sampled." } },
+        c: { q: "Sampled at 80 Hz, the spectrum shows a peak at 35 Hz. The signal…", o: ["definitely contains 35 Hz", "might really contain 45 Hz", "contains only DC"], a: 1, why: "Folding is irreversible: real 35 Hz and aliased 45 Hz are indistinguishable once sampled." } },
       { t: "Leakage: the window edge", b: `<p>If your N samples hold a <b>whole number of cycles</b>, energy lands in one bin. If not, the window's edges look like a sudden jump, and the energy <b>smears into neighbouring bins</b>.</p><p>The fix is multiplying by a Hann/Hamming window to taper the edges — it <i>reduces</i> leakage but never removes it, and it costs resolution. A different cause than aliasing, with a different fix.</p>` },
       { t: "Reading the playground", b: `<p><b>Top canvas</b>: the faint line is the true continuous signal; the dots are the 100 samples the computer actually gets (fs = 100 Hz). <b>Bottom canvas</b>: the magnitude spectrum — bin k sits at k·fs/N = k Hz, and everything past 50 Hz is unreachable (the shaded zone folds left).</p>` },
     ],
@@ -359,7 +359,7 @@
       { t: "Where the waste is", b: `<p>The direct DFT computes N outputs, each a sum of N products: <b>N² multiply-adds</b>.</p><p>But look closer: outputs reuse almost the same twiddle factors over and over. The same products get recomputed thousands of times. If work could be <b>shared</b>, huge savings appear.</p>` },
       { t: "The split that halves the work", b: `<p>Separate the sum into even-indexed and odd-indexed samples. Each half is itself a DFT of size N/2:</p>`,
         v: `<div class="mono" style="background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:13.5px">X[k] = E[k] + W·O[k]<br>X[k + N/2] = E[k] − W·O[k]</div><p class="dim" style="margin-top:8px">E and O are the half-size DFTs of the even and odd samples. The twiddle W rotates exactly half a turn between k and k + N/2, flipping its sign.</p>`,
-        c: { q: "Outputs k and k + N/2 share which work?", o: ["none — they're independent", "both reuse the same E[k] and O[k]; only the sign of the twiddle term flips", "E[k] only"], a: 1, why: "One pair of half-DFT results produces TWO outputs. That pairing is the butterfly, and it's where the savings live." } },
+        c: { q: "Outputs k and k + N/2 share which work?", o: ["None: every output is computed separately", "Both reuse the same E[k] and O[k]", "Only E[k]; O[k] is recomputed"], a: 1, why: "One pair of half-DFT results produces TWO outputs. That pairing is the butterfly, and it's where the savings live." } },
       { t: "Recurse to the leaves", b: `<p>Apply the split again to each half, and again, until every problem has size 1 — and the DFT of one number is <b>the number itself</b>.</p><p>For N = 8 the leaves come out in a strange order:</p>`,
         v: genomes([0, 4, 2, 6, 1, 5, 3, 7]) + `<p class="dim" style="margin-top:8px">Leaf position → index = <b>reverse the bits</b>: position 001 lands index 100 = 4; position 011 lands 110 = 6. This is the famous bit-reversed order.</p>`,
         c: { q: "In the leaf order 0 4 2 6 1 5 3 7, which index sits at position 6 (counting positions from 0)?", o: ["6", "3", "5"], a: 1, why: "Position 6 = 110 in binary; reversed = 011 = 3." } },

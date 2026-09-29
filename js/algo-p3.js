@@ -76,7 +76,7 @@
         } },
       { t: "Why a corner always wins", b: `<p>A linear score has no hills. From any point inside the polygon, you can always move in the direction the score increases, until an edge stops you. Then slide along the edge until a <b>corner</b> stops you.</p><span class="key">So you only need to check the corners. Here: (0,0) → 0, (5,0) → 15, <b>(4,3) → 18</b>, (0,5) → 10.</span>`,
         v: F.bars([["(0,0)", 0, "dim"], ["(5,0)", 15, "teal"], ["(4,3)", 18, "amber", "best"], ["(0,5)", 10, "teal"]], { max: 18 }),
-        c: { q: "Where is the optimum of an LP with a bounded feasible region?", o: ["In the centre", "At a corner, or along a whole edge if the objective is parallel to it", "Anywhere, because LPs are flat"], a: 1, why: "A linear objective can't peak inside, so you can always slide further until a corner stops you." } },
+        c: { q: "Where is the optimum of an LP with a bounded feasible region?", o: ["In the centre of the feasible region", "At a corner, or along a whole edge if parallel", "Anywhere inside the region, since LPs are flat"], a: 1, why: "A linear objective can't peak inside, so you can always slide further until a corner stops you." } },
       { t: "Binding vs slack", b: `<p>At (4,3): machine hours are 4 + 6 = 10, exactly the limit. Raw material is 12 + 3 = 15, also exactly the limit. Both constraints are <b>binding</b>: they're what stops you earning more.</p><p>A constraint with room to spare has <b>slack</b>. Loosening it wouldn't change the answer at all.</p>` },
     ],
     guide: ["Drag the <b>£ per unit of y</b> slider slowly. Watch the orange optimum <b>jump</b> from corner to corner. It never slides.", "Turn on <b>y ≤ 4</b>. A new corner appears. Does the optimum change at £2? At £5?", "Turn off a constraint. The region grows, and with both off it becomes unbounded."],
@@ -121,7 +121,7 @@
         }
       }
       draw();
-      root.appendChild(predict({ id: "a3-lp-1", q: "With £2 per y the optimum is (4, 3), z = 18. Raise the price of y to £7. Where does the optimum go?", opts: ["It stays at (4, 3)", "(0, 5): y is now worth enough to give up all of x", "(5, 0)"], a: 1,
+      root.appendChild(predict({ id: "a3-lp-1", q: "With £2 per y the optimum is (4, 3), z = 18. Raise the price of y to £7. Where does the optimum go?", opts: ["It stays at (4, 3)", "(0, 5)", "(5, 0)"], a: 1,
         why: "At £7: (4,3) gives 12 + 21 = 33, and (0,5) gives 35. The switch happens at exactly £6, where both give 30. The optimum jumps from corner to corner when the profit line tilts past an edge's slope." }));
       root.appendChild(takeaways([
         "Feasible region = where every constraint holds. The optimum sits at a <b>corner</b>.",
@@ -232,10 +232,10 @@
         v: (box) => { box.innerHTML = `<div class="fig-wrap">${lpSVG({ active: { c1: true, c2: true }, path: [[0, 0], [5, 0], [4, 3]], opt: [4, 3] }).svg}</div><div class="fig-cap">The red path is the whole algorithm: (0,0) → (5,0) → (4,3).</div>`; } },
       { t: "Which direction? The entering variable", b: `<p>At a corner, some variables are 0. Ask: <i>if I increased this one, how much would z gain per unit?</i> That's its <b>reduced cost</b>.</p><p><b>Dantzig's rule:</b> increase the variable with the largest positive reduced cost.</p>`,
         v: F.bars([["x: +£3 per unit", 3, "teal", "enters"], ["y: +£2 per unit", 2, "dim"]], { max: 3 }),
-        c: { q: "Dantzig's rule picks the entering variable with…", o: ["The smallest coefficient", "The largest positive reduced cost, i.e. the biggest gain per unit", "The first in alphabetical order"], a: 1, why: "It's a greedy per-unit rule. It doesn't always take the fewest pivots, but it's simple and works well." } },
+        c: { q: "Dantzig's rule picks the entering variable with…", o: ["The smallest coefficient, so each pivot moves carefully", "The largest positive reduced cost", "The first variable in alphabetical order, to keep things simple"], a: 1, why: "It's a greedy per-unit rule. It doesn't always take the fewest pivots, but it's simple and works well." } },
       { t: "How far? The ratio test", b: `<p>Increase x until a constraint stops you. Each constraint allows a different maximum. The <b>smallest</b> one wins, because going past it leaves the feasible region.</p>`,
         v: F.bars([["machine: x ≤ 10", 10, "violet"], ["material: x ≤ 5", 5, "amber", "tightest"]], { max: 10 }),
-        c: { q: "Which constraint decides where you stop?", o: ["The loosest bound", "The tightest bound, because it's the first one you'd break", "A random one"], a: 1, why: "Push past the tightest bound and you've broken that constraint. That's the ratio test." } },
+        c: { q: "Which constraint decides where you stop?", o: ["The loosest bound", "The tightest bound", "A random one"], a: 1, why: "Push past the tightest bound and you've broken that constraint. That's the ratio test." } },
       { t: "Stop when no edge improves", b: `<p>At (4,3), every neighbouring corner has a lower z. All reduced costs are ≤ 0, and that's the certificate of optimality.</p><span class="key">Each pivot strictly improves z (in the normal non-degenerate case), and there are finitely many corners, so simplex always stops.</span>` },
       { t: "Watch it run", b: `<p>Here is simplex as a <b>tableau</b>: one row per constraint, plus a <b>gain</b> row showing how much z rises per unit of each variable. The plot shows the corner it's standing on.</p><p>Press <b>play</b> or step with the arrows. It will pause and ask which variable enters.</p>`,
         v: (box, life) => simplexRun(box, life) },
@@ -269,7 +269,7 @@
       qs("#pv", card).onclick = () => { if (i < WALK.length - 1) { i++; draw(true); } };
       qs("#rs", card).onclick = () => { i = 0; draw(false); };
       draw(false);
-      root.appendChild(predict({ id: "a3-sim-1", q: "At (5, 0) with z = 15, is there still a direction that improves z?", opts: ["No, 15 is a corner so we're done", "Yes: trading ⅓ of an x for each extra y along 3x + y = 15 gains £1 per y", "Can't tell without more maths"], a: 1,
+      root.appendChild(predict({ id: "a3-sim-1", q: "At (5, 0) with z = 15, is there still a direction that improves z?", opts: ["No: (5, 0) is a corner, so it must be optimal", "Yes: trading ⅓ x for each extra y gains £1 per y", "It can't be told without solving the whole LP"], a: 1,
         why: "Along 3x + y = 15, each +1 y costs −⅓ x: Δz = +2 − 1 = +1. Walking that edge reaches (4,3), z = 18. Being a corner doesn't make it optimal, only having no improving edge does." }));
       root.appendChild(takeaways([
         "Simplex walks corner to corner: <b>enter</b> the most profitable variable, <b>stop</b> at the tightest constraint.",
@@ -290,7 +290,7 @@
         v: F.plot([{ f: BF, c: "teal", fill: true }], { x: [0, 1], vlines: [[0, "a", "violet"], [1, "b", "violet"]], marks: [[0.62, "minimum (unknown to us)", "amber"]], h: 170 }) },
       { t: "Two probes tell you which side to throw away", b: `<p>Evaluate f at two interior points c &lt; d.</p><p>If <b>f(c) &lt; f(d)</b>, the minimum can't be to the right of d. If it were, the curve would have to go up to d and then come back down, which is two dips. So we discard [d, b].</p>`,
         v: F.plot([{ f: (x) => 2.2 * Math.abs(x - 0.3) ** 1.4 + 0.25, c: "teal" }], { x: [0, 1], vlines: [[0.382, "c", "violet"], [0.618, "d → cut from here", "rose"]], marks: [[0.382, "f(c) low", "teal"], [0.618, "f(d) high", "rose"]], h: 170 }) + `<div class="fig-cap">f(c) &lt; f(d), so everything to the right of d is thrown away.</div>`,
-        c: { q: "f(c) < f(d) on a unimodal function. Which piece do you discard?", o: ["[a, c]", "[d, b]: the minimum can't be beyond the worse probe", "The whole bracket"], a: 1, why: "If the minimum were right of d, f would rise to d and then fall again, which isn't unimodal." } },
+        c: { q: "f(c) < f(d) on a unimodal function. Which piece do you discard?", o: ["[a, c]", "[d, b]", "The whole bracket"], a: 1, why: "If the minimum were right of d, f would rise to d and then fall again, which isn't unimodal." } },
       { t: "Why the golden ratio?", b: `<p>Put the probes at 38.2% and 61.8% of the way across. After you discard one end, the surviving probe lands <b>exactly</b> where a probe of the new, smaller bracket should be.</p><span class="key">So each step costs only <b>one</b> new function evaluation, and the bracket shrinks to 0.618 of its size every time.</span>`,
         v: F.bars([["step 0", 1, "violet"], ["step 1", PHI, "violet"], ["step 2", PHI ** 2, "violet"], ["step 3", PHI ** 3, "violet"], ["step 10", PHI ** 10, "teal", "≈ 0.008"]], { max: 1, fmt: (v) => v.toFixed(3) }) },
     ],
@@ -358,7 +358,7 @@
           { t: "<b>Contract</b>: it's still bad, so pull back halfway", v: `<svg class="fig" viewBox="0 0 160 90"><polygon points="20,70 110,75 60,15" fill="none" stroke="var(--line-2)" stroke-dasharray="4 3"/><circle cx="62" cy="45" r="5" fill="var(--amber)"/><line x1="60" y1="15" x2="62" y2="45" stroke="var(--amber)" stroke-width="2" class="draw"/></svg>` },
           { t: "<b>Shrink</b>: nothing works, so squash toward the best", v: `<svg class="fig" viewBox="0 0 160 90"><polygon points="20,70 110,75 60,15" fill="none" stroke="var(--line-2)" stroke-dasharray="4 3"/><polygon points="20,70 65,72 40,42" fill="rgba(255,75,75,.15)" stroke="var(--rose)"/></svg>` },
         ]),
-        c: { q: "The reflected point is worse than all three corners. What does Nelder–Mead try next?", o: ["Expand further", "Contract: the flip overshot, so pull back toward the good side", "Restart randomly"], a: 1, why: "An overshoot calls for a contraction. Only if that also fails does the whole triangle shrink." } },
+        c: { q: "The reflected point is worse than all three corners. What does Nelder–Mead try next?", o: ["Expand further", "Contract", "Restart randomly"], a: 1, why: "An overshoot calls for a contraction. Only if that also fails does the whole triangle shrink." } },
       { t: "The landscape in 3-D", b: `<p>This is the valley the triangle crawls through below: a curved \"banana\" (a softened <b>Rosenbrock</b> function). The floor bends, so steps of a fixed size would keep bumping into the walls. Nelder–Mead's triangle stretches along the valley instead.</p><p>Drag to rotate it.</p>`,
         v: (box, life) => { F.surface3d(box, life, { f: (x, y) => Math.log(1 + ROS(x, y)), height: 260, points: [{ x: MIN[0], y: MIN[1], c: "#ff9600", label: "minimum" }] }); } },
       { t: "Why it needs no gradient", b: `<p>Every decision is a comparison: <i>is this point better than that one?</i> There are no derivatives anywhere. So it works on noisy or non-smooth functions where gradient methods can't even start.</p><span class="key">The trade-off is weak theory: it can stall, and it slows down in high dimensions.</span>` },
@@ -441,7 +441,7 @@
       qs("#rs", card).onclick = () => { stop(); init(); refresh(); };
       life.onResize(() => view === "2d" && draw2d());
       mount(); refresh();
-      root.appendChild(predict({ id: "a3-nm-1", q: "The reflected point beats even the best corner. What should the algorithm do?", opts: ["Stop, because we're done", "Try expanding even further in that direction, since it looks promising", "Shrink the triangle"], a: 1,
+      root.appendChild(predict({ id: "a3-nm-1", q: "The reflected point beats even the best corner. What should the algorithm do?", opts: ["Stop, because nothing can beat that point", "Try expanding even further in that direction", "Shrink the whole triangle towards the best"], a: 1,
         why: "A reflection that beats everything suggests you're going downhill, so expansion gambles on a bigger step while it's paying off." }));
       root.appendChild(takeaways([
         "Sort the corners, then fix the <b>worst</b>: reflect → expand → contract → shrink.",

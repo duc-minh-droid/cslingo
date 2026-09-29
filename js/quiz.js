@@ -2,7 +2,7 @@
    Question types (Q.type, default "mcq"):
      mcq     {o:[...], a}                         pick one
      multi   {o:[...], a:[...]}                   select all that apply
-     num     {ans, tol?, unit?}                   type a number
+     num     {ans, tol?, unit?}                   legacy: shown as tap-to-pick options (never typed)
      slider  {min, max, step, ans, tol, unit?, live?(v)->html}   estimate by dragging
      order   {items:[...correct order]}           tap items into the right order
      match   {pairs:[[left, right], ...]}         pair each left with a right
@@ -23,6 +23,36 @@
     return a;
   }
   const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+  /* Display order for answer options, so the right answer isn't always in the same slot.
+     True/False keeps its order, all-numeric options are shown ascending, "both / neither / all / none of…"
+     stay last, and everything else is shuffled with a seed from the question text (stable on revisits).
+     Buttons keep data-k = the ORIGINAL index, so grading and saved answers are unchanged. */
+  const SUP = { "⁰": 0, "¹": 1, "²": 2, "³": 3, "⁴": 4, "⁵": 5, "⁶": 6, "⁷": 7, "⁸": 8, "⁹": 9 };
+  function asNum(h) {
+    let s = String(h).replace(/<[^>]+>/g, "").replace(/^(about|roughly|≈|~)\s*/i, "").replace(/[,\s]/g, "").replace(/[−–]/g, "-").replace(/×$/, "").replace(/%$/, "");
+    const sup = s.match(/^(-?\d+(?:\.\d+)?)([⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/);
+    if (sup) return Math.pow(+sup[1], +[...sup[2]].map((c) => SUP[c]).join(""));
+    const sci = s.match(/^(-?\d+(?:\.\d+)?)×10([⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/);
+    if (sci) return +sci[1] * Math.pow(10, +[...sci[2]].map((c) => SUP[c]).join(""));
+    const fr = s.match(/^(-?\d+)\/(\d+)$/);
+    if (fr) return +fr[1] / +fr[2];
+    s = s.replace(/(Hz|ms|s|kg|km|bits?|days?|years?|seconds?|steps?|GB|MB)$/i, "");
+    return /^-?\d+(\.\d+)?$/.test(s) ? +s : NaN;
+  }
+  const PIN = /^(both|neither|all of (the|them|these)|none of (the|them|these)|all the above|none of the above)\b/i;
+  function optOrder(Q) {
+    const o = Q.o, idx = o.map((_, k) => k);
+    const plain = o.map((x) => String(x).replace(/<[^>]+>/g, "").trim());
+    if (o.length <= 2 && plain.every((x) => /^(true|false|yes|no)$/i.test(x))) return idx;
+    const nums = plain.map(asNum);
+    if (nums.every((v) => Number.isFinite(v))) return idx.slice().sort((a, b) => nums[a] - nums[b] || a - b);
+    const pinned = idx.filter((k) => PIN.test(plain[k])), free = idx.filter((k) => !PIN.test(plain[k]));
+    let s = 0;
+    for (const c of String(Q.q) + "|" + plain.join("|")) s = (s * 31 + c.charCodeAt(0)) >>> 0;
+    for (let i = free.length - 1; i > 0; i--) { s = (s * 1664525 + 1013904223) >>> 0; const j = s % (i + 1); [free[i], free[j]] = [free[j], free[i]]; }
+    return free.concat(pinned);
+  }
+  N.optOrder = optOrder;
   const fmtNum = (v) => (Number.isInteger(v) ? String(v) : String(+(+v).toFixed(4)));
   /** The corrected answer under a graded question: appended, then revealed (fade + small drop). */
   const correct = (box, html) => { box.insertAdjacentHTML("beforeend", `<div class="q-correct">${html}</div>`); if (N.fx && N.fx.reveal) N.fx.reveal(box.lastElementChild); };
@@ -31,39 +61,43 @@
     mcq: {
       label: "Choose one",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="opts" role="radiogroup">${Q.o.map((o, k) => `<button class="opt" role="radio" aria-checked="false" data-k="${k}"><span class="opt-l">${String.fromCharCode(65 + k)}</span><span>${o}</span></button>`).join("")}</div>`;
+        box.innerHTML = `<div class="opts" role="radiogroup">${optOrder(Q).map((k, pos) => `<button class="opt" role="radio" aria-checked="false" data-k="${k}"><span class="opt-l">${String.fromCharCode(65 + pos)}</span><span>${Q.o[k]}</span></button>`).join("")}</div>`;
         qsa(".opt", box).forEach((b) => (b.onclick = () => submit(+b.dataset.k)));
       },
       grade: (Q, v) => v === Q.a,
-      reveal(Q, box, v, ok) { qsa(".opt", box).forEach((b, k) => { b.disabled = true; if (k === Q.a) b.classList.add("right"); else if (k === v) b.classList.add("wrong"); }); return ok ? qsa(".opt", box)[Q.a] : qsa(".opt", box)[v]; },
+      reveal(Q, box, v, ok) { const at = (k) => qs(`.opt[data-k="${k}"]`, box); qsa(".opt", box).forEach((b) => { const k = +b.dataset.k; b.disabled = true; if (k === Q.a) b.classList.add("right"); else if (k === v) b.classList.add("wrong"); }); return ok ? at(Q.a) : at(v); },
       answer: (Q) => Q.o[Q.a],
     },
     multi: {
       label: "Select all that apply",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="opts">${Q.o.map((o, k) => `<button class="opt multi" data-k="${k}" aria-pressed="false"><span class="opt-l opt-box"></span><span>${o}</span></button>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        box.innerHTML = `<div class="opts">${optOrder(Q).map((k) => `<button class="opt multi" data-k="${k}" aria-pressed="false"><span class="opt-l opt-box"></span><span>${Q.o[k]}</span></button>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
         const chk = qs("[data-check]", box);
         qsa(".opt", box).forEach((b) => (b.onclick = () => { b.classList.toggle("sel"); b.setAttribute("aria-pressed", b.classList.contains("sel")); chk.disabled = !qs(".opt.sel", box); }));
-        chk.onclick = () => submit(qsa(".opt", box).map((b, k) => (b.classList.contains("sel") ? k : -1)).filter((k) => k >= 0));
+        chk.onclick = () => submit(qsa(".opt", box).filter((b) => b.classList.contains("sel")).map((b) => +b.dataset.k).sort((x, y) => x - y));
       },
       grade: (Q, v) => same([...v].sort(), [...Q.a].sort()),
       reveal(Q, box, v) {
-        qsa(".opt", box).forEach((b, k) => { b.disabled = true; const should = Q.a.includes(k), did = v.includes(k); b.classList.toggle("sel", did); if (should && did) b.classList.add("right"); else if (did) b.classList.add("wrong"); else if (should) b.classList.add("missed"); });
+        qsa(".opt", box).forEach((b) => { const k = +b.dataset.k; b.disabled = true; const should = Q.a.includes(k), did = v.includes(k); b.classList.toggle("sel", did); if (should && did) b.classList.add("right"); else if (did) b.classList.add("wrong"); else if (should) b.classList.add("missed"); });
         const c = qs("[data-check]", box); if (c) c.remove();
       },
       answer: (Q) => Q.a.map((k) => Q.o[k]).join(" · "),
     },
+    // No typed answers, ever: a legacy num question is shown as tap-to-pick options far enough apart to choose by estimating.
+    // Write new questions as mcq with hand-picked distractors instead (AGENTS.md).
     num: {
-      label: "Type your answer",
+      label: "Choose one",
+      opts(Q) {
+        const a = +Q.ans, int = Number.isInteger(a), r = (v) => (int ? Math.round(v) : +v.toPrecision(3));
+        const c = a === 0 ? [0, 1, 2, 10] : [a / 2, a, a * 2, a * 10].map(r);
+        return [...new Set(c.map((v) => (v === r(a) ? a : v)))].sort((x, y) => x - y);
+      },
       render(Q, box, submit) {
-        box.innerHTML = `<div class="q-num"><input type="number" step="any" inputmode="decimal" placeholder="your answer" aria-label="answer">${Q.unit ? `<span class="q-unit">${Q.unit}</span>` : ""}<button class="btn primary" data-check disabled>Check</button></div>`;
-        const inp = qs("input", box), chk = qs("[data-check]", box);
-        inp.oninput = () => (chk.disabled = inp.value.trim() === "");
-        inp.onkeydown = (e) => { if (e.key === "Enter" && !chk.disabled) chk.click(); };
-        chk.onclick = () => submit(+inp.value);
+        box.innerHTML = `<div class="opts" role="radiogroup">${TYPES.num.opts(Q).map((v, pos) => `<button class="opt" role="radio" aria-checked="false" data-v="${v}"><span class="opt-l">${String.fromCharCode(65 + pos)}</span><span>${fmtNum(v)}${Q.unit ? " " + Q.unit : ""}</span></button>`).join("")}</div>`;
+        qsa(".opt", box).forEach((b) => (b.onclick = () => submit(+b.dataset.v)));
       },
       grade: (Q, v) => Math.abs(v - Q.ans) <= (Q.tol ?? 1e-9),
-      reveal(Q, box, v, ok) { const inp = qs("input", box); inp.value = fmtNum(v); inp.disabled = true; inp.classList.add(ok ? "right" : "wrong"); const c = qs("[data-check]", box); if (c) c.remove(); if (!ok) correct(box, `Answer: <b>${fmtNum(Q.ans)}${Q.unit ? " " + Q.unit : ""}</b>${Q.tol ? ` <span class="faint">(±${fmtNum(Q.tol)} accepted)</span>` : ""}`); return inp; },
+      reveal(Q, box, v, ok) { let hit = null; qsa(".opt", box).forEach((b) => { const x = +b.dataset.v; b.disabled = true; if (Math.abs(x - Q.ans) <= (Q.tol ?? 1e-9)) b.classList.add("right"); else if (x === v) { b.classList.add("wrong"); hit = b; } }); return ok ? qs(".opt.right", box) : hit; },
       answer: (Q) => fmtNum(Q.ans) + (Q.unit ? " " + Q.unit : ""),
     },
     slider: {

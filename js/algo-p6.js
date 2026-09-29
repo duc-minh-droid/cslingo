@@ -15,7 +15,7 @@
           { t: "One bit flips: five 1s, odd → <b>detected</b>", v: F.cells(["1", { v: "1", c: "rose" }, "1", "1", "0", "0", "1", { v: "0", c: "amber" }]) },
           { t: "Two bits flip: six 1s, even → <b>missed</b>", v: F.cells(["1", { v: "1", c: "rose" }, "1", "1", { v: "1", c: "rose" }, "0", "1", { v: "0", c: "amber" }]) },
         ]),
-        c: { q: "A byte with parity has 2 bits flipped. What happens?", o: ["It's detected", "It's missed: an even number of flips keeps the parity even", "It's corrected"], a: 1, why: "Parity only sees odd vs even. It also can't say <i>which</i> bit flipped, so it can't correct anything." } },
+        c: { q: "A byte with parity has 2 bits flipped. What happens?", o: ["It's detected", "It's missed", "It's corrected"], a: 1, why: "Parity only sees odd vs even. It also can't say <i>which</i> bit flipped, so it can't correct anything." } },
       { t: "CRC = long division with XOR", b: `<p>Treat the bits as a polynomial and divide by a fixed <b>generator</b>, here 1101. It's ordinary long division, except subtraction is <b>XOR</b> (no borrows). Append zeros first, one per generator degree.</p>`,
         v: `<pre class="fig-wrap mono" style="font-size:14px;line-height:1.55;margin:0">  1011000   ← message 1011 + three 0s
 ^ 1101
@@ -30,7 +30,7 @@
 remainder = <b style="color:var(--amber)">100</b>  →  send 1011<b style="color:var(--amber)">100</b></pre>` },
       { t: "Why the receiver can check it", b: `<p>Appending the remainder makes the whole frame divide <b>exactly</b> by the generator. The receiver divides again: remainder 0 means clean, anything else means corrupted.</p><span class="key">A good generator catches every single-bit error, every burst shorter than its degree, and much more.</span>`,
         v: F.compare({ title: "Clean frame 1011100", c: "teal", body: "÷ 1101 → remainder <b>000</b> ✓" }, { title: "One bit flipped", c: "rose", body: "÷ 1101 → remainder <b>≠ 000</b>: error detected" }),
-        c: { q: "Why can't a CRC protect against a deliberate attacker?", o: ["It's too short", "Its maths is public and linear, so an attacker can fix up the remainder after tampering", "It uses XOR"], a: 1, why: "A CRC is built to catch random noise. Protection against tampering needs cryptographic hashes or MACs (Phase 8)." } },
+        c: { q: "Why can't a CRC protect against a deliberate attacker?", o: ["Its checksum is too short to be secure", "Its maths is public and linear", "It's built on XOR, which is weak"], a: 1, why: "A CRC is built to catch random noise. Protection against tampering needs cryptographic hashes or MACs (Phase 8)." } },
     ],
     guide: ["Click bits in the parity strip. One flip is caught; a second flip hides the first.", "Step through the CRC division and check each XOR yourself.", "Confirm the final remainder: 100."],
   };
@@ -82,7 +82,7 @@ remainder = <b style="color:var(--amber)">100</b>  →  send 1011<b style="color
       qs("#nx", ccard).onclick = () => { if (si < 2) { si++; drawDiv(); } };
       qs("#rs", ccard).onclick = () => { si = 0; drawDiv(); };
       drawDiv();
-      root.appendChild(predict({ id: "a6-crc-1", q: "Message 1011, generator 1101. The transmitted frame ends in…", opts: ["the generator", "remainder 100 — appended so the whole frame divides evenly", "the message reversed"], a: 1,
+      root.appendChild(predict({ id: "a6-crc-1", q: "Message 1011, generator 1101. The transmitted frame ends in…", opts: ["the generator", "remainder 100", "the message reversed"], a: 1,
         why: "Sender computes remainder of padded message, appends it. Receiver divides and expects 0." }));
       root.appendChild(takeaways([
         "Parity: cheap, catches odd flip counts only.",
@@ -157,7 +157,7 @@ remainder = <b style="color:var(--amber)">100</b>  →  send 1011<b style="color
       };
       qs("#rs", card).onclick = () => { rx = encode(data); drawCW(); };
       drawData(); drawCW();
-      root.appendChild(predict({ id: "a6-ham-1", q: "Data 1011 is sent as codeword 0110011. Bit 6 flips on the way. What syndrome does the receiver compute?", opts: ["110 = position 6, so it flips bit 6 back", "010 = position 2", "000: the error goes unnoticed"], a: 0,
+      root.appendChild(predict({ id: "a6-ham-1", q: "Data 1011 is sent as codeword 0110011. Bit 6 flips on the way. What syndrome does the receiver compute?", opts: ["110 = position 6", "010 = position 2", "000: the error goes unnoticed"], a: 0,
         why: "Position 6 is binary 110, so it belongs to p4's and p2's groups but not p1's. Exactly those two checks fail, and the syndrome 110 names the culprit." }));
       root.appendChild(takeaways([
         "Data at non-power-of-2 positions; parity bits at 1, 2, 4 — each covers a binary digit of the position number.",

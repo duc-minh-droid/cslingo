@@ -21,6 +21,7 @@ async function bankTest() {
     qs.forEach((Q, i) => {
       n++;
       const t = Q.type || "mcq", at = `${mod}[${i}] (${t})`;
+      if (t === "num") failures.push(`${at}: typed-answer question (use mcq or slider; learners never type answers)`);
       try {
         const box = document.createElement("div"); holder.appendChild(box);
         T[t].render(Q, box, () => {}, `${mod}-${i}`);

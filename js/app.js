@@ -16,7 +16,11 @@
     },
     ds: {
       name: "Data Science", code: "COM3021", home: "ds-home", unit: "Lecture", who: "pebble", color: "blue",
-      lectures: { 1: "Lecture 1 — Reliable, scalable & maintainable systems" },
+      lectures: {
+        1: "Lecture 1 — Reliable, scalable & maintainable systems",
+        2: "Lecture 2 — Data models & NoSQL",
+        3: "Lecture 3 — Storage & retrieval",
+      },
     },
     algo: {
       name: "Algorithms", code: "ECM3428", home: "algo-home", unit: "Phase", who: "byte", color: "violet",

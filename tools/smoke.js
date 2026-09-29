@@ -24,6 +24,7 @@ async function smoke({ subjects = null, buttons = 12 } = {}) {
       if (!st.open) break;
       const scr = document.querySelector(".pl-screen:not(.leaving)");
       scan(`${m.id} ${st.kind}${st.kind === "step" ? " " + steps : ""}`, scr);
+      if (st.Q && scr && scr.querySelector(".pl-body input:not([type=range]):not([type=checkbox]), .pl-body textarea")) errors.push({ where: `${m.id} ${st.key || st.kind}`, msg: "question asks for a typed answer" });
       if (st.kind === "step") {
         steps++; if (scr.querySelector(".lesson-visual:not(:empty)")) figs++;
         for (const r of scr.querySelectorAll(".rn")) { runners++; try { (await r.__rn.runAll()).forEach((msg) => errors.push({ where: `${m.id} runner`, msg })); } catch (e) { onErr(e); } }

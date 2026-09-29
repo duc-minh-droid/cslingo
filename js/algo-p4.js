@@ -43,10 +43,10 @@
         v: F.graph({ nodes: nodes({}, (k) => (k === "A" ? "violet" : null)), edges: EDGES, hl: { "A-B": "amber", "A-C": "amber" }, w: 480, h: 260 }) + `<div class="fig-cap">Cut {A} | {B, C, D, E}: only A–B (4) and A–C (3) cross it.</div>` },
       { t: "The cheapest crossing edge is safe", b: `<p>Suppose some tree used A–B (4) instead of A–C (3). Swap them. Everything stays connected, and the total drops by 1. So the cheapest crossing edge is always part of some minimum tree.</p><span class="key">This one fact is why Prim and Kruskal are provably correct, not just good guesses.</span>`,
         v: F.compare({ title: "Tree using A–B (4)", c: "rose", body: "total = T + 4" }, { title: "Swap to A–C (3)", c: "teal", body: "total = T + 3: <b>strictly cheaper</b>, still connected" }),
-        c: { q: "A cut has crossing edges of weight 2, 5 and 7. Which one is guaranteed safe?", o: ["The 5", "The 2, because the lightest edge across a cut is always safe", "None, you need to see the whole graph"], a: 1, why: "Any spanning tree using the 5 or the 7 can swap to the 2 and only get cheaper." } },
+        c: { q: "A cut has crossing edges of weight 2, 5 and 7. Which one is guaranteed safe?", o: ["The 5, as the middle value is safest", "The 2, because the lightest edge across a cut is safe", "None: you need to see the whole graph first"], a: 1, why: "Any spanning tree using the 5 or the 7 can swap to the 2 and only get cheaper." } },
       { t: "The flip side: the heaviest edge in a cycle", b: `<p>In any cycle, the <b>heaviest</b> edge is never needed. The rest of the cycle already connects its two ends.</p><p>A–B–C is a cycle (4, 2, 3), so A–B (4) can go.</p>`,
         v: F.graph({ nodes: { A: [60, 130], B: [190, 40], C: [210, 170] }, edges: [["A", "B", "4 ✗", "rose"], ["B", "C", 2, "teal"], ["A", "C", 3, "teal"]], w: 300, h: 200 }),
-        c: { q: "Why is it correct for Kruskal to skip an edge that would close a cycle?", o: ["It prunes randomly", "Its two ends are already connected, so adding it only adds cost", "It isn't. Kruskal is approximate"], a: 1, why: "A tree needs exactly n − 1 edges and no cycles, so a cycle edge is pure extra cost." } },
+        c: { q: "Why is it correct for Kruskal to skip an edge that would close a cycle?", o: ["It prunes randomly", "Its two ends are already connected", "It isn't. Kruskal is approximate"], a: 1, why: "A tree needs exactly n − 1 edges and no cycles, so a cycle edge is pure extra cost." } },
     ],
     guide: ["Look at the dashed red line and click the <b>cheapest</b> edge crossing it.", "Solve all three cuts. Each answer is a forced MST edge.", "Say the rule out loud: lightest across a cut is safe, heaviest on a cycle is never needed."],
   };
@@ -100,7 +100,7 @@
         }
       }
       draw();
-      root.appendChild(predict({ id: "a4-cut-1", q: "Remove any edge from a minimum spanning tree and the tree splits into two groups: that's a cut. What must be true of the removed edge?", opts: ["It was the longest edge in the tree", "It was the lightest edge crossing that cut, otherwise a cheaper swap would exist", "Nothing in particular"], a: 1,
+      root.appendChild(predict({ id: "a4-cut-1", q: "Remove any edge from a minimum spanning tree and the tree splits into two groups: that's a cut. What must be true of the removed edge?", opts: ["It was the longest edge in the tree", "It was the lightest edge crossing that cut", "Nothing in particular can be said about it"], a: 1,
         why: "If a cheaper edge crossed the same cut, swapping it in would give a cheaper spanning tree, which contradicts 'minimum'." }));
       root.appendChild(takeaways([
         "<b>Cut property:</b> the lightest edge across a cut is always safe.",
@@ -229,11 +229,11 @@
         v: (box, life) => primRun(box, life) },
       { t: "Kruskal: cheapest edges first, skip loops", b: `<p>Sort <i>all</i> edges by weight. Walk down the list and take each edge <b>unless its two ends are already connected</b>. Early on you have a forest of small trees that gradually merge.</p><p>A <b>union-find</b> structure answers \"already connected?\" almost instantly.</p>`,
         v: F.cells([{ v: "DE 1", c: "teal" }, { v: "BC 2", c: "teal" }, { v: "AC 3", c: "teal" }, { v: "AB 4", sub: "loop ✗", c: "rose" }, { v: "BD 5", c: "teal" }, { v: "CD 6", sub: "loop ✗", c: "rose" }, { v: "CE 7", sub: "loop ✗", c: "rose" }]),
-        c: { q: "What's the main difference between Prim and Kruskal?", o: ["They give different answers", "Prim grows one connected tree; Kruskal merges separate trees in weight order", "Only speed"], a: 1, why: "Same optimum (both use the cut property), different intermediate structure." } },
+        c: { q: "What's the main difference between Prim and Kruskal?", o: ["They give different answers", "Prim grows one connected tree", "Only speed"], a: 1, why: "Same optimum (both use the cut property), different intermediate structure." } },
       { t: "Watch Kruskal run", b: `<p>Kruskal walks the sorted list. The letter above each node is its group. An edge joining two groups is taken in <b style="color:var(--teal)">green</b>; one inside a group is <b style="color:var(--rose)">rejected</b>.</p><p>It will ask you to pick the next edge added. Tap a weight to change it.</p>`,
         v: (box, life) => kruskalRun(box, life) },
       { t: "Edge cases worth knowing", b: `<p><b>Ties:</b> either choice is fine. Several different MSTs can have the same total.<br><b>Disconnected graph:</b> no spanning tree exists. Kruskal ends with a <i>spanning forest</i> of fewer than n − 1 edges.<br><b>Which is faster?</b> Prim with a heap suits dense graphs. Kruskal's sort dominates, O(m log m), which suits sparse graphs.</p>`,
-        c: { q: "The graph is disconnected. What does Kruskal do?", o: ["Crash", "Produce a spanning forest: components stay separate, with fewer than n − 1 edges", "Add fake edges"], a: 1, why: "It can't merge components that have no edges between them. Honest output: a forest." } },
+        c: { q: "The graph is disconnected. What does Kruskal do?", o: ["It stops with an error about connectivity", "It produces a spanning forest", "It adds zero-weight edges to join the parts"], a: 1, why: "It can't merge components that have no edges between them. Honest output: a forest." } },
     ],
     guide: ["Press <b>Prim ▸</b> a few times. The orange edges are the candidates leaving the tree; the cheapest one is taken.", "Press <b>Kruskal ▸</b>. Red flashes are rejected edges (they'd close a loop).", "Both finish at total weight 11. Same tree, different route there."],
   };
@@ -273,7 +273,7 @@
       qs("#ks", card).onclick = () => { if (ki < KE.length) { ki++; draw(); } };
       qs("#rs", card).onclick = () => { pi = 0; ki = 0; draw(); };
       draw();
-      root.appendChild(predict({ id: "a4-mst-1", q: "Kruskal has taken D–E (1), B–C (2) and A–C (3). Next in the list is A–B (4). What happens?", opts: ["Taken, because it's the cheapest left", "Rejected: A and B are already connected through C, so it would close a loop", "Depends on tie order"], a: 1,
+      root.appendChild(predict({ id: "a4-mst-1", q: "Kruskal has taken D–E (1), B–C (2) and A–C (3). Next in the list is A–B (4). What happens?", opts: ["Taken, because it's the cheapest edge left", "Rejected: A and B are already connected through C", "It depends on how ties were broken earlier"], a: 1,
         why: "A–C–B already links A and B. Adding A–B would create the cycle A–B–C, so union-find says 'same component': skip." }));
       root.appendChild(takeaways([
         "<b>Prim</b>: cheapest edge out of the current tree. O(m log n) with a heap.",

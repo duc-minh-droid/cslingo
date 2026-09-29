@@ -19,6 +19,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/theme.js` | `NIC.theme.get/set/now/onChange`: System/Light/Dark, stored as `csl.theme`; circular reveal on switch (View Transitions). |
 | `js/emoji.js` + `vendor/fluent-emoji.js` | Swaps emoji characters for Fluent Emoji (Flat) SVG icons, in HTML and inside SVG figures. |
 | `js/fx.js` | Motion wrappers `NIC.fx`: `enter/step/pop/bounce/bump/springIn/exit/swap/clean/shake/reveal/count/play/onView/celebrate/floatText/toast/watchStats/animate`, tokens `DUR/SPRING*`. |
+| `css/motion-hover.css` + `js/motion-details.js` | Hover lifts for every pressable (gated to real pointers), icon nudges, dropdown row cascade, turning carets; every `<details>` opens/closes with height + fade (pointer clicks only, keyboard stays instant). |
 | `js/cast.js` + `css/cast.css` | Mascot cast. `NIC.mascot({...})`, `NIC.mascotReact`, `NIC.cast.surprise/idle`, `NIC.feedback`. |
 | `js/game.js` | XP, streak, goal, quests, achievements: `NIC.game`. |
 | `js/sfx.js` | Web Audio synth `NIC.sfx.play(name)` and the mute toggle. |
@@ -33,7 +34,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/quiz.js` | Boss-quiz engine: `NIC.registerBoss`, `NIC.QUIZ_TYPES`, `NIC.bossDef`, `NIC.qfig`. |
 | `js/boss-nic.js boss-ds.js boss-algo.js` | Boss quiz content. |
 | `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, problems`. |
-| `js/bank-nic.js bank-ds.js bank-algo.js` | Revision questions, about 5 per module (session). |
+| `js/bank-nic.js bank-ds.js bank-algo.js` + `bank-*-2.js` | Revision questions, 13–15 per module (session). Used only by the Revise tab, never by lessons or bosses. Add new ones to a `-2` file, or start a `-3` file. |
 | `js/revise.js` + `css/revise.css` | The **Revise** tab (`#revise`): `NIC.revisePage(main, life, {names})`. Sessions run in `NIC.player.revise({home, n, subjects})`. |
 | `js/sync.js` | Optional account sync `NIC.sync` (Supabase project `cslingo`, table `public.progress`, one row per user, row-level security). Magic-link sign-in; it mirrors every `nic.*` localStorage key. Newest side wins; it never reloads mid-lesson. `vendor/supabase.js` loads only when signed in or returning from a link. |
 | `js/player.js` + `css/player.css` | Full-screen lesson player `NIC.player`. |
@@ -43,7 +44,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `css/motion.css` | Tactile presses, selection springs, dock indicator, lesson-bar shine, page transitions (see §4 Motion). |
 | `css/quiz.css` | Styles for the boss question types. |
 | `vendor/` | Vendored libraries (see §3). Never load these from a CDN. |
-| `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`. |
+| `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`; `bank-coverage.js` (`bankCoverage()`, `bankExisting(id)`) for planning revision questions; `answer-bias.js` (`answerBias()`) audits MCQs for position/length giveaways. |
 | `trailer/` | Motion-graphics trailer page, recorded `.webm`/`.gif`, and `shots/` screenshots. |
 | `serve.py` | No-cache dev server: `python serve.py 8651`. |
 
@@ -125,6 +126,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - Use transform and opacity only. UI motion stays under 300 ms. Use a spring for feedback (`fx.pop`) and a shake for wrong answers (`fx.shake`).
 - Reduced motion keeps fades only. Keyboard actions never animate.
 - Idle loops belong in CSS so reduced motion can switch them off.
+- Hover: anything pressable lifts 2px with its lip growing to match (the press then squashes it down). Put new hover motion in `css/motion-hover.css`, inside `@media (hover: hover) and (pointer: fine)`, and add a reduced-motion override. New disclosures should be plain `<details>`: `js/motion-details.js` animates them automatically.
 
 **Motion tokens and helpers** (tokens in `css/styles.css`; `css/motion.css` + `js/fx.js`)
 - Durations: `--dur-press` 40ms (squash on press), `--dur-1` 90, `--dur-2` 160 (exits, fades), `--dur-3` 240 (entrances, springy releases), `--dur-4` 320, `--dur-bar` 420 (lesson bar); JS also has `DUR.xl` 1.2s for celebrations only. JS mirrors them as `NIC.fx.DUR` in seconds. Easings: `--ease-out`, `--ease-spring`, `--ease-in-out` (styles.css), plus `--ease-in` and `--ease-pop`. Springs: `fx.SPRING` (feedback), `fx.SPRING_UI` (indicators, popovers), `fx.SPRING_POP` (badges, icons).
@@ -271,6 +273,7 @@ function myRun(box, life) {
 2. Add its modules (§6a) with `lecture: N`.
 3. Add a boss quiz (§6d) with `lecture: N`.
 4. A module whose lecture isn't declared makes a red dev banner appear on load. This is intentional.
+5. **Run the `/revision-bank` skill** (`.agents/skills/revision-bank/SKILL.md` in the vault) for the new lecture, so every new session gets 12–15 revision questions. Do this for a single new module (§6a) too.
 
 ### 6c. A new course (subject)
 
@@ -306,7 +309,7 @@ Question types (defined in the header of `js/quiz.js`):
 |---|---|
 | `mcq` | `o, a` |
 | `multi` | `o, a:[...]` |
-| `num` | `ans, tol, unit` (**don't use in boss quizzes**, see below) |
+| `num` | **Never use.** Legacy only: the engine renders it as tap-to-pick options (½×, 1×, 2×, 10× the answer), never a text box. `bankTest`/`bossTest` fail on it. |
 | `slider` | `min, max, step, ans, tol, unit, live` |
 | `order` | `items` (in the correct order) |
 | `match` | `pairs` |
@@ -317,11 +320,13 @@ Question types (defined in the header of `js/quiz.js`):
 - Every question type can also take an optional `fig` and `hint`.
 - Use `NIC.qfig.graph/points/curve` for pick diagrams.
 - Aim for 7–10 questions that mix at least 3 types, with new scenarios only (§5).
-- **No calculator.** Learners take quizzes without one, so never ask for a typed answer (`num`). Every question must be solvable with mental arithmetic: offer the numbers as `mcq` options (spread far enough apart to tell by estimating), use a `slider` with a generous tolerance for estimates, or ask about the reasoning instead of the digits. Give a `hint` that breaks any arithmetic into easy steps.
+- **No giveaway answers** (applies to every MCQ: lesson checks, predicts, bosses, bank). The engine shuffles options on screen (`NIC.optOrder`: stable per question; True/False kept, numeric options ascending, "both/neither/all/none of…" kept last), so author order doesn't matter. What you control is length and detail: the right answer must **not** be the longest or most qualified option. Write wrong options that are just as specific and plausible (same length, same style, with their own "because…"), and put explanations in `why`, not in the answer. Check with `tools/answer-bias.js` → `answerBias()`: the right answer should be the longest about as often as chance (~25–30%), and `calcRisk` must be empty. It flags decimal answers that are too precise (like 0.488) or within 15% of another option, unless a `hint` breaks the sum into mental steps. Never make learners pick between close decimals such as 0.36 / 0.488 / 0.6: use far-apart bands ("about 0.2 / 0.5 / 0.8") and a hint ("0.8 × 0.8 = 0.64, × 0.8 ≈ 0.5").
+- **No typed answers, ever.** Every answer is picked by tapping, dragging or sorting (mcq, multi, slider, order, match, cat, pick, bug). No text or number boxes in any question screen. `smoke()` fails if a question screen contains one. Demo playgrounds may keep optional input fields, but no quiz, guide step or predict may depend on typing.
+- **No calculator, in every quiz** (lesson checks, predicts, bosses and the revision bank, not only bosses). Learners take quizzes without one, so never ask for a typed answer (`num`). Every question must be solvable with mental arithmetic: offer the numbers as `mcq` options (spread far enough apart to tell by estimating), use a `slider` with a generous tolerance for estimates, or ask about the reasoning instead of the digits. Give a `hint` that breaks any arithmetic into easy steps.
 
 ### 6e. Revision bank questions
 
-Every module should have about 5 revision questions in `js/bank-<course>.js`, in the same formats as boss quizzes (§6d) and under the same rules: new scenarios, no calculator, a `why` for every answer, and varied types.
+Every module should have at least 10 revision questions across `js/bank-<course>.js` and `js/bank-<course>-2.js`, in the same formats as boss quizzes (§6d) and under the same rules: new scenarios, no calculator, a `why` for every answer, and varied types.
 
 ```js
 NIC.bank.add("ds-replication", [

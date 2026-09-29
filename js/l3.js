@@ -260,9 +260,9 @@
       life.onResize(() => draw());
       reset();
 
-      root.appendChild(predict({ id: "l3-hc-1", q: "In the lecture trace, current = <code>BADEC</code> (28) and the mutant <code>BADCE</code> is also 28. What does hillclimbing do?", opts: ["Rejects it: it's not an improvement", "Accepts it: HC keeps mutants that are no worse", "Stops: no progress means termination"], a: 1,
+      root.appendChild(predict({ id: "l3-hc-1", q: "In the lecture trace, current = <code>BADEC</code> (28) and the mutant <code>BADCE</code> is also 28. What does hillclimbing do?", opts: ["Rejects it, because it isn't an improvement", "Accepts it: HC keeps mutants that are no worse", "Stops, because no progress means it's finished"], a: 1,
         why: "Step 2 says <i>if f(m) is <b>no worse</b> than f(c), replace c with m</i>. Accepting equal moves lets HC drift across <b>plateaus</b> instead of freezing, which matters on landscapes with lots of equal-fitness regions." }));
-      root.appendChild(predict({ id: "l3-hc-2", q: "HC reaches a tour where <b>none</b> of its 5 adjacent-swap neighbours is shorter. Is that tour guaranteed to be optimal?", opts: ["Yes, if no neighbour is better, nothing is better", "No, it's only a local optimum with respect to this mutation operator", "Only if HC ran for more than k! steps"], a: 1,
+      root.appendChild(predict({ id: "l3-hc-2", q: "HC reaches a tour where <b>none</b> of its 5 adjacent-swap neighbours is shorter. Is that tour guaranteed to be optimal?", opts: ["Yes: if no neighbour is better, nothing is", "No: it's only a local optimum for this mutation", "Only if HC ran for more than k! steps"], a: 1,
         why: "\"Nothing better nearby\" depends on what <i>nearby</i> means, and the mutation operator defines that. With a different operator (e.g. swap <i>any</i> two cities) the same tour might have better neighbours. Try random runs: some start points get stuck above 28." }));
       root.appendChild(takeaways([
         "HC = mutate a copy, keep it if it's <b>no worse</b>, and repeat. A population of one.",
@@ -341,9 +341,9 @@
       reset();
 
       root.appendChild(el(`<div class="callout"><b>Try this sequence:</b> (1) Multimodal, step 3: run the experiment and note the success rate. (2) Set step to ~40 and rerun. (3) Set step to 240 (anywhere) and switch to Unimodal. What happened to locality?</div>`));
-      root.appendChild(predict({ id: "l3-land-1", q: "On the <b>Random</b> landscape (f(s) is a random number generator), how does hillclimbing compare with random search?", opts: ["Much better, because it still climbs", "About the same, because neighbours carry no information about each other", "Much worse, because it always gets stuck immediately"], a: 1,
+      root.appendChild(predict({ id: "l3-land-1", q: "On the <b>Random</b> landscape (f(s) is a random number generator), how does hillclimbing compare with random search?", opts: ["Much better, because it can still climb", "About the same, because neighbours tell you nothing", "Much worse, because it gets stuck immediately"], a: 1,
         why: "HC works <i>only</i> because neighbours tend to have similar fitness (a locally smooth landscape). With no correlation between neighbours, a mutant is just a random sample, so no search method beats random guessing here." }));
-      root.appendChild(predict({ id: "l3-land-2", q: "You set the max mutation step to 240 (a mutant can be <i>anywhere</i>). On a realistic landscape, what goes wrong?", opts: ["Nothing: bigger jumps explore more, so it's strictly better", "The search becomes random sampling. Most of the space is poor, so big random jumps almost always land somewhere bad", "HC can no longer accept moves"], a: 1,
+      root.appendChild(predict({ id: "l3-land-2", q: "You set the max mutation step to 240 (a mutant can be <i>anywhere</i>). On a realistic landscape, what goes wrong?", opts: ["Nothing: bigger jumps explore more, so it's strictly better", "The search becomes random sampling. Most of the space is poor", "HC can no longer accept moves"], a: 1,
         why: "Lecture: <i>in large realistic problems the huge majority of the landscape has very poor fitness, and decent solutions concentrate in tiny areas. Big random changes are very likely to take us outside the good areas.</i> Small mutations exploit local smoothness." }));
       root.appendChild(takeaways([
         "Landscape = fitness plotted over the search space, with neighbours (under the mutation operator) placed next to each other.",
@@ -510,7 +510,7 @@
 
       root.appendChild(predict({ id: "l3-ls-1", q: "What do Monte Carlo search with <b>p = 0</b> and with <b>p = 1</b> turn into?", opts: ["p=0 → random walk, p=1 → hillclimbing", "p=0 → hillclimbing, p=1 → random walk", "Both become Tabu search"], a: 1,
         why: "p = 0 never accepts a worse move, which is exactly <b>hillclimbing</b>. p = 1 accepts everything, which is a <b>random walk</b> that ignores fitness (only the best-so-far record saves it). The useful range is in between: enough downhill moves to escape small hills, not so many that you drift off good ones. Try both extremes with the slider." }));
-      root.appendChild(predict({ id: "l3-ls-2", q: "Why does Tabu search need the tabu list at all? Without it, what happens at a local optimum?", opts: ["It stops, just like HC", "It steps down to the best neighbour, then next step climbs straight back up, cycling forever", "It jumps randomly to a new area"], a: 1,
+      root.appendChild(predict({ id: "l3-ls-2", q: "Why does Tabu search need the tabu list at all? Without it, what happens at a local optimum?", opts: ["It stops, just like hillclimbing does", "It steps down, then climbs straight back up, forever", "It jumps to a random new area of the space"], a: 1,
         why: "Tabu always moves to the best neighbour, even a worse one. From a peak the best move is one step down. From there the best move is back to the peak, so it <b>cycles</b>. Forbidding recently visited solutions forces it to keep walking away until it crosses into a new basin. Tenure has to be long enough to cover the width of a hill: try tenure 2 vs 60." }));
       root.appendChild(takeaways([
         "Local search = HC + a policy that sometimes accepts non-improving moves + a <b>best-so-far</b> record.",
@@ -575,7 +575,7 @@
       life.onResize(draw);
       init();
 
-      root.appendChild(predict({ id: "l3-pop-1", q: "Why is it <i>useful</i> that the population keeps some poor solutions around?", opts: ["It isn't, since poor solutions just waste evaluations", "A poor solution may sit on the slope of a different, higher hill, so keeping it keeps that region alive", "Poor solutions make selection faster"], a: 1,
+      root.appendChild(predict({ id: "l3-pop-1", q: "Why is it <i>useful</i> that the population keeps some poor solutions around?", opts: ["It isn't, since poor solutions just waste evaluations", "A poor solution may sit on the slope of a different, higher hill", "Poor solutions make selection faster"], a: 1,
         why: "Lecture: <i>keep 'poor' solutions in the population and give them a chance to 'develop'</i>. Low fitness now doesn't mean low potential. Watch the \"distinct hills occupied\" counter: it starts high (parallel exploration) and drops as the population converges." }));
 
       // Lecture TSP steady-state trace with arithmetic check

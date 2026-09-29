@@ -88,8 +88,10 @@
 .f-no .pl-fb-h svg circle { fill: var(--rose); } .f-no .pl-fb-h svg path { stroke: #fff; }
 .pl-xp { margin-left: 4px; font-size: 13px; font-weight: 900; color: var(--amber-ink); background: var(--panel); padding: 2px 8px; border-radius: 8px; }
 .pl-ans { font-weight: 800; color: var(--rose-ink); margin-top: 2px; }
-.pl-why { font-size: 15px; font-weight: 600; color: var(--text); margin-top: 4px; line-height: 1.5; }
-.f-ok .pl-why { color: #3d7a00; } .f-no .pl-why { color: #9a2626; }
+/* explanation: full-contrast body text in both themes; the green/red cue lives in the left bar, not the text colour */
+.pl-why { font-size: 16px; font-weight: 600; color: var(--text); margin-top: 8px; line-height: 1.55; padding-left: 12px; border-left: 3px solid var(--line); }
+.pl-why b, .pl-why strong { color: var(--text); font-weight: 900; }
+.f-ok .pl-why { border-left-color: var(--teal); } .f-no .pl-why { border-left-color: var(--rose); }
 @media (max-width: 640px) {
   .pl-foot-in { flex-direction: column; align-items: stretch; padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); min-height: 0; }
   .pl-go { width: 100%; }

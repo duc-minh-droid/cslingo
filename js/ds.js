@@ -98,7 +98,7 @@
       qs("#lnk", cv).onclick = () => { link = !link; if (link) { b = a; logs.unshift(`Link repaired. Replicas sync → both ${a}.`); } else logs.unshift("✂ Network link cut."); cdraw(); };
       cdraw();
 
-      root.appendChild(predict({ id: "ds-why-1", q: "An online shop's single database server dies at 2 a.m. What limitation of the traditional approach is this?", opts: ["Scalability", "Availability and fault tolerance: one machine means one point of failure", "Maintenance"], a: 1,
+      root.appendChild(predict({ id: "ds-why-1", q: "An online shop's single database server dies at 2 a.m. What limitation of the traditional approach is this?", opts: ["Scalability: the server couldn't grow", "Availability and fault tolerance", "Maintenance: it needed an upgrade"], a: 1,
         why: "With everything on one server, any fault takes the whole service down. Spreading work over several machines lets the service survive individual faults." }));
       root.appendChild(takeaways([
         "Past: single servers (mainframes), static data formats, expensive RDBMSs (MS SQL, Oracle).",
@@ -166,7 +166,7 @@
       const iu = (v) => { const n = 10 ** v; qs("#scan", ix).textContent = n.toLocaleString(); qs("#idx", ix).textContent = Math.ceil(Math.log2(n)); qs("#ixT", ix).innerHTML = `With ${n.toLocaleString()} records, the index needs about <b>${Math.ceil(Math.log2(n))}</b> steps instead of ${n.toLocaleString()}: ${Math.round(n / Math.ceil(Math.log2(n))).toLocaleString()}× fewer. The cost: extra storage, and every write must also update the index.`; };
       sR.onInput(iu); qs("#ic", ix).appendChild(sR); iu(6);
       root.appendChild(el(`<div class="callout violet"><b>Each block can be built in many ways, and the problem decides which.</b> The lecture's example is <b>spatial data</b>: represent it as <b>GeoJSON</b>, store it in <b>PostGIS</b>, and index it with an <b>R-tree</b>.</div>`));
-      root.appendChild(predict({ id: "ds-blocks-1", q: "Set the cache size to 0, then to 4. Why does a cache of just 4 out of 20 products catch so many requests?", opts: ["It's random luck", "Popularity is skewed: a few items get most of the requests, and the cache keeps exactly those", "The cache is faster at being wrong"], a: 1,
+      root.appendChild(predict({ id: "ds-blocks-1", q: "Set the cache size to 0, then to 4. Why does a cache of just 4 out of 20 products catch so many requests?", opts: ["It's random luck", "Popularity is skewed", "The cache is faster at being wrong"], a: 1,
         why: "Real workloads are skewed (a few hot items). Caching the hot ones gives most of the speed-up for a fraction of the memory." }));
       root.appendChild(takeaways([
         "<b>Database</b>: store data so it can be retrieved later.",
@@ -256,7 +256,7 @@
       qs("#sw", cs).onclick = () => { if (busy) return; alive = alive.map(() => false); draw2(); msg("<b>Software faults are correlated.</b> The same buggy code runs on every node, so they all fail together. Having more servers didn't help at all. Hardware faults, by contrast, are mostly independent.", "rose"); };
       qs("#rs2", cs).onclick = reset2;
       reset2();
-      root.appendChild(predict({ id: "ds-rel-1", q: "A cluster has 10,000 disks and loses about one per day. Is the service failing every day?", opts: ["Yes, a dead disk is a failure", "Not if data is replicated: a dead disk is a <b>fault</b>, and it only becomes a <b>failure</b> if the whole service stops", "Only on weekends"], a: 1,
+      root.appendChild(predict({ id: "ds-rel-1", q: "A cluster has 10,000 disks and loses about one per day. Is the service failing every day?", opts: ["Yes, a dead disk is a failure", "Not if data is replicated", "Only on weekends"], a: 1,
         why: "Fault = one component misbehaves. Failure = the whole system stops providing the service. Reliable systems are designed so faults don't become failures." }));
       root.appendChild(takeaways([
         "Reliable = does what users expect, tolerates user mistakes, performs well enough under expected load, and prevents unauthorised access.",
@@ -320,7 +320,7 @@
         qs("#nT", q).innerHTML = need === Infinity ? `A single request takes 10 ms, so a ${target} ms target can't be met.` : `To answer ${lam} req/s within ${target} ms, each server may take at most ${(MU - 1000 / target).toFixed(0)} req/s, so you need ⌈${lam} / ${(MU - 1000 / target).toFixed(0)}⌉ = <b>${need}</b> servers.`;
       }
       life.onResize(qdraw); qdraw();
-      root.appendChild(predict({ id: "ds-load-1", q: "Raise the share of slow requests to ~10%. The median barely moves. What's the lesson?", opts: ["Slow requests don't matter", "A single number like the average or median hides the unhappy users, so look at the whole distribution (e.g. p95/p99)", "The median is broken"], a: 1,
+      root.appendChild(predict({ id: "ds-load-1", q: "Raise the share of slow requests to ~10%. The median barely moves. What's the lesson?", opts: ["The slow requests were just measurement noise and can be ignored", "One number like the median hides the unhappy users", "The median is the wrong way to average response times"], a: 1,
         why: "The lecture: <i>not only a single value (e.g. average response time) but the distribution of values is also important. What fraction of users experience a performance level within the expected range?</i>" }));
       root.appendChild(takeaways([
         "<b>Scalability</b> = the system's ability to cope with increased load.",
@@ -398,7 +398,7 @@
           <p class="faint" style="font-size:12.5px">Approach 1's lookup count assumes each user follows ~${fol} accounts (on average, followers = followees across the whole network).</p>`;
       }
       life.onResize(sdraw); sdraw();
-      root.appendChild(predict({ id: "ds-tw-1", q: "Why did Twitter switch from approach 1 to approach 2?", opts: ["Approach 2 uses fewer writes", "Timeline reads are ~two orders of magnitude more frequent than tweets, so it's cheaper to do the work once at write time than on every read", "Approach 1 lost tweets"], a: 1,
+      root.appendChild(predict({ id: "ds-tw-1", q: "Why did Twitter switch from approach 1 to approach 2?", opts: ["Approach 2 needs far fewer database writes per tweet posted", "Timeline reads are ~100× more common than tweets", "Approach 1 kept losing tweets whenever load got high"], a: 1,
         why: "Approach 1 struggled to keep up with home-timeline queries. Approach 2 moves the cost to posting (4.6k tweets/s → 345k cache writes/s), which is fine because posting is far rarer than reading." }));
       root.appendChild(takeaways([
         "Twitter's load: post tweet 4.6k/s average (12k+ peak), home timeline 300k/s. <b>Fan-out</b>: each user follows many people and is followed by many.",
@@ -439,7 +439,7 @@
         N.lineChart(qs("#ch", card), { series: [{ data: xs.map((x) => (costV(x) === Infinity ? NaN : costV(x) / 1000)), color: N.colors().amber }, { data: xs.map((x) => costH(x) / 1000), color: N.colors().teal }], yMin: 0, height: 180, xLabel: "capacity 1× → 40×  (cost in £k)" });
       }
       life.onResize(draw); draw();
-      root.appendChild(predict({ id: "ds-sc-1", q: "Click the big machine to break it, then break one small machine. What does this show?", opts: ["Both lose everything", "Vertical scaling has limited fault tolerance (one machine is one point of failure). Horizontal scaling loses only a slice of capacity", "Horizontal is always cheaper at every size"], a: 1,
+      root.appendChild(predict({ id: "ds-sc-1", q: "Click the big machine to break it, then break one small machine. What does this show?", opts: ["Both designs lose all their capacity as soon as one machine fails", "Vertical has one failure point; horizontal loses a slice", "Horizontal is cheaper at every possible size"], a: 1,
         why: "The lecture: vertical = <i>costs do not scale linearly, limited fault tolerance</i>. Horizontal = <i>costs can scale better, better fault tolerance</i>. (At very small sizes one machine is simpler. Scaling out adds coordination complexity.)" }));
       root.appendChild(takeaways([
         "<b>Vertical scaling</b> (scale up, shared-memory): a more powerful machine. Costs don't scale linearly, and fault tolerance is limited.",
@@ -488,7 +488,7 @@
         ["Adding a new feature for a new requirement takes a day, not a month", "Evolvability"],
         ["Handling increased load without a rewrite", "Evolvability"],
       ]);
-      root.appendChild(predict({ id: "ds-mt-1", q: "\"Making a system simpler\" in the lecture's sense means…", opts: ["Removing features", "Removing <b>accidental complexity</b>: complexity that comes from the implementation, not the problem itself", "Using fewer servers"], a: 1,
+      root.appendChild(predict({ id: "ds-mt-1", q: "\"Making a system simpler\" in the lecture's sense means…", opts: ["Cutting features until the code is small", "Removing accidental complexity", "Running on fewer, bigger servers"], a: 1,
         why: "Simpler doesn't mean less functionality. Accidental complexity (inconsistent architecture, obscure dependencies, poor style or docs) isn't inherent in the problem. Abstraction is a frequent cure." }));
       root.appendChild(takeaways([
         "<b>Maintainability</b> = the overall cost of keeping a system operational and up to date.",
@@ -508,9 +508,9 @@
       { t: "How it used to be", b: `<p>Before the web took off, a company's data typically lived on <b>one big server</b> (a mainframe), in a <b>fixed format</b>, inside an <b>expensive relational database</b> (like MS SQL or Oracle).</p>`, v: `<div class="mini-row">${box("1 mainframe", "all data, all users", "var(--amber)")}${box("Static format", "rarely changes")}${box("RDBMS", "MS SQL, Oracle")}</div>` },
       { t: "Then the web happened", b: `<p>Suddenly: many more companies and services online, <b>dynamically generated</b> content (every page built on the fly), and <b>rapid growth</b> in both content and users. Think Google, eBay, Facebook.</p><span class="analogy">A corner shop with one till suddenly gets a million customers a day, and they all want personalised receipts.</span>` },
       { t: "Where a single server breaks", b: `<p>Three limitations of the one-server approach:</p><p>① <b>Availability & fault tolerance</b>: if it dies, everything is down.<br>② <b>Scalability</b>: one machine can only get so big, and adding more means keeping them in sync (synchronisation, consistency).<br>③ <b>Maintenance</b>: hard to update or fix without downtime.</p>`,
-        c: { q: "The one server crashes and the whole site is offline. Which limitation is this?", o: ["Scalability", "Availability / fault tolerance", "Maintenance"], a: 1, why: "One machine = one point of failure." } },
+        c: { q: "The one server crashes and the whole site is offline. Which limitation is this?", o: ["Scalability: one machine can't grow further", "Availability / fault tolerance", "Maintenance: repairs need downtime"], a: 1, why: "One machine = one point of failure." } },
       { t: "Trade-off 1: consistency vs availability", b: `<p>Once data is copied across several machines, a network problem forces a choice: keep every copy <b>consistent</b> (refuse to answer until you're sure), or stay <b>available</b> (answer now, maybe with slightly old data).</p><span class="key">You can't always have both. Which one matters more depends on the application.</span>`,
-        c: { q: "A bank balance should probably prefer…", o: ["availability, since stale is fine", "consistency: better to refuse than show the wrong balance", "neither"], a: 1, why: "Money needs correctness. A social feed can happily show slightly old posts (availability)." } },
+        c: { q: "A bank balance should probably prefer…", o: ["availability, since stale is fine", "consistency", "neither"], a: 1, why: "Money needs correctness. A social feed can happily show slightly old posts (availability)." } },
       { t: "Trade-off 2: one big machine vs many cheap ones", b: `<p>Either buy a <b>single powerful system</b>, or use <b>several cheap commodity computers</b> working together. (Module 1.6 goes deeper.)</p>` },
     ],
     guide: ["In the first demo, drag the load up and watch <b>Single powerful server</b>. Then click the mainframe to break it.", "Switch to <b>Cluster</b>, break one or two nodes, and compare what's left.", "In the consistency demo, <b>cut the link</b>, buy a ticket in London, then read in New York, first in <b>consistent</b> mode, then in <b>available</b> mode."],
@@ -524,7 +524,7 @@
         c: { q: "A million records. Roughly how many checks does a sorted index need to find one?", o: ["1,000,000", "~20", "1"], a: 1, why: "Halving each step: log₂(1,000,000) ≈ 20." } },
       { t: "Batch processing: big periodic jobs", b: `<p><b>Periodically run specific routines on large amounts of accumulated data.</b> Example: every night, total up all of the day's sales.</p>` },
       { t: "Same blocks, different implementations", b: `<p>Each block can be built in many ways, and <b>the problem decides which</b>. The lecture's example is spatial (map) data:</p>`, v: `<div class="mini-row">${box("Representation", "GeoJSON")}${box("Storage", "PostGIS")}${box("Indexing", "R-tree")}</div>`,
-        c: { q: "\"Every Sunday, recompute recommendations from all purchases\" is…", o: ["a cache", "batch processing", "an index"], a: 1, why: "A periodic job over lots of accumulated data." } },
+        c: { q: "\"Every Sunday, recompute recommendations from all purchases\" is…", o: ["a cache of recent recommendations", "batch processing", "an index over purchases"], a: 1, why: "A periodic job over lots of accumulated data." } },
     ],
     guide: ["Sort the 8 scenarios into the right block.", "In the cache demo, set the cache size to <b>0</b> and press Send requests. Note the average latency.", "Reset, set the cache size to <b>4</b>, and run again. Compare the hit rate and latency.", "Drag the <b>Records</b> slider in the index demo up to a billion."],
   };
@@ -537,7 +537,7 @@
       { t: "Hardware faults happen constantly", b: `<p>Disks, memory modules and power supplies fail. In big data centres this happens <b>all the time</b>:</p><span class="key">A cluster with 10,000 disks has on average <b>one dead disk every day</b>.</span><p>The traditional fix is redundant hardware (RAID for disks, redundant power supplies, hot-swappable CPUs). At huge scale even that isn't enough, so systems must be <b>resilient to whole machines failing</b>.</p>` },
       { t: "Software faults are sneakier", b: `<p>Hardware faults are mostly <b>uncorrelated</b>: one disk dying doesn't make another die. Software faults are <b>harder to anticipate</b> and can be present on <b>many (or all) nodes at once</b>: a faulty monitoring tool, or a process that overuses resources.</p>` },
       { t: "The cascading effect", b: `<p>One node fails, and its work moves to the others. They become overloaded and fail too, pushing even more work onto fewer nodes… until everything is down.</p>`, v: flow([["Node 1 dies", "rose"], ["others take its load", "amber"], ["overloaded → die", "rose"], ["total failure", "rose"]]),
-        c: { q: "Why doesn't adding more identical servers protect against a software bug?", o: ["Servers are too expensive", "They all run the same buggy code, so they fail together", "They do protect against it"], a: 1, why: "Correlated faults defeat simple redundancy." } },
+        c: { q: "Why doesn't adding more identical servers protect against a software bug?", o: ["Servers are too expensive", "They all run the same buggy code", "They do protect against it"], a: 1, why: "Correlated faults defeat simple redundancy." } },
     ],
     guide: ["In the disk demo, keep <b>1 copy</b> and press <b>Run a year</b>. Every orange flash is also a service failure.", "Set <b>copies = 2</b>, reset, and press <b>Run 10 years</b>. Compare disk faults with service failures.", "In the second demo, press <b>Hardware fault</b> once (tolerated), then again (cascade!). Reset and try <b>Software bug</b>.", "Lower the total load and check how many hardware faults the cluster can now survive."],
   };
@@ -550,7 +550,7 @@
       { t: "Performance parameters", b: `<p><b>Web services</b>: <b>response time</b>, the time between a user sending a request and getting the answer.<br><b>Data analysis</b>: records processed per second, or time to process a dataset of a certain size.</p>` },
       { t: "Two questions to ask when load grows", b: `<p>① <b>Keep the system the same</b>: how does performance change?<br>② <b>Keep the performance the same</b>: how many more resources do you need?</p>` },
       { t: "Look at the distribution, not the average", b: `<p>The same request can be fast one moment and slow the next (current load, network delays). So one number like the <b>average</b> isn't enough. Ask: <b>what fraction of users get acceptable performance?</b></p><p>A handy tool: <b>percentiles</b>. p95 = 500 ms means 95% of requests finished within 500 ms (and 5% took longer).</p><span class="analogy">"The average commute is 30 minutes" hides the people stuck for 2 hours. Those are the ones who complain.</span>`,
-        c: { q: "p99 = 1.2 s means…", o: ["the average is 1.2 s", "99% of requests took ≤ 1.2 s, and 1% took longer", "1% of requests took ≤ 1.2 s"], a: 1, why: "Percentiles tell you about the tail that averages hide." } },
+        c: { q: "p99 = 1.2 s means…", o: ["the average request took 1.2 s", "99% of requests took ≤ 1.2 s, and 1% took longer", "1% of requests took ≤ 1.2 s, and 99% took longer"], a: 1, why: "Percentiles tell you about the tail that averages hide." } },
     ],
     guide: ["In the distribution demo, drag <b>Share of slow requests</b> from 0% to 15%. Watch the mean vs median vs p99.", "Move the <b>Target</b> line and read the \"Within target\" percentage: that's the fraction of happy users.", "In the load demo, drag <b>Load</b> towards capacity and watch the response time shoot up (question ①).", "Set a target response time and read how many servers you need (question ②)."],
   };
@@ -563,7 +563,7 @@
         c: { q: "In approach 2, a user with 200 followers posts once. How many writes?", o: ["1", "200", "400"], a: 1, why: "One copy per follower's timeline cache." } },
       { t: "Why Twitter chose approach 2", b: `<p>Approach 1 couldn't keep up with timeline reads, which happen <b>about two orders of magnitude</b> more often than posts (300k vs 4.6k). So Twitter moved the work to write time.</p><span class="key">Average ~75 followers per tweet: 4.6k tweets/s × 75 = <b>345k writes/s</b> to timeline caches. Big, but manageable, and reads become cheap.</span>` },
       { t: "The celebrity problem → hybrid", b: `<p>A user with <b>30 million</b> followers posts: approach 2 means 30 million writes for one tweet. Twitter aims to deliver tweets within <b>5 seconds</b>, and that's too slow.</p><p>So: <b>approach 2 for most users, approach 1 for users with huge follower counts</b>. Their tweets are fetched and merged in when you read.</p>`,
-        c: { q: "Which is the hybrid?", o: ["Everyone uses approach 1", "Most users use fan-out on write; celebrities are merged at read time", "Celebrities use fan-out on write"], a: 1, why: "Fan-out is too expensive for celebrities, so theirs are merged at read time." } },
+        c: { q: "Which is the hybrid?", o: ["Everyone uses approach 1", "Most users use fan-out on write", "Celebrities use fan-out on write"], a: 1, why: "Fan-out is too expensive for celebrities, so theirs are merged at read time." } },
     ],
     guide: ["Keep <b>Approach 1</b>. Post a few tweets as different users, then open Cat's timeline. Watch the Writes and Reads counters.", "Switch to <b>Approach 2</b> and do the same. Posting as Cat now writes to 5 mailboxes (Cat has 5 followers).", "In the scale calculator, check the slide's number: 4.6k × 75 = 345k writes/s.", "Tick the <b>celebrity</b> box to see why the hybrid exists."],
   };
@@ -584,9 +584,9 @@
       { t: "What maintainability means", b: `<p>The <b>overall cost to keep a system operational and up to date</b>. It has three parts:</p>`, v: `<div class="mini-row">${box("Operability", "easy to keep running", "var(--teal)")}${box("Simplicity", "easy to understand", "var(--violet)")}${box("Evolvability", "easy to change", "var(--amber)")}</div>` },
       { t: "Operability: easy for the ops team", b: `<p>✓ visibility into what's happening (<b>good monitoring</b>)<br>✓ support for <b>automation</b> and standard tools<br>✓ <b>no dependency on individual machines</b><br>✓ <b>predictable</b> behaviour, with minimal surprises</p>` },
       { t: "Simplicity: easy for new people", b: `<p>Simpler doesn't mean fewer features. It means removing <b>accidental complexity</b>: complexity that isn't part of the problem and only comes from <i>how</i> it was built (inconsistent architecture, obscure dependencies, poor style or docs).</p><p><b>Abstraction</b> is often the best tool: hide messy details behind a clean interface.</p>`,
-        c: { q: "Which is accidental complexity?", o: ["Tax rules a payroll system must follow", "Five services each wired differently to the same database for no reason", "Needing to store user data"], a: 1, why: "Tax rules are essential (they're part of the problem). The inconsistent wiring is self-inflicted." } },
+        c: { q: "Which is accidental complexity?", o: ["The tax rules a payroll system is legally required to follow", "Five services wired differently to one database", "The need to store every user's personal data securely"], a: 1, why: "Tax rules are essential (they're part of the problem). The inconsistent wiring is self-inflicted." } },
       { t: "Evolvability: easy to change", b: `<p>How easily engineers can modify the system: new requirements, increased load. It's <b>closely linked to simplicity and good abstractions</b>. If it's easy to understand, it's easy to change safely.</p>`,
-        c: { q: "Good abstractions mainly help…", o: ["operability only", "simplicity and evolvability", "neither"], a: 1, why: "They hide complexity (simplicity), and changes stay inside one component (evolvability)." } },
+        c: { q: "Good abstractions mainly help…", o: ["operability only, since they don't change the design", "simplicity and evolvability", "neither of them: abstractions add layers and complexity"], a: 1, why: "They hide complexity (simplicity), and changes stay inside one component (evolvability)." } },
     ],
     guide: ["Look at the tangled architecture and count the connections (20).", "Press <b>Change: replace Orders DB</b>: red shows everything that must be edited.", "Press <b>Add a data-access layer</b>, then run the same change again.", "Sort the 9 statements into operability, simplicity or evolvability."],
   };

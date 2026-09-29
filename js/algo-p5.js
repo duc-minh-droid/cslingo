@@ -45,7 +45,7 @@
           { t: "<b>negative</b> → right turn (clockwise)", v: `<svg class="fig" viewBox="0 0 150 90"><path d="M20 75 L75 55 L130 78" fill="none" stroke="var(--rose)" stroke-width="3" class="draw"/><circle cx="20" cy="75" r="4" fill="var(--text)"/><circle cx="75" cy="55" r="4" fill="var(--text)"/><circle cx="130" cy="78" r="5" fill="var(--rose)"/></svg>` },
           { t: "<b>zero</b> → collinear (straight on)", v: `<svg class="fig" viewBox="0 0 150 90"><path d="M20 75 L75 50 L130 25" fill="none" stroke="var(--amber)" stroke-width="3" class="draw"/><circle cx="20" cy="75" r="4" fill="var(--text)"/><circle cx="75" cy="50" r="4" fill="var(--text)"/><circle cx="130" cy="25" r="5" fill="var(--amber)"/></svg>` },
         ]),
-        c: { q: "p → a → b gives a cross product of 0. What does that mean?", o: ["A left turn", "A right turn", "The three points are collinear: the path doesn't turn"], a: 2, why: "Zero means the two direction vectors are parallel, so it's a straight line. Collinear points are the classic hull edge case." } },
+        c: { q: "p → a → b gives a cross product of 0. What does that mean?", o: ["The walk turns left", "The walk turns right", "The three points are collinear"], a: 2, why: "Zero means the two direction vectors are parallel, so it's a straight line. Collinear points are the classic hull edge case." } },
       { t: "Why hulls care about turns", b: `<p>Walk around a convex shape counter-clockwise and <b>every</b> turn is a left turn. If some point makes you turn right, it's denting the shape inward, so it can't be a hull corner.</p><span class="key">No angles, no trig: one multiply-and-subtract per triple.</span>` },
     ],
     guide: ["Click any three points in order. A path appears and the turn is reported.", "Find one left turn and one right turn.", "Predict the sign <b>before</b> clicking the third point."],
@@ -75,7 +75,7 @@
       }
       qs("#rs", card).onclick = () => { picks = []; draw(); };
       draw();
-      root.appendChild(predict({ id: "a5-or-1", q: "Walking A → C → D (bottom edge toward the right). Is the turn left or right?", opts: ["Left — hull boundary keeps turning one way", "Right", "Collinear"], a: 0,
+      root.appendChild(predict({ id: "a5-or-1", q: "Walking A → C → D (bottom edge toward the right). Is the turn left or right?", opts: ["Left", "Right", "Collinear"], a: 0,
         why: "A(60,230)→C(190,245)→D(330,210) is a left turn (cross product positive in math coords). Convexity = consistent turn direction." }));
       root.appendChild(takeaways([
         "One cross product per triple: sign = turn direction, 0 = collinear.",
@@ -92,7 +92,7 @@
       { t: "Start somewhere guaranteed", b: `<p>The leftmost point must be on the hull, because nothing is further out in that direction. Start there.</p>` },
       { t: "Swing the line", b: `<p>From the current point, try every other point as the \"next\" one. Keep the candidate that makes <b>all</b> the others lie to its left. That edge touches nothing inside, so it's a hull edge.</p>`,
         v: `<svg class="fig" viewBox="0 0 420 200" style="max-height:190px"><circle cx="50" cy="160" r="7" fill="var(--amber)"/><text x="50" y="186" class="fig-sub">current</text>${[[180, 175, "var(--teal)"], [150, 110, "var(--text-faint)"], [300, 150, "var(--text-faint)"], [250, 60, "var(--text-faint)"]].map(([x, y, c]) => `<line x1="50" y1="160" x2="${x}" y2="${y}" stroke="${c}" stroke-width="${c.includes("teal") ? 3 : 1.2}" stroke-dasharray="${c.includes("teal") ? "" : "4 4"}" class="${c.includes("teal") ? "draw" : "fi"}"/><circle cx="${x}" cy="${y}" r="6" fill="${c}" class="fi"/>`).join("")}<text x="210" y="195" class="fig-sub" style="fill:var(--teal)">every other point is on the left of this edge → hull edge</text></svg>`,
-        c: { q: "Gift wrapping costs O(n·h), where h is the number of hull points. When does it beat O(n log n)?", o: ["Never", "When h is small: few hull points and many inside ones", "When h = n"], a: 1, why: "It's output-sensitive. A tiny hull means n·h ≪ n log n. In the worst case (every point on the hull) it's O(n²)." } },
+        c: { q: "Gift wrapping costs O(n·h), where h is the number of hull points. When does it beat O(n log n)?", o: ["Never: n log n always wins", "When h is small", "When h is roughly equal to n"], a: 1, why: "It's output-sensitive. A tiny hull means n·h ≪ n log n. In the worst case (every point on the hull) it's O(n²)." } },
       { t: "Cost = one sweep per hull point", b: `<p>Each step checks all n points, and there's one step per hull corner, so the total is <b>O(n·h)</b>. Great when most points are inside; slow when they're all on the edge.</p>`,
         v: F.bars([["h = 5 of 1000", 5000, "teal", "n·h"], ["n log n", 10000, "violet"], ["h = 1000 of 1000", 1000000, "rose", "n·h"]], { max: 1000000, fmt: (v) => v.toLocaleString() }) },
     ],
@@ -135,7 +135,7 @@
       qs("#st", card).onclick = () => { if (i < march.length - 1) { i++; draw(); } };
       qs("#rs", card).onclick = () => { i = 0; draw(); };
       draw();
-      root.appendChild(predict({ id: "a5-wr-1", q: "Wrapping from A, the next hull vertex is…", opts: ["B — nearest point", "C — the most extreme turn keeps all points on one side", "G — the topmost"], a: 1,
+      root.appendChild(predict({ id: "a5-wr-1", q: "Wrapping from A, the next hull vertex is…", opts: ["B, because it's the nearest point to A on the plane", "C: every other point stays on one side", "G, because it's the topmost point in the whole set"], a: 1,
         why: "Nearest ≠ hull. The next vertex is the point where every candidate lies on the same side of the edge — that's C." }));
       root.appendChild(takeaways([
         "Each wrap step scans all n points → O(n·h) total, output-sensitive.",
@@ -258,7 +258,7 @@
           { t: "E → F → G turns right, so pop F", v: F.cells([{ v: "C" }, { v: "D" }, { v: "E" }, { v: "F", c: "rose", sub: "pop" }]) },
           { t: "E → G is a left turn: push G", v: F.cells([{ v: "C" }, { v: "D" }, { v: "E" }, { v: "G", c: "teal" }]) },
         ]),
-        c: { q: "Why does a point get popped?", o: ["It's far away", "It makes a right turn (or straight line), so it's inside the hull", "The sort order was wrong"], a: 1, why: "A wrong-direction turn means the middle point sits inside the edge that skips it." } },
+        c: { q: "Why does a point get popped?", o: ["It's too far from the anchor point", "It makes a right turn (or a straight line)", "It was placed in the wrong sorted position"], a: 1, why: "A wrong-direction turn means the middle point sits inside the edge that skips it." } },
       { t: "Watch it run", b: `<p>Here is the whole scan on seven points. Press <b>play</b> or step with the arrows. The small numbers show the sorted order, and the green chain is the stack.</p><p>It will pause and ask you to keep or pop. Drag any point and the scan reruns.</p>`,
         v: (box, life) => grahamRun(box, life) },
       { t: "Where the time goes", b: `<p>Every point is pushed once and popped at most once, so the scan is O(n). The <b>sort</b> costs O(n log n), and that dominates.</p><p>Compared with gift wrapping at O(n·h): Graham wins when the hull is big, and wrapping wins when it's tiny.</p>` },
@@ -306,7 +306,7 @@
       qs("#st", card).onclick = () => { if (i < events.length - 1) { i++; draw(); } };
       qs("#rs", card).onclick = () => { i = 0; draw(); };
       draw();
-      root.appendChild(predict({ id: "a5-gr-1", q: "Interior point B gets pushed, then popped. The pop happens because…", opts: ["B is close to the anchor", "Adding the next point makes B a right turn — interior points always dent inward", "B was mis-sorted"], a: 1,
+      root.appendChild(predict({ id: "a5-gr-1", q: "Interior point B gets pushed, then popped. The pop happens because…", opts: ["B lies too close to the anchor point", "Adding the next point makes B a right turn", "B was sorted into the wrong position"], a: 1,
         why: "Interior points always end up on the wrong side of a hull edge — the stack catches them at the next turn test." }));
       root.appendChild(takeaways([
         "Sort once by polar angle → scan once with a stack → O(n log n).",

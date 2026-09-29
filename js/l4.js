@@ -263,9 +263,9 @@
         qs("#cmpT", cmp).innerHTML = `Mean <b>current-population best</b> after 400 evaluations: no elitism ${a[bins - 1].toFixed(3)}, 1 elite ${b[bins - 1].toFixed(3)}, steady-state ${c[bins - 1].toFixed(3)}. Steady-state uses each new child straight away, and replace-worst is itself elitist (the best is never replaced).`;
       };
 
-      root.appendChild(predict({ id: "l4-types-1", q: "In a generational GA <b>without</b> elitism, can the best fitness in the population go <i>down</i> from one generation to the next?", opts: ["No, because selection favours the best", "Yes: every member is replaced by a new child, and the children might all be worse", "Only if the mutation rate is 100%"], a: 1,
+      root.appendChild(predict({ id: "l4-types-1", q: "In a generational GA <b>without</b> elitism, can the best fitness in the population go <i>down</i> from one generation to the next?", opts: ["No, because selection always favours the best individual", "Yes: everyone is replaced, and the children may be worse", "Only if the mutation rate is set to 100% for every gene"], a: 1,
         why: "Selection makes good parents <i>likely</i>, but their children are recombined and mutated, so nothing guarantees one of them matches the old best. That's the reason for <b>elitism</b>: copying the n best unchanged means the best fitness can never decrease. Set elites = 0 and run: look for dips in the green line." }));
-      root.appendChild(predict({ id: "l4-types-2", q: "Steady-state GA with replace-weakest: is it elitist?", opts: ["Yes: the current best can never be the weakest (unless everyone ties), so it's never removed", "No, elitism only exists in generational GAs", "Only when N = 1"], a: 0,
+      root.appendChild(predict({ id: "l4-types-2", q: "Steady-state GA with replace-weakest: is it elitist?", opts: ["Yes: the best is never the weakest, so it stays", "No: elitism only exists in generational GAs, never steady-state", "Only when the population contains a single member"], a: 0,
         why: "Replacing only the weakest member means the best always survives, so steady-state + replace-worst is <b>implicitly elitist</b>. It's also greedy, which raises selection pressure and can cause early convergence." }));
       root.appendChild(takeaways([
         "<b>Generational</b>: build a whole new population each generation. <b>Elitist</b>: carry the n best over unchanged.",
@@ -407,7 +407,7 @@
         qs("#sT", sw).innerHTML = "Expect t=1 to show poor mean fitness (no pressure means no progress), very large t to show lower success (premature convergence on whichever hill wins early), and a sweet spot at modest t.";
       };
 
-      root.appendChild(predict({ id: "l4-pr-1", q: "Your EA's population becomes nearly identical within a few generations and stalls on a mediocre solution. What's the most likely fix?", opts: ["Increase tournament size", "Reduce selection pressure (smaller tournament, rank with low bias) and/or increase mutation", "Remove mutation entirely"], a: 1,
+      root.appendChild(predict({ id: "l4-pr-1", q: "Your EA's population becomes nearly identical within a few generations and stalls on a mediocre solution. What's the most likely fix?", opts: ["Increase the tournament size to push harder", "Lower selection pressure and/or raise mutation", "Remove mutation so good genes aren't disrupted"], a: 1,
         why: "Fast loss of diversity followed by stagnation is <b>premature convergence</b>, the classic sign of too much pressure. Lower the pressure or add exploration (more mutation) so the population keeps sampling other regions." }));
       root.appendChild(takeaways([
         "Selection pressure = how strongly selection favours the fittest.",
@@ -492,9 +492,9 @@
       life.onResize(() => draw());
       draw();
 
-      root.appendChild(predict({ id: "l4-rw-1", q: "Load the <b>TSP lengths</b> preset (32, 33, 32, 34, 28), where shorter is better. What does roulette selection do?", opts: ["Favours the 28 tour, which is best", "Slightly favours the <i>longest</i> tours, the opposite of what we want, and barely distinguishes them anyway", "Refuses to run"], a: 1,
+      root.appendChild(predict({ id: "l4-rw-1", q: "Load the <b>TSP lengths</b> preset (32, 33, 32, 34, 28), where shorter is better. What does roulette selection do?", opts: ["Favours the 28 tour strongly, since it's clearly the best", "Slightly favours the longest tours: the wrong way round", "Refuses to run, because roulette can't handle minimisation"], a: 1,
         why: "Roulette assumes <b>bigger = better</b>. With raw lengths, 34 gets the biggest slice. You'd need to transform the values (e.g. 1/length or max − length), and each transform gives different pressure. The spread is also tiny (28 vs 34 is only 18.9% vs 22.9%), so pressure is weak however you flip it." }));
-      root.appendChild(predict({ id: "l4-rw-2", q: "Population fitnesses 100, 0.4, 0.3, 0.2, 0.1. Add 100 to every fitness. What happens to selection?", opts: ["Nothing: same ranking, same probabilities", "The superfit individual drops from ≈99% to ≈33% of the wheel, so pressure falls sharply", "It becomes even more dominant"], a: 1,
+      root.appendChild(predict({ id: "l4-rw-2", q: "Population fitnesses 100, 0.4, 0.3, 0.2, 0.1. Add 100 to every fitness. What happens to selection?", opts: ["Nothing changes, because the ranking is the same", "The superfit individual drops from ≈99% to ≈33%", "The superfit individual becomes even more dominant"], a: 1,
         why: "Roulette depends on <b>absolute</b> fitness values, not just the order. 200/(200+100.4+100.3+100.2+100.1) = 200/601 ≈ 33%. The lecture's take-home message: <i>fitness-proportionate selection requires us to be very careful how we design the fine detail of fitness assignment.</i>" }));
       root.appendChild(takeaways([
         "p<sub>i</sub> = f<sub>i</sub> / Σf. Simple and \"fair\", and still widely used.",
@@ -537,7 +537,7 @@
       draw();
       root.appendChild(predict({ id: "l4-rank-1", q: "Superfit population 100, 0.4, 0.3, 0.2, 0.1 with <b>linear</b> rank selection. What's the best individual's selection probability?", opts: ["≈ 99%", "5/15 ≈ 33%", "1/5 = 20%", "It depends on how much bigger 100 is"], a: 1,
         why: "Ranks are 5,4,3,2,1 and F = 5·6/2 = 15, so p = 5/15 = <b>33.3%</b>. Rank selection ignores how much fitter the superfit individual is, only that it's first. The same holds for negative values and for minimisation (just rank the other way)." }));
-      root.appendChild(predict({ id: "l4-rank-2", q: "What does increasing the exponent b in rank<sup>b</sup> do?", opts: ["Lowers selection pressure", "Raises selection pressure: top ranks get a disproportionately bigger share", "Nothing, since ranks are fixed"], a: 1,
+      root.appendChild(predict({ id: "l4-rank-2", q: "What does increasing the exponent b in rank<sup>b</sup> do?", opts: ["Lowers selection pressure", "Raises selection pressure", "Nothing, since ranks are fixed"], a: 1,
         why: "Larger b stretches the gap between high and low ranks: b=2 is the lecture's \"high bias\", b=0.5 \"low bias\", and b=0 is uniform random. So b is a <b>pressure dial</b> that doesn't depend on the raw fitness scale." }));
       root.appendChild(takeaways([
         "Rank from P (best) down to 1 (worst). p<sub>i</sub> = rank<sub>i</sub> / (P(P+1)/2).",
@@ -591,7 +591,7 @@
       qs("#np", card).onclick = () => { newPop(); draw(); };
       life.onResize(() => draw());
       draw();
-      root.appendChild(predict({ id: "l4-t-1", q: "The lecture asks: what selection pressure is there with <b>t = 10</b> and <b>popsize = 10,000</b>?", opts: ["Enormous: t=10 always picks the best", "Modest: pressure depends on t, not popsize. The winner is typically around the 91st percentile, and the single best individual wins only ≈0.1% of tournaments", "None, because t is tiny compared with the population"], a: 1,
+      root.appendChild(predict({ id: "l4-t-1", q: "The lecture asks: what selection pressure is there with <b>t = 10</b> and <b>popsize = 10,000</b>?", opts: ["Enormous: with t = 10 the very best almost always wins", "Modest: pressure depends on t, not the population size", "None at all, because t is tiny compared with 10,000 members"], a: 1,
         why: "Tournament pressure depends on <b>t</b> alone (relative rank), not on population size. Expected winner percentile = t/(t+1) ≈ 91%. P(best is in the tournament) = 1 − (9999/10000)<sup>10</sup> ≈ 0.1%. So t=10 in a huge population behaves like t=10 in a small one: it biases towards the top ~10%, but it's not \"always pick the best\"." }));
       root.appendChild(takeaways([
         "Tournament: sample t with replacement and return the best. Pressure rises with t, and t = 1 is random.",
@@ -694,7 +694,7 @@
       };
       qsa("#tabs button", card).forEach((b) => b.addEventListener("click", () => { qsa("#tabs button", card).forEach((x) => x.classList.toggle("on", x === b)); TABS[b.dataset.t](qs("#tb", card)); }));
       TABS.kary(qs("#tb", card));
-      root.appendChild(predict({ id: "l4-mut-1", q: "The lecture asks about swap mutation on a k-ary encoding like 352872: <i>why is this probably not very good in this context?</i>", opts: ["It's too slow to compute", "It can never introduce a value that isn't already present, so it can't explore the space; it only reshuffles existing values", "It produces invalid chromosomes"], a: 1,
+      root.appendChild(predict({ id: "l4-mut-1", q: "The lecture asks about swap mutation on a k-ary encoding like 352872: <i>why is this probably not very good in this context?</i>", opts: ["It's too slow to compute on long strings of digits", "It can't introduce a value that isn't already there", "It produces invalid chromosomes with repeated values in them"], a: 1,
         why: "In the water-distribution example, if no pipe currently has diameter 4, swapping can <b>never</b> create one. Swap preserves the multiset of values, which is exactly right for permutations (every value must appear once) and exactly wrong for k-ary, where any value can go anywhere." }));
       root.appendChild(takeaways([
         "Representations: integer/k-ary, binary, real-valued, permutations, trees. <b>Operators must match the representation.</b>",

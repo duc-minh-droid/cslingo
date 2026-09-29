@@ -7,9 +7,9 @@ async function answerCurrent() {
   if (!Q) return false;
   const body = $(".pl-screen:not(.leaving) .pl-body");
   const t = Q.type || "mcq";
-  if (t === "mcq") $$(".opt", body)[Q.a].click();
-  else if (t === "multi") Q.a.forEach((k) => $$(".opt", body)[k].click());
-  else if (t === "num") { const inp = $("input", body); inp.value = Q.ans; inp.dispatchEvent(new Event("input")); }
+  if (t === "mcq") $(`.opt[data-k="${Q.a}"]`, body).click();
+  else if (t === "multi") Q.a.forEach((k) => $(`.opt[data-k="${k}"]`, body).click());
+  else if (t === "num") $(`.opt[data-v="${Q.ans}"]`, body).click();
   else if (t === "slider") { const r = $("input", body); r.value = Q.ans; r.dispatchEvent(new Event("input")); }
   else if (t === "order") Q.items.forEach((_, k) => $(`.qo-pool [data-i="${k}"]`, body).click());
   else if (t === "match") Q.pairs.forEach((_, k) => { $(`.qm-l[data-k="${k}"]`, body).click(); $(`.qm-r[data-i="${k}"]`, body).click(); });

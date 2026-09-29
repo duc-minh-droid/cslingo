@@ -11,10 +11,10 @@
 | Course | Mascot | Lessons |
 |---|---|---|
 | Nature-Inspired Computation (ECM3412) | Sprout | evolution as search, the EA loop, landscapes, selection, operators |
-| Data Science at Scale (COM3021) | Pebble | reliability, load and latency, Twitter fan-out, scaling, maintainability |
+| Data Science at Scale (COM3021) | Pebble | reliability, load and latency, Twitter fan-out, scaling, maintainability, data models and NoSQL, logs, hash indexes and SSTables |
 | Algorithms that Changed the World (ECM3428) | Byte | PageRank, Dijkstra/A*, LP and simplex, MSTs, hulls, error codes, compression, crypto, FFT, attention |
 
-**58 lessons and 16 boss quizzes.**
+**65 lessons and 18 boss quizzes.**
 
 - **The path.** Every lesson node has its own topic icon. Hover it to see what's inside (summary, steps, time, questions); tap it and press START. A sticky unit banner with a guidebook follows you as you scroll.
 - **The lesson player.** One screen at a time: read a step, pick an answer, press **CHECK**, and get a green or red sheet with the explanation. Wrong answers come back at the end.

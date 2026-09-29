@@ -36,7 +36,7 @@ window.NIC = (function () {
   // ---------- Canvas ----------
   function setupCanvas(canvas, height) {
     const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth || canvas.parentElement.clientWidth;
+    const w = canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth : 0); // detached (screen already left): 0, callers skip drawing
     const h = height || canvas.clientHeight || 240;
     canvas.style.height = h + "px";
     canvas.width = Math.round(w * dpr);

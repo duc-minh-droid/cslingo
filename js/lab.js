@@ -140,7 +140,7 @@
         <li style="margin:6px 0"><b>Roulette's weakness.</b> Custom → Generational + Roulette. Fitnesses all sit around 0.5–0.9, so the wheel is nearly uniform and pressure is weak. Compare with Rank.</li>
         <li style="margin:6px 0"><b>Mutation rate.</b> Set it to 0 (crossover only): the population stalls once diversity hits 0. Set it to 0.05 (~7 flips per child): exploitation collapses. Where's the sweet spot?</li>
         <li style="margin:6px 0"><b>Elitism.</b> Generational with 0 elites vs 1. Look for the best line dipping.</li></ol></div>`));
-      root.appendChild(predict({ id: "l4-lab-1", q: "You turn mutation to 0 and use crossover only. The diversity line falls to 0 while the best is at 130/144. What happens next?", opts: ["It keeps improving slowly through crossover", "It's stuck for good: crossover can only recombine existing alleles, and once every member has the same bit at a position, nothing can change it", "It resets itself"], a: 1,
+      root.appendChild(predict({ id: "l4-lab-1", q: "You turn mutation to 0 and use crossover only. The diversity line falls to 0 while the best is at 130/144. What happens next?", opts: ["It keeps improving slowly through crossover", "It's stuck for good", "It resets itself"], a: 1,
         why: "Crossover exploits: it mixes what's already there. If every individual has a 0 where the target needs a 1, no amount of recombination creates the 1. Mutation is the source of new genetic material, the <b>exploration</b> half of the pair." }));
       root.appendChild(takeaways([
         "A full EA = representation + initialisation + selection + variation (crossover and/or mutation) + replacement + termination.",
