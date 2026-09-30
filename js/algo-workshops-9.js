@@ -85,7 +85,7 @@
         <div class="wk-note" data-note>Add a second wave and watch the spectrum. Each wave becomes one bar.</div></div>
       <div class="wk-card" data-p="mys" hidden><h3>Mystery signal<span class="wk-sp"></span><span class="wk-badge" data-yb>3 waves inside</span></h3>
         <div data-yscope></div>
-        <div class="wk-row aw9-bar"><button class="btn" data-show>Show spectrum</button><button class="btn primary" data-check disabled>Check my peaks</button><button class="btn ghost small" data-new>New mystery</button></div>
+        <div class="wk-row aw9-bar"><button class="btn" data-show>Show spectrum</button><button class="btn primary" data-ychk disabled>Check my peaks</button><button class="btn ghost small" data-new>New mystery</button></div>
         <div class="wk-note" data-ynote>The curve looks like a mess. Press <b>Show spectrum</b>, then tap the bar of every frequency you think is hiding inside.</div></div>
       <div class="wk-card" data-p="half" hidden><h3>The halving trick<span class="wk-sp"></span><span class="wk-badge" data-hb></span></h3>
         <div data-hhost></div>
@@ -155,18 +155,18 @@
     /* ---------------- MYSTERY ---------------- */
     const myP = qs('[data-p="mys"]', stage), myst = (() => {
       let truth, marks = new Set(), shown = false, overlay = null, tries = 0;
-      const ysc = scope(qs("[data-yscope]", myP), { onBar: (k) => { if (!shown) { ynote("Press <b>Show spectrum</b> first."); return; } if (k === 0) return; marks.has(k) ? marks.delete(k) : marks.add(k); snd("select"); draw(); qs("[data-check]", myP).disabled = !marks.size; } });
+      const ysc = scope(qs("[data-yscope]", myP), { onBar: (k) => { if (!shown) { ynote("Press <b>Show spectrum</b> first."); return; } if (k === 0) return; marks.has(k) ? marks.delete(k) : marks.add(k); snd("select"); draw(); qs("[data-ychk]", myP).disabled = !marks.size; } });
       const ynote = (h) => { qs("[data-ynote]", myP).innerHTML = h; };
       const fresh = () => {
         const pool = []; while (pool.length < 3) { const f = 2 + Math.floor(Math.random() * 23); if (pool.every((p) => Math.abs(p - f) >= 3)) pool.push(f); }
         const amps = [1, 0.7, 0.4].sort(() => Math.random() - 0.5);
         truth = pool.map((f, i) => ({ f, a: amps[i] })).sort((p, q) => p.f - q.f); marks = new Set(); shown = false; overlay = null; tries = 0;
-        qs("[data-show]", myP).disabled = false; qs("[data-check]", myP).disabled = true;
+        qs("[data-show]", myP).disabled = false; qs("[data-ychk]", myP).disabled = true;
       };
       function draw() { ysc.update({ waves: truth, fs: 64, parts: false, hideSpec: !shown, marks, overlay, alias: false }); qs("[data-yb]", myP).textContent = shown ? `${marks.size} picked` : "3 waves inside"; }
       qs("[data-show]", myP).onclick = () => { shown = true; qs("[data-show]", myP).disabled = true; draw(); snd("whoosh"); ynote("Each bar is a frequency hiding in the curve. Tap every bar that is a real wave, then press <b>Check my peaks</b>."); api.say("The messy curve is just a few waves added together. Tall bars give them away.", "think"); };
       qs("[data-new]", myP).onclick = () => { fresh(); draw(); ynote("A new mystery. Show the spectrum and read it."); snd("back"); };
-      qs("[data-check]", myP).onclick = () => {
+      qs("[data-ychk]", myP).onclick = () => {
         tries++; const tf = new Set(truth.map((t) => t.f)), miss = [...tf].filter((f) => !marks.has(f)), extra = [...marks].filter((f) => !tf.has(f));
         if (!miss.length && !extra.length) {
           overlay = truth.map((t) => ({ f: t.f, a: +ysc.update({ waves: truth, fs: 64, parts: false, hideSpec: false, marks, alias: false }).amps[t.f].toFixed(2) }));
@@ -207,7 +207,7 @@
         host.innerHTML = `<svg class="aw9-svg aw9-hsvg" viewBox="0 0 560 290" role="img" aria-label="Sixteen samples">
           <line class="aw9-ax" data-ax0 x1="8" x2="552" y1="${CY[0]}" y2="${CY[0]}"/><line class="aw9-ax" data-ax1 x1="8" x2="552" y1="${CY[1]}" y2="${CY[1]}" style="opacity:0"/>
           <text class="aw9-tl aw9-rowt" data-r0 x="10" y="20" style="opacity:0">even-indexed: x0, x2, x4 …</text><text class="aw9-tl aw9-rowt" data-r1 x="10" y="144" style="opacity:0">odd-indexed: x1, x3, x5 …</text>
-          ${x.map((v, t) => `<g class="aw9-st" data-t="${t}" tabindex="0" role="button" aria-label="Sample x${t}"><line x1="${X(t)}" x2="${X(t)}" y1="${CY[0]}" y2="${CY[0] - v * SC}"/><circle cx="${X(t)}" cy="${CY[0] - v * SC}" r="8"/><text class="lb" x="${X(t)}" y="${CY[0] + 76}">x${t}</text></g>`).join("")}</svg>`;
+          ${x.map((v, t) => `<g class="aw9-st" data-t="${t}" tabindex="0" role="button" aria-label="Sample x${t}"><rect class="hit" x="${X(t) - 15}" y="${CY[0] - 76}" width="30" height="168"/><line x1="${X(t)}" x2="${X(t)}" y1="${CY[0]}" y2="${CY[0] - v * SC}"/><circle cx="${X(t)}" cy="${CY[0] - v * SC}" r="8"/><text class="lb" x="${X(t)}" y="${CY[0] + 76}">x${t}</text></g>`).join("")}</svg>`;
         qsa(".aw9-st", host).forEach((g) => { g.onclick = () => tap(+g.dataset.t); g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tap(+g.dataset.t); } }; });
       }
       function tap(t) {

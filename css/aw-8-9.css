@@ -139,3 +139,4 @@
   .mb { animation: none !important; }
   .aw9-bin .b, .aw9-bin .v, .aw9-hsvg .aw9-st { transition: none !important; }
 }
+.aw9-st .hit { fill: transparent; }
