@@ -63,7 +63,7 @@
     const tk = qs(".takeaways", page); if (tk) tk.remove();
     S.demo = page; S.holder = holder;
     const hasDemo = page.children.length > 0;
-    if (hasDemo || L.guide) out.push({ kind: "try", guide: L.guide });
+    if (hasDemo || L.guide) out.push({ kind: "try", guide: mod.workshop ? null : L.guide, workshop: !!mod.workshop });
     preds.forEach((n) => { const o = n.__opts; out.push({ kind: "q", Q: { type: "mcq", q: o.q, o: o.opts, a: o.a, why: o.why || "" }, key: `pred:${o.id}`, pred: o.id }); });
     S.recap = tk;
     return out;
@@ -303,6 +303,23 @@
     }
   }
 
+  /** Workshop screen: the module's no-code lab fills the page; missions award XP, Continue is always available. */
+  function workshopScreen(node, sc) {
+    node.innerHTML = `<div class="pl-in pl-try pl-wk"><div class="pl-try-head"><div><div class="pl-tag violet">Workshop</div><h1>${S.mod.title.replace(/^Workshop:\s*(.)/, (_, c) => c.toUpperCase())}</h1></div></div><div class="pl-try-demo"></div></div>`;
+    qs(".pl-try-demo", node).appendChild(S.demo);
+    if (S.holder) { S.holder.remove(); S.holder = null; }
+    setTimeout(() => window.dispatchEvent(new Event("nic:resize")), 60);
+    const wk = qs(".wk", node);
+    const say = () => foot("continue", { label: "Skip for now", onGo: next, fb: `<span class="faint">Finish the missions for XP, or skip and come back.</span>` });
+    say();
+    if (!wk) return;
+    wk.addEventListener("nic:wk-mission", (e) => { if (!S) return; S.xp += 8; });
+    wk.addEventListener("nic:wk-done", () => {
+      if (!S || S.demoXP) return; S.demoXP = true; S.xp += 10; game().track("demo");
+      foot("continue", { onGo: next, fb: `<div class="pl-fb-row">${N.mascot({ who: "chip", size: 52, mood: "love" })}<b>Workshop complete! Bonus +10 XP</b></div>` });
+    });
+  }
+
   // =====================================================================
   //  Screens
   // =====================================================================
@@ -444,6 +461,7 @@
     },
     try(node, sc) {
       node.classList.add("wide");
+      if (sc.workshop) return workshopScreen(node, sc);
       node.innerHTML = `<div class="pl-in pl-try"><div class="pl-try-head">${N.mascot({ who: S.who, size: 64, act: "wave" })}<div><div class="pl-tag orange">Try it yourself</div><h1>See it working</h1></div></div>
         <div class="pl-try-grid"><div class="pl-try-demo"></div>${sc.guide ? `<aside class="pl-try-side"></aside>` : ""}</div></div>`;
       qs(".pl-try-demo", node).appendChild(S.demo);

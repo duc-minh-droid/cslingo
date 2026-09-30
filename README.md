@@ -14,12 +14,13 @@
 | Data Science at Scale (COM3021) | Pebble | reliability, load and latency, Twitter fan-out, scaling, maintainability, data models and NoSQL, logs, hash indexes and SSTables |
 | Algorithms that Changed the World (ECM3428) | Byte | PageRank, Dijkstra/A*, LP and simplex, MSTs, hulls, error codes, compression, crypto, FFT, attention |
 
-**65 lessons and 18 boss quizzes.**
+**68 lessons (3 of them no-code workshops) and 18 boss quizzes.**
 
 - **The path.** Every lesson node has its own topic icon. Hover it to see what's inside (summary, steps, time, questions); tap it and press START. A sticky unit banner with a guidebook follows you as you scroll.
 - **The lesson player.** One screen at a time: read a step, pick an answer, press **CHECK**, and get a green or red sheet with the explanation. Wrong answers come back at the end.
 - **Figures that run.** Algorithm steps play like a video: play, pause, step, scrub and change speed, with the pseudocode line lit up. They pause to ask you to predict the next move, and you can drag points or edit weights to rerun them.
 - **Live demos.** Lessons come with a playground (evolving populations, roulette wheels, A* on a grid, fitness landscapes in 3-D…) with a tick-off checklist.
+- **Workshops.** Data Science has no-code, mission-based labs: run an ops room, snap query blocks together over tables, documents and a graph, and drive a storage engine by hand.
 - **Boss quizzes.** Nine question types: multiple choice, select-all, numeric, sliders, ordering, matching, sorting into buckets, clicking the diagram and spot-the-bug.
 - **Game layer.** XP, a daily streak, a daily goal, three daily quests with chests, and achievements that unlock hats and gadgets for the cast.
 - **The cast.** Six characters, 13 expressions, 17 accessories, and a lot of silly animation. Poke them.

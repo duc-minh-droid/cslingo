@@ -28,6 +28,8 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/run.js` + `css/run.css` | Step-through figure runner `NIC.fig.run`, tween helpers `NIC.fig.rn`, `NIC.fig.graphScene` (see §6f). |
 | `js/art.js` | In-house illustrations: `NIC.art.banner(course)`, `NIC.art.empty(kind)`, `NIC.art.pattern(kind, colour)`. |
 | `assets/lottie.js` | In-house Lottie animations (`window.CSL_LOTTIE`: chest, flame, trophy, levelup, combo), built in code. Played by `NIC.fx.lottie(el, name)` / `NIC.fx.lottieAt(anchor, name)`. |
+| `js/workshop.js` + `css/workshop.css` | Workshop engine `NIC.workshop(root, life, {who, intro, missions, build})`: mission list, coach mascot, progress bar, XP. Helpers `NIC.wk`. See §6g. |
+| `js/ds-workshops.js` | The three Data Science workshops (`ds-ops`, `ds-querylab`, `ds-engine`). |
 | `js/l12.js l3.js l4.js lab.js lessons.js` | Nature-Inspired (`nic`) modules and lessons. |
 | `js/ds.js` | Data Science (`ds`) modules and lessons. |
 | `js/algo-p1.js … algo-p10.js` | Algorithms (`algo`) modules and lessons, one file per phase. |
@@ -286,6 +288,24 @@ function myRun(box, life) {
 3. Pick a mascot for `who`. Reuse a character, or add one to `CHARS` in `js/cast.js`. A character needs `body`, `belly`, `limb`, `foot`, `shape` (the SVG path in the 120×124 rig), `bellyEl`, `top`, `hy` and `hs`. Hats sit on y≈32.
 4. Create `js/os.js` (and `js/boss-os.js`) with `subject: "os"`, and add their script tags.
 5. Update `README.md`: the course table and the lesson/boss counts. The counts appear in the trailer outro too.
+
+### 6g. Workshops (no-code hands-on labs)
+
+A workshop replaces a coding practical with a visual, mission-based sandbox. Register it like a lesson with `workshop: true` and `order: 90` (before the boss), `num: "N.W"`, and a title starting `Workshop:`. `render()` calls `NIC.workshop(root, life, cfg)`:
+
+```js
+N.workshop(root, life, {
+  who: "pebble", intro: "Coach's first line.",
+  missions: [{ id: "a", t: "Short title", d: "What to do, naming the buttons in <b>bold</b>.", hint: "Shown under 'Stuck? Hint'." }],
+  build(stage, api, life) { /* draw cards into stage; call api.done("a") when the learner achieves it; api.say(html, mood) for the coach */ },
+});
+```
+
+- The player shows it as a full-width **Workshop** screen. Each mission gives +8 XP, all of them +10 bonus. Continue is never locked ("Skip for now" until done).
+- Missions must be won by **doing something in the sandbox** (tap, slide, drag), never by typing. Every number comes from the simulation.
+- Keep 4 to 5 missions, each checkable from state. Add a 2-step briefing in `LESSONS[id]` (with figures and quick checks), 2 predicts and a `takeaways` node, like any lesson.
+- Workshops are exempt from `bankTest`'s "every module has bank questions" rule (`m.workshop`); their concepts are covered by the lecture's own bank.
+- Motion stays transform/opacity; put new animations in `css/workshop.css` with a reduced-motion override. Add the path icon to `TOPICS` in `tools/emoji-build.py`.
 
 ### 6d. A boss quiz
 
