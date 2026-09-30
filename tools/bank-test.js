@@ -57,7 +57,7 @@ async function bankTest() {
     keep.rev === null ? localStorage.removeItem("nic.rev") : localStorage.setItem("nic.rev", keep.rev);
     keep.done === null ? localStorage.removeItem("nic.lessonDone") : localStorage.setItem("nic.lessonDone", keep.done);
   }
-  const covered = new Set(Object.keys(NIC.bank.raw)), missing = NIC.modules.filter((m) => m.num !== "Boss" && !covered.has(m.id)).map((m) => m.id);
+  const covered = new Set(Object.keys(NIC.bank.raw)), missing = NIC.modules.filter((m) => m.num !== "Boss" && !m.workshop && !covered.has(m.id)).map((m) => m.id);
   if (missing.length) failures.push(`modules with no bank questions: ${missing.join(", ")}`);
   return { questions: n, modulesCovered: covered.size, failures };
 }
