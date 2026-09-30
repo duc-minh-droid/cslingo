@@ -252,18 +252,19 @@
         if (b.disabled) return; b.disabled = true;
         const row = b.closest(".q-row");
         NIC.sfx.play("chest");
-        fx.lottieAt(b, "chest", { size: 170, dy: -30 });
-        const wob = fx.ok && !fx.reduce() ? fx.animate(b, { transform: ["rotate(0)", "rotate(-12deg)", "rotate(12deg)", "rotate(-8deg)", "scale(1.3)", "scale(1)"] }, { duration: fx.DUR.bar }) : null;
-        const payoff = () => {
-          const n = game.claim(b.dataset.q);
-          fx.floatText(b, `+${n} XP`, "#ff9600"); fx.celebrate(b, { silent: true });
-          const got = el(`<span class="q-got">${IC.check}</span>`);
-          b.replaceWith(got);
-          fx.springIn(got, { from: 0.2, rot: -30, bounce: fx.SPRING_POP.bounce, dur: fx.SPRING_POP.duration });
-          row.classList.add("claimed");
-          renderTop();
-        };
-        wob ? wob.finished.then(payoff, payoff) : payoff();
+        // the claim chest opens in place, like the path chest
+        const old = qs("svg", b); old.outerHTML = CHEST(false);
+        b.style.animation = "none";
+        chestAnim(qs(".p-chest-svg", b), {
+          onPop() { const n = game.claim(b.dataset.q); b.dataset.n = n; fx.floatText(b, `+${n} XP`, "#ff9600"); fx.celebrate(b, { silent: true }); },
+          onEnd() {
+            const got = el(`<span class="q-got">${IC.check}</span>`);
+            b.replaceWith(got);
+            fx.springIn(got, { from: 0.2, rot: -30, bounce: fx.SPRING_POP.bounce, dur: fx.SPRING_POP.duration });
+            row.classList.add("claimed");
+            renderTop();
+          },
+        });
       }));
     },
     me(card) {
