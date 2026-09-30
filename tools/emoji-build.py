@@ -27,6 +27,7 @@ TOPICS = {
     "ds-models": "card-file-box", "ds-schema": "puzzle-piece", "ds-graph": "spider-web", "ds-nosql": "package",
     "ds-ops": "control-knobs", "ds-querylab": "magnifying-glass-tilted-right", "ds-engine": "gear",
     "ds-log": "scroll", "ds-hashidx": "file-cabinet", "ds-sstable": "books",
+    "a2-watch": "world-map", "a2-code": "laptop",
     "a1-anatomy": "magnifying-glass-tilted-left", "a1-bigo": "stopwatch", "a1-surfer": "person-surfing", "a1-pagerank": "globe-with-meridians",
     "a2-dijkstra": "round-pushpin", "a2-astar": "glowing-star", "a2-routing": "satellite-antenna",
     "a3-lp": "chart-increasing", "a3-simplex": "triangular-ruler", "a3-bracket": "left-right-arrow", "a3-nm": "triangular-flag",
