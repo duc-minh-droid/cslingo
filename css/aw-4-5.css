@@ -1,1 +1,87 @@
-/* Workshop styles for phases 4 and 5. */
+/* Workshop styles for phases 4 and 5. Prefixes: aw4- (spanning tree workshop), aw5- (hull code lab). Transform/opacity motion only. */
+
+/* ---------- 4.W  build the cheapest network ---------- */
+.aw4-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.aw4-tab { font-size: 14px; }
+.aw4-tab.on { border-color: var(--blue); color: var(--blue-ink); box-shadow: 0 4px 0 var(--blue-lip); }
+.aw4-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.aw4-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.aw4-e { cursor: pointer; outline: none; }
+.aw4-hit { stroke: transparent; stroke-width: 22; stroke-linecap: round; }
+.aw4-ln { stroke: var(--line-2); stroke-width: 4; stroke-linecap: round; transition: stroke var(--dur-2) ease; }
+.aw4-e.tree .aw4-ln { stroke: var(--teal); stroke-width: 7; }
+.aw4-e.cross .aw4-ln { stroke: var(--amber); stroke-width: 5; stroke-dasharray: 9 7; }
+.aw4-e.cross.tree .aw4-ln { stroke: var(--teal); stroke-dasharray: none; stroke-width: 7; }
+.aw4-e.rej .aw4-ln { stroke: var(--rose); stroke-width: 3; stroke-dasharray: 3 8; opacity: .55; }
+.aw4-e.bad .aw4-ln { stroke: var(--rose); stroke-width: 7; stroke-dasharray: none; opacity: 1; animation: aw4-pulse .42s ease-in-out 3 alternate; }
+.aw4-e.bad.ghost .aw4-ln { stroke-dasharray: 10 8; }
+@keyframes aw4-pulse { from { opacity: .3; } to { opacity: 1; } }
+.aw4-e:focus-visible .aw4-ln { stroke: var(--blue); }
+.aw4-w rect { fill: var(--panel); stroke: var(--line-2); stroke-width: 2; transition: stroke var(--dur-2) ease; transform-box: fill-box; transform-origin: center; }
+.aw4-w text { font: 900 13px Nunito, system-ui, sans-serif; fill: var(--text-dim); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.aw4-e.tree .aw4-w rect { stroke: var(--teal); } .aw4-e.tree .aw4-w text { fill: var(--teal-ink); }
+.aw4-e.cross .aw4-w rect { stroke: var(--amber); } .aw4-e.cross .aw4-w text { fill: var(--amber-ink); }
+.aw4-e.bad .aw4-w rect, .aw4-e.rej .aw4-w rect { stroke: var(--rose); } .aw4-e.bad .aw4-w text, .aw4-e.rej .aw4-w text { fill: var(--rose-ink); }
+.aw4-n circle { fill: var(--bg-2); stroke: var(--line-2); stroke-width: 3; transition: fill var(--dur-2) ease, stroke var(--dur-2) ease; }
+.aw4-n text { font: 900 17px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.aw4-n.c-blue circle { fill: var(--blue-dim); stroke: var(--blue); } .aw4-n.c-amber circle { fill: var(--amber-dim); stroke: var(--amber); }
+.aw4-n.c-teal circle { fill: var(--teal-dim); stroke: var(--teal); } .aw4-n.c-violet circle { fill: var(--violet-dim); stroke: var(--violet); }
+.aw4-n.pick { cursor: pointer; outline: none; }
+.aw4-n.pick:focus-visible circle { stroke-width: 5; }
+.aw4-n.loopn circle { fill: var(--rose-dim); stroke: var(--rose); }
+.aw4-tag rect { fill: var(--rose); } .aw4-tag text { font: 900 12px Nunito, system-ui, sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+.aw4-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--text-dim); }
+.aw4-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.aw4-legend .lg { width: 22px; height: 0; border-top: 5px solid var(--line-2); border-radius: 3px; }
+.aw4-legend .lg.tree { border-color: var(--teal); } .aw4-legend .lg.cross { border-top-style: dashed; border-color: var(--amber); }
+.aw4-legend .lg.rej { border-top-style: dotted; border-color: var(--rose); opacity: .7; } .aw4-legend .lg.bad { border-color: var(--rose); }
+.aw4-lh { margin: 12px 0 6px; font-size: 13px; font-weight: 900; color: var(--ink); }
+.aw4-lh span { font-weight: 700; color: var(--text-faint); }
+.aw4-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; min-height: 40px; align-items: center; }
+.aw4-chip { appearance: none; display: inline-flex; gap: 6px; align-items: baseline; padding: 5px 11px; border: 2px solid var(--line-2); border-radius: 12px; background: var(--panel); color: var(--text); font: inherit; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 3px 0 var(--line-2); }
+.aw4-chip i { font-style: normal; color: var(--amber-ink); }
+.aw4-chip:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line-2); }
+.aw4-chip.next { border-color: var(--blue); box-shadow: 0 3px 0 var(--blue-lip); }
+.aw4-chip.take { border-color: var(--teal); background: var(--teal-dim); box-shadow: 0 3px 0 var(--teal-lip); } .aw4-chip.take b { color: var(--teal-ink); }
+.aw4-chip.rej { border-color: var(--rose); background: var(--rose-dim); box-shadow: 0 3px 0 var(--rose-edge); } .aw4-chip.rej b { color: var(--rose-ink); text-decoration: line-through; }
+.aw4-chip.cr { border-color: var(--amber); box-shadow: 0 3px 0 var(--amber); }
+.aw4-chip.off { opacity: .45; }
+.aw4-note { margin-top: 12px; padding-top: 10px; border-top: 2px solid var(--line); }
+
+/* ---------- 5.C  code the hull ---------- */
+.aw5-svg { width: 100%; height: auto; max-height: 330px; display: block; overflow: visible; }
+.aw5-hullfill { fill: var(--teal-dim); opacity: 0; transition: opacity var(--dur-3) ease; }
+.aw5-hullfill.on { opacity: .75; }
+.aw5-ray { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 5; opacity: 0; transition: opacity var(--dur-3) ease; }
+.aw5-ray.on { opacity: 1; }
+.aw5-chain { fill: none; stroke: var(--teal); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.aw5-try { stroke-width: 4; stroke-linecap: round; stroke-dasharray: 9 7; opacity: 0; transition: opacity var(--dur-2) ease; }
+.aw5-try.on { opacity: 1; }
+.aw5-try.left { stroke: var(--teal); } .aw5-try.right { stroke: var(--rose); } .aw5-try.flat { stroke: var(--amber); }
+.aw5-badge rect { stroke-width: 2; fill: var(--panel); } .aw5-badge text { font: 900 13px Nunito, system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.aw5-badge.left rect { stroke: var(--teal); } .aw5-badge.left text { fill: var(--teal-ink); }
+.aw5-badge.right rect { stroke: var(--rose); } .aw5-badge.right text { fill: var(--rose-ink); }
+.aw5-badge.flat rect { stroke: var(--amber); } .aw5-badge.flat text { fill: var(--amber-ink); }
+.aw5-pt circle.c { fill: var(--bg-2); stroke: var(--line-2); stroke-width: 3; transition: fill var(--dur-2) ease, stroke var(--dur-2) ease, opacity var(--dur-2) ease; }
+.aw5-pt text.l { font: 900 15px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.aw5-pt.piv circle.c { fill: var(--amber-dim); stroke: var(--amber); }
+.aw5-pt.on circle.c { fill: var(--teal-dim); stroke: var(--teal); }
+.aw5-pt.cand circle.c { fill: var(--blue-dim); stroke: var(--blue); stroke-width: 5; }
+.aw5-pt.top circle.c { stroke: var(--violet); fill: var(--violet-dim); }
+.aw5-pt.out circle.c { fill: var(--rose-dim); stroke: var(--rose); opacity: .55; } .aw5-pt.out text.l { fill: var(--rose-ink); text-decoration: line-through; }
+.aw5-num circle { fill: var(--violet); } .aw5-num text { font: 900 10px Nunito, system-ui, sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+.aw5-num { opacity: 0; transition: opacity var(--dur-3) ease; } .aw5-num.on { opacity: 1; }
+.aw5-stack { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-height: 34px; margin-top: 8px; }
+.aw5-stack small { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: var(--text-faint); margin-right: 4px; }
+.aw5-cell { min-width: 30px; padding: 3px 8px; text-align: center; border: 2px solid var(--teal); border-radius: 9px; background: var(--teal-dim); color: var(--teal-ink); font: 900 13px Nunito, system-ui, sans-serif; }
+.aw5-cell.top { box-shadow: 0 3px 0 var(--teal-lip); }
+.aw5-cell.gone { border-color: var(--rose); background: var(--rose-dim); color: var(--rose-ink); text-decoration: line-through; }
+.aw5-coords { margin-top: 6px; font: 700 12px ui-monospace, Menlo, Consolas, monospace; color: var(--text-faint); overflow-wrap: anywhere; }
+.aw5-coords b { color: var(--text-dim); }
+
+@media (max-width: 900px) { .aw4-layout { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .aw4-tab { flex: 1 1 100%; } .aw4-chip { padding: 5px 9px; } }
+@media (prefers-reduced-motion: reduce) {
+  .aw4-e.bad .aw4-ln { animation: none; }
+  .aw5-hullfill, .aw5-ray, .aw5-num, .aw5-try { transition: none; }
+}
