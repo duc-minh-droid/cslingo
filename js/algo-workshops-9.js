@@ -131,7 +131,7 @@
     function update() {
       const r = sc.update({ waves, fs });
       qs("[data-read]", mix).innerHTML = r.peaks.length ? `Spectrum peaks: ${r.peaks.map(([k, v]) => `<b>${k} Hz</b> × ${v.toFixed(1)}`).join(" · ")}` : "No peaks: the signal is flat.";
-      qs("[data-mb]", mix).textContent = `${fs} samples per second · limit ${fs / 2} Hz`;
+      qs("[data-mb]", mix).textContent = `${fs} per second · limit ${fs / 2} Hz`;
       qs("[data-mb]", mix).className = `wk-badge${waves.some((w) => w.f > fs / 2) ? " slow" : ""}`;
       // missions
       if (waves.length >= 2 && new Set(waves.map((w) => w.f)).size >= 2 && r.peaks.length >= 2) api.done("mix");
@@ -201,13 +201,12 @@
       const fc = (z) => { const re = rc(z.re), im = rc(z.im); return `${re < 0 ? "−" : ""}${Math.abs(re).toFixed(2)} ${im < 0 ? "−" : "+"} ${Math.abs(im).toFixed(2)}i`; };
       let phase = 0, picked = new Set(), inspected = new Set(), selK = null;
       const host = qs("[data-hhost]", hP), mid = qs("[data-hmid]", hP), hn = (h) => { qs("[data-hnote]", hP).innerHTML = h; };
-      const X = (t) => 24 + 32 * t, CY = [88, 212], SC = 46;
+      const X = (t) => 24 + 32 * t, CY = [88, 252], SC = 46;
       const badge = () => { qs("[data-hb]", hP).textContent = ["Step 1 of 4: sort", "Step 2 of 4: split", "Step 3 of 4: half DFTs", "Step 4 of 4: combine", "Inspect the pairs"][phase]; };
       function build() {
-        host.innerHTML = `<svg class="aw9-svg aw9-hsvg" viewBox="0 0 560 290" role="img" aria-label="Sixteen samples">
+        host.innerHTML = `<svg class="aw9-svg aw9-hsvg" viewBox="0 0 560 345" role="img" aria-label="Sixteen samples">
           <line class="aw9-ax" data-ax0 x1="8" x2="552" y1="${CY[0]}" y2="${CY[0]}"/><line class="aw9-ax" data-ax1 x1="8" x2="552" y1="${CY[1]}" y2="${CY[1]}" style="opacity:0"/>
-          <text class="aw9-tl aw9-rowt" data-r0 x="10" y="20" style="opacity:0">even-indexed: x0, x2, x4 …</text><text class="aw9-tl aw9-rowt" data-r1 x="10" y="144" style="opacity:0">odd-indexed: x1, x3, x5 …</text>
-          ${x.map((v, t) => `<g class="aw9-st" data-t="${t}" tabindex="0" role="button" aria-label="Sample x${t}"><rect class="hit" x="${X(t) - 15}" y="${CY[0] - 76}" width="30" height="168"/><line x1="${X(t)}" x2="${X(t)}" y1="${CY[0]}" y2="${CY[0] - v * SC}"/><circle cx="${X(t)}" cy="${CY[0] - v * SC}" r="8"/><text class="lb" x="${X(t)}" y="${CY[0] + 76}">x${t}</text></g>`).join("")}</svg>`;
+          ${x.map((v, t) => `<g class="aw9-st" data-t="${t}" tabindex="0" role="button" aria-label="Sample x${t}"><rect class="hit" x="${X(t) - 16}" y="${CY[0] - 76}" width="32" height="168"/><line x1="${X(t)}" x2="${X(t)}" y1="${CY[0]}" y2="${CY[0] - v * SC}"/><circle cx="${X(t)}" cy="${CY[0] - v * SC}" r="8"/><text class="lb" x="${X(t)}" y="${CY[0] + 76}">x${t}</text></g>`).join("")}</svg>`;
         qsa(".aw9-st", host).forEach((g) => { g.onclick = () => tap(+g.dataset.t); g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tap(+g.dataset.t); } }; });
       }
       function tap(t) {
@@ -224,8 +223,8 @@
       function split() {
         phase = 2; badge(); qs("[data-split]", hP).disabled = true; qs("[data-halves]", hP).disabled = false; snd("whoosh");
         qsa(".aw9-st", host).forEach((g) => { const t = +g.dataset.t, row = t % 2, m = (t - row) / 2, nx = 28 + m * 64 + (row ? 32 : 0); g.style.transform = `translate(${nx - X(t)}px, ${row ? CY[1] - CY[0] : 0}px)`; });
-        qs("[data-ax1]", host).style.opacity = 1; qs("[data-r0]", host).style.opacity = 1; qs("[data-r1]", host).style.opacity = 1;
-        hn("Two rows of <b>eight</b> samples. Each row is a smaller problem, and a DFT of 8 samples costs far less than a DFT of 16.");
+        qs("[data-ax1]", host).style.opacity = 1;
+        hn("Top row: the <b>even</b> samples (blue). Bottom row: the <b>odd</b> ones (orange). Each row is a smaller problem, and a DFT of 8 samples costs far less than a DFT of 16.");
       }
       const barsSvg = (vals, cls, title) => { const mx = Math.max(...vals, 1e-9); return `<div class="aw9-mini"><small>${title}</small><svg viewBox="0 0 ${vals.length * 28 + 8} 96" class="aw9-svg">${vals.map((v, k) => `<rect class="mb ${cls}" x="${6 + k * 28}" y="6" width="22" height="70" rx="3" style="--h:${Math.max(0.02, v / mx)};--i:${k}"/><text class="aw9-tl" x="${17 + k * 28}" y="92" text-anchor="middle">${k}</text>`).join("")}</svg></div>`; };
       function halves() {

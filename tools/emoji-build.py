@@ -28,7 +28,7 @@ TOPICS = {
     "ds-ops": "control-knobs", "ds-querylab": "magnifying-glass-tilted-right", "ds-engine": "gear",
     "ds-log": "scroll", "ds-hashidx": "file-cabinet", "ds-sstable": "books",
     "a1-code": "link", "a3-lab": "bullseye", "a4-build": "electric-plug", "a5-code": "gem-stone", "a6-wire": "satellite-antenna", "a7-build": "deciduous-tree", "a10-code": "eyes", "a11-picker": "compass",
-    "a2-watch": "world-map", "a2-code": "laptop",
+    "a8-chain": "chains", "a9-mix": "level-slider", "a2-watch": "world-map", "a2-code": "laptop",
     "a1-anatomy": "magnifying-glass-tilted-left", "a1-bigo": "stopwatch", "a1-surfer": "person-surfing", "a1-pagerank": "globe-with-meridians",
     "a2-dijkstra": "round-pushpin", "a2-astar": "glowing-star", "a2-routing": "satellite-antenna",
     "a3-lp": "chart-increasing", "a3-simplex": "triangular-ruler", "a3-bracket": "left-right-arrow", "a3-nm": "triangular-flag",

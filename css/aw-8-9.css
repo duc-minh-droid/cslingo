@@ -140,3 +140,17 @@
   .aw9-bin .b, .aw9-bin .v, .aw9-hsvg .aw9-st { transition: none !important; }
 }
 .aw9-st .hit { fill: transparent; }
+
+/* polish */
+.aw9-svg { max-height: 240px; }
+.aw9-hsvg { max-height: 380px; }
+.aw9-st .lb { font-size: 13px; }
+.aw9-sl output { white-space: nowrap; }
+@media (max-width: 700px) {
+  .aw9-svg { max-height: none; }
+  .aw9-tl, .aw9-nyt { font-size: 15px; }
+  .aw9-bin .v, .aw9-xbin .v { font-size: 14px; }
+  .aw9-sl .field { display: grid; grid-template-columns: 72px minmax(0, 1fr) 50px; align-items: center; gap: 6px; }
+  .aw9-w { position: relative; padding-right: 44px; }
+  .aw9-x { position: absolute; top: 8px; right: 8px; }
+}
