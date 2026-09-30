@@ -5,14 +5,14 @@
 .aw10-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .aw10-lab { font: 900 11px Nunito, system-ui, sans-serif; fill: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; }
 .aw10-tk rect { fill: var(--bg-2); stroke: var(--line-2); stroke-width: 2.5; transition: fill var(--dur-2) ease, stroke var(--dur-2) ease; }
-.aw10-tk text { font: 900 16px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.aw10-tk text { font: 900 20px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .aw10-top.on rect { fill: var(--blue-dim); stroke: var(--blue); stroke-width: 4; }
 .aw10-top.on text { fill: var(--blue-ink); }
 .aw10-bot { transition: opacity var(--dur-3) ease; }
 .aw10-bot rect { fill: var(--violet-dim); stroke: var(--violet); }
 .aw10-ln { fill: var(--blue); transform-box: view-box; transform-origin: 0 0; transition: transform var(--dur-4) var(--ease-spring), opacity var(--dur-3) ease; }
 .aw10-ln.raw { fill: var(--line-2); }
-.aw10-wt { font: 900 13px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; transition: opacity var(--dur-3) ease; }
+.aw10-wt { font: 900 15px Nunito, system-ui, sans-serif; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; transition: opacity var(--dur-3) ease; }
 .aw10-out { padding: 8px 12px; border: 2px dashed var(--line-2); border-radius: 12px; background: var(--bg-2); font-weight: 800; font-size: 14px; color: var(--text-dim); transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease; }
 .aw10-out.has { border: 2px solid var(--teal); background: var(--teal-dim); color: var(--ink); }
 .aw10-out b { color: var(--ink); font-variant-numeric: tabular-nums; }

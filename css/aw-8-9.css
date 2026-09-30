@@ -74,3 +74,68 @@
   .aw8-alarm, .aw8-seal, .aw8-chg, .aw8-ln.bad .aw8-la { animation: none !important; }
   .aw8-blk.scan { transform: none; }
 }
+
+/* ---------- 9.W  wave mixer ---------- */
+.aw9-tabs { display: flex; }
+.aw9-tabs .seg { flex-wrap: wrap; }
+.aw9-waves { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.aw9-w { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.aw9-dot { flex: none; width: 14px; height: 14px; border-radius: 50%; }
+.aw9-sl { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; }
+.aw9-sl .field { margin: 0; min-width: 0; }
+.aw9-x { appearance: none; flex: none; width: 30px; height: 30px; border: 2px solid var(--line-2); border-radius: 10px; background: var(--panel); color: var(--text-dim); font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 var(--line-2); }
+.aw9-x:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line-2); } .aw9-x:disabled { opacity: .4; cursor: not-allowed; }
+.aw9-bar { margin-bottom: 12px; }
+.aw9-lab { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: var(--text-faint); margin-left: 8px; }
+.aw9-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.aw9-spec { margin-top: 6px; }
+.aw9-ax { stroke: var(--line-2); stroke-width: 2; stroke-linecap: round; }
+.aw9-tl { font: 800 11px Nunito, system-ui, sans-serif; fill: var(--text-faint); }
+.aw9-part { fill: none; stroke-width: 2; opacity: .5; stroke-linejoin: round; }
+.aw9-sum { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linejoin: round; stroke-linecap: round; }
+.aw9-ov { fill: none; stroke: var(--teal); stroke-width: 6; opacity: .55; stroke-linejoin: round; }
+.aw9-al { fill: none; stroke: var(--rose); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linejoin: round; }
+.aw9-dt { fill: var(--amber); stroke: var(--panel); stroke-width: 1.5; }
+.aw9-ny { fill: var(--rose-dim); stroke: var(--rose); stroke-width: 2; stroke-dasharray: 5 4; transition: opacity var(--dur-2) ease; }
+.aw9-nyt { font: 800 11px Nunito, system-ui, sans-serif; fill: var(--rose-ink); }
+.aw9-bin .hit { fill: transparent; }
+.aw9-bin .b { fill: var(--teal); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform var(--dur-3) var(--ease-spring), fill var(--dur-2) ease; }
+.aw9-bin .v { font: 900 10.5px Nunito, system-ui, sans-serif; fill: var(--text-dim); text-anchor: middle; transition: transform var(--dur-3) var(--ease-spring); pointer-events: none; }
+.aw9-bin.al .b { fill: var(--rose); } .aw9-bin.mk .b { fill: var(--blue); }
+.aw9-bin.mk .hit { fill: var(--blue-dim); }
+.aw9-bin.off .b { opacity: .0; }
+.aw9-read { margin: 10px 0 8px; font-weight: 700; font-size: 13.5px; color: var(--text-dim); }
+.aw9-read b { color: var(--ink); }
+
+.aw9-hsvg .aw9-st { cursor: pointer; outline: none; transition: transform 520ms var(--ease-spring); }
+.aw9-st line { stroke: var(--line-2); stroke-width: 4; stroke-linecap: round; transition: stroke var(--dur-2) ease; }
+.aw9-st circle { fill: var(--panel); stroke: var(--line-2); stroke-width: 3; transition: fill var(--dur-2) ease, stroke var(--dur-2) ease; }
+.aw9-st .lb { font: 800 11px Nunito, system-ui, sans-serif; fill: var(--text-faint); text-anchor: middle; }
+.aw9-st.ev line, .aw9-st.ev circle { stroke: var(--blue); } .aw9-st.ev circle { fill: var(--blue-dim); }
+.aw9-st.od line, .aw9-st.od circle { stroke: var(--amber); } .aw9-st.od circle { fill: var(--amber-dim); }
+.aw9-st:focus-visible circle { stroke: var(--ink); stroke-width: 4; }
+.aw9-rowt { transition: opacity var(--dur-3) ease; } .aw9-hsvg .aw9-ax { transition: opacity var(--dur-3) ease; }
+.aw9-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 12px; }
+.aw9-mini small, .aw9-full small { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); }
+.aw9-mini { padding: 8px 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.mb { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(var(--h, 1)); animation: aw9-grow var(--dur-4) var(--ease-spring) calc(var(--i, 0) * 25ms) backwards; transition: fill var(--dur-2) ease; }
+.mb.ev { fill: var(--blue); } .mb.od { fill: var(--amber); }
+@keyframes aw9-grow { from { transform: scaleY(0); } }
+.aw9-full { padding: 10px 12px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.aw9-full .mb { fill: var(--teal); }
+.aw9-xbin { cursor: pointer; outline: none; } .aw9-xbin .hit { fill: transparent; }
+.aw9-xbin .v { font: 900 10.5px Nunito, system-ui, sans-serif; fill: var(--ink); transition: opacity var(--dur-2) ease; pointer-events: none; }
+.aw9-xbin.sel .mb { fill: var(--violet); } .aw9-xbin:focus-visible .mb { stroke: var(--ink); stroke-width: 2; }
+.aw9-insp { margin: 8px 0 10px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel); font: 700 13px/1.6 ui-monospace, Menlo, Consolas, monospace; color: var(--text-dim); overflow-wrap: anywhere; }
+.aw9-insp b { color: var(--ink); } .aw9-insp .faint { font-family: Nunito, system-ui, sans-serif; }
+.aw9-full .wk-stats { margin-top: 4px; }
+
+@media (max-width: 700px) {
+  .aw9-sl { grid-template-columns: 1fr; }
+  .aw9-two { grid-template-columns: 1fr; }
+  .aw9-w { padding: 8px; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mb { animation: none !important; }
+  .aw9-bin .b, .aw9-bin .v, .aw9-hsvg .aw9-st { transition: none !important; }
+}
