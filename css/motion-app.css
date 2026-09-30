@@ -62,3 +62,12 @@ html .sy-row { position: relative; }
   .pf-sw i, html .p-jump svg { transition-duration: 0ms; }
   .sy-dots i, .sy-row.busy .sy-dot { animation: none; opacity: 1; }
 }
+
+/* ---------- path chest: opens in place (js/app.js chestAnim). Parts start hidden; .is-open is the resting open state. ---------- */
+.p-chest-svg { overflow: visible; }
+.p-chest-svg .ch-rays, .p-chest-svg .ch-lid-o, .p-chest-svg .ch-in, .p-chest-svg .ch-glow, .p-chest-svg .ch-coin { opacity: 0; }
+.p-chest-svg .ch-rays, .p-chest-svg .ch-lid-o, .p-chest-svg .ch-lid-c { transform-box: view-box; }
+.p-chest-svg.is-open .ch-lid-c { opacity: 0; }
+.p-chest-svg.is-open .ch-lid-o, .p-chest-svg.is-open .ch-in { opacity: 1; }
+.p-chest-row.paying { z-index: 6; }
+.p-chest-row.paying .p-chest-svg { filter: drop-shadow(0 5px 0 rgba(0,0,0,.12)); }

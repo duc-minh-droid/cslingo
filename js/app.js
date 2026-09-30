@@ -433,30 +433,58 @@
     });
     return out;
   }
-  const CHEST = (open) => `<svg viewBox="0 0 64 56" class="p-chest-svg">${open
-    ? '<path d="M8 20h48l-4-12H12z" fill="#e0a800"/><rect x="6" y="22" width="52" height="28" rx="6" fill="#cd7900"/><rect x="6" y="22" width="52" height="8" fill="#a85f00"/><rect x="27" y="22" width="10" height="12" rx="3" fill="#ffc800"/>'
-    : '<rect x="6" y="20" width="52" height="30" rx="7" fill="#cd7900"/><path d="M6 27a13 13 0 0 1 13-13h26a13 13 0 0 1 13 13v3H6z" fill="#ff9600"/><rect x="6" y="28" width="52" height="5" fill="#a85f00"/><rect x="16" y="14" width="6" height="36" fill="#a85f00" opacity=".5"/><rect x="42" y="14" width="6" height="36" fill="#a85f00" opacity=".5"/><rect x="26" y="25" width="12" height="13" rx="3.5" fill="#ffc800"/><circle cx="32" cy="31" r="2" fill="#a85f00"/>'}</svg>`;
+  /** Layered chest, so it can open where it sits: rays, open lid (behind), body, dark opening, closed lid, lock, coins. */
+  const CHEST = (open) => `<svg viewBox="0 0 64 56" class="p-chest-svg${open ? " is-open" : ""}" overflow="visible">
+    <g class="ch-rays">${Array.from({ length: 8 }, (_, k) => `<path d="M32 22 L25 -34 L39 -34Z" transform="rotate(${k * 45} 32 22)" fill="#ffc800"/>`).join("")}</g>
+    <g class="ch-lid-o"><path d="M9 23 L14 2 H50 L55 23Z" fill="#e0a800"/><path d="M15 21 L19 5 H45 L49 21Z" fill="#a85f00"/></g>
+    <rect x="6" y="20" width="52" height="30" rx="7" fill="#cd7900"/><rect x="6" y="28" width="52" height="5" fill="#a85f00"/>
+    <rect x="16" y="20" width="6" height="30" fill="#a85f00" opacity=".5"/><rect x="42" y="20" width="6" height="30" fill="#a85f00" opacity=".5"/>
+    <g class="ch-in"><rect x="8" y="19" width="48" height="9" rx="4.5" fill="#6b3d00"/><ellipse class="ch-glow" cx="32" cy="22" rx="20" ry="4.5" fill="#ffc800"/></g>
+    <g class="ch-lid-c"><path d="M6 27a13 13 0 0 1 13-13h26a13 13 0 0 1 13 13v3H6z" fill="#ff9600"/><rect x="6" y="28" width="52" height="2" fill="#a85f00"/><rect x="16" y="14" width="6" height="16" fill="#a85f00" opacity=".5"/><rect x="42" y="14" width="6" height="16" fill="#a85f00" opacity=".5"/></g>
+    <rect x="26" y="27" width="12" height="13" rx="3.5" fill="#ffc800"/><circle cx="32" cy="33" r="2" fill="#a85f00"/>
+    <g class="ch-coins">${Array.from({ length: 6 }, () => `<circle class="ch-coin" cx="32" cy="22" r="3.6" fill="#ffc800" stroke="#cd7900" stroke-width="1.2"/>`).join("")}</g></svg>`;
   function chestRow(it, i) {
     const opened = !!store.get("nic.chests", {})[it.chest], ready = !opened && status(modules.find((x) => x.id === it.after)) === "done";
     return `<div class="p-row p-chest-row ${opened ? "opened" : ready ? "ready" : "locked"}" style="--k:${zig(i).toFixed(3)};top:${i * ROW}px" data-chest="${it.chest}">
       <button class="p-chest" aria-label="${opened ? "Opened chest" : ready ? "Open reward chest" : "Reward chest: finish the lesson before it"}" ${ready ? "" : "disabled"}>${CHEST(opened)}</button></div>`;
   }
+  /** The chest opens in place: squash and shake, the lid flips back on its hinge, light pours out, coins arc up and fall. */
+  function chestAnim(svg, { onPop, onEnd }) {
+    const end = () => { svg.classList.add("is-open"); svg.getAnimations({ subtree: true }).forEach((a) => a.cancel()); onEnd(); };
+    if (!fx.ok || fx.reduce() || !svg.animate) { svg.classList.add("is-open"); onPop(); setTimeout(end, 300); return; }
+    const q1 = (c) => qs("." + c, svg), hinge = "32px 22px", all = [];
+    const go = (el, kf, o) => { const a = el.animate(kf, { fill: "both", ...o }); all.push(a); return a; };
+    go(svg, [{ transform: "scale(1,1)" }, { transform: "scale(1.1,.86)" }, { transform: "scale(.96,1.07) rotate(-5deg)" }, { transform: "scale(1.04,.97) rotate(5deg)" }, { transform: "scale(1,1) rotate(0deg)" }], { duration: 420, easing: "ease-in-out", transformOrigin: "50% 100%" });
+    go(q1("ch-lid-c"), [{ transform: "scaleY(1)" }, { transform: "scaleY(0)" }], { delay: 420, duration: 90, easing: "ease-in", transformOrigin: hinge });
+    go(q1("ch-lid-o"), [{ opacity: 1, transform: "scaleY(0)" }, { opacity: 1, transform: "scaleY(1.12)" }, { opacity: 1, transform: "scaleY(1)" }], { delay: 510, duration: 300, easing: "cubic-bezier(.3,1.4,.5,1)", transformOrigin: hinge });
+    go(q1("ch-in"), [{ opacity: 0 }, { opacity: 1 }], { delay: 520, duration: 120 });
+    go(q1("ch-glow"), [{ opacity: 0 }, { opacity: 0.95 }, { opacity: 0.35 }], { delay: 520, duration: 700 });
+    go(q1("ch-rays"), [{ opacity: 0, transform: "scale(.4) rotate(0deg)" }, { opacity: 0.5, transform: "scale(1) rotate(10deg)", offset: 0.3 }, { opacity: 0, transform: "scale(1.2) rotate(28deg)" }], { delay: 520, duration: 900, easing: "ease-out", transformOrigin: hinge });
+    go(svg, [{ transform: "scale(1,1)" }, { transform: "scale(1.09,.93)" }, { transform: "scale(1,1)" }], { delay: 520, duration: 260, easing: "ease-out", transformOrigin: "50% 100%" }).finished.catch(() => {});
+    qsa(".ch-coin", svg).forEach((c, i) => {
+      const dx = (i - 2.5) * 14, peak = -40 - (i % 3) * 9;
+      go(c, [
+        { opacity: 0, transform: "translate(0px,0px) scale(.5)", easing: "cubic-bezier(.2,.7,.4,1)" },
+        { opacity: 1, transform: `translate(${dx * 0.6}px,${peak}px) scale(1.05)`, offset: 0.48, easing: "cubic-bezier(.5,0,.9,.6)" },
+        { opacity: 1, transform: `translate(${dx}px,${6 + (i % 2) * 6}px) scale(.9)`, offset: 0.9 },
+        { opacity: 0, transform: `translate(${dx * 1.05}px,${10 + (i % 2) * 6}px) scale(.8)` },
+      ], { delay: 540 + i * 50, duration: 820 });
+    });
+    setTimeout(onPop, 600);
+    setTimeout(end, 1700);
+  }
   function openChest(row) {
     const id = row.dataset.chest, c = store.get("nic.chests", {});
     if (c[id]) return;
     c[id] = NIC.game.today(); store.set("nic.chests", c);
-    const b = qs(".p-chest", row), xp = 5 + Math.floor(Math.random() * 6);
+    const b = qs(".p-chest", row), svg = qs(".p-chest-svg", b), xp = 5 + Math.floor(Math.random() * 6);
     NIC.sfx.play("chest");
-    fx.lottieAt(b, "chest", { size: 190, dy: -40 });
     b.disabled = true;
-    // the lid swaps while the chest is still bright and it bumps; it greys to "opened" a beat later (css/motion-app.css fades the filter)
-    setTimeout(() => {
-      b.innerHTML = CHEST(true);
-      row.classList.remove("ready"); row.classList.add("paying");
-      fx.bump(qs(".p-chest-svg", b), { scale: 1.22, y: -6 });
-      game.award(xp, "chest"); fx.floatText(b, `+${xp} XP`, "#ff9600"); fx.celebrate(b, { silent: true });
-      setTimeout(() => { row.classList.remove("paying"); row.classList.add("opened"); }, 1200);
-    }, fx.ok && !fx.reduce() ? 650 : 0);
+    row.classList.remove("ready"); row.classList.add("paying");
+    chestAnim(svg, {
+      onPop() { game.award(xp, "chest"); fx.floatText(b, `+${xp} XP`, "#ff9600"); fx.celebrate(b, { silent: true }); },
+      onEnd() { row.classList.remove("paying"); row.classList.add("opened"); },
+    });
   }
 
   /** The boss in this course with the lowest score under 80%, if any. */
