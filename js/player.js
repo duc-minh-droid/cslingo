@@ -310,6 +310,7 @@
     if (S.holder) { S.holder.remove(); S.holder = null; }
     setTimeout(() => window.dispatchEvent(new Event("nic:resize")), 60);
     const wk = qs(".wk", node);
+    if (wk && wk.classList.contains("wk-code")) node.classList.add("xwide");
     const say = () => foot("continue", { label: "Skip for now", onGo: next, fb: `<span class="faint">Finish the missions for XP, or skip and come back.</span>` });
     say();
     if (!wk) return;
