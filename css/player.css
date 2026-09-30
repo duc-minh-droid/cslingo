@@ -169,3 +169,4 @@
 .pl-prev svg { width: 16px; height: 16px; }
 @media (max-width: 480px) { .ph-bub { font-size: 14px; white-space: normal; width: 150px; } .ph-a .ph-bub { right: 10%; } .ph-b .ph-bub { left: 0; } }
 .pl-go.pl-go-blue { background: var(--blue); border-color: var(--blue); box-shadow: 0 5px 0 var(--blue-lip); }
+.pl-screen.xwide { max-width: 1480px; }

@@ -76,25 +76,27 @@
     return N.workshop(root, life, {
       who: cfg.who, intro: cfg.intro, missions,
       build(stage, api) {
-        const card = el(`<div class="wk-card cl">
+        const card = el(`<div class="wk-card cl cl-edcard">
           <h3>Your code<span class="wk-sp"></span><button class="btn small ghost" data-reset>Reset</button></h3>
           ${cfg.brief ? `<div class="wk-note cl-brief">${cfg.brief}</div>` : ""}
           <div class="cl-ed"><div class="cl-gut" aria-hidden="true"></div><div class="cl-wrap"><pre class="cl-hl" aria-hidden="true"></pre><textarea class="cl-ta" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea></div></div>
           <div class="wk-row cl-bar"><button class="btn primary" data-run>Run tests</button><button class="btn" data-hint>Hint</button><span class="cl-hintn faint"></span><span class="wk-sp" style="flex:1"></span><details class="cl-sol"><summary class="btn small ghost">Show solution</summary><pre class="cl-solpre"></pre><button class="btn small" data-use>Use it</button></details></div>
           <div class="cl-hint" data-hintbox></div>
-          <div class="cl-tests" data-tests></div></div>`);
+          </div>`);
+        const testCard = el(`<div class="wk-card cl-testcard"><h3>Tests<span class="wk-sp"></span><span class="faint cl-tsum" data-tsum></span></h3><div class="cl-tests" data-tests></div></div>`);
         const vis = el(`<div class="wk-card cl-vis"><h3>Watch it run<span class="wk-sp"></span><span class="faint cl-tname" data-tname></span></h3>
           <div class="cl-stage" data-stage></div>
           <div class="cl-cap wk-note" data-cap>Run your code, then watch each step here.</div>
           <div class="cl-ctl"><button class="btn small" data-first aria-label="First step">⏮</button><button class="btn small" data-prev aria-label="Step back">◀</button><button class="btn small primary" data-play>Play</button><button class="btn small" data-next aria-label="Step forward">▶</button><input type="range" min="0" max="0" value="0" data-scrub aria-label="Scrub through the run"><span class="mono faint" data-step>0 / 0</span></div></div>`);
-        stage.append(card, vis);
+        stage.append(testCard, vis, card);
+        const wkNode = stage.closest(".wk"); if (wkNode) wkNode.classList.add("wk-code");
 
         const ta = qs(".cl-ta", card), pre = qs(".cl-hl", card), gut = qs(".cl-gut", card), wrap = qs(".cl-wrap", card), sandbox = qs("[data-stage]", vis);
         const paint = () => {
           pre.innerHTML = highlight(ta.value);
           const n = ta.value.split("\n").length;
           gut.innerHTML = Array.from({ length: n }, (_, i) => `<span>${i + 1}</span>`).join("");
-          wrap.style.height = gut.style.height = `${Math.max(220, Math.min(560, n * 21 + 24))}px`;
+          wrap.style.height = gut.style.height = `${Math.max(380, Math.min(640, n * 21 + 24))}px`;
         };
         const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; };
         ta.value = cfg.starter; qs(".cl-solpre", card).textContent = cfg.solution || "";
@@ -142,13 +144,14 @@
         scrub.oninput = () => { stop(); showFrame(+scrub.value, false); };
 
         // ----- tests -----
-        const testsEl = qs("[data-tests]", card);
+        const testsEl = qs("[data-tests]", testCard);
         function drawTests() {
           testsEl.innerHTML = tests.map((t, i) => {
             const r = results[i], st = !r ? "idle" : r.pass ? "ok" : "no";
             return `<button class="cl-test ${st} ${i === sel ? "sel" : ""}" data-i="${i}"><span class="cl-dot">${st === "ok" ? "✓" : st === "no" ? "✗" : i + 1}</span><span class="cl-tt"><b>${t.name}</b>${!r ? `<span>${t.desc || ""}</span>` : r.pass ? `<span>got <code>${esc(show(r.out))}</code></span>` : r.error ? `<span class="bad">${esc(r.error)}</span>` : `<span class="bad">got <code>${esc(show(r.out))}</code>, wanted <code>${esc(show(t.expect))}</code></span>`}</span></button>`;
           }).join("");
           qsa("[data-i]", testsEl).forEach((b) => (b.onclick = () => select(+b.dataset.i)));
+          const ok = results.filter((r) => r && r.pass).length; qs("[data-tsum]", testCard).textContent = results.some(Boolean) ? `${ok} of ${tests.length} pass` : "";
         }
         function select(i) {
           stop(); sel = i;

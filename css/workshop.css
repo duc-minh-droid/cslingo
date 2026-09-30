@@ -212,3 +212,25 @@
 .dj-chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 12px; border: 2px solid var(--amber); border-radius: 12px; background: var(--amber-dim); color: var(--amber-ink); font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 var(--amber); }
 .dj-chip i { font-style: normal; color: var(--ink); } .dj-chip:active { transform: translateY(3px); box-shadow: 0 0 0 var(--amber); } .dj-chip.hint { animation: wk-flash var(--dur-bar) var(--ease-spring) 3; border-color: var(--blue); box-shadow: 0 3px 0 var(--blue); }
 @media (prefers-reduced-motion: reduce) { .dj-chip.hint { animation: none; } }
+
+/* ---------- code labs: steps, tests and the replay on the left, the editor on the right ---------- */
+@media (min-width: 1001px) {
+  .wk.wk-code { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); grid-template-rows: auto auto auto 1fr; gap: 14px 22px; align-items: start; }
+  .wk.wk-code .wk-stage { display: contents; }
+  .wk.wk-code .wk-top { grid-column: 1; grid-row: 1; grid-template-columns: 1fr; gap: 10px; }
+  .wk.wk-code .wk-bar { grid-column: 1; grid-row: 2; }
+  .wk.wk-code .cl-testcard { grid-column: 1; grid-row: 3; }
+  .wk.wk-code .cl-vis { grid-column: 1; grid-row: 4; }
+  .wk.wk-code .cl-edcard { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 8px; display: flex; flex-direction: column; height: max(480px, calc(100vh - 300px)); }
+  .wk.wk-code .cl-edcard .cl-ed { flex: 1 1 auto; min-height: 0; }
+  .wk.wk-code .cl-edcard .cl-wrap, .wk.wk-code .cl-edcard .cl-gut { height: auto !important; }
+  .wk.wk-code .cl-edcard .cl-brief, .wk.wk-code .cl-edcard .cl-bar, .wk.wk-code .cl-edcard .cl-hint, .wk.wk-code .cl-edcard h3 { flex: none; }
+  .wk.wk-code .cl-edcard .cl-brief { max-height: 96px; overflow: auto; }
+  .wk.wk-code .cl-vis .cl-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 1000px) {
+  .wk.wk-code .cl-edcard { order: -1; }
+  .wk.wk-code .wk-stage { display: flex; flex-direction: column; }
+  .wk.wk-code .cl-testcard { order: 0; } .wk.wk-code .cl-vis { order: 1; }
+}
+.cl-tsum { text-transform: none; letter-spacing: 0; font-weight: 800; }
