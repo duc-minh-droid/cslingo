@@ -157,7 +157,7 @@
 .cl-wrap { position: relative; flex: 1; min-width: 0; }
 .cl-hl, .cl-ta { position: absolute; inset: 0; margin: 0; padding: 12px 14px; border: 0; font: 700 13px/21px ui-monospace, Menlo, Consolas, monospace; white-space: pre; tab-size: 2; overflow: auto; letter-spacing: 0; }
 .cl-hl { color: var(--text); pointer-events: none; overflow: hidden; }
-.cl-ta { background: transparent; color: transparent; caret-color: var(--ink); resize: none; outline: none; -webkit-text-fill-color: transparent; }
+.cl-ta { overflow-y: hidden; background: transparent; color: transparent; caret-color: var(--ink); resize: none; outline: none; -webkit-text-fill-color: transparent; }
 .cl-ta:focus { box-shadow: inset 0 0 0 2px var(--blue); }
 .cl-hl i { font-style: normal; } .cl-hl .k { color: var(--violet-ink); } .cl-hl .s { color: var(--teal-ink); } .cl-hl .n { color: var(--amber-ink); } .cl-hl .c { color: var(--text-faint); font-weight: 600; }
 .cl-hl .t { color: var(--amber-ink); background: var(--amber-dim); border-radius: 4px; }
@@ -221,11 +221,7 @@
   .wk.wk-code .wk-bar { grid-column: 1; grid-row: 2; }
   .wk.wk-code .cl-testcard { grid-column: 1; grid-row: 3; }
   .wk.wk-code .cl-vis { grid-column: 1; grid-row: 4; }
-  .wk.wk-code .cl-edcard { grid-column: 2; grid-row: 1 / span 4; position: sticky; top: 8px; display: flex; flex-direction: column; height: max(560px, calc(100vh - 270px)); }
-  .wk.wk-code .cl-edcard .cl-ed { flex: 1 1 auto; min-height: 0; }
-  .wk.wk-code .cl-edcard .cl-wrap, .wk.wk-code .cl-edcard .cl-gut { height: auto !important; }
-  .wk.wk-code .cl-edcard .cl-brief, .wk.wk-code .cl-edcard .cl-bar, .wk.wk-code .cl-edcard .cl-hint, .wk.wk-code .cl-edcard h3 { flex: none; }
-  .wk.wk-code .cl-edcard .cl-brief { max-height: 96px; overflow: auto; }
+  .wk.wk-code .cl-edcard { grid-column: 2; grid-row: 1 / span 4; }
   .wk.wk-code .cl-vis .cl-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 1000px) {
@@ -236,7 +232,7 @@
 .cl-tsum { text-transform: none; letter-spacing: 0; font-weight: 800; }
 
 /* ---------- code lab: example input/output and autocomplete ---------- */
-.cl-ex { flex: none; margin-top: 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg-2); padding: 8px 12px 10px; max-height: 128px; overflow: auto; }
+.cl-ex { flex: none; margin-top: 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--bg-2); padding: 8px 12px 10px; }
 .cl-exh { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; }
 .cl-exh b { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 900; }
 .cl-extabs { display: inline-flex; gap: 4px; }
