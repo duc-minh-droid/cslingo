@@ -287,6 +287,7 @@
     // pad the stage by the overlap, so what the sheet covers can still be scrolled into view
     S.stage.style.setProperty("--pl-sheet-pad", sheet ? `${Math.max(0, inner.offsetHeight - footH)}px` : "0px");
     S.sheetMs = 0;
+    if (sheet) { const sk = qs(".pl-skip", S.foot); if (sk) sk.remove(); } // answered: nothing left to skip
     if (sheet) S.lockUntil = performance.now() + 250;
     if (sheet && fx() && fx().ok && !S.kbd) {
       const F = fx();
@@ -326,6 +327,7 @@
   // =====================================================================
   function show(dir = 1) {
     const sc = S.screens[S.i];
+    const oldSkip = S.foot && qs(".pl-skip", S.foot); if (oldSkip) oldSkip.remove();
     if (!sc) return finish();
     if (sc.kind === "bossResult" && S.answered) {
       const B = S.boss, st = store.get("nic.quiz", {}), n = B.qs.length, c = B.qs.filter((_, i) => st[`${B.id}-${i}`] && st[`${B.id}-${i}`].ok).length;
@@ -391,7 +393,7 @@
   }
   function contextCard(node, sc) {
     const q = stripTags((sc.Q && sc.Q.q) || "");
-    let title = "", fill = null, open = REFERS.test(q), demo = false;
+    let title = "", fill = null, open = false, demo = false; // reference dropdowns always start closed
     const st = stepOf(sc), B = st ? null : bossOf(sc);
     if (st) {
       const s = ((N.LESSONS[st.mod] || {}).steps || [])[st.k];
@@ -410,7 +412,6 @@
       fill = (vis) => { vis.innerHTML = `${B.matrix ? `<div style="max-width:360px">${N.matrixHTML()}</div>` : ""}${B.aside || ""}`; };
     } else if (sc.pred && S.demo) {
       title = "The demo"; demo = true;
-      open = open || /\b(run|press|turn|slider|drag|click|tap|points?|watch|toggle|switch)\b/i.test(q);
       fill = (vis) => vis.appendChild(S.demo); // the live demo moves here (the Try-it screen takes it back if you return)
     } else return;
     const box = el(`<details class="pl-look${demo ? " pl-look-demo" : ""}"${open ? " open" : ""}><summary>${IC.book}<span>${title}</span><i class="pl-look-car" aria-hidden="true"></i></summary><div class="pl-look-in lesson-visual"></div></details>`);
@@ -459,6 +460,7 @@
       node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       contextCard(node, sc);
       askQ(qs(".pl-qwrap", node), sc, {});
+      if (sc.retry) addSkip();
     },
     try(node, sc) {
       node.classList.add("wide");
@@ -726,6 +728,14 @@
     sound(ok ? "correct" : "wrong");
     foot(ok ? "ok" : "no", { fb, onGo: next });
     if (ok && fx() && first) fx().floatText(S.go, `+${S.kind === "boss" ? 2 : 1}`, "#ffc800");
+  }
+
+  /** A previous-mistake screen can be skipped: it just moves on (the question stays in Practice's mistakes list). */
+  function addSkip() {
+    const acts = qs(".pl-actions", S.foot); if (!acts || qs(".pl-skip", acts)) return;
+    const b = el(`<button class="btn big ghost pl-skip">Skip</button>`);
+    b.onclick = () => { if (S.graded && S.screens[S.i] && S.screens[S.i].kind === "q" && !S.screens[S.i].retry) return; sound("tap"); next(); };
+    acts.insertBefore(b, S.go);
   }
 
   function queueMistake(sc) {
