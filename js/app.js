@@ -383,8 +383,9 @@
       const b = e.target.closest("[data-k]"); if (!b) return;
       if (b.dataset.k === "yes") {
         Object.keys(localStorage).filter((k) => k.startsWith("nic.") && !/^nic\.sync/.test(k)).forEach((k) => localStorage.removeItem(k));
-        localStorage.setItem("nic.syncDirty", "1"); localStorage.setItem("nic.onboarded", "true");
+        localStorage.setItem("nic.resetAt", String(Date.now())); localStorage.setItem("nic.syncForce", "1"); localStorage.setItem("nic.syncDirty", "1"); localStorage.setItem("nic.onboarded", "true");
         updateScore(); renderTop(); route();
+        if (NIC.sync && NIC.sync.now) NIC.sync.now();
       }
       m.close();
     });
