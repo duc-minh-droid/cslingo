@@ -13,6 +13,7 @@
      })
    The learner's code may call trace({...}) (any plain object, optionally with a `cap` caption) to record a frame. The trace for the
    selected test is replayed on the stage with play / step / scrub controls; scene.frame() redraws from the frame (idempotent).
+   The editor behaves like an IDE: auto-closing brackets and quotes, smart Enter, indent/outdent, Ctrl+/ comments.
    Code runs in a Web Worker (2 s limit, so an infinite loop can't freeze the page) and falls back to the main thread.
    All classes are cl- prefixed (css/workshop.css). */
 (function () {
@@ -68,6 +69,82 @@
     });
   }
 
+  /** IDE-style typing for the code box: auto-closing pairs, type-over, wrap selection, smart Enter, indent/outdent,
+      comment toggle (Ctrl/Cmd + /), auto-dedent on "}", and pair-aware Backspace. Uses execCommand so undo (Ctrl+Z) still works. */
+  function editorKeys(ta, run) {
+    const OPEN = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" }, CLOSERS = new Set([")", "]", "}", '"', "'", "`"]);
+    const word = (c) => !!c && /[A-Za-z0-9_$]/.test(c);
+    const put = (from, to, text) => {
+      ta.focus(); ta.setSelectionRange(from, to);
+      let ok = false;
+      try { ok = text === "" ? document.execCommand("delete") : document.execCommand("insertText", false, text); } catch { ok = false; }
+      if (!ok) { ta.setRangeText(text, from, to, "end"); ta.dispatchEvent(new Event("input")); }
+    };
+    const caret = (a, b = a) => ta.setSelectionRange(a, b);
+    const lineStart = (i) => ta.value.lastIndexOf("\n", i - 1) + 1;
+    const lineEnd = (i) => { const k = ta.value.indexOf("\n", i); return k < 0 ? ta.value.length : k; };
+    const blockOf = () => { const v = ta.value, a = ta.selectionStart, b = ta.selectionEnd; return [lineStart(a), lineEnd(b > a && v[b - 1] === "\n" ? b - 1 : b)]; };
+
+    ta.addEventListener("keydown", (e) => {
+      if (e.isComposing) return;
+      const v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, mod = e.ctrlKey || e.metaKey;
+
+      if (mod && e.key === "Enter") { e.preventDefault(); run(); return; }
+
+      if (mod && e.key === "/") { // toggle line comments on every selected line
+        e.preventDefault();
+        const [s0, e0] = blockOf(), lines = v.slice(s0, e0).split("\n"), live = lines.filter((l) => l.trim());
+        const off = live.length && live.every((l) => /^\s*\/\//.test(l));
+        const ind = Math.min(...live.map((l) => l.match(/^\s*/)[0].length), 1e9);
+        const out = lines.map((l) => (!l.trim() ? l : off ? l.replace(/^(\s*)\/\/ ?/, "$1") : l.slice(0, ind) + "// " + l.slice(ind))).join("\n");
+        put(s0, e0, out); caret(s0, s0 + out.length); return;
+      }
+
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const multi = v.slice(a, b).includes("\n");
+        if (multi || e.shiftKey) { // indent or outdent whole lines
+          const [s0, e0] = blockOf(), lines = v.slice(s0, e0).split("\n");
+          const out = lines.map((l) => (e.shiftKey ? l.replace(/^ {1,2}/, "") : l.trim() ? "  " + l : l)).join("\n");
+          put(s0, e0, out); caret(s0, s0 + out.length);
+        } else put(a, b, "  ");
+        return;
+      }
+
+      if (e.key === "Enter" && !e.shiftKey && !mod) { // keep indent; open a block between { } ( ) [ ]
+        e.preventDefault();
+        const line = v.slice(lineStart(a), a), ind = line.match(/^\s*/)[0], prev = v[a - 1], next = v[b];
+        if (prev && OPEN[prev] && OPEN[prev] === next && prev !== '"' && prev !== "'" && prev !== "`") {
+          put(a, b, "\n" + ind + "  \n" + ind); caret(a + 1 + ind.length + 2);
+        } else put(a, b, "\n" + ind + (/[{(\[]\s*$/.test(line) ? "  " : ""));
+        return;
+      }
+
+      if (e.key === "Backspace" && a === b && a > 0 && OPEN[v[a - 1]] && OPEN[v[a - 1]] === v[a]) { // delete an empty pair together
+        e.preventDefault(); put(a - 1, a + 1, ""); return;
+      }
+
+      if (mod || e.altKey || e.key.length !== 1) return;
+      const k = e.key;
+
+      if (a === b && CLOSERS.has(k) && v[a] === k) { e.preventDefault(); caret(a + 1); return; } // type over a closer
+
+      if (k === "}" && a === b) { // dedent a line that holds only spaces
+        const ls = lineStart(a), before = v.slice(ls, a);
+        if (before && !before.trim() && before.length >= 2) { e.preventDefault(); put(a - 2, a, "}"); return; }
+      }
+
+      if (OPEN[k]) {
+        const close = OPEN[k];
+        if (a !== b) { e.preventDefault(); const inner = v.slice(a, b); put(a, b, k + inner + close); caret(a + 1, a + 1 + inner.length); return; } // wrap the selection
+        const quote = k === '"' || k === "'" || k === "`";
+        if (quote && (word(v[a - 1]) || word(v[a]) || v[a - 1] === k)) return;       // an apostrophe in a word, or closing a string
+        if (!quote && v[a] && !/[\s)\]};,.]/.test(v[a])) return;                      // only pair before whitespace or a closer
+        e.preventDefault(); put(a, a, k + close); caret(a + 1);
+      }
+    });
+  }
+
   function codelab(root, life, cfg) {
     const tests = cfg.tests, results = tests.map(() => null);
     let sel = 0, playing = false, pos = 0, tick = 0, hintN = 0, busy = false, watched = false;
@@ -101,14 +178,7 @@
         const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; };
         ta.value = cfg.starter; qs(".cl-solpre", card).textContent = cfg.solution || "";
         ta.addEventListener("input", paint); ta.addEventListener("scroll", sync);
-        ta.addEventListener("keydown", (e) => {
-          if (e.key === "Tab") { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText("  ", s, ta.selectionEnd, "end"); paint(); }
-          else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
-          else if (e.key === "Enter") { // keep the indent of the line you were on
-            const s = ta.selectionStart, line = ta.value.slice(0, s).split("\n").pop(), ind = (line.match(/^\s*/) || [""])[0] + (/[{(\[]\s*$/.test(line) ? "  " : "");
-            e.preventDefault(); ta.setRangeText("\n" + ind, s, ta.selectionEnd, "end"); paint();
-          }
-        });
+        editorKeys(ta, () => run());
         paint();
         if (!cfg.solution) qs(".cl-sol", card).hidden = true;
 
