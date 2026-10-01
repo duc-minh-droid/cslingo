@@ -222,7 +222,7 @@
       ${game.quests().map((q) => `<div class="q-row ${q.done ? "done" : ""}"><div class="q-t"><b>${q.t}</b><span class="q-bar"><span style="transform:scaleX(${q.prog / q.n})"></span><i>${q.prog}/${q.n}</i></span></div>
         ${q.claimed ? `<span class="q-got">${IC.check}</span>` : q.done ? `<button class="q-claim" data-q="${q.id}">${IC.chest}<span>Claim</span></button>` : `<span class="q-chest">${IC.chest}</span>`}</div>`).join("")}`,
     me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Practice mistakes</span></button>
-      <button class="menu-row" data-act="sound">${IC.sound}<span>Sound: <b>${NIC.sfx.on() ? "on" : "off"}</b></span><kbd>M</kbd></button><button class="menu-row danger" data-act="reset">${IC.reset}<span>Reset all progress</span></button>`,
+      <button class="menu-row" data-act="sound">${IC.sound}<span>Sound: <b>${NIC.sfx.on() ? "on" : "off"}</b></span><kbd>M</kbd></button>`,
   };
   const POP_MOUNT = {
     course(card) {
@@ -270,7 +270,6 @@
     me(card) {
       qsa("[data-go]", card).forEach((b) => b.addEventListener("click", () => { closePop(); location.hash = b.dataset.go; }));
       qs('[data-act="sound"]', card).addEventListener("click", () => { NIC.sfx.set(!NIC.sfx.on()); qs('[data-act="sound"] b', card).textContent = NIC.sfx.on() ? "on" : "off"; });
-      qs('[data-act="reset"]', card).addEventListener("click", () => resetAll(() => qs('[data-pop="me"]', top)));
       wireSync(card);
     },
   };
@@ -295,6 +294,7 @@
     const eye = (on) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/>${on ? "" : '<path d="M4 20L20 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'}</svg>`;
     const m = modal(`<div class="si">
       <h1 class="si-h">Log in</h1>
+      <div class="seg si-mode" role="tablist"><button type="button" role="tab" data-mode="in" class="on" aria-selected="true">Log in</button><button type="button" role="tab" data-mode="up" aria-selected="false">Create account</button></div>
       <form class="si-form" novalidate>
         <div class="si-group">
           <label class="si-field"><span class="sr-only">Username</span><input name="u" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Username"></label>
@@ -305,11 +305,17 @@
         <button class="btn big si-go" type="submit">Log in</button>
       </form>
       <div class="si-or"><span>How it works</span></div>
-      <p class="si-foot">${NIC.mascot({ who: "chip", size: 44, mood: "happy", poke: false })}<span>Log in on any device and your progress is right there. Every lesson you finish is added to your account, never replaced.</span></p>
+      <p class="si-foot">${NIC.mascot({ who: "chip", size: 44, mood: "happy", poke: false })}<span>New here? Pick <b>Create account</b>: just a username and a password, no email. Log in on any device and your progress is right there. It is only ever added to, never replaced.</span></p>
     </div>`, { cls: "si-modal", ret });
     m.classList.add("si-back");
     const f = qs(".si-form", m), msg = qs(".si-msg", m), btn = qs(".si-go", m), eyeB = qs(".si-eye", m), grp = qs(".si-group", m);
-    const label = "Log in";
+    let up = false, label = "Log in";
+    const head = qs(".si-h", m);
+    qsa("[data-mode]", m).forEach((t) => t.addEventListener("click", () => {
+      up = t.dataset.mode === "up"; label = up ? "Create account" : "Log in";
+      qsa("[data-mode]", m).forEach((x) => { x.classList.toggle("on", x === t); x.setAttribute("aria-selected", x === t); });
+      head.textContent = label; btn.textContent = label; f.p.autocomplete = up ? "new-password" : "current-password"; f.p.placeholder = up ? "Password (8+ characters)" : "Password"; clearErr();
+    }));
     eyeB.addEventListener("click", () => {
       const show = f.p.type === "password"; f.p.type = show ? "text" : "password";
       eyeB.innerHTML = eye(show); eyeB.setAttribute("aria-pressed", show); eyeB.setAttribute("aria-label", show ? "Hide password" : "Show password");
@@ -325,14 +331,14 @@
       e.preventDefault();
       const u = f.u.value.trim(), pw = f.p.value;
       if (!u || !pw) { fail(!u ? "Enter your username." : "Enter your password."); (u ? f.p : f.u).focus(); return; }
-      btn.disabled = true; btn.innerHTML = `Logging in<span class="sy-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`; btn.setAttribute("aria-busy", "true");
+      btn.disabled = true; btn.innerHTML = `${up ? "Creating account" : "Logging in"}<span class="sy-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`; btn.setAttribute("aria-busy", "true");
       try {
-        await NIC.sync.signIn(u, pw);
+        if (up) await NIC.sync.signUp(u, pw); else await NIC.sync.signIn(u, pw);
         m.close(); NIC.sfx.play("check");
       } catch (err) {
         btn.disabled = false; btn.textContent = label; btn.removeAttribute("aria-busy");
         const t = String((err && err.message) || err);
-        fail(/invalid|credential|password/i.test(t) ? "Wrong username or password." : `Couldn't log in: ${t}`);
+        fail(up ? t : /invalid|credential|password/i.test(t) ? "Wrong username or password." : `Couldn't log in: ${t}`);
       }
     });
   }
@@ -373,23 +379,6 @@
     return m;
   }
   NIC.modal = modal;
-
-  function resetAll(ret) {
-    closePop();
-    const m = modal(`<div class="rs">${NIC.mascot({ who: "berry", size: 96, mood: "shocked" })}<h2>Reset everything?</h2>
-      <p>Lessons, quizzes, XP, streak, quests, achievements and revision history on this device will be wiped.${NIC.sync && NIC.sync.email() ? " Your account's progress will be reset too." : ""} This can't be undone.</p>
-      <div class="controls"><button class="btn" data-k="no">Keep my progress</button><button class="btn rose" data-k="yes">Reset</button></div></div>`, { cls: "rs-modal", ret: typeof ret === "function" ? ret : null });
-    m.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-k]"); if (!b) return;
-      if (b.dataset.k === "yes") {
-        Object.keys(localStorage).filter((k) => k.startsWith("nic.") && !/^nic\.sync/.test(k)).forEach((k) => localStorage.removeItem(k));
-        localStorage.setItem("nic.resetAt", String(Date.now())); localStorage.setItem("nic.syncForce", "1"); localStorage.setItem("nic.syncDirty", "1"); localStorage.setItem("nic.onboarded", "true");
-        updateScore(); renderTop(); route();
-        if (NIC.sync && NIC.sync.now) NIC.sync.now();
-      }
-      m.close();
-    });
-  }
 
   // =====================================================================
   //  Home: the path
@@ -796,8 +785,7 @@
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
         ${NIC.sync ? `<div class="set-row"><b>Account</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in</button>`}</div>` : ""}
         ${NIC.theme ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[["system", "System", IC.themeSys], ["light", "Light", IC.sun], ["dark", "Dark", IC.moon]].map(([v, t, ic]) => `<button role="radio" data-theme-pick="${v}" aria-checked="${NIC.theme.get() === v}" class="${NIC.theme.get() === v ? "on" : ""}">${ic}${t}</button>`).join("")}</div></div>` : ""}
-        <div class="set-row"><b id="pfSoundL">Sound effects</b><button class="pf-sw ${NIC.sfx.on() ? "on" : ""}" id="pfSound" role="switch" aria-checked="${NIC.sfx.on()}" aria-labelledby="pfSoundL"><i></i></button></div>
-        <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>
+        <div class="set-row"><b id="pfSoundL">Sound effects</b><button class="pf-sw ${NIC.sfx.on() ? "on" : ""}" id="pfSound" role="switch" aria-checked="${NIC.sfx.on()}" aria-labelledby="pfSoundL"><i></i></button></div></div>
     </div>`);
     main.appendChild(page);
     const goalSeg = qs(".goal-seg", page), themeSeg = qs(".theme-seg", page);
@@ -805,7 +793,6 @@
     qsa("[data-g]", page).forEach((b) => b.addEventListener("click", () => { game.setGoal(+b.dataset.g); pickSeg(goalSeg, b); renderTop(); }));
     const snd = qs("#pfSound", page);
     snd.addEventListener("click", () => { NIC.sfx.set(!NIC.sfx.on()); const on = NIC.sfx.on(); snd.classList.toggle("on", on); snd.setAttribute("aria-checked", on); });
-    qs("#pfReset", page).addEventListener("click", resetAll);
     qsa("[data-theme-pick]", page).forEach((b) => b.addEventListener("click", () => {
       pickSeg(themeSeg, b);
       NIC.sfx.play("select"); NIC.theme.set(b.dataset.themePick, { from: b });

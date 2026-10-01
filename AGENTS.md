@@ -40,7 +40,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, problems`. |
 | `js/bank-nic.js bank-ds.js bank-algo.js` + `bank-*-2.js` | Revision questions, 13–15 per module (session). Used only by the Revise tab, never by lessons or bosses. Add new ones to a `-2` file, or start a `-3` file. |
 | `js/revise.js` + `css/revise.css` | The **Revise** tab (`#revise`): `NIC.revisePage(main, life, {names})`. Sessions run in `NIC.player.revise({home, n, subjects})`. |
-| `js/sync.js` | Account progress `NIC.sync` (Supabase project `cslingo`). When logged in the account is the source of truth: it is loaded before the first screen, saves add to it (never replace it), and other devices' changes redraw in place. Stored as one row per item in `public.progress_items` (lesson_done, quiz, rev, xp_day, …) and `public.progress_prefs` (settings), written only through `public.save_progress()` (a rule per kind: finished stays finished, a right quiz answer stays, latest review wins, XP/positions only go up) and wiped only by `public.reset_progress()`; row-level security. The old one-row `public.progress` and `progress_legacy_backup` are kept as backups. Login is username+password (no sign-up in the app). `vendor/supabase.js` loads only when logged in or returning from a link. Reset stamps `nic.resetAt`. |
+| `js/sync.js` | Account progress `NIC.sync` (Supabase project `cslingo`). When logged in the account is the source of truth: it is loaded before the first screen, saves add to it (never replace it), and other devices' changes redraw in place. Stored as one row per item in `public.progress_items` (lesson_done, quiz, rev, xp_day, …) and `public.progress_prefs` (settings), written only through `public.save_progress()` (a rule per kind: finished stays finished, a right quiz answer stays, latest review wins, XP/positions only go up) and wiped only by `public.reset_progress()`; row-level security. The old one-row `public.progress` and `progress_legacy_backup` are kept as backups. Login is username+password; "Create account" in the Log in screen calls the `signup` Edge Function (creates `<name>@cslingo.app`, pre-confirmed, no email). `vendor/supabase.js` loads only when logged in or returning from a link. Reset stamps `nic.resetAt`. |
 | `js/player.js` + `css/player.css` | Full-screen lesson player `NIC.player`. |
 | `js/app.js` + `css/shell.css` | `SUBJECTS` (the course/lecture catalogue), routing, path home, top bar and popovers, dock, Practice and Profile pages. |
 | `css/styles.css` | Theme tokens and base components (buttons, cards, tags, answer tiles, tables, genomes, chips). |
@@ -91,7 +91,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `revPrefs` | Revise tab settings `{n, subjects}` |
 | `rev` | revision bank answers, `{"<modId>:<hash>": {box, n, right, t}}` (Leitner box 1–5) |
 
-Never rename these keys, because that wipes users' progress. The Reset buttons are in `app.js` `resetAll()`.
+Never rename these keys, because that wipes users' progress. There is no reset button (progress is never deleted from the app).
 
 ## 3. Libraries (all vendored, loaded in `index.html`)
 
