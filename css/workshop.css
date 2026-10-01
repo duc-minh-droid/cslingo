@@ -215,16 +215,18 @@
 
 /* ---------- code labs: steps, tests and the replay on the left, the editor on the right ---------- */
 @media (min-width: 1001px) {
-  .wk.wk-code { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); grid-template-rows: auto auto auto 1fr; gap: 14px 22px; align-items: start; }
+  .wk.wk-code { display: grid; grid-template-columns: minmax(0, var(--cl-l, 46%)) 22px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 14px 0; align-items: start; }
   .wk.wk-code .wk-stage { display: contents; }
   .wk.wk-code .wk-top { grid-column: 1; grid-row: 1; grid-template-columns: 1fr; gap: 10px; }
   .wk.wk-code .wk-bar { grid-column: 1; grid-row: 2; }
   .wk.wk-code .cl-testcard { grid-column: 1; grid-row: 3; }
   .wk.wk-code .cl-vis { grid-column: 1; grid-row: 4; }
-  .wk.wk-code .cl-edcard { grid-column: 2; grid-row: 1 / span 4; }
+  .wk.wk-code .cl-edcard { grid-column: 3; grid-row: 1 / span 4; }
+  .wk.wk-code .cl-split { grid-column: 2; grid-row: 1 / span 4; align-self: stretch; }
   .wk.wk-code .cl-vis .cl-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 1000px) {
+  .wk.wk-code .cl-split { display: none; }
   .wk.wk-code .cl-edcard { order: -1; }
   .wk.wk-code .wk-stage { display: flex; flex-direction: column; }
   .wk.wk-code .cl-testcard { order: 0; } .wk.wk-code .cl-vis { order: 1; }
@@ -253,3 +255,11 @@
 .cl-ai i { flex: none; width: 22px; height: 18px; display: grid; place-items: center; border-radius: 6px; font: 900 10px Nunito, system-ui, sans-serif; font-style: normal; background: var(--bg-2); color: var(--text-dim); }
 .cl-ai i.k-kw { background: var(--violet-dim); color: var(--violet-ink); } .cl-ai i.k-snippet { background: var(--amber-dim); color: var(--amber-ink); } .cl-ai i.k-var { background: var(--teal-dim); color: var(--teal-ink); }
 .cl-ai b { font-weight: 800; flex: 1; } .cl-ai span { font: 800 10px Nunito, system-ui, sans-serif; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ---------- resizable divider between the code lab's two panels ---------- */
+.cl-split { position: relative; cursor: col-resize; touch-action: none; outline: none; }
+.cl-split i { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; border-radius: 99px; background: var(--line); transition: background-color var(--dur-2) ease, width var(--dur-2) ease, margin-left var(--dur-2) ease; }
+.cl-split::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--text-faint); box-shadow: 0 -9px 0 var(--text-faint), 0 9px 0 var(--text-faint); pointer-events: none; }
+.cl-split:hover i, .cl-split:focus-visible i, .cl-split.on i { background: var(--blue); width: 6px; margin-left: -3px; }
+body.cl-dragging { cursor: col-resize; user-select: none; -webkit-user-select: none; }
+body.cl-dragging .cl-ta, body.cl-dragging .cl-hl { pointer-events: none; }
