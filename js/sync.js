@@ -5,14 +5,14 @@
      NIC.sync.signOut()
      NIC.sync.on(fn)          → called with the user (or null) whenever that changes
    Table public.progress (user_id = auth.uid(), data jsonb = {"nic.*": raw localStorage string}), protected by row-level security.
-   First sign-in on a browser: if the account is empty this browser's progress is uploaded (the migration); if the account has
-   progress and this browser has none, it's downloaded; if both have some, the learner chooses. After that every change is pushed.
+   Progress from every device is MERGED, never overwritten: finished lessons, quiz answers, XP per day and review history only grow, so
+   two laptops add up. The merge runs on sign-in, after every change, on focus and every 45 s. "Reset everything" stamps nic.resetAt so the reset wins.
    The publishable key below is public by design; the row-level security policies are what protect the data. */
 (function () {
   const N = NIC;
   const URL_ = "https://yrgilitzuqsfxqkkfwox.supabase.co";
   const KEY = "sb_publishable_Idll9DDUY29DYfInfXiKhg_KKhN8Lbo";
-  const SKIP = new Set(["nic.syncAt", "nic.syncUser", "nic.syncDirty"]);
+  const SKIP = new Set(["nic.syncAt", "nic.syncUser", "nic.syncDirty", "nic.syncForce"]);
   let sb = null, user = null, pushT = 0, ready = null, applying = false;
   const subs = [];
   const emit = () => subs.forEach((f) => { try { f(user); } catch (e) { console.error(e); } });
@@ -40,94 +40,126 @@
     const was = user && user.id;
     user = u;
     if (u) localStorage.setItem("nic.syncUser", JSON.stringify(u.email)); else localStorage.removeItem("nic.syncUser");
-    if (u && (was !== u.id || first)) { first = false; reconcile(); }
+    if (u && (was !== u.id || first)) { first = false; syncNow(); }
     if (!u) first = true;
     if ((was || null) !== (u ? u.id : null)) emit();
     // drop ?code=… from the address bar once the session is made
     if (/[?&]code=/.test(location.search)) history.replaceState(null, "", location.pathname + location.hash);
   }
 
-  /** First contact between this browser and the account. */
-  async function reconcile() {
-    const { data, error } = await sb.from("progress").select("data, updated_at").maybeSingle();
-    if (error) { console.error(error); N.fx && N.fx.toast(`<b>Sync failed</b><span>${N.esc(error.message)}</span>`, { tone: "rose" }); return; }
-    const local = snapshot(), cloud = (data && data.data) || {};
-    const linked = +localStorage.getItem("nic.syncAt") || 0, cloudT = data ? Date.parse(data.updated_at) : 0;
-    if (!data || !hasProgress(cloud)) { await push({ force: true }); toast("Progress saved to your account", "This browser's progress is now in your account."); return; }
-    if (same(local, cloud)) { stamp(cloudT); return; }
-    if (linked) {
-      // a device that has synced before: unsent local changes win, otherwise take the newer account copy
-      if (localStorage.getItem("nic.syncDirty")) { await push(true); return; }
-      if (cloudT > linked) apply(cloud, cloudT);
+  /* ---------- merge: progress only ever grows, so two devices can never erase each other ----------
+     Each key has a rule (union of finished lessons, higher XP per day, latest review of a question, ...). Anything without
+     a rule takes the side that changed last. A "Reset everything" stamps nic.resetAt, and the newer reset wins wholesale. */
+  const parse = (s) => { try { return JSON.parse(s); } catch { return undefined; } };
+  const num = (x) => (typeof x === "number" ? x : 0);
+  const U = (x, y, f) => { const o = { ...x }; Object.keys(y).forEach((k) => { o[k] = k in o ? f(o[k], y[k]) : y[k]; }); return o; };
+  const stable = (v) => (Array.isArray(v) ? v.map(stable) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, stable(v[k])])) : v);
+  const canon = (s) => { const p = parse(s); return p === undefined ? String(s) : JSON.stringify(stable(p)); };
+  const sameData = (a, b) => { const ka = Object.keys(a), kb = Object.keys(b); return ka.length === kb.length && ka.every((k) => k in b && canon(a[k]) === canon(b[k])); };
+  const sumDays = (d) => Object.values(d).reduce((t, n) => t + num(n), 0);
+  const RULES = {
+    "nic.lessonDone": (x, y) => U(x, y, (p, q) => p || q),
+    "nic.visited": (x, y) => U(x, y, (p, q) => p || q),
+    "nic.predict": (x, y) => U(x, y, (p, q) => p || q),
+    "nic.chests": (x, y) => U(x, y, (p, q) => (p < q ? p : q)),
+    "nic.ach": (x, y) => U(x, y, (p, q) => (p < q ? p : q)),
+    "nic.lessonPos": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
+    "nic.lessonSeen": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
+    "nic.stats": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
+    "nic.quiz": (x, y) => U(x, y, (p, q) => ((p && p.ok) || !(q && q.ok) ? p : q)),   // a right answer is never replaced by a wrong one
+    "nic.rev": (x, y) => U(x, y, (p, q) => (num(q && q.t) > num(p && p.t) ? q : p)),   // the most recent review of each question
+    "nic.activeDays": (x, y) => [...new Set([...x, ...y])].sort(),
+    "nic.freeze": (x, y) => { const used = [...new Set([...(x.used || []), ...(y.used || [])])]; return { n: Math.max(0, Math.max(num(x.n), num(y.n)) - (used.length - Math.max((x.used || []).length, (y.used || []).length))), used }; },
+    "nic.xp": (x, y) => { const dx = x.days || {}, dy = y.days || {}, days = U(dx, dy, (p, q) => Math.max(num(p), num(q))); return { ...x, days, total: Math.max(num(x.total), num(y.total)) + Math.max(0, sumDays(days) - Math.max(sumDays(dx), sumDays(dy))) }; },
+    "nic.quests": (x, y) => {
+      if (x.date !== y.date) return x.date > y.date ? x : y;
+      const list = x.list.map((it) => { const o = y.list.find((z) => z.id === it.id); return o ? { ...it, prog: Math.max(num(it.prog), num(o.prog)), done: it.done || o.done, claimed: it.claimed || o.claimed } : it; });
+      return { ...x, list: list.concat(y.list.filter((z) => !x.list.some((it) => it.id === z.id))) };
+    },
+  };
+  /** Merge two snapshots {"nic.*": raw string}. preferLocal says which side wins keys that have no rule. */
+  function mergeData(local, cloud, preferLocal) {
+    const rl = num(parse(local["nic.resetAt"])), rc = num(parse(cloud["nic.resetAt"]));
+    if (rc > rl) return { ...cloud };   // the account was reset after this device last synced
+    if (rl > rc) return { ...local };   // this device reset: the account follows
+    const out = {};
+    new Set([...Object.keys(local), ...Object.keys(cloud)]).forEach((k) => {
+      const a = local[k], b = cloud[k];
+      if (a === undefined) out[k] = b; else if (b === undefined) out[k] = a; else if (canon(a) === canon(b)) out[k] = a;
+      else { const pa = parse(a), pb = parse(b), r = RULES[k]; out[k] = r && pa !== undefined && pb !== undefined ? JSON.stringify(r(pa, pb)) : (preferLocal ? a : b); }
+    });
+    return out;
+  }
+
+  /** Bring this browser and the account together: read the account, merge, write whichever side is behind.
+      The account write only succeeds if nobody else wrote since we read it; if they did, we merge again. */
+  let syncing = null, again = false, waiting = false, failedAt = 0;
+  function syncNow() {
+    if (!sb || !user) return Promise.resolve();
+    if (syncing) { again = true; return syncing; }
+    syncing = run().catch((e) => console.error("sync failed", e)).finally(() => { syncing = null; setBusy(false); if (again) { again = false; syncNow(); } });
+    return syncing;
+  }
+  async function run() {
+    setBusy(true);
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const { data: row, error } = await sb.from("progress").select("data, updated_at").maybeSingle();
+      if (error) { console.error(error); if (Date.now() - failedAt > 60000) { failedAt = Date.now(); N.fx && N.fx.toast(`<b>Sync failed</b><span>${N.esc(error.message)}</span>`, { tone: "rose" }); } return; }
+      const local = snapshot(), cloud = (row && row.data) || {}, dirty = !!localStorage.getItem("nic.syncDirty");
+      const final = localStorage.getItem("nic.syncForce") ? local : mergeData(local, cloud, dirty);
+      const toCloud = !sameData(final, cloud), toLocal = !sameData(final, local);
+      if (toCloud) {
+        const iso = new Date().toISOString();
+        let ok = true;
+        if (row) {
+          const r = await sb.from("progress").update({ data: final, updated_at: iso }).eq("user_id", user.id).eq("updated_at", row.updated_at).select("user_id");
+          if (r.error) { console.error("sync push failed", r.error); return; }
+          ok = !!(r.data && r.data.length);
+        } else {
+          const r = await sb.from("progress").upsert({ user_id: user.id, data: final, updated_at: iso });
+          if (r.error) { console.error("sync push failed", r.error); return; }
+        }
+        if (!ok) continue; // another device wrote in between: read and merge again
+        stamp(Date.parse(iso));
+        if (!hasProgress(cloud) && hasProgress(final)) toast("Progress saved to your account", "This browser's progress is now in your account.");
+      } else stamp(row ? Date.parse(row.updated_at) : Date.now());
+      localStorage.removeItem("nic.syncDirty"); localStorage.removeItem("nic.syncForce");
+      if (toLocal) applyLocal(final);
       return;
     }
-    if (!hasProgress(local)) { apply(cloud, cloudT); return; }
-    choose(local, cloud, cloudT);
   }
-
-  function choose(local, cloud, cloudT) {
-    const n = (d) => { try { return Object.keys(JSON.parse(d["nic.lessonDone"] || "{}")).length; } catch { return 0; } };
-    const html = `${N.mascot({ who: "chip", size: 90, mood: "think" })}<h2>Two sets of progress</h2>
-      <p>This browser has <b>${n(local)}</b> finished lessons. Your account has <b>${n(cloud)}</b>. Which should win?</p>
-      <div class="controls"><button class="btn primary" data-k="cloud">Use my account's</button><button class="btn" data-k="local">Use this browser's</button></div>`;
-    // the shared modal (js/app.js) animates in and out, and Esc / ✕ / the backdrop close it: decide later, nothing is overwritten
-    let box, done;
-    if (N.modal) { box = N.modal(html, { cls: "sy-choose" }); done = () => box.close(); }
-    else {
-      box = N.el(`<div class="modal-back"><div class="modal sy-choose" role="dialog" aria-modal="true">${html}</div></div>`);
-      document.body.appendChild(box);
-      N.shield(true);
-      const esc = (e) => { if (e.key === "Escape") done(); };
-      done = () => { box.remove(); N.shield(false); document.removeEventListener("keydown", esc); };
-      document.addEventListener("keydown", esc);
-      box.querySelector("[data-k]").focus();
-    }
-    box.addEventListener("click", async (e) => {
-      const b = e.target.closest("[data-k]"); if (!b) return;
-      done();
-      if (b.dataset.k === "cloud") apply(cloud, cloudT); else { await push({ force: true }); toast("Progress saved to your account", "Your account now matches this browser."); }
-    });
-  }
-
-  function apply(cloud, t) {
-    if (N.player && N.player.isOpen && N.player.isOpen()) { waiting = [cloud, t]; return; } // never reload mid-lesson
+  /** The account had progress this browser didn't: take it and reload (never mid-lesson; that waits until the player closes). */
+  function applyLocal(final) {
+    if (N.player && N.player.isOpen && N.player.isOpen()) { waiting = true; return; }
     applying = true;
     Object.keys(snapshot()).forEach((k) => localStorage.removeItem(k));
-    Object.entries(cloud).forEach(([k, v]) => localStorage.setItem(k, v));
-    localStorage.removeItem("nic.syncDirty");
-    stamp(t);
+    Object.entries(final).forEach(([k, v]) => localStorage.setItem(k, v));
     sessionStorage.setItem("nic.syncToast", "1");
+    if (window.__nicNoReload) { applying = false; return; } // (tests)
     location.reload();
   }
-  let waiting = null;
   const stamp = (t) => localStorage.setItem("nic.syncAt", String(t || Date.now()));
 
-  /* busy: a push is waiting or in flight. The menu's sync row shows a pending dot (js/app.js listens for nic:sync). */
-  let busy = false, inFlight = 0;
+  /* busy: a sync is waiting or in flight. The menu's sync row shows a pending dot (js/app.js listens for nic:sync). */
+  let busy = false;
   const setBusy = (b) => { if (b === busy) return; busy = b; window.dispatchEvent(new CustomEvent("nic:sync", { detail: { busy } })); };
-  async function push(now) {
+  function push(now) {
     if (!sb || !user || applying) return;
     clearTimeout(pushT);
-    if (!now) { setBusy(true); pushT = setTimeout(() => push(true), 2500); return; }
-    if (!now.force && !localStorage.getItem("nic.syncDirty") && localStorage.getItem("nic.syncAt")) { if (!inFlight) setBusy(false); return; }
-    const t = new Date();
-    inFlight++; setBusy(true);
-    try {
-      const { error } = await sb.from("progress").upsert({ user_id: user.id, data: snapshot(), updated_at: t.toISOString() });
-      if (error) console.error("sync push failed", error); else { localStorage.removeItem("nic.syncDirty"); stamp(t.getTime()); }
-    } finally { inFlight--; if (!inFlight) setBusy(false); }
+    if (!now) { setBusy(true); pushT = setTimeout(syncNow, 2500); return; }
+    return syncNow();
   }
   const toast = (t, s) => N.fx && N.fx.toast(`${N.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>${t}</b><span>${s}</span>`, { tone: "blue", ms: 2800 });
 
   // push whenever progress changes (NIC.store is the main writer; the timer catches direct localStorage writes)
   const set0 = N.store.set;
   N.store.set = (k, v) => { set0(k, v); if (String(k).startsWith("nic.") && !SKIP.has(k)) { localStorage.setItem("nic.syncDirty", "1"); if (user) push(false); } };
-  // leaving the tab: send; coming back: pick up anything another device saved meanwhile
-  document.addEventListener("visibilitychange", () => {
-    if (!user) return;
-    if (document.visibilityState === "hidden") push(true); else if (!localStorage.getItem("nic.syncDirty")) reconcile();
-  });
-  window.addEventListener("hashchange", () => { if (waiting && !(N.player && N.player.isOpen())) { const [c, t] = waiting; waiting = null; apply(c, t); } });
+  // keep devices together: sync when the tab is left or comes back, on focus and when the network returns, and every 45 s while it is open
+  document.addEventListener("visibilitychange", () => { if (user) syncNow(); });
+  window.addEventListener("focus", () => { if (user) syncNow(); });
+  window.addEventListener("online", () => { if (user) syncNow(); });
+  setInterval(() => { if (user && document.visibilityState === "visible") syncNow(); }, 45000);
+  window.addEventListener("hashchange", () => { if (waiting && !(N.player && N.player.isOpen())) { waiting = false; syncNow(); } });
 
   N.sync = {
     user: () => user,
@@ -141,8 +173,10 @@
       const { error } = await c.auth.signInWithPassword({ email, password });
       if (error) throw error;
     },
-    async signOut() { const c = await client(); await push({ force: true }); await c.auth.signOut(); localStorage.removeItem("nic.syncAt"); },
+    async signOut() { const c = await client(); await syncNow(); await c.auth.signOut(); localStorage.removeItem("nic.syncAt"); },
     start: client,
+    now: syncNow,
+    _test: { mergeData, sameData, canon, use: (c, u) => { sb = c; user = u; } },
   };
 
   // Only load the library when there's something to do: a link just came back, or this browser was signed in before.
