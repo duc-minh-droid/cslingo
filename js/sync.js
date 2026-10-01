@@ -4,7 +4,8 @@
                                 The account is made by the owner in the Supabase dashboard; the app has no sign-up, so nobody else can join.
      NIC.sync.signOut()
      NIC.sync.on(fn)          → called with the user (or null) whenever that changes
-   Table public.progress (user_id = auth.uid(), data jsonb = {"nic.*": raw localStorage string}), protected by row-level security.
+   The account is stored as one row per item (public.progress_items) plus settings (public.progress_prefs), all protected by row-level security;
+   saves go through public.save_progress(), which only ever adds to progress. (public.progress / progress_legacy_backup are the old one-row copy.)
    Progress from every device is MERGED, never overwritten: finished lessons, quiz answers, XP per day and review history only grow, so
    two laptops add up. The merge runs on sign-in, after every change, on focus and every 45 s. "Reset everything" stamps nic.resetAt so the reset wins.
    The publishable key below is public by design; the row-level security policies are what protect the data. */
@@ -91,41 +92,83 @@
     return out;
   }
 
-  /** Bring this browser and the account together: read the account, merge, write whichever side is behind.
-      The account write only succeeds if nobody else wrote since we read it; if they did, we merge again. */
+  /* ---------- the account's tables: one row per item, so a save only touches what changed ----------
+     public.progress_items (kind, item, value): finished lessons, quiz answers, XP per day, reviews, ...
+     public.progress_prefs (key, value, raw):   course, goal, quests, ... (raw = the browser stored a plain string)
+     public.save_progress(items, prefs) adds to these with a rule per kind (the database never lowers progress);
+     public.reset_progress() is the only thing that removes it. */
+  const KINDS = { "nic.lessonDone": "lesson_done", "nic.visited": "visited", "nic.predict": "predict", "nic.quiz": "quiz", "nic.rev": "rev", "nic.lessonPos": "lesson_pos", "nic.lessonSeen": "lesson_seen", "nic.chests": "chest", "nic.ach": "achievement", "nic.stats": "stat" };
+  const KEY_OF = Object.fromEntries(Object.entries(KINDS).map(([k, v]) => [v, k]));
+  const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
+  /** snapshot {"nic.*": raw string} -> Map "kind\u0000item" -> JSON value text, and Map "key" -> {value, raw} text */
+  function toRows(snap) {
+    const items = new Map(), prefs = new Map();
+    const put = (kind, item, v) => items.set(kind + "\u0000" + item, JSON.stringify(v));
+    Object.entries(snap).forEach(([key, raw]) => {
+      const p = parse(raw);
+      if (KINDS[key] && isObj(p)) Object.entries(p).forEach(([id, v]) => { if ((key === "nic.lessonDone" || key === "nic.visited")) { if (v) put(KINDS[key], id, true); } else put(KINDS[key], id, v); });
+      else if (key === "nic.xp" && isObj(p)) {
+        const days = isObj(p.days) ? p.days : {};
+        Object.entries(days).forEach(([d, n]) => put("xp_day", d, num(n)));
+        prefs.set("xp_base", JSON.stringify({ value: Math.max(0, num(p.total) - sumDays(days)), raw: false }));
+      } else if (key === "nic.activeDays" && Array.isArray(p)) p.forEach((d) => put("active_day", String(d), true));
+      else prefs.set(key, JSON.stringify(p === undefined ? { value: raw, raw: true } : { value: p, raw: false }));
+    });
+    return { items, prefs };
+  }
+  /** the account's rows -> a snapshot in the shape the rest of the app (and mergeData) uses */
+  function fromRows(itemRows, prefRows) {
+    const snap = {}, byKind = {};
+    itemRows.forEach((r) => { (byKind[r.kind] = byKind[r.kind] || {})[r.item] = r.value; });
+    Object.entries(byKind).forEach(([kind, o]) => {
+      if (KEY_OF[kind]) snap[KEY_OF[kind]] = JSON.stringify(o);
+      else if (kind === "active_day") snap["nic.activeDays"] = JSON.stringify(Object.keys(o).sort());
+    });
+    const base = (prefRows.find((r) => r.key === "xp_base") || {}).value, days = byKind.xp_day || {};
+    if (base !== undefined || byKind.xp_day) snap["nic.xp"] = JSON.stringify({ total: num(base) + sumDays(days), days });
+    prefRows.forEach((r) => { if (r.key !== "xp_base") snap[r.key] = r.raw ? String(r.value) : JSON.stringify(r.value); });
+    return snap;
+  }
+  async function readAll(table, cols) {
+    const out = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb.from(table).select(cols).range(from, from + 999);
+      if (error) throw error;
+      out.push(...data); if (data.length < 1000) return out;
+    }
+  }
+
+  /** Bring this browser and the account together: read the account, merge it with this browser, send the account only what
+      it was missing (the database applies its own add-never-replace rules), and take whatever this browser was missing. */
   let syncing = null, again = false, waiting = false, failedAt = 0, starting = false;
   function syncNow() {
     if (!sb || !user) return Promise.resolve();
     if (syncing) { again = true; return syncing; }
-    syncing = run().catch((e) => console.error("sync failed", e)).finally(() => { syncing = null; setBusy(false); if (again) { again = false; syncNow(); } });
+    syncing = run().catch((e) => fail(e)).finally(() => { syncing = null; setBusy(false); if (again) { again = false; syncNow(); } });
     return syncing;
+  }
+  function fail(e) {
+    console.error("sync failed", e);
+    if (Date.now() - failedAt > 60000) { failedAt = Date.now(); N.fx && N.fx.toast(`<b>Couldn't reach your account</b><span>${N.esc((e && e.message) || String(e))}</span>`, { tone: "rose" }); }
   }
   async function run() {
     setBusy(true);
-    for (let attempt = 0; attempt < 4; attempt++) {
-      const { data: row, error } = await sb.from("progress").select("data, updated_at").maybeSingle();
-      if (error) { console.error(error); if (Date.now() - failedAt > 60000) { failedAt = Date.now(); N.fx && N.fx.toast(`<b>Couldn't reach your account</b><span>${N.esc(error.message)}</span>`, { tone: "rose" }); } return; }
-      const local = snapshot(), cloud = (row && row.data) || {}, dirty = !!localStorage.getItem("nic.syncDirty");
-      const final = localStorage.getItem("nic.syncForce") ? local : mergeData(local, cloud, dirty);
-      const toCloud = !sameData(final, cloud), toLocal = !sameData(final, local);
-      if (toCloud) {
-        const iso = new Date().toISOString();
-        let ok = true;
-        if (row) {
-          const r = await sb.from("progress").update({ data: final, updated_at: iso }).eq("user_id", user.id).eq("updated_at", row.updated_at).select("user_id");
-          if (r.error) { console.error("sync push failed", r.error); return; }
-          ok = !!(r.data && r.data.length);
-        } else {
-          const r = await sb.from("progress").upsert({ user_id: user.id, data: final, updated_at: iso });
-          if (r.error) { console.error("sync push failed", r.error); return; }
-        }
-        if (!ok) continue; // another device wrote in between: read and merge again
-        stamp(Date.parse(iso));
-      } else stamp(row ? Date.parse(row.updated_at) : Date.now());
-      localStorage.removeItem("nic.syncDirty"); localStorage.removeItem("nic.syncForce");
-      if (toLocal) applyLocal(final);
-      return;
+    const [itemRows, prefRows] = await Promise.all([readAll("progress_items", "kind,item,value"), readAll("progress_prefs", "key,value,raw")]);
+    const cloud = fromRows(itemRows, prefRows), local = snapshot(), dirty = !!localStorage.getItem("nic.syncDirty"), forced = !!localStorage.getItem("nic.syncForce");
+    const final = forced ? local : mergeData(local, cloud, dirty);
+    const A = toRows(final), B = forced ? { items: new Map(), prefs: new Map() } : toRows(cloud);
+    const items = [], prefs = [];
+    A.items.forEach((v, k) => { if (B.items.get(k) !== v) { const [kind, item] = k.split("\u0000"); items.push({ kind, item, value: JSON.parse(v) }); } });
+    A.prefs.forEach((v, k) => { if (B.prefs.get(k) !== v) { const o = JSON.parse(v); prefs.push({ key: k, value: o.value, raw: o.raw }); } });
+    if (forced) { const r = await sb.rpc("reset_progress"); if (r.error) throw r.error; }
+    for (let i = 0; i < Math.max(1, Math.ceil(items.length / 400)); i++) {
+      const chunk = items.slice(i * 400, i * 400 + 400);
+      if (!chunk.length && !(i === 0 && prefs.length)) continue;
+      const r = await sb.rpc("save_progress", { p_items: chunk, p_prefs: i === 0 ? prefs : [] });
+      if (r.error) throw r.error;
     }
+    localStorage.removeItem("nic.syncDirty"); localStorage.removeItem("nic.syncForce");
+    if (!sameData(final, local)) applyLocal(final);
   }
   /** The account had progress this browser didn't: take it and reload (never mid-lesson; that waits until the player closes). */
   function applyLocal(final) {
@@ -135,7 +178,6 @@
     if (starting || window.__nicNoReload) return;       // before the first screen is drawn (or in tests): nothing to refresh
     if (N.refresh) N.refresh(); else location.reload(); // otherwise redraw the page in place, no reload
   }
-  const stamp = (t) => localStorage.setItem("nic.syncAt", String(t || Date.now()));
 
   /* busy: a sync is waiting or in flight. The menu's sync row shows a pending dot (js/app.js listens for nic:sync). */
   let busy = false;
@@ -169,10 +211,10 @@
       const { error } = await c.auth.signInWithPassword({ email, password });
       if (error) throw error;
     },
-    async signOut() { const c = await client(); await syncNow(); await c.auth.signOut(); localStorage.removeItem("nic.syncAt"); },
+    async signOut() { const c = await client(); await syncNow(); await c.auth.signOut(); },
     start: client,
     now: syncNow,
-    _test: { mergeData, sameData, canon, use: (c, u) => { sb = c; user = u; } },
+    _test: { mergeData, sameData, canon, toRows, fromRows, use: (c, u) => { sb = c; user = u; } },
   };
 
   // Only load the library when there's something to do: a link just came back, or this browser was logged in before.
