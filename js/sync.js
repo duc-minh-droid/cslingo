@@ -103,7 +103,7 @@
   /** snapshot {"nic.*": raw string} -> Map "kind\u0000item" -> JSON value text, and Map "key" -> {value, raw} text */
   function toRows(snap) {
     const items = new Map(), prefs = new Map();
-    const put = (kind, item, v) => items.set(kind + "\u0000" + item, JSON.stringify(v));
+    const put = (kind, item, v) => items.set(kind + "\u0000" + item, JSON.stringify(stable(v)));  // canonical: the database re-orders object keys, so compare sorted
     Object.entries(snap).forEach(([key, raw]) => {
       const p = parse(raw);
       if (KINDS[key] && isObj(p)) Object.entries(p).forEach(([id, v]) => { if ((key === "nic.lessonDone" || key === "nic.visited")) { if (v) put(KINDS[key], id, true); } else put(KINDS[key], id, v); });
@@ -112,7 +112,7 @@
         Object.entries(days).forEach(([d, n]) => put("xp_day", d, num(n)));
         prefs.set("xp_base", JSON.stringify({ value: Math.max(0, num(p.total) - sumDays(days)), raw: false }));
       } else if (key === "nic.activeDays" && Array.isArray(p)) p.forEach((d) => put("active_day", String(d), true));
-      else prefs.set(key, JSON.stringify(p === undefined ? { value: raw, raw: true } : { value: p, raw: false }));
+      else prefs.set(key, JSON.stringify(stable(p === undefined ? { value: raw, raw: true } : { value: p, raw: false })));
     });
     return { items, prefs };
   }
