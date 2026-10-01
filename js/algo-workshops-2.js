@@ -208,56 +208,52 @@
   const G2 = { nodes: { S: [60, 150], X: [260, 70], Y: [160, 240], Z: [440, 160] }, edges: [["S", "X", 7], ["S", "Y", 2], ["Y", "X", 3], ["X", "Z", 1]] };
   const G3 = { nodes: { A: [110, 150], B: [260, 150], C: [420, 150] }, edges: [["A", "B", 1]] };
 
-  const STARTER = `function dijkstra(graph, start) {
-  const dist = {};
-  const done = new Set();
-  for (const v in graph) dist[v] = Infinity;
-  dist[start] = 0;
+  const STARTER = `def dijkstra(graph, start):
+    dist = {v: float("inf") for v in graph}
+    dist[start] = 0
+    done = set()
 
-  while (true) {
-    // 1. Pick the unsettled node with the smallest distance.
-    let u = null;
-    for (const v in graph) {
-      /* YOUR CODE: if v is not done, is reachable, and is closer than u, let u = v */
-    }
-    if (u === null) break;            // nothing left to settle
-    done.add(u);
-    trace({ type: "settle", u, dist: { ...dist } });
+    while True:
+        # 1. Pick the unsettled node with the smallest distance.
+        u = None
+        for v in graph:
+            # YOUR CODE: if v is not done, is reachable, and is closer than u, let u = v
+            pass
+        if u is None:
+            break                      # nothing left to settle
+        done.add(u)
+        trace({"type": "settle", "u": u, "dist": dict(dist)})
 
-    // 2. Relax every road out of u.
-    for (const [v, w] of graph[u]) {
-      const cand = dist[u] + w;
-      trace({ type: "look", u, v, cand, cur: dist[v] });
-      /* YOUR CODE: if cand is smaller than dist[v], update dist[v] */
-    }
-  }
-  return dist;
-}`;
-  const SOLUTION = `function dijkstra(graph, start) {
-  const dist = {};
-  const done = new Set();
-  for (const v in graph) dist[v] = Infinity;
-  dist[start] = 0;
+        # 2. Relax every road out of u.
+        for v, w in graph[u]:
+            cand = dist[u] + w
+            trace({"type": "look", "u": u, "v": v, "cand": cand, "cur": dist[v]})
+            # YOUR CODE: if cand is smaller than dist[v], update dist[v]
+            pass
+    return dist`;
+  const SOLUTION = `def dijkstra(graph, start):
+    dist = {v: float("inf") for v in graph}
+    dist[start] = 0
+    done = set()
 
-  while (true) {
-    // 1. Pick the unsettled node with the smallest distance.
-    let u = null;
-    for (const v in graph) {
-      if (!done.has(v) && dist[v] < Infinity && (u === null || dist[v] < dist[u])) u = v;
-    }
-    if (u === null) break;            // nothing left to settle
-    done.add(u);
-    trace({ type: "settle", u, dist: { ...dist } });
+    while True:
+        # 1. Pick the unsettled node with the smallest distance.
+        u = None
+        for v in graph:
+            if v not in done and dist[v] < float("inf") and (u is None or dist[v] < dist[u]):
+                u = v
+        if u is None:
+            break                      # nothing left to settle
+        done.add(u)
+        trace({"type": "settle", "u": u, "dist": dict(dist)})
 
-    // 2. Relax every road out of u.
-    for (const [v, w] of graph[u]) {
-      const cand = dist[u] + w;
-      trace({ type: "look", u, v, cand, cur: dist[v] });
-      if (cand < dist[v]) dist[v] = cand;
-    }
-  }
-  return dist;
-}`;
+        # 2. Relax every road out of u.
+        for v, w in graph[u]:
+            cand = dist[u] + w
+            trace({"type": "look", "u": u, "v": v, "cand": cand, "cur": dist[v]})
+            if cand < dist[v]:
+                dist[v] = cand
+    return dist`;
 
   function codeScene() {
     return {
@@ -304,23 +300,23 @@
       N.codelab(root, life, {
         who: "byte", noun: "Dijkstra", entry: "dijkstra", watch: true,
         intro: "You've done it by hand. Now teach the computer. There are <b>two blanks</b>, marked in orange. Everything else is written for you.",
-        brief: "<b>Goal:</b> return an object of shortest distances from <code>start</code>. <code>graph</code> maps each node to a list of <code>[neighbour, length]</code> pairs. Unreachable nodes stay <code>Infinity</code>. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
+        brief: "<b>Goal:</b> return a dict of shortest distances from <code>start</code>. <code>graph</code> maps each node to a list of <code>[neighbour, length]</code> pairs. Unreachable nodes stay <code>float(\"inf\")</code>. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
         starter: STARTER, solution: SOLUTION,
-        hints: ["Blank 1 is the same decision you made by hand: among nodes that are <b>not done</b> and <b>already reached</b> (<code>dist[v] &lt; Infinity</code>), which has the smallest distance? Keep the best so far in <code>u</code>.", "The first candidate has nothing to compare with, so test <code>u === null</code> before <code>dist[v] &lt; dist[u]</code>.", "Blank 2 is the relax step: <code>if (cand &lt; dist[v]) dist[v] = cand;</code>"],
+        hints: ["Blank 1 is the same decision you made by hand: among nodes that are <b>not done</b> and <b>already reached</b> (<code>dist[v] &lt; float(\"inf\")</code>), which has the smallest distance? Keep the best so far in <code>u</code>.", "The first candidate has nothing to compare with, so test <code>u is None</code> before <code>dist[v] &lt; dist[u]</code>. Replace the <code>pass</code> with your <code>if</code>.", "Blank 2 is the relax step: <code>if cand &lt; dist[v]:</code> then <code>dist[v] = cand</code> on the next line."],
         tests: [
           { name: "The map from the workshop", desc: "Six nodes, nine roads, from A.", args: [adj(MAP), "A"], expect: { A: 0, B: 3, C: 2, D: 8, E: 10, F: 13 }, view: MAP },
           { name: "A side road is shorter", desc: "S to X: direct is 7, via Y is 5.", args: [adj(G2), "S"], expect: { S: 0, X: 5, Y: 2, Z: 6 }, view: G2, hint: "If this one fails but the map passes, check you update <code>dist[v]</code> whenever the new candidate is smaller." },
-          { name: "An island", desc: "C has no roads. It should stay at Infinity.", args: [adj(G3), "A"], expect: { A: 0, B: 1, C: Infinity }, view: G3, hint: "Only pick nodes that have been reached, otherwise you'd 'settle' C at Infinity." },
+          { name: "An island", desc: "C has no roads. It should stay at infinity.", args: [adj(G3), "A"], expect: { A: 0, B: 1, C: Infinity }, view: G3, hint: "Only pick nodes that have been reached, otherwise you'd 'settle' C at infinity." },
         ],
         scene: codeScene(),
       });
-      root.appendChild(predict({ id: "a2-code-1", q: "In your code, why check <code>dist[v] &lt; Infinity</code> before picking v as the next node?", opts: ["An unreached node has no known route, so it can't be settled yet", "Infinity is slower to compare than a number", "It stops the loop from visiting the start twice"], a: 0,
-        why: "A node at Infinity hasn't been reached by any settled node. Picking it would 'settle' something with no route, and relaxing from it would give nonsense (Infinity + w)." }));
+      root.appendChild(predict({ id: "a2-code-1", q: "In your code, why check <code>dist[v] &lt; float(\"inf\")</code> before picking v as the next node?", opts: ["An unreached node has no known route, so it can't be settled yet", "Infinity is slower to compare than a number", "It stops the loop from visiting the start twice"], a: 0,
+        why: "A node at infinity hasn't been reached by any settled node. Picking it would 'settle' something with no route, and relaxing from it would give nonsense (infinity + w)." }));
       root.appendChild(predict({ id: "a2-code-2", q: "A graph has 1,000 nodes. Your code scans every node to find the smallest each round. Roughly how many scans happen in total?", opts: ["About a million: 1,000 rounds of 1,000 checks", "About 1,000: one scan in total", "About ten thousand"], a: 0,
         why: "Each of the 1,000 rounds scans all 1,000 nodes, which is about 1,000 × 1,000 = 1,000,000 checks. A priority queue (heap) is how real implementations avoid the full scan." }));
       root.appendChild(takeaways([
         "Dijkstra in code is two loops: <b>pick the smallest unsettled</b>, then <b>relax its edges</b>.",
-        "<code>Infinity</code> is a handy 'not reached yet' value, but never settle a node that is still at it.",
+        "<code>float(\"inf\")</code> is a handy 'not reached yet' value, but never settle a node that is still at it.",
         "Scanning all nodes each round costs about n² checks; a <b>priority queue</b> is the standard speed-up.",
       ], "Pick the closest unsettled node, then improve its neighbours: repeat until nothing is left."));
     },
@@ -328,7 +324,7 @@
   L["a2-code"] = {
     sum: "Write the two decisions at the heart of Dijkstra and watch your code run.",
     steps: [
-      { t: "What you will write", b: `<p>The code lab gives you a working skeleton with <b>two blanks</b>. You'll fill them with exactly what you did by hand:</p><ol><li>pick the unsettled node with the smallest distance</li><li>relax each road out of it</li></ol><p>Then run the tests and watch your code settle the map, one step at a time.</p>`,
+      { t: "What you will write", b: `<p>The code lab gives you a working Python skeleton with <b>two blanks</b>. You'll fill them with exactly what you did by hand:</p><ol><li>pick the unsettled node with the smallest distance</li><li>relax each road out of it</li></ol><p>Then run the tests and watch your code settle the map, one step at a time.</p>`,
         v: F.flow([{ t: "Blank 1: pick", c: "amber" }, { t: "Settle", c: "teal" }, { t: "Blank 2: relax", c: "amber" }]),
         c: { q: "Which part of Dijkstra is 'relaxing'?", o: ["Updating a neighbour if the route through this node is shorter", "Choosing the next node to settle", "Returning the final distances"], a: 0, why: "Relaxing an edge means testing dist[u] + w against dist[v] and improving it if we can." } },
       { t: "Reading the picture", b: `<p>Under your code, the map replays <b>your run</b> step by step: a pulse along a road is one candidate being checked, and the notebook shows the distances your code holds at that moment.</p><p>If a test fails, pick it in the list and step through: the first wrong number shows where the code went astray.</p>`,

@@ -1,9 +1,9 @@
-/* Code lab engine: write a few lines of real JavaScript, run tests, and watch YOUR code animate.
+/* Code lab engine: write a few lines of real Python, run tests, and watch YOUR code animate.
      NIC.codelab(root, life, {
        who, intro,
        brief:   "html shown above the editor",
-       starter: "function solve(x) {\n  // YOUR CODE: …\n}",          // a comment containing YOUR CODE is highlighted as a blank
-       entry:   "solve",                                              // function the tests call
+       starter: "def solve(x):\n    # YOUR CODE: …\n    pass",    // a comment containing YOUR CODE is highlighted as a blank
+       entry:   "solve",                                              // the Python function the tests call
        tests:   [{ name, desc, args:[…], expect, cmp?(got, want)->bool, view? }],   // view: anything the scene needs for this test
        hints:   ["nudge 1", "bigger nudge 2"],
        solution:"full working source",
@@ -11,10 +11,11 @@
        watch:   true,          // add a final mission: play a passing run's trace to the end
        missions: [...]         // optional extra missions; tests automatically give one mission each (ids t0, t1, …)
      })
-   The learner's code may call trace({...}) (any plain object, optionally with a `cap` caption) to record a frame. The trace for the
+   The learner's code may call trace({...}) with a Python dict (any plain dict, optionally with a `cap` caption) to record a frame. The trace for the
    selected test is replayed on the stage with play / step / scrub controls; scene.frame() redraws from the frame (idempotent).
-   The editor behaves like an IDE: auto-closing brackets and quotes, smart Enter, indent/outdent, Ctrl+/ comments.
-   Code runs in a Web Worker (2 s limit, so an infinite loop can't freeze the page) and falls back to the main thread.
+   Python is real CPython (Pyodide, vendor/pyodide) in a Web Worker: 2 s limit per test, so an infinite loop can't freeze the page.
+   Results come back as JS: dict -> object, list/tuple -> array, set -> Set, float('inf') -> Infinity. Needs http(s), not file://.
+   The editor behaves like an IDE: auto-closing pairs, indent after a colon, Tab = 4 spaces, Ctrl+/ comments, autocomplete.
    All classes are cl- prefixed (css/workshop.css). */
 (function () {
   const N = NIC, { el, qs, qsa } = N;
@@ -35,52 +36,86 @@
     return a === b;
   }
 
-  // ---------- syntax highlight (tiny, good enough for short JS) ----------
-  const TOK = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|\b(function|return|const|let|var|for|while|if|else|of|in|break|continue|new|true|false|null|Infinity|undefined)\b|\b(\d+(?:\.\d+)?)\b/g;
+  // ---------- syntax highlight (tiny, good enough for short Python) ----------
+  const TOK = /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|\b(def|return|if|elif|else|for|while|in|not|and|or|is|break|continue|pass|import|from|as|class|lambda|None|True|False|with|try|except|finally|raise|yield|global|nonlocal|del|assert)\b|\b(\d+(?:\.\d+)?)\b/g;
   function highlight(src) {
     return esc(src).replace(TOK, (m, c, s, k, n) => c ? `<i class="${/YOUR CODE/.test(c) ? "t" : "c"}">${c}</i>` : s ? `<i class="s">${s}</i>` : k ? `<i class="k">${k}</i>` : `<i class="n">${n}</i>`) + "\n";
   }
 
-  // ---------- sandboxed run ----------
-  const WORKER_SRC = `onmessage = (e) => {
-    const { code, entry, args } = e.data, frames = [];
-    const trace = (f) => { if (frames.length < 4000) { try { frames.push(structuredClone(f)); } catch (x) { frames.push({ cap: String(f) }); } } };
-    try {
-      const fn = new Function("trace", code + "\\n;return typeof " + entry + " === 'function' ? " + entry + " : null;")(trace);
-      if (!fn) { postMessage({ ok: false, error: "Couldn't find a function called " + entry + ". Keep its name as it is.", frames }); return; }
-      const out = fn(...structuredClone(args));
-      postMessage({ ok: true, out, frames });
-    } catch (err) { postMessage({ ok: false, error: (err && err.name ? err.name + ": " : "") + (err && err.message ? err.message : String(err)), frames }); }
-  };`;
-  let blobUrl = null;
-  function runOne(code, entry, args, limit = 2000) {
-    return new Promise((resolve) => {
-      let w = null;
-      try { blobUrl = blobUrl || URL.createObjectURL(new Blob([WORKER_SRC], { type: "text/javascript" })); w = new Worker(blobUrl); } catch { w = null; }
-      if (!w) { // main-thread fallback (no guard against infinite loops)
-        const frames = [], trace = (f) => { if (frames.length < 4000) frames.push(JSON.parse(JSON.stringify(f))); };
-        try { const fn = new Function("trace", code + "\n;return typeof " + entry + " === 'function' ? " + entry + " : null;")(trace); if (!fn) return resolve({ ok: false, error: "Couldn't find a function called " + entry + ".", frames }); resolve({ ok: true, out: fn(...JSON.parse(JSON.stringify(args))), frames }); } catch (e) { resolve({ ok: false, error: String(e), frames }); }
-        return;
+  // ---------- Python: real CPython (Pyodide, vendored in vendor/pyodide) running in a Web Worker ----------
+  // One worker is shared by every code lab and starts loading as soon as a lab opens. An infinite loop is stopped after 2 s
+  // by terminating the worker (it restarts in the background). Python values come back as plain JS: dict -> object,
+  // list/tuple -> array, set -> Set, float("inf") -> Infinity.
+  const PY_WORKER = `
+    let py = null;
+    const conv = (x) => (x && x.toJs ? x.toJs({ dict_converter: Object.fromEntries, create_pyproxies: false }) : x);
+    const frames = () => { try { return conv(py.globals.get("_frames")); } catch (e) { return []; } };
+    const nice = (err) => {
+      const msg = String((err && err.message) || err), lines = msg.trim().split("\\n"), last = lines[lines.length - 1] || msg;
+      const at = [...msg.matchAll(/File "<exec>", line (\\d+)/g)].pop();
+      return (at ? "Line " + at[1] + ": " : "") + last;
+    };
+    onmessage = async (e) => {
+      const m = e.data;
+      try {
+        if (m.type === "init") {
+          const mod = await import(m.base + "pyodide.mjs");
+          py = await mod.loadPyodide({ indexURL: m.base });
+          py.runPython("_frames = []\\ndef trace(f):\\n    if len(_frames) < 4000:\\n        _frames.append(f)\\n");
+          postMessage({ type: "ready" }); return;
+        }
+        py.runPython("_frames.clear()");
+        const ns = py.globals.get("dict")();
+        ns.set("trace", py.globals.get("trace"));
+        py.runPython(m.code, { globals: ns });
+        const fn = ns.get(m.entry);
+        if (!fn) { postMessage({ type: "done", ok: false, error: "Couldn't find a function called " + m.entry + ". Keep its name as it is.", frames: [] }); return; }
+        const out = conv(fn(...m.args.map((a) => py.toPy(a))));
+        postMessage({ type: "done", ok: true, out: out === undefined ? null : out, frames: frames() });
+      } catch (err) {
+        if (m.type === "init") postMessage({ type: "fail", error: String(err && err.message || err) });
+        else postMessage({ type: "done", ok: false, error: nice(err), frames: frames() });
       }
-      const t = setTimeout(() => { w.terminate(); resolve({ ok: false, error: "Took longer than 2 seconds. Is there a loop that never ends?", frames: [], slow: true }); }, limit);
-      w.onmessage = (e) => { clearTimeout(t); w.terminate(); resolve(e.data); };
-      w.onerror = (e) => { clearTimeout(t); w.terminate(); resolve({ ok: false, error: e.message || "Your code couldn't be read. Check for a missing bracket or comma.", frames: [] }); };
-      try { w.postMessage({ code, entry, args }); } catch { clearTimeout(t); w.terminate(); resolve({ ok: false, error: "Those test inputs couldn't be sent to your code.", frames: [] }); }
+    };`;
+  const PY = { w: null, ready: null, loaded: false, error: "" };
+  let blobUrl = null;
+  function pyBoot() {
+    if (PY.ready) return PY.ready;
+    PY.ready = new Promise((resolve) => {
+      let w = null;
+      try { blobUrl = blobUrl || URL.createObjectURL(new Blob([PY_WORKER], { type: "text/javascript" })); w = new Worker(blobUrl, { type: "module" }); } catch (e) { PY.error = "this browser couldn't start a worker"; return resolve(null); }
+      PY.w = w;
+      w.onmessage = (e) => { if (e.data.type === "ready") { PY.loaded = true; resolve(w); } else if (e.data.type === "fail") { PY.error = e.data.error; resolve(null); } };
+      w.onerror = () => { PY.error = "the Python files couldn't be loaded"; resolve(null); };
+      try { w.postMessage({ type: "init", base: new URL("vendor/pyodide/", document.baseURI).href }); } catch (e) { PY.error = String(e); resolve(null); }
+    });
+    return PY.ready;
+  }
+  function pyReset() { try { PY.w && PY.w.terminate(); } catch (e) { /* already gone */ } PY.w = null; PY.ready = null; PY.loaded = false; }
+  async function runOne(code, entry, args, limit = 2000) {
+    const w = await pyBoot();
+    if (!w) { pyReset(); return { ok: false, error: `Python couldn't start (${PY.error || "unknown reason"}). The code labs need the site opened over http(s), not as a file.`, frames: [], noPy: true }; }
+    return new Promise((resolve) => {
+      const t = setTimeout(() => { pyReset(); pyBoot(); resolve({ ok: false, error: "Took longer than 2 seconds. Is there a loop that never ends?", frames: [], slow: true }); }, limit);
+      w.onmessage = (e) => { if (e.data.type === "done") { clearTimeout(t); resolve(e.data); } };
+      w.onerror = (e) => { clearTimeout(t); resolve({ ok: false, error: e.message || "Python stopped unexpectedly.", frames: [] }); };
+      try { w.postMessage({ type: "run", code, entry, args }); } catch (e) { clearTimeout(t); resolve({ ok: false, error: "Those test inputs couldn't be sent to Python.", frames: [] }); }
     });
   }
 
   // ---------- autocomplete ----------
-  const KW = ["function", "return", "const", "let", "var", "for", "while", "if", "else", "break", "continue", "new", "of", "in", "true", "false", "null", "undefined", "Infinity", "typeof"];
-  const GLOBALS = ["Math", "Object", "Array", "Number", "String", "JSON", "Set", "Map", "console", "isNaN", "parseInt", "parseFloat", "NaN", "trace"];
+  const KW = ["def", "return", "if", "elif", "else", "for", "while", "in", "not", "and", "or", "is", "break", "continue", "pass", "import", "from", "as", "lambda", "None", "True", "False", "try", "except", "raise"];
+  const GLOBALS = ["len", "range", "min", "max", "sum", "sorted", "reversed", "enumerate", "zip", "map", "filter", "abs", "round", "int", "float", "str", "list", "dict", "set", "tuple", "print", "isinstance", "any", "all", "math", "heapq", "trace"];
   const MEMBERS = {
-    Math: [["abs", "m"], ["min", "m"], ["max", "m"], ["sqrt", "m"], ["exp", "m"], ["log", "m"], ["floor", "m"], ["ceil", "m"], ["round", "m"], ["pow", "m"], ["sign", "m"], ["hypot", "m"], ["PI", "p"], ["E", "p"]],
-    Object: [["keys", "m"], ["values", "m"], ["entries", "m"], ["assign", "m"], ["fromEntries", "m"]],
-    Array: [["from", "m"], ["isArray", "m"]], Number: [["isFinite", "m"], ["isInteger", "m"], ["MAX_SAFE_INTEGER", "p"]], JSON: [["stringify", "m"], ["parse", "m"]],
-    _: [["length", "p"], ["size", "p"], ["push", "m"], ["pop", "m"], ["shift", "m"], ["unshift", "m"], ["map", "m"], ["filter", "m"], ["reduce", "m"], ["forEach", "m"], ["slice", "m"], ["splice", "m"], ["sort", "m"], ["reverse", "m"], ["includes", "m"], ["indexOf", "m"], ["join", "m"], ["concat", "m"], ["some", "m"], ["every", "m"], ["find", "m"], ["fill", "m"], ["keys", "m"], ["values", "m"], ["entries", "m"], ["add", "m"], ["has", "m"], ["delete", "m"], ["get", "m"], ["set", "m"], ["clear", "m"], ["toFixed", "m"], ["split", "m"], ["trim", "m"]],
+    math: [["sqrt", "m"], ["exp", "m"], ["log", "m"], ["floor", "m"], ["ceil", "m"], ["fabs", "m"], ["isclose", "m"], ["inf", "p"], ["pi", "p"], ["e", "p"]],
+    heapq: [["heappush", "m"], ["heappop", "m"], ["heapify", "m"], ["nsmallest", "m"]],
+    _: [["append", "m"], ["pop", "m"], ["extend", "m"], ["insert", "m"], ["remove", "m"], ["sort", "m"], ["reverse", "m"], ["index", "m"], ["count", "m"], ["copy", "m"], ["clear", "m"],
+        ["get", "m"], ["items", "m"], ["keys", "m"], ["values", "m"], ["update", "m"], ["setdefault", "m"], ["add", "m"], ["discard", "m"], ["union", "m"], ["intersection", "m"],
+        ["join", "m"], ["split", "m"], ["strip", "m"], ["format", "m"], ["lower", "m"], ["upper", "m"], ["startswith", "m"], ["endswith", "m"]],
   };
   const SNIPPETS = [
-    ["for", "for (const x of items) {\n  |\n}", "snippet"], ["fori", "for (let i = 0; i < n; i++) {\n  |\n}", "snippet"], ["forin", "for (const k in obj) {\n  |\n}", "snippet"],
-    ["if", "if (cond) {\n  |\n}", "snippet"], ["while", "while (cond) {\n  |\n}", "snippet"], ["function", "function name(args) {\n  |\n}", "snippet"],
+    ["for", "for item in items:\n    |", "snippet"], ["fori", "for i in range(n):\n    |", "snippet"], ["forenum", "for i, x in enumerate(items):\n    |", "snippet"],
+    ["if", "if cond:\n    |", "snippet"], ["ifelse", "if cond:\n    |\nelse:\n    ", "snippet"], ["while", "while cond:\n    |", "snippet"], ["def", "def name(args):\n    |", "snippet"],
   ];
 
   /** Popup list of suggestions at the caret. Identifiers from the code, keywords, built-ins, `.` members and a few snippets. */
@@ -157,10 +192,12 @@
     };
   }
 
-  /** IDE-style typing for the code box: auto-closing pairs, type-over, wrap selection, smart Enter, indent/outdent,
-      comment toggle (Ctrl/Cmd + /), auto-dedent on "}", and pair-aware Backspace. Uses execCommand so undo (Ctrl+Z) still works. */
+  /** IDE-style typing for the Python code box: auto-closing pairs, type-over, wrap selection, smart Enter (indent after ":"),
+      indent/outdent by 4 spaces, comment toggle (Ctrl/Cmd + /), backspace over a whole indent, auto-dedent for else/elif/except,
+      and pair-aware Backspace. Uses execCommand so undo (Ctrl+Z) still works. */
   function editorKeys(ta, run, ac) {
-    const OPEN = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" }, CLOSERS = new Set([")", "]", "}", '"', "'", "`"]);
+    const IND = "    ";
+    const OPEN = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'" }, CLOSERS = new Set([")", "]", "}", '"', "'"]);
     const word = (c) => !!c && /[A-Za-z0-9_$]/.test(c);
     const put = (from, to, text) => {
       ta.focus(); ta.setSelectionRange(from, to);
@@ -180,12 +217,12 @@
 
       if (mod && e.key === "Enter") { e.preventDefault(); run(); return; }
 
-      if (mod && e.key === "/") { // toggle line comments on every selected line
+      if (mod && e.key === "/") { // toggle # comments on every selected line
         e.preventDefault();
         const [s0, e0] = blockOf(), lines = v.slice(s0, e0).split("\n"), live = lines.filter((l) => l.trim());
-        const off = live.length && live.every((l) => /^\s*\/\//.test(l));
+        const off = live.length && live.every((l) => /^\s*#/.test(l));
         const ind = Math.min(...live.map((l) => l.match(/^\s*/)[0].length), 1e9);
-        const out = lines.map((l) => (!l.trim() ? l : off ? l.replace(/^(\s*)\/\/ ?/, "$1") : l.slice(0, ind) + "// " + l.slice(ind))).join("\n");
+        const out = lines.map((l) => (!l.trim() ? l : off ? l.replace(/^(\s*)# ?/, "$1") : l.slice(0, ind) + "# " + l.slice(ind))).join("\n");
         put(s0, e0, out); caret(s0, s0 + out.length); return;
       }
 
@@ -194,23 +231,27 @@
         const multi = v.slice(a, b).includes("\n");
         if (multi || e.shiftKey) { // indent or outdent whole lines
           const [s0, e0] = blockOf(), lines = v.slice(s0, e0).split("\n");
-          const out = lines.map((l) => (e.shiftKey ? l.replace(/^ {1,2}/, "") : l.trim() ? "  " + l : l)).join("\n");
+          const out = lines.map((l) => (e.shiftKey ? l.replace(/^ {1,4}/, "") : l.trim() ? IND + l : l)).join("\n");
           put(s0, e0, out); caret(s0, s0 + out.length);
-        } else put(a, b, "  ");
+        } else put(a, b, IND);
         return;
       }
 
-      if (e.key === "Enter" && !e.shiftKey && !mod) { // keep indent; open a block between { } ( ) [ ]
+      if (e.key === "Enter" && !e.shiftKey && !mod) { // keep indent; indent after ":"; open a block between ( ) [ ] { }
         e.preventDefault();
-        const line = v.slice(lineStart(a), a), ind = line.match(/^\s*/)[0], prev = v[a - 1], next = v[b];
-        if (prev && OPEN[prev] && OPEN[prev] === next && prev !== '"' && prev !== "'" && prev !== "`") {
-          put(a, b, "\n" + ind + "  \n" + ind); caret(a + 1 + ind.length + 2);
-        } else put(a, b, "\n" + ind + (/[{(\[]\s*$/.test(line) ? "  " : ""));
-        return;
+        const line = v.slice(lineStart(a), a), code = line.replace(/#.*$/, "").trimEnd();
+        let ind = line.match(/^\s*/)[0];
+        const prev = v[a - 1], next = v[b];
+        if (prev && OPEN[prev] && OPEN[prev] === next && prev !== '"' && prev !== "'") { put(a, b, "\n" + ind + IND + "\n" + ind); caret(a + 1 + ind.length + IND.length); return; }
+        if (/:$/.test(code)) ind += IND;
+        else if (/^\s*(return|break|continue|pass|raise)\b/.test(line) && ind.length >= 4) ind = ind.slice(4);
+        put(a, b, "\n" + ind); return;
       }
 
-      if (e.key === "Backspace" && a === b && a > 0 && OPEN[v[a - 1]] && OPEN[v[a - 1]] === v[a]) { // delete an empty pair together
-        e.preventDefault(); put(a - 1, a + 1, ""); return;
+      if (e.key === "Backspace" && a === b && a > 0) {
+        if (OPEN[v[a - 1]] && OPEN[v[a - 1]] === v[a]) { e.preventDefault(); put(a - 1, a + 1, ""); return; } // delete an empty pair together
+        const before = v.slice(lineStart(a), a);
+        if (before && !before.trim()) { e.preventDefault(); const n = before.length % 4 || 4; put(a - n, a, ""); return; } // back over one indent level
       }
 
       if (mod || e.altKey || e.key.length !== 1) return;
@@ -218,17 +259,17 @@
 
       if (a === b && CLOSERS.has(k) && v[a] === k) { e.preventDefault(); caret(a + 1); return; } // type over a closer
 
-      if (k === "}" && a === b) { // dedent a line that holds only spaces
+      if (k === ":" && a === b) { // else / elif / except / finally line up with their if / try
         const ls = lineStart(a), before = v.slice(ls, a);
-        if (before && !before.trim() && before.length >= 2) { e.preventDefault(); put(a - 2, a, "}"); return; }
+        if (/^ {4,}(else|elif\b.*|except\b.*|finally)$/.test(before)) { e.preventDefault(); put(ls, a, before.slice(4) + ":"); return; }
       }
 
       if (OPEN[k]) {
         const close = OPEN[k];
         if (a !== b) { e.preventDefault(); const inner = v.slice(a, b); put(a, b, k + inner + close); caret(a + 1, a + 1 + inner.length); return; } // wrap the selection
-        const quote = k === '"' || k === "'" || k === "`";
+        const quote = k === '"' || k === "'";
         if (quote && (word(v[a - 1]) || word(v[a]) || v[a - 1] === k)) return;       // an apostrophe in a word, or closing a string
-        if (!quote && v[a] && !/[\s)\]};,.]/.test(v[a])) return;                      // only pair before whitespace or a closer
+        if (!quote && v[a] && !/[\s)\]};,.:]/.test(v[a])) return;                      // only pair before whitespace or a closer
         e.preventDefault(); put(a, a, k + close); caret(a + 1);
       }
     });
@@ -270,7 +311,7 @@
           <h3>Your code<span class="wk-sp"></span><button class="btn small ghost" data-reset>Reset</button></h3>
           ${cfg.brief ? `<div class="wk-note cl-brief">${cfg.brief}</div>` : ""}
           <div class="cl-ed"><div class="cl-gut" aria-hidden="true"></div><div class="cl-wrap"><pre class="cl-hl" aria-hidden="true"></pre><textarea class="cl-ta" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea></div></div>
-          <div class="wk-row cl-bar"><button class="btn primary" data-run>Run tests</button><button class="btn" data-hint>Hint</button><span class="cl-hintn faint"></span><span class="wk-sp" style="flex:1"></span><details class="cl-sol"><summary class="btn small ghost">Show solution</summary><pre class="cl-solpre"></pre><button class="btn small" data-use>Use it</button></details></div>
+          <div class="wk-row cl-bar"><button class="btn primary" data-run>Run tests</button><button class="btn" data-hint>Hint</button><span class="cl-hintn faint"></span><span class="cl-pystat" data-py>Python: loading…</span><span class="wk-sp" style="flex:1"></span><details class="cl-sol"><summary class="btn small ghost">Show solution</summary><pre class="cl-solpre"></pre><button class="btn small" data-use>Use it</button></details></div>
           <div class="cl-hint" data-hintbox></div>
           <div class="cl-ex" data-ex></div>
           </div>`);
@@ -292,7 +333,9 @@
         const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; };
         ta.value = cfg.starter; qs(".cl-solpre", card).textContent = cfg.solution || "";
         ta.addEventListener("input", paint); ta.addEventListener("scroll", sync);
-        const params = ((cfg.starter.match(/function\s+\w+\s*\(([^)]*)\)/) || [])[1] || "").split(",").map((x) => x.trim()).filter(Boolean);
+        const params = (((cfg.starter.match(/def\s+\w+\s*\(([^)]*)\)/) || [])[1]) || "").split(",").map((x) => x.trim().split(/[=:]/)[0].trim()).filter(Boolean);
+        const pyChip = qs("[data-py]", card), pyState = (ok) => { if (!pyChip.isConnected) return; pyChip.textContent = ok ? "Python ready" : "Python unavailable"; pyChip.classList.toggle("ok", !!ok); pyChip.classList.toggle("bad", !ok); };
+        if (PY.loaded) pyState(true); pyBoot().then((w) => pyState(!!w));
         const ac = autocomplete(ta, wrap, [...params, cfg.entry, ...(cfg.complete || [])]);
         life.onCleanup(() => ac.destroy());
         editorKeys(ta, () => run(), ac);
@@ -358,10 +401,10 @@
         }
         async function run() {
           if (busy) return; busy = true; stop();
-          const btn = qs("[data-run]", card); btn.disabled = true; btn.textContent = "Running…";
+          const btn = qs("[data-run]", card); btn.disabled = true; btn.textContent = PY.loaded ? "Running…" : "Loading Python…";
           const code = ta.value; let pass = 0;
           for (let i = 0; i < tests.length; i++) {
-            const t = tests[i], r = await runOne(code, cfg.entry, t.args);
+            const t = tests[i], r = await runOne(code, cfg.entry, t.args); btn.textContent = "Running…";
             if (!card.isConnected) return;
             r.pass = r.ok && (t.cmp ? t.cmp(r.out, t.expect) : same(r.out, t.expect));
             if (r.pass) pass++;

@@ -263,3 +263,5 @@
 .cl-split:hover i, .cl-split:focus-visible i, .cl-split.on i { background: var(--blue); width: 6px; margin-left: -3px; }
 body.cl-dragging { cursor: col-resize; user-select: none; -webkit-user-select: none; }
 body.cl-dragging .cl-ta, body.cl-dragging .cl-hl { pointer-events: none; }
+.cl-pystat { font: 800 11px Nunito, system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 99px; background: var(--bg-2); color: var(--text-faint); border: 2px solid var(--line); }
+.cl-pystat.ok { color: var(--teal-ink); border-color: var(--teal); background: var(--teal-dim); } .cl-pystat.bad { color: var(--rose-ink); border-color: var(--rose); background: var(--rose-dim); }

@@ -30,53 +30,62 @@
   const T_COL = [[6, 3], [0, 0], [3, 0], [6, 6], [0, 3], [6, 0], [0, 6]];
   const T_NINE = [[5, 3], [9, 5], [1, 2], [6, 6], [3, 5], [7, 9], [4, 1], [2, 8], [7, 2]];
 
-  const STARTER = `function convexHull(points) {
-  // The turn test: which way does the path o -> a -> b bend?
-  // positive = left turn, negative = right turn, 0 = straight line.
-  function orient(o, a, b) {
-    /* YOUR CODE: return the cross product (a - o) x (b - o) */
-    return 0;
-  }
-  function dist2(a, b) { return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2; }
+  const STARTER = `from functools import cmp_to_key
 
-  // 1. The pivot: the lowest point (the leftmost one if two are equally low).
-  let pivot = points[0];
-  for (const q of points) {
-    /* YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q */
-  }
-  trace({ type: "pivot", pivot });
 
-  // 2. Sort the rest anticlockwise around the pivot, using your turn test.
-  const order = points.filter((q) => q !== pivot).sort((a, b) => {
-    const t = orient(pivot, a, b);
-    return t > 0 ? -1 : t < 0 ? 1 : dist2(pivot, a) - dist2(pivot, b);
-  });
-  trace({ type: "order", pivot, order });
+def convex_hull(points):
+    # The turn test: which way does the path o -> a -> b bend?
+    # positive = left turn, negative = right turn, 0 = straight line.
+    def orient(o, a, b):
+        # YOUR CODE: return the cross product (a - o) x (b - o)
+        return 0
 
-  // 3. Scan with a stack. The stack is the rubber band so far.
-  const stack = [pivot];
-  for (const p of order) {
-    while (stack.length >= 2) {
-      const a = stack[stack.length - 2];
-      const b = stack[stack.length - 1];
-      const t = orient(a, b, p);
-      let pop = false;
-      /* YOUR CODE: set pop = true when a -> b -> p is not a left turn (a right turn or straight on) */
-      trace({ type: "test", a, b, p, t, pop, stack: stack.slice() });
-      if (!pop) break;
-      const gone = stack.pop();
-      trace({ type: "pop", gone, stack: stack.slice() });
-    }
-    stack.push(p);
-    trace({ type: "push", p, stack: stack.slice() });
-  }
-  trace({ type: "done", stack: stack.slice() });
-  return stack;
-}`;
+    def dist2(a, b):
+        return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+    # 1. The pivot: the lowest point (the leftmost one if two are equally low).
+    pivot = points[0]
+    for q in points:
+        # YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q
+        pass
+    trace({"type": "pivot", "pivot": list(pivot)})
+
+    # 2. Sort the rest anticlockwise around the pivot, using your turn test.
+    def compare(a, b):
+        t = orient(pivot, a, b)
+        if t > 0:
+            return -1
+        if t < 0:
+            return 1
+        return dist2(pivot, a) - dist2(pivot, b)
+
+    rest = [q for q in points if q != pivot]
+    order = sorted(rest, key=cmp_to_key(compare))
+    trace({"type": "order", "pivot": list(pivot), "order": [list(q) for q in order]})
+
+    # 3. Scan with a stack. The stack is the rubber band so far.
+    stack = [pivot]
+    for p in order:
+        while len(stack) >= 2:
+            a = stack[-2]
+            b = stack[-1]
+            t = orient(a, b, p)
+            pop = False
+            # YOUR CODE: set pop = True when a -> b -> p is not a left turn (a right turn or straight on)
+            pass
+            trace({"type": "test", "a": list(a), "b": list(b), "p": list(p), "t": t, "pop": pop, "stack": [list(s) for s in stack]})
+            if not pop:
+                break
+            gone = stack.pop()
+            trace({"type": "pop", "gone": list(gone), "stack": [list(s) for s in stack]})
+        stack.append(p)
+        trace({"type": "push", "p": list(p), "stack": [list(s) for s in stack]})
+    trace({"type": "done", "stack": [list(s) for s in stack]})
+    return stack`;
   const SOLUTION = STARTER
-    .replace("    /* YOUR CODE: return the cross product (a - o) x (b - o) */\n    return 0;", "    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);")
-    .replace("    /* YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q */", "    if (q[1] < pivot[1] || (q[1] === pivot[1] && q[0] < pivot[0])) pivot = q;")
-    .replace("      /* YOUR CODE: set pop = true when a -> b -> p is not a left turn (a right turn or straight on) */", "      if (t <= 0) pop = true;");
+    .replace("        # YOUR CODE: return the cross product (a - o) x (b - o)\n        return 0", "        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])")
+    .replace("        # YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q\n        pass", "        if q[1] < pivot[1] or (q[1] == pivot[1] and q[0] < pivot[0]):\n            pivot = q")
+    .replace("            # YOUR CODE: set pop = True when a -> b -> p is not a left turn (a right turn or straight on)\n            pass", "            if t <= 0:\n                pop = True");
 
   /* ---------- the scene ---------- */
   const SW = 520, SH = 300, PAD = 36;
@@ -190,14 +199,14 @@
     render(root, life) {
       root.appendChild(header(this, ""));
       N.codelab(root, life, {
-        who: "byte", noun: "convex hull", entry: "convexHull", watch: true,
+        who: "byte", noun: "convex hull", entry: "convex_hull", watch: true,
         intro: "You've seen the rubber band. Now build it. There are <b>three blanks</b>, marked in orange: the turn test, the pivot and the pop rule.",
         brief: "<b>Goal:</b> return the hull corners as <code>[x, y]</code> points, anticlockwise, starting at the lowest point. <code>y</code> points <b>up</b>, like a graph. Points that only sit on an edge (collinear) are <b>not</b> corners. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
         starter: STARTER, solution: SOLUTION,
         hints: [
-          "Blank 1 is the cross product from the lecture: <code>(a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])</code>. Positive means a left turn.",
-          "Blank 2 is an <code>if</code> with two parts: <code>q[1] &lt; pivot[1]</code>, or the same <code>y</code> and a smaller <code>x</code>.",
-          "Blank 3: a right turn gives a negative <code>t</code> and a straight line gives <code>0</code>. Both mean pop, so ask whether <code>t</code> is at most 0.",
+          "Blank 1 is the cross product from the lecture, returned from <code>orient</code>: <code>(a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])</code>. Positive means a left turn.",
+          "Blank 2 is an <code>if</code> with two parts joined by <code>or</code>: <code>q[1] &lt; pivot[1]</code>, or the same <code>y</code> (<code>==</code>) and a smaller <code>x</code>. Then set <code>pivot = q</code>.",
+          "Blank 3: a right turn gives a negative <code>t</code> and a straight line gives <code>0</code>. Both mean pop, so set <code>pop = True</code> when <code>t</code> is at most 0.",
         ],
         tests: [
           { name: "A triangle", desc: "Three points in a jumbled order. All three are corners.", args: [T_TRI], expect: refHull(T_TRI), hint: "If this fails, check the sign of <code>orient</code>: a left turn must be positive." },
