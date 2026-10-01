@@ -29,7 +29,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/art.js` | In-house illustrations: `NIC.art.banner(course)`, `NIC.art.empty(kind)`, `NIC.art.pattern(kind, colour)`. |
 | `assets/lottie.js` | In-house Lottie animations (`window.CSL_LOTTIE`: chest, flame, trophy, levelup, combo), built in code. Played by `NIC.fx.lottie(el, name)` / `NIC.fx.lottieAt(anchor, name)`. |
 | `js/workshop.js` + `css/workshop.css` | Workshop engine `NIC.workshop(root, life, {who, intro, missions, build})`: mission list, coach mascot, progress bar, XP. Helpers `NIC.wk`. See §6g. |
-| `js/codelab.js` | Code lab engine `NIC.codelab(root, life, {starter, entry, tests, scene, hints, solution})`: real-JS editor, blanks, tests in a Web Worker, trace replay. See §6g. |
+| `js/codelab.js` | Code lab engine `NIC.codelab(root, life, {starter, entry, tests, scene, hints, solution})`: Python editor (autocomplete, auto-pairs, resizable split pane), real CPython tests in a Web Worker, example input/output, trace replay. See §6g. |
 | `js/algo-workshops-N.js` + `css/aw-*.css`, `css/workshop.css` | Algorithms workshops, one file per phase (`N.W` no-code, `N.C` code lab). |
 | `js/ds-workshops.js` | The three Data Science workshops (`ds-ops`, `ds-querylab`, `ds-engine`). |
 | `js/l12.js l3.js l4.js lab.js lessons.js` | Nature-Inspired (`nic`) modules and lessons. |
@@ -105,6 +105,7 @@ Never rename these keys, because that wipes users' progress. The Reset buttons a
 | KaTeX 0.18 | `vendor/katex/` (lazy) | Maths typesetting: write `$…$` or `$$…$$` in any content. |
 | three.js r159 (UMD build) | `vendor/three.min.js` (lazy) | `NIC.fig.surface3d`. The deprecation warning line was stripped. |
 | lottie-web light 5.13 | `vendor/lottie_light.min.js` (lazy) | Plays `assets/lottie.js`. |
+| Pyodide 314 (CPython in WebAssembly, MPL-2.0) | `vendor/pyodide/` (lazy, in a Web Worker) | **All code labs are Python.** Starts loading when a code lab opens (about 12 MB, cached after). Needs http(s): under file:// the lab shows a clear "Python couldn't start" message. |
 | Rive canvas runtime 2.43 | `vendor/rive/` (unused) | Ready for `.riv` characters if you get some. Load with `NIC.lazy("vendor/rive/rive.js")`; the wasm needs http(s), not file://. |
 | Google Fonts: Nunito | `<link>` in `index.html` | Only external request; falls back to system font offline. |
 
@@ -306,7 +307,7 @@ N.workshop(root, life, {
 - The player shows it as a full-width **Workshop** screen. Each mission gives +8 XP, all of them +10 bonus. Continue is never locked ("Skip for now" until done).
 - Missions must be won by **doing something in the sandbox** (tap, slide, drag), never by typing. Every number comes from the simulation.
 - Keep 4 to 5 missions, each checkable from state. Add a 2-step briefing in `LESSONS[id]` (with figures and quick checks), 2 predicts and a `takeaways` node, like any lesson.
-- **Code labs** (`NIC.codelab`): the learner edits a starter with 1-3 blanks (`// YOUR CODE: …` is highlighted), runs tests in a Web Worker (2 s limit) and replays their own `trace({...})` frames on the scene (play/step/scrub). The starter must never hang or throw with blanks empty; expected outputs come from a reference implementation; write `noun`, `entry`, `hints`, `solution`. Typing in a code lab is fine; typed answers in quiz questions are still banned.
+- **Code labs** (`NIC.codelab`): **all code in CSLingo is Python** (real CPython via Pyodide). The learner edits a starter with 1-3 blanks (a `# YOUR CODE: …` comment is highlighted orange; follow it with `pass` where a block would be empty), runs the tests in a Web Worker (2 s limit; one shared worker loads once), sees an Example input/output section, and replays their own `trace({...})` frames on the scene (play/step/scrub). Left column = missions, tests, replay; right = editor; a draggable divider between them (width saved in `csl.split`). The starter must never hang or throw with blanks empty; expected outputs come from a reference implementation (compare with `cmp` for floats); write `noun`, `entry`, `hints`, `solution`. Python values come back as JS: dict→object (string keys), list/tuple→array, set→Set, `float("inf")`→`Infinity`; keep traces to lists, dicts with string keys and numbers. The editor behaves like an IDE: auto-closing pairs, indent after a colon, Tab = 4 spaces, Ctrl+/ comments, autocomplete (2+ letters; Tab accepts). Typing in a code lab is fine; typed answers in quiz questions are still banned.
 - Workshops are exempt from `bankTest`'s "every module has bank questions" rule (`m.workshop`); their concepts are covered by the lecture's own bank.
 - Motion stays transform/opacity; put new animations in `css/workshop.css` with a reduced-motion override. Add the path icon to `TOPICS` in `tools/emoji-build.py`.
 

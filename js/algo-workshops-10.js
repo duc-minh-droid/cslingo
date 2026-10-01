@@ -22,7 +22,7 @@
   const CASES = [
     { name: "A tiny sentence", desc: "Three tokens. Each one matches itself best.", tokens: ["the", "cat", "sat"],
       Q: [[2, 0, 0, 0], [0, 2, 0, 0], [0, 0, 2, 0]], K: [[2, 0, 0, 0], [0, 2, 0, 0], [0, 0, 2, 0]], V: V3,
-      hint: "Each row of scores is like 2, 0, 0. If your weights are not about 0.79, 0.11, 0.11, check that you divide every <code>Math.exp</code> by the <b>total</b> of them all." },
+      hint: "Each row of scores is like 2, 0, 0. If your weights are not about 0.79, 0.11, 0.11, check that you divide every <code>math.exp(score)</code> by the <b>total</b> of them all." },
     { name: "One word dominates", desc: "\"she\" is only looking for \"Ana\". Nearly all the weight should land there.", tokens: ["Ana", "said", "she"],
       Q: [[2, 0, 0, 0], [0, 2, 0, 0], [2, 0, 0, 0]], K: K4, V: V3,
       hint: "Attention is a <b>soft</b> blend, not a pick-the-winner. The small weights still count: the output is close to the winner's value, but not equal to it." },
@@ -31,63 +31,60 @@
       hint: "Equal scores should give equal shares (1 ÷ 3 each), so the output is the plain average of the three value vectors." },
     { name: "Huge scores", desc: "Scores in the thousands. Does your softmax survive?", tokens: ["one", "two", "three"],
       Q: [[1000, 0, 0, 0], [0, 1000, 0, 0], [0, 0, 1000, 0]], K: K4, V: V3,
-      hint: "<code>Math.exp(2000)</code> overflows to Infinity, and Infinity ÷ Infinity is not a number. Subtract the <b>largest</b> score from every score first: only the differences matter, so nothing changes except that it stops overflowing." },
+      hint: "<code>math.exp(2000)</code> is far too big for a float: Python raises an <code>OverflowError</code> (other languages give infinity, and infinity ÷ infinity is not a number). Subtract the <b>largest</b> score from every score first: only the differences matter, so nothing changes except that it stops overflowing." },
   ].map((c) => ({ ...c, args: [c.Q, c.K, c.V], expect: r3(ref(c.Q, c.K, c.V)), view: { tokens: c.tokens, Q: c.Q, K: c.K, V: c.V },
     cmp: (got, want) => Array.isArray(got) && got.length === want.length && got.every((r, i) => Array.isArray(r) && r.length === want[i].length && r.every((x, k) => Math.abs(x - want[i][k]) < 0.01)) }));
 
-  const STARTER = `function attention(Q, K, V) {
-  // Q, K: one vector per token (d_k numbers each). V: one value vector per token.
-  const dot = (a, b) => a.reduce((sum, x, i) => sum + x * b[i], 0);
-  const out = [];
+  const STARTER = `import math
 
-  for (let i = 0; i < Q.length; i++) {
-    // Step 1: score every key against token i's query, scaled by sqrt(d_k).
-    const scores = K.map((k) => dot(Q[i], k) / Math.sqrt(k.length));
-    trace({ type: "scores", i, scores: [...scores] });
+def attention(Q, K, V):
+    # Q, K: one vector per token (d_k numbers each). V: one value vector per token.
+    out = []
 
-    // Step 2: softmax turns the scores into weights that add up to 1.
-    let weights = [];
-    /* YOUR CODE: softmax. Fill weights with one share for each score. */
-    trace({ type: "weights", i, weights: [...weights] });
+    for i in range(len(Q)):
+        # Step 1: score every key against token i's query, scaled by sqrt(d_k).
+        scores = [sum(x * y for x, y in zip(Q[i], k)) / math.sqrt(len(k)) for k in K]
+        trace({"type": "scores", "i": i, "scores": list(scores)})
 
-    // Step 3: blend the value vectors, each scaled by its weight.
-    const mix = V[0].map(() => 0);
-    /* YOUR CODE: for every token j and slot d, add weights[j] * V[j][d] into mix[d]. */
-    trace({ type: "mix", i, mix: [...mix] });
+        # Step 2: softmax turns the scores into weights that add up to 1.
+        weights = []
+        # YOUR CODE: softmax. Fill weights with one share for each score.
+        trace({"type": "weights", "i": i, "weights": list(weights)})
 
-    out.push(mix);
-  }
-  return out;
-}`;
-  const SOLUTION = `function attention(Q, K, V) {
-  // Q, K: one vector per token (d_k numbers each). V: one value vector per token.
-  const dot = (a, b) => a.reduce((sum, x, i) => sum + x * b[i], 0);
-  const out = [];
+        # Step 3: blend the value vectors, each scaled by its weight.
+        mix = [0] * len(V[0])
+        # YOUR CODE: for every token j and slot d, add weights[j] * V[j][d] into mix[d].
+        trace({"type": "mix", "i": i, "mix": list(mix)})
 
-  for (let i = 0; i < Q.length; i++) {
-    // Step 1: score every key against token i's query, scaled by sqrt(d_k).
-    const scores = K.map((k) => dot(Q[i], k) / Math.sqrt(k.length));
-    trace({ type: "scores", i, scores: [...scores] });
+        out.append(mix)
+    return out`;
+  const SOLUTION = `import math
 
-    // Step 2: softmax turns the scores into weights that add up to 1.
-    let weights = [];
-    const biggest = Math.max(...scores);
-    const e = scores.map((s) => Math.exp(s - biggest));
-    const total = e.reduce((a, b) => a + b, 0);
-    weights = e.map((x) => x / total);
-    trace({ type: "weights", i, weights: [...weights] });
+def attention(Q, K, V):
+    # Q, K: one vector per token (d_k numbers each). V: one value vector per token.
+    out = []
 
-    // Step 3: blend the value vectors, each scaled by its weight.
-    const mix = V[0].map(() => 0);
-    for (let j = 0; j < V.length; j++) {
-      for (let d = 0; d < mix.length; d++) mix[d] += weights[j] * V[j][d];
-    }
-    trace({ type: "mix", i, mix: [...mix] });
+    for i in range(len(Q)):
+        # Step 1: score every key against token i's query, scaled by sqrt(d_k).
+        scores = [sum(x * y for x, y in zip(Q[i], k)) / math.sqrt(len(k)) for k in K]
+        trace({"type": "scores", "i": i, "scores": list(scores)})
 
-    out.push(mix);
-  }
-  return out;
-}`;
+        # Step 2: softmax turns the scores into weights that add up to 1.
+        biggest = max(scores)
+        e = [math.exp(s - biggest) for s in scores]
+        total = sum(e)
+        weights = [x / total for x in e]
+        trace({"type": "weights", "i": i, "weights": list(weights)})
+
+        # Step 3: blend the value vectors, each scaled by its weight.
+        mix = [0] * len(V[0])
+        for j in range(len(V)):
+            for d in range(len(mix)):
+                mix[d] += weights[j] * V[j][d]
+        trace({"type": "mix", "i": i, "mix": list(mix)})
+
+        out.append(mix)
+    return out`;
 
   /* ---------- the scene ---------- */
   const NS = "http://www.w3.org/2000/svg";
@@ -142,7 +139,7 @@
         if (f.type === "weights") {
           const w = f.weights || [], bad = w.some((x) => typeof x !== "number" || !isFinite(x)), s = w.reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
           if (!w.length) return `Query <b>${t}</b>: your code has not filled <code>weights</code> yet, so no line is drawn. That is blank 1.`;
-          if (bad) return `Some weights for <b>${t}</b> are not numbers: ${vec(w)}. A huge score can make <code>Math.exp</code> overflow. Subtract the biggest score first.`;
+          if (bad) return `Some weights for <b>${t}</b> are not numbers: ${vec(w)}. A huge score can make <code>math.exp</code> overflow. Subtract the biggest score first.`;
           return `Softmax turns the scores into shares: ${vec(w)}. Total <b>${fmt(+s.toFixed(3))}</b>${Math.abs(s - 1) > 0.01 ? ". They should add up to 1, so the normalising step is off." : ", as it should."}`;
         }
         if (f.type === "mix") return `Output for <b>${t}</b> = Σ weight × value = <b>${vec(f.mix)}</b>${f.mix.every((x) => x === 0) ? ". Still all zeros: blank 2 has not added anything yet." : ""}`;
@@ -194,9 +191,9 @@
       N.codelab(root, life, {
         who: "byte", noun: "attention layer", entry: "attention", watch: true,
         intro: "You've seen attention as a heatmap. Now write its heart. The scores are done for you; there are <b>two blanks</b>, marked in orange: softmax and the blend.",
-        brief: "<b>Goal:</b> for each token, return its <b>new vector</b>. <code>Q</code>, <code>K</code>, <code>V</code> hold one query, key and value vector per token. Steps: scores → <b>softmax</b> → weights → <b>Σ weight × value</b>. Scores are already divided by √d_k. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
+        brief: "<b>Goal:</b> for each token, return its <b>new vector</b>. <code>Q</code>, <code>K</code>, <code>V</code> are lists holding one query, key and value vector per token. Steps: scores → <b>softmax</b> → weights → <b>Σ weight × value</b>. Scores are already divided by √d_k. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
         starter: STARTER, solution: SOLUTION,
-        hints: ["Blank 1 (softmax): take e to the power of each score, then divide each by the total of them all. Then the weights add up to 1.", "Blank 1, stability: subtract the biggest score from every score before <code>Math.exp</code>. The lecture showed that adding or subtracting the same number changes nothing, and it stops huge scores overflowing.", "Blank 2 (blend): <code>mix</code> starts as zeros. For each token <code>j</code>, add <code>weights[j]</code> times each number of <code>V[j]</code> into the matching slot of <code>mix</code>."],
+        hints: ["Blank 1 (softmax): take e to the power of each score with <code>math.exp</code>, then divide each by the total of them all (<code>sum</code> adds a list). Then the weights add up to 1.", "Blank 1, stability: subtract the biggest score from every score before <code>math.exp</code>. The lecture showed that adding or subtracting the same number changes nothing, and it stops huge scores overflowing.", "Blank 2 (blend): <code>mix</code> starts as zeros. For each token <code>j</code>, add <code>weights[j]</code> times each number of <code>V[j]</code> into the matching slot of <code>mix</code>, for example <code>mix[d] += weights[j] * V[j][d]</code> inside two <code>for</code> loops."],
         tests: CASES,
         scene: scene(),
       });

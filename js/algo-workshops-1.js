@@ -42,82 +42,63 @@
   const P2 = { X: [70, 150], A: [230, 70], B: [230, 230] };
   const P3 = { A: [70, 70], B: [250, 60], C: [160, 220], D: [340, 210] };
 
-  const STARTER = `function pagerank(graph, d, iters) {
-  const pages = Object.keys(graph);
-  const n = pages.length;
-  let rank = {};
-  for (const p of pages) rank[p] = 1 / n;      // everyone starts equal
+  const STARTER = `def pagerank(graph, d, iters):
+    pages = list(graph)
+    n = len(pages)
+    rank = {p: 1 / n for p in pages}           # everyone starts equal
 
-  for (let k = 1; k <= iters; k++) {
-    const next = {};
-    for (const p of pages) next[p] = 0;
+    for k in range(1, iters + 1):
+        nxt = {p: 0 for p in pages}
 
-    for (const p of pages) {
-      const links = graph[p];
-      if (links.length === 0) {
-        // 2. A dead end: pour its rank equally into every page.
-        for (const q of pages) {
-          /* YOUR CODE: add an equal 1/n share of rank[p] to next[q] */
-        }
-      } else {
-        // 1. Share the rank out equally along the links.
-        for (const q of links) {
-          /* YOUR CODE: add q's share of rank[p] to next[q] */
-        }
-      }
-    }
+        for p in pages:
+            links = graph[p]
+            if len(links) == 0:
+                # 2. A dead end: pour its rank equally into every page.
+                for q in pages:
+                    # YOUR CODE: add an equal 1/n share of rank[p] to nxt[q]
+                    pass
+            else:
+                # 1. Share the rank out equally along the links.
+                for q in links:
+                    # YOUR CODE: add q's share of rank[p] to nxt[q]
+                    pass
 
-    // 3. Damping: follow links with probability d, teleport with 1 - d.
-    for (const p of pages) {
-      /* YOUR CODE: next[p] = d times the rank that arrived, plus the teleport floor */
-    }
+        # 3. Damping: follow links with probability d, teleport with 1 - d.
+        for p in pages:
+            # YOUR CODE: nxt[p] = d times the rank that arrived, plus the teleport floor
+            pass
 
-    trace({ iter: k, rank: { ...next } });
-    rank = next;
-  }
+        trace({"iter": k, "rank": dict(nxt)})
+        rank = nxt
 
-  const out = {};                               // round for display
-  for (const p of pages) out[p] = Math.round(rank[p] * 1000) / 1000;
-  return out;
-}`;
-  const SOLUTION = `function pagerank(graph, d, iters) {
-  const pages = Object.keys(graph);
-  const n = pages.length;
-  let rank = {};
-  for (const p of pages) rank[p] = 1 / n;      // everyone starts equal
+    return {p: round(rank[p], 3) for p in pages}   # round for display`;
+  const SOLUTION = `def pagerank(graph, d, iters):
+    pages = list(graph)
+    n = len(pages)
+    rank = {p: 1 / n for p in pages}           # everyone starts equal
 
-  for (let k = 1; k <= iters; k++) {
-    const next = {};
-    for (const p of pages) next[p] = 0;
+    for k in range(1, iters + 1):
+        nxt = {p: 0 for p in pages}
 
-    for (const p of pages) {
-      const links = graph[p];
-      if (links.length === 0) {
-        // 2. A dead end: pour its rank equally into every page.
-        for (const q of pages) {
-          next[q] += rank[p] / n;
-        }
-      } else {
-        // 1. Share the rank out equally along the links.
-        for (const q of links) {
-          next[q] += rank[p] / links.length;
-        }
-      }
-    }
+        for p in pages:
+            links = graph[p]
+            if len(links) == 0:
+                # 2. A dead end: pour its rank equally into every page.
+                for q in pages:
+                    nxt[q] += rank[p] / n
+            else:
+                # 1. Share the rank out equally along the links.
+                for q in links:
+                    nxt[q] += rank[p] / len(links)
 
-    // 3. Damping: follow links with probability d, teleport with 1 - d.
-    for (const p of pages) {
-      next[p] = d * next[p] + (1 - d) / n;
-    }
+        # 3. Damping: follow links with probability d, teleport with 1 - d.
+        for p in pages:
+            nxt[p] = d * nxt[p] + (1 - d) / n
 
-    trace({ iter: k, rank: { ...next } });
-    rank = next;
-  }
+        trace({"iter": k, "rank": dict(nxt)})
+        rank = nxt
 
-  const out = {};                               // round for display
-  for (const p of pages) out[p] = Math.round(rank[p] * 1000) / 1000;
-  return out;
-}`;
+    return {p: round(rank[p], 3) for p in pages}   # round for display`;
 
   /* ---------- the picture: a link graph whose blobs swell with rank, plus rank bars ---------- */
   const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
@@ -222,17 +203,17 @@
       N.codelab(root, life, {
         who: "byte", noun: "PageRank", entry: "pagerank", watch: true,
         intro: "You've seen rank flow round a web. Now make the computer do it. There are <b>three blanks</b>, marked in orange. Everything else is written for you.",
-        brief: "<b>Goal:</b> return each page's rank after <code>iters</code> rounds. <code>graph</code> maps a page to the list of pages it links to. Every round, each page shares its rank equally along its links, then <code>d</code> (the damping) is applied. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
+        brief: "<b>Goal:</b> return each page's rank after <code>iters</code> rounds. <code>graph</code> is a dict mapping a page to the list of pages it links to, and you return a dict of ranks. Every round, each page shares its rank equally along its links, then <code>d</code> (the damping) is applied. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> runs the tests.",
         starter: STARTER, solution: SOLUTION,
         hints: [
-          "Blank 1 is the token trace from the lecture: a page with rank <code>r</code> and <code>k</code> links sends <code>r / k</code> down <b>each</b> link. Use <code>links.length</code> for k.",
-          "Blank 2 is the same idea for a page with no links, but the share goes to <b>all n pages</b>: add <code>rank[p] / n</code> to <code>next[q]</code>.",
-          "Blank 3 is the surfer rule: <code>next[p] = d * next[p] + (1 - d) / n;</code>. The teleport part is the same for every page.",
+          "Blank 1 is the token trace from the lecture: a page with rank <code>r</code> and <code>k</code> links sends <code>r / k</code> down <b>each</b> link. Use <code>len(links)</code> for k.",
+          "Blank 2 is the same idea for a page with no links, but the share goes to <b>all n pages</b>: add <code>rank[p] / n</code> to <code>nxt[q]</code>.",
+          "Blank 3 is the surfer rule: <code>nxt[p] = d * nxt[p] + (1 - d) / n</code>. The teleport part is the same for every page.",
         ],
         tests: [
           { name: "Three pages", desc: "A links to B and C, B links to C, C links back to A. d = 0.85.", args: [G1, 0.85, ITERS], expect: ref(G1, 0.85, ITERS), cmp: near, view: { pos: P1 }, hint: "If the total is wrong, check that a page passes on <b>all</b> of its rank: divide by how many links it has, not by n." },
           { name: "Nobody links to X", desc: "X feeds A, but nothing feeds X. It should still keep a small floor, not zero.", args: [G2, 0.85, ITERS], expect: ref(G2, 0.85, ITERS), cmp: near, view: { pos: P2 }, hint: "X only ever gets the teleport floor, so it only appears if you add <code>(1 - d) / n</code> to <b>every</b> page, including pages nobody links to." },
-          { name: "A dead-end page", desc: "D links nowhere. The ranks must still add up to 1.", args: [G3, 0.85, ITERS], expect: ref(G3, 0.85, ITERS), cmp: near, view: { pos: P3 }, hint: "A dead end has an empty list, so the links loop never runs for it. Blank 2 is what stops its rank vanishing." },
+          { name: "A dead-end page", desc: "D links nowhere. The ranks must still add up to 1.", args: [G3, 0.85, ITERS], expect: ref(G3, 0.85, ITERS), cmp: near, view: { pos: P3 }, hint: "A dead end has an empty list, so the <code>for q in links</code> loop never runs for it. Blank 2 is what stops its rank vanishing." },
           { name: "A different damping", desc: "The three-page web again with d = 0.5. Read d, don't hard-code 0.85.", args: [G1, 0.5, ITERS], expect: ref(G1, 0.5, ITERS), cmp: near, view: { pos: P1 }, hint: "Use the parameter <code>d</code> in blank 3 instead of typing 0.85." },
         ],
         scene: prScene(),
