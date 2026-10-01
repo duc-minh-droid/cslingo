@@ -235,6 +235,29 @@
     if (ac) { ta.addEventListener("input", (e) => { if (!e.inputType || /^(insert|delete)/.test(e.inputType)) ac.update(); }); ta.addEventListener("click", ac.close); }
   }
 
+  /** A draggable divider between the left column and the editor (like LeetCode). Drag, use the arrow keys, or double-click to reset.
+      The width is remembered in localStorage (csl.split). Only shown where the two columns sit side by side. */
+  function splitter(wk) {
+    const KEY = "csl.split", DEF = 46, MIN = 25, MAX = 70;
+    let pct = DEF; try { const v = parseFloat(localStorage.getItem(KEY)); if (v >= MIN && v <= MAX) pct = v; } catch { /* storage unavailable */ }
+    const h = el(`<div class="cl-split" role="separator" aria-orientation="vertical" aria-label="Resize panels" tabindex="0" title="Drag to resize, double-click to reset"><i></i></div>`);
+    wk.appendChild(h);
+    const apply = (v, save) => {
+      pct = Math.max(MIN, Math.min(MAX, v)); wk.style.setProperty("--cl-l", pct + "%");
+      h.setAttribute("aria-valuenow", Math.round(pct));
+      if (save) { try { localStorage.setItem(KEY, String(pct)); } catch { /* ignore */ } }
+    };
+    apply(pct, false);
+    let drag = null, raf = 0;
+    const ping = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => window.dispatchEvent(new Event("nic:resize"))); };
+    h.addEventListener("pointerdown", (e) => { e.preventDefault(); h.setPointerCapture(e.pointerId); drag = { x: e.clientX, w: wk.getBoundingClientRect().width, p: pct }; document.body.classList.add("cl-dragging"); h.classList.add("on"); });
+    h.addEventListener("pointermove", (e) => { if (!drag) return; apply(drag.p + ((e.clientX - drag.x) / drag.w) * 100, false); ping(); });
+    const end = () => { if (!drag) return; drag = null; document.body.classList.remove("cl-dragging"); h.classList.remove("on"); apply(pct, true); ping(); };
+    h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end);
+    h.addEventListener("dblclick", () => { apply(DEF, true); ping(); });
+    h.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); apply(pct + (e.key === "ArrowRight" ? 2 : -2), true); ping(); } else if (e.key === "Home") { apply(DEF, true); ping(); } });
+  }
+
   function codelab(root, life, cfg) {
     const tests = cfg.tests, results = tests.map(() => null);
     let sel = 0, playing = false, pos = 0, tick = 0, hintN = 0, busy = false, watched = false;
@@ -257,7 +280,7 @@
           <div class="cl-cap wk-note" data-cap>Run your code, then watch each step here.</div>
           <div class="cl-ctl"><button class="btn small" data-first aria-label="First step">⏮</button><button class="btn small" data-prev aria-label="Step back">◀</button><button class="btn small primary" data-play>Play</button><button class="btn small" data-next aria-label="Step forward">▶</button><input type="range" min="0" max="0" value="0" data-scrub aria-label="Scrub through the run"><span class="mono faint" data-step>0 / 0</span></div></div>`);
         stage.append(testCard, vis, card);
-        const wkNode = stage.closest(".wk"); if (wkNode) wkNode.classList.add("wk-code");
+        const wkNode = stage.closest(".wk"); if (wkNode) { wkNode.classList.add("wk-code"); splitter(wkNode); }
 
         const ta = qs(".cl-ta", card), pre = qs(".cl-hl", card), gut = qs(".cl-gut", card), wrap = qs(".cl-wrap", card), sandbox = qs("[data-stage]", vis);
         const paint = () => {
