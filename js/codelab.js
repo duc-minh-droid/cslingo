@@ -264,7 +264,7 @@
           pre.innerHTML = highlight(ta.value);
           const n = ta.value.split("\n").length;
           gut.innerHTML = Array.from({ length: n }, (_, i) => `<span>${i + 1}</span>`).join("");
-          wrap.style.height = gut.style.height = `${Math.max(380, Math.min(640, n * 21 + 24))}px`;
+          wrap.style.height = gut.style.height = `${Math.max(300, n * 21 + 24)}px`;
         };
         const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; };
         ta.value = cfg.starter; qs(".cl-solpre", card).textContent = cfg.solution || "";
