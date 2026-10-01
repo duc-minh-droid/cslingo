@@ -87,10 +87,10 @@
   function autocomplete(ta, wrap, extra = []) {
     const pop = el(`<div class="cl-ac" role="listbox" hidden></div>`); document.body.appendChild(pop);
     const probe = el(`<span class="cl-probe" aria-hidden="true">MMMMMMMMMM</span>`); wrap.appendChild(probe);
-    let items = [], at = 0, from = 0, skip = false;
+    let items = [], at = 0, from = 0, skip = false, moved = false;
     const close = () => { pop.hidden = true; items = []; };
     const cw = () => probe.getBoundingClientRect().width / 10 || 7.8;
-    function candidates() {
+    function candidates(force) {
       const v = ta.value, pos = ta.selectionStart, before = v.slice(0, pos);
       const m = before.match(/(?:([A-Za-z_$][\w$]*)\s*\.\s*)?([A-Za-z_$][\w$]*)?$/); if (!m || (!m[2] && !m[0].includes("."))) return null;
       const prefix = m[2] || "", pre = prefix.toLowerCase();
@@ -100,7 +100,7 @@
         list.forEach(([n, k]) => { if (n.toLowerCase().startsWith(pre) && n !== prefix) out.push({ n, k, ins: k === "m" ? n + "()" : n, back: k === "m" ? 1 : 0 }); });
         return { out: out.slice(0, 9), start: pos - prefix.length };
       }
-      if (!prefix) return null;
+      if (prefix.length < 2 && !force) return null;
       const seen = new Set();
       SNIPPETS.forEach(([n, body, k]) => { if (n.startsWith(pre)) { out.push({ n, k, snip: body }); seen.add(n); } });
       const words = new Set(); (v.match(/[A-Za-z_$][\w$]*/g) || []).forEach((w) => words.add(w));
@@ -119,11 +119,11 @@
       pop.innerHTML = items.map((c, i) => `<div class="cl-ai ${i === at ? "on" : ""}" role="option" data-i="${i}"><i class="k-${c.k}">${{ kw: "kw", var: "x", api: "ƒ", m: "ƒ", p: "•", snippet: "⌘" }[c.k]}</i><b>${esc(c.n)}</b>${c.k === "snippet" ? `<span>snippet</span>` : ""}</div>`).join("");
       qsa(".cl-ai", pop).forEach((d) => { d.onmousedown = (e) => { e.preventDefault(); accept(+d.dataset.i); }; });
     }
-    function update() {
+    function update(force) {
       if (skip) { skip = false; return close(); }
       if (document.activeElement !== ta || ta.selectionStart !== ta.selectionEnd) return close();
-      const c = candidates(); if (!c) return close();
-      items = c.out; at = 0; from = c.start; draw(); pop.hidden = false; place();
+      const c = candidates(force === true); if (!c) return close();
+      items = c.out; at = 0; moved = false; from = c.start; draw(); pop.hidden = false; place();
     }
     function accept(i) {
       const c = items[i]; if (!c) return; const pos = ta.selectionStart; close(); skip = true;
@@ -145,10 +145,11 @@
       update,
       open: () => !pop.hidden,
       key(e) { // true when the key was used by the popup
-        if ((e.ctrlKey || e.metaKey) && e.code === "Space") { e.preventDefault(); update(); return true; }
+        if ((e.ctrlKey || e.metaKey) && e.code === "Space") { e.preventDefault(); update(true); return true; }
         if (pop.hidden) return false;
-        if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); at = (at + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length; draw(); return true; }
-        if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); accept(at); return true; }
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); at = (at + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length; moved = true; draw(); return true; }
+        if (e.key === "Tab" || (e.key === "Enter" && moved)) { e.preventDefault(); accept(at); return true; } // Enter only accepts after you arrowed to a choice
+        if (e.key === "Enter") { close(); return false; }
         if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); return true; }
         return false;
       },
