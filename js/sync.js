@@ -7,7 +7,7 @@
    The account is stored as one row per item (public.progress_items) plus settings (public.progress_prefs), all protected by row-level security;
    saves go through public.save_progress(), which only ever adds to progress. (public.progress / progress_legacy_backup are the old one-row copy.)
    Progress from every device is MERGED, never overwritten: finished lessons, quiz answers, XP per day and review history only grow, so
-   two laptops add up. The merge runs on sign-in, after every change, on focus and every 45 s. "Reset everything" stamps nic.resetAt so the reset wins.
+   two laptops add up. The merge runs on sign-in, after every change, on focus and every 45 s. There is no reset button; nic.resetAt is only read for old data.
    The publishable key below is public by design; the row-level security policies are what protect the data. */
 (function () {
   const N = NIC;
@@ -210,6 +210,14 @@
       const email = name.includes("@") ? name : `${name.toLowerCase()}@cslingo.app`;
       const { error } = await c.auth.signInWithPassword({ email, password });
       if (error) throw error;
+    },
+    /** Creates the account through the `signup` edge function (no email is involved), then signs in. */
+    async signUp(name, password) {
+      const r = await fetch(`${URL_}/functions/v1/signup`, { method: "POST", headers: { "Content-Type": "application/json", apikey: KEY }, body: JSON.stringify({ username: name, password }) }).catch(() => null);
+      if (!r) throw new Error("No connection. Try again when you're online.");
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "Couldn't create the account.");
+      return N.sync.signIn(name, password);
     },
     async signOut() { const c = await client(); await syncNow(); await c.auth.signOut(); },
     start: client,

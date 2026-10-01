@@ -400,3 +400,5 @@ body.in-lesson { overflow: hidden; }
 .si-or::before, .si-or::after { content: ""; flex: 1; height: 2px; background: var(--line); }
 .si-foot { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--text-dim); font-size: 14px; font-weight: 700; line-height: 1.45; }
 .si-foot .mascot { flex: none; }
+.si-mode { display: flex; margin: 0 auto 14px; width: 100%; }
+.si-mode button { flex: 1; }
