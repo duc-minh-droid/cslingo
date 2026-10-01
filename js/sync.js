@@ -93,7 +93,7 @@
 
   /** Bring this browser and the account together: read the account, merge, write whichever side is behind.
       The account write only succeeds if nobody else wrote since we read it; if they did, we merge again. */
-  let syncing = null, again = false, waiting = false, failedAt = 0;
+  let syncing = null, again = false, waiting = false, failedAt = 0, starting = false;
   function syncNow() {
     if (!sb || !user) return Promise.resolve();
     if (syncing) { again = true; return syncing; }
@@ -104,7 +104,7 @@
     setBusy(true);
     for (let attempt = 0; attempt < 4; attempt++) {
       const { data: row, error } = await sb.from("progress").select("data, updated_at").maybeSingle();
-      if (error) { console.error(error); if (Date.now() - failedAt > 60000) { failedAt = Date.now(); N.fx && N.fx.toast(`<b>Sync failed</b><span>${N.esc(error.message)}</span>`, { tone: "rose" }); } return; }
+      if (error) { console.error(error); if (Date.now() - failedAt > 60000) { failedAt = Date.now(); N.fx && N.fx.toast(`<b>Couldn't reach your account</b><span>${N.esc(error.message)}</span>`, { tone: "rose" }); } return; }
       const local = snapshot(), cloud = (row && row.data) || {}, dirty = !!localStorage.getItem("nic.syncDirty");
       const final = localStorage.getItem("nic.syncForce") ? local : mergeData(local, cloud, dirty);
       const toCloud = !sameData(final, cloud), toLocal = !sameData(final, local);
@@ -121,7 +121,6 @@
         }
         if (!ok) continue; // another device wrote in between: read and merge again
         stamp(Date.parse(iso));
-        if (!hasProgress(cloud) && hasProgress(final)) toast("Progress saved to your account", "This browser's progress is now in your account.");
       } else stamp(row ? Date.parse(row.updated_at) : Date.now());
       localStorage.removeItem("nic.syncDirty"); localStorage.removeItem("nic.syncForce");
       if (toLocal) applyLocal(final);
@@ -130,13 +129,11 @@
   }
   /** The account had progress this browser didn't: take it and reload (never mid-lesson; that waits until the player closes). */
   function applyLocal(final) {
-    if (N.player && N.player.isOpen && N.player.isOpen()) { waiting = true; return; }
-    applying = true;
+    if (!starting && N.player && N.player.isOpen && N.player.isOpen()) { waiting = true; return; }
     Object.keys(snapshot()).forEach((k) => localStorage.removeItem(k));
     Object.entries(final).forEach(([k, v]) => localStorage.setItem(k, v));
-    sessionStorage.setItem("nic.syncToast", "1");
-    if (window.__nicNoReload) { applying = false; return; } // (tests)
-    location.reload();
+    if (starting || window.__nicNoReload) return;       // before the first screen is drawn (or in tests): nothing to refresh
+    if (N.refresh) N.refresh(); else location.reload(); // otherwise redraw the page in place, no reload
   }
   const stamp = (t) => localStorage.setItem("nic.syncAt", String(t || Date.now()));
 
@@ -146,10 +143,9 @@
   function push(now) {
     if (!sb || !user || applying) return;
     clearTimeout(pushT);
-    if (!now) { setBusy(true); pushT = setTimeout(syncNow, 2500); return; }
+    if (!now) { setBusy(true); pushT = setTimeout(syncNow, 600); return; }
     return syncNow();
   }
-  const toast = (t, s) => N.fx && N.fx.toast(`${N.mascot({ who: "chip", size: 40, mood: "love", poke: false })}<b>${t}</b><span>${s}</span>`, { tone: "blue", ms: 2800 });
 
   // push whenever progress changes (NIC.store is the main writer; the timer catches direct localStorage writes)
   const set0 = N.store.set;
@@ -179,7 +175,11 @@
     _test: { mergeData, sameData, canon, use: (c, u) => { sb = c; user = u; } },
   };
 
-  // Only load the library when there's something to do: a link just came back, or this browser was signed in before.
-  if (/[?&]code=/.test(location.search) || localStorage.getItem("nic.syncUser")) client().catch((e) => console.error(e));
-  if (sessionStorage.getItem("nic.syncToast")) { sessionStorage.removeItem("nic.syncToast"); setTimeout(() => toast("Progress loaded from your account", "Welcome back!"), 800); }
+  // Only load the library when there's something to do: a link just came back, or this browser was logged in before.
+  // Logged in before: the app waits (at most 2.5 s) for the account's progress, so the first screen is already up to date.
+  if (localStorage.getItem("nic.syncUser")) {
+    starting = true;
+    N.syncReady = Promise.race([client().then(() => syncing || syncNow()), new Promise((r) => setTimeout(r, 2500))]).catch((e) => console.error(e)).then(() => { starting = false; });
+  } else N.syncReady = Promise.resolve();
+  if (/[?&]code=/.test(location.search)) client().catch((e) => console.error(e));
 })();

@@ -280,15 +280,15 @@
   function syncRow() {
     if (!NIC.sync) return "";
     const em = NIC.sync.email();
-    return em ? `<div class="menu-row sy-row ${NIC.sync.busy && NIC.sync.busy() ? "busy" : ""}">${IC_CLOUD}<i class="sy-dot" title="Saving to your account"></i><span>Synced<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
-      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Sync across devices<small>Log in to your account</small></span></button>`;
+    return em ? `<div class="menu-row sy-row ${NIC.sync.busy && NIC.sync.busy() ? "busy" : ""}">${IC_CLOUD}<i class="sy-dot" title="Saving to your account"></i><span>Logged in<small>${esc(em.replace(/@cslingo.app$/, ""))}</small></span><button class="sy-out" data-act="signout">Sign out</button></div>`
+      : `<button class="menu-row sy-row" data-act="signin">${IC_CLOUD}<span>Log in<small>Your progress follows your account</small></span></button>`;
   }
   function wireSync(root) {
     const i = qs('[data-act="signin"]', root), o = qs('[data-act="signout"]', root);
     const ret = root.classList.contains("pop-card") ? () => qs('[data-pop="me"]', top) : null; // opened from the menu: focus goes back to its button
     if (i) i.addEventListener("click", () => { closePop(); signInModal(ret); });
     // signing out changes the user, and NIC.sync.on below re-renders (one route, not two)
-    if (o) o.addEventListener("click", async () => { if (!confirm("Sign out of sync on this device? Your progress stays here and in your account.")) return; closePop(); await NIC.sync.signOut(); });
+    if (o) o.addEventListener("click", async () => { if (!confirm("Log out on this device? Your progress stays in your account.")) return; closePop(); await NIC.sync.signOut(); });
   }
   /** Duolingo-style "Log in" screen: full-screen on phones, a centred column on desktop. Username maps to <name>@cslingo.app. */
   function signInModal(ret) {
@@ -305,7 +305,7 @@
         <button class="btn big si-go" type="submit">Log in</button>
       </form>
       <div class="si-or"><span>How it works</span></div>
-      <p class="si-foot">${NIC.mascot({ who: "chip", size: 44, mood: "happy", poke: false })}<span>Log in once on each device and your progress follows you. You stay logged in after that.</span></p>
+      <p class="si-foot">${NIC.mascot({ who: "chip", size: 44, mood: "happy", poke: false })}<span>Log in on any device and your progress is right there. Every lesson you finish is added to your account, never replaced.</span></p>
     </div>`, { cls: "si-modal", ret });
     m.classList.add("si-back");
     const f = qs(".si-form", m), msg = qs(".si-msg", m), btn = qs(".si-go", m), eyeB = qs(".si-eye", m), grp = qs(".si-group", m);
@@ -377,7 +377,7 @@
   function resetAll(ret) {
     closePop();
     const m = modal(`<div class="rs">${NIC.mascot({ who: "berry", size: 96, mood: "shocked" })}<h2>Reset everything?</h2>
-      <p>Lessons, quizzes, XP, streak, quests, achievements and revision history on this device will be wiped.${NIC.sync && NIC.sync.email() ? " Your synced account will be overwritten too." : ""} This can't be undone.</p>
+      <p>Lessons, quizzes, XP, streak, quests, achievements and revision history on this device will be wiped.${NIC.sync && NIC.sync.email() ? " Your account's progress will be reset too." : ""} This can't be undone.</p>
       <div class="controls"><button class="btn" data-k="no">Keep my progress</button><button class="btn rose" data-k="yes">Reset</button></div></div>`, { cls: "rs-modal", ret: typeof ret === "function" ? ret : null });
     m.addEventListener("click", (e) => {
       const b = e.target.closest("[data-k]"); if (!b) return;
@@ -794,7 +794,7 @@
       <div class="ach-grid">${game.ACH.map((a) => `<div class="ach ${ach[a.id] ? "got" : ""}">${NIC.mascot({ who: "sprout", size: 64, acc: [a.acc], mood: ach[a.id] ? "happy" : "sleepy", poke: !!ach[a.id] })}${ach[a.id] ? "" : `<span class="ach-lock">${IC.lock}</span>`}<b>${a.t}</b><span>${a.d}</span><small>${ach[a.id] ? `Unlocked ${NIC.cast.ACC[a.acc].name}` : `Unlocks ${NIC.cast.ACC[a.acc].name}`}</small></div>`).join("")}</div>
       <h2>Settings</h2>
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[[10, "Casual"], [20, "Regular"], [30, "Serious"], [50, "Intense"]].map(([v, t]) => `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`).join("")}</div></div>
-        ${NIC.sync ? `<div class="set-row"><b>Sync</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in to sync</button>`}</div>` : ""}
+        ${NIC.sync ? `<div class="set-row"><b>Account</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in</button>`}</div>` : ""}
         ${NIC.theme ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[["system", "System", IC.themeSys], ["light", "Light", IC.sun], ["dark", "Dark", IC.moon]].map(([v, t, ic]) => `<button role="radio" data-theme-pick="${v}" aria-checked="${NIC.theme.get() === v}" class="${NIC.theme.get() === v ? "on" : ""}">${ic}${t}</button>`).join("")}</div></div>` : ""}
         <div class="set-row"><b id="pfSoundL">Sound effects</b><button class="pf-sw ${NIC.sfx.on() ? "on" : ""}" id="pfSound" role="switch" aria-checked="${NIC.sfx.on()}" aria-labelledby="pfSoundL"><i></i></button></div>
         <div class="set-row"><b>Progress</b><button class="btn rose" id="pfReset">Reset everything</button></div></div>
@@ -999,8 +999,10 @@
   if (NIC.cast) NIC.cast.course = SUBJECTS[course].who;
   updateScore();
   if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // the path restores its own scroll (scrollMem)
-  route();
-  setTimeout(onboarding, 400);
+  NIC.refresh = () => { updateScore(); renderTop(); route(); };
+  const boot = () => { route(); setTimeout(onboarding, 400); };
+  // logged in before: load the account's progress first so the page opens already up to date (js/sync.js waits at most 2.5 s)
+  if (NIC.syncReady) NIC.syncReady.then(boot); else boot();
   // offline + installable: only on the deployed site (dev servers and file:// would cache stale work)
   if ("serviceWorker" in navigator && location.protocol === "https:" && !/^(localhost|127\.|\[::1\])/.test(location.hostname))
     addEventListener("load", () => navigator.serviceWorker.register(`sw.js?v=${NIC.BUILD}`).catch(() => {}));
