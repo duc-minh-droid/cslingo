@@ -122,16 +122,37 @@
     show(0);
   }
 
+  // A revision round survives a refresh or a quit: the deck (question ids), how many are answered and the score live in localStorage
+  // (csl.revSession, per device). Finishing clears it; quitting only pauses it, so the Revise page offers "Continue".
+  const REV_KEY = "csl.revSession";
+  const revSaved = () => { try { const r = JSON.parse(localStorage.getItem(REV_KEY)); return r && Array.isArray(r.ids) && r.ids.length ? r : null; } catch { return null; } };
+  const revWrite = (r) => { try { r ? localStorage.setItem(REV_KEY, JSON.stringify(r)) : localStorage.removeItem(REV_KEY); } catch { /* storage blocked: the round just can't be resumed */ } };
+  const revSave = () => { if (S && S.kind === "revise" && S.revIds) revWrite({ ids: S.revIds, done: S.firstTotal, right: S.firstRight, xp: S.xp, paused: false, opts: { n: S.opts.n, subjects: S.opts.subjects || null, home: S.opts.home } }); };
+
   function revise(opts = {}) {
     if (S) close(true);
     S = base("revise", opts);
     S.who = opts.who || "chip"; S.mod = { id: "revise", num: "Revise", title: "Revision" };
     mount("Revise");
-    const deck = N.bank ? N.bank.deck({ n: opts.n || 10, subjects: opts.subjects || null }) : [];
+    let deck = [], saved = null;
+    if (opts.resume && (saved = revSaved()) && N.bank) {
+      const byId = new Map(N.bank.all({ learnedOnly: false }).map((x) => [x.id, x]));
+      deck = saved.ids.map((id) => byId.get(id)).filter(Boolean);
+      if (deck.length !== saved.ids.length) { saved = null; deck = []; } // the bank changed under it: start fresh below
+    }
+    if (!deck.length) deck = N.bank ? N.bank.deck({ n: opts.n || 10, subjects: opts.subjects || null }) : [];
+    S.revIds = deck.map((d) => d.id);
     const title = (id) => { const m = N.modules.find((x) => x.id === id); return m ? `${m.num === "Boss" ? "Boss" : m.num} · ${stripTags(m.title)}` : ""; };
     S.screens = deck.length
       ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), mod: d.mod, practice: true }))]
       : [{ kind: "note", who: "chip", mood: "sleepy", t: "Nothing to revise yet", b: "Finish a lesson first. Its questions join your revision deck." }];
+    if (saved) {
+      S.firstTotal = Math.min(saved.done || 0, deck.length); S.firstRight = Math.min(saved.right || 0, S.firstTotal); S.xp = saved.xp || 0;
+      S.i = S.firstTotal ? 1 + S.firstTotal : 0; // already answered ones are skipped, the intro only shows for a fresh round
+      if (S.i >= S.screens.length) { revWrite(null); S.i = 0; S.firstTotal = S.firstRight = S.xp = 0; }
+      else if (S.firstTotal && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Question ${S.firstTotal + 1} of ${deck.length}. Your round was saved.</span>`, { tone: "blue", ms: 2600, live: true }), 400);
+    }
+    revSave();
     sound("whoosh");
     show(0);
   }
@@ -715,6 +736,7 @@
     }
     combo(prevCombo);
     retryChip(!ok);
+    revSave();
     const answer = T()[Q.type || "mcq"].answer(Q);
     const why = Q.why ? `<div class="pl-why">${Q.why}</div>` : "";
     const mood = ok ? pickOne(CHEER) : S.wrongRun >= 3 ? "dizzy" : pickOne(["sad", "surprised", "shocked"]);
@@ -748,7 +770,7 @@
     // recap once after the main + mistakes run, then complete
     const has = (k) => S.screens.some((x) => x.kind === k);
     if (S.kind === "lesson" && S.recap && !has("recap")) { S.screens.push({ kind: "recap" }); return show(1); }
-    if (!has("complete")) { S.screens.push({ kind: "complete" }); return show(1); }
+    if (!has("complete")) { if (S.kind === "revise") revWrite(null); S.screens.push({ kind: "complete" }); return show(1); }
     close();
   }
 
@@ -796,6 +818,7 @@
   function close(silent = false) {
     if (!S) return;
     const s = S; S = null;
+    if (!silent && s.kind === "revise") { const r = revSaved(); if (r) revWrite({ ...r, paused: true }); } // quit: keep the round, but a refresh shouldn't reopen it
     document.removeEventListener("keydown", s.keys);
     s.stopIdle && s.stopIdle();
     s.life.dispose();
@@ -827,5 +850,5 @@
 
   /* originRect: set by the path right before opening, so the player grows out of the tapped node (read once, then cleared).
      lastXP: {n, rect} of the gold XP card, set as the player closes after a complete screen (the app flies it to the counter). */
-  N.player = { open, practice, revise, close, state, isOpen: () => !!S, missed, originRect: null, lastXP: null };
+  N.player = { open, practice, revise, revSaved, close, state, isOpen: () => !!S, missed, originRect: null, lastXP: null };
 })();

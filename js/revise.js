@@ -34,7 +34,13 @@
       return;
     }
 
+    // an unfinished round: reopen it straight away after a refresh, otherwise offer Continue
+    const saved = N.player.revSaved && N.player.revSaved();
+    if (saved && !page.booted && !saved.paused) { page.booted = true; setTimeout(() => N.player.revise({ resume: true, ...(saved.opts || {}), home: (saved.opts && saved.opts.home) || "practice" }), 0); }
+    page.booted = true;
+    const resumeCard = saved ? `<div class="card rv-resume"><div><b>Continue your revision</b><span class="faint">Question ${Math.min(saved.done + 1, saved.ids.length)} of ${saved.ids.length}</span></div><button class="btn primary rv-continue">Continue</button></div>` : "";
     const node = el(`<div class="page side-page">${head}
+      ${resumeCard}
       <div class="stat-grid rv-stats"></div>
       <div class="card rv-setup">
         <div class="rv-row"><b>Courses</b><div class="seg rv-subj">${subjects.length > 1 ? `<button data-s="*">All</button>` : ""}${subjects.map((s) => `<button data-s="${s}">${esc(names[s] || s)}</button>`).join("")}</div></div>
@@ -118,6 +124,8 @@
       N.sfx && N.sfx.play("select"); save(); paint();
     }));
     qsa(".rv-size button", node).forEach((b) => b.addEventListener("click", () => { prefs.n = +b.dataset.n; N.sfx && N.sfx.play("select"); save(); paint(); }));
+    const cont = qs(".rv-continue", node);
+    if (cont) cont.addEventListener("click", () => N.player.revise({ resume: true, ...(saved.opts || {}), home: (saved.opts && saved.opts.home) || "practice" }));
     qs(".rv-go", node).addEventListener("click", () => N.player.revise({ home: "practice/due", n: prefs.n, subjects: prefs.subjects }));
     paint();
     if (!calm && fx.enter) fx.enter(Array.from(node.children), { stagger: 0.03 }); // 7 blocks, total stagger under 200ms
