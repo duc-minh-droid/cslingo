@@ -69,9 +69,12 @@
 .q-pick svg { width: 100%; display: block; }
 .q-pick .pickable { cursor: pointer; transition: opacity var(--dur-2) ease, filter var(--dur-2) ease; }
 @media (hover: hover) and (pointer: fine) { .q-pick .pickable:hover { filter: drop-shadow(0 0 5px rgba(28, 176, 246, 0.7)); } }
-.q-pick .pickable:focus-visible { outline: none; filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.9)); }
-.q-pick .sel { filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.95)); }
-.q-pick .sel circle, .q-pick .sel rect, .q-pick circle.sel, .q-pick rect.sel, .q-pick line.sel { stroke: var(--blue) !important; }
+.q-pick .pickable, .q-pick .pickable:focus, .q-pick [data-pick]:focus { outline: none; } /* no browser focus box (it showed as a black rectangle) */
+.q-pick .pickable:focus-visible { filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.9)); }
+/* selected: an ink-coloured outline plus a blue halo, so it reads on blue bars, panels and nodes alike (the figure's own colours stay) */
+.q-pick .sel { filter: drop-shadow(0 0 5px rgba(28, 176, 246, 0.95)); }
+.q-pick .sel :is(circle, rect, ellipse, polygon, path, line), .q-pick :is(circle, rect, ellipse, polygon, path, line).sel { stroke: var(--ink) !important; stroke-width: 4px !important; paint-order: stroke; }
+.q-pick .sel text { fill: var(--ink); }
 .q-pick .pk-right circle, .q-pick .pk-right rect, .q-pick circle.pk-right, .q-pick rect.pk-right, .q-pick line.pk-right, .q-pick path.pk-right { stroke: var(--teal) !important; stroke-width: 5 !important; }
 .q-pick .pk-wrong circle, .q-pick .pk-wrong rect, .q-pick circle.pk-wrong, .q-pick rect.pk-wrong, .q-pick line.pk-wrong, .q-pick path.pk-wrong { stroke: var(--rose) !important; stroke-width: 5 !important; }
 .q-pick .pk-missed circle, .q-pick .pk-missed rect, .q-pick circle.pk-missed, .q-pick rect.pk-missed, .q-pick line.pk-missed, .q-pick path.pk-missed { stroke: var(--teal) !important; stroke-width: 4 !important; stroke-dasharray: 5 4; }
