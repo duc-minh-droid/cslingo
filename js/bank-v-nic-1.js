@@ -172,8 +172,8 @@
       q: "Typical runs of keep-if-better (27 keys, one random letter changed per step) took about 760 steps for a 10-letter target, 1,900 for 20 letters and 4,700 for 40 letters. Estimate the typical steps for an 80-letter target.",
       fig: svg(420, 190, `
         <line x1="60" y1="150" x2="400" y2="150" stroke="var(--line-2)" stroke-width="2"/>
-        ${[[10, 760], [20, 1900], [40, 4700]].map(([n, s], i) => `<rect x="${90 + i * 100}" y="${150 - s / 4700 * 120}" width="60" height="${s / 4700 * 120}" rx="6" fill="var(--blue)"/>${tx(120 + i * 100, 168, `${n} letters`, { z: 12 })}${tx(120 + i * 100, 144 - s / 4700 * 120, s.toLocaleString("en-GB"), { z: 12, c: "var(--blue-ink)" })}`).join("")}
-        ${tx(360, 90, "80 letters?", { c: "var(--text-dim)", z: 13 })}`),
+        ${[[10, 760], [20, 1900], [40, 4700]].map(([n, s], i) => `<rect x="${60 + i * 80}" y="${150 - s / 4700 * 120}" width="60" height="${s / 4700 * 120}" rx="6" fill="var(--blue)"/>${tx(90 + i * 80, 168, `${n} letters`, { z: 12 })}${tx(90 + i * 80, 144 - s / 4700 * 120, s.toLocaleString("en-GB"), { z: 12, c: "var(--blue-ink)" })}`).join("")}
+        <rect x="290" y="30" width="60" height="120" rx="6" fill="none" stroke="var(--line-2)" stroke-width="2" stroke-dasharray="6 5"/>${tx(320, 96, "?", { c: "var(--text-dim)", z: 22 })}${tx(320, 168, "80 letters", { z: 12 })}`),
       min: 0, max: 30000, step: 500, ans: 10500, tol: 3500, unit: "steps",
       hint: "Look at what happens each time the target doubles: a bit more than double the steps.",
       why: "Each extra letter adds a little work, so the cost grows a bit faster than the length, about 10,000 steps for 80 letters. Random typing would multiply its tries by 27 for every extra letter, which is why keep-if-better wins.",
@@ -326,7 +326,7 @@
     const X = (g) => x + 10 + g * 6.6, Y = (v) => 150 - v * 1.1;
     const pts = (f) => Array.from({ length: 20 }, (_, g) => `${X(g).toFixed(1)},${Y(f(g)).toFixed(1)}`).join(" ");
     return `<g data-pick="${id}">${rect(x, 10, 150, 175, { f: "var(--panel)" })}${tx(x + 75, 28, title, { z: 12, c: "var(--text-dim)" })}
-      <line x1="${x + 10}" y1="${Y(100)}" x2="${x + 140}" y2="${Y(100)}" stroke="var(--text-faint)" stroke-dasharray="4 4"/>${tx(x + 140, Y(100) - 4, "optimum", { a: "end", z: 10, c: "var(--text-faint)" })}
+      <line x1="${x + 10}" y1="${Y(100)}" x2="${x + 140}" y2="${Y(100)}" stroke="var(--text-faint)" stroke-dasharray="4 4"/>${tx(x + 140, Y(100) + 12, "optimum", { a: "end", z: 10, c: "var(--text-faint)" })}
       <polyline fill="none" stroke="var(--teal)" stroke-width="3" points="${pts(best)}"/><polyline fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="1 0" points="${pts(avg)}"/></g>`;
   };
   const r1b = (g) => 20 + 60 * (1 - Math.exp(-g / 2.5)), r1a = (g) => 20 + (r1b(g) - 20) * (1 - Math.exp(-g / 6));
@@ -367,7 +367,7 @@
     {
       type: "pick",
       q: "Tournament selection draws two individuals at random and the fitter one becomes a parent. Three draws were made: D vs F, B vs H and A vs C. Tap the three parents.",
-      fig: svg(430, 190, `${bars([4, 8, 6, 2, 9, 5, 3, 7], ["A", "B", "C", "D", "E", "F", "G", "H"])}${tx(215, 175, "Draw 1: D vs F     Draw 2: B vs H     Draw 3: A vs C", { z: 13, c: "var(--text-dim)" })}`),
+      fig: svg(430, 190, `${bars([4, 8, 6, 2, 9, 5, 3, 7], ["A", "B", "C", "D", "E", "F", "G", "H"])}${tx(80, 178, "Draw 1: D vs F", { z: 13, c: "var(--text-dim)" })}${tx(215, 178, "Draw 2: B vs H", { z: 13, c: "var(--text-dim)" })}${tx(350, 178, "Draw 3: A vs C", { z: 13, c: "var(--text-dim)" })}`),
       a: ["B", "C", "F"],
       why: "Each draw is won by the higher bar. F (5) beats D (2), B (8) beats H (7) and C (6) beats A (4). E has the best score of all but was not drawn, which is how tournaments keep a weak bias rather than always choosing the very best.",
     },
@@ -396,7 +396,7 @@
       q: "Three items weigh 40, 50 and 72 kg (bits show which are taken, in that order). The bars show each subset's total weight. Fitness is |weight - 100|, minimised. Tap the best subset.",
       fig: svg(480, 230, `
         <line x1="20" y1="190" x2="470" y2="190" stroke="var(--line-2)" stroke-width="2"/>
-        <line x1="20" y1="${190 - 100 * 0.9}" x2="470" y2="${190 - 100 * 0.9}" stroke="var(--rose)" stroke-width="2" stroke-dasharray="6 5"/>${tx(470, 190 - 92, "target 100 kg", { a: "end", z: 12, c: "var(--rose-ink)" })}
+        <line x1="20" y1="${190 - 100 * 0.9}" x2="470" y2="${190 - 100 * 0.9}" stroke="var(--rose)" stroke-width="2" stroke-dasharray="6 5"/>${tx(24, 190 - 100 * 0.9 - 8, "target 100 kg", { a: "start", z: 12, c: "var(--rose-ink)" })}
         ${sub.map((s, i) => `<g data-pick="${s}"><rect x="${30 + i * 55}" y="${190 - subW[i] * 0.9}" width="42" height="${subW[i] * 0.9}" rx="5" fill="var(--blue)"/>${tx(51 + i * 55, 183 - subW[i] * 0.9, subW[i], { z: 12, c: "var(--blue-ink)" })}${tx(51 + i * 55, 212, s, { z: 13 })}<rect x="${30 + i * 55}" y="30" width="42" height="170" fill="transparent"/></g>`).join("")}`),
       a: "110",
       why: "Closest to 100 on either side wins. 110 weighs 90 (f = 10), 101 weighs 112 (f = 12) and 111 weighs 162 (f = 62). Overshooting is penalised just like undershooting, so a total slightly over 100 is not automatically better.",
@@ -588,7 +588,7 @@
     },
     {
       type: "mcq",
-      q: "Four towns are joined by the links shown. Prim would take the three cost-1 links from H, but now no town may have more than 2 cables. What is the cheapest valid network that still connects all four towns?",
+      q: "Four towns are joined by the links shown: H's three links cost 1 each and the three links between A, B and C cost 4 each. Prim would take all three links from H, but now no town may have more than 2 cables. What is the cheapest valid network that still connects all four towns?",
       fig: qf((Q) => Q.graph({ H: [230, 120], A: [80, 50], B: [380, 50], C: [230, 215] }, [["H", "A", 1], ["H", "B", 1], ["H", "C", 1], ["A", "B", 4], ["B", "C", 4], ["A", "C", 4]], { w: 460, h: 250 })),
       o: ["3", "5", "6", "9"],
       a: 2,

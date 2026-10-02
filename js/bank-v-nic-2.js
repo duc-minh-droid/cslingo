@@ -28,7 +28,7 @@
     const vals = { A: 431, B: 412, C: 418, D: 409, E: 425 }, Y = (v) => 200 - (v - 380) * 2.833;
     const bars = Object.entries(vals).map(([k, v], i) => `<g data-pick="${k}"><rect x="${50 + i * 78}" y="${Y(v)}" width="52" height="${200 - Y(v)}" rx="6" fill="var(--blue)" opacity=".85" stroke="var(--blue-lip, var(--blue))" stroke-width="2"/>${tx(76 + i * 78, Y(v) - 6, v, { f: "800 13px" })}${tx(76 + i * 78, 218, "run " + k, { f: "700 12px", c: "var(--text-dim)" })}</g>`).join("");
     const ticks = [380, 400, 420, 440].map((v) => `${ln(40, Y(v), 450, Y(v), "var(--line)", 1)}${tx(34, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" })}`).join("");
-    return svg(460, 232, `${ticks}${bars}${ln(40, Y(400), 450, Y(400), "var(--rose)", 3, "7 5")}${tx(448, Y(400) - 6, "proven lower bound: 400 km", { a: "end", c: "var(--rose-ink)", f: "800 12px" })}`);
+    return svg(460, 258, `${ticks}${bars}${ln(40, Y(400), 450, Y(400), "var(--rose)", 3, "7 5")}${ln(20, 246, 60, 246, "var(--rose)", 3, "7 5")}${tx(68, 250, "proven lower bound: 400 km (axis starts at 380)", { a: "start", c: "var(--rose-ink)", f: "800 12px" })}`);
   };
 
   B.add("l2-approx", [
@@ -254,8 +254,8 @@
   };
   const mcTraces = () => {
     const cost = (x) => Math.abs(x - 70) * 0.6 + 7 * Math.sin(x / 3.2) + 10;
-    const sim = (p, seed) => { const r = rng(seed); let x = 8; const out = [cost(x)]; for (let i = 0; i < 90; i++) { const m = Math.max(0, Math.min(100, x + (r() < 0.5 ? -1 : 1) * (1 + Math.floor(r() * 3)))); if (cost(m) <= cost(x) || r() < p) x = m; out.push(cost(x)); } return out; };
-    const runs = [["A", sim(1, 11)], ["B", sim(0, 11)], ["C", sim(0.1, 11)]];
+    const sim = (p, seed) => { const r = rng(seed); let x = 30; const out = [cost(x)]; for (let i = 0; i < 90; i++) { const m = Math.max(0, Math.min(100, x + (r() < 0.5 ? -1 : 1) * (1 + Math.floor(r() * 5)))); if (cost(m) <= cost(x) || r() < p) x = m; out.push(cost(x)); } return out; };
+    const runs = [["A", sim(1, 42)], ["B", sim(0, 42)], ["C", sim(0.1, 42)]];
     const lo = Math.min(...runs.flatMap((r) => r[1])), hi = Math.max(...runs.flatMap((r) => r[1]));
     return svg(480, 200, runs.map(([nm, d], k) => {
       const x0 = 14 + k * 156, X = (i) => x0 + 22 + (i / 90) * 120, Y = (v) => 150 - ((v - lo) / (hi - lo)) * 110;

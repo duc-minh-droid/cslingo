@@ -34,8 +34,8 @@
       s += rowBad[i] ? `<circle cx="${X0 + 5 * W + 18}" cy="${Y0 + i * H + H / 2}" r="8" fill="var(--rose)"/>` : "";
     });
     colBad.forEach((b, c) => { if (b) s += `<circle cx="${X0 + c * W + W / 2}" cy="${Y0 + 5 * H + 16}" r="8" fill="var(--rose)"/>`; });
-    s += TX(X0 + 5 * W + 18, Y0 + 5 * H + 20, "= check fails", { a: "start", s: 11, f: "var(--rose)" }).replace(`x="${X0 + 5 * W + 18}"`, `x="${X0 + 5 * W - 70}"`);
-    return SVG(330, 285, s, "A 4 by 4 grid of bits with a parity row and column; red dots mark the failing checks");
+    s += `<circle cx="${X0 + 6}" cy="276" r="7" fill="var(--rose)"/>` + TX(X0 + 20, 281, "red dot = this check fails", { a: "start", s: 12 });
+    return SVG(330, 292, s, "A 4 by 4 grid of bits with a parity row and column; red dots mark the failing checks");
   })();
 
   const crcRows = [["11010000", "10110000", "01100000"], ["01100000", "01011000", "00111000"], ["00111000", "00101100", "00011100"], ["00011100", "00010110", "00001010"]];
@@ -220,7 +220,7 @@
   /* ==================== a8-hash ==================== */
   const chainFig = (() => {
     const blocks = [["Block 1", "Ann pays Bob 5", "0000", "7c21", ""], ["Block 2", "Bob pays Cy 20", "7c21", "e7b2", "edited (was 2), hash recomputed"], ["Block 3", "Cy pays Di 1", "41af", "9d03", ""], ["Block 4", "Di pays Ed 3", "9d03", "2b58", ""]];
-    let s = TX(200, 16, "Short made-up digests. Each block stores prev (its parent's hash) and its own hash.", { s: 11 });
+    let s = TX(200, 14, "Short made-up digests. prev = the parent block's hash.", { s: 12 });
     blocks.forEach(([n, d, p, h, note], i) => {
       const y = 28 + i * 64, edited = i === 1;
       s += PK("b" + (i + 1), RC(6, y, 388, 56, { r: 10, k: edited ? "var(--amber)" : "var(--line-2)" }) + TX(18, y + 20, n, { a: "start", s: 13 }) + TX(120, y + 20, d, { a: "start", s: 13 }) + TX(18, y + 42, "prev " + p, { a: "start", m: 1, s: 13 }) + TX(120, y + 42, "hash " + h, { a: "start", m: 1, s: 13 }) + (note ? TX(382, y + 42, note, { a: "end", s: 10, f: "var(--amber-ink, var(--text))" }) : ""));
@@ -229,7 +229,6 @@
   })();
 
   const pairFig = (() => {
-    const h = (a, b) => [a, b];
     const pairs = [{ id: "p1", name: "Hash P", a: "1011001110100101", b: "1011001110110101" }, { id: "p2", name: "Hash Q", a: "0110001101000010", b: "0100111010100011" }];
     let s = TX(200, 16, "First 16 bits of each digest. Inputs differ by one character.", { s: 12 });
     pairs.forEach((p, k) => {
@@ -342,11 +341,9 @@
     let s = RC(110, 6, 180, 32, { r: 10 }) + TX(200, 27, "x0 x1 x2 ... x15", { s: 13 });
     s += LN(160, 38, 100, 66) + LN(240, 38, 300, 66);
     s += RC(10, 66, 190, 32, { r: 10 }) + TX(105, 87, "0 2 4 6 8 10 12 14", { s: 12 }) + RC(204, 66, 190, 32, { r: 10 }) + TX(299, 87, "1 3 5 7 9 11 13 15", { s: 12 });
-    s += TX(200, 62, "", {});
     s += LN(70, 98, 50, 128) + LN(140, 98, 150, 128) + LN(260, 98, 250, 128) + LN(340, 98, 350, 128);
     const G = [["g1", "0 4 8 12", 6], ["g2", "2 6 10 14", 104], ["g3", "1 5 9 13", 202], ["g4", "3 7 11 15", 300]];
     G.forEach(([id, t, x]) => (s += PK(id, RC(x, 128, 94, 40, { r: 10 }) + TX(x + 47, 153, t, { s: 12 }))));
-    s += TX(105, 118, "", {});
     return SVG(400, 180, s, "Two levels of even/odd splitting for 16 samples");
   })();
 
@@ -354,7 +351,6 @@
     const nodeAt = (x, y, t, o = {}) => RC(x - 26, y - 17, 52, 34, { r: 10, f: o.f, fo: o.fo, k: o.k }) + TX(x, y + 5, t, { s: 14, m: 1 });
     const ys = [34, 94, 154, 214];
     let s = "";
-    [[0, 2], [0, 3], [2, 0], [2, 3]].forEach(() => {});
     // wires: E0->X0,X2; O0->X0,X2; E1->X1,X3; O1->X1,X3
     s += LN(90, ys[0], 290, ys[0]) + LN(90, ys[0], 290, ys[2]) + LN(90, ys[2], 290, ys[0]) + LN(90, ys[2], 290, ys[2]);
     s += LN(90, ys[1], 290, ys[1]) + LN(90, ys[1], 290, ys[3]) + LN(90, ys[3], 290, ys[1]) + LN(90, ys[3], 290, ys[3]);
