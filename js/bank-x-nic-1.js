@@ -8,7 +8,7 @@
   /* ---------- tiny SVG toolkit ---------- */
   const svg = (w, h, body) => `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;max-height:${h}px">${body}</svg>`;
   const T = (x, y, s, o = {}) =>
-    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${o.z || 13}px var(--sans);fill:${o.c || "var(--text)"};pointer-events:none">${s}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${(o.z || 13) <= 12 ? (o.z || 13) + 1 : o.z || 13}px var(--sans);fill:${o.c || "var(--text)"};pointer-events:none">${s}</text>`;
   const R = (x, y, w, h, o = {}) =>
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.r === undefined ? 6 : o.r}" fill="${o.f || "var(--panel)"}" stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw === undefined ? 2 : o.sw}"${o.d ? ` stroke-dasharray="${o.d}"` : ""}${o.o ? ` fill-opacity="${o.o}"` : ""}/>`;
   const L = (x1, y1, x2, y2, o = {}) =>
@@ -59,23 +59,23 @@
 
   const whatTable = (() => {
     const rows = [
-      ["Sort a million names", "Yes", "Yes", "No"],
-      ["300-stop courier round", "Yes", "No", "Yes"],
-      ["Pick the funniest joke", "No", "No", "Yes"],
-      ["Solve 3x + 2 = 11", "Yes", "Yes", "No"],
+      [["Sort a million", "names"], "Yes", "Yes", "No"],
+      [["Plan a 300-stop", "courier round"], "Yes", "No", "Yes"],
+      [["Pick the", "funniest joke"], "No", "No", "Yes"],
+      [["Solve", "3x + 2 = 11"], "Yes", "Yes", "No"],
     ];
-    const ids = ["a", "b", "c", "d"], cols = [180, 262, 344], y0 = 52, rh = 46;
-    let g = [T(12, 28, "Job", { a: "start", c: "var(--text-dim)", z: 13 }), ...["Can we score", "Fast exact", "Is a good"].map((s, i) => T(cols[i] + 38, 20, s, { z: 12, c: "var(--text-dim)" })), ...["answers?", "method known?", "answer fine?"].map((s, i) => T(cols[i] + 38, 35, s, { z: 12, c: "var(--text-dim)" }))].join("");
+    const ids = ["a", "b", "c", "d"], cols = [128, 208, 288], y0 = 56, rh = 54;
+    let g = ["Can we", "Fast exact", "Good enough"].map((s, i) => T(cols[i] + 40, 16, s, { z: 12, c: "var(--text-dim)" })).join("") + ["score it?", "method?", "is fine?"].map((s, i) => T(cols[i] + 40, 33, s, { z: 12, c: "var(--text-dim)" })).join("");
     rows.forEach((r, i) => {
       const y = y0 + i * rh;
-      g += T(12, y + 28, r[0], { a: "start", z: 13 });
+      g += T(10, y + 22, r[0][0], { a: "start", z: 13 }) + T(10, y + 40, r[0][1], { a: "start", z: 13 });
       for (let k = 1; k <= 3; k++) {
         const yes = r[k] === "Yes";
-        g += R(cols[k - 1] + 6, y + 8, 64, 30, { f: yes ? "var(--blue-dim)" : "var(--bg-2)", s: yes ? "var(--blue-edge)" : "var(--line-2)", r: 15 }) + T(cols[k - 1] + 38, y + 28, r[k], { c: yes ? "var(--blue-ink)" : "var(--text-dim)" });
+        g += R(cols[k - 1] + 6, y + 10, 68, 32, { f: yes ? "var(--blue-dim)" : "var(--bg-2)", s: yes ? "var(--blue-edge)" : "var(--line-2)", r: 16 }) + T(cols[k - 1] + 40, y + 31, r[k], { z: 14, c: yes ? "var(--blue-ink)" : "var(--text-dim)" });
       }
     });
-    rows.forEach((_, i) => (g += hit(ids[i], 3, y0 + i * rh + 2, 434, rh - 4, 12)));
-    return svg(440, y0 + rows.length * rh + 4, g);
+    rows.forEach((_, i) => (g += hit(ids[i], 3, y0 + i * rh + 2, 374, rh - 4, 12)));
+    return svg(380, y0 + rows.length * rh + 4, g);
   })();
 
   const whatGroups = (() => {
@@ -93,8 +93,8 @@
       g += T(gx + 45, base + 18, d[0] + " stops", { z: 13 });
     });
     g += [["Exact search", 0], ["Evolutionary algorithm", 1], ["Random guessing", 2]].map(([s, k], i) => R(10 + [0, 98, 292][i], 6, 12, 12, { f: col[k], s: ink[k], r: 3, sw: 1.5 }) + T(26 + [0, 98, 292][i], 16, s, { a: "start", z: 12 })).join("");
-    g += T(22, base + 36, "Score = % of the best plan known. “none” = no answer within the time limit.", { a: "start", z: 12, c: "var(--text-dim)" });
-    return svg(440, 244, g);
+    g += T(22, base + 38, "Score = % of the best plan known.", { a: "start", z: 12, c: "var(--text-dim)" }) + T(22, base + 56, "“none” = no answer within the time limit.", { a: "start", z: 12, c: "var(--text-dim)" });
+    return svg(440, 262, g);
   })();
 
   B.add("l1-what", [
@@ -206,15 +206,15 @@
 
   const monkeyCycle = (() => {
     const [id, defs] = arrowDef();
-    const bx = [[20, 40], [250, 40], [250, 170], [20, 170]], names = [["Make a child:", "change one letter"], ["Count how many", "letters match"], ["Keep the child unless", "it matches fewer"], ["The kept string", "becomes the parent"]];
-    const w = 170, h = 56;
+    const bx = [[10, 40], [250, 40], [250, 170], [10, 170]], names = [["Make a child:", "change one letter"], ["Count how many", "letters match"], ["Keep the child unless", "it matches fewer"], ["The kept string", "becomes the parent"]];
+    const w = 180, h = 64;
     let g = defs;
     g += `<path d="M${bx[0][0] + w} ${bx[0][1] + h / 2} L${bx[1][0] - 4} ${bx[1][1] + h / 2}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
     g += `<path d="M${bx[1][0] + w / 2} ${bx[1][1] + h + 2} L${bx[2][0] + w / 2} ${bx[2][1] - 6}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
     g += `<path d="M${bx[2][0] - 2} ${bx[2][1] + h / 2} L${bx[3][0] + w + 6} ${bx[3][1] + h / 2}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
     g += `<path d="M${bx[3][0] + w / 2} ${bx[3][1] - 2} L${bx[0][0] + w / 2} ${bx[0][1] + h + 6}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
     bx.forEach(([x, y], i) => {
-      g += `<g data-pick="b${i + 1}">${R(x, y, w, h, { r: 14, s: "var(--blue-edge)", f: "var(--blue-dim)", sw: 3 })}</g>${T(x + w / 2, y + 24, names[i][0], { z: 13, c: "var(--ink)" })}${T(x + w / 2, y + 42, names[i][1], { z: 13, c: "var(--ink)" })}`;
+      g += `<g data-pick="b${i + 1}">${R(x, y, w, h, { r: 14, s: "var(--blue-edge)", f: "var(--blue-dim)", sw: 3 })}</g>${T(x + w / 2, y + 27, names[i][0], { z: 15, c: "var(--ink)" })}${T(x + w / 2, y + 48, names[i][1], { z: 15, c: "var(--ink)" })}`;
     });
     return svg(440, 250, g);
   })();
@@ -334,7 +334,7 @@
     g += L(x0 - 10, Y(0.6), 430, Y(0.6), { c: "var(--amber)", d: "5 5", sw: 1.5 }) + T(x0 - 14, Y(0.6) + 4, "small", { a: "end", z: 12, c: "var(--amber-ink)" });
     sizes.forEach((N, i) => {
       const cx = x0 + 10 + i * cw + cw / 2 - 4;
-      res[N].forEach((v, k) => (g += C(cx + ((k % 4) - 1.5) * 11, Y(Math.min(v, 1.02)) + 0, 4.5, { f: v > 0.9 ? "var(--teal)" : "var(--amber)", s: "var(--panel)", sw: 1 })));
+      res[N].forEach((v, k) => (g += C(cx + ((k % 6) - 2.5) * 11.5, Y(Math.min(v, 1.02)) + (k < 6 ? -6 : 6), 5, { f: v > 0.9 ? "var(--teal)" : "var(--amber)", s: "var(--panel)", sw: 1 })));
       g += T(cx, y1 + 20, N === 1 ? "1 climber" : N + " climbers", { z: 13 });
       g += hit("n" + N, cx - cw / 2 + 2, y0 - 8, cw - 4, y1 - y0 + 34, 10);
     });
@@ -432,13 +432,13 @@
   const appsHeat = (() => {
     const px = 5, py = 2, v = (c, r) => Math.max(0, 8 - (Math.abs(c - px) + Math.abs(r - py)));
     const rules = [["P", (c, r) => v(c, r) / 8], ["Q", (c, r) => (c === px && r === py ? 1 : 0)], ["R", (c, r) => Math.floor(v(c, r) / 3) / 2]];
-    const cs = 17; let g = "";
+    const cs = 19; let g = "";
     rules.forEach(([name, fn], pi) => {
-      const ox = 8 + pi * 148;
+      const ox = 4 + pi * 150;
       for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) { const val = fn(c, r); g += `<rect x="${ox + 8 + c * cs}" y="${8 + r * cs}" width="${cs}" height="${cs}" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/><rect x="${ox + 8 + c * cs}" y="${8 + r * cs}" width="${cs}" height="${cs}" fill="var(--teal)" fill-opacity="${val}" stroke="var(--line)" stroke-width="1"/>`; }
       g += T(ox + 8 + px * cs + cs / 2, 8 + py * cs + 13, "★", { z: 13, c: "var(--ink)" }) + T(ox + 8 + 3.5 * cs, 8 + 7 * cs + 20, "Score " + name, { z: 14 });
     });
-    return svg(450, 160, g);
+    return svg(450, 176, g);
   })();
 
   const appsLamps = (() => {
@@ -494,8 +494,8 @@
     },
     {
       type: "cat",
-      q: "An engineer uses an EA to evolve a new antenna design. Who does each piece of work?",
-      buckets: ["The engineer", "The EA", "Nobody: not needed"],
+      q: "An engineer uses an EA to evolve a new antenna design. Who does each piece of work: you (the engineer), the EA, or neither because it isn't needed?",
+      buckets: ["You", "The EA", "Neither"],
       items: [
         ["Decide what makes a design good, as a score", 0],
         ["Choose how a design is written down as a chromosome", 0],
@@ -505,7 +505,7 @@
         ["Know a step-by-step recipe for the best design", 2],
         ["Know in advance what the best design looks like", 2],
       ],
-      why: "The human supplies the two problem-specific parts: a fitness function and an encoding. Everything else (random starts, variation, selection) is generic and the EA does it. Nobody needs a recipe or a picture of the answer: that is why EAs can produce designs that surprise the experts.",
+      why: "The engineer supplies the two problem-specific parts: a fitness function and an encoding. Everything else (random starts, variation, selection) is generic and the EA does it. Neither needs a recipe or a picture of the answer: that is why EAs can produce designs that surprise the experts.",
     },
   ]);
 
@@ -556,7 +556,7 @@
     let g = "";
     for (let i = 0; i <= 10; i++) g += L(X(i), y1, X(i), Y(10), { c: "var(--line)", sw: 1 }) + L(x0, Y(i), X(10), Y(i), { c: "var(--line)", sw: 1 }) + (i % 2 === 0 ? T(X(i), y1 + 17, i, { z: 12, c: "var(--text-dim)" }) + T(x0 - 8, Y(i) + 4, i, { a: "end", z: 12, c: "var(--text-dim)" }) : "");
     g += L(x0, y1, X(10), y1) + L(x0, y1, x0, Y(10)) + T(X(5), y1 + 36, "gene x", { z: 13, c: "var(--text-dim)" }) + T(10, 160, "gene y", { z: 13, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 10 160)" `);
-    [["Parent 1", [2, 6]], ["Parent 2", [7, 3]]].forEach(([n, [x, y]]) => (g += R(X(x) - 11, Y(y) - 11, 22, 22, { f: "var(--violet-dim)", s: "var(--violet)", r: 5, sw: 3 }) + T(X(x), Y(y) - 18, n, { z: 12, c: "var(--violet-ink)" })));
+    [["Parent 1", [2, 6]], ["Parent 2", [7, 3]]].forEach(([n, [x, y]]) => (g += R(X(x) - 11, Y(y) - 11, 22, 22, { f: "var(--violet-dim)", s: "var(--violet)", r: 5, sw: 3 }) + T(X(x), Y(y) + 28, n, { z: 12, c: "var(--violet-ink)" })));
     Object.entries(kids).forEach(([k, [x, y]]) => (g += `<g data-pick="${k}">${C(X(x), Y(y), 13, { s: "var(--blue)", sw: 3 })}${T(X(x), Y(y) + 5, k, { z: 13, c: "var(--ink)" })}</g>`));
     return svg(420, 346, g);
   })();
@@ -571,16 +571,16 @@
 
   const genFlow = (() => {
     const [id, defs] = arrowDef();
-    const bx = 20, bw = 190, bh = 34, ys = [26, 84, 142, 200], decY = 262;
+    const bx = 40, bw = 240, bh = 36, ys = [26, 84, 142, 200], decY = 262;
     const names = ["Random population, scored", "Select parents", "Vary: mutate / recombine", "Score children, update population"];
     let g = defs;
     const arrow = (pid, d, label) => `<g data-pick="${pid}"><path d="${d}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/><path d="${d}" stroke="transparent" stroke-width="22" fill="none"/></g>`;
-    ys.forEach((y, i) => (g += R(bx, y, bw, bh, { r: 10, f: i === 0 ? "var(--teal-dim)" : "var(--blue-dim)", s: i === 0 ? "var(--teal)" : "var(--blue-edge)", sw: 2.5 }) + T(bx + bw / 2, y + 22, names[i], { z: 13, c: "var(--ink)" })));
+    ys.forEach((y, i) => (g += R(bx, y, bw, bh, { r: 10, f: i === 0 ? "var(--teal-dim)" : "var(--blue-dim)", s: i === 0 ? "var(--teal)" : "var(--blue-edge)", sw: 2.5 }) + T(bx + bw / 2, y + 23, names[i], { z: 14, c: "var(--ink)" })));
     g += `<polygon points="${bx + bw / 2},${decY - 4} ${bx + bw / 2 + 80},${decY + 22} ${bx + bw / 2},${decY + 48} ${bx + bw / 2 - 80},${decY + 22}" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2.5"/>` + T(bx + bw / 2, decY + 27, "Time left?", { z: 13, c: "var(--ink)" });
-    g += R(300, decY + 6, 110, 34, { r: 10, f: "var(--rose-dim)", s: "var(--rose)", sw: 2.5 }) + T(355, decY + 28, "Stop: report best", { z: 12, c: "var(--ink)" });
+    g += R(310, decY + 4, 106, 38, { r: 10, f: "var(--rose-dim)", s: "var(--rose)", sw: 2.5 }) + T(363, decY + 28, "Stop: report best", { z: 12, c: "var(--ink)" });
     g += arrow("a1", `M${bx + bw / 2} ${ys[0] + bh} L${bx + bw / 2} ${ys[1] - 6}`) + arrow("a2", `M${bx + bw / 2} ${ys[1] + bh} L${bx + bw / 2} ${ys[2] - 6}`) + arrow("a3", `M${bx + bw / 2} ${ys[2] + bh} L${bx + bw / 2} ${ys[3] - 6}`) + arrow("a4", `M${bx + bw / 2} ${ys[3] + bh} L${bx + bw / 2} ${decY - 8}`);
-    g += arrow("a5", `M${bx + bw / 2 + 80} ${decY + 22} L${296} ${decY + 22}`) + T(255, decY + 14, "no", { z: 12, c: "var(--text-dim)" });
-    g += arrow("a6", `M${bx + bw / 2 - 80} ${decY + 22} L${6} ${decY + 22} L${6} ${ys[0] + bh / 2} L${bx - 4} ${ys[0] + bh / 2}`) + T(52, decY + 14, "yes", { z: 12, c: "var(--text-dim)" });
+    g += arrow("a5", `M${bx + bw / 2 + 80} ${decY + 22} L${306} ${decY + 22}`) + T(272, decY + 14, "no", { z: 12, c: "var(--text-dim)" });
+    g += arrow("a6", `M${bx + bw / 2 - 80} ${decY + 22} L${14} ${decY + 22} L${14} ${ys[0] + bh / 2} L${bx - 4} ${ys[0] + bh / 2}`) + T(64, decY + 14, "yes", { z: 12, c: "var(--text-dim)" });
     return svg(420, 318, g);
   })();
 
@@ -629,17 +629,17 @@
      ===================================================================== */
   const optCube = (() => {
     const w = [30, 70, 75], Tg = 100, f = (b) => Math.abs(b[0] * w[0] + b[1] * w[1] + b[2] * w[2] - Tg);
-    const posOf = (b) => [60 + 160 * b[0] + 70 * b[2], 196 - 110 * b[1] - 46 * b[2]];
+    const posOf = (b) => [60 + 160 * b[0] + 70 * b[2], 224 - 110 * b[1] - 46 * b[2]];
     const all = [...Array(8).keys()].map((i) => [(i >> 2) & 1, (i >> 1) & 1, i & 1]);
     let g = "";
     all.forEach((a) => all.forEach((b) => { const d = (a[0] !== b[0]) + (a[1] !== b[1]) + (a[2] !== b[2]); if (d === 1 && a.join("") < b.join("")) { const [x1, y1] = posOf(a), [x2, y2] = posOf(b); g += L(x1, y1, x2, y2, { c: "var(--line-2)", sw: 3 }); } }));
-    all.forEach((b) => { const [x, y] = posOf(b), k = b.join(""); g += `<g data-pick="v${k}">${C(x, y, 25, { s: "var(--blue)", sw: 3 })}</g>${T(x, y - 2, k, { z: 14 })}${T(x, y + 13, "f = " + f(b), { z: 12, c: "var(--text-dim)" })}`; });
-    g += T(215, 18, "Weights 30, 70 and 75 kg · f = |total − 100|, lower is better", { z: 12, c: "var(--text-dim)" });
-    return svg(400, 236, g);
+    all.forEach((b) => { const [x, y] = posOf(b), k = b.join(""); g += `<g data-pick="v${k}">${C(x, y, 28, { s: "var(--blue)", sw: 3 })}</g>${T(x, y - 2, k, { z: 14 })}${T(x, y + 14, "f = " + f(b), { z: 12, c: "var(--text-dim)" })}`; });
+    g += T(215, 16, "Weights 30, 70, 75 kg · f = |total − 100| · lower is better", { z: 12, c: "var(--text-dim)" });
+    return svg(400, 262, g);
   })();
 
   const optRuler = (() => {
-    const x0 = 24, U = 15.2, X = (e) => x0 + e * U, y = 108;
+    const x0 = 22, U = 14.6, X = (e) => x0 + e * U, y = 108;
     let g = L(x0, y, X(25), y, { sw: 3 });
     [0, 5, 10, 15, 20, 25].forEach((e) => (g += L(X(e), y - 5, X(e), y + 5, { sw: 2 }) + T(X(e), y + 25, e === 0 ? "1 s" : "10<tspan dy='-5' style='font-size:10px'>" + e + "</tspan>", { z: 12, c: "var(--text-dim)" })));
     [[4.94, "a day", 62], [9.5, "a century", 40], [17.6, "age of the universe", 62]].forEach(([e, s, ty]) => (g += L(X(e), ty + 6, X(e), y, { c: "var(--amber)", d: "3 3", sw: 2 }) + T(X(e), ty, s, { z: 12, c: "var(--amber-ink)" })));
@@ -668,13 +668,13 @@
   })();
 
   const optStep = (() => {
-    const imp = { 0: 100, 40: 55, 110: 30, 200: 12, 412: 0 }, x0 = 44, W = 380, y1 = 170, y0 = 22, X = (t) => x0 + (t / 1000) * W, Y = (v) => y1 - (v / 100) * (y1 - y0);
+    const imp = { 0: 100, 40: 55, 110: 30, 200: 12, 412: 0 }, x0 = 44, W = 340, y1 = 170, y0 = 22, X = (t) => x0 + (t / 1000) * W, Y = (v) => y1 - (v / 100) * (y1 - y0);
     let cur = 100, pts = [[X(0), Y(100)]]; for (let t = 1; t <= 1000; t++) { if (imp[t] !== undefined) { pts.push([X(t), Y(cur)]); cur = imp[t]; pts.push([X(t), Y(cur)]); } } pts.push([X(1000), Y(cur)]);
     let g = L(x0, y1, x0 + W + 4, y1) + L(x0, y0 - 6, x0, y1);
     [0, 50, 100].forEach((v) => (g += L(x0, Y(v), x0 + W, Y(v), { c: "var(--line)", sw: 1 }) + T(x0 - 8, Y(v) + 4, v, { a: "end", z: 12, c: "var(--text-dim)" })));
-    g += poly(pts, "var(--teal)", 3.5) + T(235, 14, "Best fitness found so far (lower is better, never below 0)", { z: 12, c: "var(--text-dim)" }) + T(x0 + W / 2, y1 + 50, "candidates checked", { z: 12, c: "var(--text-dim)" });
-    [200, 300, 412, 700, 1000].forEach((t) => (g += `<g data-pick="k${t}">${L(X(t), Y(0), X(t), y1, { c: "var(--blue-edge)", d: "3 4", sw: 2 })}${C(X(t), y1 + 20, 14, { s: "var(--blue)", sw: 3 })}${T(X(t), y1 + 24, t, { z: 11, c: "var(--ink)" })}</g>`));
-    return svg(440, 232, g);
+    g += poly(pts, "var(--teal)", 3.5) + T(235, 14, "Best fitness found so far (lower is better, never below 0)", { z: 12, c: "var(--text-dim)" }) + T(x0 + W / 2, y1 + 56, "candidates checked", { z: 12, c: "var(--text-dim)" });
+    [150, 300, 412, 700, 1000].forEach((t) => (g += `<g data-pick="k${t}">${L(X(t), Y(0), X(t), y1, { c: "var(--blue-edge)", d: "3 4", sw: 2 })}${C(X(t), y1 + 22, 17, { s: "var(--blue)", sw: 3 })}${T(X(t), y1 + 27, t, { z: 12, c: "var(--ink)" })}</g>`));
+    return svg(420, 238, g);
   })();
 
   B.add("l2-optim", [
@@ -756,10 +756,10 @@
     [[1, "1"], [100, "100"], [1e4, "10,000"], [1e6, "1,000,000"]].forEach(([v, s]) => (g += L(x0, Y(v), x0 + W, Y(v), { c: "var(--line)", sw: 1 }) + T(x0 - 6, Y(v) + 4, s, { a: "end", z: 11, c: "var(--text-dim)" })));
     const P = [], Q = []; for (let n = 10; n <= 30; n += 0.5) { P.push([X(n), Y(Math.pow(2, n) / 1000)]); Q.push([X(n), Y(n * n * n)]); }
     g += poly(P, "var(--amber)", 3.5) + poly(Q, "var(--blue)", 3.5);
-    g += T(X(12), Y(1e3) - 28, "2ⁿ ÷ 1000", { z: 12, c: "var(--amber-ink)" }) + T(X(11.5), Y(1e3) + 18, "n³", { z: 13, c: "var(--blue-ink)" });
-    g += T(235, 14, "Steps needed (log scale: each line is ×100)", { z: 12, c: "var(--text-dim)" });
+    g += L(x0 + 8, 14, x0 + 34, 14, { c: "var(--amber)", sw: 4 }) + T(x0 + 40, 18, "P: 2ⁿ ÷ 1000", { a: "start", z: 13, c: "var(--amber-ink)" }) + L(x0 + 170, 14, x0 + 196, 14, { c: "var(--blue)", sw: 4 }) + T(x0 + 202, 18, "Q: n³", { a: "start", z: 13, c: "var(--blue-ink)" });
+    g += T(235, y1 + 50, "steps needed (log scale: each line is ×100 the one below)", { z: 12, c: "var(--text-dim)" });
     [10, 15, 20, 25, 30].forEach((n) => (g += `<g data-pick="n${n}">${L(X(n), y1, X(n), y0, { c: "var(--line-2)", d: "2 5", sw: 1.5 })}${C(X(n), y1 + 20, 14, { s: "var(--violet)", sw: 3 })}${T(X(n), y1 + 25, n, { z: 13, c: "var(--ink)" })}</g>`));
-    return svg(440, 236, g);
+    return svg(440, 262, g);
   })();
 
   B.add("l2-complexity", [
@@ -817,27 +817,27 @@
      l2-mst
      ===================================================================== */
   const mstPlans = (() => {
-    const pos = { A: [18, 56], B: [58, 18], C: [58, 94], D: [100, 56], E: [138, 18], F: [138, 94] };
+    const pos = { A: [20, 70], B: [66, 24], C: [66, 116], D: [118, 70], E: [162, 24], F: [162, 116] };
     const plans = [
       ["1", [["C", "D", 1], ["A", "B", 2], ["E", "F", 2], ["B", "C", 3], ["D", "E", 3]]],
       ["2", [["A", "B", 2], ["B", "C", 3], ["C", "D", 1], ["D", "F", 6], ["E", "F", 2]]],
       ["3", [["A", "B", 2], ["C", "D", 1], ["E", "F", 2], ["B", "C", 3]]],
       ["4", [["A", "C", 4], ["B", "C", 3], ["C", "D", 1], ["D", "E", 3], ["E", "F", 2]]],
     ];
-    const ox = [6, 168], oy = [4, 134];
+    const ox = [4, 176], oy = [4, 160];
     let g = "";
     plans.forEach(([name, edges], i) => {
       const x0 = ox[i % 2], y0 = oy[Math.floor(i / 2)];
-      g += R(x0, y0, 154, 124, { r: 12 });
-      edges.forEach(([a, b, c]) => { const [x1, y1] = pos[a], [x2, y2] = pos[b]; g += L(x0 + x1, y0 + y1 - 4, x0 + x2, y0 + y2 - 4, { c: "var(--blue)", sw: 3 }); });
+      g += R(x0, y0, 170, 150, { r: 12 });
+      edges.forEach(([a, b, c]) => { const [x1, y1] = pos[a], [x2, y2] = pos[b]; g += L(x0 + x1, y0 + y1, x0 + x2, y0 + y2, { c: "var(--blue)", sw: 3.5 }); });
       edges.forEach(([a, b, c]) => {
-        const [x1, y1] = pos[a], [x2, y2] = pos[b], dx = x2 - x1, dy = y2 - y1, Ln = Math.hypot(dx, dy), lx = x0 + (x1 + x2) / 2 - (dy / Ln) * 9, ly = y0 + (y1 + y2) / 2 - 4 + (dx / Ln) * 9;
-        g += R(lx - 8, ly - 8, 16, 16, { f: "var(--panel)", s: "none", r: 4, sw: 0 }) + T(lx, ly + 4, c, { z: 13, c: "var(--rose-ink)" });
+        const [x1, y1] = pos[a], [x2, y2] = pos[b], dx = x2 - x1, dy = y2 - y1, Ln = Math.hypot(dx, dy), lx = x0 + (x1 + x2) / 2 - (dy / Ln) * 10, ly = y0 + (y1 + y2) / 2 + (dx / Ln) * 10;
+        g += R(lx - 8, ly - 9, 16, 18, { f: "var(--panel)", s: "none", r: 4, sw: 0 }) + T(lx, ly + 5, c, { z: 14, c: "var(--rose-ink)" });
       });
-      Object.entries(pos).forEach(([k, [x, y]]) => (g += C(x0 + x, y0 + y - 4, 8, { s: "var(--text-dim)", sw: 2.5 })));
-      g += T(x0 + 77, y0 + 118, "Plan " + name, { z: 13 }) + hit("p" + name, x0, y0, 154, 124, 12);
+      Object.entries(pos).forEach(([k, [x, y]]) => (g += C(x0 + x, y0 + y, 9, { s: "var(--text-dim)", sw: 3 })));
+      g += T(x0 + 85, y0 + 144, "Plan " + name, { z: 14 }) + hit("p" + name, x0, y0, 170, 150, 12);
     });
-    return svg(330, 262, g);
+    return svg(350, 314, g);
   })();
 
   const mstTrace = (() => {
@@ -851,8 +851,8 @@
 
   const mstMatrix = (() => {
     const names = "ABCDE", M = { AB: 7, AC: 3, AE: 9, BC: 2, BD: 5, CD: 6, CE: 8, DE: 4 };
-    const x0 = 56, y0 = 40, cs = 52;
-    let g = T(180, 18, "Cost of each possible cable (– means none)", { z: 13, c: "var(--text-dim)" });
+    const x0 = 56, y0 = 62, cs = 52;
+    let g = T(180, 16, "Cost of each possible cable (– means none)", { z: 13, c: "var(--text-dim)" });
     [...names].forEach((n, i) => (g += T(x0 + i * cs + cs / 2, y0 - 6, n, { z: 15, c: "var(--blue-ink)" }) + T(x0 - 18, y0 + i * cs + cs / 2 + 5, n, { z: 15, c: "var(--blue-ink)" })));
     for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
       const x = x0 + c * cs, y = y0 + r * cs;

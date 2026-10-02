@@ -118,12 +118,12 @@
       f.forEach((v, i) => {
         const w = (380 * v) / tot;
         if (w > 0) s += rc(x, y, w, 40, { f: `var(--${cols[i][0]})`, s: `var(--${cols[i][1]})`, sw: 2.5, r: 0 }) + tx(x + w / 2, y + 26, v, { f: "900 14px" });
-        else s += tx(x, y + 26, "0", { a: "start", f: "900 14px", c: "var(--text-faint)" });
+        else s += tx(x - 6, y + 26, "0", { a: "end", f: "900 14px", c: "var(--text-faint)" });
         x += w;
       });
     });
-    s += tx(30, 170, "bar length = each member's share of the parent picks", { a: "start", f: "700 12px", c: "var(--text-faint)" });
-    return svg(450, 182, s);
+    s += tx(30, 188, "bar length = each member's share of the parent picks", { a: "start", f: "700 12px", c: "var(--text-faint)" });
+    return svg(450, 198, s);
   };
 
   // best fitness so far: jumps at generations 5, 12, 25, 31, 58 (levels 20, 35, 50, 58, 63)
@@ -136,7 +136,7 @@
     [0, 50, 100, 150, 200].forEach((g) => (s += ln(X(g), 200, X(g), 206, "var(--text-faint)", 2) + tx(X(g), 222, g, { f: "700 12px", c: "var(--text-faint)" })));
     [0, 20, 40, 60].forEach((f) => (s += tx(44, Y(f) + 4, f, { a: "end", f: "700 11px", c: "var(--text-faint)" })));
     s += pl(pts, "var(--teal)", 3.5);
-    [[31, 58], [51, 58], [78, 63], [100, 63], [200, 63]].forEach(([g, f]) => (s += hit("g" + g, `${ci(X(g), Y(f), 14, { s: "var(--blue)", sw: 3 })}${tx(X(g), Y(f) + 4, g, { f: "900 11px" })}`)));
+    [[31, 58], [51, 58], [78, 63], [100, 63], [200, 63]].forEach(([g, f]) => (s += ln(X(g), Y(f) - 10, X(g), Y(f), "var(--blue)", 2, "3 3") + hit("g" + g, `${ci(X(g), Y(f) - 25, 14, { s: "var(--blue)", sw: 3 })}${tx(X(g), Y(f) - 21, g, { f: "900 11px" })}`)));
     s += tx(250, 244, "generation", { f: "700 12px", c: "var(--text-faint)" });
     s += `<text transform="translate(12,115) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">best fitness so far</text>`;
     return svg(470, 254, s);
@@ -198,7 +198,7 @@
     rows.forEach((r, i) => cols.forEach((c, j) => {
       if (j + 1 <= i) return;
       const k = r + c, d = TRI[k], x = x0 + j * W, y = y0 + i * H, t = ticked.includes(k);
-      s += hit(k, `${rc(x + 2, y + 2, W - 4, H - 4, { f: "var(--blue)", o: 0.1 + d * 0.06, s: t ? "var(--teal)" : "var(--line-2)", sw: t ? 3.5 : 2, r: 8 })}${tx(x + W / 2, y + H / 2 + 6, d, { f: "900 18px" })}${t ? tx(x + W - 14, y + 18, "✓", { f: "900 14px", c: "var(--teal-ink)" }) : ""}`);
+      s += hit(k, `${rc(x + 2, y + 2, W - 4, H - 4, { f: "var(--blue)", o: 0.1 + d * 0.06, s: t ? "var(--teal)" : "var(--line-2)", sw: t ? 3.5 : 2, r: 8 })}${tx(x + W / 2, y + H / 2 + 6, d, { f: "900 18px" })}${t ? `<path d="M${x + W - 22} ${y + 14} l5 5 l9 -10" fill="none" stroke="var(--teal-ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}`);
     }));
     s += tx(x0 + 2 * W, y0 + 4 * H + 24, "Ticked cells add up to 15. Darker blue = farther apart.", { f: "700 12px", c: "var(--text-faint)" });
     return svg(400, 280, s);
@@ -262,7 +262,7 @@
       hint: "Fixing the starting city means dividing by how many cities could have been the start.",
       why: "There are 7 possible starting cities for the same loop, so step 2 should divide by 7, not 6: 5,040 ÷ 7 = 720. Halving for direction gives 360, which is (7 − 1)! ÷ 2. The student's 420 is too big. Step 1 and step 3 are correct." },
     { type: "slider", q: "Each bar shows the six hop lengths of one tour of the same six cities, in order. About how many per cent longer is the nearest-neighbour tour than the best tour?",
-      fig: hopFig(), min: 0, max: 100, step: 5, ans: 45, tol: 10, unit: "%",
+      fig: hopFig(), min: 0, max: 120, step: 5, ans: 45, tol: 10, unit: "%",
       hint: "Add each bar's numbers. A tour 50% longer than 17 would be 25.5.",
       why: "Nearest-neighbour: 2 + 2 + 2 + 4 + 4 + 11 = 25. Best: 3 + 4 + 2 + 3 + 3 + 2 = 17. 25 is about 47% more than 17. The greedy tour spent only 14 on its first five hops, but those cheap hops used up the nearby cities and left a 11-long hop home, longer than any hop of the best tour (its longest is 4)." },
   ]);
@@ -378,8 +378,8 @@
   };
 
   const basinFig = () => {
-    const parts = [["peak 90", 10, "teal"], ["peak 70", 45, "blue"], ["peak 60", 30, "amber"], ["peak 40", 15, "violet"]];
-    let x = 20, s = tx(20, 22, "random start lands in the zone that climbs to…", { a: "start", f: "800 13px" });
+    const parts = [["90", 10, "teal"], ["70", 45, "blue"], ["60", 30, "amber"], ["40", 15, "violet"]];
+    let x = 20, s = tx(20, 22, "share of random starts that climb to the peak of height…", { a: "start", f: "800 13px" });
     parts.forEach(([t, p, c]) => { const w = p * 4.2; s += rc(x, 34, w, 44, { f: `var(--${c}-dim)`, s: `var(--${c})`, sw: 2.5, r: 0 }) + tx(x + w / 2, 54, p + "%", { f: "900 14px" }) + tx(x + w / 2, 70, t, { f: "700 11px", c: "var(--text-dim)" }); x += w; });
     return svg(470, 96, s);
   };
@@ -490,16 +490,16 @@
       return s + hit(id, rc(26, y - 4, 100 * U + 8, 52, { f: "transparent", s: "transparent", sw: 2, r: 8 }));
     };
     let s = bar("A", "Run A: 100 steps", [40, 24, 36], 34) + bar("B", "Run B: 100 steps", [70, 15, 15], 112);
-    [["var(--teal-dim)", "var(--teal)", "neighbour better: moved"], ["var(--amber-dim)", "var(--amber)", "worse, accepted by chance"], ["var(--bg-2)", "var(--line-2)", "worse, rejected"]].forEach(([f, st, t], i) => (s += rc(30 + i * 140, 176, 16, 16, { f, s: st, sw: 2, r: 3 }) + tx(52 + i * 140, 189, t, { a: "start", f: "700 11px", c: "var(--text-dim)" })));
+    [["var(--teal-dim)", "var(--teal)", "better: moved"], ["var(--amber-dim)", "var(--amber)", "worse: accepted"], ["var(--bg-2)", "var(--line-2)", "worse: rejected"]].forEach(([f, st, t], i) => (s += rc(30 + i * 140, 176, 16, 16, { f, s: st, sw: 2, r: 3 }) + tx(52 + i * 140, 189, t, { a: "start", f: "700 12px", c: "var(--text-dim)" })));
     return svg(470, 204, s);
   };
 
   const treeProbFig = () => {
-    const bx = (x, y, a, b, c) => rc(x - 65, y - 22, 130, 44, { r: 11, s: `var(--${c})`, sw: 2.5 }) + tx(x, y - 3, a, { f: "800 12px" }) + tx(x, y + 13, b, { f: "800 12px" });
-    let s = ln(135, 100, 170, 52, "var(--line-2)", 2.5) + ln(135, 100, 170, 148, "var(--line-2)", 2.5) + ln(300, 48, 330, 48, "var(--line-2)", 2.5) + ln(300, 152, 330, 122, "var(--line-2)", 2.5) + ln(300, 152, 330, 188, "var(--line-2)", 2.5);
-    s += bx(70, 100, "pick one random", "neighbour", "blue") + bx(235, 48, "neighbour is", "better", "teal") + bx(235, 152, "neighbour is", "worse", "rose") + bx(395, 48, "move: cost", "falls", "teal") + bx(395, 122, "accept: cost", "goes up", "amber") + bx(395, 188, "reject: stay", "put", "line-2");
-    s += tx(142, 66, "0.25", { f: "900 13px", c: "var(--teal-ink)" }) + tx(142, 144, "0.75", { f: "900 13px", c: "var(--rose-ink)" });
-    s += tx(300, 128, "p = 0.2", { f: "900 13px", c: "var(--amber-ink)" }) + tx(306, 186, "0.8", { f: "900 13px", c: "var(--text-dim)" });
+    const bx = (x, y, a, b, c) => rc(x - 60, y - 22, 120, 44, { r: 11, s: `var(--${c})`, sw: 2.5 }) + tx(x, y - 3, a, { f: "800 12px" }) + tx(x, y + 13, b, { f: "800 12px" });
+    let s = ln(130, 100, 175, 52, "var(--line-2)", 2.5) + ln(130, 100, 175, 148, "var(--line-2)", 2.5) + ln(295, 48, 340, 48, "var(--line-2)", 2.5) + ln(295, 152, 340, 122, "var(--line-2)", 2.5) + ln(295, 152, 340, 188, "var(--line-2)", 2.5);
+    s += bx(70, 100, "pick one random", "neighbour", "blue") + bx(235, 48, "neighbour is", "better", "teal") + bx(235, 152, "neighbour is", "worse", "rose") + bx(400, 48, "move: cost", "falls", "teal") + bx(400, 122, "accept: cost", "goes up", "amber") + bx(400, 188, "reject: stay", "put", "line-2");
+    s += tx(138, 64, "0.25", { f: "900 13px", c: "var(--teal-ink)" }) + tx(138, 146, "0.75", { f: "900 13px", c: "var(--rose-ink)" });
+    s += tx(300, 118, "p = 0.2", { f: "900 13px", c: "var(--amber-ink)" }) + tx(312, 196, "0.8", { f: "900 13px", c: "var(--text-dim)" });
     return svg(470, 220, s);
   };
 

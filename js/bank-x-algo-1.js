@@ -280,4 +280,96 @@
       o: ["Node A", "Node B", "Node C", "Node D"], a: 2,
       why: "C was first reached at 9, dropped to 6 when A was settled, and dropped again to 5 when B was settled. B dropped once (4 to 3) and D once (10 to 6). A was reached at 1 and never improved, because nothing can beat the node next to the start." },
   ]);
+
+  /* =====================================================================
+     a2-code  (Dijkstra code lab)
+     ===================================================================== */
+  // 1. printed result of a buggy relax step (Python run on the map S-X 7, S-Y 2, Y-X 3, X-Z 1)
+  const outDiff = (() => {
+    const rows = [["S", "0", "0"], ["X", "5", "1"], ["Y", "2", "2"], ["Z", "6", "1"]];
+    let b = T(70, 18, "node", { sz: 12, c: "var(--text-faint)" }) + T(190, 18, "should print", { sz: 12, c: "var(--text-faint)" }) + T(330, 18, "your code printed", { sz: 12, c: "var(--text-faint)" });
+    rows.forEach(([k, e, g], i) => {
+      const y = 28 + i * 40, bad = e !== g;
+      b += R(20, y, 440, 32, { rx: 8 }) + T(70, y + 22, k, { sz: 16, c: "var(--ink)", w: 900 }) + T(190, y + 22, e, { sz: 16, f: "var(--mono)" });
+      b += R(270, y + 3, 120, 26, { rx: 8, fill: bad ? tint("rose") : tint("teal"), stroke: bad ? col("rose") : col("teal") }) + T(330, y + 22, g, { sz: 16, f: "var(--mono)", c: bad ? ink("rose") : ink("teal") });
+    });
+    return SVG(480, 196, b, "Expected and printed distances for the map");
+  })();
+
+  // 2. look-by-look trace of a student's relax step that only writes a distance the first time (Python run)
+  const lookTrace = (() => {
+    const rows = [["S – X", "7", "∞", "7"], ["S – Y", "2", "∞", "2"], ["Y – S", "4", "0", "0"], ["Y – X", "5", "7", "7"], ["X – S", "14", "0", "0"], ["X – Y", "10", "2", "2"], ["X – Z", "8", "∞", "8"]];
+    let b = T(40, 18, "road checked", { a: "start", sz: 12, c: "var(--text-faint)" }) + T(190, 18, "cand", { sz: 12, c: "var(--text-faint)" }) + T(290, 18, "dist[v] was", { sz: 12, c: "var(--text-faint)" }) + T(410, 18, "dist[v] now", { sz: 12, c: "var(--text-faint)" });
+    rows.forEach(([r, c, w, n], i) => {
+      const y = 26 + i * 38;
+      b += R(8, y, 484, 32, { rx: 10 }) + T(40, y + 22, r, { a: "start", sz: 15, c: "var(--ink)", w: 900 }) + T(190, y + 22, c, { sz: 15, f: "var(--mono)" }) + T(290, y + 22, w, { sz: 15, f: "var(--mono)" }) + T(410, y + 22, n, { sz: 15, f: "var(--mono)" }) + pk("l" + (i + 1), hit(8, y, 484, 32));
+    });
+    return SVG(500, 26 + rows.length * 38 + 4, b, "A trace of the roads checked, with the candidate and the distance before and after");
+  })();
+
+  // 3. a one-way adjacency table for four towns (row = from, column = to)
+  const adjTable = (() => {
+    const names = ["S", "X", "Y", "Z"], have = { SX: 7, SY: 2, YX: 3, XZ: 1 }, cell = 62, x0 = 90, y0 = 46;
+    let b = T(x0 + 2 * cell, 16, "to", { sz: 13, c: "var(--text-dim)" }) + T(36, y0 + 2 * cell + 4, "from", { sz: 13, c: "var(--text-dim)" });
+    names.forEach((p, j) => (b += T(x0 + j * cell + cell / 2, y0 - 8, p, { sz: 16, c: "var(--ink)", w: 900 })));
+    names.forEach((s, i) => {
+      b += T(x0 - 14, y0 + i * cell + cell / 2 + 6, s, { a: "end", sz: 16, c: "var(--ink)", w: 900 });
+      names.forEach((r, j) => {
+        const x = x0 + j * cell, y = y0 + i * cell, v = have[s + r];
+        if (s === r) { b += R(x, y, cell, cell, { rx: 0, sw: 1.5, fill: "var(--bg-2)" }); return; }
+        b += R(x, y, cell, cell, { rx: 0, sw: 1.5, fill: v ? tint("blue") : "var(--panel)", stroke: v ? col("blue") : "var(--line-2)" }) + (v ? T(x + cell / 2, y + cell / 2 + 6, String(v), { sz: 18, c: "var(--ink)", w: 900 }) : pk(s + r, hit(x + 3, y + 3, cell - 6, cell - 6, 6)));
+      });
+    });
+    b += T(x0 + 2 * cell, y0 + 4 * cell + 22, "Row S says: from S, road to X is 7 and to Y is 2.", { sz: 12, c: "var(--text-dim)" });
+    return SVG(400, y0 + 4 * cell + 32, b, "A table of roads, row = from, column = to, with four filled cells");
+  })();
+
+  // 4. a map with an island (verified by counting looks in the Python run: 8)
+  const islandMap = (() => {
+    const pos = { S: [44, 96], A: [140, 36], B: [140, 156], C: [250, 156], D: [350, 44], E: [440, 96], F: [380, 160] };
+    const edges = [["S", "A", 2], ["S", "B", 5], ["A", "B", 1], ["B", "C", 3], ["D", "E", 4], ["E", "F", 2]];
+    let b = R(300, 8, 192, 188, { rx: 18, fill: "var(--bg-2)", dash: "7 5" }) + T(396, 188, "no road to S", { sz: 12, c: "var(--text-dim)" });
+    edges.forEach(([u, v]) => (b += L(pos[u][0], pos[u][1], pos[v][0], pos[v][1], { sw: 2.5 })));
+    edges.forEach(([u, v, w]) => (b += wpill((pos[u][0] + pos[v][0]) / 2, (pos[u][1] + pos[v][1]) / 2, w)));
+    Object.entries(pos).forEach(([k, [x, y]]) => (b += node(x, y, k, { fill: k === "S" ? "teal" : null, stroke: k === "S" ? "teal" : null })));
+    b += T(44, 134, "start", { sz: 12, c: ink("teal") });
+    return SVG(500, 204, b, "A map with a connected part containing S and a separate island");
+  })();
+
+  // 5. four frames of a table of distances (run on S-A 2, S-B 5, A-B 1, B-C 3, A-C 7); frame 3 is corrupted
+  const frameFig = (() => {
+    const frames = [[0, 2, 5, null], [0, 2, 3, 9], [0, 2, 4, 6], [0, 2, 3, 6]], nm = ["S", "A", "B", "C"];
+    const pw = 114, bw = 18, h = 110, y0 = 34, Y = (v) => y0 + h - (v / 10) * h;
+    let b = "";
+    frames.forEach((f, k) => {
+      const ox = 6 + k * (pw + 10);
+      b += R(ox, 4, pw, 196, { rx: 12, fill: "var(--panel)" }) + T(ox + pw / 2, 24, "after settle " + (k + 1), { sz: 13, c: "var(--ink)", w: 900 });
+      f.forEach((v, i) => {
+        const x = ox + 12 + i * 25;
+        if (v === null) b += R(x, y0, bw, h, { rx: 3, fill: "var(--bg-2)", dash: "3 3", sw: 1.5 }) + T(x + bw / 2, y0 + h / 2 + 5, "∞", { sz: 14, c: "var(--text-dim)" });
+        else b += R(x, Y(v), bw, h - (Y(v) - y0), { rx: 3, fill: col("blue"), stroke: col("blue"), sw: 1, op: 0.8 }) + T(x + bw / 2, Y(v) - 5, String(v), { sz: 13, c: "var(--ink)", w: 900 });
+        b += T(x + bw / 2, y0 + h + 18, nm[i], { sz: 13, c: "var(--text-dim)" });
+      });
+      b += pk("f" + (k + 1), hit(ox, 4, pw, 196, 12));
+    });
+    return SVG(500, 206, b, "Four small bar charts of the distances to S, A, B and C after each settle");
+  })();
+
+  B.add("a2-code", [
+    { type: "bug", q: "On the map S–X 7, S–Y 2, Y–X 3, X–Z 1 (start S) this relax step prints X = 1 and Z = 1, as the table shows. Click the faulty line.", fig: outDiff,
+      code: ["for v, w in graph[u]:", "    cand = dist[u] + w", "    if cand < dist[v]:", "        dist[v] = w"], a: 3,
+      why: "The test compares the right thing (<code>cand</code>), but the update stores <code>w</code>, the length of one road, instead of the whole route length. Every distance then forgets how far it took to reach u. It should be <code>dist[v] = cand</code>." },
+    { type: "pick", q: "A student's relax step only writes a distance when the node has none yet. Their code printed this trace on the map S–X 7, S–Y 2, Y–X 3, X–Z 1. Click the row where an improvement was missed.", fig: lookTrace, a: "l4",
+      why: "On Y – X the candidate is 5, which beats the 7 that X holds, yet X is still 7 afterwards. A shorter way was found and thrown away, so X and everything beyond it (Z comes out at 8 instead of 6) is too big. The other rows are fine: their candidates either fill an empty ∞ or are not better." },
+    { type: "pick", q: "The roads S–X, S–Y, Y–X and X–Z are two-way, but the code reads <code>graph[u]</code>, the roads out of u. This table only lists each road in one direction. Click every empty cell that must be filled so that every road works both ways.", fig: adjTable, a: ["XS", "YS", "XY", "ZX"],
+      why: "A two-way road needs an entry in both rows: S–X gives S → X (7) and X → S (7), and so on. The missing mirrors are X → S, Y → S, X → Y and Z → X. The other empty cells, such as S to Z, are pairs with no road at all and stay empty." },
+    { type: "mcq", q: "The lab's code records one 'look' for every road it checks out of a node it settles. All roads are two-way and Dijkstra starts at S. How many looks are recorded?", fig: islandMap,
+      o: ["4", "6", "8", "12"], a: 2, hint: "Each road is checked from both ends, but only from nodes that actually get settled.",
+      why: "S, A, B and C are settled. The four roads among them are each looked at from both ends: 8 looks. The island is never reached, so D, E and F are never settled and their two roads are never looked at. Counting every road from both ends would give 12." },
+    { type: "pick", q: "A student's code prints the table of distances after each settle, drawn as four small charts (a dashed bar = ∞, not reached). One frame cannot come from a correct Dijkstra run. Click it.", fig: frameFig, a: "f3",
+      why: "Distances only ever fall or stay level. In frame 3, B has risen from 3 to 4. A route was found for B at 3, so a correct run can never give that up. Frame 4 shows B back at 3, which is why 3 looks like the odd one out." },
+    { type: "match", q: "Four students each made one slip in their Dijkstra code. Match each slip to what they saw when they ran the tests.",
+      pairs: [["The node is never marked as done", "The run never finishes: it hits the 2-second limit"], ["The relax test is written <code>cand &gt; dist[v]</code>", "Only the start gets a distance; everything else stays at ∞"], ["The update is <code>dist[v] = w</code>", "Distances are tiny: each is just one road's length"], ["The next node is the first reached one, not the smallest", "Right on some maps, too big where a side road is shorter"]],
+      why: "Without a done mark, the same smallest node is picked for ever. A reversed test is never true when the old value is ∞, so nothing updates. Storing w forgets the distance so far. Taking any reached node, not the smallest, locks in a node before its shortcut is found, so it works only by luck." },
+  ]);
 })();
