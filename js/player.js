@@ -482,6 +482,11 @@
       contextCard(node, sc);
       askQ(qs(".pl-qwrap", node), sc, {});
       if (sc.retry) addSkip();
+      if (sc.revId && studyTarget(sc.mod)) {
+        const b = el(`<div class="pl-study"><button class="btn small ghost" data-study>${IC.book}<span>Don't know this? Study it, then come back</span></button></div>`);
+        qs(".pl-in", node).appendChild(b);
+        qs("[data-study]", b).onclick = () => studyThenReturn(sc);
+      }
     },
     try(node, sc) {
       node.classList.add("wide");
@@ -752,6 +757,22 @@
     if (ok && fx() && first) fx().floatText(S.go, `+${S.kind === "boss" ? 2 : 1}`, "#ffc800");
   }
 
+  /** The lesson that teaches a revision question: its own module, or for a boss question the first lesson of that lecture. */
+  function studyTarget(modId) {
+    const m = N.modules.find((x) => x.id === modId); if (!m) return null;
+    if (m.num !== "Boss") return m;
+    return N.modules.filter((x) => x.num !== "Boss" && !x.workshop && (x.subject || "nic") === (m.subject || "nic") && x.lecture === m.lecture).sort((a, b) => (a.order || 0) - (b.order || 0))[0] || null;
+  }
+  /** Revision question -> its lesson -> back to the same question. The round is saved first; closing the lesson (finished or quit) reopens it. */
+  function studyThenReturn(sc) {
+    const m = studyTarget(sc.mod); if (!m) return;
+    revSave();
+    const WHO = { nic: "sprout", ds: "pebble", algo: "byte" };
+    const home = location.hash.slice(1) || "practice";
+    close(true);
+    open(m, { home, who: WHO[m.subject || "nic"], returnToRevise: true });
+  }
+
   /** A previous-mistake screen can be skipped: it just moves on (the question stays in Practice's mistakes list). */
   function addSkip() {
     const acts = qs(".pl-actions", S.foot); if (!acts || qs(".pl-skip", acts)) return;
@@ -839,6 +860,7 @@
       const h = s.opts.home || "home";
       if (location.hash.slice(1) !== h) location.hash = h; else window.dispatchEvent(new Event("hashchange"));
     }
+    if (s.opts.returnToRevise) { const r = revSaved(); if (r) setTimeout(() => { if (!S) revise({ resume: true, ...(r.opts || {}), home: (r.opts && r.opts.home) || "practice" }); }, 80); }
   }
 
   /** For tools/smoke.js and tools/boss-test.js. */
