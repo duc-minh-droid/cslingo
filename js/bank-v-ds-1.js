@@ -35,7 +35,7 @@
       const x = 36 + i * 64, h = d * k;
       s += pk("w" + (i + 1), rc(x, base - h, 50, h, { rx: 6, f: "var(--blue-dim, var(--panel))", s: "var(--blue)", sw: 2 }) + tx(x + 25, base - h - 6, d, { s: 12 }) + tx(x + 25, base + 17, "Wk " + (i + 1), { s: 12, c: "var(--text-dim)" }));
     });
-    s += ln(26, base - 100 * k, 548, base - 100 * k, { s: "var(--rose)", sw: 3, d: "7 6" }) + tx(548, base - 100 * k - 8, "One server copes with 100 requests per second", { a: "end", s: 12, c: "var(--rose-ink)" });
+    s += ln(26, base - 100 * k, 548, base - 100 * k, { s: "var(--rose)", sw: 3, d: "7 6" }) + tx(30, base - 100 * k - 8, "One server copes with 100 requests per second", { a: "start", s: 12, c: "var(--rose-ink)" });
     s += tx(10, 12, "Requests per second at the weekly peak", { a: "start", s: 12, c: "var(--text-dim)" });
     return svg(560, 215, s);
   })();
@@ -277,11 +277,11 @@
   const ceiling = (() => {
     const d = (m) => 10 * Math.pow(1.15, m), X = (m) => 50 + m * 20, Y = (v) => 195 - v * 0.62;
     let s = ln(50, 195, 540, 195, { s: "var(--line-2)", sw: 2 }) + ln(50, 12, 50, 195, { s: "var(--line-2)", sw: 2 });
-    s += ln(50, Y(100), 540, Y(100), { s: "var(--rose)", sw: 2.5, d: "7 6" }) + tx(540, Y(100) - 6, "Biggest machine you can buy", { a: "end", s: 12, c: "var(--rose-ink)" });
+    s += ln(50, Y(100), 540, Y(100), { s: "var(--rose)", sw: 2.5, d: "7 6" }) + tx(56, Y(100) - 6, "Biggest machine you can buy", { a: "start", s: 12, c: "var(--rose-ink)" });
     let pts = ""; for (let m = 0; m <= 24; m++) pts += `${X(m)},${Y(d(m))} `;
     s += `<polyline points="${pts}" fill="none" stroke="var(--amber)" stroke-width="3.5"/>`;
     [6, 12, 18, 24].forEach((m) => (s += tx(X(m), 214, "Month " + m, { s: 11.5, c: "var(--text-dim)" }) + pk("m" + m, `<circle cx="${X(m)}" cy="${Y(d(m))}" r="11" fill="var(--panel)" stroke="var(--amber)" stroke-width="3"/>`)));
-    s += tx(30, 18, "Demand", { a: "end", s: 11.5, c: "var(--text-dim)" });
+    s += tx(56, 14, "Demand", { a: "start", s: 11.5, c: "var(--text-dim)" });
     return svg(560, 224, s);
   })();
 

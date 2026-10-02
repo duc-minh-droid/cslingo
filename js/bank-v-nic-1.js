@@ -466,14 +466,14 @@
   const growth = (() => {
     const X = (n) => 60 + n * 18, Y = (v) => 190 - v / 160000 * 160;
     const line = (f, c) => `<polyline fill="none" stroke="${c}" stroke-width="3.5" stroke-linejoin="round" points="${Array.from({ length: 21 }, (_, n) => `${X(n)},${Y(f(n)).toFixed(1)}`).join(" ")}"/>`;
-    const hit = () => `<polyline fill="none" stroke="transparent" stroke-width="22" data-hit="" points="${Array.from({ length: 21 }, (_, n) => `${X(n)},${Y(f(n)).toFixed(1)}`).join(" ")}"/>`;
+    const hit = (f) => `<polyline fill="none" stroke="transparent" stroke-width="22" data-hit="" points="${Array.from({ length: 21 }, (_, n) => `${X(n)},${Y(f(n)).toFixed(1)}`).join(" ")}"/>`;
     return svg(480, 250, `
       <line x1="60" y1="190" x2="430" y2="190" stroke="var(--line-2)" stroke-width="2"/><line x1="60" y1="20" x2="60" y2="190" stroke="var(--line-2)" stroke-width="2"/>
       ${[0, 5, 10, 15, 20].map((n) => tx(X(n), 208, n, { z: 11, c: "var(--text-faint)" })).join("")}${tx(245, 230, "n (size of the problem)", { z: 12, c: "var(--text-dim)" })}
       ${tx(44, 34, "160k", { z: 11, a: "end", c: "var(--text-faint)" })}${tx(44, 194, "0", { z: 11, a: "end", c: "var(--text-faint)" })}${tx(18, 110, "steps", { z: 12, c: "var(--text-dim)" })}
-      <g data-pick="lin">${line((n) => 5000 * n, "var(--violet)")}${hit()}</g>
-      <g data-pick="poly">${line((n) => n ** 4, "var(--blue)")}${hit()}</g>
-      <g data-pick="exp">${line((n) => 1.3 ** n, "var(--rose)")}${hit()}</g>
+      <g data-pick="lin">${line((n) => 5000 * n, "var(--violet)")}${hit((n) => 5000 * n)}</g>
+      <g data-pick="poly">${line((n) => n ** 4, "var(--blue)")}${hit((n) => n ** 4)}</g>
+      <g data-pick="exp">${line((n) => 1.3 ** n, "var(--rose)")}${hit((n) => 1.3 ** n)}</g>
       ${tx(436, 62, "n⁴", { a: "start", c: "var(--blue-ink)" })}${tx(436, 95, "5000n", { a: "start", c: "var(--violet-ink)" })}${tx(436, 186, "1.3ⁿ", { a: "start", c: "var(--rose-ink)" })}`);
   })();
   const ccol = (i, n, p, e, id) => `<g data-pick="${id}">${rect(14 + i * 90, 10, 82, 120, { f: "var(--panel)" })}${tx(55 + i * 90, 32, "n = " + n, { z: 13 })}${tx(55 + i * 90, 62, "n³", { z: 11, c: "var(--blue-ink)" })}${tx(55 + i * 90, 82, p, { z: 13, c: "var(--blue-ink)" })}${tx(55 + i * 90, 106, "1.5ⁿ", { z: 11, c: "var(--rose-ink)" })}${tx(55 + i * 90, 124, e, { z: 13, c: "var(--rose-ink)" })}</g>`;
