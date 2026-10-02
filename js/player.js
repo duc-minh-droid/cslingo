@@ -673,6 +673,7 @@
     wrap.innerHTML = `${compact ? `<div class="pl-check-q"><span class="pl-tag orange">Quick check</span><div class="pl-q-text">${Q.q}</div></div>` : presenter(Q.q)}
       <div class="q-fig"></div><div class="q-body pl-body qt-${type}"></div>${Q.hint ? `<div class="q-hint"><button class="btn ghost small" data-hint>Need a nudge?</button><div class="q-hint-t" hidden>${Q.hint}</div></div>` : ""}`;
     const fig = qs(".q-fig", wrap), body = qs(".q-body", wrap);
+    if (sc.revId && N.glossify) N.glossify(qs(".pl-prompt, .pl-q-text", wrap)); // revision questions: underline key terms with a short definition on hover or tap
     if (Q.fig && type !== "pick") { try { typeof Q.fig === "function" ? Q.fig(fig) : (fig.innerHTML = Q.fig); } catch (e) { console.error(e); } }
     const hb = qs("[data-hint]", wrap);
     if (hb) hb.onclick = () => { const t = qs(".q-hint-t", wrap); t.hidden = false; hb.remove(); if (fx()) fx().reveal(t); };
