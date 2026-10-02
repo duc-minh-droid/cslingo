@@ -9,10 +9,10 @@
   const uid = () => "m" + Math.random().toString(36).slice(2, 7);
   /* a maths plane (y up) with a light grid. Returns X, Y mappers and the grid markup */
   function plane(xmax, ymax, w, h) {
-    const x0 = 30, y0 = h - 26, X = (x) => x0 + (x * (w - x0 - 12)) / xmax, Y = (y) => y0 - (y * (y0 - 12)) / ymax;
+    const x0 = 44, y0 = h - 26, X = (x) => x0 + (x * (w - x0 - 12)) / xmax, Y = (y) => y0 - (y * (y0 - 12)) / ymax;
     let g = "";
     for (let i = 0; i <= xmax; i++) g += `<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(ymax)}" stroke="var(--line)"/>` + txt(X(i), Y(0) + 16, i, { w: 700, s: 11, c: "var(--text-faint)" });
-    for (let j = 0; j <= ymax; j++) g += `<line x1="${X(0)}" y1="${Y(j)}" x2="${X(xmax)}" y2="${Y(j)}" stroke="var(--line)"/>` + txt(X(0) - 9, Y(j) + 4, j, { a: "end", w: 700, s: 11, c: "var(--text-faint)" });
+    for (let j = 0; j <= ymax; j++) g += `<line x1="${X(0)}" y1="${Y(j)}" x2="${X(xmax)}" y2="${Y(j)}" stroke="var(--line)"/>` + txt(X(0) - 14, Y(j) + 4, j, { a: "end", w: 700, s: 11, c: "var(--text-faint)" });
     return { X, Y, g };
   }
   const dot = (cx, cy, label, o = {}) => `<g ${o.id ? `data-pick="${o.id}"` : ""}><circle cx="${cx}" cy="${cy}" r="${o.r || 11}" fill="${o.fill || "var(--panel)"}" stroke="${o.stroke || "var(--line-2)"}" stroke-width="3" ${o.dash ? 'stroke-dasharray="4 3"' : ""}/>${txt(cx, cy + 4, label, { s: o.s || 12, c: o.tc || "var(--ink)", w: 900 })}</g>`;
@@ -29,7 +29,7 @@
     for (let j = 0; j <= 6; j++) s += `<line x1="${X(0)}" y1="${Y(j)}" x2="${X(6)}" y2="${Y(j)}" stroke="var(--line)"/>` + txt(X(0) - 9, Y(j) + 4, j, { a: "end", w: 700, s: 11, c: "var(--text-faint)" });
     s += `<polygon points="${Object.values(P).map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--teal-dim)" stroke="var(--teal)" stroke-width="3" stroke-linejoin="round"/>`;
     s += txt(X(4) + 10, Y(5.75), "x ≤ 4", { a: "start", c: "var(--blue-ink)" }) + txt(X(4.2), Y(4.2), "x + y ≤ 7", { a: "start", c: "var(--blue-ink)" }) + txt(X(4.15), Y(5) + 4, "y ≤ 5", { a: "start", c: "var(--blue-ink)" });
-    s += txt(X(6) - 2, Y(0) + 16, "x", { a: "end", c: "var(--text-dim)" }) + txt(X(0) + 8, Y(6) - 2, "y", { a: "start", c: "var(--text-dim)" });
+    s += txt(X(6) + 14, Y(0) + 4, "x", { a: "start", c: "var(--text-dim)" }) + txt(X(0) + 8, Y(6) - 2, "y", { a: "start", c: "var(--text-dim)" });
     s += Object.entries(P).map(([k, [x, y]]) => dot(X(x), Y(y), k, { id: opts.pick ? k : "", r: 13, s: 13 })).join("");
     return svg(400, 262, s);
   }
@@ -97,8 +97,8 @@
         `<line x1="${BX(0)}" y1="112" x2="${BX(1)}" y2="112" stroke="var(--line-2)" stroke-width="4" stroke-linecap="round"/>` +
         [["L", 0, 0.382, "[a, c]"], ["M", 0.382, 0.618, "[c, d]"], ["R", 0.618, 1, "[d, b]"]].map(([id, x1, x2, l]) => `<g data-pick="${id}"><rect x="${BX(x1) + 2}" y="76" width="${BX(x2) - BX(x1) - 4}" height="68" rx="8" fill="var(--bg-2)" fill-opacity=".5" stroke="var(--line-2)" stroke-width="2" stroke-dasharray="5 4"/>${txt((BX(x1) + BX(x2)) / 2, 136, l, { c: "var(--text-dim)" })}</g>`).join("") +
         [["a", 0], ["c", 0.382], ["d", 0.618], ["b", 1]].map(([l, x]) => `<circle cx="${BX(x)}" cy="112" r="6" fill="var(--blue)"/>${txt(BX(x), 162, l, { s: 14, c: "var(--ink)" })}`).join("") +
-        `<rect x="${BX(0.382) - 52}" y="14" width="104" height="30" rx="9" fill="var(--panel)" stroke="var(--blue)" stroke-width="2"/>${txt(BX(0.382), 34, "f(c) = 2.9", { c: "var(--blue-ink)" })}` +
-        `<rect x="${BX(0.618) - 52}" y="14" width="104" height="30" rx="9" fill="var(--panel)" stroke="var(--blue)" stroke-width="2"/>${txt(BX(0.618), 34, "f(d) = 2.1", { c: "var(--blue-ink)" })}`),
+        `<rect x="${BX(0.382) - 46}" y="14" width="92" height="30" rx="9" fill="var(--panel)" stroke="var(--blue)" stroke-width="2"/>${txt(BX(0.382), 34, "f(c) = 2.9", { c: "var(--blue-ink)" })}` +
+        `<rect x="${BX(0.618) - 46}" y="14" width="92" height="30" rx="9" fill="var(--panel)" stroke="var(--blue)" stroke-width="2"/>${txt(BX(0.618), 34, "f(d) = 2.1", { c: "var(--blue-ink)" })}`),
       a: "L", why: "f(d) is lower than f(c). An unimodal function that is already lower at d than at c must still be heading downhill beyond c, so the minimum cannot lie left of c. The search discards [a, c] and keeps [c, b], with d inside it." },
     { type: "pick",
       q: "This function has TWO dips, so it is not unimodal. Golden-section search on [0, 1] probes at c and d with the values marked. Click the dip it will end up trapped in.",
@@ -165,7 +165,7 @@
       a: 2, why: "The centre must be the average of the two better corners, (best + mid) / 2. Including the worst corner drags the centre towards it, so the reflection barely leaves the triangle and the search crawls." },
     { type: "mcq",
       q: "After many iterations the triangle looks like the last panel. Why is that a problem?",
-      fig: svg(480, 130, [[60, "start", "50,95 120,100 80,35"], [210, "iteration 20", "200,100 280,98 235,60"], [370, "iteration 60", "320,95 440,70 440,64"]].map(([x, l, pts], i) => `<polygon points="${pts.split(" ").map((p) => { const [a, b] = p.split(","); return `${+a - (i === 0 ? 0 : 0)},${b}`; }).join(" ")}" fill="var(--violet)" fill-opacity=".15" stroke="var(--violet)" stroke-width="2.5"/>${txt(x + (i === 0 ? 25 : i === 1 ? 20 : 90), 124, l, { c: "var(--text-dim)", s: 12 })}`).join("")),
+      fig: svg(480, 130, `<polygon points="50,95 120,100 80,35" fill="var(--violet)" fill-opacity=".15" stroke="var(--violet)" stroke-width="2.5"/>${txt(85, 122, "start", { c: "var(--text-dim)", s: 12 })}<polygon points="190,100 270,98 225,60" fill="var(--violet)" fill-opacity=".15" stroke="var(--violet)" stroke-width="2.5"/>${txt(230, 122, "iteration 20", { c: "var(--text-dim)", s: 12 })}<polygon points="320,95 450,70 450,64" fill="var(--violet)" fill-opacity=".15" stroke="var(--violet)" stroke-width="2.5"/>${txt(385, 122, "iteration 60", { c: "var(--text-dim)", s: 12 })}`),
       o: ["Every reflection stays close to one line, so the search can barely move sideways and stalls", "The three corners can no longer be ranked, so the best and worst are chosen at random", "A thin triangle means the minimum has been found, so the search should already have stopped", "Reflections now always land outside the valley, so expansions are never allowed"], a: 0,
       why: "A sliver has almost no width, so flipping a corner only moves the point along the sliver's own line. Without a spread in the second direction the triangle cannot turn or follow a bend in the valley. Restarting with a fresh full-size triangle usually fixes it." },
     { type: "mcq",
@@ -190,7 +190,7 @@
   B.add("a4-cut", [
     { type: "pick",
       q: "The dashed line cuts the graph into {A, B, C} and {D, E, F}. All weights are different. Click the one edge the cut property guarantees is in some minimum spanning tree.",
-      fig: tail(G(CN, CE, { pick: "edges", w: 460, h: 260, hl: hlSides }), `<line x1="235" y1="8" x2="235" y2="252" stroke="var(--rose)" stroke-width="3" stroke-dasharray="7 6"/>${txt(235, 252, "cut", { c: "var(--rose-ink)" })}`),
+      fig: tail(G(CN, CE, { pick: "edges", w: 460, h: 260, hl: hlSides }), `<line x1="262" y1="26" x2="262" y2="258" stroke="var(--rose)" stroke-width="3" stroke-dasharray="7 6"/>${txt(262, 16, "cut", { c: "var(--rose-ink)" })}`),
       a: "C-D", why: "Only B–D (7), C–D (3) and C–E (8) cross the cut. The cheapest crossing edge, C–D, is safe. E–F (1) is the lightest in the whole graph, but it lies inside one side, so the cut says nothing about it here." },
     { type: "pick",
       q: "All weights are different. Click every edge that the cycle property rules out (an edge that is the heaviest on some cycle).",
@@ -232,7 +232,7 @@
   B.add("a4-mst", [
     { type: "pick",
       q: "Prim's algorithm started at A. Its tree so far is the green part (A, D, B, C). Click the edge it adds next.",
-      fig: tail(G(LN, LE, { pick: "edges", w: 400, h: 250, hl: { A: teal, B: teal, C: teal, D: teal, "A-D": teal, "A-B": teal, "B-C": teal } }), txt(340, 125, "green = in the tree", { a: "middle", s: 12, c: "var(--teal-ink)" })),
+      fig: tail(G(LN, LE, { pick: "edges", w: 400, h: 250, hl: { A: teal, B: teal, C: teal, D: teal, "A-D": teal, "A-B": teal, "B-C": teal } }), txt(200, 244, "green = already in the tree", { a: "middle", s: 12, c: "var(--teal-ink)" })),
       a: "C-F", hint: "Only edges with exactly one green end can be added. List those three weights.",
       why: "Edges leaving the tree are B–E (6), D–E (5) and C–F (4). Prim takes the cheapest one that crosses from the tree to the rest, which is C–F. E–F (7) touches no tree node, so it cannot be picked yet." },
     { type: "pick",
@@ -380,7 +380,7 @@
     { type: "pick",
       q: "A student sorted the points by angle round the anchor P0 and numbered them 1 to 6. The numbers on two points were swapped by mistake. Click both of them.",
       fig: g2, a: ["d", "e"],
-      why: "Sweeping counter-clockwise from the right, the dotted lines meet the points in the order a, b, c, e, d, f. So the two points labelled 5 and 4 should read 4 and 5. If the sort is wrong, the stack's left-turn test no longer matches the boundary order and the scan gives a wrong hull." },
+      why: "Sweeping counter-clockwise from the right, the dotted lines reach the point at (4, 5) (angle about 53°) before the point at (2, 5) (about 76°). So the labels 5 and 4 on those two points should read 4 and 5. If the sort is wrong, the stack's left-turn test no longer matches the boundary order and the scan gives a wrong hull." },
     { type: "cat",
       q: "The stack's top two points are shown, then the next point arrives. Does the scan pop the top point, or push straight away?",
       buckets: ["Pop the top point", "Keep it and push"],

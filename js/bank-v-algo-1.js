@@ -93,7 +93,7 @@
     let s = "";
     for (let v = 0; v <= 40; v += 10) s += `<line x1="46" y1="${Y(v)}" x2="502" y2="${Y(v)}" stroke="var(--line)"/>${tx(38, Y(v) + 4, v, { a: "end", sz: 11, c: "var(--text-dim)" })}`;
     for (let n = 0; n <= 40; n += 10) s += tx(X(n), h - 18, n, { sz: 11, c: "var(--text-dim)" });
-    s += tx(274, h - 2, "input size n", { sz: 12, c: "var(--text-dim)" }) + tx(14, 20, "steps", { sz: 12, c: "var(--text-dim)", a: "start" });
+    s += tx(274, h - 2, "input size n", { sz: 12, c: "var(--text-dim)" }) + tx(6, 8, "steps", { sz: 12, c: "var(--text-dim)", a: "start" });
     defs.forEach(([id, f, col, from]) => {
       const [ex, ey] = endOf(f, from || 1), px = X(ex), py = Y(ey);
       s += `<g data-pick="${id}"><path d="${path(f, from || 1, 40)}" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round"/><path d="${path(f, from || 1, 40)}" fill="none" stroke="transparent" stroke-width="18"/><circle cx="${Math.min(px, 494)}" cy="${py + (id === "S" ? -14 : 0)}" r="11" fill="var(--panel)" stroke="${col}" stroke-width="3"/>${tx(Math.min(px, 494), py + (id === "S" ? -9 : 5), id, { sz: 12, c: col })}</g>`;
@@ -145,8 +145,8 @@
     [["S", "T"], ["S", "W"], ["W", "T"], ["T", "U"], ["U", "V"], ["V", "U"]], { pick: "nodes", w: 520, h: 260, ...dArrow });
   const tokenFig = (() => {
     const N = { A: [90, 70], B: [90, 210], C: [330, 210], D: [330, 70] }, tok = { A: 20, B: 20, C: 40, D: 20 };
-    let f = Qf.graph(N, [["A", "B"], ["A", "C"], ["B", "C"], ["C", "D"], ["D", "A"], ["D", "B"]], { w: 430, h: 270, ...dArrow });
-    const lab = Object.entries(N).map(([k, [x, y]]) => `<g>${`<rect x="${x + 22}" y="${y - 38}" width="54" height="22" rx="8" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2"/>`}${tx(x + 49, y - 22, tok[k] + " tokens", { sz: 11, c: "var(--amber-ink)" })}</g>`).join("");
+    let f = Qf.graph(N, [["A", "B"], ["A", "C"], ["B", "C"], ["C", "D"], ["D", "A"], ["D", "B"]], { w: 430, h: 280, ...dArrow });
+    const lab = Object.entries(N).map(([k, [x, y]]) => { const ly = y > 150 ? y + 26 : y - 48; return `<g><rect x="${x - 34}" y="${ly}" width="68" height="22" rx="8" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2"/>${tx(x, ly + 15, tok[k] + " tokens", { sz: 11, c: "var(--amber-ink)" })}</g>`; }).join("");
     return f.replace("</svg>", lab + "</svg>");
   })();
 
@@ -183,9 +183,9 @@
     names.forEach((n, i) => { s += tx(40, 66 + i * 34, "to " + n, { sz: 12, c: "var(--text-dim)", a: "end" }); });
     names.forEach((n, j) => {
       const x = 60 + j * 66;
-      s += `<g data-pick="${n}"><rect x="${x}" y="8" width="58" height="160" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(x + 29, 30, "from " + n, { sz: 12, c: "var(--text-dim)" })}${cols[n].map((v, i) => tx(x + 29, 66 + i * 34, v, { sz: 17, f: "var(--mono)" })).join("")}</g>`;
+      s += `<g data-pick="${n}"><rect x="${x}" y="8" width="58" height="176" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(x + 29, 30, "from " + n, { sz: 12, c: "var(--text-dim)" })}${cols[n].map((v, i) => tx(x + 29, 66 + i * 34, v, { sz: 17, f: "var(--mono)" })).join("")}</g>`;
     });
-    return `<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><div style="flex:1 1 200px;min-width:200px">${g}</div><div style="flex:1 1 280px;min-width:280px">${svg(330, 180, s, true)}</div></div>`;
+    return `<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><div style="flex:1 1 200px;min-width:200px">${g}</div><div style="flex:1 1 280px;min-width:280px">${svg(330, 190, s, true)}</div></div>`;
   })();
 
   const convFig = (() => {
@@ -198,7 +198,7 @@
     s += tx(280, h - 4, "iteration", { sz: 12, c: "var(--text-dim)" });
     s += `<line x1="50" y1="${Y(0.01)}" x2="500" y2="${Y(0.01)}" stroke="var(--rose)" stroke-width="2" style="${dashed}"/>` + tx(498, Y(0.01) - 6, "stop when below 0.01", { a: "end", sz: 11, c: "var(--rose-ink)" });
     const line = (arr) => arr.map((v, i) => `${i ? "L" : "M"}${X(i + 1)} ${Y(v)}`).join("");
-    s += `<g data-pick="low"><path d="${line(e5)}" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/><path d="${line(e5)}" fill="none" stroke="transparent" stroke-width="18"/>${tx(X(2) + 4, Y(e5[1]) + 26, "blue run", { c: "var(--blue-ink)", sz: 12 })}</g>`;
+    s += `<g data-pick="low"><path d="${line(e5)}" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/><path d="${line(e5)}" fill="none" stroke="transparent" stroke-width="18"/>${tx(X(2) + 34, Y(e5[1]) - 16, "blue run", { c: "var(--blue-ink)", sz: 12 })}</g>`;
     s += `<g data-pick="high"><path d="${line(e95)}" fill="none" stroke="var(--amber)" stroke-width="4" stroke-linecap="round"/><path d="${line(e95)}" fill="none" stroke="transparent" stroke-width="18"/>${tx(X(5), Y(e95[4]) - 12, "orange run", { c: "var(--amber-ink)", sz: 12 })}</g>`;
     return svg(w, h, s, true);
   })();
@@ -224,7 +224,7 @@
       code: ["def pagerank(G, tol=1e-8):", "    n = len(G)", "    p = np.zeros(n)", "    while True:", "        new = G @ p", "        if abs(new - p).sum() < tol:", "            return new", "        p = new"], a: 2,
       why: "A matrix times a zero vector is a zero vector, so the loop 'converges' straight away on the wrong answer. The start must be a probability distribution that sums to 1, usually <code>np.full(n, 1 / n)</code>." },
     { type: "mcq", q: "A team's PageRank code adds the damping and the teleport step correctly, but the total rank behaves like this on a web where one page has no outgoing links. What is most likely missing?",
-      fig: sumFig, o: ["Rank held by pages with no outgoing links is never redistributed", "The teleport share (1 − d)/N is being added twice", "The start vector adds up to more than 1", "The loop runs more iterations than it should"], a: 0,
+      fig: sumFig, o: ["Rank held by pages with no links out is never redistributed", "The teleport share (1 − d)/N is being added to every page twice over", "The starting vector was not normalised, so it adds up to more than 1", "The loop keeps running for more iterations than the tolerance needs"], a: 0,
       why: "The total starts at exactly 1 and then falls every round, so something is removing rank. A page with no links pours its rank nowhere unless its column is repaired (replaced by 1/N each). Adding teleport twice would make the total rise, not fall." },
   ]);
 
@@ -299,7 +299,7 @@
       code: ["def astar(start, goal, h, nbrs):", "    g = {start: 0}", "    open_ = [(h(start), start)]", "    while open_:", "        _, u = heapq.heappop(open_)", "        if u == goal:", "            return g[u]", "        for v, w in nbrs(u):", "            if g[u] + w < g.get(v, INF):", "                g[v] = g[u] + w", "                heapq.heappush(open_, (h(v), v))", "    return None"], a: 10,
       why: "The priority must be <code>g[v] + h(v)</code>. Ranking by <code>h</code> alone only chases whatever looks nearest to the goal and ignores what it cost to get there, so the first time the goal is popped the route can be long." },
     { type: "mcq", q: "G is walled in, with the opening on the far side. A* uses Manhattan distance, yet expands almost as many cells as Dijkstra (see the counts). Why?",
-      fig: pocketFig, o: ["Manhattan distance ignores walls, so cells in front of the wall keep looking close to G", "A* has to expand every cell once before it can return a path", "The heuristic is inadmissible here, so A* falls back to Dijkstra", "Dijkstra's search was stopped early to make the comparison fair"], a: 0,
+      fig: pocketFig, o: ["Manhattan distance ignores walls, so cells in front of them look close", "A* must expand every cell on the map once before it can return a path", "The heuristic is inadmissible here, so A* quietly falls back to Dijkstra", "Dijkstra's search was stopped early so that the comparison looks fair"], a: 0,
       why: "h only counts squares, so every cell next to the wall looks only a few steps from G while the real way round is long. A* keeps expanding them until f finally exceeds the length of the route round the back. The heuristic is still admissible; it is just not informative here." },
     { type: "pick", q: "Moves can now be <b>diagonal</b>, costing 1 each, and the heuristic is still Manhattan distance to G (shown in each cell). Click every cell where the heuristic <b>overestimates</b> the true remaining cost.",
       fig: diagFig, a: ["b", "d", "e"], hint: "With diagonal steps, a cell 2 right and 2 up needs just 2 moves, not 4.",
@@ -317,7 +317,7 @@
     let s = `<rect x="10" y="70" width="170" height="86" rx="12" fill="var(--panel)" stroke="var(--blue)" stroke-width="3"/>${tx(95, 100, "Router A", { sz: 15, c: "var(--blue-ink)" })}${tx(95, 124, "route to X:", { sz: 12, c: "var(--text-dim)" })}${tx(95, 144, "cost 7, via D", { sz: 14 })}`;
     nb.forEach(([n, link, adv], i) => {
       const y = 10 + i * 58;
-      s += `<line x1="180" y1="113" x2="330" y2="${y + 24}" stroke="var(--line-2)" stroke-width="3"/>${tx(255, (113 + y + 24) / 2 - 4 + (i < 2 ? -2 : 12), "link " + link, { sz: 12, c: "var(--text-dim)" })}`;
+      s += `<line x1="180" y1="113" x2="330" y2="${y + 24}" stroke="var(--line-2)" stroke-width="3"/>${tx(262, 113 + (y + 24 - 113) * 0.55 - 7, "link " + link, { sz: 12, c: "var(--text-dim)" })}`;
       s += `<g data-pick="${n}"><rect x="330" y="${y}" width="180" height="48" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(420, y + 20, "Router " + n + " advertises", { sz: 12, c: "var(--text-dim)" })}${tx(420, y + 39, "\"X is " + adv + " away\"", { sz: 14 })}</g>`;
     });
     return svg(520, 245, s, true);
@@ -356,8 +356,8 @@
     const sx = (w - 60) / xmax, sy = (h - 56) / ymax, X = (x) => 40 + x * sx, Y = (y) => h - 30 - y * sy;
     let s = "";
     for (let i = 0; i <= xmax; i++) s += `<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(ymax)}" stroke="var(--line)"/>${tx(X(i), Y(0) + 16, i, { sz: 11, c: "var(--text-dim)" })}`;
-    for (let i = 0; i <= ymax; i++) s += `<line x1="${X(0)}" y1="${Y(i)}" x2="${X(xmax)}" y2="${Y(i)}" stroke="var(--line)"/>${tx(X(0) - 8, Y(i) + 4, i, { a: "end", sz: 11, c: "var(--text-dim)" })}`;
-    s += tx(X(xmax) - 6, Y(0) + 28, "x", { sz: 12, c: "var(--text-dim)" }) + tx(X(0) - 26, Y(ymax) + 4, "y", { sz: 12, c: "var(--text-dim)" });
+    for (let i = 0; i <= ymax; i++) s += `<line x1="${X(0)}" y1="${Y(i)}" x2="${X(xmax)}" y2="${Y(i)}" stroke="var(--line)"/>${tx(X(0) - 16, Y(i) + 4, i, { a: "end", sz: 11, c: "var(--text-dim)" })}`;
+    s += tx(X(xmax) - 6, Y(0) + 28, "x", { sz: 12, c: "var(--text-dim)" }) + tx(X(0) - 30, Y(ymax) + 4, "y", { sz: 12, c: "var(--text-dim)" });
     return { X, Y, s };
   };
   const minFig = (() => {
@@ -365,8 +365,9 @@
     const poly = [[4, 0], [5, 0], [5, 5], [0, 5], [0, 4]];
     let o = s + `<polygon points="${poly.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--teal-dim)" stroke="var(--teal)" stroke-width="3"/>`;
     o += tx(X(2.5) + 24, Y(2.5) + 4, "feasible region", { sz: 12, c: "var(--teal-ink)" }) + tx(X(1), Y(2) + 4, "x + y ≥ 4", { sz: 12, c: "var(--text-dim)" });
-    o += tx(X(5) + 6, Y(6), "x ≤ 5", { a: "start", sz: 12, c: "var(--text-dim)" }) + tx(X(6.9), Y(5) - 6, "y ≤ 5", { a: "end", sz: 12, c: "var(--text-dim)" });
-    poly.forEach(([x, y]) => { o += `<g data-pick="${x},${y}"><circle cx="${X(x)}" cy="${Y(y)}" r="12" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/>${tx(X(x) + (x === 0 ? 34 : x === 5 ? 36 : 0), Y(y) + (x === 0 ? 4 : y === 0 ? 30 : -18), `(${x}, ${y})`, { sz: 11, c: "var(--text-dim)" })}</g>`; });
+    o += tx(X(5) + 8, Y(6.3), "x ≤ 5", { a: "start", sz: 12, c: "var(--text-dim)" }) + tx(X(6.9), Y(5) - 6, "y ≤ 5", { a: "end", sz: 12, c: "var(--text-dim)" });
+    const off = { "4,0": [-14, -16, "end"], "5,0": [16, -10, "start"], "5,5": [16, -6, "start"], "0,5": [18, -12, "start"], "0,4": [18, 20, "start"] };
+    poly.forEach(([x, y]) => { const [dx, dy, an] = off[x + "," + y]; o += `<g data-pick="${x},${y}"><circle cx="${X(x)}" cy="${Y(y)}" r="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/>${tx(X(x) + dx, Y(y) + dy, `(${x}, ${y})`, { sz: 12, c: "var(--text)", a: an })}</g>`; });
     return svg(w, h, o, true);
   })();
   const feasFig = (() => {
@@ -382,11 +383,11 @@
     const w = 520, h = 340, { X, Y, s } = lpBase(8, 7, w, h);
     const poly = [[0, 0], [5, 0], [5, 2], [3, 4], [0, 4]];
     let o = s + `<polygon points="${poly.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--teal-dim)" stroke="none" opacity="0.8"/>`;
-    const line = (id, x1, y1, x2, y2, col, label, lx, ly, anchor) => `<g data-pick="${id}"><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${col}" stroke-width="3"/><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="transparent" stroke-width="18"/>${tx(X(lx), Y(ly), label, { sz: 12, c: col, a: anchor })}</g>`;
-    o += line("oven", 0, 7, 7, 0, "var(--blue)", "Oven hours: x + y ≤ 7", 3.8, 4.9, "start");
-    o += line("demx", 5, 0, 5, 7, "var(--violet)", "Demand for X: x ≤ 5", 5.15, 6.4, "start");
-    o += line("demy", 0, 4, 8, 4, "var(--amber)", "Demand for Y: y ≤ 4", 0.1, 4.25, "start");
-    o += line("flour", 0, 6, 8, 2, "var(--rose)", "Flour: x + 2y ≤ 12", 4.9, 3.35, "start");
+    const line = (id, x1, y1, x2, y2, col, label, lx, ly, anchor) => `<g data-pick="${id}"><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${col}" stroke-width="3"/><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="transparent" stroke-width="18"/><rect x="${X(lx) - label.length * 3.4 - 6}" y="${Y(ly) - 11}" width="${label.length * 6.8 + 12}" height="22" rx="8" fill="var(--panel)" stroke="${col}" stroke-width="2"/>${tx(X(lx), Y(ly) + 4, label, { sz: 12, c: col })}</g>`;
+    o += line("oven", 0, 7, 7, 0, "var(--blue)", "Oven hours: x + y ≤ 7", 6.1, 0.9, "start");
+    o += line("demx", 5, 0, 5, 7, "var(--violet)", "Demand for X: x ≤ 5", 5, 6.5, "start");
+    o += line("demy", 0, 4, 8, 4, "var(--amber)", "Demand for Y: y ≤ 4", 1.5, 4, "start");
+    o += line("flour", 0, 6, 8, 2, "var(--rose)", "Flour: x + 2y ≤ 12", 6.7, 2.65, "start");
     o += tx(X(1.2), Y(1.6), "feasible", { sz: 12, c: "var(--teal-ink)" });
     return svg(w, h, o, true);
   })();
