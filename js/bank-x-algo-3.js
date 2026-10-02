@@ -110,7 +110,7 @@
   // 2. before/after diff table after the mistaken first merge
   const diffFig = (() => {
     const rows = [["S", "Sun", 18, 1, 2], ["C", "Cloud", 11, 2, 2], ["R", "Rain", 8, 3, 3], ["W", "Wind", 5, 4, 4], ["F", "Fog", 3, 5, 4], ["H", "Hail", 1, 5, 2]];
-    let s = TX(70, 20, "Symbol", { s: 11, f: MUTE }) + TX(140, 20, "Count", { s: 11, f: MUTE }) + TX(208, 20, "Before", { s: 11, f: MUTE }) + TX(300, 20, "After", { s: 11, f: MUTE }) + TX(254, 9, "code length (bits)", { s: 10, f: MUTE });
+    let s = TX(60, 18, "Symbol", { s: 11, f: MUTE }) + TX(140, 18, "Reported", { s: 11, f: MUTE }) + TX(208, 18, "Code before", { s: 10, f: MUTE }) + TX(300, 18, "Code after", { s: 10, f: MUTE });
     rows.forEach(([id, n, f, b, a], i) => {
       const y = 28 + i * 34, col = a > b ? RED : a < b ? GRN : "var(--line-2)";
       s += PK(id, hit(2, y - 2, 356, 32) + TX(14, y + 20, id, { a: "start", s: 15 }) + TX(40, y + 20, n, { a: "start", s: 13, f: MUTE }) + TX(140, y + 20, "× " + f, { s: 14 })
@@ -262,24 +262,24 @@
   // block length vs code rate and fixable share
   const blockFig = (() => {
     const ns = [7, 15, 31, 63, 127], rate = [57, 73, 84, 90, 94], ok = [99.8, 99.0, 96.2, 86.9, 63.7];
-    const X = (i) => 60 + i * 62, Y = (v) => 210 - v * 1.7;
+    const X = (i) => 60 + i * 62, Y = (v) => 222 - v * 1.7;
     let s = "";
     [0, 25, 50, 75, 100].forEach((v) => (s += LN(46, Y(v), 340, Y(v), { k: "var(--line-soft, var(--line))", w: 1 }) + TX(40, Y(v) + 4, v + "%", { a: "end", s: 10, f: MUTE })));
     const path = (a, col) => `<path d="${a.map((v, i) => (i ? "L" : "M") + X(i) + " " + Y(v)).join(" ")}" fill="none" stroke="${col}" stroke-width="3"/>` + a.map((v, i) => CI(X(i), Y(v), 4.5, { f: col, k: col, w: 1 })).join("");
     s += path(rate, BLU) + path(ok, RED);
-    ns.forEach((n, i) => (s += TX(X(i), 230, n, { s: 12 })));
-    s += TX(200, 248, "block length (bits)", { s: 11, f: MUTE });
-    s += RC(48, 6, 12, 12, { r: 3, f: BLU, k: BLU, w: 1 }) + TX(66, 17, "code rate (data share)", { a: "start", s: 11 }) + RC(210, 6, 12, 12, { r: 3, f: RED, k: RED, w: 1 }) + TX(228, 17, "blocks with 1 flip or fewer", { a: "start", s: 11 });
-    return SVG(360, 256, s, "Two lines against block length 7, 15, 31, 63, 127: code rate rises from 57 to 94 per cent, blocks with at most one flip fall from 99.8 to 63.7 per cent");
+    ns.forEach((n, i) => (s += TX(X(i), 242, n, { s: 12 })));
+    s += TX(200, 260, "block length (bits)", { s: 11, f: MUTE });
+    s += RC(48, 4, 12, 12, { r: 3, f: BLU, k: BLU, w: 1 }) + TX(66, 15, "code rate (share of bits that are data)", { a: "start", s: 11 }) + RC(48, 22, 12, 12, { r: 3, f: RED, k: RED, w: 1 }) + TX(66, 33, "blocks with one flip or none", { a: "start", s: 11 });
+    return SVG(360, 268, s, "Two lines against block length 7, 15, 31, 63, 127: code rate rises from 57 to 94 per cent, blocks with at most one flip fall from 99.8 to 63.7 per cent");
   })();
 
   // pipeline with four flip spots
   const pipeFig = (() => {
     const box = (x, w, t) => RC(x, 24, w, 38, { r: 10 }) + TX(x + w / 2, 48, t, { s: 11 });
-    let s = box(4, 56, "Data") + box(86, 60, "Encoder") + box(214, 60, "Decoder") + box(300, 56, "Output");
-    s += LN(60, 43, 86, 43, { w: 2.5 }) + LN(116, 43, 214, 43, { w: 2.5, d: "6 4" }) + LN(274, 43, 300, 43, { w: 2.5 });
-    s += TX(165, 82, "wire", { s: 11, f: MUTE });
-    [["A", 73], ["B", 140], ["C", 190], ["D", 287]].forEach(([k, x]) => (s += PK(k, CI(x, 43, 13, { f: AMB, fo: 0.3, k: AMB, w: 2.5 }) + TX(x, 48, k, { s: 14 }))));
+    let s = box(4, 50, "Data") + box(82, 56, "Encoder") + box(218, 56, "Decoder") + box(302, 54, "Output");
+    s += LN(54, 43, 82, 43, { w: 2.5 }) + LN(138, 43, 218, 43, { w: 2.5, d: "6 4" }) + LN(274, 43, 302, 43, { w: 2.5 });
+    s += TX(178, 82, "wire", { s: 11, f: MUTE });
+    [["A", 68], ["B", 160], ["C", 196], ["D", 288]].forEach(([k, x]) => (s += PK(k, CI(x, 43, 11, { f: AMB, fo: 0.3, k: AMB, w: 2.5 }) + TX(x, 48, k, { s: 13 }))));
     [["A", "Data bit flips in memory, before encoding"], ["B", "One data bit flips on the wire"], ["C", "One check bit flips on the wire"], ["D", "One bit flips in the output, after decoding"]].forEach(([k, t], i) => (s += TX(10, 112 + i * 24, `<tspan fill="${AMB}">${k}</tspan>  ${t}`, { a: "start", s: 12 })));
     return SVG(360, 206, s, "Pipeline from data through an encoder, a noisy wire and a decoder to the output, with four marked places where a bit can flip");
   })();
@@ -334,7 +334,7 @@
     P.forEach(([id, ps], k) => {
       const x = 6 + (k % 2) * 178, y = 6 + Math.floor(k / 2) * 138;
       let bars = "";
-      ps.forEach((p, i) => { const h = Math.max(p * 168, 2), bx = x + 18 + i * 38; bars += RC(bx, y + 112 - h, 28, h, { r: 3, f: BLU, fo: p ? 0.5 : 0.15, k: BLU, w: 2 }) + TX(bx + 14, y + 106 - h, +(p * 100).toFixed(1) + "%", { s: 10 }); });
+      ps.forEach((p, i) => { const h = Math.max(p * 140, 2), bx = x + 18 + i * 38; bars += RC(bx, y + 112 - h, 28, h, { r: 3, f: BLU, fo: p ? 0.5 : 0.15, k: BLU, w: 2 }) + TX(bx + 14, y + 106 - h, +(p * 100).toFixed(1) + "%", { s: 10 }); });
       s += PK(id, RC(x, y, 170, 126, { r: 12 }) + TX(x + 12, y + 18, id, { a: "start", s: 15 }) + bars);
     });
     return SVG(360, 276, s, "Four small bar charts of probabilities over four symbols");
@@ -386,12 +386,12 @@
 
   // Huffman cost per flip for blocks of 1..4 flips of a 90/10 coin
   const blockCodeFig = (() => {
-    const vals = [1.0, 0.645, 0.533, 0.493], Y = (v) => 190 - v * 150;
-    let s = LN(24, 190, 352, 190) + LN(30, Y(0.469), 352, Y(0.469), { k: RED, w: 2.5, d: "7 5" });
+    const vals = [1.0, 0.645, 0.533, 0.493], Y = (v) => 200 - v * 140;
+    let s = LN(24, 200, 352, 200) + LN(30, Y(0.469), 352, Y(0.469), { k: RED, w: 2.5, d: "7 5" });
     s += LN(10, 14, 28, 14, { k: RED, w: 2.5, d: "6 4" }) + TX(34, 18, "entropy floor: 0.47", { a: "start", s: 12 }) + TX(354, 18, "bits per flip", { a: "end", s: 11, f: MUTE });
-    vals.forEach((v, i) => { const cx = 70 + i * 86; s += RC(cx - 24, Y(v), 48, v * 150, { r: 4, f: BLU, fo: 0.45, k: BLU, w: 2 }) + TX(cx, Y(v) - 7, v.toFixed(2), { s: 13 }) + TX(cx, 210, i + 1 + (i ? " flips" : " flip"), { s: 12 }); });
-    s += TX(190, 228, "flips coded together as one symbol", { s: 11, f: MUTE });
-    return SVG(360, 236, s, "Bars of Huffman bits per flip for a 90 per cent coin when 1, 2, 3 or 4 flips are grouped: 1.00, 0.65, 0.53, 0.49, above an entropy line at 0.47");
+    vals.forEach((v, i) => { const cx = 70 + i * 86; s += RC(cx - 24, Y(v), 48, v * 140, { r: 4, f: BLU, fo: 0.45, k: BLU, w: 2 }) + TX(cx, Y(v) - 7, v.toFixed(2), { s: 13 }) + TX(cx, 220, i + 1 + (i ? " flips" : " flip"), { s: 12 }); });
+    s += TX(190, 238, "flips coded together as one symbol", { s: 11, f: MUTE });
+    return SVG(360, 246, s, "Bars of Huffman bits per flip for a 90 per cent coin when 1, 2, 3 or 4 flips are grouped: 1.00, 0.65, 0.53, 0.49, above an entropy line at 0.47");
   })();
 
   // three messages: fixed codes vs Huffman table + payload
@@ -436,7 +436,7 @@
     const curve = (id, a, col) => `<path data-pick="${id}" d="${a.map((v, i) => (i ? "L" : "M") + X(i) + " " + Y(v)).join(" ")}" fill="none" stroke="transparent" stroke-width="22" stroke-linejoin="round" style="stroke-linecap:round"/>`
       + `<path d="${a.map((v, i) => (i ? "L" : "M") + X(i) + " " + Y(v)).join(" ")}" fill="none" stroke="${col}" stroke-width="3.5" pointer-events="none"/>`;
     s += curve("t2", ran, AMB) + curve("t1", rep, BLU);
-    s += TX(X(7) - 4, Y(41) + 22, "Text 1", { a: "end", s: 12, f: BLU }) + TX(X(7) - 14, Y(106) + 20, "Text 2", { a: "end", s: 12, f: AMB });
+    s += TX(X(7) - 4, Y(41) + 22, "Text 1", { a: "end", s: 12, f: BLU }) + TX(X(7) + 4, Y(106) - 10, "Text 2", { a: "end", s: 12, f: AMB });
     ns.forEach((n, i) => (s += TX(X(i), 226, n, { s: 11 })));
     s += TX(200, 246, "letters of input read so far", { s: 11, f: MUTE }) + TX(10, 16, "codes sent so far", { a: "start", s: 11, f: MUTE });
     return SVG(360, 254, s, "Two curves of LZW codes sent against letters read: Text 1 climbs to 41 codes, Text 2 climbs to 106 codes");
