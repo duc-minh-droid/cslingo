@@ -65,7 +65,6 @@
     { id: "combo5", t: "Get 5 answers in a row", m: "combo", n: 5, max: true },
     { id: "demo", t: "Tick every step of a demo checklist", m: "demo", n: 1 },
     { id: "boss5", t: "Answer 5 boss questions right", m: "boss", n: 5 },
-    { id: "practice3", t: "Fix 3 mistakes in Practice", m: "practice", n: 3 },
     { id: "predict3", t: "Predict 3 steps in a running figure", m: "predict", n: 3 },
   ];
   function seeded(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296); }

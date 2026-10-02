@@ -41,8 +41,7 @@
         <div class="rv-row"><b>Questions</b><div class="seg rv-size">${SIZES.map((n) => `<button data-n="${n}">${n}</button>`).join("")}</div></div>
         <button class="btn big primary rv-go">Start revision</button>
       </div>
-      <h2>Your sessions</h2>
-      <div class="rv-list"></div>
+      <div class="rv-done"><h2>Sessions you've revised</h2><div class="rv-list"></div></div>
     </div>`);
     main.appendChild(node);
 
@@ -82,7 +81,7 @@
       go.textContent = `Start ${Math.min(prefs.n, avail)} questions`;
       go.disabled = !avail;
       // patch the list: rows that leave fade out, rows that stay keep their node (their bar animates), new rows enter
-      const list = rows.filter((r) => inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
+      const list = rows.filter((r) => r.seen && inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
       const want = new Set(list.map((r) => r.m.id)), have = {};
       Array.from(box.children).forEach((row) => {
         if (row.classList.contains("m-ghost")) return;
@@ -103,6 +102,7 @@
       // ghosts that are fading out go to the end, out of the way of the kept order
       Array.from(box.children).filter((x) => x.classList.contains("m-ghost")).forEach((g) => box.appendChild(g));
       if (painted && added.length && fx.enter) fx.enter(added, { y: 6, stagger: 0.03, dur: fx.DUR.m });
+      qs(".rv-done", node).hidden = !list.length;
       painted = true;
     }
     const save = () => store.set("nic.revPrefs", { n: prefs.n, subjects: prefs.subjects });

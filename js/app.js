@@ -221,7 +221,7 @@
     quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="q-left">${IC.clock}${questsLeft()}</span></div></div>
       ${game.quests().map((q) => `<div class="q-row ${q.done ? "done" : ""}"><div class="q-t"><b>${q.t}</b><span class="q-bar"><span style="transform:scaleX(${q.prog / q.n})"></span><i>${q.prog}/${q.n}</i></span></div>
         ${q.claimed ? `<span class="q-got">${IC.check}</span>` : q.done ? `<button class="q-claim" data-q="${q.id}">${IC.chest}<span>Claim</span></button>` : `<span class="q-chest">${IC.chest}</span>`}</div>`).join("")}`,
-    me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Practice mistakes</span></button>
+    me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Revision</span></button>
       <button class="menu-row" data-act="sound">${IC.sound}<span>Sound: <b>${NIC.sfx.on() ? "on" : "off"}</b></span><kbd>M</kbd></button>`,
   };
   const POP_MOUNT = {
@@ -496,7 +496,6 @@
     if (due >= 5) acts.push({ k: "due", to: "practice/due", t: `Review ${due} due question${due === 1 ? "" : "s"}`, sub: "Short spaced reviews keep it stuck", icon: IC.reset });
     if (next && (!started || next !== started)) acts.push({ k: "next", to: next.id, t: `${status(next) === "new" && !Object.keys(store.get("nic.lessonDone", {})).length ? "Start" : "Next"}: ${esc(next.title)}`, sub: `${next.num === "Boss" ? "Boss quiz" : "Lesson " + next.num}`, icon: IC.star });
     if (due > 0 && due < 5) acts.push({ k: "due", to: "practice/due", t: `Review ${due} due`, icon: IC.reset });
-    if (miss) acts.push({ k: "miss", to: "practice/mistakes", t: `Fix ${miss} mistake${miss === 1 ? "" : "s"}`, icon: IC.dumbbell });
     if (!acts.length) return "";
     const [top, ...rest] = acts;
     return `<div class="td-card"><button class="td-main" data-to="${top.to}"><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
@@ -732,37 +731,8 @@
   // =====================================================================
   //  Practice + Profile pages
   // =====================================================================
-  function practicePage(tab) {
-    const miss = NIC.player.missed.all(), due = NIC.bank ? NIC.bank.stats().due : 0;
-    tab = tab || (miss.length && !due ? "mistakes" : "due");
-    // the tabs are built once; switching Due <-> Mistakes (or coming back from a session) only swaps the panel below them
-    let tabs = qs(".pr-tabs-wrap", main);
-    const was = tabs ? tabs.dataset.tab : null;
-    if (!tabs) {
-      tabs = el(`<div class="page side-page pr-tabs-wrap"><div class="seg pr-tabs" role="tablist">
-        <button role="tab" data-t="due" aria-selected="false"></button><button role="tab" data-t="mistakes" aria-selected="false"></button></div></div>`);
-      main.appendChild(tabs);
-      qsa("[data-t]", tabs).forEach((b) => b.addEventListener("click", () => { location.hash = "practice/" + b.dataset.t; }));
-    } else while (tabs.nextSibling) tabs.nextSibling.remove();
-    tabs.dataset.tab = tab;
-    const seg = qs(".pr-tabs", tabs);
-    qs('[data-t="due"]', seg).innerHTML = `Due reviews${due ? ` <i class="pr-n">${due}</i>` : ""}`;
-    qs('[data-t="mistakes"]', seg).innerHTML = `Mistakes${miss.length ? ` <i class="pr-n">${miss.length}</i>` : ""}`;
-    if (!was) segPill(seg, false);
-    pickSeg(seg, qs(`[data-t="${tab}"]`, seg));
-    const inPlace = !!was, before = main.children.length;
-    // one animation per change: the panel slides in from the side of the tab you picked (nothing when it's the same tab again)
-    const slide = () => { if (inPlace && was !== tab) fx.enter(Array.from(main.children).slice(before), { x: tab === "due" ? -14 : 14, y: 0, stagger: 0, dur: fx.DUR.m }); };
-    if (tab === "due") { NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])), calm: calm || inPlace }); slide(); return; }
-    const page = el(`<div class="page side-page">
-      <div class="sp-hero u-violet">${NIC.mascot({ who: "berry", size: 140, mood: "determined", act: "headbang", acc: ["headphones"] })}<div><h1>Practice</h1><p>Mistakes you made land here. Fix them and they're gone. The rest is a mixed refresh from lessons you've finished.</p></div></div>
-      <div class="card sp-card"><div class="sp-stat"><b>${miss.length}</b><span>mistakes waiting</span></div><button class="btn big primary" id="pStart">Start practice</button></div>
-      ${!miss.length && NIC.art ? `<div class="card ab-empty-card">${NIC.art.empty("practice")}<b>No mistakes waiting</b><span class="faint">Anything you get wrong in a lesson lands here to fix later.</span></div>` : ""}
-      ${miss.length ? `<div class="card"><h3>Waiting to be fixed</h3><ul class="sp-list">${miss.slice(-6).reverse().map((x) => { const Q = x.boss ? (NIC.bossDef(x.boss) || { qs: [] }).qs[x.i] : x.Q; return Q ? `<li>${Q.q}</li>` : ""; }).join("")}</ul></div>` : ""}
-    </div>`);
-    main.appendChild(page);
-    qs("#pStart", page).addEventListener("click", () => NIC.player.practice({ home: "practice/mistakes" }));
-    if (inPlace) slide(); else if (!calm) fx.enter(Array.from(page.children), { stagger: 0.05 });
+  function practicePage() {
+    NIC.revisePage(main, life, { names: Object.fromEntries(SUBJ_ORDER.map((k) => [k, SUBJECTS[k].name])), calm });
   }
 
   function profilePage() {
@@ -857,7 +827,7 @@
     const moved = dockK !== null && dockK !== k; dockK = k;
     dockInd(moved);
     if (moved) fx.bump(qs(`button[data-to="${k}"] svg`, dock), { scale: 1.25, y: -4 });
-    const n = (NIC.bank ? NIC.bank.stats().due : 0) + NIC.player.missed.all().length, bd = qs(".dk-badge", dock);
+    const n = NIC.bank ? NIC.bank.stats().due : 0, bd = qs(".dk-badge", dock);
     if (n) { bd.hidden = false; bd.classList.remove("m-ghost"); bd.textContent = n > 99 ? "99+" : n; }
     else if (!bd.hidden) {
       // count reached 0: the badge shrinks away instead of vanishing
@@ -927,7 +897,7 @@
     // Due / Mistakes tabs: only the panel below the tabs changes
     if ((page === "practice" || page === "revise") && !mod && qs(".pr-tabs", main) && life) {
       closePop(); if (NIC.player.isOpen()) NIC.player.close(true);
-      renderTop(); setDock("practice"); practicePage(page === "revise" ? "due" : id.split("/")[1]); flyXP(); return;
+      renderTop(); setDock("practice"); practicePage(); flyXP(); return;
     }
     const wasHome = homeIn, wasAt = homeIn ? pathAnchor() : null;
     if (homeIn) scrollMem[SUBJECTS[homeIn].home] = wasAt;
@@ -940,7 +910,7 @@
     if (page === "practice" || page === "profile" || page === "revise") {
       renderTop(); setDock(page === "profile" ? "profile" : "practice");
       document.title = `${page === "profile" ? "Profile" : "Practice"} · CSLingo`;
-      page === "profile" ? profilePage() : practicePage(page === "revise" ? "due" : id.split("/")[1]);
+      page === "profile" ? profilePage() : practicePage();
       window.scrollTo(0, 0); flyXP(); return;
     }
     setDock("learn");
