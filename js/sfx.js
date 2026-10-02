@@ -19,9 +19,15 @@
       dl.delayTime.value = 0.085; fb.gain.value = 0.28; lp.type = "lowpass"; lp.frequency.value = 2600; wet.gain.value = 0.16;
       master.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(comp);
     }
-    if (ctx.state === "suspended") ctx.resume();
+    if (ctx.state !== "running") ctx.resume().catch(() => {}); // suspended, or "interrupted" on Safari after a call, a tab switch or a device change
     return ctx;
   }
+  // Browsers only let audio start from a real tap, key press or click, and they switch it off again when the tab is hidden for a while
+  // or the output device changes. Wake it on every gesture, and when the tab comes back, so a sound never finds a sleeping context.
+  const wake = () => { if (!enabled()) return; const A = window.AudioContext || window.webkitAudioContext; if (!A) return; if (ctx && ctx.state === "closed") { ctx = null; master = null; } const c = ac(); if (c && !wake.done && c.state === "running") { wake.done = true; try { const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch { /* unlock tick only */ } } };
+  ["pointerdown", "touchend", "keydown", "click"].forEach((ev) => document.addEventListener(ev, wake, { capture: true, passive: true }));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
+  window.addEventListener("focus", () => { if (ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
 
   /** One enveloped oscillator note. f = start Hz, f2 = end Hz (slide), t = offset s, d = length s. */
   function tone({ f, f2, t = 0, d = 0.12, type = "sine", v = 1, a = 0.005, lp }) {
@@ -92,7 +98,9 @@
   let lastTap = 0;
   function play(name) {
     if (!enabled() || !SOUNDS[name]) return;
-    if (!ac()) return;
+    const c = ac();
+    if (!c) return;
+    if (c.state === "closed") { ctx = null; master = null; return play(name); }
     if (name === "tap") { const n = performance.now(); if (n - lastTap < 60) return; lastTap = n; }
     try { SOUNDS[name](); } catch { /* audio is a nicety; never break the page */ }
   }
