@@ -153,7 +153,7 @@
   B.add("a1-surfer", [
     { type: "pick", q: "Every page starts equal and the usual damped PageRank is run to convergence. Click the page with the <b>highest</b> PageRank. (Arrows show who links to whom.)",
       fig: surfFig1, a: "H", hint: "Which page gets rank from a page that itself receives rank from lots of places?",
-      why: "H wins. It has no more links in than U does, yet it is fed by U <i>and</i> s, and passes everything it has to T, which sends it straight back. U has the most incoming links (three), but they come from pages nobody links to, so they carry almost no rank. A link is worth what its source is worth." },
+      why: "H wins. U and H both have three incoming links, but U's come from p, q and r, which nobody links to, so they carry almost no rank. H is fed by U, by s and by T, and T returns everything H passes it. A link is worth what its source is worth." },
     { type: "pick", q: "This web is run with <b>no teleporting</b> (d = 1), forever. A double arrow means each page links to the other. Click every page whose rank ends up at zero.",
       fig: trapFig, a: ["S", "T", "W"],
       why: "U and V only link to each other, so rank that reaches them never comes back out. S has no incoming links at all, so it gets nothing, W only gets from S, and T's rank drains into the U–V trap. In the long run all of it sits in U and V. Teleporting is what stops this." },
@@ -314,13 +314,13 @@
      ===================================================================== */
   const dvFig = (() => {
     const nb = [["B", 2, 4], ["C", 3, 5], ["D", 3, 4], ["E", 1, 6]];
-    let s = `<rect x="10" y="70" width="170" height="86" rx="12" fill="var(--panel)" stroke="var(--blue)" stroke-width="3"/>${tx(95, 100, "Router A", { sz: 15, c: "var(--blue-ink)" })}${tx(95, 124, "route to X:", { sz: 12, c: "var(--text-dim)" })}${tx(95, 144, "cost 7, via D", { sz: 14 })}`;
+    let s = `<rect x="4" y="74" width="112" height="86" rx="12" fill="var(--panel)" stroke="var(--blue)" stroke-width="3"/>${tx(60, 104, "Router A", { sz: 14, c: "var(--blue-ink)" })}${tx(60, 126, "route to X:", { sz: 12, c: "var(--text-dim)" })}${tx(60, 146, "cost 7, via D", { sz: 13 })}`;
     nb.forEach(([n, link, adv], i) => {
-      const y = 10 + i * 58;
-      s += `<line x1="180" y1="113" x2="330" y2="${y + 24}" stroke="var(--line-2)" stroke-width="3"/>${tx(262, 113 + (y + 24 - 113) * 0.55 - 7, "link " + link, { sz: 12, c: "var(--text-dim)" })}`;
-      s += `<g data-pick="${n}"><rect x="330" y="${y}" width="180" height="48" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(420, y + 20, "Router " + n + " advertises", { sz: 12, c: "var(--text-dim)" })}${tx(420, y + 39, "\"X is " + adv + " away\"", { sz: 14 })}</g>`;
+      const y = 8 + i * 60;
+      s += `<line x1="116" y1="117" x2="204" y2="${y + 24}" stroke="var(--line-2)" stroke-width="3"/>${tx(160, 117 + (y + 24 - 117) * 0.5 - 6, "link " + link, { sz: 12, c: "var(--text-dim)" })}`;
+      s += `<g data-pick="${n}"><rect x="204" y="${y}" width="192" height="48" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(300, y + 20, "Router " + n + " advertises", { sz: 12, c: "var(--text-dim)" })}${tx(300, y + 39, "\"X is " + adv + " away\"", { sz: 14 })}</g>`;
     });
-    return svg(520, 245, s, true);
+    return svg(400, 250, s, true);
   })();
   const poisonFig = (() => {
     const rows = [["X", 3, "A"], ["Y", 2, "C"], ["Z", 5, "A"], ["W", 1, "D"], ["V", 4, "C"]], cx = [60, 170, 290];
@@ -361,17 +361,17 @@
     return { X, Y, s };
   };
   const minFig = (() => {
-    const w = 500, h = 340, { X, Y, s } = lpBase(7, 7, w, h);
+    const w = 440, h = 330, { X, Y, s } = lpBase(7, 7, w, h);
     const poly = [[4, 0], [5, 0], [5, 5], [0, 5], [0, 4]];
     let o = s + `<polygon points="${poly.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--teal-dim)" stroke="var(--teal)" stroke-width="3"/>`;
     o += tx(X(2.5) + 24, Y(2.5) + 4, "feasible region", { sz: 12, c: "var(--teal-ink)" }) + tx(X(1), Y(2) + 4, "x + y ≥ 4", { sz: 12, c: "var(--text-dim)" });
     o += tx(X(5) + 8, Y(6.3), "x ≤ 5", { a: "start", sz: 12, c: "var(--text-dim)" }) + tx(X(6.9), Y(5) - 6, "y ≤ 5", { a: "end", sz: 12, c: "var(--text-dim)" });
-    const off = { "4,0": [-14, -16, "end"], "5,0": [16, -10, "start"], "5,5": [16, -6, "start"], "0,5": [18, -12, "start"], "0,4": [18, 20, "start"] };
+    const off = { "4,0": [4, -18, "start"], "5,0": [16, -10, "start"], "5,5": [16, -6, "start"], "0,5": [18, -12, "start"], "0,4": [20, -2, "start"] };
     poly.forEach(([x, y]) => { const [dx, dy, an] = off[x + "," + y]; o += `<g data-pick="${x},${y}"><circle cx="${X(x)}" cy="${Y(y)}" r="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/>${tx(X(x) + dx, Y(y) + dy, `(${x}, ${y})`, { sz: 12, c: "var(--text)", a: an })}</g>`; });
     return svg(w, h, o, true);
   })();
   const feasFig = (() => {
-    const w = 520, h = 340, { X, Y, s } = lpBase(9, 8, w, h);
+    const w = 450, h = 320, { X, Y, s } = lpBase(9, 8, w, h);
     let o = s;
     o += `<line x1="${X(0)}" y1="${Y(8)}" x2="${X(8)}" y2="${Y(0)}" stroke="var(--blue)" stroke-width="3"/>${tx(X(1.5) + 6, Y(6.5) - 8, "x + y = 8", { sz: 12, c: "var(--blue-ink)", a: "start" })}`;
     o += `<line x1="${X(6)}" y1="${Y(0)}" x2="${X(6)}" y2="${Y(8)}" stroke="var(--violet)" stroke-width="3"/>${tx(X(6) + 6, Y(7.5), "x = 6", { sz: 12, c: "var(--violet-ink)", a: "start" })}`;
@@ -380,7 +380,7 @@
     return svg(w, h, o, true);
   })();
   const bindFig = (() => {
-    const w = 520, h = 340, { X, Y, s } = lpBase(8, 7, w, h);
+    const w = 450, h = 320, { X, Y, s } = lpBase(8, 7, w, h);
     const poly = [[0, 0], [5, 0], [5, 2], [3, 4], [0, 4]];
     let o = s + `<polygon points="${poly.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--teal-dim)" stroke="none" opacity="0.8"/>`;
     const line = (id, x1, y1, x2, y2, col, label, lx, ly, anchor) => `<g data-pick="${id}"><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${col}" stroke-width="3"/><line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="transparent" stroke-width="18"/><rect x="${X(lx) - label.length * 3.4 - 6}" y="${Y(ly) - 11}" width="${label.length * 6.8 + 12}" height="22" rx="8" fill="var(--panel)" stroke="${col}" stroke-width="2"/>${tx(X(lx), Y(ly) + 4, label, { sz: 12, c: col })}</g>`;
