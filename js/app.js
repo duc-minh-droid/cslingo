@@ -360,7 +360,7 @@
     };
     const close = () => {
       if (m._open === false) return; m._open = false;
-      document.removeEventListener("keydown", onK); NIC.shield(false); back();
+      document.removeEventListener("keydown", onK); NIC.shield(false); back(); if (NIC.sfx) NIC.sfx.play("close");
       if (!fx.ok || !fx.exit || !m.isConnected) return m.remove();
       m.classList.add("m-ghost");
       Promise.all([fx.exit(qs(".modal", m), { y: 14, scale: 0.96 }), fx.exit(m, { scale: 1, dur: fx.DUR.s })]).then(() => m.remove());

@@ -142,7 +142,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - Routing: `route()` renders synchronously for lessons, the first render, a re-render of the same page and leaving the player. Only dock-tab and page changes go through `fx.swap`, one frame later. Tests that set `location.hash` to a module id are unaffected.
 
 **Sound**
-- Sound only follows something the learner did. Never add a timer-driven or idle sound. The sneeze gag was removed for exactly this reason.
+- Sound only follows something the learner did (hover included). `js/sfx.js` handles UI sounds for the whole page: hover notes from a pentatonic scale, taps, sliders, dropdowns, dialogs, toasts, code-editor keys. Every `play()` varies its pitch, has a cooldown and gets quieter when repeated, so add new sounds as entries in `SOUNDS` (plus `COOL`/`VARY`) rather than ad-hoc audio. Observer sounds fire only within 2.5 s of a tap or key press. Never add a timer-driven or idle sound. The sneeze gag was removed for exactly this reason.
 - Reuse the names in `SOUNDS` (`js/sfx.js`): `tap, select, step, back, correct, wrong, retry, check, pop, complete, streak, fanfare, whoosh, flame, chest, achieve, sad, squeak, dizzy, tick`. The sneeze sound was deleted; don't bring it back.
 
 **Canvas**

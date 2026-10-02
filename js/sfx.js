@@ -29,8 +29,12 @@
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
   window.addEventListener("focus", () => { if (ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
 
+  // Every play() sets a pitch multiplier (PM, a step of the pentatonic scale so repeats still sound musical) and a fatigue gain (GM,
+  // quieter when the same sound fires many times in a row), so UI sounds never repeat identically.
+  let PM = 1, GM = 1;
   /** One enveloped oscillator note. f = start Hz, f2 = end Hz (slide), t = offset s, d = length s. */
   function tone({ f, f2, t = 0, d = 0.12, type = "sine", v = 1, a = 0.005, lp }) {
+    f *= PM; if (f2) f2 *= PM; v *= GM;
     const c = ctx, t0 = c.currentTime + t;
     const o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.setValueAtTime(f, t0);
@@ -52,7 +56,7 @@
     const src = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain();
     src.buffer = buf; fl.type = "bandpass"; fl.Q.value = 1.2;
     fl.frequency.setValueAtTime(from, t0); fl.frequency.exponentialRampToValueAtTime(to, t0 + d);
-    g.gain.value = v;
+    g.gain.value = v * GM;
     src.connect(fl); fl.connect(g); g.connect(master); src.start(t0);
   }
 
@@ -92,17 +96,51 @@
     achieve: () => { notes([659.25, 987.77, 1318.5], 0.1, { d: 0.3, v: 0.5 }); tone({ f: 2637, t: 0.3, d: 0.4, v: 0.1 }); },
     sad: () => notes([392, 349.2, 311.1, 261.6], 0.14, { d: 0.22, v: 0.35 }),
     squeak: () => tone({ f: 900 + Math.random() * 500, f2: 1800 + Math.random() * 600, d: 0.09, v: 0.35 }),
+    hover: (o) => { tone({ f: o.note, d: 0.09, type: "sine", v: 0.1, a: 0.012, lp: 2600 }); tone({ f: o.note * 2, t: 0.01, d: 0.05, type: "sine", v: 0.03, a: 0.01 }); },
+    key: (o) => { click({ v: 0.12, pitch: 1.3 + o.r * 0.5 }); },
+    slide: (o) => { tone({ f: o.note, d: 0.07, type: "triangle", v: 0.18, a: 0.006, lp: 3200 }); },
+    open: () => { noise({ d: 0.16, v: 0.1, from: 600, to: 2600 }); tone({ f: 523.25, d: 0.1, type: "triangle", v: 0.22, a: 0.01 }); tone({ f: 783.99, t: 0.06, d: 0.14, type: "sine", v: 0.2, a: 0.01 }); },
+    close: () => { noise({ d: 0.12, v: 0.07, from: 2400, to: 700 }); tone({ f: 783.99, d: 0.08, type: "triangle", v: 0.18, a: 0.008 }); tone({ f: 523.25, t: 0.05, d: 0.12, type: "sine", v: 0.18, a: 0.008 }); },
+    fold: () => { tone({ f: 600, f2: 760, d: 0.06, type: "triangle", v: 0.2, lp: 2800 }); },
+    unfold: () => { tone({ f: 760, f2: 600, d: 0.06, type: "triangle", v: 0.17, lp: 2800 }); },
+    notify: () => { bell(1174.7, { v: 0.3, d: 0.4 }); bell(1568, { t: 0.09, v: 0.26, d: 0.5 }); },
+    coin: () => { tone({ f: 1318.5, d: 0.07, type: "square", v: 0.12, lp: 3500 }); tone({ f: 1760, t: 0.06, d: 0.2, type: "square", v: 0.12, lp: 3500 }); },
+    run: () => { tone({ f: 330, f2: 660, d: 0.1, type: "triangle", v: 0.3, lp: 2500 }); noise({ d: 0.1, v: 0.08, from: 1500, to: 4000 }); },
     dizzy: () => { for (let i = 0; i < 5; i++) tone({ f: 800 - i * 90, f2: 900 - i * 90, t: i * 0.07, d: 0.08, v: 0.25 }); },
   };
 
-  let lastTap = 0;
-  function play(name) {
+  // ---------- variety: scale notes, per-sound cooldowns, fatigue ----------
+  const SCALE = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7, 1318.5, 1568]; // C major pentatonic, two octaves
+  const STEPS = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3];                                        // pitch multipliers that stay in the scale
+  const VARY = new Set(["tap", "select", "pop", "check", "uncheck", "step", "back", "tick", "retry", "fold", "unfold", "open", "close", "coin"]);
+  const COOL = { hover: 45, tap: 50, select: 55, tick: 40, key: 32, slide: 38, squeak: 180, whoosh: 120, open: 120, close: 120, notify: 400, fold: 70, unfold: 70 };
+  const last = {}, run = {}, lastStep = {};
+  let walk = 2, gesture = 0;
+  /** The next scale note: a random walk of 1 to 2 steps (never the same note twice), so a run of hovers sounds like a little tune. */
+  const nextNote = () => {
+    walk += (Math.random() < 0.5 ? -1 : 1) * (1 + (Math.random() < 0.4 ? 1 : 0));
+    if (walk < 0 || walk > SCALE.length - 1) walk = 3 + Math.floor(Math.random() * 3);
+    return SCALE[walk];
+  };
+  document.addEventListener("pointerdown", () => { gesture = performance.now(); }, true);
+  document.addEventListener("keydown", () => { gesture = performance.now(); }, true);
+  const recent = () => performance.now() - gesture < 2500; // observer sounds only follow something the learner just did
+
+  function play(name, o = {}) {
     if (!enabled() || !SOUNDS[name]) return;
     const c = ac();
     if (!c) return;
-    if (c.state === "closed") { ctx = null; master = null; return play(name); }
-    if (name === "tap") { const n = performance.now(); if (n - lastTap < 60) return; lastTap = n; }
-    try { SOUNDS[name](); } catch { /* audio is a nicety; never break the page */ }
+    if (c.state === "closed") { ctx = null; master = null; return play(name, o); }
+    const now = performance.now();
+    if (COOL[name] && now - (last[name] || 0) < COOL[name]) return;
+    last[name] = now;
+    // fatigue: the same sound again within 1.4 s gets quieter (down to 45%), then recovers once it has rested
+    const r = run[name] && now - run[name].t < 1400 ? run[name] : (run[name] = { n: 0, t: now });
+    r.n++; r.t = now;
+    GM = Math.max(0.45, 1 - 0.1 * (r.n - 1));
+    if (VARY.has(name)) { let k; do { k = Math.floor(Math.random() * STEPS.length); } while (k === lastStep[name]); lastStep[name] = k; PM = STEPS[k]; } else PM = 1 + (Math.random() - 0.5) * 0.02;
+    try { SOUNDS[name]({ note: o.note || nextNote(), r: Math.random(), ...o }); } catch { /* audio is a nicety; never break the page */ }
+    PM = 1; GM = 1;
   }
 
   function set(on) {
@@ -111,12 +149,56 @@
     if (on) play("pop");
   }
 
+  // ---------- UI sounds, wired once for the whole page ----------
+  const OWN = "[data-nav], .opt, .guide-item, #soundToggle, .pl-go, .pl-back, .p-node, .mascot, .ob-c, .pf-sw";
   // Generic tap for controls that don't have their own sound (answers, lesson nav and checklists do).
   document.addEventListener("pointerdown", (e) => {
-    const t = e.target.closest(".btn, .seg button, .tabs button, [role=tab], .tb-btn, .dock button, .pl-x, .pl-ref, .modal-x, .si-eye, .td-main, .td-chip, .pc-row, .menu-row, .np-restart, .sy-out, .boss-dots button, .gene.click, .city, .chip-btn");
-    if (!t || t.disabled || t.matches("[data-nav], .opt, .guide-item, #soundToggle, .pl-go, .pl-back, .p-node, .mascot, .ob-c, .pf-sw")) return;
+    const t = e.target.closest(".btn, .seg button, .tabs button, [role=tab], .tb-btn, .dock button, .pl-x, .pl-ref, .modal-x, .si-eye, .td-main, .td-chip, .pc-row, .menu-row, .np-restart, .sy-out, .boss-dots button, .gene.click, .city, .chip-btn, summary, .rv-sess, .gb-mod, .ach, .shelf-spot");
+    if (!t || t.disabled || t.matches(OWN)) return;
     play("tap");
   }, true);
+
+  // Hover: a soft note from the scale for anything pressable. Real pointers only (no false hovers on touch), never right after a press.
+  const HOVERABLE = ".btn, .opt, .qm-t, .chip-btn, .pl-ref, .menu-row, .seg button, .dock button, .tb-btn, .p-node, .pc-row, .gb-mod, .rv-sess, .guide-item, .ob-c, .boss-dots button, .pf-sw, .tabs button, [role=tab], .ach, .shelf-spot, summary, .td-main, .city, .gene.click, .q-claim";
+  const fine = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : { matches: false };
+  let pressedAt = 0;
+  document.addEventListener("pointerdown", () => { pressedAt = performance.now(); }, true);
+  document.addEventListener("mouseover", (e) => {
+    if (!fine.matches || !enabled() || performance.now() - pressedAt < 350) return;
+    const t = e.target.closest && e.target.closest(HOVERABLE);
+    if (!t || t.disabled || t.getAttribute("aria-disabled") === "true" || (e.relatedTarget && t.contains(e.relatedTarget))) return;
+    play("hover");
+  }, true);
+
+  // Sliders tick up and down the scale as they move
+  document.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t && t.type === "range") {
+      const min = +t.min || 0, max = +t.max || 100, f = max > min ? (t.value - min) / (max - min) : 0;
+      play("slide", { note: SCALE[Math.round(f * (SCALE.length - 1))] });
+    }
+  }, true);
+
+  // Dropdowns (details) open and close with their own soft pair
+  document.addEventListener("toggle", (e) => { if (e.target.tagName === "DETAILS" && recent()) play(e.target.open ? "unfold" : "fold"); }, true);
+
+  // Typing in the code editor
+  document.addEventListener("keydown", (e) => {
+    if (!e.target.classList || !e.target.classList.contains("cl-ta") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key.length === 1 || e.key === "Backspace" || e.key === "Enter" || e.key === "Tab") play("key");
+  }, true);
+
+  // Things that appear after a tap: dialogs, popovers, toasts, floating XP
+  new MutationObserver((list) => {
+    if (!recent()) return;
+    for (const m of list) m.addedNodes.forEach((n) => {
+      if (n.nodeType !== 1) return;
+      const c = n.classList;
+      if (c.contains("modal-back") || c.contains("pop-card") || (n.id === "pop" && n.firstElementChild)) play("open");
+      else if (c.contains("toast")) play("notify");
+      else if (c.contains("float-xp")) play("coin");
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
 
   document.documentElement.classList.toggle("muted", !enabled());
   NIC.sfx = { play, set, on: enabled };

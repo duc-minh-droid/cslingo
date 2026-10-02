@@ -400,6 +400,7 @@
           drawTests(); drawExample(); showFrame(0);
         }
         async function run() {
+          if (N.sfx) N.sfx.play("run");
           if (busy) return; busy = true; stop();
           const btn = qs("[data-run]", card); btn.disabled = true; btn.textContent = PY.loaded ? "Running…" : "Loading Python…";
           const code = ta.value; let pass = 0;
