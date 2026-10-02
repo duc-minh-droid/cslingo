@@ -1,8 +1,8 @@
 /* Sound effects — synthesised with the Web Audio API, so there are no audio files and it works offline.
-   NIC.sfx.play(name) · NIC.sfx.on() / NIC.sfx.set(bool). Muted state persists in localStorage ("nic.sound").
+   NIC.sfx.play(name) · NIC.sfx.on() / NIC.sfx.set(bool). Muted state persists in localStorage ("csl.sound").
    The AudioContext is created lazily inside the first user gesture (browsers block autoplay otherwise). */
 (function () {
-  const KEY = "nic.sound";
+  const KEY = "csl.sound"; // outside nic.*, so it is a per-device setting and never syncs (an old synced "nic.sound = off" had muted every device)
   let ctx = null, master = null;
   const enabled = () => { try { return localStorage.getItem(KEY) !== "off"; } catch { return true; } };
 
