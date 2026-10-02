@@ -27,3 +27,5 @@
   .rv-sess { grid-template-columns: minmax(0, 1fr) auto; }
   .rv-sess-bar { grid-column: 1 / -1; grid-row: 2; }
 }
+.rv-resume { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.rv-resume b { display: block; font-size: 17px; }
