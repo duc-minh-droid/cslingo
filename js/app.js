@@ -221,7 +221,7 @@
     quests: () => `<div class="pop-hero">${NIC.mascot({ who: "chip", size: 80, mood: "happy", act: game.claimable() ? "dance" : "", acc: ["propeller"] })}<div><b>Daily quests</b><span class="q-left">${IC.clock}${questsLeft()}</span></div></div>
       ${game.quests().map((q) => `<div class="q-row ${q.done ? "done" : ""}"><div class="q-t"><b>${q.t}</b><span class="q-bar"><span style="transform:scaleX(${q.prog / q.n})"></span><i>${q.prog}/${q.n}</i></span></div>
         ${q.claimed ? `<span class="q-got">${IC.check}</span>` : q.done ? `<button class="q-claim" data-q="${q.id}">${IC.chest}<span>Claim</span></button>` : `<span class="q-chest">${IC.chest}</span>`}</div>`).join("")}`,
-    me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button><button class="menu-row" data-go="practice">${IC.dumbbell}<span>Revision</span></button>
+    me: () => `${syncRow()}<button class="menu-row" data-go="profile">${IC.face}<span>Profile & achievements</span></button>
       <button class="menu-row" data-act="sound">${IC.sound}<span>Sound: <b>${NIC.sfx.on() ? "on" : "off"}</b></span><kbd>M</kbd></button>`,
   };
   const POP_MOUNT = {
@@ -776,7 +776,7 @@
   //  Dock + routing
   // =====================================================================
   const dock = qs("#dock");
-  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" hidden></i></button><button data-to="profile" aria-label="Profile">${IC.face}<span>Profile</span></button>`;
+  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" hidden></i></button>`;
   qsa("button", dock).forEach((b) => b.addEventListener("click", () => { location.hash = b.dataset.to === "learn" ? SUBJECTS[course].home : b.dataset.to; }));
   /* The blue "on" pill is one indicator that slides between tabs (FLIP: jump to the new box, animate from the old one). */
   let dockK = null, dockN = null;
@@ -786,7 +786,9 @@
       ind = el(`<i class="dk-ind" aria-hidden="true"></i>`); dock.prepend(ind); dock.classList.add("m-ind");
       if (window.ResizeObserver) new ResizeObserver(() => dockInd(false)).observe(dock); // fonts, phone layout
     }
-    const b = qs("button.on", dock); if (!b) return;
+    const b = qs("button.on", dock);
+    ind.style.opacity = b ? "" : "0"; // the Profile page has no dock tab: no pill
+    if (!b) return;
     flipInd(ind, b, animate);
   }
   /** Move a sliding indicator onto button b: jump to the new box, then animate from the old one (transform-origin is the centre). */
@@ -826,7 +828,8 @@
     qsa("button", dock).forEach((b) => b.classList.toggle("on", b.dataset.to === k));
     const moved = dockK !== null && dockK !== k; dockK = k;
     dockInd(moved);
-    if (moved) fx.bump(qs(`button[data-to="${k}"] svg`, dock), { scale: 1.25, y: -4 });
+    const ic = qs(`button[data-to="${k}"] svg`, dock);
+    if (moved && ic) fx.bump(ic, { scale: 1.25, y: -4 });
     const n = NIC.bank ? NIC.bank.stats().due : 0, bd = qs(".dk-badge", dock);
     if (n) { bd.hidden = false; bd.classList.remove("m-ghost"); bd.textContent = n > 99 ? "99+" : n; }
     else if (!bd.hidden) {
