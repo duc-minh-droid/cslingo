@@ -19,6 +19,7 @@
     const p = [[x2, y2], [x2 - k * Math.cos(a - 0.45), y2 - k * Math.sin(a - 0.45)], [x2 - k * Math.cos(a + 0.45), y2 - k * Math.sin(a + 0.45)]].map((q) => q.join(",")).join(" ");
     return ln(x1, y1, x2 - 3 * Math.cos(a), y2 - 3 * Math.sin(a), { s: c, sw: o.sw || 2.5, d: o.d }) + `<polygon points="${p}" fill="${c}"/>`;
   };
+  const xm = (x, y, r, c = "var(--rose)") => ln(x - r, y - r, x + r, y + r, { s: c, sw: 3.5 }) + ln(x - r, y + r, x + r, y - r, { s: c, sw: 3.5 });
   const table = (head, rows) => `<table class="t"><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   const chipH = (t, c) => `<span style="display:inline-block;margin:2px 4px 2px 0;padding:3px 9px;border:2px solid ${c || "var(--line-2)"};border-radius:10px;font:800 12px var(--sans);background:var(--panel)">${t}</span>`;
 
@@ -44,15 +45,15 @@
 
   // small multiples: median vs p99 at three busy levels (model: median = 20 / (1 - 0.9 u), p99 = 3.5 x median)
   const opsPanels = (() => {
-    const P = [["50% busy", 36, 126], ["80% busy", 71, 249], ["95% busy", 138, 483]], k = 0.24, base = 178, w = 146;
+    const P = [["50% busy", 36, 126], ["80% busy", 71, 249], ["95% busy", 138, 483]], k = 0.24, base = 178, w = 140;
     let s = "";
     P.forEach(([t, m, p], i) => {
       const x = 4 + i * (w + 4);
-      s += rc(x, 4, w, 206, { sw: 2, s: "var(--line)" }) + tx(x + w / 2, 24, t);
+      s += rc(x, 4, w, 206, { sw: 2, s: "var(--line)" }) + tx(x + w / 2, 24, t, { s: 13 });
       s += ln(x + 10, base, x + w - 10, base, { s: "var(--line-2)", sw: 2 });
-      s += ln(x + 8, base - 300 * k, x + w - 8, base - 300 * k, { s: "var(--rose)", sw: 2, d: "5 4" }) + tx(x + w - 10, base - 300 * k - 5, "goal 300", { a: "end", s: 11, c: "var(--rose-ink)" });
-      s += rc(x + 28, base - m * k, 34, m * k, { f: "var(--teal)", fo: 0.6, s: "var(--teal)", sw: 2, rx: 4 }) + tx(x + 45, base - m * k - 5, m, { s: 12 }) + tx(x + 45, base + 17, "median", { s: 11, c: "var(--text-dim)" });
-      s += rc(x + 84, base - p * k, 34, p * k, { f: "var(--blue)", fo: 0.6, s: "var(--blue)", sw: 2, rx: 4 }) + tx(x + 101, base - p * k - 5, p, { s: 12 }) + tx(x + 101, base + 17, "p99", { s: 11, c: "var(--text-dim)" });
+      s += ln(x + 8, base - 300 * k, x + w - 8, base - 300 * k, { s: "var(--rose)", sw: 2, d: "5 4" }) + tx(x + 10, base - 300 * k - 5, "goal 300", { a: "start", s: 12, c: "var(--rose-ink)" });
+      s += rc(x + 26, base - m * k, 34, m * k, { f: "var(--teal)", fo: 0.6, s: "var(--teal)", sw: 2, rx: 4 }) + tx(x + 43, base - m * k - 5, m, { s: 13 }) + tx(x + 43, base + 17, "median", { s: 12, c: "var(--text-dim)" });
+      s += rc(x + 82, base - p * k, 34, p * k, { f: "var(--blue)", fo: 0.6, s: "var(--blue)", sw: 2, rx: 4 }) + tx(x + 99, base - p * k + 16, p, { s: 13 }) + tx(x + 99, base + 17, "p99", { s: 12, c: "var(--text-dim)" });
       s += hit(`u${[50, 80, 95][i]}`, x, 4, w, 206, 10);
     });
     return svg(3 * (w + 4) + 4, 214, s);
@@ -81,7 +82,7 @@
     for (let i = 0; i < 6; i++) {
       const x = 18 + i * 68, dead = i === 1 || i === 4;
       s += rc(x, 34, 58, 66, { s: dead ? "var(--rose)" : "var(--teal)", f: dead ? "var(--rose)" : "var(--teal)", fo: 0.16, sw: 2.5, rx: 8 }) + tx(x + 29, 62, dead ? "down" : "100", { c: dead ? "var(--rose-ink)" : "var(--text)" });
-      s += tx(x + 29, 82, dead ? "✗" : "req/s", { s: dead ? 18 : 11, c: dead ? "var(--rose-ink)" : "var(--text-dim)" });
+      s += dead ? xm(x + 29, 80, 8) : tx(x + 29, 82, "req/s", { s: 11, c: "var(--text-dim)" });
     }
     return svg(440, 126, s);
   })();
@@ -105,7 +106,7 @@
     [0, 25, 50, 75, 100].forEach((b) => (s += tx(X(b), 244, b + "%", { s: 11, c: "var(--text-dim)" })));
     [0, 200, 400, 600].forEach((m) => (s += tx(48, Y(m) + 4, m, { a: "end", s: 11, c: "var(--text-dim)" })));
     s += tx(240, 262, "how busy the servers were that hour", { s: 11, c: "var(--text-dim)" }) + tx(14, 126, "p99 (ms)", { s: 11, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 14 126)" `);
-    s += ln(56, Y(300), 424, Y(300), { s: "var(--rose)", sw: 2, d: "6 4" }) + tx(420, Y(300) - 6, "goal 300 ms", { a: "end", c: "var(--rose-ink)", s: 11 });
+    s += ln(56, Y(300), 424, Y(300), { s: "var(--rose)", sw: 2, d: "6 4" }) + tx(62, Y(300) - 6, "goal 300 ms", { a: "start", c: "var(--rose-ink)", s: 12 });
     const D = [[25, 91], [40, 520], [50, 126], [62, 158], [72, 200], [80, 249], [88, 336], [94, 455]];
     D.forEach(([b, m], i) => (s += ci(X(b), Y(m), 8, { f: "var(--blue)", fo: 0.7, s: "var(--blue)", sw: 2.5 }) + `<circle data-pick="h${i + 1}" cx="${X(b)}" cy="${Y(m)}" r="15" fill="transparent" stroke="none" style="cursor:pointer"/>`));
     return svg(440, 270, s);
@@ -144,12 +145,12 @@
 
   // Venn: who lives in York, who works at Acme (everyone else outside both)
   const qlVenn = (() => {
-    const chip = (id, x, y, t) => pk(id, rc(x - 22, y - 14, 44, 28, { rx: 14, sw: 2.5 }) + tx(x, y + 4, t));
-    let s = rc(4, 26, 432, 206, { sw: 2, s: "var(--line)", rx: 12 }) + tx(24, 44, "everyone", { a: "start", c: "var(--text-dim)", s: 11 });
-    s += ci(155, 128, 84, { f: "var(--blue)", fo: 0.16, s: "var(--blue)" }) + ci(275, 128, 84, { f: "var(--amber)", fo: 0.16, s: "var(--amber)" });
-    s += tx(130, 18, "lives in York", { c: "var(--blue-ink)" }) + tx(300, 18, "works at Acme", { c: "var(--amber-ink)" });
-    s += chip("dee", 112, 128, "Dee") + chip("cy", 215, 128, "Cy") + chip("ana", 300, 100, "Ana") + chip("eli", 300, 158, "Eli") + chip("ben", 396, 200, "Ben");
-    return svg(440, 238, s);
+    const chip = (id, x, y, t) => pk(id, rc(x - 21, y - 14, 42, 28, { rx: 14, sw: 2.5 }) + tx(x, y + 5, t, { s: 13 }));
+    let s = rc(4, 28, 372, 206, { sw: 2, s: "var(--line)", rx: 12 }) + tx(14, 46, "everyone", { a: "start", c: "var(--text-dim)", s: 12 });
+    s += ci(130, 130, 80, { f: "var(--blue)", fo: 0.16, s: "var(--blue)" }) + ci(240, 130, 80, { f: "var(--amber)", fo: 0.16, s: "var(--amber)" });
+    s += tx(110, 20, "lives in York", { s: 13, c: "var(--blue-ink)" }) + tx(270, 20, "works at Acme", { s: 13, c: "var(--amber-ink)" });
+    s += chip("dee", 90, 130, "Dee") + chip("cy", 185, 130, "Cy") + chip("ana", 268, 100, "Ana") + chip("eli", 268, 160, "Eli") + chip("ben", 340, 208, "Ben");
+    return svg(380, 240, s);
   })();
 
   // graph: friendships, hop by hop from Ana
@@ -168,17 +169,17 @@
   // two pipelines as block chains, with the five-person chain underneath
   const qlPipes = (() => {
     const blk = (x, y, w, t, c) => rc(x, y, w, 30, { s: c, f: c, fo: 0.15, sw: 2.5, rx: 8 }) + tx(x + w / 2, y + 19, t, { s: 11 });
-    const row = (y, lbl, start, n, c) => {
-      let r = tx(4, y + 19, lbl, { a: "start", c: "var(--text-dim)" }) + blk(34, y, 96, start, "var(--violet)");
-      let x = 130;
-      for (let i = 0; i < n; i++) { r += tx(x + 8, y + 19, "▸", { c: "var(--text-dim)" }) + blk(x + 16, y, 100, "Go to friends", c); x += 116; }
+    const row = (y, lbl, start, n) => {
+      let r = tx(6, y + 20, lbl, { a: "start", s: 14 }) + blk(24, y, 92, start, "var(--violet)");
+      let x = 116;
+      for (let i = 0; i < n; i++) { r += tx(x + 7, y + 20, "▸", { c: "var(--text-dim)" }) + blk(x + 14, y, 84, "Go to friends", "var(--amber)"); x += 98; }
       return r;
     };
-    let s = row(8, "A", "Start: Ana", 3, "var(--amber)") + row(52, "B", "Start: everyone", 1, "var(--amber)");
+    let s = row(8, "A", "Start: Ana", 3) + row(52, "B", "Start: everyone", 1);
     const P = ["Ana", "Ben", "Cy", "Dee", "Eli"];
-    P.forEach((n, i) => { const x = 60 + i * 80; if (i) s += ln(x - 56, 118, x - 24, 118, { sw: 3 }); s += ci(x, 118, 22) + tx(x, 122, n); });
-    s += tx(220, 158, "the five people, friends in a chain", { c: "var(--text-dim)", s: 11 });
-    return svg(440, 166, s);
+    P.forEach((n, i) => { const x = 50 + i * 76; if (i) s += ln(x - 54, 118, x - 22, 118, { sw: 3 }); s += ci(x, 118, 22) + tx(x, 123, n, { s: 12.5 }); });
+    s += tx(210, 160, "the five people, friends in a chain", { c: "var(--text-dim)", s: 12 });
+    return svg(420, 168, s);
   })();
 
   // documents: five JSON-like cards
@@ -187,7 +188,7 @@
     let s = "";
     D.forEach(([n, f], i) => {
       const y = 6 + i * 46;
-      s += rc(6, y, 428, 38, { sw: 2.5, rx: 8 }) + tx(20, y + 24, `{ "name": "${n}", "friends": [${f.map((x) => `"${x}"`).join(", ")}] }`, { a: "start", s: 13 });
+      s += rc(6, y, 428, 38, { sw: 2.5, rx: 8 }) + tx(20, y + 24, `{ "name": "${n}", "friends": [${f.map((x) => `"${x}"`).join(", ")}] }`, { a: "start", s: 15 });
       s += hit(n.toLowerCase(), 6, y, 428, 38, 8);
     });
     return svg(440, 238, s);
@@ -197,7 +198,7 @@
   const qlTree = (() => {
     let s = "";
     const lvl = [["hop 0", 28], ["hop 1", 92], ["hop 2", 156], ["hop 3", 220]];
-    lvl.forEach(([t, y]) => (s += tx(8, y + 4, t, { a: "start", c: "var(--text-dim)", s: 11 })));
+    lvl.forEach(([t, y]) => (s += tx(8, y + 4, t, { a: "start", c: "var(--text-dim)", s: 12 })));
     s += ci(240, 28, 18, { f: "var(--violet)", fo: 0.3, s: "var(--violet)" }) + tx(240, 32, "Ana", { s: 11 });
     const x1 = [130, 240, 350];
     x1.forEach((x) => { s += ln(240, 46, x, 78) + ci(x, 92, 14); });
@@ -205,8 +206,8 @@
     x1.forEach((x) => [-36, 0, 36].forEach((d) => x2.push(x + d)));
     x2.forEach((x, i) => { s += ln(x1[Math.floor(i / 3)], 106, x, 144) + ci(x, 156, 9); });
     x2.forEach((x) => [-9, 9].forEach((d) => (s += ln(x, 165, x + d, 205, { sw: 1.5, s: "var(--line)" }))));
-    s += tx(300, 124, "× 100", { c: "var(--amber-ink)", a: "start" }) + tx(398, 150, "× 100", { c: "var(--amber-ink)", a: "start" }) + tx(418, 212, "× 100", { c: "var(--amber-ink)", a: "end" });
-    s += tx(130, 66, "each person has 100 friends, none shared", { c: "var(--text-dim)", s: 11, a: "end" });
+    s += tx(300, 124, "× 100", { c: "var(--amber-ink)", a: "start", s: 13 }) + tx(398, 150, "× 100", { c: "var(--amber-ink)", a: "start", s: 13 }) + tx(418, 214, "× 100", { c: "var(--amber-ink)", a: "end", s: 13 });
+    s += tx(432, 20, "each person has 100 friends, none shared", { c: "var(--text-dim)", s: 12, a: "end" });
     return svg(440, 236, s);
   })();
 
@@ -254,11 +255,11 @@
     let s = "";
     rows.forEach(([id, a, b, cells], i) => {
       const y = 8 + i * 60;
-      s += rc(4, y, 432, 52, { sw: 2, s: "var(--line)", rx: 10 }) + tx(14, y + 24, a, { a: "start" }) + (b ? tx(14, y + 40, b, { a: "start", s: 11, c: "var(--text-dim)" }) : "");
-      cells.forEach(([t, tomb], j) => (s += chip(128 + j * 114, y + 11, t, tomb)));
-      s += hit(id, 4, y, 432, 52, 10);
+      s += rc(4, y, 346, 52, { sw: 2, s: "var(--line)", rx: 10 }) + tx(14, y + 24, a, { a: "start", s: 13 }) + (b ? tx(14, y + 40, b, { a: "start", s: 11, c: "var(--text-dim)" }) : "");
+      cells.forEach(([t, tomb], j) => (s += chip(122 + j * 112, y + 11, t, tomb)));
+      s += hit(id, 4, y, 346, 52, 10);
     });
-    return svg(440, 252, s);
+    return svg(354, 252, s);
   })();
 
   // sawtooth: segments on disk over 16 minutes
@@ -273,7 +274,7 @@
     ev.forEach(([m, n]) => (d += ` H ${X(m)} V ${Y(n)}`));
     s += `<path d="${d}" fill="none" stroke="var(--blue)" stroke-width="3.5" stroke-linejoin="round"/>`;
     s += ln(X(15), 24, X(15), 224, { s: "var(--amber)", sw: 2.5, d: "6 4" }) + tx(X(15), 16, "read here", { c: "var(--amber-ink)" });
-    s += tx(X(9) - 4, Y(6) + 4, "compaction", { a: "end", c: "var(--rose-ink)", s: 11 });
+    s += tx(X(9) - 6, Y(3), "compaction", { a: "end", c: "var(--rose-ink)", s: 12 });
     return svg(440, 270, s);
   })();
 
@@ -284,9 +285,8 @@
     let s = tx(4, 38, "writes", { a: "start", c: "var(--text-dim)", s: 11 }) + tx(4, 110, "log file", { a: "start", c: "var(--text-dim)", s: 11 }) + tx(4, 178, "disk", { a: "start", c: "var(--text-dim)", s: 11 });
     s += rc(56, 90, 2 * 58 - 2, 30, { f: "var(--teal)", fo: 0.3, s: "var(--teal)", sw: 2, rx: 6 }) + tx(56 + 56, 110, "log ON", { s: 12 });
     s += rc(56 + 2 * 58 + 2, 90, 4 * 58 - 8, 30, { f: "var(--rose)", fo: 0.25, s: "var(--rose)", sw: 2, rx: 6 }) + tx(56 + 2 * 58 + 2 + (4 * 58 - 8) / 2, 110, "log OFF", { s: 12 });
-    s += rc(56 + 4 * 58 - 14, 160, 2 * 58 + 50, 30, { f: "var(--blue)", fo: 0.28, s: "var(--blue)", sw: 2, rx: 6 }) + tx(56 + 4 * 58 + 54, 180, "segment saved", { s: 12 });
-    s += ln(56 + 4 * 58 - 14, 126, 56 + 4 * 58 - 14, 160, { s: "var(--blue)", sw: 2, d: "4 3" });
-    s += tx(56 + 4 * 58 - 10, 143, "memtable full: flush", { a: "start", s: 11, c: "var(--blue-ink)" });
+    s += rc(268, 160, 134, 30, { f: "var(--blue)", fo: 0.28, s: "var(--blue)", sw: 2, rx: 6 }) + tx(335, 180, "segment saved", { s: 12 });
+    s += ln(268, 126, 268, 160, { s: "var(--blue)", sw: 2, d: "4 3" }) + tx(274, 143, "memtable full: flush", { a: "start", s: 11.5, c: "var(--blue-ink)" });
     W.forEach(([k], i) => (s += pk(`w${i + 1}`, rc(X(i) - 24, 16, 52, 40, { sw: 2.5, rx: 8 }) + tx(X(i) + 2, 32, `#${i + 1}`, { s: 10, c: "var(--text-dim)" }) + tx(X(i) + 2, 48, k, { s: 12 }))));
     s += ln(56 + 6 * 58 - 2, 12, 56 + 6 * 58 - 2, 200, { s: "var(--rose)", sw: 3, d: "6 4" }) + tx(56 + 6 * 58 - 2, 212, "power cut", { c: "var(--rose-ink)", a: "end" });
     return svg(440, 222, s);
@@ -294,42 +294,42 @@
 
   // sequence diagram: a risky write path
   const enSeq = (() => {
-    const L = [["Client", 56], ["Engine", 160], ["Log (disk)", 272], ["Memtable (RAM)", 376]];
+    const L = [["Client", 56], ["Engine", 160], ["Log (disk)", 272], ["Memtable (RAM)", 370]];
     let s = "";
     L.forEach(([t, x], i) => {
-      const w = i === 3 ? 112 : 92;
-      s += ln(x, 44, x, 222, { s: "var(--line)", sw: 2, d: "4 4" }) + rc(x - w / 2, 8, w, 32, { sw: 2.5, rx: 8 }) + tx(x, 28, t, { s: 12 });
+      const w = i === 3 ? 118 : 92;
+      s += ln(x, 44, x, 222, { s: "var(--line)", sw: 2, d: "4 4" }) + rc(x - w / 2, 8, w, 32, { sw: 2.5, rx: 8 }) + tx(x, 28, t, { s: 13 });
     });
-    const msg = (id, x1, x2, y, t, w) => arrow(x1, y, x2, y, { s: "var(--text)" }) + pk(id, rc((x1 + x2) / 2 - w / 2, y - 29, w, 24, { sw: 2.2, rx: 12 }) + tx((x1 + x2) / 2, y - 12, t, { s: 11.5 }));
-    s += msg("m1", 56, 160, 78, "1 put fig=v9", 96) + msg("m2", 160, 56, 120, "2 ok, saved!", 90) + msg("m3", 160, 376, 162, "3 insert into memory", 150) + msg("m4", 160, 272, 204, "4 append", 78);
+    const msg = (id, x1, x2, y, t, w) => arrow(x1, y, x2, y, { s: "var(--text)" }) + pk(id, rc((x1 + x2) / 2 - w / 2, y - 29, w, 24, { sw: 2.2, rx: 12 }) + tx((x1 + x2) / 2, y - 12, t, { s: 12.5 }));
+    s += msg("m1", 56, 160, 78, "1 put fig=v9", 100) + msg("m2", 160, 56, 120, "2 ok, saved!", 98) + msg("m3", 160, 370, 162, "3 insert into memory", 164) + msg("m4", 160, 272, 204, "4 append", 84);
     return svg(440, 232, s);
   })();
 
   // tape: a run of writes
   const enTape = (() => {
     const K = ["fig", "kiwi", "kiwi", "fig", "date", "fig", "plum", "apple"];
-    let s = tx(220, 14, "writes, in the order they arrive", { c: "var(--text-dim)", s: 11 });
+    let s = tx(220, 14, "writes, in the order they arrive", { c: "var(--text-dim)", s: 12 });
     K.forEach((k, i) => {
       const x = 8 + i * 53;
-      s += rc(x, 40, 49, 50, { sw: 2.5, rx: 8 }) + tx(x + 24.5, 36, i + 1, { s: 11, c: "var(--text-dim)" }) + tx(x + 24.5, 70, k, { s: 12 }) + hit(`w${i + 1}`, x, 40, 49, 50, 8);
+      s += rc(x, 40, 49, 50, { sw: 2.5, rx: 8 }) + tx(x + 24.5, 36, i + 1, { s: 12, c: "var(--text-dim)" }) + tx(x + 24.5, 71, k, { s: 13.5 }) + hit(`w${i + 1}`, x, 40, 49, 50, 8);
     });
-    s += tx(220, 112, "memtable: full at 4 different keys", { c: "var(--blue-ink)", s: 11 });
+    s += tx(220, 112, "memtable: full at 4 different keys", { c: "var(--blue-ink)", s: 12.5 });
     return svg(440, 122, s);
   })();
 
   // strips: three segments before compaction
   const enStrips = (() => {
-    const S = [["Segment 3", ["date: ✗", "fig: ✗", "kiwi: v9"]], ["Segment 2", ["apple: v5", "date: v6", "kiwi: v7", "plum: v8"]], ["Segment 1", ["apple: v1", "fig: v2", "kiwi: v3", "mango: v4"]]];
+    const S = [["Segment 3", ["date: deleted", "fig: deleted", "kiwi: v9"]], ["Segment 2", ["apple: v5", "date: v6", "kiwi: v7", "plum: v8"]], ["Segment 1", ["apple: v1", "fig: v2", "kiwi: v3", "mango: v4"]]];
     let s = "";
     S.forEach(([n, cells], i) => {
       const y = 8 + i * 48;
       s += tx(4, y + 24, n, { a: "start", s: 11 });
       cells.forEach((c, j) => {
-        const tomb = c.includes("✗");
-        s += rc(76 + j * 90, y + 4, 86, 34, { sw: 2.2, rx: 7, s: tomb ? "var(--rose)" : "var(--line-2)", f: tomb ? "var(--rose)" : "var(--panel)", fo: tomb ? 0.14 : null, d: tomb ? "5 3" : null }) + tx(76 + j * 90 + 43, y + 26, c, { s: 12 });
+        const tomb = c.includes("deleted");
+        s += rc(76 + j * 90, y + 4, 86, 34, { sw: 2.2, rx: 7, s: tomb ? "var(--rose)" : "var(--line-2)", f: tomb ? "var(--rose)" : "var(--panel)", fo: tomb ? 0.14 : null, d: tomb ? "5 3" : null }) + tx(76 + j * 90 + 43, y + 26, c, { s: 11.5 });
       });
     });
-    s += tx(4, 160, "✗ = tombstone, a record that the key was deleted", { a: "start", s: 11, c: "var(--text-dim)" });
+    s += tx(4, 160, "dashed red = a tombstone: a record that the key was deleted", { a: "start", s: 12, c: "var(--text-dim)" });
     return svg(440, 168, s);
   })();
 
@@ -358,8 +358,8 @@
     { type: "bug", q: "Users keep seeing values that were overwritten days ago. Which line of the engine's settings explains it?",
       code: ["memtable_max_keys: 4", "log_before_ack: true", "read_segments: oldest_to_newest", "stop_at_first_match: true"], a: 2,
       why: "Stopping at the first match is right only when you look at the newest data first. Reading oldest to newest, the first match is the oldest copy of the key, which is the stale one. The newest value must win." },
-    { type: "cat", q: "The three segments (shown) are merged into a single new segment, keeping the newest value for every key and dropping deleted keys. What happens to each record?",
-      fig: enStrips, buckets: ["Kept", "Dropped: overwritten", "Dropped: deleted"],
+    { type: "cat", q: "The three segments (shown) are merged into a single new segment, keeping the newest value for every key and dropping deleted keys. Sort each record: kept, dropped as overwritten, or dropped as deleted?",
+      fig: enStrips, buckets: ["Kept", "Overwritten", "Deleted"],
       items: [["apple: v5 (Segment 2)", 0], ["apple: v1 (Segment 1)", 1], ["kiwi: v7 (Segment 2)", 1], ["date: v6 (Segment 2)", 2], ["mango: v4 (Segment 1)", 0], ["date tombstone (Segment 3)", 2]],
       why: "Kiwi has three copies, so only the newest (v9) survives. Date was deleted last, so both its value and the tombstone vanish. Apple v1 was overwritten by v5. The merged segment holds apple v5, kiwi v9, mango v4 and plum v8: four keys instead of eleven records." },
     { type: "pick", q: "The write path is drawn in a risky order: the engine says \"ok\" before it has saved anything safely. Power fails right after step 2. Tap the step that must happen BEFORE the ok to keep the write.",
@@ -379,17 +379,17 @@
 
   // sequence: a write at London, a lag of 2 s, reads at two copies
   const whySeq = (() => {
-    const Y = (t) => 66 + t * 48, xl = 60, xs = 358;
+    const Y = (t) => 66 + t * 48, xl = 58, xs = 322;
     let s = ln(xl, 38, xl, 268, { s: "var(--line)", sw: 2, d: "4 4" }) + ln(xs, 38, xs, 268, { s: "var(--line)", sw: 2, d: "4 4" });
-    s += rc(8, 6, 106, 30, { sw: 2.5 }) + tx(61, 26, "London copy") + rc(305, 6, 106, 30, { sw: 2.5 }) + tx(358, 26, "Sydney copy");
-    s += tx(xl + 10, Y(0) - 8, "write: balance 60 (was 100)", { a: "start", s: 11, c: "var(--teal-ink)" });
-    s += arrow(xl, Y(0), xs, Y(2), { s: "var(--teal)" }) + tx(250, Y(2) - 12, "copy lands at 2 s", { a: "end", s: 11, c: "var(--teal-ink)" });
+    s += rc(xl - 54, 6, 108, 30, { sw: 2.5 }) + tx(xl, 26, "London copy", { s: 13 }) + rc(xs - 54, 6, 108, 30, { sw: 2.5 }) + tx(xs, 26, "Sydney copy", { s: 13 });
+    s += tx(xl + 10, Y(0) - 8, "write: balance 60 (was 100)", { a: "start", s: 12, c: "var(--teal-ink)" });
+    s += arrow(xl, Y(0), xs, Y(2), { s: "var(--teal)" }) + tx(250, Y(2) + 22, "copy lands at 2 s", { a: "end", s: 12, c: "var(--teal-ink)" });
     [["r1", 0.5, "read 0.5 s", 1], ["r2", 1, "read 1 s", 0], ["r3", 1.5, "read 1.5 s", 1], ["r4", 2.5, "read 2.5 s", 1], ["r5", 4, "read 4 s", 1]].forEach(([id, t, lbl, syd]) => {
       const px = syd ? xs + 8 : xl + 8;
-      s += ln(syd ? xs : xl, Y(t), px, Y(t), { s: "var(--text-dim)", sw: 2 }) + pk(id, rc(px, Y(t) - 12, 78, 24, { sw: 2.2, rx: 12 }) + tx(px + 39, Y(t) + 4, lbl, { s: 11 }));
+      s += ln(syd ? xs : xl, Y(t), px, Y(t), { s: "var(--text-dim)", sw: 2 }) + pk(id, rc(px, Y(t) - 13, 88, 26, { sw: 2.2, rx: 13 }) + tx(px + 44, Y(t) + 5, lbl, { s: 12 }));
     });
-    s += tx(14, 160, "time", { s: 11, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 14 160)" `) + arrow(24, 100, 24, 230, { s: "var(--text-dim)", sw: 1.5 });
-    return svg(440, 276, s);
+    s += tx(14, 160, "time", { s: 12, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 14 160)" `) + arrow(24, 100, 24, 230, { s: "var(--text-dim)", sw: 1.5 });
+    return svg(424, 276, s);
   })();
 
   // stacked bar: where one server's downtime comes from
@@ -438,12 +438,12 @@
 
   // tree: a sorted index of names
   const blkTree = (() => {
-    const N = { M: [220, 34], F: [120, 100], S: [320, 100], C: [70, 170], H: [170, 170], P: [270, 170], V: [370, 170] };
+    const N = { M: [190, 34], F: [100, 100], S: [280, 100], C: [55, 170], H: [145, 170], P: [235, 170], V: [325, 170] };
     const E = [["M", "F"], ["M", "S"], ["F", "C"], ["F", "H"], ["S", "P"], ["S", "V"]];
     let s = E.map(([a, b]) => ln(N[a][0], N[a][1] + 16, N[b][0], N[b][1] - 16, { sw: 2.5 })).join("");
     Object.entries(N).forEach(([k, [x, y]]) => (s += pk(k.toLowerCase(), rc(x - 24, y - 17, 48, 34, { sw: 2.5, rx: 10 }) + tx(x, y + 5, k, { s: 14 }))));
-    s += tx(220, 218, "left = earlier in the alphabet, right = later", { s: 11, c: "var(--text-dim)" });
-    return svg(440, 228, s);
+    s += tx(190, 218, "left = earlier in the alphabet, right = later", { s: 12, c: "var(--text-dim)" });
+    return svg(380, 228, s);
   })();
 
   // heat strip: requests per minute in 2-hour blocks
@@ -505,16 +505,16 @@
   const relGantt = (() => {
     const x0 = 64, k = 30;
     let s = "";
-    [0, 2, 4, 6, 8, 10, 12].forEach((t) => (s += ln(x0 + t * k, 44, x0 + t * k, 150, { s: "var(--line)", sw: 1.5 }) + tx(x0 + t * k, 168, t, { s: 11, c: "var(--text-dim)" })));
-    s += tx(x0 + 6 * k, 186, "hours since Disk A died", { s: 11, c: "var(--text-dim)" });
-    s += tx(x0 - 8, 70, "Disk A", { a: "end" }) + rc(x0, 54, 7 * k, 26, { f: "var(--amber)", fo: 0.4, s: "var(--amber)", sw: 2, rx: 5 }) + tx(x0 + 3.5 * k, 72, "replaced, rebuilding from B", { s: 11 }) + rc(x0 + 7 * k, 54, 5 * k, 26, { f: "var(--teal)", fo: 0.3, s: "var(--teal)", sw: 2, rx: 5 }) + tx(x0 + 9.5 * k, 72, "healthy again", { s: 11 });
-    s += tx(x0 - 8, 118, "Disk B", { a: "end" }) + rc(x0, 102, 12 * k, 26, { f: "var(--teal)", fo: 0.3, s: "var(--teal)", sw: 2, rx: 5 }) + tx(x0 + 6 * k, 120, "healthy so far", { s: 11 });
-    s += tx(x0, 38, "Disk A fails here", { a: "start", s: 11, c: "var(--rose-ink)" });
-    [2, 5, 8, 11].forEach((t, i) => {
+    [0, 2, 4, 6, 8, 10, 12].forEach((t) => (s += ln(x0 + t * k, 40, x0 + t * k, 158, { s: "var(--line)", sw: 1.5 }) + tx(x0 + t * k, 176, t, { s: 12, c: "var(--text-dim)" })));
+    s += tx(x0 + 6 * k, 194, "hours since Disk A died", { s: 12, c: "var(--text-dim)" });
+    s += tx(x0 - 8, 61, "Disk A", { a: "end", s: 13 }) + rc(x0, 44, 7 * k, 26, { f: "var(--amber)", fo: 0.4, s: "var(--amber)", sw: 2, rx: 5 }) + tx(x0 + 3.5 * k, 62, "rebuilding from B", { s: 12 }) + rc(x0 + 7 * k, 44, 5 * k, 26, { f: "var(--teal)", fo: 0.3, s: "var(--teal)", sw: 2, rx: 5 }) + tx(x0 + 9.5 * k, 62, "healthy again", { s: 12 });
+    s += tx(x0 - 8, 101, "Disk B", { a: "end", s: 13 }) + rc(x0, 84, 12 * k, 26, { f: "var(--teal)", fo: 0.3, s: "var(--teal)", sw: 2, rx: 5 }) + tx(x0 + 6 * k, 102, "healthy so far", { s: 12 });
+    s += tx(x0 - 8, 138, "dies here?", { a: "end", s: 12, c: "var(--rose-ink)" });
+    [2, 5, 8, 11].forEach((t) => {
       const x = x0 + t * k;
-      s += pk(`t${t}`, ci(x, 115, 15, { f: "var(--rose)", fo: 0.12, s: "var(--rose)", sw: 2.5 }) + `<text x="${x}" y="122" text-anchor="middle" style="font:800 18px var(--sans);fill:var(--rose-ink)">✗</text>`);
+      s += ln(x, 112, x, 124, { s: "var(--rose)", sw: 2, d: "3 3" }) + pk(`t${t}`, ci(x, 138, 14, { f: "var(--rose)", fo: 0.12, s: "var(--rose)", sw: 2.5 }) + xm(x, 138, 5));
     });
-    return svg(440, 194, s);
+    return svg(440, 202, s);
   })();
 
   // DAG: who needs whom
@@ -525,7 +525,7 @@
     E.forEach(([a, b]) => (s += arrow(N[a][0], N[a][1] + 17, N[b][0], N[b][1] - 20, { s: "var(--text-dim)", sw: 2.2 })));
     Object.entries(N).forEach(([k, [x, y]]) => {
       const dead = k === "Auth";
-      s += rc(x - 40, y - 17, 80, 34, { sw: 2.5, rx: 9, s: dead ? "var(--rose)" : "var(--line-2)", f: dead ? "var(--rose)" : "var(--panel)", fo: dead ? 0.25 : null }) + tx(x, y + 5, dead ? "Auth ✗" : k, { c: dead ? "var(--rose-ink)" : "var(--text)" });
+      s += rc(x - 42, y - 17, 84, 34, { sw: 2.5, rx: 9, s: dead ? "var(--rose)" : "var(--line-2)", f: dead ? "var(--rose)" : "var(--panel)", fo: dead ? 0.25 : null }) + tx(x, y + 5, dead ? "Auth (down)" : k, { c: dead ? "var(--rose-ink)" : "var(--text)" });
     });
     s += tx(222, 224, "an arrow means: needs", { s: 11, c: "var(--text-dim)" });
     return svg(440, 234, s);
@@ -550,20 +550,20 @@
 
   // CDF: share of requests finished within a time, for two services
   const loadCdf = (() => {
-    const X = (ms) => 50 + ms * 0.185, Y = (p) => 230 - p * 2;
+    const X = (ms) => 50 + ms * 0.185, Y = (p) => 240 - p * 2;
     const A = [[0, 0], [50, 22], [100, 50], [200, 76], [500, 90], [1000, 96], [1800, 99], [2000, 99.4]];
     const Bp = [[0, 0], [100, 4], [200, 24], [300, 50], [500, 90], [700, 99], [1000, 100], [2000, 100]];
     const path = (a) => a.map(([m, p], i) => `${i ? "L" : "M"} ${X(m).toFixed(1)} ${Y(p).toFixed(1)}`).join(" ");
-    let s = ln(50, 230, 420, 230, { s: "var(--line-2)" }) + ln(50, 20, 50, 230, { s: "var(--line-2)" });
-    [0, 500, 1000, 1500, 2000].forEach((m) => (s += tx(X(m), 248, m, { s: 11, c: "var(--text-dim)" })));
-    [0, 50, 100].forEach((p) => (s += tx(42, Y(p) + 4, p + "%", { a: "end", s: 11, c: "var(--text-dim)" })));
-    s += tx(235, 266, "response time (ms)", { s: 11, c: "var(--text-dim)" });
-    s += ln(50, Y(99), 420, Y(99), { s: "var(--rose)", sw: 2, d: "6 4" }) + tx(414, Y(99) + 14, "99% of requests", { a: "end", s: 11, c: "var(--rose-ink)" });
-    s += ln(X(1000), 20, X(1000), 230, { s: "var(--amber)", sw: 2.5, d: "6 4" }) + tx(X(1000) + 6, 36, "1 s limit", { a: "start", s: 11, c: "var(--amber-ink)" });
+    let s = ln(50, 240, 420, 240, { s: "var(--line-2)" }) + ln(50, 30, 50, 240, { s: "var(--line-2)" });
+    [0, 500, 1000, 1500, 2000].forEach((m) => (s += tx(X(m), 258, m, { s: 12, c: "var(--text-dim)" })));
+    [0, 50, 100].forEach((p) => (s += tx(42, Y(p) + 4, p + "%", { a: "end", s: 12, c: "var(--text-dim)" })));
+    s += tx(235, 276, "response time (ms)", { s: 12, c: "var(--text-dim)" });
+    s += ln(50, Y(99), 420, Y(99), { s: "var(--rose)", sw: 2, d: "6 4" }) + tx(414, Y(99) - 8, "99% of requests", { a: "end", s: 12, c: "var(--rose-ink)" });
+    s += ln(X(1000), 30, X(1000), 240, { s: "var(--amber)", sw: 2.5, d: "6 4" }) + tx(X(1000) + 6, 226, "1 s limit", { a: "start", s: 12, c: "var(--amber-ink)" });
     s += pk("A", `<path d="${path(A)}" fill="none" stroke="var(--violet)" stroke-width="4" stroke-linejoin="round"/>` + rc(X(2000) - 66, Y(60), 62, 24, { sw: 2.2, rx: 12, s: "var(--violet)" }) + tx(X(2000) - 35, Y(60) + 16, "Service A", { s: 11.5 }));
     s += pk("B", `<path d="${path(Bp)}" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linejoin="round"/>` + rc(X(700) - 30, Y(30), 62, 24, { sw: 2.2, rx: 12, s: "var(--blue)" }) + tx(X(700) + 1, Y(30) + 16, "Service B", { s: 11.5 }));
-    s += tx(14, 126, "share finished", { s: 11, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 14 126)" `);
-    return svg(440, 274, s);
+    s += tx(14, 136, "share finished", { s: 12, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 14 136)" `);
+    return svg(440, 284, s);
   })();
 
   // waterfall: one page, four backend calls (two chains)
@@ -620,24 +620,24 @@
     [["100", 2], ["1k", 3], ["10k", 4], ["100k", 5], ["1M", 6], ["10M", 7]].forEach(([t, e]) => (s += tx(X(Math.pow(10, e)), 264, t, { s: 11, c: "var(--text-dim)" })));
     [[1, "1"], [10, "10"], [100, "100"]].forEach(([p, t]) => (s += tx(52, Y(p) + 4, t, { a: "end", s: 11, c: "var(--text-dim)" })));
     s += tx(240, 282, "followers (each tick is 10 times more)", { s: 11, c: "var(--text-dim)" }) + tx(12, 140, "posts per day (log scale)", { s: 11, c: "var(--text-dim)" }).replace("<text ", `<text transform="rotate(-90 12 140)" `);
-    s += ln(X(1e4), Y(100), X(1e6), Y(1), { s: "var(--rose)", sw: 2.5, d: "7 5" }) + tx(X(1e4) + 8, Y(100) + 14, "1 million writes a day", { a: "start", s: 11, c: "var(--rose-ink)" });
+    s += ln(X(1e4), Y(100), X(1e6), Y(1), { s: "var(--rose)", sw: 2.5, d: "7 5" }) + tx(424, 104, "1 million writes a day", { a: "end", s: 12, c: "var(--rose-ink)" });
     const P = [["a", 200, 5, "Maya"], ["b", 5e4, 10, "BrightNews"], ["c", 2e6, 2, "StarCo"], ["d", 3e4, 80, "TickerBot"], ["e", 300, 40, "Sam"], ["f", 5e5, 1, "ClubFC"]];
     P.forEach(([id, f, p, t]) => {
-      const x = X(f), y = Y(p), left = id === "c";
-      s += pk(id, ci(x, y, 8, { f: "var(--blue)", fo: 0.7, s: "var(--blue)" }) + tx(x + (left ? -12 : 12), y + 4, t, { a: left ? "end" : "start", s: 12 }));
+      const x = X(f), y = Y(p), left = id === "b" || id === "f";
+      s += pk(id, ci(x, y, 8, { f: "var(--blue)", fo: 0.7, s: "var(--blue)" }) + tx(x + (left ? -12 : 12), y + (id === "f" ? -8 : 4), t, { a: left ? "end" : "start", s: 12 }));
     });
     return svg(440, 292, s);
   })();
 
   // small multiples: posts and timeline reads per second, in three workloads
   const twPanels = (() => {
-    const P = [["Panel X", 5, 300], ["Panel Y", 100, 10], ["Panel Z", 20, 20]], w = 146, k = 0.44;
+    const P = [["Panel X", 5, 300], ["Panel Y", 100, 10], ["Panel Z", 20, 20]], w = 140, k = 0.4;
     let s = "";
     P.forEach(([t, po, re], i) => {
       const x = 4 + i * (w + 4), base = 172;
       s += rc(x, 4, w, 208, { sw: 2, s: "var(--line)", rx: 10 }) + tx(x + w / 2, 24, t) + ln(x + 10, base, x + w - 10, base, { sw: 2 });
-      s += rc(x + 26, base - po * k, 38, po * k, { f: "var(--violet)", fo: 0.55, s: "var(--violet)", sw: 2, rx: 4 }) + tx(x + 45, base - po * k - 6, po + "k", { s: 12 }) + tx(x + 45, base + 17, "posts/s", { s: 10.5, c: "var(--text-dim)" });
-      s += rc(x + 84, base - re * k, 38, re * k, { f: "var(--amber)", fo: 0.55, s: "var(--amber)", sw: 2, rx: 4 }) + tx(x + 103, base - re * k - 6, re + "k", { s: 12 }) + tx(x + 103, base + 17, "reads/s", { s: 10.5, c: "var(--text-dim)" });
+      s += rc(x + 26, base - po * k, 38, po * k, { f: "var(--violet)", fo: 0.55, s: "var(--violet)", sw: 2, rx: 4 }) + tx(x + 45, base - po * k - 6, po + "k", { s: 13 }) + tx(x + 45, base + 17, "posts/s", { s: 11.5, c: "var(--text-dim)" });
+      s += rc(x + 84, base - re * k, 38, re * k, { f: "var(--amber)", fo: 0.55, s: "var(--amber)", sw: 2, rx: 4 }) + tx(x + 103, base - re * k - 6, re + "k", { s: 13 }) + tx(x + 103, base + 17, "reads/s", { s: 11.5, c: "var(--text-dim)" });
       s += hit(["x", "y", "z"][i], x, 4, w, 208, 10);
     });
     return svg(3 * (w + 4) + 4, 216, s);
@@ -747,7 +747,7 @@
         if (on) s += rc(x0 + j * c + 3, y0 + i * r + 3, c - 6, r - 6, { f: "var(--amber)", fo: 0.55, s: "var(--amber)", sw: 2, rx: 5 }) + tx(x0 + j * c + c / 2, y0 + i * r + r / 2 + 5, "●", { s: 12 });
       });
     });
-    s += tx(10, 150, "calls", { a: "start", s: 11, c: "var(--text-dim)" });
+    s += tx(x0 - 10, 42, "caller ↓", { a: "end", s: 11.5, c: "var(--text-dim)" });
     return svg(440, 232, s);
   })();
 

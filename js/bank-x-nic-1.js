@@ -783,7 +783,7 @@
         "Neither: four timings are far too few to say anything reliable about what will happen at n = 100",
       ],
       a: 0,
-      why: "A grows steadily (1, 4, 9, 16 s: like n²). B's times jump by a factor of about 32 every time n goes up by 10 (1 → 33 → 1,049), which is exponential. B only looked quicker while n was small. At n = 100 A needs about 100 s, whereas B would take around 10 million years' worth of seconds. Early wins can fool you: a small exponential eventually loses to any polynomial.",
+      why: "A grows steadily (1, 4, 9, 16 s: like n²). B's times jump by a factor of about 32 every time n goes up by 10 (1 → 33 → 1,049), which is exponential. B only looked quicker while n was small. At n = 100, A needs about 100 s, whereas B would need over a million million seconds, which is tens of thousands of years. Early wins can fool you: a small exponential eventually loses to any polynomial.",
     },
     {
       type: "mcq",

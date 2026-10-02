@@ -3,7 +3,8 @@
    Every figure is needed to answer, and each uses a diagram kind not yet used for that module. */
 (function () {
   const B = NIC.bank;
-  const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${o.s || 13}px var(--sans);fill:${o.c || "var(--text)"}">${s}</text>`;
+  const FS = 1.2; // text is scaled up so labels stay readable when the figure shrinks to phone width
+  const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${((o.s || 13) * FS).toFixed(1)}px var(--sans);fill:${o.c || "var(--text)"}">${s}</text>`;
   const svg = (w, h, body, mw) => `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px${mw ? `;max-width:${mw}px` : ""}">${body}</svg>`;
   const pk = (id, body) => `<g data-pick="${id}">${body}</g>`;
   const R = (x, y, w, h, fill, o = {}) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.r === undefined ? 6 : o.r}" fill="${fill}"${o.fo ? ` fill-opacity="${o.fo}"` : ""} stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw || 2}"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}/>`;
