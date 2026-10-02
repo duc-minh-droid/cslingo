@@ -24,6 +24,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/game.js` | XP, streak, goal, quests, achievements: `NIC.game`. |
 | `js/sfx.js` | Web Audio synth `NIC.sfx.play(name)` and the mute toggle. |
 | `js/charts.js` | Replaces `NIC.lineChart/barChart` with animated Chart.js versions (same signature). |
+| `js/glossary.js` | `NIC.glossify(node)`: underlines known terms (first mention, up to 3) with a hover/tap definition. Used on revision question prompts. Add terms to the list in that file. |
 | `js/fig.js` | Lesson figure builders `NIC.fig`: `graph, flow, cycle, bars, compare, cells, plot, frames, surface3d` (three.js, canvas fallback). |
 | `js/run.js` + `css/run.css` | Step-through figure runner `NIC.fig.run`, tween helpers `NIC.fig.rn`, `NIC.fig.graphScene` (see §6f). |
 | `js/art.js` | In-house illustrations: `NIC.art.banner(course)`, `NIC.art.empty(kind)`, `NIC.art.pattern(kind, colour)`. |
