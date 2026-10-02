@@ -47,10 +47,12 @@
   /** A shuffled revision deck. Due and previously-missed questions first, never two in a row from one module when avoidable. */
   function deck({ n = 10, subjects = null, learnedOnly = true, now = Date.now() } = {}) {
     const R = log(), pool = all({ learnedOnly, subjects });
-    const score = (it) => { const r = R[it.id]; return (due(r, now) ? 0 : 10) + (r ? r.box : 0.5) + Math.random() * 1.5; };
+    const rich = (it) => ((it.Q.type || "mcq") !== "mcq" || it.Q.fig ? 1 : 0); // sorting, picking, sliders and figure questions come up more often than plain multiple choice
+    const score = (it) => { const r = R[it.id]; return (due(r, now) ? 0 : 10) + (r ? r.box : 0.5) + Math.random() * 1.5 - rich(it) * 1.2; };
     const ranked = pool.map((it) => [score(it), it]).sort((a, b) => a[0] - b[0]).slice(0, n).map((x) => x[1]);
     for (let i = ranked.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ranked[i], ranked[j]] = [ranked[j], ranked[i]]; }
     for (let i = 1; i < ranked.length; i++) if (ranked[i].mod === ranked[i - 1].mod) { const k = ranked.findIndex((x, j) => j > i && x.mod !== ranked[i - 1].mod); if (k > 0) [ranked[i], ranked[k]] = [ranked[k], ranked[i]]; }
+    for (let i = 1; i < ranked.length; i++) if ((ranked[i].Q.type || "mcq") === (ranked[i - 1].Q.type || "mcq")) { const k = ranked.findIndex((x, j) => j > i && (x.Q.type || "mcq") !== (ranked[i - 1].Q.type || "mcq") && x.mod !== ranked[i - 1].mod); if (k > 0) [ranked[i], ranked[k]] = [ranked[k], ranked[i]]; } // and mix the question types
     return ranked;
   }
 
