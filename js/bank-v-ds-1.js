@@ -267,8 +267,8 @@
     const L = [["N1", 20], ["N2", 25], ["N3", 95], ["N4", 15]], base = 160;
     let s = "";
     L.forEach(([n, v], i) => {
-      const x = 40 + i * 132, h = v * 1.3, c = v > 80 ? "var(--rose)" : "var(--blue)";
-      s += pk(n.toLowerCase(), rc(x, 20, 110, 150, { rx: 12, sw: 2, f: "var(--bg-2)" }) + rc(x + 20, base - h + 10, 70, h, { rx: 6, s: c, f: v > 80 ? "var(--rose-dim)" : "var(--blue-dim, var(--panel))", sw: 2 }) + tx(x + 55, base - h + 4, v + "% busy", { s: 12.5 }) + tx(x + 55, 186, n, { s: 14 }));
+      const x = 40 + i * 132, h = v * 1.3, c = "var(--blue)";
+      s += pk(n.toLowerCase(), rc(x, 20, 110, 150, { rx: 12, sw: 2, f: "var(--bg-2)" }) + rc(x + 20, base - h + 10, 70, h, { rx: 6, s: c, f: "var(--blue-dim, var(--panel))", sw: 2 }) + tx(x + 55, base - h + 4, v + "% busy", { s: 12.5 }) + tx(x + 55, 186, n, { s: 14 }));
     });
     s += tx(280, 208, "Each node owns a fixed set of accounts and only serves those", { s: 11.5, w: 700, c: "var(--text-faint)" });
     return svg(560, 218, s);

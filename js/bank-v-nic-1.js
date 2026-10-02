@@ -86,7 +86,7 @@
         ${tx(50 + 390 / 3, 14, "deadline: 20 min", { c: "var(--amber-ink)", z: 12 })}
         <polyline fill="none" stroke="var(--teal)" stroke-width="4" stroke-linejoin="round" points="50,190 63,92 83,54 128,40 180,35 440,32"/>
         <polyline fill="none" stroke="var(--blue)" stroke-width="4" stroke-linejoin="round" points="50,190 310,190 310,24 440,24"/>
-        ${tx(100, 80, "nature-inspired", { c: "var(--teal-ink)", a: "start", z: 12 })}
+        ${tx(72, 118, "nature-inspired", { c: "var(--teal-ink)", a: "start", z: 12 })}
         ${tx(318, 150, "exact method", { c: "var(--blue-ink)", a: "start", z: 12 })}`),
       o: [
         "Nature-inspired: a good plan exists by 20 minutes, though it is not proven best",
@@ -256,7 +256,7 @@
 
   /* ---------- l1-apps ---------- */
   const chip = (x, y, s, c) => `${rect(x, y, 44, 26, { f: "var(--bg-2)", s: c, r: 7 })}${tx(x + 22, y + 18, s, { z: 12 })}`;
-  const tt = (id, x, y, s1, s2) => `<g data-pick="${id}">${rect(x, y, 200, 92, { f: "var(--panel)" })}${tx(x + 12, y + 20, "Timetable " + id, { a: "start", z: 12, c: "var(--text-dim)" })}
+  const tt = (id, x, y, s1, s2) => `<g data-pick="${id}">${rect(x, y, 216, 92, { f: "var(--panel)" })}${tx(x + 12, y + 20, "Timetable " + id, { a: "start", z: 12, c: "var(--text-dim)" })}
       ${tx(x + 12, y + 46, "Slot 1", { a: "start", z: 11, c: "var(--text-faint)" })}${s1.map((e, i) => chip(x + 62 + i * 50, y + 30, e, "var(--blue)")).join("")}
       ${tx(x + 12, y + 78, "Slot 2", { a: "start", z: 11, c: "var(--text-faint)" })}${s2.map((e, i) => chip(x + 62 + i * 50, y + 62, e, "var(--amber)")).join("")}</g>`;
   B.add("l1-apps", [
@@ -288,7 +288,7 @@
     {
       type: "pick",
       q: "Four exams share some students: Maths and Physics 20, Maths and History 3, Physics and Art 5, Art and History 12 (all other pairs share none). Fitness is the number of students with a clash (two of their exams in one slot), and lower is better. Tap the fittest timetable.",
-      fig: svg(440, 220, `${tt("W", 10, 10, ["M"], ["P", "A", "H"])}${tt("X", 230, 10, ["M", "P"], ["A", "H"])}${tt("Y", 10, 116, ["M", "A"], ["P", "H"])}${tt("Z", 230, 116, ["M", "H"], ["P", "A"])}`),
+      fig: svg(460, 220, `${tt("W", 6, 10, ["M"], ["P", "A", "H"])}${tt("X", 238, 10, ["M", "P"], ["A", "H"])}${tt("Y", 6, 116, ["M", "A"], ["P", "H"])}${tt("Z", 238, 116, ["M", "H"], ["P", "A"])}`),
       a: "Y",
       why: "Add up the shared students for each pair that sits in the same slot. W: 5 + 0 + 12 = 17. X: 20 + 12 = 32. Z: 3 + 5 = 8. Y: Maths and Art share none, Physics and History share none, so 0 clashes.",
     },
@@ -337,7 +337,7 @@
     {
       type: "pick",
       q: "The population holds 4 individuals. Children have just been made and scored. With update rule 2 (merge old and new, keep the best 4), tap everyone who is in the next population.",
-      fig: svg(440, 170, `${tx(12, 24, "Parents", { a: "start", z: 12, c: "var(--text-dim)" })}${box("P1", 12, 34, "P1", 7, "var(--blue)")}${box("P2", 98, 34, "P2", 5, "var(--blue)")}${box("P3", 184, 34, "P3", 4, "var(--blue)")}${box("P4", 270, 34, "P4", 2, "var(--blue)")}
+      fig: svg(440, 190, `${tx(12, 24, "Parents", { a: "start", z: 12, c: "var(--text-dim)" })}${box("P1", 12, 34, "P1", 7, "var(--blue)")}${box("P2", 98, 34, "P2", 5, "var(--blue)")}${box("P3", 184, 34, "P3", 4, "var(--blue)")}${box("P4", 270, 34, "P4", 2, "var(--blue)")}
         ${tx(12, 112, "Children", { a: "start", z: 12, c: "var(--text-dim)" })}${box("C1", 12, 118, "C1", 6, "var(--amber)")}${box("C2", 98, 118, "C2", 3, "var(--amber)")}${box("C3", 184, 118, "C3", 3, "var(--amber)")}${box("C4", 270, 118, "C4", 1, "var(--amber)")}`),
       a: ["C1", "P1", "P2", "P3"],
       why: "Merging gives eight individuals with scores 7, 6, 5, 4, 3, 3, 2, 1. The best four are P1 (7), C1 (6), P2 (5) and P3 (4). Under rule 1 (replace everyone) the next population would be only C1 to C4, and the 7 would be lost. With rule 2 the best so far can never disappear.",
