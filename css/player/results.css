@@ -20,8 +20,8 @@
 }
 .pd-title {
   font-size: 36px !important;
-  color: var(--gold) !important;
-  text-shadow: 0 3px 0 #e5a800;
+  color: var(--amber-ink) !important;
+  text-shadow: 0 3px 0 var(--amber-edge);
   letter-spacing: -0.02em;
 }
 .pd-cards {
@@ -42,7 +42,7 @@
 .pd-card b {
   display: block;
   padding: 5px 6px;
-  color: #fff;
+  color: var(--c-on);
   font-size: 12.5px;
   font-weight: 900;
   text-transform: uppercase;
@@ -58,26 +58,51 @@
   border-radius: 13px 13px 13px 13px;
   font-size: 24px;
   font-weight: 900;
-  color: var(--c);
+  color: var(--c-ink);
 }
 .pd-card > span svg {
   width: 24px;
   height: 24px;
+  flex: none; /* "100 %" is wider than "67 %": the icon must not give way to it */
+}
+/* tall screens: the stat cards grow a little so the screen isn't mostly air */
+@media (min-height: 720px) {
+  .pd-cards {
+    margin-top: 36px;
+  }
+  .pd-card > span {
+    padding-block: 18px;
+  }
+  .pd-card b {
+    padding-block: 7px;
+  }
+}
+@media (min-height: 720px) and (min-width: 600px) {
+  .pd-card > span {
+    font-size: 28px;
+  }
+  .pd-card > span svg {
+    width: 28px;
+    height: 28px;
+  }
 }
 .pd-card i {
   font-style: normal;
 }
 .c-gold {
   --c: #ffc800;
-}
-.c-gold > span {
-  color: #e5a800;
+  --c-on: var(--gold-on);
+  --c-ink: var(--amber-ink);
 }
 .c-green {
   --c: #58cc02;
+  --c-on: var(--teal-on);
+  --c-ink: var(--teal-ink);
 }
 .c-blue {
   --c: #1cb0f6;
+  --c-on: var(--blue-on);
+  --c-ink: var(--blue-ink);
 }
 @media (prefers-reduced-motion: reduce) {
   .pd-card {
@@ -234,6 +259,7 @@
 .pl-go.pl-go-blue {
   background: var(--blue);
   border-color: var(--blue);
+  color: var(--blue-on);
   box-shadow: 0 5px 0 var(--blue-lip);
 }
 .pl-screen.xwide {

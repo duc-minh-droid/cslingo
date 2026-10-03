@@ -84,7 +84,7 @@
           return `<div class="gb-mod"><h3><span class="gb-num">${m.num}</span>${m.title}</h3>${L && L.sum ? `<p>${L.sum}</p>` : `<p>${m.blurb || ""}</p>`}${L ? `<ul>${L.steps.map((st) => `<li>${st.t}</li>`).join("")}</ul>` : ""}</div>`;
         })
         .join("")}`,
-      { cls: "guidebook" },
+      { cls: `guidebook u-${UNIT_COLORS[+sec.dataset.u % 4]}` },
     );
   }
 

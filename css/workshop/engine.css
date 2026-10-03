@@ -111,7 +111,7 @@
   width: 18px;
   height: 18px;
   opacity: 0;
-  color: #fff;
+  color: var(--teal-on);
 }
 .wk-m.now {
   background: var(--blue-dim);
@@ -125,7 +125,7 @@
 .wk-m.done .wk-pip {
   background: var(--teal);
   border-color: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
 }
 .wk-m.done .wk-pip i {
   opacity: 0;

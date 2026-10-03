@@ -58,13 +58,13 @@
   --b: var(--teal);
   --lipc: var(--teal-lip);
   background: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
 }
 .btn.rose {
   --b: var(--rose);
   --lipc: var(--rose-lip);
   background: var(--rose);
-  color: #fff;
+  color: var(--rose-on);
 }
 .btn.ghost {
   color: var(--text-dim);

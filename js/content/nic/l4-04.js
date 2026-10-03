@@ -4,6 +4,16 @@
   const N = NIC;
   const { el, qs, predict, takeaways, header, rnd } = N;
 
+  /** Label colour for a wheel sector: whichever of dark ink and white reads better on that fill (the palette runs from
+   *  bright to deep; a luminance of 0.19 is where the two have equal contrast). */
+  const labelOn = (hex) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.19 ? "#080e11" : "#fff";
+  };
+
   /* ============ 4.4 Roulette ============ */
   N.register({
     id: "l4-roulette",
@@ -71,7 +81,10 @@
             ctx.stroke();
             if (pi > 0.035) {
               const m = (a + a2) / 2;
-              ctx.fillStyle = "#fff";
+              ctx.fillStyle =
+                hl === -1 || hl === i
+                  ? labelOn(PALETTE[i % PALETTE.length])
+                  : N.colors().text_dim; /* faded sectors sit on the panel */
               ctx.font = "800 12px " + getComputedStyle(document.body).fontFamily;
               ctx.textAlign = "center";
               ctx.fillText("f" + (i + 1), cx + Math.cos(m) * R * 0.68, cy + Math.sin(m) * R * 0.68 + 4);

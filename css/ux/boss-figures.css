@@ -68,13 +68,13 @@
   background: var(--teal);
   border-color: var(--teal);
   box-shadow: 0 3px 0 var(--teal-lip);
-  color: #fff;
+  color: var(--teal-on);
 }
 .boss-dots button.no {
   background: var(--rose);
   border-color: var(--rose);
   box-shadow: 0 3px 0 var(--rose-lip);
-  color: #fff;
+  color: var(--rose-on);
 }
 .boss-dots button.cur {
   border-color: var(--blue);
@@ -83,9 +83,14 @@
 }
 .boss-dots button.cur.ok,
 .boss-dots button.cur.no {
-  color: #fff;
   outline: 3px solid var(--blue-edge);
   outline-offset: 2px;
+}
+.boss-dots button.cur.ok {
+  color: var(--teal-on);
+}
+.boss-dots button.cur.no {
+  color: var(--rose-on);
 }
 .boss-q .q {
   font-size: 17.5px;
@@ -321,7 +326,7 @@ svg.fig {
   display: grid;
   place-items: center;
   background: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
   font-size: 11px;
   font-weight: 900;
 }

@@ -172,6 +172,31 @@
   z-index: 45;
   pointer-events: none;
 }
+/* the dim layer behind a popover: phones only (js/app/topbar.js sets its top edge to the bottom of the bar) */
+.tb-scrim {
+  display: none;
+}
+@media (max-width: 640px) {
+  .tb-scrim {
+    display: block;
+    position: fixed;
+    inset: 62px 0 0;
+    z-index: 44;
+    background: var(--scrim);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* while it fades out, taps already reach the page */
+    transition:
+      opacity var(--dur-2) ease,
+      visibility 0s linear var(--dur-2);
+  }
+  .tb-scrim.on {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+}
 .pop-card {
   position: fixed;
   pointer-events: auto;

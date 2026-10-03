@@ -119,7 +119,7 @@
         kinds = [...new Set(B.qs.map((Q) => T()[Q.type || "mcq"].label))];
       node.innerHTML = `<div class="pl-in pl-center">${N.mascot({ who: pl.S.who, size: 150, mood: "determined", acc: ["crown"], act: "dance" })}
         <div class="pl-tag orange">Boss quiz</div><h1>${pl.S.mod.title}</h1><p class="lede">${B.lede || ""}</p>
-        <div class="pl-kinds">${B.qs.length} questions · ${kinds.join(" · ")}</div>${pl.S.refHTML ? `<div class="card pl-ref-card">${pl.S.refHTML}</div>` : ""}</div>`;
+        <div class="pl-kinds"><b>${B.qs.length} questions</b>${kinds.map((k) => `<span class="pl-kind">${k}</span>`).join("")}</div>${pl.S.refHTML ? `<div class="card pl-ref-card">${pl.S.refHTML}</div>` : ""}</div>`;
       foot("continue", { label: "Start", onGo: pl.next });
     },
     hype(node, sc) {

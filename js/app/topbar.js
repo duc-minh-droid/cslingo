@@ -133,11 +133,16 @@
   }
 
   const pop = qs("#pop");
+  /** Phones: a dim layer under the card so the page behind it recedes. It starts below the top bar, which stays live
+   *  (tap another button to switch, or the same one to close). A tap on the dim layer closes, like any outside tap. */
+  const scrim = el(`<div class="tb-scrim" aria-hidden="true"></div>`);
+  document.body.appendChild(scrim);
   app.popKind = null;
   function closePop() {
     if (!app.popKind) return;
     const kind = app.popKind;
     app.popKind = null;
+    scrim.classList.remove("on");
     // exit: the card leaves as a ghost on <body> (it's position: fixed, so it stays put) while #pop is free for the next one
     const card = qs(".pop-card", pop);
     // focus was inside the card (keyboard): hand it back to the top-bar button that opened it
@@ -179,6 +184,8 @@
     app.popKind = kind;
     pop.innerHTML = `<div class="pop-card pop-${kind}">${POPS[kind]()}</div>`;
     pop.hidden = false;
+    scrim.style.top = top.getBoundingClientRect().bottom + "px";
+    scrim.classList.add("on");
     const r = anchor.getBoundingClientRect(),
       card = qs(".pop-card", pop);
     const w = Math.min(360, innerWidth - 24);

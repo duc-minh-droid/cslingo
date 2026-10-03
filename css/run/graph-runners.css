@@ -95,7 +95,7 @@
   stroke: var(--teal-lip);
 }
 .rn-node.s-done .rn-l {
-  fill: #fff;
+  fill: var(--teal-on);
 }
 .rn-node.s-done .rn-tag rect {
   fill: var(--teal-dim);
@@ -106,7 +106,7 @@
   stroke: var(--amber-lip);
 }
 .rn-node.s-cur .rn-l {
-  fill: #fff;
+  fill: var(--amber-on);
 }
 .rn-node.s-cur .rn-tag rect {
   fill: var(--amber-dim);
@@ -117,7 +117,7 @@
   stroke: var(--rose-lip);
 }
 .rn-node.s-bad .rn-l {
-  fill: #fff;
+  fill: var(--rose-on);
 }
 @media (max-width: 720px) {
   .rn-code {
@@ -179,14 +179,14 @@
   stroke: var(--teal-lip);
 }
 .rn-gc.path text {
-  fill: #fff;
+  fill: var(--teal-on);
 }
 .rn-gc.cur rect {
   fill: var(--amber);
   stroke: var(--amber-lip);
 }
 .rn-gc.cur text {
-  fill: #fff;
+  fill: var(--amber-on);
 }
 .rn-gc-start rect {
   stroke: var(--amber);
@@ -247,7 +247,7 @@
 .rn-hull-ord text {
   font-size: 11px;
   font-weight: 900;
-  fill: #fff;
+  fill: var(--violet-on);
   pointer-events: none;
 }
 .rn-hull-pt.rn-hull-on .rn-hull-c {
@@ -259,7 +259,7 @@
   stroke: var(--amber-lip);
 }
 .rn-hull-pt.rn-hull-pivot .rn-hull-l {
-  fill: #fff;
+  fill: var(--amber-on);
 }
 .rn-hull-pt.rn-hull-out .rn-hull-c {
   fill: var(--rose-dim);

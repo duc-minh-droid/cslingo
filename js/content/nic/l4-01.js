@@ -132,7 +132,7 @@
         svg.setAttribute("viewBox", "0 0 470 256");
         svg.setAttribute("class", "fig rn-svg rn-wheel");
         svg.innerHTML = `<g class="rn-wheel-sls">${names.map((n, i) => `<path class="rn-wheel-sl rn-wheel-pk" data-k="${i}" style="fill:var(--${COLS[i]})"/>`).join("")}</g>
-          <g class="rn-wheel-lbls">${names.map((n) => `<text class="rn-wheel-sn">${n}</text>`).join("")}</g>
+          <g class="rn-wheel-lbls">${names.map((n, i) => `<text class="rn-wheel-sn" style="fill:var(--${COLS[i]}-on)">${n}</text>`).join("")}</g>
           <circle class="rn-wheel-rim" cx="${CX}" cy="${CY}" r="${R}"/>
           <g class="rn-wheel-ptr"><line x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY - R + 16}"/><path d="M${CX - 9} ${CY - R + 20}L${CX} ${CY - R + 2}L${CX + 9} ${CY - R + 20}z"/><circle cx="${CX}" cy="${CY}" r="10"/></g>
           <text class="rn-wheel-h" x="262" y="22">who</text><text class="rn-wheel-h" x="318" y="22">f</text><text class="rn-wheel-h" x="372" y="22">p</text><text class="rn-wheel-h" x="430" y="22">picked</text>

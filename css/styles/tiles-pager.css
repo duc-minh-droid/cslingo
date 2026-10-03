@@ -199,10 +199,11 @@
   background: var(--teal);
   border-color: var(--teal);
   box-shadow: 0 var(--lip) 0 var(--teal-lip);
-  color: #fff;
+  color: var(--teal-on);
 }
 .pager a.next small {
-  color: var(--teal-dim);
+  color: var(--teal-on);
+  opacity: 0.9;
 }
 .pager a:active {
   transform: translateY(var(--lip));

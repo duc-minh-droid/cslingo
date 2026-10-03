@@ -138,7 +138,7 @@
   stroke: var(--text-dim);
 }
 .rn-ea-bit.rn-ea-one text {
-  fill: #fff;
+  fill: var(--bg);
 }
 .rn-ea-bit.rn-ea-a rect {
   fill: var(--blue-dim);
@@ -160,9 +160,11 @@
 .rn-ea-bit.rn-ea-b text {
   fill: var(--text-dim);
 }
-.rn-ea-bit.rn-ea-one.rn-ea-a text,
+.rn-ea-bit.rn-ea-one.rn-ea-a text {
+  fill: var(--blue-on);
+}
 .rn-ea-bit.rn-ea-one.rn-ea-b text {
-  fill: #fff;
+  fill: var(--amber-on);
 }
 .rn-ea-bit.rn-ea-flip rect {
   fill: var(--violet-dim);
@@ -176,7 +178,7 @@
   fill: var(--violet-ink);
 }
 .rn-ea-bit.rn-ea-flip.rn-ea-one text {
-  fill: #fff;
+  fill: var(--violet-on);
 }
 .rn-ea-barbg {
   fill: var(--bg-2);
@@ -212,7 +214,7 @@
 .rn-wheel-sl {
   stroke: var(--panel);
   stroke-width: 2.5;
-  opacity: 0.82;
+  opacity: 0.9;
   transition: opacity var(--dur-3) ease;
   cursor: default;
 }
@@ -230,7 +232,7 @@
 }
 .rn-wheel-sn {
   font-size: 15px;
-  fill: #fff;
+  fill: var(--ink);
   pointer-events: none;
 }
 .rn-wheel-rim {
@@ -345,7 +347,7 @@
 }
 .rn-x-mk text {
   font-size: 12px;
-  fill: #fff;
+  fill: var(--rose-on);
 }
 .rn-x-hit {
   fill: transparent;

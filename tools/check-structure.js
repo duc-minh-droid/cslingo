@@ -1,5 +1,6 @@
 /* Structure check: every script and stylesheet is wired up somewhere, nothing is listed twice or points at a missing
-   file, and no stylesheet outgrows the 500-line limit that ESLint's max-lines enforces for scripts.
+   file, no stylesheet outgrows the 500-line limit that ESLint's max-lines enforces for scripts, and no stylesheet sets
+   white text, fills or strokes (white is 2.1 to 3.3:1 on the brand fills: use the --x-on tokens, or var(--bg) on --text).
    A file counts as wired if index.html loads it, or it is listed in the content manifest (js/content.js) or the
    revision-question manifest (js/bank.js). Exported so tools/run-tests.js can run it; also runnable on its own. */
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -8,6 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const MAX_CSS_LINES = 500;
+const WHITE_FOREGROUND = /^\s*(color|fill|stroke)\s*:\s*(#fff|#ffffff|white)\b|%23fff/i; // the second form is a glyph inside a data: URI
 
 const walk = (dir) =>
   readdirSync(dir).flatMap((name) => {
@@ -38,6 +40,12 @@ export function checkStructure() {
       .split("\n")
       .filter((l) => l.trim()).length;
     if (lines > MAX_CSS_LINES) problems.push(`${f} has ${lines} lines (limit ${MAX_CSS_LINES}): split it into parts`);
+    read(f)
+      .split("\n")
+      .forEach((l, i) => {
+        if (WHITE_FOREGROUND.test(l))
+          problems.push(`${f}:${i + 1} sets white (${l.trim()}): use a --x-on token or var(--bg)`);
+      });
   }
   return problems;
 }

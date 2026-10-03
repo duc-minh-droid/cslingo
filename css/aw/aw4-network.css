@@ -173,7 +173,7 @@
     900 12px Nunito,
     system-ui,
     sans-serif;
-  fill: #fff;
+  fill: var(--rose-on);
   text-anchor: middle;
   dominant-baseline: central;
 }

@@ -162,7 +162,7 @@
   padding: 2px 8px;
   border-radius: 99px;
   background: var(--violet);
-  color: #fff;
+  color: var(--violet-on);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -255,11 +255,19 @@
   opacity: 0.45;
   cursor: default;
 }
+@media (pointer: coarse) {
+  .rn-b {
+    height: 44px;
+  }
+  .rn-scrub {
+    height: 44px;
+  }
+}
 .rn-play {
   min-width: 52px;
   background: var(--teal);
   border-color: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
   box-shadow: 0 3px 0 var(--teal-lip);
 }
 .rn-play:active {
@@ -327,7 +335,7 @@
   padding: 5px;
   border-radius: 12px;
   background: var(--text);
-  color: #fff;
+  color: var(--bg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 .rn-edit b {
@@ -341,8 +349,8 @@
   height: 28px;
   border: 0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: color-mix(in srgb, var(--bg) 16%, transparent);
+  color: var(--bg);
   font: inherit;
   font-weight: 900;
   font-size: 17px;

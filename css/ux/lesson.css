@@ -21,7 +21,7 @@ button:focus:not(:focus-visible) {
   top: 0;
   z-index: 60;
   background: var(--rose);
-  color: #fff;
+  color: var(--rose-on);
   font-weight: 800;
   font-size: 13px;
   padding: 8px 16px;
@@ -192,11 +192,11 @@ button:focus:not(:focus-visible) {
 }
 .lesson-body .analogy::after {
   background-color: var(--violet);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z' fill='%23fff' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z' fill='%232b0d4d' stroke='%232b0d4d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 .lesson-body .key::after {
   background-color: var(--teal);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z' fill='%23fff'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z' fill='%23173a00'/%3E%3C/svg%3E");
 }
 .lesson-visual {
   margin: 16px 0 6px;
@@ -267,6 +267,7 @@ button:focus:not(:focus-visible) {
   --b: var(--blue);
   --lipc: var(--blue-lip);
   background: var(--blue);
+  color: var(--blue-on);
 }
 @media (hover: hover) and (pointer: fine) {
   .btn.finish:hover:not(:disabled) {
@@ -359,7 +360,7 @@ button:focus:not(:focus-visible) {
   width: 16px;
   height: 16px;
   fill: none;
-  stroke: #fff;
+  stroke: var(--teal-on);
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -411,7 +412,7 @@ button:focus:not(:focus-visible) {
   height: 24px;
   border-radius: 50%;
   background: var(--teal)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4L18 8' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4L18 8' fill='none' stroke='%23173a00' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
     center/16px no-repeat;
 }
 .say-it {
@@ -453,11 +454,11 @@ button:focus:not(:focus-visible) {
 }
 .predict .opt.right .opt-l {
   border-color: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
   background: var(--teal);
 }
 .predict .opt.wrong .opt-l {
   border-color: var(--rose);
-  color: #fff;
+  color: var(--rose-on);
   background: var(--rose);
 }

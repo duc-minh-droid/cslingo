@@ -273,7 +273,7 @@
   place-items: center;
   border-radius: 9px;
   background: var(--k);
-  color: #fff;
+  color: var(--ko);
   font-weight: 900;
   font-size: 16px;
 }
@@ -368,7 +368,7 @@
 .aw7-tok.done {
   opacity: 1;
   background: var(--k);
-  color: #fff;
+  color: var(--ko);
 }
 .aw7-keys {
   display: grid;
