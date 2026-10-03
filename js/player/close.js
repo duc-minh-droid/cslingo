@@ -65,6 +65,8 @@
       return;
     }
     if (typing) return;
+    // a workshop owns its keys: Enter presses the focused control, arrows move the plan dot (not "Continue" / "back")
+    if ((e.key === "Enter" || e.key === "ArrowLeft") && e.target.closest && e.target.closest(".wk")) return;
     // keyboard moves take the no-animation path: no slide between screens, no sheet slide (S.kbd is read synchronously)
     const kbd = (fn) => {
       const s = pl.S;
