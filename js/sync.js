@@ -68,6 +68,7 @@
     "nic.lessonSeen": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
     "nic.stats": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
     "nic.quiz": (x, y) => U(x, y, (p, q) => ((p && p.ok) || !(q && q.ok) ? p : q)),   // a right answer is never replaced by a wrong one
+    "nic.revRounds": (x, y) => U(x, y, (p, q) => p),                                   // finished revision rounds: every device's rounds are kept
     "nic.rev": (x, y) => U(x, y, (p, q) => (num(q && q.t) > num(p && p.t) ? q : p)),   // the most recent review of each question
     "nic.activeDays": (x, y) => [...new Set([...x, ...y])].sort(),
     "nic.freeze": (x, y) => { const used = [...new Set([...(x.used || []), ...(y.used || [])])]; return { n: Math.max(0, Math.max(num(x.n), num(y.n)) - (used.length - Math.max((x.used || []).length, (y.used || []).length))), used }; },

@@ -127,7 +127,15 @@
   const REV_KEY = "csl.revSession";
   const revSaved = () => { try { const r = JSON.parse(localStorage.getItem(REV_KEY)); return r && Array.isArray(r.ids) && r.ids.length ? r : null; } catch { return null; } };
   const revWrite = (r) => { try { r ? localStorage.setItem(REV_KEY, JSON.stringify(r)) : localStorage.removeItem(REV_KEY); } catch { /* storage blocked: the round just can't be resumed */ } };
-  const revSave = () => { if (S && S.kind === "revise" && S.revIds) revWrite({ ids: S.revIds, done: S.firstTotal, right: S.firstRight, xp: S.xp, paused: false, opts: { n: S.opts.n, subjects: S.opts.subjects || null, home: S.opts.home } }); };
+  const revSave = () => { if (S && S.kind === "revise" && S.revIds) revWrite({ ids: S.revIds, t: S.start, done: S.firstTotal, right: S.firstRight, xp: S.xp, paused: false, opts: { n: S.opts.n, subjects: S.opts.subjects || null, home: S.opts.home } }); };
+
+  /** A finished round goes into the history on the Revise page (nic.revRounds, synced: one entry per round, keyed by its start time). */
+  function revLog() {
+    if (!S || !S.revIds || !S.revIds.length || !S.firstTotal) return;
+    const h = store.get("nic.revRounds", {});
+    h[S.start] = { n: S.revIds.length, right: S.firstRight, mods: new Set(S.screens.filter((x) => x.revId).map((x) => x.mod)).size, end: Date.now() };
+    store.set("nic.revRounds", h);
+  }
 
   function revise(opts = {}) {
     if (S) close(true);
@@ -147,7 +155,7 @@
       ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), mod: d.mod, practice: true }))]
       : [{ kind: "note", who: "chip", mood: "sleepy", t: "Nothing to revise yet", b: "Finish a lesson first. Its questions join your revision deck." }];
     if (saved) {
-      S.firstTotal = Math.min(saved.done || 0, deck.length); S.firstRight = Math.min(saved.right || 0, S.firstTotal); S.xp = saved.xp || 0;
+      S.firstTotal = Math.min(saved.done || 0, deck.length); S.firstRight = Math.min(saved.right || 0, S.firstTotal); S.xp = saved.xp || 0; if (saved.t) S.start = saved.t;
       S.i = S.firstTotal ? 1 + S.firstTotal : 0; // already answered ones are skipped, the intro only shows for a fresh round
       if (S.i >= S.screens.length) { revWrite(null); S.i = 0; S.firstTotal = S.firstRight = S.xp = 0; }
       else if (S.firstTotal && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Question ${S.firstTotal + 1} of ${deck.length}. Your round was saved.</span>`, { tone: "blue", ms: 2600, live: true }), 400);
@@ -792,7 +800,7 @@
     // recap once after the main + mistakes run, then complete
     const has = (k) => S.screens.some((x) => x.kind === k);
     if (S.kind === "lesson" && S.recap && !has("recap")) { S.screens.push({ kind: "recap" }); return show(1); }
-    if (!has("complete")) { if (S.kind === "revise") revWrite(null); S.screens.push({ kind: "complete" }); return show(1); }
+    if (!has("complete")) { if (S.kind === "revise") { revLog(); revWrite(null); } S.screens.push({ kind: "complete" }); return show(1); }
     close();
   }
 
