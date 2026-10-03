@@ -329,6 +329,25 @@
     },
     pick: {
       label: "Click on the diagram",
+      /* A rounded highlight around the element's whole box (SVG), instead of stroking every shape inside it. */
+      ring(e, state) {
+        const old = e.querySelector(":scope > .pk-ring");
+        if (old) old.remove();
+        if (!state || !e.getBBox || !(e instanceof SVGGElement)) return;
+        const bb = e.getBBox();
+        if (!bb.width || !bb.height) return;
+        const pad = 5,
+          w = bb.width + pad * 2,
+          h = bb.height + pad * 2;
+        const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        r.setAttribute("class", `pk-ring ${state}`);
+        r.setAttribute("x", bb.x - pad);
+        r.setAttribute("y", bb.y - pad);
+        r.setAttribute("width", w);
+        r.setAttribute("height", h);
+        r.setAttribute("rx", Math.min(12, Math.min(w, h) / 2));
+        e.appendChild(r);
+      },
       render(Q, box, submit) {
         const multi = Array.isArray(Q.a);
         box.innerHTML = `<div class="q-pick">${typeof Q.fig === "function" ? "" : Q.fig}</div>${multi ? `<div class="q-actions"><span class="faint" data-count></span><button class="btn primary" data-check disabled>Check</button></div>` : ""}`;
@@ -342,7 +361,10 @@
           const act = () => {
             if (!multi) return submit(e.dataset.pick);
             sel.has(e.dataset.pick) ? sel.delete(e.dataset.pick) : sel.add(e.dataset.pick);
-            els.forEach((x) => x.classList.toggle("sel", sel.has(x.dataset.pick)));
+            els.forEach((x) => {
+              x.classList.toggle("sel", sel.has(x.dataset.pick));
+              TYPES.pick.ring(x, sel.has(x.dataset.pick) ? "sel" : "");
+            });
             qs("[data-check]", box).disabled = !sel.size;
             qs("[data-count]", box).textContent = `${sel.size} selected`;
           };
@@ -365,9 +387,15 @@
           e.classList.remove("pickable", "sel");
           e.removeAttribute("tabindex");
           e.style.pointerEvents = "none";
-          if (want.includes(p) && got.includes(p)) e.classList.add("pk-right");
-          else if (got.includes(p)) e.classList.add("pk-wrong");
-          else if (want.includes(p)) e.classList.add("pk-missed");
+          const state = want.includes(p)
+            ? got.includes(p)
+              ? "pk-right"
+              : "pk-missed"
+            : got.includes(p)
+              ? "pk-wrong"
+              : "";
+          if (state) e.classList.add(state);
+          TYPES.pick.ring(e, state);
         });
         qsa(".q-actions", box).forEach((a) => a.remove());
       },

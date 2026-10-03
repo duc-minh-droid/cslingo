@@ -273,9 +273,6 @@
   border-color: var(--blue-edge);
   color: var(--blue);
 }
-.pl-body [data-pick].sel {
-  filter: drop-shadow(0 0 0 var(--blue));
-}
 .player [data-check] {
   display: none !important;
 }
