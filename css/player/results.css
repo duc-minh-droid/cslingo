@@ -239,15 +239,3 @@
 .pl-screen.xwide {
   max-width: 1480px;
 }
-.pl-study {
-  margin-top: 14px;
-  display: flex;
-  justify-content: center;
-}
-.pl-study .btn {
-  gap: 8px;
-}
-.pl-study svg {
-  width: 18px;
-  height: 18px;
-}
