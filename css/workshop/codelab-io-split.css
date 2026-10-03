@@ -1,0 +1,270 @@
+/* ---------- code lab: example input/output and autocomplete ---------- */
+.cl-ex {
+  flex: none;
+  margin-top: 10px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+  padding: 8px 12px 10px;
+}
+.cl-exh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.cl-exh b {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  font-weight: 900;
+}
+.cl-extabs {
+  display: inline-flex;
+  gap: 4px;
+}
+.cl-extab {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--line-2);
+  background: var(--panel);
+  color: var(--text-dim);
+  font:
+    900 11px Nunito,
+    system-ui,
+    sans-serif;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 2px 0 var(--line-2);
+}
+.cl-extab.on {
+  border-color: var(--blue);
+  color: var(--blue-ink);
+  box-shadow: 0 2px 0 var(--blue-lip);
+}
+.cl-exbody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 6px;
+}
+.cl-excol small {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 900;
+  color: var(--text-faint);
+  margin: 4px 0 2px;
+}
+.cl-exrow {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin: 2px 0;
+  font:
+    800 12px ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+  min-width: 0;
+}
+.cl-exrow > span {
+  color: var(--violet-ink);
+  flex: none;
+}
+.cl-exrow code {
+  font: inherit;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.cl-exrow.out code {
+  color: var(--teal-ink);
+}
+.cl-exrow.okk code {
+  color: var(--teal-ink);
+}
+.cl-exrow.bad code {
+  color: var(--rose-ink);
+}
+@media (max-width: 560px) {
+  .cl-exbody {
+    grid-template-columns: 1fr;
+  }
+}
+.cl-probe {
+  position: absolute;
+  visibility: hidden;
+  left: 0;
+  top: 0;
+  font:
+    700 13px/21px ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+  white-space: pre;
+  pointer-events: none;
+}
+.cl-ac {
+  position: fixed;
+  z-index: 400;
+  min-width: 190px;
+  max-width: 280px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--line);
+  padding: 4px;
+  font:
+    800 13px ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+}
+.cl-ac[hidden] {
+  display: none;
+}
+.cl-ai {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+}
+.cl-ai.on {
+  background: var(--blue-dim);
+  color: var(--blue-ink);
+}
+.cl-ai i {
+  flex: none;
+  width: 22px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font:
+    900 10px Nunito,
+    system-ui,
+    sans-serif;
+  font-style: normal;
+  background: var(--bg-2);
+  color: var(--text-dim);
+}
+.cl-ai i.k-kw {
+  background: var(--violet-dim);
+  color: var(--violet-ink);
+}
+.cl-ai i.k-snippet {
+  background: var(--amber-dim);
+  color: var(--amber-ink);
+}
+.cl-ai i.k-var {
+  background: var(--teal-dim);
+  color: var(--teal-ink);
+}
+.cl-ai b {
+  font-weight: 800;
+  flex: 1;
+}
+.cl-ai span {
+  font:
+    800 10px Nunito,
+    system-ui,
+    sans-serif;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- resizable divider between the code lab's two panels ---------- */
+.cl-split {
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+}
+.cl-split i {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 99px;
+  background: var(--line);
+  transition:
+    background-color var(--dur-2) ease,
+    width var(--dur-2) ease,
+    margin-left var(--dur-2) ease;
+}
+.cl-split::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  box-shadow:
+    0 -9px 0 var(--text-faint),
+    0 9px 0 var(--text-faint);
+  pointer-events: none;
+}
+.cl-split:hover i,
+.cl-split:focus-visible i,
+.cl-split.on i {
+  background: var(--blue);
+  width: 6px;
+  margin-left: -3px;
+}
+body.cl-dragging {
+  cursor: col-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+body.cl-dragging .cl-ta,
+body.cl-dragging .cl-hl {
+  pointer-events: none;
+}
+.cl-pystat {
+  font:
+    800 11px Nunito,
+    system-ui,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--bg-2);
+  color: var(--text-faint);
+  border: 2px solid var(--line);
+}
+.cl-pystat.ok {
+  color: var(--teal-ink);
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+.cl-pystat.bad {
+  color: var(--rose-ink);
+  border-color: var(--rose);
+  background: var(--rose-dim);
+}
+
+/* phones: the mission list shows only the current mission (the bar below it tracks the rest), so the sandbox comes into view sooner */
+@media (max-width: 520px) {
+  .wk-m.later,
+  .wk-m.done {
+    display: none;
+  }
+  .wk-top {
+    gap: 10px;
+  }
+}

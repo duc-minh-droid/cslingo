@@ -2,7 +2,7 @@
    Motion for the app shell (js/app/, js/revise.js, js/sync.js): the shared
    .seg pill, the sound switch, the chest payoff, quest claims, the jump
    button, XP flying to the counter, the streak ignition and sync status.
-   Loaded after motion.css; rules that must beat shell.css (loaded later)
+   Loaded after motion.css; rules that must beat css/shell/ (loaded later)
    carry an extra `html`. Theme tokens only. Transform + opacity for motion.
    ===================================================================== */
 

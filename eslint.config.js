@@ -71,7 +71,7 @@ export default [
     rules: { "no-unused-vars": "off", "no-redeclare": "off" }, // each tool defines a global function that the others (and the runner) call
   },
   {
-    files: ["eslint.config.js", "tools/run-tests.js", "tools/check-structure.js"],
+    files: ["eslint.config.js", "tools/run-tests.js", "tools/check-structure.js", "tools/keyboard-test.js"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",

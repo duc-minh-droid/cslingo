@@ -1,0 +1,244 @@
+/* =====================================================================
+   Path-focused shell: top bar + popovers, floating dock, the path,
+   node popovers, sticky unit header, modal, Practice / Profile pages.
+   ===================================================================== */
+.bubble {
+  position: relative;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 10px 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.5;
+}
+.fb-row-m .bubble::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  bottom: 16px;
+  width: 14px;
+  height: 14px;
+  background: var(--panel);
+  transform: rotate(45deg);
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--panel);
+  border-bottom: 2px solid var(--line);
+}
+.tb-in {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tb-logo {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--teal);
+  margin-right: 4px;
+  line-height: 1;
+}
+.tb-logo b {
+  color: var(--blue);
+  font-weight: 900;
+}
+@media (max-width: 480px) {
+  .tb-logo {
+    font-size: 20px;
+  }
+  .tb-course span {
+    display: none;
+  }
+}
+.tb-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.tb-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 10px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  font: inherit;
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--text-faint);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+} /* transitions: css/motion.css */
+.tb-btn:active {
+  transform: scale(0.94);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tb-btn:hover {
+    background: var(--bg-2);
+  }
+}
+.tb-btn > svg {
+  width: 26px;
+  height: 26px;
+}
+.tb-btn .mascot {
+  pointer-events: none;
+}
+.tb-course {
+  color: var(--text-dim);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.tb-course > svg {
+  width: 14px;
+  height: 14px;
+}
+.tb-streak {
+  color: var(--line-2);
+}
+.tb-streak.lit {
+  color: var(--amber);
+}
+.tb-streak.lit > svg {
+  animation: flicker 0.8s ease-in-out infinite alternate;
+  transform-origin: 50% 90%;
+}
+.tb-xp {
+  color: var(--amber-ink);
+}
+.tb-xp .ring {
+  width: 26px;
+  height: 26px;
+}
+.ring-v {
+  transition: stroke-dashoffset 700ms var(--ease-out);
+}
+.tb-quest {
+  position: relative;
+}
+.tb-quest .tb-dot {
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--rose);
+  border: 2px solid var(--panel);
+  transform: scale(0);
+  transition: transform var(--dur-4) var(--ease-spring);
+}
+.tb-quest.ready .tb-dot {
+  transform: scale(1);
+}
+.tb-quest.ready > svg {
+  animation: chestJiggle 2.4s ease-in-out infinite;
+}
+@keyframes chestJiggle {
+  0%,
+  80%,
+  100% {
+    transform: rotate(0);
+  }
+  84% {
+    transform: rotate(-12deg);
+  }
+  88% {
+    transform: rotate(10deg);
+  }
+  92% {
+    transform: rotate(-6deg);
+  }
+}
+@keyframes flicker {
+  from {
+    transform: scale(1) rotate(-3deg);
+  }
+  to {
+    transform: scale(1.12, 1.05) rotate(3deg);
+  }
+} /* also the toast icon (css/ux/) */
+
+/* popovers */
+.tb-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+.pop-card {
+  position: fixed;
+  pointer-events: auto;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 4px 0 var(--line);
+  padding: 14px;
+  transform-origin: var(--ax, 50%) 0;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+.pop-card::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: calc(var(--ax, 50%) - 8px);
+  width: 14px;
+  height: 14px;
+  background: var(--panel);
+  border-left: 2px solid var(--line);
+  border-top: 2px solid var(--line);
+  transform: rotate(45deg);
+}
+.pop-card h3 {
+  margin: 2px 4px 10px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+.pop-card h4 {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+.pop-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.pop-hero > div {
+  display: flex;
+  flex-direction: column;
+}
+.pop-hero .big-n {
+  font-size: 34px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+}
+.pop-hero .big-n small {
+  font-size: 16px;
+  color: var(--text-faint);
+}
+.pop-hero .ring {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}

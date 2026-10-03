@@ -1,0 +1,423 @@
+/* ---------- modal (guidebook) ---------- */
+.modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--scrim);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.modal {
+  position: relative;
+  width: min(640px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--panel);
+  border-radius: 22px;
+  padding: 0 0 18px;
+}
+.modal-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.gb-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  background: var(--u);
+  color: #fff;
+}
+.gb-head small {
+  font-size: 12.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+.gb-head h2 {
+  color: #fff;
+  margin: 2px 0 0;
+}
+.gb-mod {
+  padding: 14px 22px 4px;
+  border-bottom: 2px solid var(--line-soft);
+}
+.gb-mod h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.gb-num {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--blue);
+}
+.gb-mod p {
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.gb-mod ul {
+  margin: 0 0 10px;
+  padding-left: 20px;
+  color: var(--text);
+}
+.gb-mod li {
+  margin: 3px 0;
+}
+
+/* ---------- Practice / Profile ---------- */
+.side-page h2 {
+  margin: 28px 0 12px;
+}
+.sp-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--u);
+  box-shadow: 0 var(--lip) 0 var(--u-lip);
+  color: #fff;
+  margin-bottom: 18px;
+}
+.sp-hero h1 {
+  color: #fff;
+  margin: 0 0 6px;
+}
+.sp-hero p {
+  margin: 0;
+  font-weight: 700;
+  opacity: 0.95;
+}
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 18px 8px 8px;
+  border-radius: 22px;
+  background: linear-gradient(var(--panel) 72%, var(--bg-2) 72%);
+  border: 2px solid var(--line);
+}
+.shelf-spot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.shelf-spot span {
+  font-weight: 900;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+.shelf-hint {
+  text-align: center;
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+}
+.pf-stat {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+}
+.pf-stat svg {
+  grid-row: span 2;
+  width: 30px;
+  height: 30px;
+}
+.pf-stat b {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.pf-stat span {
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 800;
+}
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.ach {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 10px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  text-align: center;
+}
+.ach b {
+  font-weight: 900;
+  color: var(--ink);
+}
+.ach > span:not(.mascot):not(.ach-lock) {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+.ach small {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+.ach.got {
+  border-color: var(--gold);
+  box-shadow: 0 4px 0 var(--gold-lip);
+  background: color-mix(in srgb, var(--gold) 12%, var(--panel));
+}
+.ach.got small {
+  color: var(--amber-ink);
+}
+.ach:not(.got) .mascot {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+.ach-lock {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  color: var(--text-faint);
+}
+.ach-lock svg {
+  width: 100%;
+  height: 100%;
+}
+.settings {
+  display: grid;
+  gap: 14px;
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.set-row .goal-seg {
+  width: auto;
+}
+
+/* toasts sit under the top bar */
+.toast {
+  top: 72px;
+  z-index: 200;
+}
+.toast .mascot {
+  flex-shrink: 0;
+}
+
+/* ---------- Path tooltip (hover/focus preview of a lesson) + node popover details ---------- */
+.p-row:has(.pt-tip) {
+  z-index: 25;
+}
+.pt-tip {
+  position: absolute;
+  top: -6px;
+  width: 280px;
+  z-index: 25;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 0 4px 0 var(--line);
+  pointer-events: none;
+  text-align: left;
+}
+.pt-tip.pt-right {
+  left: 56px;
+  transform-origin: 0 40px;
+}
+.pt-tip.pt-left {
+  right: 56px;
+  transform-origin: 100% 40px;
+}
+.pt-tip::before {
+  content: "";
+  position: absolute;
+  top: var(--ay, 36px);
+  width: 14px;
+  height: 14px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  transform: rotate(45deg);
+}
+.pt-right::before {
+  left: -9px;
+  border-width: 0 0 2px 2px;
+}
+.pt-left::before {
+  right: -9px;
+  border-width: 2px 2px 0 0;
+}
+.pt-tip small {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--u);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.pt-tip > b {
+  display: block;
+  margin: 2px 0 6px;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--text);
+}
+.pt-tip p b {
+  color: var(--text);
+}
+.pt-tip p {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+.pt-h {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin: 4px 0 2px;
+}
+.pt-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.pt-list li::marker {
+  color: var(--u);
+  font-weight: 900;
+}
+.pt-more {
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 700;
+  padding-left: 20px;
+}
+.pt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.pt-chips span {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--u-soft);
+  color: var(--u-lip);
+}
+.pt-chips .pt-run {
+  background: var(--amber-dim);
+  color: var(--amber-ink);
+}
+.node-pop .np-more {
+  margin: -4px 0 10px;
+  font-size: 13px;
+}
+.node-pop .np-more summary {
+  cursor: pointer;
+  font-weight: 800;
+  opacity: 0.9;
+}
+.node-pop .pt-list {
+  color: #fff;
+  margin-top: 4px;
+}
+.node-pop .pt-list li::marker {
+  color: #fff;
+}
+.node-pop .pt-more {
+  color: rgba(255, 255, 255, 0.8);
+}
+.node-pop .pt-chips {
+  margin: 0 0 12px;
+}
+.node-pop .pt-chips span {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+@media (max-width: 640px) {
+  .pt-tip {
+    display: none;
+  }
+}
+
+/* ---------- Topic icons on path nodes ---------- */
+.p-face .p-topic {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+}
+.p-face .p-topic svg {
+  width: 38px;
+  height: 38px;
+}
+.p-row.st-new:not(.cur) .p-topic,
+.p-row:not(.st-done):not(.st-started):not(.cur) .p-topic {
+  filter: grayscale(1) opacity(0.55);
+}
+.p-face {
+  position: relative;
+}
+.p-badge {
+  position: absolute;
+  right: -16px;
+  bottom: -14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--u);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+.p-badge svg {
+  width: 15px !important;
+  height: 15px !important;
+}

@@ -1,0 +1,334 @@
+.aw11-pop {
+  animation: aw11-popk var(--dur-4) var(--ease-spring);
+}
+@keyframes aw11-popk {
+  40% {
+    transform: scale(1.12);
+  }
+}
+.aw11-chk {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 34px;
+}
+.aw11-chip {
+  padding: 4px 12px;
+  border: 2px solid var(--line-2);
+  border-radius: 99px;
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.aw11-chip.ok {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+  color: var(--teal-ink);
+}
+.aw11-chip.no {
+  border-color: var(--rose);
+  background: var(--rose-dim);
+  color: var(--rose-ink);
+}
+.aw11-chain {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px 0;
+}
+.aw11-blk {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border: 2px solid var(--teal);
+  border-radius: 12px;
+  background: var(--teal-dim);
+  min-width: 98px;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: inherit;
+}
+.aw11-blk b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.aw11-blk span {
+  color: var(--ink);
+}
+.aw11-blk small {
+  font:
+    700 11px ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+}
+.aw11-blk.edit {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+}
+.aw11-blk.after {
+  opacity: 0.6;
+}
+.aw11-lk {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--teal-ink);
+}
+.aw11-lk.no {
+  color: var(--rose-ink);
+}
+.aw11-ax {
+  stroke: var(--line-2);
+  stroke-width: 2;
+}
+.aw11-wave {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 2;
+}
+.aw11-dot {
+  fill: var(--blue);
+}
+.aw11-bars {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  height: 120px;
+  margin-top: 6px;
+}
+.aw11-bar {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.aw11-bar i {
+  display: block;
+  flex: 1;
+  border-radius: 6px 6px 0 0;
+  background: var(--line-2);
+  transform-origin: 50% 100%;
+  transition:
+    transform var(--dur-4) var(--ease-spring),
+    background-color var(--dur-2) ease;
+  margin-bottom: 16px;
+}
+.aw11-bar i.peak {
+  background: var(--amber);
+}
+.aw11-bar small {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--text-faint);
+}
+.aw11-huf {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.aw11-hs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 40px;
+}
+.aw11-merge {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: 900;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+.aw11-merge span {
+  padding: 3px 10px;
+  border: 2px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--ink);
+}
+.aw11-merge b {
+  color: var(--amber-ink);
+}
+.aw11-hc {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.aw11-code {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-2);
+  animation: aw11-popk var(--dur-4) var(--ease-spring);
+}
+.aw11-code b {
+  font-size: 16px;
+  color: var(--ink);
+}
+.aw11-code span {
+  display: inline-flex;
+  gap: 2px;
+}
+.aw11-code i {
+  font-style: normal;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+}
+.aw11-code small {
+  font-weight: 800;
+  color: var(--text-faint);
+  font-size: 11px;
+}
+.aw11-poly {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity var(--dur-4) ease;
+}
+.aw11-poly.on {
+  opacity: 1;
+}
+.aw11-cor {
+  opacity: 0;
+  transition: opacity var(--dur-3) ease;
+}
+.aw11-cor.on {
+  opacity: 1;
+}
+.aw11-cor circle {
+  fill: var(--amber);
+  stroke: var(--panel);
+  stroke-width: 3;
+}
+.aw11-cor text {
+  font:
+    900 12px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 4px;
+}
+.aw11-cor.best circle {
+  fill: var(--teal);
+}
+.aw11-cor.best text {
+  fill: var(--teal-ink);
+}
+.aw11-lab {
+  font:
+    900 11px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.aw11-pr {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aw11-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.aw11-links b {
+  color: var(--ink);
+}
+.aw11-rrow {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 46px;
+  gap: 8px;
+  align-items: center;
+  margin: 3px 0;
+  font-weight: 900;
+  color: var(--ink);
+}
+.aw11-rrow output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.aw11-tr {
+  height: 16px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.aw11-tr i {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  border-radius: inherit;
+  transform-origin: 0 50%;
+  transition: transform var(--dur-4) var(--ease-spring);
+}
+.aw11-rrow.top .aw11-tr i {
+  background: var(--teal);
+}
+.aw11-it {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+@media (max-width: 600px) {
+  .aw11-2 {
+    gap: 8px;
+  }
+  .aw11-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aw11-blk {
+    min-width: 84px;
+  }
+  .aw11-cell {
+    min-width: 36px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw11-pop,
+  .aw11-code,
+  .aw11-gridc i.seen,
+  .aw11-pt.bad {
+    animation: none !important;
+  }
+  .aw11-tool,
+  .aw11-case,
+  .aw11-tr i,
+  .aw11-bar i {
+    transition: opacity var(--dur-2) ease;
+  }
+}

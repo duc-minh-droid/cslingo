@@ -1,0 +1,476 @@
+/* ================================ PHASE 7 ================================ */
+.aw7-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 58px;
+  margin-bottom: 10px;
+}
+.aw7-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  border: 2px solid var(--k, var(--blue));
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ki, var(--blue-ink));
+  font: inherit;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--k, var(--blue));
+}
+.aw7-chip b {
+  font-weight: 900;
+  font-size: 20px;
+}
+.aw7-chip i {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 15px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.aw7-chip.inner {
+  --k: var(--blue);
+  --ki: var(--blue-ink);
+}
+.aw7-chip:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--k);
+}
+.aw7-chip.sel {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  box-shadow: 0 4px 0 var(--amber-lip);
+}
+.aw7-chip.bad {
+  background: var(--rose-dim);
+  border-color: var(--rose);
+  box-shadow: 0 4px 0 var(--rose-lip);
+}
+.aw7-chip.hint {
+  animation: aw7-hint 0.6s ease-in-out 3;
+}
+.aw7-chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+@keyframes aw7-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+.aw7-ctl {
+  margin-top: 2px;
+}
+.aw7-note {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.aw7-note b {
+  color: var(--ink);
+}
+
+.aw7-whatif {
+  border: 2px solid var(--rose-edge);
+  background: var(--rose-dim);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.aw7-whatif[hidden],
+.aw7-result[hidden],
+.aw7-enc[hidden] {
+  display: none;
+}
+.aw7-wh {
+  color: var(--rose-ink);
+  font-weight: 900;
+  font-size: 14px;
+}
+.aw7-wrow,
+.aw7-crow {
+  display: grid;
+  grid-template-columns: minmax(0, 150px) 1fr 46px;
+  gap: 10px;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.aw7-wrow output,
+.aw7-crow output {
+  text-align: right;
+  font-weight: 900;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+.aw7-wbar,
+.aw7-cbar {
+  height: 16px;
+  border-radius: 99px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  overflow: hidden;
+}
+.aw7-wbar i,
+.aw7-cbar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--teal);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--v, 1));
+}
+.aw7-wbar i.bad {
+  background: var(--rose);
+}
+.aw7-cbar i.dim {
+  background: var(--text-faint);
+}
+.aw7-cbar i.violet {
+  background: var(--violet);
+}
+.aw7-whatif p {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.aw7-stagebox {
+  margin: 10px auto 0;
+  max-width: 500px;
+}
+.aw7-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.aw7-root {
+  cursor: pointer;
+  outline: none;
+}
+.aw7-self {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.aw7-leaf rect {
+  fill: var(--panel);
+  stroke: var(--k);
+  stroke-width: 2.5;
+}
+.aw7-leaf rect.lip {
+  fill: var(--k);
+  stroke: var(--k);
+}
+.aw7-inner circle {
+  fill: var(--panel);
+  stroke: var(--blue);
+  stroke-width: 2.5;
+}
+.aw7-inner circle.lip {
+  fill: var(--blue);
+}
+.aw7-root.sel > .aw7-self rect:not(.lip),
+.aw7-root.sel > .aw7-self circle:not(.lip) {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+}
+.aw7-root:focus-visible > .aw7-self rect:not(.lip),
+.aw7-root:focus-visible > .aw7-self circle:not(.lip) {
+  stroke: var(--blue);
+  stroke-width: 4;
+}
+.aw7-svg text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-family: inherit;
+  pointer-events: none;
+}
+.aw7-l {
+  font-weight: 900;
+  font-size: 19px;
+  fill: var(--ki);
+}
+.aw7-n {
+  font-weight: 900;
+  font-size: 13.5px;
+  fill: var(--ink);
+}
+.aw7-leaf.hot rect:not(.lip) {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+}
+.aw7-edge line {
+  stroke: var(--line-2);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.aw7-edge.hot line {
+  stroke: var(--amber);
+  stroke-width: 5;
+}
+.aw7-bit circle {
+  fill: var(--panel);
+  stroke: var(--line-2);
+  stroke-width: 2;
+}
+.aw7-bit text {
+  font-weight: 900;
+  font-size: 13px;
+}
+.aw7-bit.b0 text {
+  fill: var(--teal-ink);
+}
+.aw7-bit.b1 text {
+  fill: var(--blue-ink);
+}
+.aw7-edge.hot .aw7-bit circle {
+  stroke: var(--amber);
+}
+
+.aw7-result h3,
+.aw7-enc h3 {
+  margin-bottom: 10px;
+}
+.aw7-restbl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aw7-rrow {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto minmax(0, 120px);
+  gap: 10px;
+  align-items: center;
+  padding: 4px 10px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-2);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.aw7-rs {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--k);
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+}
+.aw7-rn small {
+  color: var(--text-faint);
+  font-weight: 800;
+}
+.aw7-rc,
+.aw7-cg {
+  display: inline-flex;
+  gap: 3px;
+}
+.aw7-rc i,
+.aw7-cg i,
+.aw7-bits i {
+  font-style: normal;
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 28px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 15px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.aw7-rc i.b0,
+.aw7-cg i.b0,
+.aw7-bits i.b0 {
+  background: var(--teal-dim);
+  color: var(--teal-ink);
+}
+.aw7-rc i.b1,
+.aw7-cg i.b1,
+.aw7-bits i.b1 {
+  background: var(--blue-dim);
+  color: var(--blue-ink);
+}
+.aw7-rb {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+.aw7-rb b {
+  color: var(--ink);
+}
+.aw7-cmp {
+  margin-top: 14px;
+}
+.aw7-crow {
+  grid-template-columns: minmax(0, 150px) 1fr 52px;
+}
+.aw7-cap {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.aw7-cap b {
+  color: var(--ink);
+}
+.aw7-cap .mono {
+  word-break: break-all;
+}
+
+.aw7-msg {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.aw7-tok {
+  min-width: 36px;
+  height: 40px;
+  padding: 0 8px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 2px solid var(--k);
+  color: var(--ki);
+  background: var(--panel);
+  font-weight: 900;
+  font-size: 18px;
+  opacity: 0.6;
+}
+.aw7-tok.now {
+  opacity: 1;
+  background: var(--kd);
+  box-shadow: 0 3px 0 var(--k);
+  transform: translateY(-2px);
+}
+.aw7-tok.done {
+  opacity: 1;
+  background: var(--k);
+  color: #fff;
+}
+.aw7-keys {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+  gap: 8px;
+}
+.aw7-key {
+  appearance: none;
+  border: 2px solid var(--k);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ki);
+  font: inherit;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--k);
+}
+.aw7-key b {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.aw7-key small {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.aw7-key:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--k);
+}
+.aw7-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  margin-top: 12px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 2px dashed var(--line-2);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.aw7-ph {
+  color: var(--text-faint);
+  font-weight: 800;
+  font-size: 13.5px;
+}
+.aw7-cg {
+  padding: 2px;
+  border-radius: 10px;
+  border: 2px solid var(--k);
+}
+
+@media (max-width: 560px) {
+  .aw7-chip {
+    padding: 5px 11px;
+    gap: 6px;
+  }
+  .aw7-chip b {
+    font-size: 18px;
+  }
+  .aw7-wrow,
+  .aw7-crow {
+    grid-template-columns: minmax(0, 92px) 1fr 42px;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .aw7-rrow {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+  .aw7-rb {
+    grid-column: 2 / -1;
+    text-align: left;
+  }
+  .aw7-rc i {
+    min-width: 20px;
+    height: 26px;
+    font-size: 14px;
+  }
+  .aw7-l {
+    font-size: 20px;
+  }
+  .aw7-n {
+    font-size: 14.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw6-wire i,
+  .aw6-tab.next:not(.on)::after,
+  .aw6-fooled,
+  .aw7-chip.hint {
+    animation: none;
+  }
+  .aw6-wire i {
+    opacity: 0;
+  }
+  .aw6-vc .bad {
+    transition: none;
+  }
+}

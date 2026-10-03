@@ -1,0 +1,372 @@
+/* ---------- 11.W algorithm picker ---------- */
+.aw11-case {
+  position: relative;
+  padding: 14px 16px;
+  border: 2px solid var(--violet);
+  border-radius: 18px;
+  background: var(--violet-dim);
+  box-shadow: 0 4px 0 var(--violet-lip);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition:
+    transform var(--dur-3) var(--ease-spring),
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease;
+  outline: none;
+}
+.aw11-case:focus-visible {
+  border-color: var(--blue);
+}
+.aw11-case.drag {
+  cursor: grabbing;
+  z-index: 30;
+  transition: none;
+  box-shadow: 0 10px 0 var(--violet-lip);
+}
+.aw11-case.ok {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+  box-shadow: 0 4px 0 var(--teal-lip);
+  cursor: default;
+}
+.aw11-ct {
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.aw11-cb {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.aw11-cb b {
+  color: var(--ink);
+}
+.aw11-cn {
+  margin-top: 8px;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--violet-ink);
+}
+.aw11-cn span {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-right: 4px;
+}
+.aw11-case.ok .aw11-cn {
+  color: var(--teal-ink);
+}
+.aw11-hintline {
+  margin: 10px 0;
+  min-height: 40px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.aw11-hintline b {
+  color: var(--ink);
+}
+.aw11-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.aw11-tool {
+  appearance: none;
+  text-align: left;
+  font: inherit;
+  padding: 8px 12px;
+  border: 2px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  transition:
+    transform var(--dur-2) var(--ease-spring),
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease,
+    opacity var(--dur-2) ease;
+}
+.aw11-tool small {
+  font-size: 10.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+}
+.aw11-tool b {
+  font-weight: 900;
+  font-size: 14px;
+}
+.aw11-tool:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--line-2);
+}
+.aw11-tool.hot {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 7px 0 var(--blue-lip);
+}
+.aw11-tool.ok {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+  box-shadow: 0 4px 0 var(--teal-lip);
+}
+.aw11-tool.no {
+  border-color: var(--rose);
+  background: var(--rose-dim);
+  box-shadow: 0 4px 0 var(--rose-edge);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.aw11-tool.near {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  box-shadow: 0 4px 0 var(--amber);
+}
+.aw11-dcard .aw11-demo {
+  min-height: 200px;
+}
+.aw11-idle {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 0 14px;
+  text-align: center;
+  font-weight: 800;
+  color: var(--text-dim);
+  border: 2px dashed var(--line-2);
+  border-radius: 14px;
+  background: var(--bg-2);
+  line-height: 1.5;
+}
+.aw11-cap {
+  margin-top: 8px;
+  min-height: 48px;
+}
+.aw11-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  max-height: 300px;
+}
+.aw11-ge {
+  stroke: var(--line-2);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke var(--dur-2) ease;
+}
+.aw11-ge.tree,
+.aw11-ge.ok {
+  stroke: var(--teal);
+  stroke-width: 6;
+}
+.aw11-ge.skip {
+  stroke: var(--rose);
+}
+.aw11-ge.route {
+  stroke: var(--amber);
+  stroke-width: 6;
+}
+.aw11-gw rect {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.aw11-gw text {
+  font:
+    900 12px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.aw11-gn circle {
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 3;
+  transition:
+    fill var(--dur-2) ease,
+    stroke var(--dur-2) ease;
+}
+.aw11-gn .nm {
+  font:
+    900 15px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.aw11-gn .sub {
+  font:
+    900 15px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--teal-ink);
+  text-anchor: middle;
+}
+.aw11-gn.cur circle {
+  fill: var(--blue-dim);
+  stroke: var(--blue);
+  stroke-width: 5;
+}
+.aw11-gn.done circle {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+}
+.aw11-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.aw11-gb > b {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.aw11-cnt {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.aw11-gridc {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 2px;
+}
+.aw11-gridc i {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+}
+.aw11-gridc i.w {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.aw11-gridc i.s {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.aw11-gridc i.g {
+  background: var(--violet);
+  border-color: var(--violet);
+}
+.aw11-gridc i.seen {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  animation: aw11-in var(--dur-3) var(--ease-out);
+}
+.aw11-gridc i.path {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+@keyframes aw11-in {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.aw11-pt {
+  fill: var(--panel);
+  stroke: var(--line-2);
+  stroke-width: 3;
+}
+.aw11-pt.hullpt {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+}
+.aw11-pt.bad {
+  animation: aw11-bad var(--dur-bar) var(--ease-out);
+  stroke: var(--rose);
+}
+@keyframes aw11-bad {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+.aw11-hp {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.aw11-hl {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  fill-opacity: 0.6;
+}
+.aw11-ring {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 3;
+}
+.aw11-cells {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 16px 0 8px;
+}
+.aw11-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+  padding: 4px 6px;
+  border: 2px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--bg-2);
+}
+.aw11-cell small {
+  font-size: 10.5px;
+  font-weight: 900;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+.aw11-cell b {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.aw11-cell.par {
+  background: var(--violet-dim);
+  border-color: var(--violet);
+}
+.aw11-cell.bad {
+  background: var(--rose-dim);
+  border-color: var(--rose);
+}
+.aw11-cell.good {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}

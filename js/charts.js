@@ -1,5 +1,5 @@
 /* Animated charts: swaps NIC.lineChart / NIC.barChart for Chart.js (vendor/chart.umd.js) versions.
-   Same call signature as the canvas originals in core.js, so modules don't change.
+   Same call signature as the canvas originals in js/core/, so modules don't change.
    - First draw animates in (lines sweep left→right, bars grow with a stagger).
    - Later calls tween from the old values; rapid calls (simulations, < 250 ms apart) update instantly.
    - Hover shows a crosshair + tooltip; dataset names come from the .legend that follows the canvas.

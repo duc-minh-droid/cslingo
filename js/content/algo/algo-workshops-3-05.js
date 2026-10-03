@@ -1,3 +1,5 @@
+/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 5 of 5: the workshop itself (missions, predicts, takeaways)
+   and its lesson briefing. The interactive sandbox is cornerHunt() from part 4. */
 (function () {
   const partScope = (NIC.shared.algoWorkshops3 = NIC.shared.algoWorkshops3 || {});
   const { cornerHunt } = partScope;

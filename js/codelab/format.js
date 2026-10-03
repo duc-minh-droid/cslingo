@@ -16,7 +16,7 @@
    Python is real CPython (Pyodide, vendor/pyodide) in a Web Worker: 2 s limit per test, so an infinite loop can't freeze the page.
    Results come back as JS: dict -> object, list/tuple -> array, set -> Set, float('inf') -> Infinity. Needs http(s), not file://.
    The editor behaves like an IDE: auto-closing pairs, indent after a colon, Tab = 4 spaces, Ctrl+/ comments, autocomplete.
-   All classes are cl- prefixed (css/workshop.css). */
+   All classes are cl- prefixed (css/workshop/). */
 (function () {
   const lab = (NIC.shared.engineCodelab = NIC.shared.engineCodelab || {});
 

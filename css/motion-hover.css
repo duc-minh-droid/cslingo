@@ -6,7 +6,7 @@
      on touch) and stays near-imperceptible: these are tens-per-day actions.
    - Dropdowns: every <details> opens and closes with height + fade
      (js/motion-details.js), carets rotate, popover rows cascade in.
-   Uses the tokens from styles.css / motion.css. Transform + opacity only,
+   Uses the tokens from css/styles/ and motion.css. Transform + opacity only,
    plus box-shadow on the lip (a paint-only change, matched to the press).
    ===================================================================== */
 

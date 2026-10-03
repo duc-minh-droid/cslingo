@@ -1,0 +1,395 @@
+/* a3-simplex — simplex tableau runner (js/content/algo/algo-p3-*.js simplexRun). Prefix: rn-tab- */
+.rn-tab-wrap {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.rn-tab-plot {
+  width: 100%;
+  max-width: 360px;
+}
+.rn-tab-plot svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.rn-tab {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.rn-tab th,
+.rn-tab td {
+  padding: 6px 5px;
+  text-align: center;
+  border-bottom: 2px solid var(--line);
+  transition:
+    background-color var(--dur-3) ease,
+    color var(--dur-3) ease;
+}
+.rn-tab thead th {
+  font-family: var(--sans);
+  font-weight: 900;
+  color: var(--text-dim);
+  border-bottom-color: var(--line-2);
+}
+.rn-tab tbody th {
+  font-family: var(--sans);
+  font-weight: 900;
+  color: var(--text);
+}
+.rn-tab .rn-tab-rhs {
+  white-space: nowrap;
+  font-weight: 800;
+  color: var(--text);
+  border-left: 2px solid var(--line-2);
+}
+.rn-tab .rn-tab-rt {
+  color: var(--violet-ink);
+  font-weight: 800;
+  opacity: 0;
+}
+.rn-tab .rn-tab-rt.rn-tab-show {
+  opacity: 1;
+}
+.rn-tab-gain th,
+.rn-tab-gain td {
+  background: var(--panel-2);
+  border-bottom: 0;
+}
+.rn-tab-gain td.rn-tab-pos {
+  color: var(--teal-ink);
+  font-weight: 900;
+}
+.rn-tab .rn-tab-enter {
+  background: var(--blue-dim);
+  color: var(--text);
+  font-weight: 900;
+}
+.rn-tab thead th.rn-tab-enter {
+  color: var(--blue);
+}
+.rn-tab tr.rn-tab-leave > * {
+  background: var(--amber-dim);
+}
+.rn-tab tr.rn-tab-leave > td.rn-tab-enter {
+  background: var(--amber);
+  color: #fff;
+}
+.rn-tab tr.rn-tab-new > * {
+  background: var(--teal-dim);
+}
+.rn-tab-done .rn-tab-gain td {
+  color: var(--teal-ink);
+}
+.rn-tab-h {
+  cursor: default;
+  border-radius: 8px 8px 0 0;
+}
+.rn-tab-h.rn-pickable {
+  cursor: pointer;
+  background: var(--violet-dim);
+  color: var(--violet-ink) !important;
+  box-shadow: inset 0 0 0 2px var(--violet);
+  animation: rn-tab-glow 1.1s ease-in-out infinite;
+}
+@keyframes rn-tab-glow {
+  50% {
+    box-shadow: inset 0 0 0 3px var(--violet-edge);
+  }
+}
+.rn-tab-trail {
+  fill: none;
+  stroke: var(--rose);
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.rn-tab-dot {
+  fill: var(--blue);
+  stroke: var(--panel);
+  stroke-width: 3;
+}
+.rn-tab-dot.rn-tab-opt {
+  fill: var(--amber);
+}
+@media (max-width: 480px) {
+  .rn-tab {
+    font-size: 11.5px;
+  }
+  .rn-tab th,
+  .rn-tab td {
+    padding: 5px 2px;
+  }
+}
+
+/* a7-huffman runner (huffmanRun in js/content/algo/algo-p7-*.js) */
+.rn-huf-e line {
+  stroke: var(--line-2);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.rn-huf-bit {
+  font-size: 13px;
+  font-weight: 900;
+  fill: var(--blue-ink);
+}
+.rn-huf-box {
+  fill: var(--panel-2);
+  stroke: var(--line-2);
+  stroke-width: 2.5;
+  transition:
+    fill var(--dur-3) ease,
+    stroke var(--dur-3) ease;
+}
+.rn-huf-s {
+  font-size: 16px;
+  font-weight: 900;
+  fill: var(--text-dim);
+}
+.rn-huf-sum {
+  font-size: 13.5px;
+}
+.rn-huf-f rect {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.rn-huf-f text {
+  font-size: 12.5px;
+  font-weight: 900;
+  fill: var(--text-dim);
+}
+.rn-huf-code {
+  font-size: 13px;
+  font-weight: 900;
+  fill: var(--teal-ink);
+  font-family: var(--mono);
+}
+.rn-huf-root .rn-huf-box {
+  fill: var(--violet-dim);
+  stroke: var(--violet);
+}
+.rn-huf-root .rn-huf-s {
+  fill: var(--violet-ink);
+}
+.rn-huf-sel .rn-huf-box {
+  fill: var(--amber);
+  stroke: var(--amber-lip);
+}
+.rn-huf-sel .rn-huf-s {
+  fill: #fff;
+}
+.rn-huf-node.rn-pickable .rn-huf-box {
+  stroke: var(--violet);
+  stroke-width: 4;
+  animation: rn-glow 1.1s ease-in-out infinite;
+}
+
+/* a7-lzw runner (lzwRun in js/content/algo/algo-p7-*.js) */
+.rn-lzw {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+}
+.rn-lzw small {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+.rn-lzw [hidden] {
+  display: none !important;
+}
+.rn-lzw-in {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.rn-lzw-in input {
+  width: 190px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 2px solid var(--blue-edge);
+  border-radius: 10px;
+  font: inherit;
+  font-family: var(--mono);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  background: var(--panel);
+}
+.rn-lzw-in span {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.rn-lzw-tape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.rn-lzw-cell {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 32px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-weight: 900;
+  color: var(--text);
+  background: var(--panel);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease,
+    opacity var(--dur-2) ease;
+}
+.rn-lzw-cell.rn-lzw-done {
+  opacity: 0.4;
+}
+.rn-lzw-cell.rn-lzw-inw {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  color: var(--blue-ink);
+}
+.rn-lzw-cell.rn-lzw-cur {
+  background: var(--amber);
+  border-color: var(--amber-lip);
+  color: #fff;
+}
+.rn-lzw-mid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rn-lzw-box {
+  padding: 7px 12px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  min-width: 80px;
+}
+.rn-lzw-box b {
+  font-family: var(--mono);
+  font-size: 17px;
+}
+.rn-lzw-w {
+  color: var(--blue-ink);
+}
+.rn-lzw-ask {
+  flex: 1;
+  min-width: 200px;
+}
+.rn-lzw-ask > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rn-lzw-wc {
+  margin-right: auto;
+  color: var(--amber-ink);
+}
+.rn-lzw-yn {
+  display: inline-block;
+  padding: 3px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  font-weight: 900;
+  color: var(--text-dim);
+  background: var(--panel);
+  box-shadow: 0 2px 0 var(--line);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease,
+    opacity var(--dur-2) ease;
+}
+.rn-lzw-yn.rn-lzw-on[data-k="yes"] {
+  background: var(--teal);
+  border-color: var(--teal-lip);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--teal-lip);
+}
+.rn-lzw-yn.rn-lzw-on[data-k="no"] {
+  background: var(--rose);
+  border-color: var(--rose-lip);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--rose-lip);
+}
+.rn-lzw-yn.rn-lzw-off {
+  opacity: 0.4;
+}
+.rn-lzw-yn.rn-pickable {
+  border-color: var(--violet);
+  color: var(--violet-ink);
+  cursor: pointer;
+  animation: rn-lzw-glow 1.1s ease-in-out infinite;
+}
+@keyframes rn-lzw-glow {
+  50% {
+    box-shadow: 0 0 0 4px var(--violet-dim);
+  }
+}
+.rn-lzw-out {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 30px;
+}
+.rn-lzw-code {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--violet);
+  color: #fff;
+  font-family: var(--mono);
+  font-weight: 900;
+}
+.rn-lzw-dict {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 4px;
+}
+.rn-lzw-ent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.rn-lzw-ent i {
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 900;
+  color: var(--text-faint);
+  min-width: 14px;
+}
+.rn-lzw-ent b {
+  font-family: var(--mono);
+  font-weight: 900;
+}
+.rn-lzw-ent.rn-lzw-new {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+.rn-lzw-ent.rn-lzw-hit {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}

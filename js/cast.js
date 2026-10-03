@@ -4,7 +4,7 @@
      NIC.mascotReact(el, mood)                                  → swap expression + one-shot motion
      NIC.cast.surprise(el)                                      → random short idle gag
      NIC.feedback(box, "ok"|"no"|"retry", html, animate)        → mascot + bubble feedback row (non-player pages)
-   Idle loops are CSS (css/cast.css) so reduced motion can drop them. */
+   Idle loops are CSS (css/cast/) so reduced motion can drop them. */
 (function () {
   const INK = "#3c3c3c";
 
