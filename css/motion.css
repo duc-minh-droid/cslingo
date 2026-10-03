@@ -2,13 +2,13 @@
    Motion layer (CSS side of js/fx/). Tokens, tactile presses, selection
    springs, the dock indicator, path breathing, lesson-bar shine and page
    transitions. Transform + opacity only. No colours are defined here except
-   --m-shine; everything else uses the theme tokens from styles.css.
-   Loaded after ux.css, so rules that must beat later files (quiz, player,
+   --m-shine; everything else uses the theme tokens from css/styles/.
+   Loaded after css/ux/, so rules that must beat later files (quiz, player,
    shell) carry an extra `html` or parent selector.
    ===================================================================== */
 :root {
-  /* durations (--dur-press, --dur-1…4, --dur-bar) and --ease-out, --ease-in-out, --ease-spring live in styles.css,
-     so pages that load styles.css without this file (trailer/) still resolve them */
+  /* durations (--dur-press, --dur-1…4, --dur-bar) and --ease-out, --ease-in-out, --ease-spring live in css/styles/,
+     so pages that load css/styles/ without this file (trailer/) still resolve them */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-pop: cubic-bezier(0.34, 1.8, 0.64, 1); /* bigger overshoot for small pops */
   --m-shine: rgba(255, 255, 255, 0.55); /* highlight swept over coloured fills */

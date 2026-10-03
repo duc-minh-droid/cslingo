@@ -1,0 +1,239 @@
+/* ---------- footer ---------- */
+.pl-foot {
+  flex-shrink: 0;
+  border-top: 2px solid var(--line);
+  background: var(--panel);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.pl-foot-in {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 18px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+  min-height: 96px;
+}
+.pl-fb {
+  flex: 1;
+  min-width: 0;
+}
+.pl-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+}
+.pl-go {
+  min-width: 170px;
+}
+.pl-foot.f-ok {
+  background: var(--teal-dim);
+  border-color: transparent;
+}
+.pl-foot.f-no {
+  background: var(--rose-dim);
+  border-color: transparent;
+}
+.pl-fb-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.pl-fb-t {
+  flex: 1;
+  min-width: 0;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.pl-fb-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+}
+.pl-fb-h svg {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.f-ok .pl-fb-h b {
+  color: var(--teal-ink);
+  font-weight: 900;
+}
+.f-no .pl-fb-h b {
+  color: var(--rose-ink);
+  font-weight: 900;
+}
+.f-ok .pl-fb-h svg circle {
+  fill: var(--teal);
+}
+.f-ok .pl-fb-h svg path {
+  stroke: #fff;
+}
+.f-no .pl-fb-h svg circle {
+  fill: var(--rose);
+}
+.f-no .pl-fb-h svg path {
+  stroke: #fff;
+}
+.pl-xp {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--amber-ink);
+  background: var(--panel);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.pl-ans {
+  font-weight: 800;
+  color: var(--rose-ink);
+  margin-top: 2px;
+}
+/* explanation: full-contrast body text in both themes; the green/red cue lives in the left bar, not the text colour */
+.pl-why {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 8px;
+  line-height: 1.55;
+  padding-left: 12px;
+  border-left: 3px solid var(--line);
+}
+.pl-why b,
+.pl-why strong {
+  color: var(--text);
+  font-weight: 900;
+}
+.f-ok .pl-why {
+  border-left-color: var(--teal);
+}
+.f-no .pl-why {
+  border-left-color: var(--rose);
+}
+@media (max-width: 640px) {
+  .pl-foot-in {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+  }
+  .pl-go {
+    width: 100%;
+  }
+  .pl-fb-row .mascot {
+    --ms: 48px !important;
+  }
+  .pl-read .lesson-title {
+    font-size: 24px;
+  }
+  .pl-top {
+    padding: 12px 14px 8px;
+    gap: 10px;
+  }
+  .pl-screen {
+    padding: 12px 16px 30px;
+  }
+  .pl-prompt {
+    font-size: 16px;
+  }
+}
+
+/* ---------- quit modal ---------- */
+.pl-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: var(--scrim);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.pl-modal[hidden] {
+  display: none;
+}
+.pl-sheet {
+  width: min(520px, 100%);
+  background: var(--panel);
+  border-radius: 24px 24px 0 0;
+  padding: 26px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+@media (min-width: 700px) {
+  .pl-modal {
+    align-items: center;
+  }
+  .pl-sheet {
+    border-radius: 24px;
+  }
+}
+.pl-sheet h2 {
+  font-size: 26px;
+  margin: 4px 0 0;
+}
+.pl-sheet .lede {
+  margin: 0 0 8px;
+}
+.pl-sheet .btn {
+  width: 100%;
+}
+.pl-quit-btn {
+  color: var(--rose-ink) !important;
+}
+
+/* ---------- boss result ---------- */
+.pl-ring {
+  position: relative;
+  width: 190px;
+  height: 190px;
+}
+.pl-ring svg {
+  width: 100%;
+  height: 100%;
+}
+.ring-n {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding-top: 58px;
+}
+.ring-n b {
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.ring-n span {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-faint);
+  margin-left: 4px;
+}
+.ring-m {
+  position: absolute;
+  right: -22px;
+  bottom: -8px;
+}
+.pl-miss {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.pl-miss-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+}

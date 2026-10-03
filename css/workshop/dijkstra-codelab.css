@@ -1,0 +1,300 @@
+/* ---------- Dijkstra (js/content/algo/algo-workshops-2-*.js) ---------- */
+.dj-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.dj-e {
+  stroke: var(--line-2);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke var(--dur-2) ease;
+}
+.dj-e.tree {
+  stroke: var(--teal);
+}
+.dj-e.on {
+  stroke: var(--amber);
+}
+.dj-e.good {
+  stroke: var(--teal);
+}
+.dj-e.meh {
+  stroke: var(--text-faint);
+}
+.dj-e.route {
+  stroke: var(--blue);
+  stroke-width: 7;
+}
+.dj-w rect {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.dj-w text {
+  font:
+    900 12px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.dj-n {
+  cursor: pointer;
+  outline: none;
+}
+.dj-n circle {
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 3;
+  transition:
+    fill var(--dur-2) ease,
+    stroke var(--dur-2) ease;
+}
+.dj-n .dj-nm {
+  font:
+    900 17px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.dj-n .dj-d {
+  font:
+    900 15px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text-faint);
+  text-anchor: middle;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.dj-n.front circle {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+}
+.dj-n.front .dj-d {
+  fill: var(--amber-ink);
+}
+.dj-n.done circle {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+}
+.dj-n.done .dj-d {
+  fill: var(--teal-ink);
+}
+.dj-n.cur circle {
+  fill: var(--blue-dim);
+  stroke: var(--blue);
+  stroke-width: 5;
+}
+.dj-n:focus-visible circle {
+  stroke: var(--blue);
+  stroke-width: 5;
+}
+.dj-pkt {
+  fill: var(--amber);
+  stroke: #fff;
+  stroke-width: 2;
+}
+.dj-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.dj-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dj-legend .lg {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 3px solid var(--line-2);
+  background: var(--bg-2);
+}
+.dj-legend .lg.front {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+}
+.dj-legend .lg.cur {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+}
+.dj-legend .lg.done {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+}
+.dj-tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.dj-tbl th {
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  padding: 0 10px;
+}
+.dj-tbl td {
+  padding: 5px 10px;
+  background: var(--bg-2);
+  border-top: 2px solid var(--line);
+  border-bottom: 2px solid var(--line);
+  color: var(--text-dim);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.dj-tbl td:first-child {
+  border-left: 2px solid var(--line);
+  border-radius: 10px 0 0 10px;
+  color: var(--ink);
+}
+.dj-tbl td:last-child {
+  border-right: 2px solid var(--line);
+  border-radius: 0 10px 10px 0;
+}
+.dj-tbl tr.front td {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+}
+.dj-tbl tr.done td {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+.dj-tbl tr.cur td,
+.dj-tbl tr.look td {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}
+.dj-tbl tr.route td {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+.dj-q {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.dj-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  min-height: 36px;
+  align-items: center;
+}
+.dj-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 6px 12px;
+  border: 2px solid var(--amber);
+  border-radius: 12px;
+  background: var(--amber-dim);
+  color: var(--amber-ink);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--amber);
+}
+.dj-chip i {
+  font-style: normal;
+  color: var(--ink);
+}
+.dj-chip:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--amber);
+}
+.dj-chip.hint {
+  animation: wk-flash var(--dur-bar) var(--ease-spring) 3;
+  border-color: var(--blue);
+  box-shadow: 0 3px 0 var(--blue);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dj-chip.hint {
+    animation: none;
+  }
+}
+
+/* ---------- code labs: steps, tests and the replay on the left, the editor on the right ---------- */
+@media (min-width: 1001px) {
+  .wk.wk-code {
+    display: grid;
+    grid-template-columns: minmax(0, var(--cl-l, 46%)) 22px minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    gap: 14px 0;
+    align-items: start;
+  }
+  .wk.wk-code .wk-stage {
+    display: contents;
+  }
+  .wk.wk-code .wk-top {
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .wk.wk-code .wk-bar {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .wk.wk-code .cl-testcard {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .wk.wk-code .cl-vis {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .wk.wk-code .cl-edcard {
+    grid-column: 3;
+    grid-row: 1 / span 4;
+  }
+  .wk.wk-code .cl-split {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: stretch;
+  }
+  .wk.wk-code .cl-vis .cl-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1000px) {
+  .wk.wk-code .cl-split {
+    display: none;
+  }
+  .wk.wk-code .cl-edcard {
+    order: -1;
+  }
+  .wk.wk-code .wk-stage {
+    display: flex;
+    flex-direction: column;
+  }
+  .wk.wk-code .cl-testcard {
+    order: 0;
+  }
+  .wk.wk-code .cl-vis {
+    order: 1;
+  }
+}
+.cl-tsum {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 800;
+}

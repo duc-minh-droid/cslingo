@@ -1,5 +1,5 @@
 /* Glossary for revision questions: NIC.glossify(root, {max}) underlines the first mention of each known term in a node's text and
-   gives it the hover / tap tooltip (.term, see css/ux.css). Used by the player on revision questions only.
+   gives it the hover / tap tooltip (.term, see css/ux/). Used by the player on revision questions only.
    Each entry: [pattern (regex source, case-insensitive), short definition]. Keep definitions to one plain sentence. */
 (function () {
   const N = NIC;

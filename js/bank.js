@@ -1,5 +1,5 @@
 /* Revision question bank: NIC.bank.
-   Content lives in bank-nic.js / bank-ds.js / bank-algo.js (loaded on demand by NIC.bank.load()), one list per module (session):
+   Content lives in js/bank/<course>-NN.js (loaded on demand by NIC.bank.load()), one list per module (session):
      NIC.bank.add("l3-hc", [ {type, q, ..., why}, ... ])   // same question types as boss quizzes (js/quiz/)
    A revision tab asks for a shuffled deck drawn from the sessions the learner has finished:
      const deck = NIC.bank.deck({ n: 10 });                // [{id, mod, subject, lecture, src, Q}]

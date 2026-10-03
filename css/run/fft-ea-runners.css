@@ -1,0 +1,405 @@
+/* a9-fft runner (fftRun in js/content/algo/algo-p9-*.js) */
+.rn-fft-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.rn-fft-wrap > svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 560px) {
+  .rn-fft-wrap > svg {
+    min-width: 470px;
+  }
+}
+.rn-fft-h {
+  font-size: 12px;
+  font-weight: 900;
+  fill: var(--text-faint);
+}
+.rn-fft-row {
+  font-size: 12px;
+  font-weight: 900;
+  fill: var(--text-faint);
+}
+.rn-fft-e {
+  stroke: var(--line);
+  stroke-width: 1.5;
+  transition:
+    stroke var(--dur-3) ease,
+    stroke-width var(--dur-3) ease;
+}
+.rn-fft-e.rn-fft-did {
+  stroke: var(--teal-edge);
+  stroke-width: 2;
+}
+.rn-fft-e.rn-fft-hot {
+  stroke: var(--amber);
+  stroke-width: 3.5;
+}
+.rn-fft-n rect {
+  fill: var(--panel);
+  stroke: var(--line-2);
+  stroke-width: 2;
+  transition:
+    fill var(--dur-3) ease,
+    stroke var(--dur-3) ease;
+}
+.rn-fft-n text {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: var(--text);
+  font-family: var(--mono);
+}
+.rn-fft-n.rn-fft-empty rect {
+  fill: var(--panel-2);
+  stroke: var(--line);
+  stroke-dasharray: 4 3;
+}
+.rn-fft-n.rn-fft-in rect {
+  fill: var(--blue-dim);
+  stroke: var(--blue);
+}
+.rn-fft-n.rn-fft-out rect {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+}
+.rn-fft-c3:not(.rn-fft-empty):not(.rn-fft-out) rect {
+  fill: var(--teal-dim);
+  stroke: var(--teal-edge);
+}
+.rn-fft-n.rn-pickable {
+  cursor: pointer;
+}
+.rn-fft-n.rn-pickable rect {
+  stroke: var(--violet);
+  stroke-width: 3;
+  animation: rn-glow 1.1s ease-in-out infinite;
+}
+
+/* l2-generic "Watch it run": one EA generation (NIC.runners.eaGen, js/content/nic/l12-*.js). Prefix: rn-ea- */
+.rn-ea text {
+  font-weight: 900;
+}
+.rn-ea-h,
+.rn-ea-lbl,
+.rn-ea-fit,
+.rn-ea-tag {
+  text-anchor: start !important;
+}
+.rn-ea-h {
+  font-size: 13px;
+  fill: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+.rn-ea-bg {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+  transition:
+    fill var(--dur-3) ease,
+    stroke var(--dur-3) ease;
+}
+.rn-ea-lbl {
+  font-size: 14px;
+  fill: var(--text-dim);
+}
+.rn-ea-row.rn-ea-cont .rn-ea-bg {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+}
+.rn-ea-row.rn-ea-win .rn-ea-bg {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+  stroke-width: 3;
+}
+.rn-ea-row.rn-pickable .rn-ea-bg {
+  stroke: var(--violet);
+  stroke-width: 3;
+  animation: rn-ea-glow 1.1s ease-in-out infinite;
+}
+@keyframes rn-ea-glow {
+  50% {
+    stroke-opacity: 0.4;
+  }
+}
+.rn-ea-bit rect {
+  fill: var(--panel-2);
+  stroke: var(--line-2);
+  stroke-width: 1.5;
+}
+.rn-ea-bit text {
+  font-size: 14px;
+  fill: var(--text-faint);
+}
+.rn-ea-bit.rn-ea-one rect {
+  fill: var(--text-dim);
+  stroke: var(--text-dim);
+}
+.rn-ea-bit.rn-ea-one text {
+  fill: #fff;
+}
+.rn-ea-bit.rn-ea-a rect {
+  fill: var(--blue-dim);
+  stroke: var(--blue-edge);
+}
+.rn-ea-bit.rn-ea-a.rn-ea-one rect {
+  fill: var(--blue);
+  stroke: var(--blue);
+}
+.rn-ea-bit.rn-ea-b rect {
+  fill: var(--amber-dim);
+  stroke: var(--amber-edge);
+}
+.rn-ea-bit.rn-ea-b.rn-ea-one rect {
+  fill: var(--amber);
+  stroke: var(--amber);
+}
+.rn-ea-bit.rn-ea-a text,
+.rn-ea-bit.rn-ea-b text {
+  fill: var(--text-dim);
+}
+.rn-ea-bit.rn-ea-one.rn-ea-a text,
+.rn-ea-bit.rn-ea-one.rn-ea-b text {
+  fill: #fff;
+}
+.rn-ea-bit.rn-ea-flip rect {
+  fill: var(--violet-dim);
+  stroke: var(--violet);
+  stroke-width: 3;
+}
+.rn-ea-bit.rn-ea-flip.rn-ea-one rect {
+  fill: var(--violet);
+}
+.rn-ea-bit.rn-ea-flip text {
+  fill: var(--violet-ink);
+}
+.rn-ea-bit.rn-ea-flip.rn-ea-one text {
+  fill: #fff;
+}
+.rn-ea-barbg {
+  fill: var(--bg-2);
+}
+.rn-ea-bar {
+  fill: var(--teal);
+}
+.rn-ea-fit {
+  font-size: 15px;
+  fill: var(--text);
+}
+.rn-ea-tag {
+  font-size: 16px;
+  fill: var(--text-dim);
+}
+.rn-ea-tag.a {
+  fill: var(--blue);
+}
+.rn-ea-tag.b {
+  fill: var(--amber);
+}
+.rn-ea-cut {
+  stroke: var(--rose);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+}
+
+/* l4-roulette "Watch it run": roulette wheel (NIC.runners.roulette, js/content/nic/l4-*.js). Prefix: rn-wheel- */
+.rn-wheel text {
+  font-weight: 900;
+}
+.rn-wheel-sl {
+  stroke: var(--panel);
+  stroke-width: 2.5;
+  opacity: 0.82;
+  transition: opacity var(--dur-3) ease;
+  cursor: default;
+}
+.rn-wheel-sl.rn-wheel-hit {
+  opacity: 1;
+  stroke: var(--text);
+  stroke-width: 3.5;
+}
+.rn-wheel-sl.rn-wheel-big {
+  opacity: 1;
+}
+.rn-wheel-sl.rn-pickable {
+  cursor: pointer;
+  opacity: 1;
+}
+.rn-wheel-sn {
+  font-size: 15px;
+  fill: #fff;
+  pointer-events: none;
+}
+.rn-wheel-rim {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 3;
+  pointer-events: none;
+}
+.rn-wheel-ptr {
+  pointer-events: none;
+}
+.rn-wheel-ptr line {
+  stroke: var(--text);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.rn-wheel-ptr path,
+.rn-wheel-ptr circle {
+  fill: var(--text);
+}
+.rn-wheel-h {
+  font-size: 12px;
+  fill: var(--text-faint);
+}
+.rn-wheel-bg {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 2;
+  transition:
+    fill var(--dur-3) ease,
+    stroke var(--dur-3) ease;
+}
+.rn-wheel-row.rn-wheel-big .rn-wheel-bg {
+  stroke: var(--teal-edge);
+}
+.rn-wheel-row.rn-wheel-hit .rn-wheel-bg {
+  fill: var(--amber-dim);
+  stroke: var(--amber);
+  stroke-width: 3;
+}
+.rn-wheel-row.rn-pickable .rn-wheel-bg {
+  stroke: var(--violet);
+  stroke-width: 3;
+  animation: rn-ea-glow 1.1s ease-in-out infinite;
+}
+.rn-wheel-nm {
+  font-size: 15px;
+  fill: var(--text);
+  text-anchor: start !important;
+}
+.rn-wheel-f rect {
+  fill: var(--panel-2);
+  stroke: var(--line-2);
+  stroke-width: 2;
+}
+.rn-wheel-f text {
+  font-size: 14px;
+  fill: var(--text);
+}
+.rn-wheel-p {
+  font-size: 14px;
+  fill: var(--text-dim);
+}
+.rn-wheel-t {
+  font-size: 15px;
+  fill: var(--amber-ink);
+}
+
+/* l4-crossover "Watch it run": one- and two-point crossover (NIC.runners.crossover, js/content/nic/l4-*.js). Prefix: rn-x- */
+.rn-x text {
+  font-weight: 900;
+}
+.rn-x-lbl {
+  font-size: 13px;
+  fill: var(--text-dim);
+  text-anchor: start !important;
+}
+.rn-x-g rect {
+  stroke-width: 2;
+}
+.rn-x-g text {
+  font-size: 16px;
+}
+.rn-x-g.p1 rect,
+.rn-x-g.rn-x-a rect {
+  fill: var(--blue-dim);
+  stroke: var(--blue-edge);
+}
+.rn-x-g.p1 text,
+.rn-x-g.rn-x-a text {
+  fill: var(--blue-ink);
+}
+.rn-x-g.p2 rect,
+.rn-x-g.rn-x-b rect {
+  fill: var(--amber-dim);
+  stroke: var(--amber-edge);
+}
+.rn-x-g.p2 text,
+.rn-x-g.rn-x-b text {
+  fill: var(--amber-ink);
+}
+.rn-x-mk line {
+  stroke: var(--rose);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 6 4;
+}
+.rn-x-mk circle {
+  fill: var(--rose);
+  stroke: var(--panel);
+  stroke-width: 2;
+}
+.rn-x-mk text {
+  font-size: 12px;
+  fill: #fff;
+}
+.rn-x-hit {
+  fill: transparent;
+}
+.rn-x-mk[data-m="1"] {
+  pointer-events: none;
+}
+.rn-x-opt rect {
+  fill: var(--panel);
+  stroke: var(--line-2);
+  stroke-width: 2;
+  transition:
+    fill var(--dur-3) ease,
+    stroke var(--dur-3) ease;
+}
+.rn-x-opt text {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 1px;
+  fill: var(--text);
+}
+.rn-x-opt.rn-pickable {
+  cursor: pointer;
+}
+.rn-x-opt.rn-pickable rect {
+  stroke: var(--violet);
+  stroke-width: 3;
+  animation: rn-ea-glow 1.1s ease-in-out infinite;
+}
+.rn-x-opt.rn-x-ok rect {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+  stroke-width: 3;
+}
+.rn-x-opt.rn-x-off {
+  opacity: 0.45;
+}
+
+/* caption, predict and controls stay on screen while the figure scrolls (they stick to the bottom of the player stage) */
+.rn-dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin: 0 -14px -14px;
+  padding: 2px 14px 14px;
+  background: var(--panel);
+  border-radius: 0 0 16px 16px;
+}
+
+/* reduced motion: the pick glows and marching dashes stop (the violet outline stays) */
+@media (prefers-reduced-motion: reduce) {
+  .rn *,
+  .rn *::before,
+  .rn *::after {
+    animation: none !important;
+  }
+}

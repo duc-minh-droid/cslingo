@@ -1,0 +1,394 @@
+/* ---------- W1: ops room ---------- */
+.wk-lane {
+  position: relative;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  overflow: hidden;
+}
+.wk-lane-l {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 6px 2px;
+}
+.wk-pkt {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: wk-flow var(--fd, 2.4s) linear infinite;
+  animation-delay: var(--dl, 0s);
+  opacity: 0;
+}
+.wk-lane.bad .wk-pkt {
+  background: var(--rose);
+}
+@keyframes wk-flow {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--lw, 560px));
+    opacity: 0;
+  }
+}
+.wk-servers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 10px;
+}
+.wk-srv {
+  position: relative;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+  padding: 8px 8px 10px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--text-dim);
+  box-shadow: 0 3px 0 var(--line);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.wk-srv .wk-meter {
+  position: relative;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--line-soft, var(--line));
+  overflow: hidden;
+  margin: 6px 0 4px;
+}
+.wk-srv .wk-meter i {
+  position: absolute;
+  inset: 0;
+  background: var(--teal);
+  transform-origin: 50% 100%;
+  transform: scaleY(0.3);
+  transition:
+    transform var(--dur-3) var(--ease-spring),
+    background-color var(--dur-2) ease;
+}
+.wk-srv.hot .wk-meter i {
+  background: var(--amber);
+}
+.wk-srv.max .wk-meter i {
+  background: var(--rose);
+}
+.wk-srv.dead {
+  border-color: var(--rose);
+  background: var(--rose-dim);
+  color: var(--rose-ink);
+  box-shadow: 0 3px 0 var(--rose-edge);
+}
+.wk-srv.dead .wk-meter i {
+  transform: scaleY(0);
+}
+.wk-srv.bug {
+  border-color: var(--violet);
+  background: var(--violet-dim);
+  color: var(--violet-ink);
+  box-shadow: 0 3px 0 var(--violet-lip, var(--violet));
+}
+.wk-srv.bug .wk-meter i {
+  transform: scaleY(0);
+}
+.wk-srv.canary::after {
+  content: "v2";
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  background: var(--violet);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 99px;
+}
+.wk-srv.pop-in {
+  animation: wk-flash var(--dur-4) var(--ease-pop, var(--ease-spring));
+}
+.wk-lat {
+  display: grid;
+  grid-template-columns: 52px 1fr 70px;
+  gap: 8px;
+  align-items: center;
+  font-weight: 900;
+  font-size: 13px;
+  margin: 6px 0;
+  color: var(--text-dim);
+}
+.wk-track {
+  position: relative;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.wk-track i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--teal);
+  transform-origin: 0 50%;
+  transition:
+    transform var(--dur-4) var(--ease-spring),
+    background-color var(--dur-2) ease;
+}
+.wk-track i.bad {
+  background: var(--rose);
+}
+.wk-slo {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--ink);
+  opacity: 0.7;
+}
+.wk-lat output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.wk-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-weight: 900;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: var(--teal);
+  transition: background-color var(--dur-2) ease;
+}
+.wk-badge.slow {
+  background: var(--amber);
+}
+.wk-badge.down {
+  background: var(--rose);
+}
+
+/* ---------- W2: query lab ---------- */
+.wk-pipe {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 48px;
+  padding: 8px;
+  border: 2px dashed var(--line-2);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.wk-pipe:empty::before {
+  content: "Tap blocks below to build your query";
+  color: var(--text-faint);
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 0 6px;
+}
+.wk-blk {
+  appearance: none;
+  border: 2px solid var(--b, var(--line-2));
+  border-radius: 12px;
+  padding: 7px 12px;
+  background: var(--panel);
+  color: var(--bt, var(--text));
+  font: inherit;
+  font-weight: 900;
+  font-size: 13.5px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--b, var(--line-2));
+  text-align: left;
+}
+.wk-blk:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--b, var(--line-2));
+}
+.wk-blk.start {
+  --b: var(--violet);
+  --bt: var(--violet-ink);
+}
+.wk-blk.flt {
+  --b: var(--blue);
+  --bt: var(--blue-ink);
+}
+.wk-blk.hop {
+  --b: var(--amber);
+  --bt: var(--amber-ink);
+}
+.wk-blk.in-pipe {
+  background: color-mix(in srgb, var(--b) 12%, var(--panel));
+}
+.wk-arr {
+  color: var(--text-faint);
+  font-weight: 900;
+}
+.wk-pal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wk-pal .wk-row b {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  min-width: 70px;
+}
+.wk-tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.wk-tbl th {
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  padding: 0 8px;
+}
+.wk-tbl td {
+  padding: 4px 8px;
+  background: var(--bg-2);
+  border-top: 2px solid var(--line);
+  border-bottom: 2px solid var(--line);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.wk-tbl td:first-child {
+  border-left: 2px solid var(--line);
+  border-radius: 8px 0 0 8px;
+}
+.wk-tbl td:last-child {
+  border-right: 2px solid var(--line);
+  border-radius: 0 8px 8px 0;
+}
+.wk-tbl tr.front td {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}
+.wk-tbl tr.hit td {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+.wk-doc {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 6px 10px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  margin: 0 0 6px;
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.wk-doc.front {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}
+.wk-doc.hit {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+.wk-doc.pop {
+  animation: wk-flash var(--dur-4) var(--ease-spring);
+}
+.wk-tbl tr.pop td {
+  animation: wk-tdpop var(--dur-4) var(--ease-spring);
+}
+@keyframes wk-tdpop {
+  40% {
+    transform: translateY(-2px);
+  }
+}
+.wk-gsvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.wk-gsvg .gn circle {
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 2.5;
+  transition:
+    fill var(--dur-2) ease,
+    stroke var(--dur-2) ease;
+}
+.wk-gsvg .gn text {
+  font:
+    900 13px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.wk-gsvg .gn.front circle {
+  fill: var(--blue-dim);
+  stroke: var(--blue);
+}
+.wk-gsvg .gn.hit circle {
+  fill: var(--teal-dim);
+  stroke: var(--teal);
+}
+.wk-gsvg .gn.pop circle {
+  animation: wk-gpop var(--dur-4) var(--ease-spring);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes wk-gpop {
+  40% {
+    transform: scale(1.2);
+  }
+}
+.wk-gsvg .ge {
+  stroke: var(--line-2);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke var(--dur-2) ease;
+}
+.wk-gsvg .ge.on {
+  stroke: var(--amber);
+}
+.wk-cost {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 2px solid var(--line);
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.wk-cost b {
+  font-size: 18px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

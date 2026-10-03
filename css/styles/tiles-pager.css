@@ -1,0 +1,411 @@
+/* ---------- Population chips ---------- */
+.pop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  width: 68px;
+  padding: 6px 4px;
+  text-align: center;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 0 3px 0 var(--line);
+  font-family: var(--mono);
+  font-size: 12px;
+  transition:
+    background-color var(--dur-3) ease,
+    border-color var(--dur-3) ease,
+    transform var(--dur-3) var(--ease-spring),
+    opacity var(--dur-3) ease,
+    box-shadow var(--dur-3) ease;
+}
+.chip b {
+  display: block;
+  font-size: 15px;
+}
+.chip small {
+  color: var(--text-faint);
+  font-size: 10.5px;
+}
+.chip.new {
+  background: var(--violet-dim);
+  border-color: var(--violet);
+  box-shadow: 0 3px 0 var(--violet);
+}
+.chip.elite {
+  border-color: var(--teal);
+  box-shadow: 0 3px 0 var(--teal-lip);
+}
+.chip.target {
+  border-color: var(--rose);
+  background: var(--rose-dim);
+  box-shadow: 0 3px 0 var(--rose);
+}
+.chip.scan {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  box-shadow: 0 3px 0 var(--amber);
+}
+.chip.picked {
+  transform: translateY(-5px);
+  border-color: var(--amber);
+}
+.chip.winner {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+  transform: translateY(-5px);
+  box-shadow: 0 3px 0 var(--teal-lip);
+}
+
+/* ---------- Answer tiles (predict + quick checks + boss) ---------- */
+.predict .q {
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.predict .opts {
+  display: grid;
+  gap: 10px;
+}
+.predict .opt,
+.lesson-check .opt {
+  appearance: none;
+  text-align: left;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 0 var(--lip) 0 var(--line);
+  border-radius: 16px;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease,
+    transform var(--dur-1) ease-out,
+    box-shadow var(--dur-1) ease-out,
+    color var(--dur-2) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.predict .opt:active:not(:disabled),
+.lesson-check .opt:active:not(:disabled) {
+  transform: translateY(var(--lip));
+  box-shadow: 0 0 0 var(--line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .predict .opt:hover:not(:disabled),
+  .lesson-check .opt:hover:not(:disabled) {
+    background: var(--bg-2);
+  }
+}
+.predict .opt:disabled,
+.lesson-check .opt:disabled {
+  cursor: default;
+}
+.predict .opt.right,
+.lesson-check .opt.right {
+  border-color: var(--teal);
+  background: var(--teal-dim);
+  color: var(--teal-ink);
+  box-shadow: 0 var(--lip) 0 var(--teal);
+}
+.predict .opt.wrong,
+.lesson-check .opt.wrong {
+  border-color: var(--rose);
+  background: var(--rose-dim);
+  color: var(--rose-ink);
+  box-shadow: 0 var(--lip) 0 var(--rose);
+}
+.predict .explain {
+  margin-top: 14px;
+  display: none;
+}
+.predict.answered .explain {
+  display: block;
+}
+.verdict {
+  font-weight: 900;
+  margin-right: 6px;
+}
+.verdict.ok {
+  color: var(--teal-ink);
+}
+.verdict.no {
+  color: var(--rose-ink);
+}
+
+/* ---------- Pseudocode ---------- */
+.pseudo {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 0;
+}
+.pseudo div {
+  padding: 2px 16px;
+  color: var(--text-dim);
+  border-left: 4px solid transparent;
+  transition:
+    background-color var(--dur-2) ease,
+    color var(--dur-2) ease;
+  white-space: pre-wrap;
+}
+.pseudo div.on {
+  background: var(--teal-dim);
+  color: var(--ink);
+  border-left-color: var(--teal);
+  font-weight: 700;
+}
+
+/* ---------- Pager ---------- */
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 34px;
+}
+.pager a {
+  flex: 1;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 0 var(--lip) 0 var(--line);
+  border-radius: 18px;
+  padding: 14px 18px;
+  color: var(--ink);
+  font-weight: 800;
+  transition:
+    transform var(--dur-1) ease-out,
+    box-shadow var(--dur-1) ease-out,
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease;
+}
+.pager a small {
+  display: block;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.pager a.next {
+  text-align: right;
+  background: var(--teal);
+  border-color: var(--teal);
+  box-shadow: 0 var(--lip) 0 var(--teal-lip);
+  color: #fff;
+}
+.pager a.next small {
+  color: var(--teal-dim);
+}
+.pager a:active {
+  transform: translateY(var(--lip));
+  box-shadow: 0 0 0 var(--line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pager a:hover {
+    background: var(--bg-2);
+  }
+  .pager a.next:hover {
+    background: var(--teal);
+    filter: brightness(1.07);
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.tabs button {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-bottom: -2px;
+  transition:
+    color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.tabs button.on {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+.pixel-grid {
+  display: grid;
+  gap: 2px;
+  background: var(--line);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pixel-grid i {
+  display: block;
+  aspect-ratio: 1;
+  background: var(--panel);
+  transition: background-color var(--dur-2) ease;
+}
+.pixel-grid i.on {
+  background: var(--teal);
+}
+.pixel-grid.target i.on {
+  background: var(--amber);
+}
+.pixel-grid.edit i {
+  cursor: pointer;
+}
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 6px;
+}
+.thumbs canvas {
+  width: 100%;
+  border-radius: 6px;
+  border: 2px solid var(--line);
+  display: block;
+}
+
+.mini-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+.arrow {
+  color: var(--text-faint);
+  font-size: 18px;
+  font-weight: 900;
+}
+.pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  background: var(--panel);
+  border: 2px solid var(--line);
+}
+.pill.teal {
+  color: var(--teal-ink);
+  border-color: var(--teal-edge);
+  background: var(--teal-dim);
+}
+.pill.rose {
+  color: var(--rose-ink);
+  border-color: var(--rose-edge);
+  background: var(--rose-dim);
+}
+.pill.amber {
+  color: var(--amber-ink);
+  border-color: var(--amber-edge);
+  background: var(--amber-dim);
+}
+.pill.violet {
+  color: var(--violet-ink);
+  border-color: var(--violet-edge);
+  background: var(--violet-dim);
+}
+
+/* Reduced motion: movement goes, fades stay. Keyframe animations end at once, and transitions are limited to
+   opacity and colour properties (so transforms, sizes and stroke draws snap while fades keep their duration).
+   Idle loops also carry explicit `animation: none` guards next to their own rules. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property:
+      opacity, color, background-color, border-color, outline-color, fill, stroke, box-shadow, filter, visibility !important;
+  }
+}
+.btn:disabled.primary,
+.btn:disabled.teal,
+.btn:disabled.rose,
+.btn:disabled.on,
+.btn:disabled.finish {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--text-faint);
+  box-shadow: none;
+  filter: none;
+}
+
+/* Fluent Emoji icons (js/emoji.js swaps emoji characters for these) */
+.emo {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.25em;
+  line-height: 0;
+  flex-shrink: 0;
+}
+.emo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.emo-svg {
+  overflow: visible;
+  pointer-events: none;
+}
+.fig-cells .cell:has(.emo) {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 5px;
+  height: auto;
+  min-height: 38px;
+  padding: 5px 10px;
+}
+.fig-cells .cell:has(.emo) small {
+  flex-basis: 100%;
+  text-align: center;
+}
+.emo-mk {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.18em;
+}
+.emo-mk + .emo-mk {
+  margin-left: 2px;
+}
+
+/* ---------- Theme switch: the new theme grows as a circle from the pressed button (js/theme.js) ---------- */
+html.theme-vt::view-transition-old(root),
+html.theme-vt::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.theme-vt::view-transition-new(root) {
+  z-index: 2;
+}
+.theme-seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-seg svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}

@@ -1,0 +1,416 @@
+/* boss quiz */
+.boss-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.boss-meta small {
+  display: block;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 900;
+  color: var(--text-faint);
+}
+.boss-meta b {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--teal);
+}
+.boss-bar {
+  position: relative;
+  flex: 1;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.boss-bar span {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  transition: transform var(--dur-bar) var(--ease-out);
+}
+.boss-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.boss-dots button {
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  box-shadow: 0 3px 0 var(--line);
+  background: var(--panel);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-2) ease,
+    background-color var(--dur-2) ease,
+    transform var(--dur-1) ease-out,
+    box-shadow var(--dur-1) ease-out;
+}
+.boss-dots button:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--line);
+}
+.boss-dots button.ok {
+  background: var(--teal);
+  border-color: var(--teal);
+  box-shadow: 0 3px 0 var(--teal-lip);
+  color: #fff;
+}
+.boss-dots button.no {
+  background: var(--rose);
+  border-color: var(--rose);
+  box-shadow: 0 3px 0 var(--rose-lip);
+  color: #fff;
+}
+.boss-dots button.cur {
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: 0 3px 0 var(--blue);
+}
+.boss-dots button.cur.ok,
+.boss-dots button.cur.no {
+  color: #fff;
+  outline: 3px solid var(--blue-edge);
+  outline-offset: 2px;
+}
+.boss-q .q {
+  font-size: 17.5px;
+  line-height: 1.55;
+}
+.boss-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.boss-result {
+  text-align: center;
+  padding: 30px 26px;
+}
+.br-mascot {
+  margin-bottom: 4px;
+}
+.boss-result h3 {
+  text-align: left;
+  margin-top: 10px;
+}
+.boss-result .lede {
+  margin-left: auto;
+  margin-right: auto;
+}
+.br-score b {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--teal);
+  line-height: 1;
+}
+.br-score span {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-faint);
+  margin-left: 6px;
+}
+.br-miss {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 12px 0;
+  border-top: 2px solid var(--line);
+}
+.boss-result .controls {
+  justify-content: center;
+}
+
+/* ---------- Figures ---------- */
+svg.fig {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+.fig-n {
+  fill: var(--ink);
+  font: 800 14px var(--sans);
+  text-anchor: middle;
+}
+.fig-w {
+  fill: var(--text-dim);
+  font: 700 12px var(--mono);
+  text-anchor: middle;
+}
+.fig-sub {
+  fill: var(--text-dim);
+  font: 700 11.5px var(--sans);
+  text-anchor: middle;
+}
+.fig-box {
+  fill: var(--ink);
+  font: 800 13px var(--sans);
+  text-anchor: middle;
+}
+.fig-box-s {
+  fill: var(--text-dim);
+  font: 600 11.5px var(--sans);
+  text-anchor: middle;
+}
+.fig-wrap {
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+}
+.fig-cap {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-faint);
+  margin-top: 8px;
+  text-align: center;
+}
+.fig-bars {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+}
+.fb-row {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) 1fr 80px;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+.fb-l {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.fb-track {
+  height: 18px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.fb-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--w));
+  animation: barGrow 700ms var(--ease-out) both;
+}
+@keyframes barGrow {
+  from {
+    transform: scaleX(0);
+  }
+}
+.fb-v {
+  font-weight: 900;
+  font-size: 14px;
+}
+.fb-v small {
+  color: var(--text-faint);
+}
+.fig-compare {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: stretch;
+}
+.fc {
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--c) 12%, var(--panel));
+  border: 2px solid color-mix(in srgb, var(--c) 45%, var(--panel));
+}
+.fc-h {
+  font-weight: 900;
+  color: color-mix(in srgb, var(--c) 80%, #000);
+  margin-bottom: 6px;
+}
+.fc-b {
+  font-size: 14.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+.fc-vs {
+  align-self: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-faint);
+  background: var(--bg-2);
+  border-radius: 99px;
+  padding: 4px 8px;
+}
+@media (max-width: 700px) {
+  .fig-compare {
+    grid-template-columns: 1fr;
+  }
+  .fc-vs {
+    justify-self: center;
+  }
+}
+.fig-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  margin: 6px 0;
+}
+.fig-cells .fcl {
+  color: var(--text-faint);
+  font-size: 12.5px;
+  font-weight: 800;
+  min-width: 80px;
+}
+.fig-cells .cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 9px;
+  border-radius: 10px;
+  border: 2px solid var(--c);
+  box-shadow: 0 2px 0 var(--c);
+  background: var(--panel);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+.fig-cells .cell small {
+  font-size: 9.5px;
+  color: var(--text-faint);
+  line-height: 1;
+}
+.fig-cells .op {
+  color: var(--text-faint);
+  font-size: 16px;
+  font-weight: 900;
+  padding: 0 3px;
+}
+.fig-frames {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.ff {
+  position: relative;
+  padding: 30px 12px 12px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+}
+.ff-n {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--teal);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.ff-t {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+/* glossary term tooltips */
+.term {
+  border-bottom: 2px dotted var(--blue);
+  cursor: help;
+  position: relative;
+  color: inherit;
+  outline-offset: 3px;
+}
+.term::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  width: max-content;
+  max-width: 280px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  box-shadow: 0 4px 0 var(--line);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  pointer-events: none;
+  z-index: 30;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px) scale(0.94);
+  transform-origin: 50% 100%;
+  transition:
+    opacity var(--dur-2) ease,
+    transform var(--dur-3) var(--ease-spring);
+}
+.term:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .term:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    transition-delay: 120ms;
+  }
+}
+
+/* confetti */
+.spark {
+  position: fixed;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100;
+}
+.spark.rib {
+  width: 7px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* 3-D surface */
+.surface-box {
+  position: relative;
+} /* the GL version fades in over the canvas one (js/fig/ surfaceGL) */
+.surface3d {
+  cursor: grab;
+  touch-action: none;
+}
+.surface3d:active {
+  cursor: grabbing;
+}
+.surface-hint {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-faint);
+  text-align: center;
+  margin-top: 6px;
+  transition: opacity var(--dur-4) ease;
+}

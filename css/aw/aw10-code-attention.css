@@ -1,0 +1,227 @@
+/* Algorithms phases 10 and 11 workshops. Classes: aw10- (code attention) and aw11- (algorithm picker). Transform/opacity motion only. */
+
+/* ---------- 10.C code attention ---------- */
+.aw10-vis {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.aw10-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.aw10-lab {
+  font:
+    900 11px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.aw10-tk rect {
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 2.5;
+  transition:
+    fill var(--dur-2) ease,
+    stroke var(--dur-2) ease;
+}
+.aw10-tk text {
+  font:
+    900 20px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.aw10-top.on rect {
+  fill: var(--blue-dim);
+  stroke: var(--blue);
+  stroke-width: 4;
+}
+.aw10-top.on text {
+  fill: var(--blue-ink);
+}
+.aw10-bot {
+  transition: opacity var(--dur-3) ease;
+}
+.aw10-bot rect {
+  fill: var(--violet-dim);
+  stroke: var(--violet);
+}
+.aw10-ln {
+  fill: var(--blue);
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transition:
+    transform var(--dur-4) var(--ease-spring),
+    opacity var(--dur-3) ease;
+}
+.aw10-ln.raw {
+  fill: var(--line-2);
+}
+.aw10-wt {
+  font:
+    900 15px Nunito,
+    system-ui,
+    sans-serif;
+  fill: var(--ink);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 4px;
+  transition: opacity var(--dur-3) ease;
+}
+.aw10-out {
+  padding: 8px 12px;
+  border: 2px dashed var(--line-2);
+  border-radius: 12px;
+  background: var(--bg-2);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-dim);
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+.aw10-out.has {
+  border: 2px solid var(--teal);
+  background: var(--teal-dim);
+  color: var(--ink);
+}
+.aw10-out b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.aw10-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.aw10-chart {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.aw10-chart > b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink);
+}
+.aw10-chart > b small {
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-faint);
+}
+.aw10-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 46px;
+  gap: 6px;
+  align-items: center;
+  margin: 4px 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.aw10-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aw10-row output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.aw10-tr {
+  height: 14px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.aw10-tr i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--amber);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  transition: transform var(--dur-4) var(--ease-spring);
+}
+.aw10-tr i.w {
+  background: var(--teal);
+}
+.aw10-tr i.neg {
+  background: var(--violet);
+}
+.aw10-tr i.bad {
+  background: var(--rose);
+  transform: scaleX(1) !important;
+  opacity: 0.5;
+}
+.aw10-vecs {
+  font-size: 13px;
+  font-weight: 700;
+}
+.aw10-vecs summary {
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--blue-ink);
+}
+.aw10-tbl {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font:
+    700 12px ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+}
+.aw10-tbl th {
+  text-align: left;
+  font:
+    900 10.5px Nunito,
+    system-ui,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  padding: 2px 6px;
+}
+.aw10-tbl td {
+  padding: 3px 6px;
+  border-top: 2px solid var(--line);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.aw10-tbl tr.on td {
+  background: var(--blue-dim);
+  color: var(--ink);
+}
+@media (max-width: 600px) {
+  .aw10-charts {
+    grid-template-columns: 1fr;
+  }
+  .aw10-vecs {
+    overflow-x: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw10-ln,
+  .aw10-tr i {
+    transition: opacity var(--dur-2) ease;
+  }
+}

@@ -1,0 +1,441 @@
+/* ---------- Course banner, patterns, empty states, onboarding (js/art.js) ---------- */
+.ab-banner {
+  position: relative;
+  height: 150px;
+  margin: 18px 0 10px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  box-shadow: 0 4px 0 var(--line);
+}
+.ab-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ab-m {
+  position: absolute;
+  bottom: 4px;
+}
+.ab-m0 {
+  right: 22px;
+}
+.ab-m1 {
+  right: 118px;
+  bottom: 10px;
+}
+.ab-text {
+  position: absolute;
+  left: 20px;
+  top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 55%;
+}
+.ab-text b {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.1;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7);
+}
+.ab-text span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+@media (max-width: 480px) {
+  .ab-banner {
+    height: 128px;
+  }
+  .ab-m1 {
+    display: none;
+  }
+  .ab-text b {
+    font-size: 20px;
+  }
+}
+.ab-drift {
+  animation: ab-drift 24s ease-in-out infinite alternate;
+}
+@keyframes ab-drift {
+  to {
+    transform: translateX(40px);
+  }
+}
+.ab-sun {
+  animation: ab-bob 5s ease-in-out infinite;
+  transform-origin: 520px 42px;
+}
+@keyframes ab-bob {
+  50% {
+    transform: scale(1.06);
+  }
+}
+.ab-blink {
+  animation: ab-blink 1.4s steps(2) infinite;
+}
+@keyframes ab-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+.ab-wave {
+  animation: ab-wave 3s linear infinite;
+}
+@keyframes ab-wave {
+  to {
+    transform: translateX(40px);
+  }
+}
+.ab-drop {
+  animation: ab-drop 2.6s ease-in-out infinite;
+}
+@keyframes ab-drop {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.ab-vine {
+  animation: ab-dash 6s linear infinite;
+}
+@keyframes ab-dash {
+  to {
+    stroke-dashoffset: -44;
+  }
+}
+.ab-sparkle {
+  animation: ab-bob 2.2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-drift,
+  .ab-sun,
+  .ab-blink,
+  .ab-wave,
+  .ab-drop,
+  .ab-vine,
+  .ab-sparkle {
+    animation: none;
+  }
+}
+/* reduced motion: the shell's idle loops stop (flame flicker, chest jiggle/wiggle, the Start bubble bob) */
+@media (prefers-reduced-motion: reduce) {
+  .tb-streak.lit > svg,
+  .tb-quest.ready > svg,
+  .q-claim,
+  .p-chest-row.ready .p-chest-svg,
+  .p-bubble {
+    animation: none;
+  }
+}
+.unit-sticky .us-in {
+  background-image: var(--pat, none);
+  background-size: auto;
+}
+.ab-empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 18px;
+}
+.ab-empty {
+  width: 200px;
+  height: auto;
+}
+.ab-empty-card b {
+  font-size: 17px;
+  font-weight: 900;
+}
+.ob-modal {
+  max-width: 520px;
+}
+.ob-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ob-bubble {
+  flex: 1;
+  font-weight: 700;
+}
+.ob h2 {
+  font-size: 16px;
+  margin: 14px 0 8px;
+}
+.ob-courses {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ob-c {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 3px 0 var(--line);
+  font: inherit;
+  cursor: pointer;
+  color: var(--text);
+}
+.ob-c b {
+  font-size: 13.5px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.ob-c small {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-weight: 800;
+}
+.ob-c.on {
+  border-color: var(--blue-edge);
+  background: var(--blue-dim);
+  box-shadow: 0 3px 0 var(--blue-edge);
+}
+.ob-go {
+  width: 100%;
+  margin-top: 16px;
+}
+@media (max-width: 480px) {
+  .ob-courses {
+    grid-template-columns: 1fr;
+  }
+  .ob-c {
+    flex-direction: row;
+    gap: 10px;
+    text-align: left;
+  }
+}
+
+/* ---------- Account sync (js/sync.js) ---------- */
+.sy-row small {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+.sy-row svg {
+  color: var(--blue);
+}
+.sy-out {
+  margin-left: auto;
+  appearance: none;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.sy-modal {
+  max-width: 460px;
+}
+.sy-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.sy-msg {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* ---------- Streak safety ---------- */
+.sk-risk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--rose-dim);
+  color: var(--rose-ink);
+  font-size: 13.5px;
+}
+.sk-freeze {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--blue-dim);
+  font-size: 13.5px;
+}
+.sk-freeze .emo {
+  grid-row: span 2;
+  width: 28px;
+  height: 28px;
+}
+.sk-freeze small {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.ps-day.frozen i {
+  background: var(--blue-dim);
+  border-color: var(--blue-edge);
+}
+
+/* ---------- Study flow: Today card, Practice tabs, dock badge, path end, resume, reset ---------- */
+.td-card {
+  margin: 0 0 14px;
+  display: grid;
+  gap: 8px;
+}
+.td-main {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: 0 4px 0 var(--line);
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) ease-out,
+    box-shadow var(--dur-1) ease-out;
+}
+.td-main:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--line);
+}
+.td-ic {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--teal-lip);
+}
+.td-ic svg {
+  width: 24px;
+  height: 24px;
+}
+.td-t {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.td-t small {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--teal-ink);
+}
+.td-t b {
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+.td-t em {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.td-go {
+  flex: none;
+  color: var(--teal);
+}
+.td-go svg {
+  width: 22px;
+  height: 22px;
+}
+.td-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.td-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 3px 0 var(--line);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.td-chip svg {
+  width: 16px;
+  height: 16px;
+}
+.dock button {
+  position: relative;
+}
+.dk-badge {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--rose);
+  color: #fff;
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px #fff;
+}
+.dk-badge[hidden] {
+  display: none;
+}
+.pe-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.np-restart {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  appearance: none;
+  border: 0;
+  background: none;
+  color: #fff;
+  opacity: 0.85;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}

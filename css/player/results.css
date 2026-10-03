@@ -1,0 +1,253 @@
+/* ---------- complete + streak ---------- */
+.pd-cast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  margin-top: 2vh;
+}
+.pd-star {
+  margin: 0 6px;
+}
+@media (max-width: 560px) {
+  .pd-cast .mascot:not(.pd-star) {
+    --ms: 52px !important;
+  }
+  .pd-star {
+    --ms: 120px !important;
+  }
+}
+.pd-title {
+  font-size: 36px !important;
+  color: var(--gold) !important;
+  text-shadow: 0 3px 0 #e5a800;
+  letter-spacing: -0.02em;
+}
+.pd-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 150px));
+  gap: 12px;
+  margin-top: 22px;
+  justify-content: center;
+  width: 100%;
+}
+.pd-card {
+  border-radius: 16px;
+  border: 2px solid var(--c);
+  background: var(--c);
+  overflow: hidden;
+  opacity: 0;
+}
+.pd-card b {
+  display: block;
+  padding: 5px 6px;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pd-card > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 6px;
+  background: var(--panel);
+  border-radius: 13px 13px 13px 13px;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--c);
+}
+.pd-card > span svg {
+  width: 24px;
+  height: 24px;
+}
+.pd-card i {
+  font-style: normal;
+}
+.c-gold {
+  --c: #ffc800;
+}
+.c-gold > span {
+  color: #e5a800;
+}
+.c-green {
+  --c: #58cc02;
+}
+.c-blue {
+  --c: #1cb0f6;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-card {
+    opacity: 1;
+  }
+}
+.pl-streak .ps-num b {
+  font-size: 88px;
+  font-weight: 900;
+  color: var(--amber);
+  line-height: 1;
+  text-shadow: 0 5px 0 var(--amber-edge);
+  display: inline-block;
+}
+.pl-streak h1 {
+  margin-top: 0;
+  color: var(--amber-ink);
+}
+.pl-streak .ps-week {
+  width: min(420px, 100%);
+  margin: 18px auto 6px;
+  padding: 14px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+}
+.ps-flame {
+  margin-bottom: -6px;
+}
+
+/* offscreen holder where a module renders before its Try-it screen (keeps canvases sized) */
+.pl-holder {
+  position: fixed;
+  left: -12000px;
+  top: 0;
+  width: min(760px, calc(100vw - 40px));
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (max-width: 980px) {
+  .pl-holder {
+    width: calc(100vw - 32px);
+  }
+}
+
+/* In-house Lottie layers (assets/lottie.js via NIC.fx.lottie / lottieAt) */
+.lottie svg {
+  display: block;
+}
+.lottie-at {
+  position: fixed;
+  z-index: 400;
+  pointer-events: none;
+}
+.lottie-at .lottie {
+  width: 100%;
+  height: 100%;
+}
+.ps-flame {
+  position: relative;
+}
+.ps-flame .ps-lottie {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -58%);
+  z-index: -1;
+  opacity: 0.9;
+}
+.pd-boss {
+  margin: -6px 0 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.pd-boss b {
+  color: var(--amber-ink);
+  font-size: 20px;
+}
+
+/* ---------- Duolingo touches: streak-gold progress bar, "N in a row" hype screen, previous-mistake tag ---------- */
+.pl-bar.hot .pl-fill {
+  background: var(--amber);
+}
+.pl-bar.hot .pl-fill::after {
+  background: rgba(255, 255, 255, 0.45);
+}
+.pl-hype {
+  min-height: 55vh;
+  justify-content: center;
+}
+.ph-stage {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 70px;
+}
+.ph-who {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ph-bub {
+  position: absolute;
+  bottom: calc(100% - 6px);
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 10px 14px;
+}
+.ph-a .ph-bub {
+  right: 30%;
+}
+.ph-b .ph-bub {
+  left: 30%;
+}
+.ph-stage::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 4px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--line);
+  z-index: -1;
+}
+.pl-prev {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pl-prev svg {
+  width: 16px;
+  height: 16px;
+}
+@media (max-width: 480px) {
+  .ph-bub {
+    font-size: 14px;
+    white-space: normal;
+    width: 150px;
+  }
+  .ph-a .ph-bub {
+    right: 10%;
+  }
+  .ph-b .ph-bub {
+    left: 0;
+  }
+}
+.pl-go.pl-go-blue {
+  background: var(--blue);
+  border-color: var(--blue);
+  box-shadow: 0 5px 0 var(--blue-lip);
+}
+.pl-screen.xwide {
+  max-width: 1480px;
+}
+.pl-study {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+.pl-study .btn {
+  gap: 8px;
+}
+.pl-study svg {
+  width: 18px;
+  height: 18px;
+}

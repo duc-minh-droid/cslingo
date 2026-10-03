@@ -1,4 +1,4 @@
-/* Boss-quiz engine. Content lives in boss-nic.js / boss-ds.js / boss-algo.js.
+/* Boss-quiz engine. Content lives in js/content/<course>/boss-*.js.
    Question types (Q.type, default "mcq"):
      mcq     {o:[...], a}                         pick one
      multi   {o:[...], a:[...]}                   select all that apply

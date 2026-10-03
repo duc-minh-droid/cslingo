@@ -1,0 +1,376 @@
+/* ---------- Desktop rail (≥1240px): streak, goal, quests beside the path ---------- */
+.rail {
+  display: none;
+}
+@media (min-width: 1240px) {
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: fixed;
+    top: 84px;
+    left: calc(50% + 336px);
+    width: 300px;
+    max-height: calc(100vh - 110px);
+    overflow: auto;
+    z-index: 5;
+  }
+  .rail-card {
+    position: static;
+    width: auto;
+    margin: 0;
+    padding: 16px;
+    border: 2px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel);
+    box-shadow: none;
+  }
+  .rail-card::before {
+    display: none;
+  }
+}
+@media (min-width: 1240px) {
+  .rail-card {
+    max-height: none !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+  .rail .goal-seg {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rail .pop-hero .mascot {
+    transform: scale(0.8);
+    transform-origin: left center;
+  }
+}
+
+/* ---------- Path reward chests + jump-to-current (Duolingo path) ---------- */
+.p-chest {
+  appearance: none;
+  position: absolute;
+  left: -38px;
+  top: 12px;
+  width: 76px;
+  height: 70px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.p-chest-svg {
+  width: 76px;
+  height: 66px;
+  display: block;
+  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.12));
+  transition: transform var(--dur-2) ease;
+}
+.p-chest-row.locked .p-chest-svg {
+  filter: grayscale(1) opacity(0.5) drop-shadow(0 5px 0 rgba(0, 0, 0, 0.08));
+}
+.p-chest-row.locked .p-chest,
+.p-chest-row.opened .p-chest {
+  cursor: default;
+}
+.p-chest-row.opened .p-chest-svg {
+  filter: grayscale(0.7) opacity(0.6);
+}
+.p-chest-row.ready .p-chest-svg {
+  animation: chestWiggle 2.4s ease-in-out infinite;
+}
+@keyframes chestWiggle {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  75% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  80% {
+    transform: rotate(7deg) scale(1.05);
+  }
+  85% {
+    transform: rotate(-4deg);
+  }
+  90% {
+    transform: rotate(0);
+  }
+}
+@media (hover: hover) {
+  .p-chest-row.ready .p-chest:hover .p-chest-svg {
+    transform: scale(1.08);
+  }
+}
+.p-jump {
+  position: fixed;
+  z-index: 41;
+  right: max(16px, calc(50% - 300px));
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--blue);
+  box-shadow: 0 4px 0 var(--line);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.p-jump svg {
+  width: 24px;
+  height: 24px;
+}
+.p-jump.up svg {
+  transform: rotate(180deg);
+}
+.p-jump[hidden] {
+  display: none;
+}
+.p-jump:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--line);
+}
+.q-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--amber-ink);
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.q-left svg {
+  width: 15px;
+  height: 15px;
+}
+.pt-chips svg {
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+  margin-right: 3px;
+}
+
+/* Banner at night: dark sky, a moon for the sun, faint clouds and stars (dark theme only) */
+.ab-stars {
+  display: none;
+}
+:root[data-theme-now="dark"] .ab-stars {
+  display: inline;
+}
+:root[data-theme-now="dark"] .ab-nic .ab-s0 {
+  stop-color: #0d2a3b;
+}
+:root[data-theme-now="dark"] .ab-nic .ab-s1 {
+  stop-color: #1b4650;
+}
+:root[data-theme-now="dark"] .ab-ds .ab-s0 {
+  stop-color: #0a2233;
+}
+:root[data-theme-now="dark"] .ab-ds .ab-s1 {
+  stop-color: #153e56;
+}
+:root[data-theme-now="dark"] .ab-algo .ab-s0 {
+  stop-color: #1f1838;
+}
+:root[data-theme-now="dark"] .ab-algo .ab-s1 {
+  stop-color: #372a5c;
+}
+:root[data-theme-now="dark"] .ab-sun circle {
+  fill: #fff1b8;
+}
+:root[data-theme-now="dark"] .ab-cloud {
+  opacity: 0.28;
+}
+:root[data-theme-now="dark"] .ab-scene {
+  filter: brightness(0.88) saturate(0.92);
+}
+:root[data-theme-now="dark"] .ab-text b {
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Log in (Duolingo style): full-screen page, grouped fields, blue LOG IN ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.modal-back.si-back {
+  background: var(--bg);
+  padding: 0;
+  place-items: stretch;
+}
+.modal.si-modal {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+  background: var(--bg);
+  padding: calc(76px + env(safe-area-inset-top, 0px)) 20px 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.si-modal .modal-x {
+  left: 12px;
+  right: auto;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  width: 44px;
+  height: 44px;
+  background: none;
+  color: var(--text-faint);
+  font-size: 22px;
+}
+.si-modal .modal-x:hover {
+  color: var(--text);
+}
+.si {
+  width: min(380px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.si-h {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.si-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.si-group {
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg-2);
+  overflow: hidden;
+  transition: border-color var(--dur-2) ease;
+}
+.si-group:focus-within {
+  border-color: var(--blue-edge);
+}
+.si-group.bad {
+  border-color: var(--rose);
+}
+.si-field {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.si-field + .si-field {
+  border-top: 2px solid var(--line);
+}
+.si-field input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 14px 16px;
+}
+.si-field input::placeholder {
+  color: var(--text-faint);
+  font-weight: 700;
+}
+.si-field:focus-within {
+  background: var(--panel);
+}
+.si-eye {
+  appearance: none;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text-faint);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.si-eye svg {
+  width: 22px;
+  height: 22px;
+}
+.si-eye[aria-pressed="true"] {
+  color: var(--blue);
+}
+.si-msg {
+  margin: -4px 4px 0;
+  color: var(--rose-ink);
+  font-weight: 800;
+  font-size: 14px;
+}
+.btn.si-go,
+.btn.si-go:hover {
+  --b: var(--blue);
+  --lipc: var(--blue-lip);
+  width: 100%;
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.btn.si-go:disabled {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  box-shadow: 0 var(--lip) 0 var(--blue-lip);
+  transform: none;
+  opacity: 0.75;
+  cursor: progress;
+}
+.si-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.si-or::before,
+.si-or::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+}
+.si-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.si-foot .mascot {
+  flex: none;
+}
+.si-mode {
+  display: flex;
+  margin: 0 auto 14px;
+  width: 100%;
+}
+.si-mode button {
+  flex: 1;
+}
