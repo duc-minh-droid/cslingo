@@ -22,7 +22,8 @@
     pool.forEach((x) => { (bySess[x.mod] = bySess[x.mod] || []).push(x); });
     const now = Date.now(), GAP = [0, 0, 1, 3, 7, 14];
     const isDue = (r) => !r || now - r.t >= GAP[Math.min(r.box, 5)] * 864e5;
-    const rows = N.modules.filter((m) => bySess[m.id]).map((m) => {
+    const doneMods = store.get("nic.lessonDone", {});
+    const rows = N.modules.filter((m) => bySess[m.id] && doneMods[m.id]).map((m) => {
       const qs_ = bySess[m.id];
       return { m, n: qs_.length, due: qs_.filter((x) => isDue(R[x.id])).length, mastered: qs_.filter((x) => R[x.id] && R[x.id].box >= 4).length, seen: qs_.filter((x) => R[x.id]).length };
     });
@@ -46,7 +47,7 @@
         <div class="rv-row"><b>Questions</b><div class="seg rv-size">${SIZES.map((n) => `<button data-n="${n}">${n}</button>`).join("")}</div></div>
         <button class="btn big primary rv-go">Start revision</button>
       </div>
-      <div class="rv-done"><h2>Sessions you've revised</h2><div class="rv-list"></div></div>
+      <div class="rv-done"><h2>Sessions you've done</h2><div class="rv-list"></div></div>
     </div>`);
     main.appendChild(node);
 
@@ -59,13 +60,8 @@
       fx.count(b, v, { from: +b.dataset.v, fmt, dur: fx.DUR ? fx.DUR.l : 0.3 });
     };
     /** One session row. Updated in place later so the bar's CSS transition runs. */
-    const rowHTML = (r) => `<div class="rv-sess" data-id="${r.m.id}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${r.m.num === "Boss" ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div>
-          <div class="rv-sess-bar"><span></span></div></div>`;
-    const fillRow = (row, r) => {
-      const f = r.n ? r.mastered / r.n : 0;
-      row.classList.toggle("has-due", !!r.due);
-      qs(".rv-sess-bar span", row).style.transform = `scaleX(${f})`;
-    };
+    const rowHTML = (r) => `<div class="rv-sess" data-id="${r.m.id}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${r.m.num === "Boss" ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div></div>`;
+    const fillRow = () => {}; // rows carry no progress or counts, just which session it is
 
     function paint() {
       qsa(".rv-subj button", node).forEach((b) => b.classList.toggle("on", b.dataset.s === "*" ? !prefs.subjects : !!prefs.subjects && prefs.subjects.includes(b.dataset.s) || (!prefs.subjects && subjects.length === 1)));
@@ -74,7 +70,7 @@
       go.textContent = "Start revision";
       go.disabled = !avail;
       // patch the list: rows that leave fade out, rows that stay keep their node (their bar animates), new rows enter
-      const list = rows.filter((r) => r.seen && inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
+      const list = rows.filter((r) => inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
       const want = new Set(list.map((r) => r.m.id)), have = {};
       Array.from(box.children).forEach((row) => {
         if (row.classList.contains("m-ghost")) return;
