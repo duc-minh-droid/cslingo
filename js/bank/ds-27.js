@@ -355,4 +355,145 @@
       why: "Each flush adds a file and each merge collapses them. Just before the first merge, at B, there are five files, so a missing-key read has the most places to look. After a merge, at C, only one is left. Merging keeps reads cheap.",
     },
   ]);
+
+  NIC.bank.add("ds-ops", [
+    {
+      type: "slider",
+      q: "A photo app has 6 servers handling 100 requests per second each, and 360 requests per second arrive. One server dies and the load is shared evenly. About how busy is each survivor?",
+      min: 0,
+      max: 150,
+      step: 10,
+      ans: 70,
+      tol: 10,
+      unit: "%",
+      hint: "Five survivors give 500 req/s of capacity. 360 is a bit over 350, which is 70% of 500.",
+      why: "Five servers can take 500 req/s and 360 of it is about 72%, so they cope with some headroom left. Before the fault each server was at 60%, so one ordinary fault cost about 12 points of headroom.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of a careful release in order, from first to last.",
+      items: [
+        "Check the other servers can cover the load while one is updated",
+        "Switch a single server to the new version",
+        "Watch its errors and p99 for a while",
+        "Roll the new version out to the remaining servers",
+      ],
+      why: "Headroom comes first, so nothing falls over while a server is busy. One server then takes the new code, and you only widen the rollout once its errors and p99 look healthy. A bug is the same on every copy, so the watching step is what protects the rest.",
+    },
+    {
+      type: "cat",
+      q: "Is each event likely to hit servers independently, or all of them together?",
+      buckets: ["Independent (hardware)", "Correlated (software)"],
+      items: [
+        ["A disk wears out in server 3", 0],
+        ["A memory leak ships in a new release", 1],
+        ["A bad setting is pushed to every server", 1],
+        ["A power cable is pulled out of one rack", 0],
+        ["A date-handling bug breaks at midnight on every machine", 1],
+        ["A network card fails on one machine", 0],
+      ],
+      why: "Physical parts wear out at different times, so a spare server absorbs one failure. A bug or setting lives in the code every copy shares, so all copies fail the same way, and extra servers do not help.",
+    },
+    {
+      type: "multi",
+      q: "Which of these make it less likely that one ordinary fault turns into an outage? Select all that apply.",
+      o: [
+        "Keep a spare server's worth of spare capacity",
+        "Run every server at about 95% busy to save money",
+        "Send a new release to one server first",
+        "Raise an alarm when servers pass about 70% busy",
+        "Deploy to every server at once, late at night",
+      ],
+      a: [0, 2, 3],
+      why: "Spare capacity absorbs a dead server, a canary limits a bad release to a slice of traffic, and an early alarm gives time to act. Running hot leaves no room for a fault, and an overnight deployment still hits every server with the same bug.",
+    },
+    {
+      type: "mcq",
+      q: "A service has a goal of p99 under 300 ms. Of 1,000 requests in a minute, 15 take about 2 seconds and the other 985 take about 80 ms. Is the goal met?",
+      o: [
+        "No: p99 allows only 10 slow requests in 1,000, and there are 15",
+        "Yes: 985 of the 1,000 requests were fast, which is almost all",
+        "Yes: the median request is 80 ms, far below the 300 ms limit",
+        "No: any request over 300 ms breaks the goal on its own",
+      ],
+      a: 0,
+      hint: "1 in 100 of 1,000 requests is 10.",
+      why: "p99 is the time that 99% of requests beat, so only 1% (10 requests here) may be slower. With 15 slow ones the 99th percentile sits at about 2 s. A good median hides this, which is why percentiles are watched instead.",
+    },
+    {
+      type: "mcq",
+      q: "A photo app has 5 servers handling 100 requests per second each, and 450 requests per second arrive. A plan updates one server at a time, taking it out of service while it restarts. What goes wrong?",
+      o: [
+        "The other 4 can handle only 400 req/s, below the 450 coming in",
+        "The restarted server will always lose its saved photos",
+        "Taking any server out forces the load balancer to shut down",
+        "Four servers can handle 450 req/s but run more slowly",
+      ],
+      a: 0,
+      hint: "Four servers at 100 each is 400. Compare that with 450.",
+      why: "A rolling update removes capacity just as a fault does. With 450 req/s the app has no headroom to lose even one server, so the update itself causes the overload. Add a server or lower the traffic before you start.",
+    },
+  ]);
+
+  NIC.bank.add("ds-querylab", [
+    {
+      type: "order",
+      q: 'Build a query for "people at Bolt within two friendship hops of Ana". Put the blocks in order.',
+      items: ["Start: Ana", "Go to friends", "Go to friends", "Works at Bolt"],
+      why: "Start from Ana, hop twice to reach the people two steps away, then filter by employer. Filtering first would keep only Ana if she did not work at Bolt, and the hops would then have nobody to start from.",
+    },
+    {
+      type: "cat",
+      q: "Does each question only filter records, or does it need to follow relationships?",
+      buckets: ["Filter only", "Needs hops"],
+      items: [
+        ["Everyone in Leeds who works at Bolt", 0],
+        ["Friends of Ben's friends", 1],
+        ["Everyone in York with a Bolt badge", 0],
+        ["Who is three steps away from Ana?", 1],
+        ["People whose employer is Acme", 0],
+        ["Who could introduce me to Dee through a mutual friend?", 1],
+      ],
+      why: "Filters look at the fields of each record on its own, which every model handles easily. Friends of friends, steps away and introductions all depend on how people connect, so they need hops.",
+    },
+    {
+      type: "mcq",
+      q: "Everyone has 10 friends and nobody's friends overlap. Starting from one person, roughly how many people first appear on the third hop?",
+      o: ["30", "100", "1,000", "10,000"],
+      a: 2,
+      hint: "Hop 1 adds 10. Each of them adds 10 more, so hop 2 adds 10 x 10, and hop 3 multiplies by 10 again.",
+      why: "Each hop multiplies the frontier by 10: 10, then 100, then 1,000. Deeper hops grow fast, which is why a hop that costs a join or a fetch for every person gets expensive quickly.",
+    },
+    {
+      type: "multi",
+      q: "In the query lab you chain blocks one after another. Which statements are true? Select all that apply.",
+      o: [
+        "Two filters in a row give the same people in either order",
+        "A hop adds only people not reached before",
+        "A filter placed after a hop can change who you end up with",
+        "In the graph, every extra hop adds a join to the query",
+        "Adding a filter can never remove anyone from the list",
+      ],
+      a: [0, 1, 2],
+      why: "Filters only narrow, so their order does not matter. A hop widens the list but skips people already reached, and a filter after it can trim the new arrivals. A graph follows edges rather than joining, and every filter can remove people.",
+    },
+    {
+      type: "mcq",
+      q: "Ana's friends are Ben and Cy. Ben's friends are Ana and Dee. Cy's friends are Ana, Dee and Eli. Start at Ana and go to friends twice. Who is reached for the first time on the second hop?",
+      o: ["Dee and Eli", "Ana, Dee and Eli", "Ben, Cy, Dee and Eli", "Only Dee"],
+      a: 0,
+      why: "Hop 1 reaches Ben and Cy. Hop 2 looks at their friends: Ana, Dee, Eli. Ana is where you started, so only Dee and Eli are new, and Dee is reached via both Ben and Cy but counted once.",
+    },
+    {
+      type: "match",
+      q: "Match each situation to what it tells you about the three data models.",
+      pairs: [
+        ["Hops of unknown depth", "A graph just keeps following edges"],
+        ["Each hop written as one more join", "Tables: the query grows with the depth"],
+        ["Each hop fetched by application code", "Documents: extra round trips from the app"],
+        ["A filter over one kind of record", "Easy in all three models"],
+      ],
+      why: "Graphs make traversal a repeatable move. Tables hard-wire one join per hop, and documents leave each hop to your own code. Plain filters need no relationships, so every model copes.",
+    },
+  ]);
 })();
