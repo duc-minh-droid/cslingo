@@ -754,6 +754,7 @@ window.NIC = (function () {
     tex,
     texStr,
     shield,
+    shared: {}, // state shared between the parts of a split file
     modules,
     register,
     qs,
