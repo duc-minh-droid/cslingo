@@ -347,3 +347,22 @@
 .pl-recap .takeaways {
   margin: 0;
 }
+
+.pl-tag-study {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  font-family: inherit;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.pl-tag-study svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.pl-tag-study span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

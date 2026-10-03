@@ -2,7 +2,7 @@
   const pl = (NIC.shared.enginePlayer = NIC.shared.enginePlayer || {});
   const { IC, T, contextCard, foot, fx, game, goldRect, open, pickOne, presenter, reduce, sound, workshopScreen } = pl;
   const N = NIC,
-    { el, qs, qsa, store } = N;
+    { qs, qsa, store } = N;
 
   pl.RENDER = {
     step(node, sc) {
@@ -27,17 +27,12 @@
       } else foot("continue", { onGo: pl.next });
     },
     q(node, sc) {
-      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? `<div class="pl-tag blue">${sc.revTag}</div>` : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : pl.S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${pl.S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
+      node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? (sc.revId && pl.studyTarget(sc.mod) ? `<button class="pl-tag blue pl-tag-study" data-study title="Study this lesson, then come back">${IC.book}<span>${sc.revTag}</span></button>` : `<div class="pl-tag blue">${sc.revTag}</div>`) : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Predict first</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : pl.S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${pl.S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       contextCard(node, sc);
       pl.askQ(qs(".pl-qwrap", node), sc, {});
       if (sc.retry) pl.addSkip();
-      if (sc.revId && pl.studyTarget(sc.mod)) {
-        const b = el(
-          `<div class="pl-study"><button class="btn small ghost" data-study>${IC.book}<span>Don't know this? Study it, then come back</span></button></div>`,
-        );
-        qs(".pl-in", node).appendChild(b);
-        qs("[data-study]", b).onclick = () => pl.studyThenReturn(sc);
-      }
+      const study = qs("[data-study]", node);
+      if (study) study.onclick = () => pl.studyThenReturn(sc);
     },
     try(node, sc) {
       node.classList.add("wide");
