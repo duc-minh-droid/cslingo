@@ -35,6 +35,7 @@
       return out;
     };
     const page = el(`<div class="page side-page">
+      <h1 class="sr-only">Profile</h1>
       <div class="shelf">${who.map((w, k) => `<div class="shelf-spot">${NIC.mascot({ who: w, size: 92, acc: acc(k), mood: ["happy", "wink", "smug", "laugh", "love", "determined"][k], act: ["", "", "wave", "", "", "dance"][k] })}<span>${NIC.cast.CHARS[w].name}</span></div>`).join("")}</div>
       <p class="faint shelf-hint">Tap a character to poke it. Unlock more hats and gadgets with achievements.</p>
       <div class="stat-grid">

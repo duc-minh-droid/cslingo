@@ -70,7 +70,7 @@
   font-weight: 900;
 }
 .rn-tab thead th.rn-tab-enter {
-  color: var(--blue);
+  color: var(--blue-ink);
 }
 .rn-tab tr.rn-tab-leave > * {
   background: var(--amber-dim);

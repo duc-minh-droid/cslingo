@@ -83,7 +83,7 @@
       },
       {
         t: "How to read the heatmap below",
-        b: `<p>Each <b>row</b> is a generation (the top row is the start). Each <b>cell</b> is one individual, coloured by fitness: pale = poor, deeper green = fitter, <b style="color:var(--amber)">orange</b> = the best. There's <b>no mutation</b>, so you're watching selection alone copy individuals. The faster orange floods the rows, the higher the pressure.</p>`,
+        b: `<p>Each <b>row</b> is a generation (the top row is the start). Each <b>cell</b> is one individual, coloured by fitness: pale = poor, deeper green = fitter, <b style="color:var(--amber-ink)">orange</b> = the best. There's <b>no mutation</b>, so you're watching selection alone copy individuals. The faster orange floods the rows, the higher the pressure.</p>`,
       },
     ],
     guide: [

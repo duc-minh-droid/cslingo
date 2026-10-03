@@ -241,7 +241,7 @@
           q += p.reduce((a, x) => a + L.f(x), 0) / p.length / L.max;
         }
         qs("#tt", card).innerHTML =
-          `Reached the top peak (≥98%) in <b style="color:var(--teal)">${Math.round(hit / 2)}%</b> of runs · average organism ends at <b>${Math.round(q / 2)}%</b> of max <span class="faint">(pop ${cfg.P}, ${cfg.bias} bias${cfg.rec ? ", recombination" : ""})</span>`;
+          `Reached the top peak (≥98%) in <b style="color:var(--teal-ink)">${Math.round(hit / 2)}%</b> of runs · average organism ends at <b>${Math.round(q / 2)}%</b> of max <span class="faint">(pop ${cfg.P}, ${cfg.bias} bias${cfg.rec ? ", recombination" : ""})</span>`;
       };
       life.onResize(draw);
       init();
@@ -340,8 +340,8 @@
             done.unshift([i, b.dataset.c]);
             idx++;
             qs("#fb", card).innerHTML = ok
-              ? `<span style="color:var(--teal)">✓ ${ITEMS[i][1]}</span>`
-              : `<span style="color:var(--rose)">✗ It's <b>${ITEMS[i][1]}</b></span>`;
+              ? `<span style="color:var(--teal-ink)">✓ ${ITEMS[i][1]}</span>`
+              : `<span style="color:var(--rose-ink)">✗ It's <b>${ITEMS[i][1]}</b></span>`;
             draw();
           }),
       );

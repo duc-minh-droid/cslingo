@@ -247,7 +247,7 @@
               ctx.closePath();
               ctx.fill();
               aliases.push(
-                `<b>${fmt(c.f, 1)} Hz</b> is above the 50 Hz Nyquist limit — it folds to <b style="color:var(--rose)">${fmt(fa, 1)} Hz</b> (100 − ${fmt(c.f, 1)}). The spectrum cannot tell it apart from a real ${fmt(fa, 1)} Hz tone.`,
+                `<b>${fmt(c.f, 1)} Hz</b> is above the 50 Hz Nyquist limit — it folds to <b style="color:var(--rose-ink)">${fmt(fa, 1)} Hz</b> (100 − ${fmt(c.f, 1)}). The spectrum cannot tell it apart from a real ${fmt(fa, 1)} Hz tone.`,
               );
             }
           });

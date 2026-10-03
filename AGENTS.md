@@ -125,6 +125,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 **Look**
 - White canvas (or the dark night palette, below) and Nunito, 700–900 weight for UI.
 - Green `--teal` (#58cc02) means progress or correct. Blue `--blue` (#1cb0f6) means interactive or selected. Red `--rose` means wrong, orange `--amber` means streak/XP/attention, violet `--violet` means predict/boss/practice. Variable names are legacy (`--teal` is green) because JS reads them. Don't rename them.
+- **Text uses the `-ink` shades** (`--teal-ink`, `--blue-ink`, ...): they reach 4.5:1 on white and on their own tint. The saturated tokens (`--teal`, `--blue`, ...) are for fills, lips and icons, never for small text on white. White text on a saturated fill (green button, banner) is the one known exception: it is the Duolingo look at about 2:1, so keep such text bold and large.
 - Components are stickers: a 2px border plus a solid "lip" (`box-shadow: 0 4px 0 <darker>`) that squashes on `:active`. Use `.btn`, `.btn.primary`, `.btn.ghost`, `.btn.small`, `.btn.big`, `.card`, `.tag`, `.pill`, `.seg`, `.stat`, `.callout`. Don't invent new button styles.
 - No gradients, glass effects or soft drop shadows on UI chrome.
 - Lesson prose names colours as **green / blue / purple / red / orange**, never teal, violet, rose or amber.

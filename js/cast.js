@@ -422,4 +422,25 @@
   };
 
   NIC.cast = cast;
+
+  /* Mascots that are scrolled out of view stop their idle loops (a long path holds a dozen, and every part of each one animates).
+     data-off is set while a mascot is more than a screen away; css/cast/ pauses its animations. */
+  if ("IntersectionObserver" in window && "MutationObserver" in window) {
+    const io = new IntersectionObserver(
+      (list) => list.forEach((e) => e.target.toggleAttribute("data-off", !e.isIntersecting)),
+      { rootMargin: "200px 0px" },
+    );
+    const each = (node, fn) => {
+      if (node.nodeType !== 1) return;
+      if (node.matches(".mascot")) fn(node);
+      node.querySelectorAll(".mascot").forEach(fn);
+    };
+    new MutationObserver((list) =>
+      list.forEach((r) => {
+        r.addedNodes.forEach((n) => each(n, (m) => io.observe(m)));
+        r.removedNodes.forEach((n) => each(n, (m) => io.unobserve(m)));
+      }),
+    ).observe(document.documentElement, { childList: true, subtree: true });
+    each(document.documentElement, (m) => io.observe(m));
+  }
 })();

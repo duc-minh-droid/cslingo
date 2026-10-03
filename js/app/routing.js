@@ -210,7 +210,11 @@
     // a course's lessons download the first time it is needed (the rest load quietly after the first screen)
     const need = NIC.content.courseOf(id);
     if (need && !(need === "all" ? NIC.content.allLoaded() : NIC.content.has(need))) {
-      (need === "all" ? NIC.content.all() : NIC.content.load(need)).then(app.route, (e) => console.error(e));
+      if (app.lastRoute) main.classList.add("is-wait"); // a later visit: dim the page we are leaving until the course arrives
+      (need === "all" ? NIC.content.all() : NIC.content.load(need)).then(app.route, (e) => {
+        main.classList.remove("is-wait");
+        console.error(e);
+      });
       return;
     }
     const mod = modules.some((m) => m.id === id),
@@ -261,6 +265,8 @@
     closePop();
     app.closeNodePop();
     main.innerHTML = "";
+    main.removeAttribute("aria-busy");
+    main.classList.remove("is-wait");
     if (!mod && NIC.player.isOpen()) NIC.player.close(true);
     if (page === "practice" || page === "profile" || page === "revise") {
       app.renderTop();

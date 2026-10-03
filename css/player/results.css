@@ -87,7 +87,7 @@
 .pl-streak .ps-num b {
   font-size: 88px;
   font-weight: 900;
-  color: var(--amber);
+  color: var(--amber-ink);
   line-height: 1;
   text-shadow: 0 5px 0 var(--amber-edge);
   display: inline-block;

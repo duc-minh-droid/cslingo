@@ -79,7 +79,7 @@
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: var(--amber);
+  color: var(--amber-ink);
   white-space: nowrap;
   opacity: 0;
   transition: opacity var(--dur-2) ease;
@@ -137,6 +137,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain; /* scrolling past the end doesn't move the page underneath */
 }
 .pl-screen {
   width: 100%;
@@ -271,7 +272,7 @@
 }
 .pl-body .opt.sel .opt-l {
   border-color: var(--blue-edge);
-  color: var(--blue);
+  color: var(--blue-ink);
 }
 .player [data-check] {
   display: none !important;

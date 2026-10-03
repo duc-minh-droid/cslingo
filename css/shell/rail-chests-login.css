@@ -12,6 +12,7 @@
     left: calc(50% + 336px);
     width: 300px;
     max-height: calc(100vh - 110px);
+    max-height: calc(100dvh - 110px);
     overflow: auto;
     z-index: 5;
   }
@@ -112,7 +113,7 @@
   border-radius: 16px;
   border: 2px solid var(--line);
   background: var(--panel);
-  color: var(--blue);
+  color: var(--blue-ink);
   box-shadow: 0 4px 0 var(--line);
   display: grid;
   place-items: center;

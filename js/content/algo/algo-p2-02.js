@@ -196,7 +196,7 @@
       },
       {
         t: "Watch it run",
-        b: `<p>A* goes from <b>S</b> to <b>G</b> around a wall. Each number is a cell's <b>f</b>. <b style="color:var(--violet)">Purple</b> cells are the open set (waiting), <b style="color:var(--teal)">green</b> ones are closed (done) and <b style="color:var(--amber)">orange</b> is the cell being expanded.</p><p>It will ask you to predict the next cell. Tap any empty cell to add or remove a wall.</p>`,
+        b: `<p>A* goes from <b>S</b> to <b>G</b> around a wall. Each number is a cell's <b>f</b>. <b style="color:var(--violet-ink)">Purple</b> cells are the open set (waiting), <b style="color:var(--teal-ink)">green</b> ones are closed (done) and <b style="color:var(--amber-ink)">orange</b> is the cell being expanded.</p><p>It will ask you to predict the next cell. Tap any empty cell to add or remove a wall.</p>`,
         v: (box, life) => astarRun(box, life),
       },
       {
@@ -223,7 +223,7 @@
       },
       {
         t: "How to read the grid below",
-        b: `<p>Dark cells are walls. <b style="color:var(--amber)">Orange</b> is the start and <b style="color:var(--rose)">red</b> is the goal. Faint purple cells were <i>expanded</i> (looked at), and the <b style="color:var(--teal)">green</b> line is the final path.</p><p>Compare the <b>Cells expanded</b> counter between the two algorithms. That number is the work done.</p>`,
+        b: `<p>Dark cells are walls. <b style="color:var(--amber-ink)">Orange</b> is the start and <b style="color:var(--rose-ink)">red</b> is the goal. Faint purple cells were <i>expanded</i> (looked at), and the <b style="color:var(--teal-ink)">green</b> line is the final path.</p><p>Compare the <b>Cells expanded</b> counter between the two algorithms. That number is the work done.</p>`,
       },
     ],
     guide: [

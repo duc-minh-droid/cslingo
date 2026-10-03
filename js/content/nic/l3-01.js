@@ -144,7 +144,7 @@
             [I.t1, I.t2]
               .map(
                 (t, k) =>
-                  `<div class="genome-row"><span class="lbl">Tournament ${k + 1}</span><span class="mono dim">#${t.a + 1} (f=${f(st.pop[t.a])}) vs #${t.b + 1} (f=${f(st.pop[t.b])}) → <b style="color:var(--amber)">#${t.w + 1}</b></span></div>`,
+                  `<div class="genome-row"><span class="lbl">Tournament ${k + 1}</span><span class="mono dim">#${t.a + 1} (f=${f(st.pop[t.a])}) vs #${t.b + 1} (f=${f(st.pop[t.b])}) → <b style="color:var(--amber-ink)">#${t.w + 1}</b></span></div>`,
               )
               .join("") +
             `<div class="genome-row"><span class="lbl">Parent 1</span>${geneRow(st.pop[I.t1.w], () => "p1")}</div><div class="genome-row"><span class="lbl">Parent 2</span>${geneRow(st.pop[I.t2.w], () => "p2")}</div>`;

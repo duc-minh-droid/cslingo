@@ -45,7 +45,7 @@
         qs("#tl", card).textContent = tour.length ? (complete ? partial : partial + "…") : "—";
         qs("#msg", card).innerHTML = complete
           ? TSP.len(tour) === bestLen
-            ? `<span style="color:var(--teal)">Optimal! ${bestLen} is the shortest possible for this map.</span>`
+            ? `<span style="color:var(--teal-ink)">Optimal! ${bestLen} is the shortest possible for this map.</span>`
             : `The shortest possible tour is ${bestLen}. You're ${TSP.len(tour) - bestLen} over.`
           : "";
         qsa(".city", card).forEach((g) =>
@@ -261,7 +261,7 @@
         const better = nbs.filter((n) => TSP.len(n) < fc).length;
         qs("#nb", card).innerHTML =
           `<table class="t"><tr><th>Swap</th><th>Neighbour</th><th class="num">Length</th></tr>${nbs.map((n, i) => `<tr class="${TSP.len(n) < fc ? "hl" : TSP.len(n) > fc ? "" : ""}"><td class="mono faint">${cur[i]}↔${cur[(i + 1) % 5]}</td><td class="mono">${n}</td><td class="num" style="color:${TSP.len(n) < fc ? "var(--teal)" : TSP.len(n) === fc ? "var(--amber)" : "var(--text-faint)"}">${TSP.len(n)}</td></tr>`).join("")}</table>
-          <p style="margin-top:8px">${better ? `<span style="color:var(--teal)">${better} improving neighbour${better > 1 ? "s" : ""}</span>, so HC can still go downhill in length.` : `<b style="color:var(--amber)">No neighbour is shorter: this is a local optimum</b> for the adjacent-swap operator${fc === 28 ? " (and 28 happens to be the global optimum for this map)" : ". The global optimum is 28, so HC is stuck"}.`}</p>`;
+          <p style="margin-top:8px">${better ? `<span style="color:var(--teal-ink)">${better} improving neighbour${better > 1 ? "s" : ""}</span>, so HC can still go downhill in length.` : `<b style="color:var(--amber-ink)">No neighbour is shorter: this is a local optimum</b> for the adjacent-swap operator${fc === 28 ? " (and 28 happens to be the global optimum for this map)" : ". The global optimum is 28, so HC is stuck"}.`}</p>`;
         qs("#log", card).innerHTML =
           `<tr><th>#</th><th>Mutant</th><th class="num">f(m)</th><th class="num">f(c)</th><th>Decision</th></tr>` +
           log

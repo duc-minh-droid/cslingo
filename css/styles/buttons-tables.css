@@ -13,7 +13,7 @@
   position: relative;
   border: 2px solid var(--b);
   background: var(--panel);
-  color: var(--blue);
+  color: var(--blue-ink);
   font: inherit;
   font-size: 14px;
   font-weight: 800;
@@ -264,13 +264,13 @@ input[type="checkbox"] {
   color: var(--teal-ink);
 }
 .stat.rose b {
-  color: var(--rose);
+  color: var(--rose-ink);
 }
 .stat.violet b {
   color: var(--violet-ink);
 }
 .stat.amber b {
-  color: var(--amber);
+  color: var(--amber-ink);
 }
 
 canvas.viz,

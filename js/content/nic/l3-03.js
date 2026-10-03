@@ -154,7 +154,7 @@
           sum += L.f(c) / L.max;
         }
         qs("#statOut", card).innerHTML =
-          `Found the global optimum in <b style="color:var(--teal)">${Math.round(hits / 2)}%</b> of runs · mean final fitness <b>${Math.round(sum / 2)}%</b> of max <span class="faint">(${N.LANDSCAPES[kind].name}, max step ${stepMax})</span>`;
+          `Found the global optimum in <b style="color:var(--teal-ink)">${Math.round(hits / 2)}%</b> of runs · mean final fitness <b>${Math.round(sum / 2)}%</b> of max <span class="faint">(${N.LANDSCAPES[kind].name}, max step ${stepMax})</span>`;
       };
       life.onResize(draw);
       reset();
@@ -237,7 +237,7 @@
             const isTsp = s.length === 5 && [...s].every((c) => "ABCDE".includes(c)) && valid;
             if (!valid) {
               qs("#po", tb).innerHTML =
-                `<p style="color:var(--rose)">Needs ≥2 distinct letters (a permutation has no repeats).</p>`;
+                `<p style="color:var(--rose-ink)">Needs ≥2 distinct letters (a permutation has no repeats).</p>`;
               return;
             }
             const k = s.length;
@@ -285,7 +285,7 @@
       // 3-bit cube
       const cube =
         el(`<div class="card"><div class="card-head"><h2>The operator decides the local optima</h2><span class="tag amber">3-bit search space</span></div>
-        <p class="dim">All 8 solutions of length 3. Lines connect neighbours under the chosen operator. A <b style="color:var(--amber)">gold ring</b> marks a local optimum: no neighbour is strictly fitter.</p>
+        <p class="dim">All 8 solutions of length 3. Lines connect neighbours under the chosen operator. A <b style="color:var(--amber-ink)">gold ring</b> marks a local optimum: no neighbour is strictly fitter.</p>
         <div class="controls" id="cb"></div><div class="grid side"><svg class="viz" id="cube" viewBox="0 0 420 330"></svg><div id="cinfo"></div></div></div>`);
       root.appendChild(cube);
       const FITS = {

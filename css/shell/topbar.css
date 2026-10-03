@@ -35,6 +35,7 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 8px 12px;
+  min-height: 60px; /* the logo-only bar in index.html is as tall as the real one, so nothing jumps */
   display: flex;
   align-items: center;
   gap: 6px;
@@ -50,14 +51,6 @@
 .tb-logo b {
   color: var(--blue);
   font-weight: 900;
-}
-@media (max-width: 480px) {
-  .tb-logo {
-    font-size: 20px;
-  }
-  .tb-course span {
-    display: none;
-  }
 }
 .tb-right {
   margin-left: auto;
@@ -189,6 +182,7 @@
   padding: 14px;
   transform-origin: var(--ax, 50%) 0;
   max-height: calc(100vh - 90px);
+  max-height: calc(100dvh - 90px);
   overflow-y: auto;
 }
 .pop-card::before {
@@ -241,4 +235,48 @@
   width: 88px;
   height: 88px;
   flex-shrink: 0;
+}
+
+/* phones: the logo, the course mascot and four buttons all have to fit (they come after the base rules so they win) */
+@media (max-width: 480px) {
+  .tb-in {
+    padding-left: 8px;
+    padding-right: 6px;
+    gap: 0;
+  }
+  .tb-logo {
+    font-size: 20px;
+    margin-right: 0;
+  }
+  .tb-course > span:not(.mascot) {
+    display: none;
+  }
+  .tb-btn {
+    padding: 0 6px;
+    gap: 4px;
+  }
+}
+@media (max-width: 400px) {
+  .tb-btn {
+    padding: 0 4px;
+  }
+  .tb-logo {
+    font-size: 18px;
+  }
+}
+@media (max-width: 380px) {
+  .tb-course > .mascot {
+    display: none;
+  }
+}
+@media (max-width: 340px) {
+  .tb-course > .mascot {
+    display: block; /* with the logo gone, the course mascot is the brand mark */
+  }
+  .tb-btn {
+    padding: 0 2px;
+  }
+  .tb-logo {
+    display: none;
+  }
 }

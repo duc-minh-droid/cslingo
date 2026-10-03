@@ -128,7 +128,7 @@
       },
       {
         t: "Watch Prim run",
-        b: `<p>Prim grows a tree from A. <b style="color:var(--amber)">Orange</b> dashed edges cross from the tree to the rest; the cheapest one is added in <b style="color:var(--teal)">green</b>.</p><p>It will ask you to pick the next edge. Tap a weight to change it and the run recomputes.</p>`,
+        b: `<p>Prim grows a tree from A. <b style="color:var(--amber-ink)">Orange</b> dashed edges cross from the tree to the rest; the cheapest one is added in <b style="color:var(--teal-ink)">green</b>.</p><p>It will ask you to pick the next edge. Tap a weight to change it and the run recomputes.</p>`,
         v: (box, life) => primRun(box, life),
       },
       {
@@ -152,7 +152,7 @@
       },
       {
         t: "Watch Kruskal run",
-        b: `<p>Kruskal walks the sorted list. The letter above each node is its group. An edge joining two groups is taken in <b style="color:var(--teal)">green</b>; one inside a group is <b style="color:var(--rose)">rejected</b>.</p><p>It will ask you to pick the next edge added. Tap a weight to change it.</p>`,
+        b: `<p>Kruskal walks the sorted list. The letter above each node is its group. An edge joining two groups is taken in <b style="color:var(--teal-ink)">green</b>; one inside a group is <b style="color:var(--rose-ink)">rejected</b>.</p><p>It will ask you to pick the next edge added. Tap a weight to change it.</p>`,
         v: (box, life) => kruskalRun(box, life),
       },
       {
@@ -217,7 +217,7 @@
         qs("#plog", card).innerHTML =
           pi === 0
             ? "Tree = {A}. Amber = edges leaving the tree."
-            : `took ${PE[pi - 1].e[0]}–${PE[pi - 1].e[1]} (${PE[pi - 1].e[2]}) · total ${total(pTaken)}${pi === PE.length ? ` <b style="color:var(--teal)">✓ MST = 11</b>` : ""}`;
+            : `took ${PE[pi - 1].e[0]}–${PE[pi - 1].e[1]} (${PE[pi - 1].e[2]}) · total ${total(pTaken)}${pi === PE.length ? ` <b style="color:var(--teal-ink)">✓ MST = 11</b>` : ""}`;
         const kSeen = KE.slice(0, ki),
           khl = {};
         kSeen.forEach(({ e: [a, b], ok }, i) => {
@@ -230,7 +230,7 @@
         qs("#klog", card).innerHTML =
           ki === 0
             ? "Sorted: DE1 · BC2 · AC3 · AB4 · BD5 · CD6 · CE7"
-            : `${last.ok ? "took" : `<span style="color:var(--rose)">rejected</span>`} ${last.e[0]}–${last.e[1]} (${last.e[2]})${last.ok ? "" : ": ends already connected"} · groups ${last.groups.join(" | ")} · total ${total(kTaken)}${kTaken.length === 4 ? ` <b style="color:var(--teal)">✓ MST = 11</b>` : ""}`;
+            : `${last.ok ? "took" : `<span style="color:var(--rose-ink)">rejected</span>`} ${last.e[0]}–${last.e[1]} (${last.e[2]})${last.ok ? "" : ": ends already connected"} · groups ${last.groups.join(" | ")} · total ${total(kTaken)}${kTaken.length === 4 ? ` <b style="color:var(--teal-ink)">✓ MST = 11</b>` : ""}`;
         qs("#ps", card).disabled = pi >= PE.length;
         qs("#ks", card).disabled = ki >= KE.length;
         [

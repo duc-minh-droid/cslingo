@@ -36,28 +36,28 @@
   --line-2: #d4d4d4;
   --text: #4b4b4b;
   --text-dim: #6b6b6b;
-  --text-faint: #767676;
+  --text-faint: #6e6e6e;
   --ink: #3c3c3c;
 
   --teal: #58cc02; /* "Eager green" — progress, correct, primary */
-  --teal-ink: #58a700;
+  --teal-ink: #417c00;
   --teal-dim: #d7ffb8;
   --teal-edge: #a5ed6e;
   --blue: #1cb0f6; /* "Spark blue" — interaction, selection */
-  --blue-ink: #1899d6;
+  --blue-ink: #1273a1;
   --blue-dim: #ddf4ff;
   --blue-edge: #84d8ff;
   --rose: #ff4b4b;
-  --rose-ink: #ea2b2b;
+  --rose-ink: #cb1414;
   --rose-dim: #ffdfe0;
   --rose-edge: #ffb2b2;
   --amber: #ff9600;
-  --amber-ink: #cd7900;
+  --amber-ink: #9f5e00;
   --amber-dim: #fff1d6;
   --amber-edge: #ffd28a;
   --gold: #ffc800;
   --violet: #ce82ff;
-  --violet-ink: #a560e8;
+  --violet-ink: #8e38e2;
   --violet-dim: #f4e6ff;
   --violet-edge: #e2b8ff;
   /* lips: the dark edge under a sticker; they stay dark in both themes (the -ink tokens are for text) */
@@ -184,7 +184,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 a {
-  color: var(--blue);
+  color: var(--blue-ink);
   text-decoration: none;
   font-weight: 700;
 }

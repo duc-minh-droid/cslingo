@@ -139,6 +139,29 @@
 .ob-modal {
   padding: 20px 20px 22px;
 }
+/* touch screens: buttons and the small controls inside demos and labs reach a comfortable size without growing on desktop */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+  }
+  .btn.small {
+    min-height: 40px;
+  }
+  summary.btn.small,
+  .wk-hint > summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
+  .cl-extab {
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .tb-logo {
+    padding: 10px 6px;
+    margin: -10px -2px -10px -6px; /* a larger hit area without moving anything */
+  }
+}
 /* toast text stacks beside its icon instead of squeezing into a tall column on phones */
 .toast {
   display: grid;

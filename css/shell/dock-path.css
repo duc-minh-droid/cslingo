@@ -1,4 +1,7 @@
 /* ---------- dock ---------- */
+.dock:empty {
+  display: none;
+}
 .dock {
   position: fixed;
   bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -40,7 +43,7 @@
 .dock button.on {
   background: var(--blue-dim);
   border-color: var(--blue-edge);
-  color: var(--blue);
+  color: var(--blue-ink);
 }
 @media (max-width: 480px) {
   .dock button {
@@ -63,21 +66,25 @@ body.in-lesson {
   --u: var(--teal);
   --u-lip: var(--teal-lip);
   --u-soft: var(--teal-dim);
+  --u-ink: var(--teal-ink);
 }
 .u-blue {
   --u: var(--blue);
   --u-lip: var(--blue-lip);
   --u-soft: var(--blue-dim);
+  --u-ink: var(--blue-ink);
 }
 .u-violet {
   --u: var(--violet);
   --u-lip: var(--violet-lip);
   --u-soft: var(--violet-dim);
+  --u-ink: var(--violet-ink);
 }
 .u-orange {
   --u: var(--amber);
   --u-lip: var(--amber-lip);
   --u-soft: var(--amber-dim);
+  --u-ink: var(--amber-ink);
 }
 .unit-sticky {
   position: sticky;
@@ -284,7 +291,7 @@ body.in-lesson {
   transform: translateX(-50%);
   z-index: 2;
   background: var(--panel);
-  color: var(--u);
+  color: var(--u-ink, var(--u));
   border: 2px solid var(--line);
   border-radius: 12px;
   padding: 5px 12px;
@@ -390,7 +397,7 @@ body.in-lesson {
 .node-pop .btn {
   width: 100%;
   background: #fff;
-  color: var(--u);
+  color: var(--u-ink, var(--u));
   --b: #fff;
   --lipc: rgba(0, 0, 0, 0.12);
   text-transform: uppercase;

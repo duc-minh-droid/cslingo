@@ -179,7 +179,7 @@
     steps: [
       {
         t: "Every node is in one of two states",
-        b: `<p>Dijkstra keeps two groups:</p><p><b style="color:var(--teal)">Settled</b>: we know its shortest distance for certain.<br><b style="color:var(--violet)">Tentative</b>: the best distance found <i>so far</i>. It might still drop.</p><span class="key">Each step: pick the tentative node with the <b>smallest</b> distance and settle it.</span>`,
+        b: `<p>Dijkstra keeps two groups:</p><p><b style="color:var(--teal-ink)">Settled</b>: we know its shortest distance for certain.<br><b style="color:var(--violet-ink)">Tentative</b>: the best distance found <i>so far</i>. It might still drop.</p><span class="key">Each step: pick the tentative node with the <b>smallest</b> distance and settle it.</span>`,
         v:
           F.graph({
             nodes: {
@@ -338,11 +338,11 @@
           Object.keys(GPOS)
             .map(
               (n) =>
-                `<tr class="${n === justNow ? "hl" : ""}"><td><b>${n}</b></td><td class="mono">${tent[n] === Infinity ? "∞" : tent[n]}</td><td class="mono dim">${parent[n] || (n === "A" ? "start" : "—")}</td><td>${done.includes(n) ? `<span style="color:var(--teal)">settled</span>` : tent[n] === Infinity ? `<span class="faint">unseen</span>` : `<span style="color:var(--violet)">tentative</span>`}</td></tr>`,
+                `<tr class="${n === justNow ? "hl" : ""}"><td><b>${n}</b></td><td class="mono">${tent[n] === Infinity ? "∞" : tent[n]}</td><td class="mono dim">${parent[n] || (n === "A" ? "start" : "—")}</td><td>${done.includes(n) ? `<span style="color:var(--teal-ink)">settled</span>` : tent[n] === Infinity ? `<span class="faint">unseen</span>` : `<span style="color:var(--violet-ink)">tentative</span>`}</td></tr>`,
             )
             .join("");
         qs("#log", card).innerHTML = s
-          ? `settled <b style="color:var(--amber)">${s.node}</b>${s.upd.length ? ` · updated ${s.upd.join(", ")}` : " · no improvements"}${s.missed.length ? ` · <span style="color:var(--rose)">too late for ${s.missed.join(", ")}</span>` : ""}`
+          ? `settled <b style="color:var(--amber-ink)">${s.node}</b>${s.upd.length ? ` · updated ${s.upd.join(", ")}` : " · no improvements"}${s.missed.length ? ` · <span style="color:var(--rose-ink)">too late for ${s.missed.join(", ")}</span>` : ""}`
           : "Start: A = 0, everything else ∞.";
         const note = qs("#note", card),
           end = ti === trace.steps.length;

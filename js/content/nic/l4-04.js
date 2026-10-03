@@ -265,7 +265,7 @@
           f
             .map(
               (x, i) =>
-                `<tr><td>${i + 1}</td><td class="num">${x}</td><td class="num">${r[i]}</td><td class="num">${(r[i] ** b).toFixed(2)}</td><td class="num" style="color:var(--teal)">${(p[i] * 100).toFixed(1)}%</td><td class="num faint">${rp && !minimise ? (rp[i] * 100).toFixed(1) + "%" : "—"}</td></tr>`,
+                `<tr><td>${i + 1}</td><td class="num">${x}</td><td class="num">${r[i]}</td><td class="num">${(r[i] ** b).toFixed(2)}</td><td class="num" style="color:var(--teal-ink)">${(p[i] * 100).toFixed(1)}%</td><td class="num faint">${rp && !minimise ? (rp[i] * 100).toFixed(1) + "%" : "—"}</td></tr>`,
             )
             .join("");
         const C = N.colors();

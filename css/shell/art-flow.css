@@ -45,6 +45,11 @@
   font-size: 13px;
   font-weight: 800;
   color: var(--text-dim);
+  align-self: flex-start;
+  padding: 1px 8px 2px;
+  margin-left: -8px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--panel) 72%, transparent); /* stays readable when the scene runs under it */
 }
 @media (max-width: 480px) {
   .ab-banner {
@@ -362,7 +367,7 @@
 }
 .td-go {
   flex: none;
-  color: var(--teal);
+  color: var(--teal-ink);
 }
 .td-go svg {
   width: 22px;

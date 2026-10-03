@@ -281,7 +281,7 @@
       const draw = () => {
         const last = log.slice(-7);
         qs("#lg", card).innerHTML = mono(
-          `${log.length > 7 ? `<span class="faint">… ${log.length - 7} earlier lines</span>\n` : ""}${last.map((r) => (r.t ? `<span style="color:var(--rose)">${r.k}, ✗ tombstone</span>` : `${r.k}, #${r.v}`)).join("\n") || '<span class="faint">(empty)</span>'}`,
+          `${log.length > 7 ? `<span class="faint">… ${log.length - 7} earlier lines</span>\n` : ""}${last.map((r) => (r.t ? `<span style="color:var(--rose-ink)">${r.k}, ✗ tombstone</span>` : `${r.k}, #${r.v}`)).join("\n") || '<span class="faint">(empty)</span>'}`,
           "min-height:150px",
         );
         qs("#ln", card).textContent = log.length;

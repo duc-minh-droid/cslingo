@@ -122,7 +122,7 @@
         const t = T(lam, servers);
         qs("#qT", q).innerHTML =
           t === Infinity
-            ? `<b style="color:var(--rose)">Overloaded:</b> ${lam} req/s is more than ${servers} × ${MU} = ${servers * MU} capacity. The queue grows forever.`
+            ? `<b style="color:var(--rose-ink)">Overloaded:</b> ${lam} req/s is more than ${servers} × ${MU} = ${servers * MU} capacity. The queue grows forever.`
             : `At ${lam} req/s on ${servers} servers: <b>${t.toFixed(0)} ms</b>. Response time stays flat, then shoots up near capacity (${servers * MU} req/s).`;
         const need = target <= 1000 / MU ? Infinity : Math.ceil(lam / (MU - 1000 / target));
         qs("#need", q).textContent = need === Infinity ? "impossible" : need;

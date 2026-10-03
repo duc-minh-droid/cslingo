@@ -268,7 +268,7 @@
         qs("#df", card).textContent = faults;
         qs("#so", card).textContent = outages;
         qs("#dT", card).innerHTML =
-          `<span style="color:var(--amber)">■</span> dead disk being replaced · <span style="color:var(--rose)">■</span> data unavailable (every copy is dead)<br><br>` +
+          `<span style="color:var(--amber-ink)">■</span> dead disk being replaced · <span style="color:var(--rose-ink)">■</span> data unavailable (every copy is dead)<br><br>` +
           (rep === 1
             ? "With <b>1 copy</b>, every disk fault is also a <b>failure</b>: some data becomes unavailable to users."
             : `With <b>${rep} copies</b>, a failure needs all ${rep} copies of the same data to die before repairs finish, which almost never happens. Faults are <b>tolerated</b>.`);

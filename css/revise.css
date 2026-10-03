@@ -201,3 +201,25 @@ details.rv-round[open] > summary.rv-sess::after {
   text-align: center;
   padding: 28px 18px;
 }
+
+@media (max-width: 480px) {
+  .rv-hero {
+    gap: 10px;
+    padding: 16px;
+  }
+  .rv-hero .mascot {
+    flex: none;
+    width: 92px;
+    height: auto;
+  }
+  .rv-hero .mascot svg {
+    width: 100%;
+    height: auto;
+  }
+  .rv-hero h1 {
+    font-size: 28px;
+  }
+  .rv-hero p {
+    font-size: 14px;
+  }
+}

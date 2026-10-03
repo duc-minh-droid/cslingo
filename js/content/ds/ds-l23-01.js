@@ -44,8 +44,8 @@
           log.unshift([i, b.dataset.c]);
           idx++;
           qs("[data-fb]", card).innerHTML = ok
-            ? `<span style="color:var(--teal)">✓ ${items[i][1]}</span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`
-            : `<span style="color:var(--rose)">✗ It's <b>${items[i][1]}</b></span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`;
+            ? `<span style="color:var(--teal-ink)">✓ ${items[i][1]}</span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`
+            : `<span style="color:var(--rose-ink)">✗ It's <b>${items[i][1]}</b></span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`;
           draw();
         }),
     );
@@ -231,7 +231,7 @@
         qs("#s1v", c1).innerHTML =
           db === "doc"
             ? `<div class="grid two"><div>${mono(`{ "name": "Ada Byte" }        <span class="faint">old document</span>\n{ "first_name": "Cy", "last_name": "Dee" }   <span class="faint">new document</span>`)}</div>
-             <div><p class="dim" style="margin:0"><b>Schema-on-read.</b> ${state === "idle" ? "Old and new documents sit side by side in one collection." : `Start writing the new shape now. When the app <b>reads</b> an old document it splits the name in code. <b style="color:var(--teal)">No downtime, no waiting for ${fmt(rows)} documents.</b>`}</p></div></div>`
+             <div><p class="dim" style="margin:0"><b>Schema-on-read.</b> ${state === "idle" ? "Old and new documents sit side by side in one collection." : `Start writing the new shape now. When the app <b>reads</b> an old document it splits the name in code. <b style="color:var(--teal-ink)">No downtime, no waiting for ${fmt(rows)} documents.</b>`}</p></div></div>`
             : `<div class="grid two"><div>${mono(`table users\n  name         <span class="faint">(old column)</span>\n  first_name   <span class="faint">(new column, NULL for now)</span>\n  last_name    <span class="faint">(new column, NULL for now)</span>`)}</div>
              <div><p class="dim" style="margin:0"><b>Schema-on-write.</b> Alter the table's shape, then fill the new columns for <b>every</b> row.</p>
              <div style="height:10px;border-radius:5px;background:var(--bg);margin:8px 0;overflow:hidden"><div style="height:100%;width:${pct}%;background:${pct < 100 ? "var(--amber)" : "var(--teal)"}"></div></div><b style="color:${pct < 100 && state !== "idle" ? "var(--amber)" : "var(--text)"}">${relTxt}</b>
@@ -310,8 +310,8 @@
           `<div class="stat"><small>Document: places · KB loaded</small><b>${docPlaces} · ${docKB}</b></div><div class="stat blue"><small>Tables: places · KB loaded</small><b>${relPlaces} · ${relKB}</b></div>`;
         qs("#l3", c2).innerHTML =
           need === "all"
-            ? `Whole profile wanted: the document is <b>1 read</b>; tables need <b>6 separate reads</b> and joins. <b style="color:var(--teal)">Locality wins.</b>`
-            : `Only the name wanted: the document still loads <b>${size} KB</b> (the DB loads the entire document). Tables read a tiny row. <b style="color:var(--rose)">Locality wastes work</b> when documents are large and you need a sliver.`;
+            ? `Whole profile wanted: the document is <b>1 read</b>; tables need <b>6 separate reads</b> and joins. <b style="color:var(--teal-ink)">Locality wins.</b>`
+            : `Only the name wanted: the document still loads <b>${size} KB</b> (the DB loads the entire document). Tables read a tiny row. <b style="color:var(--rose-ink)">Locality wastes work</b> when documents are large and you need a sliver.`;
       };
       sl.onInput((v) => {
         size = v;
