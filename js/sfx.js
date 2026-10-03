@@ -127,7 +127,7 @@
   const recent = () => performance.now() - gesture < 2500; // observer sounds only follow something the learner just did
 
   function play(name, o = {}) {
-    if (!enabled() || !SOUNDS[name]) return;
+    if (!enabled() || !SOUNDS[name] || !gesture) return; // browsers keep audio off until the first tap or key press: don't even try before it
     const c = ac();
     if (!c) return;
     if (c.state === "closed") { ctx = null; master = null; return play(name, o); }

@@ -489,7 +489,7 @@
   function todayCard(s, all, next) {
     const pos = store.get("nic.lessonPos", {});
     const started = all.find((m) => status(m) !== "done" && pos[m.id] > 0);
-    const due = NIC.bank ? NIC.bank.stats({ subjects: [s] }).due : 0;
+    const due = NIC.bank ? NIC.bank.stats({ subjects: [s] }).dueSeen : 0;
     const miss = NIC.player.missed.all().length;
     const acts = [];
     if (started) { const L = NIC.LESSONS[started.id]; acts.push({ k: "cont", to: started.id, t: `Continue ${esc(started.title)}`, sub: L ? `You stopped partway through` : "", icon: IC.play }); }
@@ -830,7 +830,7 @@
     dockInd(moved);
     const ic = qs(`button[data-to="${k}"] svg`, dock);
     if (moved && ic) fx.bump(ic, { scale: 1.25, y: -4 });
-    const n = NIC.bank ? NIC.bank.stats().due : 0, bd = qs(".dk-badge", dock);
+    const n = NIC.bank ? NIC.bank.stats().dueSeen : 0, bd = qs(".dk-badge", dock);
     if (n) { bd.hidden = false; bd.classList.remove("m-ghost"); bd.textContent = n > 99 ? "99+" : n; }
     else if (!bd.hidden) {
       // count reached 0: the badge shrinks away instead of vanishing
