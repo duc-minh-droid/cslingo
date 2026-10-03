@@ -20,6 +20,10 @@ export function checkStructure() {
   const grab = (text) => [...text.matchAll(/["'(]((?:js)\/[\w./-]+\.js)/g)].forEach((m) => refs.add(m[1]));
   grab(readFileSync(join(root, "index.html"), "utf8"));
   for (const f of ["js/content.js", "js/bank.js"]) grab(readFileSync(join(root, f), "utf8"));
+  // revision questions: js/bank.js builds js/bank/<course>-NN.js names from a count per course
+  const partsText = readFileSync(join(root, "js/bank.js"), "utf8").match(/PARTS = \{([^}]*)\}/)[1];
+  for (const [, course, n] of partsText.matchAll(/(\w+):\s*(\d+)/g))
+    for (let i = 1; i <= +n; i++) refs.add(`js/bank/${course}-${String(i).padStart(2, "0")}.js`);
   for (const f of files)
     if (!refs.has(f)) problems.push(`not loaded anywhere (index.html, content.js or bank.js): ${f}`);
   for (const r of refs) if (!files.includes(r)) problems.push(`referenced but missing: ${r}`);
