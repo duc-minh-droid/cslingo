@@ -127,13 +127,13 @@
   const REV_KEY = "csl.revSession";
   const revSaved = () => { try { const r = JSON.parse(localStorage.getItem(REV_KEY)); return r && Array.isArray(r.ids) && r.ids.length ? r : null; } catch { return null; } };
   const revWrite = (r) => { try { r ? localStorage.setItem(REV_KEY, JSON.stringify(r)) : localStorage.removeItem(REV_KEY); } catch { /* storage blocked: the round just can't be resumed */ } };
-  const revSave = () => { if (S && S.kind === "revise" && S.revIds) revWrite({ ids: S.revIds, t: S.start, done: S.firstTotal, right: S.firstRight, xp: S.xp, paused: false, opts: { n: S.opts.n, subjects: S.opts.subjects || null, home: S.opts.home } }); };
+  const revSave = () => { if (S && S.kind === "revise" && S.revIds) revWrite({ ids: S.revIds, t: S.start, done: S.firstTotal, right: S.firstRight, wrong: S.revWrong || [], xp: S.xp, paused: false, opts: { n: S.opts.n, subjects: S.opts.subjects || null, home: S.opts.home } }); };
 
   /** A finished round goes into the history on the Revise page (nic.revRounds, synced: one entry per round, keyed by its start time). */
   function revLog() {
     if (!S || !S.revIds || !S.revIds.length || !S.firstTotal) return;
     const h = store.get("nic.revRounds", {});
-    h[S.start] = { n: S.revIds.length, right: S.firstRight, mods: new Set(S.screens.filter((x) => x.revId).map((x) => x.mod)).size, end: Date.now() };
+    h[S.start] = { n: S.revIds.length, right: S.firstRight, ids: S.revIds, wrong: S.revWrong || [], mods: new Set(S.screens.filter((x) => x.revId).map((x) => x.mod)).size, end: Date.now() };
     store.set("nic.revRounds", h);
   }
 
@@ -148,6 +148,10 @@
       deck = saved.ids.map((id) => byId.get(id)).filter(Boolean);
       if (deck.length !== saved.ids.length) { saved = null; deck = []; } // the bank changed under it: start fresh below
     }
+    if (!deck.length && opts.ids && N.bank) { // redo a past round: the same questions again
+      const byId = new Map(N.bank.all({ learnedOnly: false }).map((x) => [x.id, x]));
+      deck = opts.ids.map((id) => byId.get(id)).filter(Boolean);
+    }
     if (!deck.length) deck = N.bank ? N.bank.deck({ n: opts.n || 10, subjects: opts.subjects || null }) : [];
     S.revIds = deck.map((d) => d.id);
     const title = (id) => { const m = N.modules.find((x) => x.id === id); return m ? `${m.num === "Boss" ? "Boss" : m.num} · ${stripTags(m.title)}` : ""; };
@@ -155,7 +159,7 @@
       ? [{ kind: "reviseIntro", n: deck.length, mods: new Set(deck.map((d) => d.mod)).size }, ...deck.map((d) => ({ kind: "q", Q: d.Q, key: `rev:${d.id}`, revId: d.id, revTag: title(d.mod), mod: d.mod, practice: true }))]
       : [{ kind: "note", who: "chip", mood: "sleepy", t: "Nothing to revise yet", b: "Finish a lesson first. Its questions join your revision deck." }];
     if (saved) {
-      S.firstTotal = Math.min(saved.done || 0, deck.length); S.firstRight = Math.min(saved.right || 0, S.firstTotal); S.xp = saved.xp || 0; if (saved.t) S.start = saved.t;
+      S.firstTotal = Math.min(saved.done || 0, deck.length); S.firstRight = Math.min(saved.right || 0, S.firstTotal); S.xp = saved.xp || 0; if (saved.t) S.start = saved.t; S.revWrong = saved.wrong || [];
       S.i = S.firstTotal ? 1 + S.firstTotal : 0; // already answered ones are skipped, the intro only shows for a fresh round
       if (S.i >= S.screens.length) { revWrite(null); S.i = 0; S.firstTotal = S.firstRight = S.xp = 0; }
       else if (S.firstTotal && fx()) setTimeout(() => fx().toast(`<b>Welcome back!</b><span>Question ${S.firstTotal + 1} of ${deck.length}. Your round was saved.</span>`, { tone: "blue", ms: 2600, live: true }), 400);
@@ -724,7 +728,7 @@
   function result(sc, ok, v) {
     const Q = sc.Q, first = !sc.retry, prevCombo = S.combo;
     S.answered++; S.graded = true; (S.gradedKeys = S.gradedKeys || new Set()).add(sc.key);
-    if (first) { S.firstTotal++; if (ok) S.firstRight++; }
+    if (first) { S.firstTotal++; if (ok) S.firstRight++; else if (sc.revId) (S.revWrong = S.revWrong || []).push(sc.revId); }
     game().answered(ok);
     // persistence
     if (sc.bossIdx !== undefined) { const st = store.get("nic.quiz", {}); st[sc.idKey] = { v, ok }; store.set("nic.quiz", st); if (ok) game().track("boss"); window.dispatchEvent(new Event("nic:progress")); }
