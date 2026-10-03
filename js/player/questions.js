@@ -94,7 +94,11 @@
         if (!deferred) return grade(v);
         pending = v;
         if (SELECT[type]) SELECT[type](body, v);
-        else qsa("[data-pick]", body).forEach((e) => e.classList.toggle("sel", e.dataset.pick === v));
+        else
+          qsa("[data-pick]", body).forEach((e) => {
+            e.classList.toggle("sel", e.dataset.pick === v);
+            if (TT.ring) TT.ring(e, e.dataset.pick === v ? "sel" : "");
+          });
         sound("select");
         foot("check", { onGo: () => grade(pending), enabled: true });
       },

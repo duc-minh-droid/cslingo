@@ -340,46 +340,35 @@
 .q-pick .pickable:focus-visible {
   filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.9));
 }
-/* selected: an ink-coloured outline plus a blue halo, so it reads on blue bars, panels and nodes alike (the figure's own colours stay) */
-.q-pick .sel {
-  filter: drop-shadow(0 0 5px rgba(28, 176, 246, 0.95));
+/* selected / graded: a rounded ring around the element's whole box (drawn by TYPES.pick.ring), so cells, rows, cards and nodes
+   all get the same clean highlight instead of a black rectangle around each shape inside them */
+.q-pick .pk-ring {
+  fill: var(--blue);
+  fill-opacity: 0.14;
+  stroke: var(--blue);
+  stroke-width: 3px;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
-.q-pick .sel :is(circle, rect, ellipse, polygon, path, line),
-.q-pick :is(circle, rect, ellipse, polygon, path, line).sel {
-  stroke: var(--ink) !important;
-  stroke-width: 4px !important;
-  paint-order: stroke;
+.q-pick .pk-ring.pk-right {
+  fill: var(--teal);
+  stroke: var(--teal);
 }
-.q-pick .sel text {
-  fill: var(--ink);
+.q-pick .pk-ring.pk-wrong {
+  fill: var(--rose);
+  stroke: var(--rose);
 }
-.q-pick .pk-right circle,
-.q-pick .pk-right rect,
-.q-pick circle.pk-right,
-.q-pick rect.pk-right,
-.q-pick line.pk-right,
-.q-pick path.pk-right {
-  stroke: var(--teal) !important;
-  stroke-width: 5 !important;
+.q-pick .pk-ring.pk-missed {
+  fill: var(--teal);
+  fill-opacity: 0.08;
+  stroke: var(--teal);
+  stroke-dasharray: 6 5;
 }
-.q-pick .pk-wrong circle,
-.q-pick .pk-wrong rect,
-.q-pick circle.pk-wrong,
-.q-pick rect.pk-wrong,
-.q-pick line.pk-wrong,
-.q-pick path.pk-wrong {
-  stroke: var(--rose) !important;
-  stroke-width: 5 !important;
-}
-.q-pick .pk-missed circle,
-.q-pick .pk-missed rect,
-.q-pick circle.pk-missed,
-.q-pick rect.pk-missed,
-.q-pick line.pk-missed,
-.q-pick path.pk-missed {
-  stroke: var(--teal) !important;
-  stroke-width: 4 !important;
-  stroke-dasharray: 5 4;
+/* picks that are plain HTML boxes rather than SVG */
+.q-pick :not(svg *)[data-pick].sel {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 
 /* bug */
@@ -457,4 +446,11 @@
 } /* transition: css/motion.css */
 .qm-t.shown {
   opacity: 0.75;
+}
+/* a pick that is a bare shape (no group around it): a blue outline plus a soft halo */
+.q-pick :is(circle, rect, ellipse, polygon, path, line).sel {
+  stroke: var(--blue) !important;
+  stroke-width: 4px !important;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(28, 176, 246, 0.6));
 }
