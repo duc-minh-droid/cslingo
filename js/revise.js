@@ -17,17 +17,6 @@
     if (prefs.subjects && !prefs.subjects.length) prefs.subjects = null;
     const inScope = (x) => !prefs.subjects || prefs.subjects.includes(x.subject);
 
-    // per-session rows: questions, due, mastered
-    const bySess = {};
-    pool.forEach((x) => { (bySess[x.mod] = bySess[x.mod] || []).push(x); });
-    const now = Date.now(), GAP = [0, 0, 1, 3, 7, 14];
-    const isDue = (r) => !r || now - r.t >= GAP[Math.min(r.box, 5)] * 864e5;
-    const doneMods = store.get("nic.lessonDone", {});
-    const rows = N.modules.filter((m) => bySess[m.id] && doneMods[m.id]).map((m) => {
-      const qs_ = bySess[m.id];
-      return { m, n: qs_.length, due: qs_.filter((x) => isDue(R[x.id])).length, mastered: qs_.filter((x) => R[x.id] && R[x.id].box >= 4).length, seen: qs_.filter((x) => R[x.id]).length };
-    });
-
     const head = `<div class="sp-hero u-blue rv-hero">${N.mascot({ who: "chip", size: 130, mood: pool.length ? "determined" : "sleepy", act: pool.length ? "dance" : "sleep", acc: ["propeller"] })}
       <div><h1>Due reviews</h1><p>A shuffled mix from every session you've finished. Get one right and it comes back later; miss it and it comes back soon.</p></div></div>`;
     if (!pool.length) {
@@ -47,21 +36,19 @@
         <div class="rv-row"><b>Questions</b><div class="seg rv-size">${SIZES.map((n) => `<button data-n="${n}">${n}</button>`).join("")}</div></div>
         <button class="btn big primary rv-go">Start revision</button>
       </div>
-      <div class="rv-done"><h2>Sessions you've done</h2><div class="rv-list"></div></div>
+      <div class="rv-done"><h2>Your rounds</h2><div class="rv-list"></div></div>
     </div>`);
     main.appendChild(node);
 
     const fx = N.fx || {};
     let painted = false;
-    /** The value in a stat tile: numbers count to their new value, anything else (the "–" placeholder) is set as text. */
-    const setStat = (b, v, fmt) => {
-      if (typeof v !== "number" || !painted || !fx.count) { b.textContent = typeof v === "number" ? fmt(v) : v; if (typeof v === "number") b.dataset.v = v; else delete b.dataset.v; return; }
-      if (b.dataset.v === undefined) { b.textContent = fmt(v); b.dataset.v = v; return; }
-      fx.count(b, v, { from: +b.dataset.v, fmt, dur: fx.DUR ? fx.DUR.l : 0.3 });
-    };
-    /** One session row. Updated in place later so the bar's CSS transition runs. */
-    const rowHTML = (r) => `<div class="rv-sess" data-id="${r.m.id}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${r.m.num === "Boss" ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div></div>`;
-    const fillRow = () => {}; // rows carry no progress or counts, just which session it is
+    /** The history: one row per finished round, newest first (nic.revRounds, saved by the player when a round completes). */
+    const rounds = Object.entries(store.get("nic.revRounds", {})).map(([t, r]) => ({ t: +t, ...r })).sort((a, b) => b.t - a.t).slice(0, 40);
+    const when = (t) => { const d = new Date(t), today = new Date(), y = new Date(Date.now() - 864e5), hm = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); return d.toDateString() === today.toDateString() ? `Today, ${hm}` : d.toDateString() === y.toDateString() ? `Yesterday, ${hm}` : `${d.toLocaleDateString([], { day: "numeric", month: "short" })}, ${hm}`; };
+    const rowHTML = (r) => `<div class="rv-sess"><div class="rv-sess-t"><small>${when(r.t)}</small><b>${r.n} questions</b></div><div class="rv-sess-n"><span class="${r.right / r.n >= 0.8 ? "rv-ok" : "rv-due"}">${r.right}/${r.n} right</span></div></div>`;
+    const box = qs(".rv-list", node);
+    box.innerHTML = rounds.map(rowHTML).join("");
+    qs(".rv-done", node).hidden = !rounds.length;
 
     function paint() {
       qsa(".rv-subj button", node).forEach((b) => b.classList.toggle("on", b.dataset.s === "*" ? !prefs.subjects : !!prefs.subjects && prefs.subjects.includes(b.dataset.s) || (!prefs.subjects && subjects.length === 1)));
@@ -69,29 +56,6 @@
       const go = qs(".rv-go", node), avail = pool.filter(inScope).length;
       go.textContent = "Start revision";
       go.disabled = !avail;
-      // patch the list: rows that leave fade out, rows that stay keep their node (their bar animates), new rows enter
-      const list = rows.filter((r) => inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
-      const want = new Set(list.map((r) => r.m.id)), have = {};
-      Array.from(box.children).forEach((row) => {
-        if (row.classList.contains("m-ghost")) return;
-        if (want.has(row.dataset.id)) { have[row.dataset.id] = row; return; }
-        if (!painted || !fx.ok || !fx.exit) return row.remove();
-        row.classList.add("m-ghost"); fx.exit(row, { scale: 1, dur: fx.DUR.s }).then(() => row.remove());
-      });
-      const added = [];
-      let at = null; // insert in list order, after the previous kept row
-      list.forEach((r) => {
-        let row = have[r.m.id];
-        if (!row) { row = el(rowHTML(r)); added.push(row); }
-        fillRow(row, r);
-        const ref = at ? at.nextSibling : box.firstChild;
-        if (row !== ref) box.insertBefore(row, ref);
-        at = row;
-      });
-      // ghosts that are fading out go to the end, out of the way of the kept order
-      Array.from(box.children).filter((x) => x.classList.contains("m-ghost")).forEach((g) => box.appendChild(g));
-      if (painted && added.length && fx.enter) fx.enter(added, { y: 6, stagger: 0.03, dur: fx.DUR.m });
-      qs(".rv-done", node).hidden = !list.length;
       painted = true;
     }
     const save = () => store.set("nic.revPrefs", { n: prefs.n, subjects: prefs.subjects });

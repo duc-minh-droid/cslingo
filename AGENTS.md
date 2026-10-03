@@ -90,6 +90,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `last` | last module per course |
 | `lastHome` | last course home |
 | `revPrefs` | Revise tab settings `{n, subjects}` |
+| `revRounds` | finished revision rounds `{"<start ms>": {n, right, mods, end}}` (history on the Revise page; union-merged by `sync.js`) |
 | `rev` | revision bank answers, `{"<modId>:<hash>": {box, n, right, t}}` (Leitner box 1–5) |
 
 Never rename these keys, because that wipes users' progress. There is no reset button (progress is never deleted from the app).
