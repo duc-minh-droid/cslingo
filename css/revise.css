@@ -107,31 +107,35 @@
   display: block;
   font-size: 17px;
 }
-button.rv-sess {
-  width: 100%;
-  text-align: left;
-  font: inherit;
-  color: inherit;
+summary.rv-sess {
+  list-style: none;
   cursor: pointer;
   background: var(--panel);
 }
-button.rv-sess::after {
+summary.rv-sess::-webkit-details-marker {
+  display: none;
+}
+summary.rv-sess::after {
   content: "›";
   font-size: 22px;
   font-weight: 900;
   color: var(--text-faint);
   grid-column: 3;
+  transition: transform var(--dur-2) var(--ease-out);
 }
-.rv-review h2 {
-  margin: 0 0 4px;
+details.rv-round[open] > summary.rv-sess::after {
+  transform: rotate(90deg);
+}
+.rv-round {
+  display: block;
+}
+.rv-round-body {
+  padding: 4px 6px 12px;
 }
 .rv-rq-list {
   display: grid;
   gap: 12px;
   margin: 14px 0;
-  max-height: 62vh;
-  overflow-y: auto;
-  padding-right: 4px;
 }
 .rv-rq {
   border: 2px solid var(--line);
@@ -185,7 +189,7 @@ button.rv-sess::after {
   font-size: 14px;
 }
 .rv-review {
-  padding: 22px 20px 20px;
+  padding: 8px 0 0;
 }
 .rv-review-go {
   display: flex;

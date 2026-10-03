@@ -35,9 +35,10 @@
     if (prefs.subjects && !prefs.subjects.length) prefs.subjects = null;
     const inScope = (x) => !prefs.subjects || prefs.subjects.includes(x.subject);
 
-    /** Look back at one round: every question with the right answer and the explanation, missed ones marked, plus "Do these again". */
-    function review(r) {
-      if (!r || !N.modal) return;
+    /** Look back at one round, inside its dropdown: every question with the right answer and the explanation, missed ones
+        marked, plus "Do these again". Built the first time the row is opened. */
+    function review(r, host) {
+      if (!r) return;
       const byId = new Map(N.bank.all({ learnedOnly: false }).map((x) => [x.id, x]));
       const wrong = new Set(r.wrong || []);
       const items = (r.ids || []).map((id) => byId.get(id)).filter(Boolean);
@@ -57,12 +58,10 @@
           ${(Q.type || "mcq") === "pick" ? "" : `<div class="rv-rq-a"><b>Answer:</b> ${ans}</div>`}${Q.why ? `<div class="rv-rq-w">${Q.why}</div>` : ""}</div>`;
         })
         .join("");
-      const m = N.modal(
-        `<div class="rv-review"><h2>${when(r.t)}</h2><p class="faint">${r.right}/${r.n} right. ${items.length < r.n ? "Some questions are no longer in the bank." : ""}</p>
+      const m = host;
+      m.innerHTML = `<div class="rv-review">${items.length < r.n ? `<p class="faint">Some questions are no longer in the bank.</p>` : ""}
         <div class="rv-rq-list">${cards || "<p>These questions are no longer available.</p>"}</div>
-        ${items.length ? `<div class="rv-review-go"><button class="btn big primary" data-redo>Do these again</button></div>` : ""}</div>`,
-        { cls: "rv-review-modal" },
-      );
+        ${items.length ? `<div class="rv-review-go"><button class="btn big primary" data-redo>Do these again</button></div>` : ""}</div>`;
       qsa(".rv-rq", m).forEach((card, k) => {
         const f = items[k].Q.fig;
         if (f) {
@@ -85,7 +84,6 @@
       const redo = qs("[data-redo]", m);
       if (redo)
         redo.addEventListener("click", () => {
-          m.close();
           N.player.revise({ ids: items.map((x) => x.id), home: "practice" });
         });
     }
@@ -143,12 +141,23 @@
           ? `Yesterday, ${hm}`
           : `${d.toLocaleDateString([], { day: "numeric", month: "short" })}, ${hm}`;
     };
-    const rowHTML = (r) =>
-      `<${r.ids ? "button" : "div"} class="rv-sess${r.ids ? " rv-tap" : ""}" data-t="${r.t}"><div class="rv-sess-t"><small>${when(r.t)}</small><b>${r.n} questions</b></div><div class="rv-sess-n"><span class="${r.right / r.n >= 0.8 ? "rv-ok" : "rv-due"}">${r.right}/${r.n} right</span></div></${r.ids ? "button" : "div"}>`;
+    const rowHTML = (r) => {
+      const head = `<div class="rv-sess-t"><small>${when(r.t)}</small><b>${r.n} questions</b></div><div class="rv-sess-n"><span class="${r.right / r.n >= 0.8 ? "rv-ok" : "rv-due"}">${r.right}/${r.n} right</span></div>`;
+      return r.ids
+        ? `<details class="rv-round" data-t="${r.t}"><summary class="rv-sess rv-tap">${head}</summary><div class="rv-round-body"></div></details>`
+        : `<div class="rv-sess" data-t="${r.t}">${head}</div>`;
+    };
     const box = qs(".rv-list", node);
     box.innerHTML = rounds.map(rowHTML).join("");
-    qsa(".rv-tap", box).forEach((b) =>
-      b.addEventListener("click", () => review(rounds.find((r) => String(r.t) === b.dataset.t))),
+    qsa(".rv-round", box).forEach((d) =>
+      d.addEventListener("toggle", () => {
+        const body = qs(".rv-round-body", d);
+        if (d.open && !body.firstChild)
+          review(
+            rounds.find((r) => String(r.t) === d.dataset.t),
+            body,
+          );
+      }),
     );
     qs(".rv-done", node).hidden = !rounds.length;
 
