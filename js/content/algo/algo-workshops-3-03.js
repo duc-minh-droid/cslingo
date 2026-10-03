@@ -1,4 +1,4 @@
-/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 3 of 4: the interactions.
+/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 3 of 5: the interactions.
    cornerPlay(c, api) wires the three modes (try plans, slide the profit line, walk corners) and the mission checks. */
 (function () {
   const partScope = (NIC.shared.algoWorkshops3 = NIC.shared.algoWorkshops3 || {});

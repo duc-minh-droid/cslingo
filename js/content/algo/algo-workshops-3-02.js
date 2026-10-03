@@ -1,5 +1,5 @@
-/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 2 of 4: the view.
-   cornerView() builds the factory plot, the rule sliders and the readout, and returns the context \`c\` that the
+/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 2 of 5: the view.
+   cornerView() builds the factory plot, the rule sliders and the readout, and returns the context c that the
    other parts hook into: 3-03 adds the interactions and missions (cornerPlay), 3-04 the rule sliders (cornerRules). */
 (function () {
   const partScope = (NIC.shared.algoWorkshops3 = NIC.shared.algoWorkshops3 || {});

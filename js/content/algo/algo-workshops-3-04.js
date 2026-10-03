@@ -1,4 +1,4 @@
-/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 4 of 4: the rule sliders, and cornerHunt() itself.
+/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 4 of 5: the rule sliders, and cornerHunt() itself.
    cornerRules(c, api) tilts the profit line and adds the demand cap; cornerHunt() puts the three parts together. */
 (function () {
   const partScope = (NIC.shared.algoWorkshops3 = NIC.shared.algoWorkshops3 || {});

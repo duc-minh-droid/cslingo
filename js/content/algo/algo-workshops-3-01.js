@@ -1,4 +1,4 @@
-/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code).
+/* Algorithms, Phase 3 workshop: 3.W "Corner hunt" (no code). Part 1 of 5: the maths and the plot geometry.
    A live factory LP (max z = 3x + c·y, machine hours, raw material, optional demand cap). Drag a plan, slide the profit
    line, walk corner to corner like simplex, tilt the objective, squeeze with the cap. Every vertex and profit is computed
    from the constraints on the fly (Sutherland–Hodgman clipping + Cyrus–Beck for the profit line), never typed. */
