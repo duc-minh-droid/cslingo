@@ -72,6 +72,7 @@
     return {
       available: pool.length,
       due: pool.filter((it) => due(R[it.id], now)).length,
+      dueSeen: seen.filter((it) => due(R[it.id], now)).length, // questions already answered whose review is due (new questions are not 'due')
       seen: seen.length,
       mastered: seen.filter((it) => R[it.id].box >= 4).length,
       accuracy: seen.length ? seen.reduce((s, it) => s + R[it.id].right, 0) / seen.reduce((s, it) => s + R[it.id].n, 0) : 0,
