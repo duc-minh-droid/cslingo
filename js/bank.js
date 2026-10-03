@@ -1,5 +1,5 @@
 /* Revision question bank: NIC.bank.
-   Content lives in bank-nic.js / bank-ds.js / bank-algo.js, one list per module (session):
+   Content lives in bank-nic.js / bank-ds.js / bank-algo.js (loaded on demand by NIC.bank.load()), one list per module (session):
      NIC.bank.add("l3-hc", [ {type, q, ..., why}, ... ])   // same question types as boss quizzes (js/quiz.js)
    A revision tab asks for a shuffled deck drawn from the sessions the learner has finished:
      const deck = NIC.bank.deck({ n: 10 });                // [{id, mod, subject, lecture, src, Q}]
@@ -42,6 +42,14 @@
   }
 
   const log = () => N.store.get("nic.rev", {});
+
+  /* The question lists are big (about 1.4 MB), so they are not loaded at startup: the Revise page and revision rounds call
+     NIC.bank.load() first. Everything that needs only the review log (the due badge, recording an answer) works without them. */
+  const FILES = ["js/bank-nic.js", "js/bank-ds.js", "js/bank-algo.js"];
+  let loadP = null, loaded = false;
+  function load() {
+    return loadP || (loadP = Promise.all(FILES.map((f) => N.lazy(f))).then(() => { loaded = true; }).catch((e) => { loadP = null; throw e; }));
+  }
   function due(r, now) { return !r || now - r.t >= GAP[Math.min(r.box, 5)] * DAY; }
 
   /** A shuffled revision deck. Due and previously-missed questions first, never two in a row from one module when avoidable. */
@@ -54,6 +62,15 @@
     for (let i = 1; i < ranked.length; i++) if (ranked[i].mod === ranked[i - 1].mod) { const k = ranked.findIndex((x, j) => j > i && x.mod !== ranked[i - 1].mod); if (k > 0) [ranked[i], ranked[k]] = [ranked[k], ranked[i]]; }
     for (let i = 1; i < ranked.length; i++) if ((ranked[i].Q.type || "mcq") === (ranked[i - 1].Q.type || "mcq")) { const k = ranked.findIndex((x, j) => j > i && (x.Q.type || "mcq") !== (ranked[i - 1].Q.type || "mcq") && x.mod !== ranked[i - 1].mod); if (k > 0) [ranked[i], ranked[k]] = [ranked[k], ranked[i]]; } // and mix the question types
     return ranked;
+  }
+
+  /** Reviews due among questions already answered, straight from the review log (no question content needed). */
+  function dueSeen({ subjects = null, now = Date.now() } = {}) {
+    const R = log(), done = N.store.get("nic.lessonDone", {});
+    return Object.keys(R).filter((id) => {
+      const mod = id.split(":")[0], m = modById(mod);
+      return m && (m.num === "Boss" || done[mod]) && (!subjects || subjects.includes(subjOf(m))) && due(R[id], now);
+    }).length;
   }
 
   /** Record an answer: right moves the question up a box (seen less often), wrong sends it back to box 1. */
@@ -100,5 +117,5 @@
     return out;
   }
 
-  N.bank = { add, all, deck, record, stats, problems, idFor, raw: BANK };
+  N.bank = { add, all, deck, record, stats, dueSeen, problems, idFor, load, loaded: () => loaded, raw: BANK };
 })();

@@ -38,8 +38,8 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/algo-p1.js … algo-p10.js` | Algorithms (`algo`) modules and lessons, one file per phase. |
 | `js/quiz.js` | Boss-quiz engine: `NIC.registerBoss`, `NIC.QUIZ_TYPES`, `NIC.bossDef`, `NIC.qfig`. |
 | `js/boss-nic.js boss-ds.js boss-algo.js` | Boss quiz content. |
-| `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, problems`. |
-| `js/bank-nic.js bank-ds.js bank-algo.js` + `bank-*-2.js` | Revision questions, 13–15 per module (session). Used only by the Revise tab, never by lessons or bosses. Add new ones to a `-2` file, or start a `-3` file. `bank-v-{nic,ds,algo}-N.js` hold the visual, varied sets (pick/order/cat/slider/bug and figure questions that test understanding): prefer these formats over plain text MCQ. |
+| `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, dueSeen, problems, load`. `dueSeen()` reads only the review log, so the due badge needs no question content. |
+| `js/bank-nic.js bank-ds.js bank-algo.js` | Revision questions, one file per course (about 20-30 per module, mostly pick/order/cat/slider/bug and figure questions that test understanding: prefer these formats over plain text MCQ). Used only by the Revise tab, never by lessons or bosses. **Loaded on demand** by `NIC.bank.load()` (the Revise page and revision rounds call it), not from `index.html`, so they cost nothing at startup. Append new `NIC.bank.add(...)` blocks at the end of the course's file. |
 | `js/revise.js` + `css/revise.css` | (A revision round is saved in `csl.revSession`, per device: a refresh reopens it, quitting pauses it and the Revise page offers Continue, finishing clears it.) The **Revise** tab (`#revise`): `NIC.revisePage(main, life, {names})`. Sessions run in `NIC.player.revise({home, n, subjects})`. |
 | `js/sync.js` | Account progress `NIC.sync` (Supabase project `cslingo`). When logged in the account is the source of truth: it is loaded before the first screen, saves add to it (never replace it), and other devices' changes redraw in place. Stored as one row per item in `public.progress_items` (lesson_done, quiz, rev, xp_day, …) and `public.progress_prefs` (settings), written only through `public.save_progress()` (a rule per kind: finished stays finished, a right quiz answer stays, latest review wins, XP/positions only go up) and wiped only by `public.reset_progress()`; row-level security. The old one-row `public.progress` and `progress_legacy_backup` are kept as backups. Login is username+password; "Create account" in the Log in screen calls the `signup` Edge Function (creates `<name>@cslingo.app`, pre-confirmed, no email). `vendor/supabase.js` loads only when logged in or returning from a link. Reset stamps `nic.resetAt`. |
 | `js/player.js` + `css/player.css` | Full-screen lesson player `NIC.player`. |
@@ -352,7 +352,7 @@ Question types (defined in the header of `js/quiz.js`):
 
 ### 6e. Revision bank questions
 
-Every module should have at least 10 revision questions across `js/bank-<course>.js` and `js/bank-<course>-2.js`, in the same formats as boss quizzes (§6d) and under the same rules: new scenarios, no calculator, a `why` for every answer, and varied types.
+Every module should have at least 10 revision questions in `js/bank-<course>.js`, in the same formats as boss quizzes (§6d) and under the same rules: new scenarios, no calculator, a `why` for every answer, and varied types.
 
 ```js
 NIC.bank.add("ds-replication", [
@@ -372,7 +372,7 @@ NIC.bank.add("ds-replication", [
 2. In the page console (or Playwright `addScriptTag` + `evaluate`), load `tools/answer.js`, `tools/smoke.js` and `tools/boss-test.js`, then run:
    - `await smoke()` → must return `errors: []` for **every** module. It opens each module in the player, walks every screen, answers correctly and presses demo buttons. It also fails if any screen shows `[object Object]`, `undefined` or `NaN` (a value printed instead of rendered). If you see one, fix the data, don't silence the check. Table helpers take rows as `["a", "b"]` or `{ c: ["a", "b"], hl: true }`, never wrapped in an extra array.
    - `await bossTest()` → must return `failures: []`.
-   - `await bankTest()` (load `tools/bank-test.js`) → must return `failures: []`. It renders and grades every bank question, checks every module has questions, and exercises `deck/record/stats` on sandboxed progress.
+   - `await bankTest()` (load `tools/bank-test.js`; it calls `NIC.bank.load()` itself) → must return `failures: []`. For `bankCoverage()`, `bankExisting()` and `answerBias()` run `await NIC.bank.load()` first. It renders and grades every bank question, checks every module has questions, and exercises `deck/record/stats` on sandboxed progress.
 3. `NIC.player.state()` exposes `{open, kind, Q, key, foot, goDisabled}`, which is useful for writing checks.
 4. Look at it in a real browser at desktop width (1280) and phone width (390): the path, a step, the correct and wrong sheets, the Try-it screen, and lesson complete.
 

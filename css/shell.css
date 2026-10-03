@@ -93,7 +93,7 @@
 .dock button svg { width: 22px; height: 22px; }
 .dock button:active { transform: scale(0.93); }
 .dock button.on { background: var(--blue-dim); border-color: var(--blue-edge); color: var(--blue); }
-@media (max-width: 480px) { .dock button span { display: none; } .dock button { padding: 10px 18px; } }
+@media (max-width: 480px) { .dock button { padding: 10px 18px; } } /* tab names stay visible: there are only two tabs */
 body.in-lesson .dock, body.in-lesson .topbar { visibility: hidden; }
 body.in-lesson { overflow: hidden; }
 
@@ -176,10 +176,6 @@ body.in-lesson { overflow: hidden; }
 .sp-hero { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: 20px; background: var(--u); box-shadow: 0 var(--lip) 0 var(--u-lip); color: #fff; margin-bottom: 18px; }
 .sp-hero h1 { color: #fff; margin: 0 0 6px; }
 .sp-hero p { margin: 0; font-weight: 700; opacity: 0.95; }
-.sp-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.sp-stat b { font-size: 36px; font-weight: 900; color: var(--rose); display: block; line-height: 1; }
-.sp-stat span { color: var(--text-dim); font-weight: 800; }
-.sp-list { margin: 0; padding-left: 20px; } .sp-list li { margin: 6px 0; }
 .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 18px 8px 8px; border-radius: 22px; background: linear-gradient(var(--panel) 72%, var(--bg-2) 72%); border: 2px solid var(--line); }
 .shelf-spot { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .shelf-spot span { font-weight: 900; color: var(--text-dim); font-size: 14px; }
@@ -319,10 +315,6 @@ body.in-lesson { overflow: hidden; }
 .td-more { display: flex; flex-wrap: wrap; gap: 8px; }
 .td-chip { appearance: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 3px 0 var(--line); font: inherit; font-size: 13.5px; font-weight: 800; color: var(--text-dim); cursor: pointer; }
 .td-chip svg { width: 16px; height: 16px; }
-.pr-tabs-wrap { padding-bottom: 0; }
-.pr-tabs { display: flex; width: 100%; margin-top: 14px; }
-.pr-tabs button { flex: 1; min-height: 44px; font-weight: 900; }
-.pr-n { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin-left: 4px; border-radius: 99px; background: var(--rose); color: #fff; font-style: normal; font-size: 12px; }
 .dock button { position: relative; }
 .dk-badge { position: absolute; top: -8px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--rose); color: #fff; font-style: normal; font-size: 11.5px; font-weight: 900; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; }
 .dk-badge[hidden] { display: none; }

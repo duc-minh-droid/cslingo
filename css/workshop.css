@@ -265,3 +265,9 @@ body.cl-dragging { cursor: col-resize; user-select: none; -webkit-user-select: n
 body.cl-dragging .cl-ta, body.cl-dragging .cl-hl { pointer-events: none; }
 .cl-pystat { font: 800 11px Nunito, system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 99px; background: var(--bg-2); color: var(--text-faint); border: 2px solid var(--line); }
 .cl-pystat.ok { color: var(--teal-ink); border-color: var(--teal); background: var(--teal-dim); } .cl-pystat.bad { color: var(--rose-ink); border-color: var(--rose); background: var(--rose-dim); }
+
+/* phones: the mission list shows only the current mission (the bar below it tracks the rest), so the sandbox comes into view sooner */
+@media (max-width: 520px) {
+  .wk-m.later, .wk-m.done { display: none; }
+  .wk-top { gap: 10px; }
+}

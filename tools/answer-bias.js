@@ -2,6 +2,7 @@
    Checks every multiple-choice question (lesson checks, predicts, boss quizzes, revision bank) for the two classic tells:
    the right answer is usually in the same position, or it is usually the longest option. */
 function answerBias({ ratio = 1.25 } = {}) {
+  if (NIC.bank.loaded && !NIC.bank.loaded()) throw new Error("run `await NIC.bank.load()` first (the question lists load on demand)");
   const plain = (h) => String(h).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
   const qs = [];
   const add = (src, where, q, o, a, hint) => { if (Array.isArray(o) && o.length > 2 && typeof a === "number") qs.push({ src, where, q: plain(q), o: o.map(plain), a, hint: hint || "" }); };

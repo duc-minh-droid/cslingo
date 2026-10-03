@@ -9,6 +9,12 @@
 
   /** calm: the page already arrived with a page transition (or only the panel changed), so skip the staggered entrance. */
   function page(main, life, { names = {}, calm = false } = {}) {
+    if (!N.bank.loaded()) { // the question lists load on first use: show a quiet placeholder, then build the page
+      const wait = el(`<div class="page side-page"><div class="card rv-loading"><b>Getting your questions ready</b><span class="faint">One moment.</span></div></div>`);
+      main.appendChild(wait);
+      N.bank.load().then(() => { if (wait.isConnected) { wait.remove(); page(main, life, { names, calm }); } }, () => { wait.innerHTML = `<div class="card rv-loading"><b>Couldn't load the questions</b><span class="faint">Check your connection and reopen this tab.</span></div>`; });
+      return;
+    }
     const prefs = { n: 10, subjects: null, ...store.get("nic.revPrefs", {}) };
     const R = store.get("nic.rev", {});
     const pool = N.bank.all({ learnedOnly: true });
