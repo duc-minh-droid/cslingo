@@ -47,8 +47,22 @@
     qs('[data-m="quit"]', m).onclick = () => pl.close();
   };
 
+  /* A control inside a figure or demo that the keyboard reached (Tab) owns Enter (it presses the control) and the arrows (they
+     move a plan dot), instead of "Continue" / "back". One the mouse pressed doesn't: Enter still continues, as it always did. */
+  let pressed = null;
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      pressed = e.target.closest ? e.target.closest("button, a, summary, [tabindex], input, select, textarea") : null;
+    },
+    true,
+  );
+  const ownsKeys = (t) =>
+    !!(t.closest && t.closest(".rn, .pl-try-demo")) && !(pressed && pressed === document.activeElement);
+
   pl.onKey = function onKey(e) {
     if (!pl.S || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "Tab") pressed = null; // from here on the keyboard moves the focus
     const m = qs(".pl-modal", pl.S.root);
     const typing = /input|textarea|select/i.test(document.activeElement && document.activeElement.tagName);
     if (e.key === "Escape") {
@@ -65,8 +79,7 @@
       return;
     }
     if (typing) return;
-    // a workshop owns its keys: Enter presses the focused control, arrows move the plan dot (not "Continue" / "back")
-    if ((e.key === "Enter" || e.key === "ArrowLeft") && e.target.closest && e.target.closest(".wk")) return;
+    if ((e.key === "Enter" || e.key === "ArrowLeft") && ownsKeys(e.target)) return;
     // keyboard moves take the no-animation path: no slide between screens, no sheet slide (S.kbd is read synchronously)
     const kbd = (fn) => {
       const s = pl.S;

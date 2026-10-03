@@ -8,6 +8,7 @@ import { join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { checkStructure } from "./check-structure.js";
+import { keyboardChecks } from "./keyboard-test.js";
 
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const require = createRequire(import.meta.url);
@@ -69,6 +70,14 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 const pageErrors = [];
 page.on("pageerror", (e) => pageErrors.push(e.message));
+// a stylesheet font, script or icon that 404s is a bug even when nothing else notices (same-origin requests only)
+const badRequests = [];
+page.on("response", (r) => {
+  if (r.url().startsWith(url) && r.status() >= 400) badRequests.push(`${r.status()} ${r.url().slice(url.length)}`);
+});
+page.on("requestfailed", (r) => {
+  if (r.url().startsWith(url)) badRequests.push(`failed ${r.url().slice(url.length)}`);
+});
 await page.addInitScript(() => localStorage.setItem("nic.onboarded", "true"));
 await page.goto(url);
 await page.waitForFunction(() => window.NIC && NIC.content, null, { timeout: 20000 });
@@ -124,7 +133,14 @@ for (const [name, run] of steps) {
   );
   fail(name, problems);
 }
+{
+  const t = Date.now();
+  const problems = await keyboardChecks(page);
+  console.log(`${problems.length ? "FAIL" : "ok  "} keyboard (${Math.round((Date.now() - t) / 1000)}s)`);
+  fail("keyboard", problems);
+}
 fail("page errors", [...new Set(pageErrors)]);
+fail("requests", [...new Set(badRequests)]);
 
 await browser.close();
 server.close();
