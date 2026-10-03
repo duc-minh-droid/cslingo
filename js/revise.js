@@ -41,7 +41,6 @@
     const resumeCard = saved ? `<div class="card rv-resume"><div><b>Continue your revision</b><span class="faint">Question ${Math.min(saved.done + 1, saved.ids.length)} of ${saved.ids.length}</span></div><button class="btn primary rv-continue">Continue</button></div>` : "";
     const node = el(`<div class="page side-page">${head}
       ${resumeCard}
-      <div class="stat-grid rv-stats"></div>
       <div class="card rv-setup">
         <div class="rv-row"><b>Courses</b><div class="seg rv-subj">${subjects.length > 1 ? `<button data-s="*">All</button>` : ""}${subjects.map((s) => `<button data-s="${s}">${esc(names[s] || s)}</button>`).join("")}</div></div>
         <div class="rv-row"><b>Questions</b><div class="seg rv-size">${SIZES.map((n) => `<button data-n="${n}">${n}</button>`).join("")}</div></div>
@@ -61,30 +60,18 @@
     };
     /** One session row. Updated in place later so the bar's CSS transition runs. */
     const rowHTML = (r) => `<div class="rv-sess" data-id="${r.m.id}"><div class="rv-sess-t"><small>${esc(names[r.m.subject || "nic"] || "")} · ${r.m.num === "Boss" ? "Boss" : r.m.num}</small><b>${plain(r.m.title)}</b></div>
-          <div class="rv-sess-bar"><span></span></div><div class="rv-sess-n"></div></div>`;
+          <div class="rv-sess-bar"><span></span></div></div>`;
     const fillRow = (row, r) => {
       const f = r.n ? r.mastered / r.n : 0;
       row.classList.toggle("has-due", !!r.due);
-      qs(".rv-sess-bar", row).title = `${r.mastered} of ${r.n} mastered`;
       qs(".rv-sess-bar span", row).style.transform = `scaleX(${f})`;
-      qs(".rv-sess-n", row).innerHTML = `${r.due ? `<span class="rv-due">${r.due} due</span>` : `<span class="rv-ok">all caught up</span>`}<small>${r.seen}/${r.n} seen</small>`;
     };
 
     function paint() {
-      const S = N.bank.stats({ subjects: prefs.subjects });
-      const stats = qs(".rv-stats", node), pct = (v) => `${Math.round(v)}%`, int = (v) => Math.round(v).toLocaleString();
-      const tiles = [
-        [`<circle cx="12" cy="12" r="9" fill="none" stroke="#ff9600" stroke-width="3"/><path d="M12 7v5l3 2" stroke="#ff9600" stroke-width="3" stroke-linecap="round" fill="none"/>`, S.due, "due now", int],
-        [`<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#58cc02" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`, S.mastered, "mastered", int],
-        [`<circle cx="12" cy="12" r="9" fill="none" stroke="#1cb0f6" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#1cb0f6"/>`, S.seen ? Math.round(S.accuracy * 100) : "–", "accuracy", pct],
-        [ICON.replace(/currentColor/g, "#ce82ff"), S.available, "questions", int],
-      ];
-      if (!stats.children.length) stats.innerHTML = tiles.map(([svg, , t]) => `<div class="pf-stat"><svg viewBox="0 0 24 24">${svg.replace(/^<svg[^>]*>|<\/svg>$/g, "")}</svg><b></b><span>${t}</span></div>`).join("");
-      tiles.forEach(([, v, , fmt], k) => setStat(qs("b", stats.children[k]), v, fmt));
       qsa(".rv-subj button", node).forEach((b) => b.classList.toggle("on", b.dataset.s === "*" ? !prefs.subjects : !!prefs.subjects && prefs.subjects.includes(b.dataset.s) || (!prefs.subjects && subjects.length === 1)));
       qsa(".rv-size button", node).forEach((b) => b.classList.toggle("on", +b.dataset.n === prefs.n));
       const go = qs(".rv-go", node), avail = pool.filter(inScope).length;
-      go.textContent = `Start ${Math.min(prefs.n, avail)} questions`;
+      go.textContent = "Start revision";
       go.disabled = !avail;
       // patch the list: rows that leave fade out, rows that stay keep their node (their bar animates), new rows enter
       const list = rows.filter((r) => r.seen && inScope({ subject: r.m.subject || "nic" })), box = qs(".rv-list", node);
