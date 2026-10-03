@@ -2,7 +2,9 @@
    bankCoverage({min})        → sessions (non-boss modules) with fewer than `min` bank questions, plus totals
    bankExisting(moduleId)     → every question already asked about a module (bank, lesson checks, predicts,
                                 and its lecture's boss quiz), as plain text, so new questions don't repeat them */
+const needBank = () => { if (NIC.bank.loaded && !NIC.bank.loaded()) throw new Error("run `await NIC.bank.load()` first (the question lists load on demand)"); };
 function bankCoverage({ min = 12, subject = null } = {}) {
+  needBank();
   const mods = NIC.modules.filter((m) => m.num !== "Boss" && (!subject || (m.subject || "nic") === subject));
   const rows = mods.map((m) => ({ id: m.id, subject: m.subject || "nic", lecture: m.lecture, num: m.num, title: m.title.replace(/<[^>]+>/g, ""), bank: (NIC.bank.raw[m.id] || []).length }));
   const types = {};
@@ -11,6 +13,7 @@ function bankCoverage({ min = 12, subject = null } = {}) {
 }
 
 function bankExisting(id) {
+  needBank();
   const plain = (h) => String(h).replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
   const m = NIC.modules.find((x) => x.id === id);
   if (!m) return { error: `no module ${id}` };

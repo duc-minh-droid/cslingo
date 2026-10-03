@@ -138,6 +138,7 @@
   }
 
   function revise(opts = {}) {
+    if (N.bank && !N.bank.loaded()) { N.bank.load().then(() => revise(opts), (e) => console.error(e)); return; } // question lists load on demand
     if (S) close(true);
     S = base("revise", opts);
     S.who = opts.who || "chip"; S.mod = { id: "revise", num: "Revise", title: "Revision" };

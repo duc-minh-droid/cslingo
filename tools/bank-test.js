@@ -2,6 +2,7 @@
    Checks content (NIC.bank.problems), renders every bank question with the real quiz engine off-screen,
    grades the correct answer, and exercises deck/record/stats without touching the learner's progress. */
 async function bankTest() {
+  if (NIC.bank.load) await NIC.bank.load(); // the question lists load on demand
   const failures = [...NIC.bank.problems()];
   const T = NIC.QUIZ_TYPES;
   const right = (Q) => {

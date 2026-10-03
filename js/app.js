@@ -489,7 +489,7 @@
   function todayCard(s, all, next) {
     const pos = store.get("nic.lessonPos", {});
     const started = all.find((m) => status(m) !== "done" && pos[m.id] > 0);
-    const due = NIC.bank ? NIC.bank.stats({ subjects: [s] }).dueSeen : 0;
+    const due = NIC.bank ? NIC.bank.dueSeen({ subjects: [s] }) : 0;
     const miss = NIC.player.missed.all().length;
     const acts = [];
     if (started) { const L = NIC.LESSONS[started.id]; acts.push({ k: "cont", to: started.id, t: `Continue ${esc(started.title)}`, sub: L ? `You stopped partway through` : "", icon: IC.play }); }
@@ -525,6 +525,7 @@
     const resume = last && status(last) !== "done" ? last : next;
     const lecs = Object.entries(S.lectures).filter(([lec]) => inLec(s, lec).length);
     const page = el(`<div class="page path-page">
+      <h1 class="sr-only">${S.name}</h1>
       ${NIC.art ? NIC.art.banner(s, { title: S.name, sub: `${S.code} · ${P.d}/${P.n} lessons done` }) : ""}
       ${todayCard(s, all, next)}
       <div class="unit-sticky"><div class="us-in"></div></div>
@@ -830,7 +831,7 @@
     dockInd(moved);
     const ic = qs(`button[data-to="${k}"] svg`, dock);
     if (moved && ic) fx.bump(ic, { scale: 1.25, y: -4 });
-    const n = NIC.bank ? NIC.bank.stats().dueSeen : 0, bd = qs(".dk-badge", dock);
+    const n = NIC.bank ? NIC.bank.dueSeen() : 0, bd = qs(".dk-badge", dock);
     if (n) { bd.hidden = false; bd.classList.remove("m-ghost"); bd.textContent = n > 99 ? "99+" : n; }
     else if (!bd.hidden) {
       // count reached 0: the badge shrinks away instead of vanishing
@@ -897,11 +898,6 @@
     };
     // a lesson opened from its own course's path: keep the path as it is under the player
     if (mod && homeIn === subjOf(mod) && life && qs(".path-page", main)) { closePop(); closeNodePop(); hideTip(); lesson(mod); return; }
-    // Due / Mistakes tabs: only the panel below the tabs changes
-    if ((page === "practice" || page === "revise") && !mod && qs(".pr-tabs", main) && life) {
-      closePop(); if (NIC.player.isOpen()) NIC.player.close(true);
-      renderTop(); setDock("practice"); practicePage(); flyXP(); return;
-    }
     const wasHome = homeIn, wasAt = homeIn ? pathAnchor() : null;
     if (homeIn) scrollMem[SUBJECTS[homeIn].home] = wasAt;
     homeIn = null;
@@ -966,4 +962,6 @@
   // offline + installable: only on the deployed site (dev servers and file:// would cache stale work)
   if ("serviceWorker" in navigator && location.protocol === "https:" && !/^(localhost|127\.|\[::1\])/.test(location.hostname))
     addEventListener("load", () => navigator.serviceWorker.register(`sw.js?v=${NIC.BUILD}`).catch(() => {}));
+  // the revision questions are not part of startup; fetch them quietly once the first screen is settled, so Revise opens instantly (and works offline)
+  addEventListener("load", () => setTimeout(() => (window.requestIdleCallback || setTimeout)(() => NIC.bank && NIC.bank.load().catch(() => {})), 3000));
 })();
