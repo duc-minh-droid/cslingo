@@ -80,24 +80,49 @@ await page.evaluate(async () => {
 });
 await page.waitForTimeout(1500); // let the lazy libraries (Chart.js, GSAP) arrive, as they do for a real visitor
 
+/* Each step returns its problems plus a count of what it covered, so a run that tested nothing can't pass. */
 const steps = [
   [
     "smoke",
     () =>
       page.evaluate(async () => {
         const r = await smoke();
-        return r.errors;
+        return { problems: r.errors, covered: r.modules, what: "modules" };
       }),
   ],
-  ["boss quizzes", () => page.evaluate(async () => (await bossTest()).failures)],
-  ["revision bank", () => page.evaluate(async () => (await bankTest()).failures)],
-  ["answer bias", () => page.evaluate(() => answerBias().calcRisk)],
+  [
+    "boss quizzes",
+    () =>
+      page.evaluate(async () => {
+        const r = await bossTest();
+        return { problems: r.failures, covered: r.bosses, what: "bosses" };
+      }),
+  ],
+  [
+    "revision bank",
+    () =>
+      page.evaluate(async () => {
+        const r = await bankTest();
+        return { problems: r.failures, covered: r.questions, what: "questions" };
+      }),
+  ],
+  [
+    "answer bias",
+    () =>
+      page.evaluate(() => {
+        const r = answerBias();
+        return { problems: r.calcRisk, covered: r.total, what: "questions" };
+      }),
+  ],
 ];
 for (const [name, run] of steps) {
   const t = Date.now();
-  const out = await run();
-  console.log(`${out.length ? "FAIL" : "ok  "} ${name} (${Math.round((Date.now() - t) / 1000)}s)`);
-  fail(name, out);
+  const { problems, covered, what } = await run();
+  if (!covered) problems.push(`covered no ${what}`);
+  console.log(
+    `${problems.length ? "FAIL" : "ok  "} ${name} (${Math.round((Date.now() - t) / 1000)}s, ${covered} ${what})`,
+  );
+  fail(name, problems);
 }
 fail("page errors", [...new Set(pageErrors)]);
 

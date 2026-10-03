@@ -14,55 +14,60 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 
 | Path | What it is |
 |---|---|
-| `index.html` | Shell: `#topbar`, `#pop`, `#main`, `#dock`, and **every script tag in load order**. |
-| `js/core.js` | `NIC.lazy(src…)` (load vendor files on demand), `NIC.tex(root)` (KaTeX; runs automatically on everything added to the page), plus `window.NIC` helpers: DOM (`el/qs/qsa/esc`), `store`, `register`, `header`, `predict`, `guide`, `takeaways`, `slider`, `seg`, `lifecycle`, `setupCanvas`, `colors()`, canvas `lineChart/barChart` (fallbacks), landscapes, TSP data. |
+| `index.html` | Shell: `#topbar`, `#pop`, `#main`, `#dock`, and every **engine** script tag in load order. Course content is not listed here: it loads on demand from `js/content.js`. |
+| `js/core/` | The `NIC` base, in load order: `dom.js` (`el/qs/qsa/esc`, randomness, `colors()`, canvas `lineChart/barChart` fallbacks), `progress.js` (`store`, `header`, `predict`, `guide`, `takeaways`), `lifecycle.js` (`lifecycle`, `slider`, `seg`), `data.js` (landscapes, TSP data), `lazy.js` (publishes `window.NIC`: `NIC.lazy(src…)` loads vendor files on demand, `NIC.asset(src)` adds the build stamp, `NIC.tex(root)` typesets KaTeX and runs automatically on everything added to the page, `register`, `LESSONS`). |
 | `js/theme.js` | `NIC.theme.get/set/now/onChange`: System/Light/Dark, stored as `csl.theme`; circular reveal on switch (View Transitions). |
 | `js/emoji.js` + `vendor/fluent-emoji.js` | Swaps emoji characters for Fluent Emoji (Flat) SVG icons, in HTML and inside SVG figures. |
-| `js/fx.js` | Motion wrappers `NIC.fx`: `enter/step/pop/bounce/bump/springIn/exit/swap/clean/shake/reveal/count/play/onView/celebrate/floatText/toast/watchStats/animate`, tokens `DUR/SPRING*`. |
+| `js/fx/` | Motion wrappers `NIC.fx`: `fx-01.js` (tokens, `enter/step/pop/bounce/bump/springIn/exit/swap/clean/shake/reveal/count/play/onView/celebrate`), `fx-02.js` (`floatText/toast/watchStats/animate`, Lottie playback). Tokens `DUR/SPRING*`. |
 | `css/motion-hover.css` + `js/motion-details.js` | Hover lifts for every pressable (gated to real pointers), icon nudges, dropdown row cascade, turning carets; every `<details>` opens/closes with height + fade (pointer clicks only, keyboard stays instant). |
 | `js/cast.js` + `css/cast.css` | Mascot cast. `NIC.mascot({...})`, `NIC.mascotReact`, `NIC.cast.surprise/idle`, `NIC.feedback`. |
 | `js/game.js` | XP, streak, goal, quests, achievements: `NIC.game`. |
 | `js/sfx.js` | Web Audio synth `NIC.sfx.play(name)` and the mute toggle. |
 | `js/charts.js` | Replaces `NIC.lineChart/barChart` with animated Chart.js versions (same signature). |
 | `js/glossary.js` | `NIC.glossify(node)`: underlines known terms (first mention, up to 3) with a hover/tap definition. Used on revision question prompts. Add terms to the list in that file. |
-| `js/fig.js` | Lesson figure builders `NIC.fig`: `graph, flow, cycle, bars, compare, cells, plot, frames, surface3d` (three.js, canvas fallback). |
-| `js/run.js` + `css/run.css` | Step-through figure runner `NIC.fig.run`, tween helpers `NIC.fig.rn`, `NIC.fig.graphScene` (see §6f). |
+| `js/fig/` | Lesson figure builders `NIC.fig`: `fig-01.js` (`graph, flow, cycle, bars, compare, cells, plot, frames`), `fig-02.js` (`surface3d`: three.js, canvas fallback). |
+| `js/run/` + `css/run.css` | Step-through figure runner: `run-01.js` (tween helpers `NIC.fig.rn`, `NIC.fig.graphScene`), `run-02.js` (`NIC.fig.run`). See §6f. |
 | `js/art.js` | In-house illustrations: `NIC.art.banner(course)`, `NIC.art.empty(kind)`, `NIC.art.pattern(kind, colour)`. |
 | `assets/lottie.js` | In-house Lottie animations (`window.CSL_LOTTIE`: chest, flame, trophy, levelup, combo), built in code. Played by `NIC.fx.lottie(el, name)` / `NIC.fx.lottieAt(anchor, name)`. |
 | `js/workshop.js` + `css/workshop.css` | Workshop engine `NIC.workshop(root, life, {who, intro, missions, build})`: mission list, coach mascot, progress bar, XP. Helpers `NIC.wk`. See §6g. |
-| `js/codelab.js` | Code lab engine `NIC.codelab(root, life, {starter, entry, tests, scene, hints, solution})`: Python editor (autocomplete, auto-pairs, resizable split pane), real CPython tests in a Web Worker, example input/output, trace replay. See §6g. |
-| `js/algo-workshops-N.js` + `css/aw-*.css`, `css/workshop.css` | Algorithms workshops, one file per phase (`N.W` no-code, `N.C` code lab). |
-| `js/ds-workshops.js` | The three Data Science workshops (`ds-ops`, `ds-querylab`, `ds-engine`). |
+| `js/codelab/` | Code lab engine `NIC.codelab(root, life, {starter, entry, tests, scene, hints, solution})`, one part per concern: `format.js` (docs and shared helpers), `highlight.js`, `python.js` (Pyodide worker, real CPython tests), `autocomplete.js`, `editor.js` (IDE-style typing), `lab.js` (the panel: missions, tests, example input/output, trace replay, resizable split pane). See §6g. |
+| `js/content/<course>/` + `css/aw-*.css` | **Course content**, in small files (a few lessons each, never over 500 lines): `js/content/nic/` (`l12-NN`, `l3-NN`, `l4-NN`, `lab-NN`, `lessons-NN`, `boss-nic-NN`), `js/content/ds/` (`ds-NN`, `ds-l23-NN`, `ds-workshops-NN`, `boss-ds`), `js/content/algo/` (`algo-pN-NN` lessons, `algo-workshops-N-NN` workshops: `N.W` no-code, `N.C` code lab, and `boss-algo-NN`). Names are free; what matters is the order listed in `js/content.js`. |
 | `js/content.js` | `NIC.content`: the manifest of course script groups (nic / ds / algo) and the on-demand loader. **Lesson, workshop and boss files are not in `index.html`**: list them in the right group here (order = run order). The first course a route needs loads at startup, the others load when idle, and pages that span courses (Revise, search, the course picker) wait for `NIC.content.all()`. |
-| `js/l12.js l3.js l4.js lab.js lessons.js` | Nature-Inspired (`nic`) modules and lessons (group `nic` in `content.js`). |
-| `js/ds.js` | Data Science (`ds`) modules and lessons. |
-| `js/algo-p1.js … algo-p10.js` | Algorithms (`algo`) modules and lessons, one file per phase. |
-| `js/quiz.js` | Boss-quiz engine: `NIC.registerBoss`, `NIC.QUIZ_TYPES`, `NIC.bossDef`, `NIC.qfig`. |
-| `js/boss-nic.js boss-ds.js boss-algo.js` | Boss quiz content. |
+| `js/quiz/` | Boss-quiz engine: `types-1.js` (question-type docs, shuffling, grading helpers), `types-2.js` (`NIC.QUIZ_TYPES`, one renderer per type), `boss.js` (`NIC.registerBoss`, `NIC.bossDef`), `figures.js` (`NIC.qfig`). Boss content lives in `js/content/<course>/boss-*.js`. |
 | `js/bank.js` | Revision bank engine `NIC.bank`: `add, all, deck, record, stats, dueSeen, problems, load`. `dueSeen()` reads only the review log, so the due badge needs no question content. |
-| `js/bank-nic.js bank-ds.js bank-algo.js` | Revision questions, one file per course (about 20-30 per module, mostly pick/order/cat/slider/bug and figure questions that test understanding: prefer these formats over plain text MCQ). Used only by the Revise tab, never by lessons or bosses. **Loaded on demand** by `NIC.bank.load()` (the Revise page and revision rounds call it), not from `index.html`, so they cost nothing at startup. Append new `NIC.bank.add(...)` blocks at the end of the course's file. |
+| `js/bank/<course>-NN.js` | Revision questions, split into parts of about 400 lines (about 20-30 questions per module, mostly pick/order/cat/slider/bug and figure questions that test understanding: prefer these formats over plain text MCQ). Used only by the Revise tab, never by lessons or bosses. **Loaded on demand** by `NIC.bank.load()` (the Revise page and revision rounds call it), not from `index.html`, so they cost nothing at startup. The part count per course is `PARTS` in `js/bank.js`: append new `NIC.bank.add(...)` blocks to the last part of a course, and when it nears 500 lines start `<course>-NN+1.js` and raise the count. |
 | `js/revise.js` + `css/revise.css` | (A revision round is saved in `csl.revSession`, per device: a refresh reopens it, quitting pauses it and the Revise page offers Continue, finishing clears it.) The **Revise** tab (`#revise`): `NIC.revisePage(main, life, {names})`. Sessions run in `NIC.player.revise({home, n, subjects})`. |
 | `js/sync.js` | Account progress `NIC.sync` (Supabase project `cslingo`). When logged in the account is the source of truth: it is loaded before the first screen, saves add to it (never replace it), and other devices' changes redraw in place. Stored as one row per item in `public.progress_items` (lesson_done, quiz, rev, xp_day, …) and `public.progress_prefs` (settings), written only through `public.save_progress()` (a rule per kind: finished stays finished, a right quiz answer stays, latest review wins, XP/positions only go up) and wiped only by `public.reset_progress()`; row-level security. The old one-row `public.progress` and `progress_legacy_backup` are kept as backups. Login is username+password; "Create account" in the Log in screen calls the `signup` Edge Function (creates `<name>@cslingo.app`, pre-confirmed, no email). `vendor/supabase.js` loads only when logged in or returning from a link. Reset stamps `nic.resetAt`. |
-| `js/player.js` + `css/player.css` | Full-screen lesson player `NIC.player`. |
-| `js/app.js` + `css/shell.css` | `SUBJECTS` (the course/lecture catalogue), routing, path home, top bar and popovers, dock, Practice and Profile pages. |
+| `js/player/` + `css/player.css` | Full-screen lesson player `NIC.player`: `missed.js` (the missed-question queue), `session.js` (builds the screens for a lesson, boss, practice or revise session), `shell.js` (the frame: bar, footer, sheets), `screens-1.js` and `screens-2.js` (step, try-it, complete, streak and the other non-question screens), `questions.js` (question screens, checking, mistakes round), `close.js` (keys, close, quit). |
+| `js/app/` + `css/shell.css` | The app shell, one part per concern in load order: `catalogue.js` (`SUBJECTS`, the course/lecture catalogue, `SUBJ_ORDER`), `progress.js`, `icons.js`, `topbar.js` (top bar and popovers), `account.js` (log in / create account, sync menu), `path-1.js` and `path-2.js` (the path home and node popovers), `pages.js` (Practice and Profile), `routing.js`, `events.js`. |
 | `css/styles.css` | Theme tokens and base components (buttons, cards, tags, answer tiles, tables, genomes, chips). |
 | `css/ux.css` | Lesson typography, guide, takeaways, figures, tooltips, effects. |
 | `css/motion.css` | Tactile presses, selection springs, dock indicator, lesson-bar shine, page transitions (see §4 Motion). |
 | `css/quiz.css` | Styles for the boss question types. |
 | `vendor/` | Vendored libraries (see §3). Never load these from a CDN. |
-| `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`; `bank-coverage.js` (`bankCoverage()`, `bankExisting(id)`) for planning revision questions; `answer-bias.js` (`answerBias()`) audits MCQs for position/length giveaways. |
+| `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`; `bank-coverage.js` (`bankCoverage()`, `bankExisting(id)`) for planning revision questions; `answer-bias.js` (`answerBias()`) audits MCQs for position/length giveaways. Node scripts: `run-tests.js` (the whole suite in one command, §7) and `check-structure.js` (every file under `js/` is wired up, nothing points at a missing file). |
+| `package.json`, `eslint.config.js`, `.prettierrc.json`, `.github/workflows/ci.yml` | Dev tooling only (the app itself needs none of it): `npm run lint` (ESLint, includes the 500-line file limit), `npm run format:check` / `npm run format` (Prettier), `npm test` (the full suite), `npm run check` (all three). CI runs them on every push and pull request. |
 | `trailer/` | Motion-graphics trailer page, recorded `.webm`/`.gif`, and `shots/` screenshots. |
 | `serve.py` | No-cache dev server: `python serve.py 8651`. |
 
+### Keeping files short
+
+**No source file goes over 500 lines of code** (blank lines and comments don't count). ESLint enforces it (`max-lines`), so `npm run lint` and CI fail when a file grows past it. Every script is an IIFE, so splitting one file into parts needs a way to share what the parts define:
+
+- Each engine area (`js/app/`, `js/player/`, `js/core/`, ...) and each content file that needs it shares one object under `NIC.shared`: `const app = (NIC.shared.engineApp = NIC.shared.engineApp || {});`. A part starts by pulling what it uses from that object (`const { SUBJECTS, main } = app;`) and ends by publishing what later parts need (`Object.assign(app, { routeTo });`). Create it idempotently, like the line above, in every part.
+- Parts run in the order of the script tags in `index.html` (engine) or the group in `js/content.js` (content), so a part can only destructure what an **earlier** part published. Call-time lookups (`app.routeTo(...)` inside a function that runs later) can reach forward.
+- Split along concerns, not at arbitrary lines: one part per feature, named for it (`js/app/topbar.js`), or numbered (`algo-workshops-3-02.js`) when the pieces are slices of one lecture. Add the new file to the manifest (`index.html`, `js/content.js` group, or `PARTS` in `js/bank.js`); `tools/check-structure.js` fails when a file under `js/` isn't wired up anywhere or a manifest names a missing file.
+- A single function that is itself too long (a workshop `build()`) becomes several functions that share a context object `c` (see `js/content/algo/algo-workshops-3-02.js` to `-04.js`: view, interactions, rule sliders).
+
 ## 2. How it fits together
 
-**Routing** (`app.js`), by hash:
+**Routing** (`js/app/routing.js`), by hash:
 - `#home`, `#ds-home`, `#algo-home`: that course's path.
 - `#practice`, `#revise`, `#profile`: the extra pages (dock tabs).
 - `#<moduleId>`: renders the path underneath and opens the **lesson player** on that module.
 
-**The player** (`player.js`) builds screens from data. Nothing in a module is written for the player directly:
-1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. Boss questions show the boss's `matrix`/`aside` card inline, and predicts show the live demo (`contextCard` in player.js; it works in Practice and Revise too). The back button (and ←) exists in lessons only. It returns to the previous teaching screen, skips questions, and questions you already answered are skipped on the way forward. Boss quizzes, Practice and Revise have no back button.
+**The player** (`js/player/`) builds screens from data. Nothing in a module is written for the player directly:
+1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. Boss questions show the boss's `matrix`/`aside` card inline, and predicts show the live demo (`contextCard` in `js/player/`; it works in Practice and Revise too). The back button (and ←) exists in lessons only. It returns to the previous teaching screen, skips questions, and questions you already answered are skipped on the way forward. Boss quizzes, Practice and Revise have no back button.
 2. **Try it:** whatever `mod.render(root, life)` appends, minus its `header`, `.predict` and `.takeaways` nodes. `L.guide` becomes the tick-off checklist beside it.
 3. **Predict screens:** every `NIC.predict({...})` card that `render()` created. The player reads `node.__opts` and turns it into a question.
 4. **Mistakes round:** wrong answers are asked again at the end.
@@ -104,7 +109,7 @@ Never rename these keys, because that wipes users' progress. There is no reset b
 | Chart.js 4 | `vendor/chart.umd.js` (lazy, loaded by `js/charts.js` after startup) | Every line/bar chart, through `NIC.lineChart/barChart` (plain canvas drawing until it arrives). |
 | canvas-confetti | `vendor/confetti.browser.js` | `NIC.fx.celebrate`. |
 | Fluent Emoji (Flat), Microsoft, MIT | `vendor/fluent-emoji.js` (generated) | All pictographic icons in content (see §4 Emoji). |
-| GSAP 3.15 + DrawSVG + MotionPath (free) | `vendor/gsap/` | Runner frame tweens (`NIC.fig.rn`). Lazy, loaded by `js/run.js` after startup; code must check `window.gsap`. |
+| GSAP 3.15 + DrawSVG + MotionPath (free) | `vendor/gsap/` | Runner frame tweens (`NIC.fig.rn`). Lazy, loaded by `js/run/` after startup; code must check `window.gsap`. |
 | KaTeX 0.18 | `vendor/katex/` (lazy) | Maths typesetting: write `$…$` or `$$…$$` in any content. |
 | three.js r159 (UMD build) | `vendor/three.min.js` (lazy) | `NIC.fig.surface3d`. The deprecation warning line was stripped. |
 | lottie-web light 5.13 | `vendor/lottie_light.min.js` (lazy) | Plays `assets/lottie.js`. |
@@ -136,7 +141,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 - Idle loops belong in CSS so reduced motion can switch them off.
 - Hover: anything pressable lifts 2px with its lip growing to match (the press then squashes it down). Put new hover motion in `css/motion-hover.css`, inside `@media (hover: hover) and (pointer: fine)`, and add a reduced-motion override. New disclosures should be plain `<details>`: `js/motion-details.js` animates them automatically.
 
-**Motion tokens and helpers** (tokens in `css/styles.css`; `css/motion.css` + `js/fx.js`)
+**Motion tokens and helpers** (tokens in `css/styles.css`; `css/motion.css` + `js/fx/`)
 - Durations: `--dur-press` 40ms (squash on press), `--dur-1` 90, `--dur-2` 160 (exits, fades), `--dur-3` 240 (entrances, springy releases), `--dur-4` 320, `--dur-bar` 420 (lesson bar); JS also has `DUR.xl` 1.2s for celebrations only. JS mirrors them as `NIC.fx.DUR` in seconds. Easings: `--ease-out`, `--ease-spring`, `--ease-in-out` (styles.css), plus `--ease-in` and `--ease-pop`. Springs: `fx.SPRING` (feedback), `fx.SPRING_UI` (indicators, popovers), `fx.SPRING_POP` (badges, icons).
 - Presses: `motion.css` gives buttons, answer tiles, chips, path nodes and dock/top-bar buttons an instant squash on `:active` and a spring on release. New tappable stickers should join that selector list rather than define their own transition.
 - Helpers: `fx.bounce(el)` correct answer, `fx.shake(el)` wrong, `fx.bump(el, {scale, y})` a counter or icon changed, `fx.springIn(el, {delay, from, rot})` something appears (path nodes, check marks, badges), `fx.exit(el, {x, y, scale, base})` returns a promise to remove on, `fx.onView(els, {run})` below-the-fold reveal, `fx.swap(update, {dir, el})` page change via View Transitions (`dir` 1/-1 slides, 0 crossfades; falls back to a plain update plus fade).
@@ -192,7 +197,7 @@ Don't add a framework or bundler. If you need a new library, vendor a UMD build 
 
 ### 6a. A new module (lesson) in an existing lecture
 
-Put it in the course's file (for example `js/ds.js`, or a new `js/algo-pN.js`):
+Put it in a course content file under `js/content/<course>/` (a new file such as `js/content/ds/ds-07.js`, or the last file of the lecture while it is under about 400 lines):
 
 ```js
 (function () {
@@ -233,7 +238,7 @@ Put it in the course's file (for example `js/ds.js`, or a new `js/algo-pN.js`):
 })();
 ```
 
-Then add `"js/<file>.js"` to that course's group in `js/content.js` (not to `index.html`; engine files such as a new figure builder still go in `index.html`, after `js/emoji.js`, `js/charts.js`, `js/fig.js` and `js/quiz.js` and before `js/player.js` and `js/app.js`).
+Then add `"js/content/<course>/<file>.js"` to that course's group in `js/content.js` (not to `index.html`; engine files such as a new figure builder still go in `index.html`, after the `js/fig/` and `js/quiz/` parts and before the `js/player/` and `js/app/` parts).
 
 Rules:
 - `predict` ids must be globally unique.
@@ -277,7 +282,7 @@ function myRun(box, life) {
 
 ### 6b. A new lecture (or phase) in an existing course
 
-1. In `js/app.js` → `SUBJECTS[<course>].lectures`, add `N: "Lecture N — Title"`. The text before `—` becomes the banner label.
+1. In `js/app/catalogue.js` → `SUBJECTS[<course>].lectures`, add `N: "Lecture N — Title"`. The text before `—` becomes the banner label.
 2. Add its modules (§6a) with `lecture: N`.
 3. Add a boss quiz (§6d) with `lecture: N`.
 4. A module whose lecture isn't declared makes a red dev banner appear on load. This is intentional.
@@ -285,14 +290,14 @@ function myRun(box, life) {
 
 ### 6c. A new course (subject)
 
-1. Add an entry to `SUBJECTS` in `js/app.js`:
+1. Add an entry to `SUBJECTS` in `js/app/catalogue.js`:
    ```js
    os: { name: "Operating Systems", code: "ECM2414", home: "os-home", unit: "Lecture", who: "chip", color: "orange",
          lectures: { 1: "Lecture 1 — Processes & threads" } },
    ```
 2. Add `"os"` to `SUBJ_ORDER` in the same file.
 3. Pick a mascot for `who`. Reuse a character, or add one to `CHARS` in `js/cast.js`. A character needs `body`, `belly`, `limb`, `foot`, `shape` (the SVG path in the 120×124 rig), `bellyEl`, `top`, `hy` and `hs`. Hats sit on y≈32.
-4. Create `js/os.js` (and `js/boss-os.js`) with `subject: "os"`, and add them as a new group `os` in `js/content.js` (plus its home id in `courseOf`).
+4. Create `js/content/os/os-01.js` (and `js/content/os/boss-os-01.js`) with `subject: "os"`, and add them as a new group `os` in `js/content.js` (plus its home id in `courseOf`).
 5. Update `README.md`: the course table and the lesson/boss counts. The counts appear in the trailer outro too.
 
 ### 6g. Workshops (no-code hands-on labs)
@@ -316,7 +321,7 @@ N.workshop(root, life, {
 
 ### 6d. A boss quiz
 
-In `js/boss-<course>.js`:
+In a boss file under `js/content/<course>/` (for example `boss-os-01.js`):
 
 ```js
 NIC.registerBoss({
@@ -330,7 +335,7 @@ NIC.registerBoss({
 });
 ```
 
-Question types (defined in the header of `js/quiz.js`):
+Question types (defined in the header of `js/quiz/types-1.js`):
 
 | Type | Fields |
 |---|---|
@@ -368,6 +373,17 @@ NIC.bank.add("ds-replication", [
 - **Scheduling:** a right answer moves a question up one Leitner box, and a wrong one sends it back to box 1. The box sets when it's due again: box 1 = always, then 1, 3, 7 and 14 days.
 
 ## 7. Testing (required before you finish)
+
+One command runs everything: `npm install` once (dev tools only), then
+
+```bash
+npm run check          # lint + format check + the whole test suite
+npm test               # just the suite (about 3 minutes): structure check, smoke(), bossTest(), bankTest(), answerBias()
+npm run lint           # ESLint: unused/undefined names, empty catch blocks, and the 500-line file limit
+npm run format         # Prettier (write); `npm run format:check` only reports
+```
+
+`npm test` starts its own static server and a headless Chromium (Playwright; set `PLAYWRIGHT_CHROMIUM_PATH` if it can't find one). CI (`.github/workflows/ci.yml`) runs lint, the format check and the suite on every push and pull request. What the suite covers, which you can also run by hand:
 
 1. Run `python serve.py 8651` and open http://localhost:8651. Plain `http.server` caches old JS.
 2. In the page console (or Playwright `addScriptTag` + `evaluate`), load `tools/answer.js`, `tools/smoke.js` and `tools/boss-test.js`, then run:

@@ -862,7 +862,7 @@ svg.fig {
 /* 3-D surface */
 .surface-box {
   position: relative;
-} /* the GL version fades in over the canvas one (js/fig.js surfaceGL) */
+} /* the GL version fades in over the canvas one (js/fig/ surfaceGL) */
 .surface3d {
   cursor: grab;
   touch-action: none;

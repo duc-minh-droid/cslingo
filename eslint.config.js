@@ -30,6 +30,9 @@ const toolGlobals = {
   bankExisting: "readonly",
 };
 
+/* no source file grows past this many lines of code (blank lines and comments don't count): split it into parts instead */
+const maxLines = ["error", { max: 500, skipBlankLines: true, skipComments: true }];
+
 export default [
   { ignores: ["vendor/**", "node_modules/**", "trailer/**", "assets/**", "package-lock.json"] },
   js.configs.recommended,
@@ -52,7 +55,7 @@ export default [
     rules: {
       "no-unused-vars": ["error", { args: "none", caughtErrors: "none" }],
       "no-empty": ["error", { allowEmptyCatch: false }],
-      "max-lines": ["warn", { max: 500, skipBlankLines: true, skipComments: true }],
+      "max-lines": maxLines,
     },
   },
   {
@@ -74,5 +77,6 @@ export default [
       sourceType: "module",
       globals: { ...globals.node, ...globals.browser, ...libs, ...toolGlobals },
     }, // run-tests.js passes functions into the page
+    rules: { "max-lines": maxLines },
   },
 ];

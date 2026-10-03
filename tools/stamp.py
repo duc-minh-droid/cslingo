@@ -2,7 +2,7 @@
 
 Usage:  python tools/stamp.py [DIR]     (DIR defaults to the Visualizer folder; run it on the publish copy)
 Rewrites every  ?v=<anything>  in DIR/index.html to  ?v=<git short hash>-<timestamp>.
-NIC.lazy() and the service worker read the same id from js/core.js's own URL.
+NIC.lazy() and the service worker read the same id from js/core/lazy.js's own URL.
 """
 import os, re, subprocess, sys, time
 

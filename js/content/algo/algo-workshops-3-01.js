@@ -86,10 +86,29 @@
   const same = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-6;
 
   /* ---------- plot geometry: data (0..7)² -> svg px ---------- */
-  const X0 = 40,
+  const SPAN = 7,
+    X0 = 40,
     Y0 = 355,
     U = 50;
   const X = (x) => X0 + U * x,
     Y = (y) => Y0 - U * y;
-  Object.assign(partScope, { X, Y, bestOf, fxOn, legal, lhs, nice, polygon, pt, rules, same, snd, zOf });
+  Object.assign(partScope, {
+    SPAN,
+    U,
+    X,
+    X0,
+    Y,
+    Y0,
+    bestOf,
+    fxOn,
+    legal,
+    lhs,
+    nice,
+    polygon,
+    pt,
+    rules,
+    same,
+    snd,
+    zOf,
+  });
 })();
