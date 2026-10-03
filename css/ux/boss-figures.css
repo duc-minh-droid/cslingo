@@ -334,8 +334,10 @@ svg.fig {
 
 /* glossary term tooltips */
 .term {
-  border-bottom: 2px dotted var(--blue);
-  cursor: help;
+  text-decoration: underline solid var(--blue);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: inherit;
   position: relative;
   color: inherit;
   outline-offset: 3px;
