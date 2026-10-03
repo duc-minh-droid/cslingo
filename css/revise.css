@@ -29,3 +29,21 @@
 }
 .rv-resume { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .rv-resume b { display: block; font-size: 17px; }
+button.rv-sess { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; background: var(--panel); }
+button.rv-sess::after { content: "›"; font-size: 22px; font-weight: 900; color: var(--text-faint); grid-column: 3; }
+.rv-review h2 { margin: 0 0 4px; }
+.rv-rq-list { display: grid; gap: 12px; margin: 14px 0; max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+.rv-rq { border: 2px solid var(--line); border-radius: 16px; padding: 12px 14px; background: var(--panel); }
+.rv-rq.miss { border-color: var(--rose-edge, var(--rose)); }
+.rv-rq-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rv-rq-n { font-weight: 900; color: var(--text-faint); }
+.rv-rq-tag { font-size: 11.5px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
+.rv-rq.ok .rv-rq-tag { color: var(--teal-ink, var(--teal)); }
+.rv-rq.miss .rv-rq-tag { color: var(--rose-ink, var(--rose)); }
+.rv-rq-q { font-weight: 800; color: var(--ink); }
+.rv-rq-fig:not(:empty) { margin: 8px 0; }
+.rv-rq-fig svg { max-width: 100%; height: auto; }
+.rv-rq-a { margin-top: 8px; font-weight: 700; }
+.rv-rq-w { margin-top: 4px; color: var(--text-dim); font-size: 14px; }
+.rv-review { padding: 22px 20px 20px; }
+.rv-review-go { display: flex; justify-content: center; }
