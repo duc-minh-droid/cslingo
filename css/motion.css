@@ -1,5 +1,5 @@
 /* =====================================================================
-   Motion layer (CSS side of js/fx.js). Tokens, tactile presses, selection
+   Motion layer (CSS side of js/fx/). Tokens, tactile presses, selection
    springs, the dock indicator, path breathing, lesson-bar shine and page
    transitions. Transform + opacity only. No colours are defined here except
    --m-shine; everything else uses the theme tokens from styles.css.
@@ -101,7 +101,7 @@ html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .o
   animation: m-sel var(--dur-3) var(--ease-out);
 }
 
-/* ---------- dock: one indicator slides between tabs (js/app.js dockInd) ---------- */
+/* ---------- dock: one indicator slides between tabs (js/app/ dockInd) ---------- */
 .dk-ind {
   position: absolute;
   box-sizing: border-box;

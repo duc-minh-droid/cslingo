@@ -45,7 +45,18 @@ Then open http://localhost:8651.
 
 Plain HTML/CSS/JS with no build step. Libraries: [Motion](https://motion.dev) and [GSAP](https://gsap.com) for animation, [KaTeX](https://katex.org) for maths, [three.js](https://threejs.org) for 3-D landscapes, [lottie-web](https://github.com/airbnb/lottie-web) for the (home-made) celebration animations, [Chart.js](https://www.chartjs.org) for charts, [canvas-confetti](https://github.com/catdad/canvas-confetti) for confetti, and Microsoft's [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Flat, MIT) for icons. All are vendored in `vendor/`.
 
-Tests run in the page (Playwright or DevTools). Load `tools/answer.js` and `tools/smoke.js`, then run `await smoke()`. It walks every lesson in the player and must return `errors: []`. `tools/boss-test.js` → `await bossTest()` answers every boss question through the real UI.
+## Development
+
+The app needs no tooling to run, but the checks use Node (22+):
+
+```bash
+npm install        # once: ESLint, Prettier, Playwright (dev tools only)
+npm run check      # lint + format check + the full test suite (about 3 minutes)
+```
+
+`npm test` starts a static server and headless Chromium, then runs the in-page tests: `smoke()` walks every lesson in the player (it must return `errors: []`), `bossTest()` answers every boss question through the real UI, `bankTest()` renders and grades every revision question, and `answerBias()` audits multiple-choice answers for giveaways. GitHub Actions runs the same checks on every push and pull request.
+
+Source files stay under 500 lines of code (ESLint enforces it): each area is a folder of small parts (`js/app/`, `js/player/`, `js/content/<course>/`, ...) that share one object under `NIC.shared`. `AGENTS.md` explains the layout and how to add a lesson, workshop, boss quiz or course.
 
 ## Note
 

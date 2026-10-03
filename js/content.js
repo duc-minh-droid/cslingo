@@ -87,6 +87,8 @@
       "js/content/algo/algo-workshops-3-01.js",
       "js/content/algo/algo-workshops-3-02.js",
       "js/content/algo/algo-workshops-3-03.js",
+      "js/content/algo/algo-workshops-3-04.js",
+      "js/content/algo/algo-workshops-3-05.js",
       "js/content/algo/algo-workshops-4-01.js",
       "js/content/algo/algo-workshops-4-02.js",
       "js/content/algo/algo-workshops-4-03.js",

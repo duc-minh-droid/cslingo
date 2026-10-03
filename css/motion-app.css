@@ -1,5 +1,5 @@
 /* =====================================================================
-   Motion for the app shell (js/app.js, js/revise.js, js/sync.js): the shared
+   Motion for the app shell (js/app/, js/revise.js, js/sync.js): the shared
    .seg pill, the sound switch, the chest payoff, quest claims, the jump
    button, XP flying to the counter, the streak ignition and sync status.
    Loaded after motion.css; rules that must beat shell.css (loaded later)
@@ -260,7 +260,7 @@ html .sy-row {
   }
 }
 
-/* ---------- path chest: opens in place (js/app.js chestAnim). Parts start hidden; .is-open is the resting open state. ---------- */
+/* ---------- path chest: opens in place (js/app/ chestAnim). Parts start hidden; .is-open is the resting open state. ---------- */
 .p-chest-svg {
   overflow: visible;
 }

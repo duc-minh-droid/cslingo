@@ -347,7 +347,7 @@
     else location.reload(); // otherwise redraw the page in place, no reload
   }
 
-  /* busy: a sync is waiting or in flight. The menu's sync row shows a pending dot (js/app.js listens for nic:sync). */
+  /* busy: a sync is waiting or in flight. The menu's sync row shows a pending dot (js/app/ listens for nic:sync). */
   let busy = false;
   const setBusy = (b) => {
     if (b === busy) return;
