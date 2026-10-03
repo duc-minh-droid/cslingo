@@ -7,15 +7,35 @@
    Metrics: xp, lesson, acc90, combo, demo, boss, practice, predict (a runner guess right) */
 (function () {
   const { store } = NIC;
-  const K = { xp: "nic.xp", days: "nic.activeDays", goal: "nic.goal", quests: "nic.quests", ach: "nic.ach", stats: "nic.stats" };
+  const K = {
+    xp: "nic.xp",
+    days: "nic.activeDays",
+    goal: "nic.goal",
+    quests: "nic.quests",
+    ach: "nic.ach",
+    stats: "nic.stats",
+  };
   const pad = (n) => String(n).padStart(2, "0");
   const dstr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const today = () => dstr(new Date());
-  const addDays = (s, k) => { const [y, m, d] = s.split("-").map(Number); return dstr(new Date(y, m - 1, d + k)); };
+  const addDays = (s, k) => {
+    const [y, m, d] = s.split("-").map(Number);
+    return dstr(new Date(y, m - 1, d + k));
+  };
 
   const subs = {};
-  const emit = (ev, data) => (subs[ev] || []).forEach((f) => { try { f(data); } catch (e) { console.error(e); } });
-  const on = (ev, fn) => { (subs[ev] = subs[ev] || []).push(fn); return () => (subs[ev] = subs[ev].filter((f) => f !== fn)); };
+  const emit = (ev, data) =>
+    (subs[ev] || []).forEach((f) => {
+      try {
+        f(data);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  const on = (ev, fn) => {
+    (subs[ev] = subs[ev] || []).push(fn);
+    return () => (subs[ev] = subs[ev].filter((f) => f !== fn));
+  };
 
   // ---------- XP + goal ----------
   const xpState = () => store.get(K.xp, { total: 0, days: {} });
@@ -23,8 +43,12 @@
   const todayXP = () => xpState().days[today()] || 0;
   function award(n, reason = "") {
     if (!n) return;
-    const s = xpState(), t = today(), before = s.days[t] || 0;
-    s.total += n; s.days[t] = before + n; store.set(K.xp, s);
+    const s = xpState(),
+      t = today(),
+      before = s.days[t] || 0;
+    s.total += n;
+    s.days[t] = before + n;
+    store.set(K.xp, s);
     emit("xp", { n, total: s.total, today: s.days[t], reason });
     if (before < goal() && s.days[t] >= goal()) emit("goal", { today: s.days[t], goal: goal() });
     track("xp", n);
@@ -37,23 +61,52 @@
   const frz = () => store.get("nic.freeze", { n: 0, used: [] });
   const covered = () => new Set([...days(), ...frz().used]);
   function applyFreeze() {
-    const f = frz(), set = covered(), y = addDays(today(), -1);
-    if (f.n > 0 && !set.has(y) && set.has(addDays(today(), -2))) { f.n--; f.used = [...f.used, y].slice(-60); store.set("nic.freeze", f); emit("freeze", { date: y, left: f.n }); }
+    const f = frz(),
+      set = covered(),
+      y = addDays(today(), -1);
+    if (f.n > 0 && !set.has(y) && set.has(addDays(today(), -2))) {
+      f.n--;
+      f.used = [...f.used, y].slice(-60);
+      store.set("nic.freeze", f);
+      emit("freeze", { date: y, left: f.n });
+    }
   }
   function streak() {
     const set = covered();
-    let d = set.has(today()) ? today() : addDays(today(), -1), n = 0;
-    while (set.has(d)) { n++; d = addDays(d, -1); }
+    let d = set.has(today()) ? today() : addDays(today(), -1),
+      n = 0;
+    while (set.has(d)) {
+      n++;
+      d = addDays(d, -1);
+    }
     return n;
   }
-  const week = () => { // Mon..Sun of the current week: [{date, label, on, today}]
-    const now = new Date(), dow = (now.getDay() + 6) % 7, set = new Set(days()), fz = new Set(frz().used);
-    return Array.from({ length: 7 }, (_, i) => { const s = addDays(today(), i - dow); return { date: s, label: "MTWTFSS"[i], on: set.has(s) || fz.has(s), frozen: fz.has(s) && !set.has(s), today: s === today() }; });
+  const week = () => {
+    // Mon..Sun of the current week: [{date, label, on, today}]
+    const now = new Date(),
+      dow = (now.getDay() + 6) % 7,
+      set = new Set(days()),
+      fz = new Set(frz().used);
+    return Array.from({ length: 7 }, (_, i) => {
+      const s = addDays(today(), i - dow);
+      return {
+        date: s,
+        label: "MTWTFSS"[i],
+        on: set.has(s) || fz.has(s),
+        frozen: fz.has(s) && !set.has(s),
+        today: s === today(),
+      };
+    });
   };
 
   // ---------- stats ----------
   const stats = () => store.get(K.stats, { lessons: 0, demos: 0, answered: 0, right: 0, bestCombo: 0 });
-  const bump = (k, n = 1) => { const s = stats(); s[k] = (s[k] || 0) + n; store.set(K.stats, s); return s; };
+  const bump = (k, n = 1) => {
+    const s = stats();
+    s[k] = (s[k] || 0) + n;
+    store.set(K.stats, s);
+    return s;
+  };
 
   // ---------- quests ----------
   const POOL = [
@@ -67,13 +120,22 @@
     { id: "boss5", t: "Answer 5 boss questions right", m: "boss", n: 5 },
     { id: "predict3", t: "Predict 3 steps in a running figure", m: "predict", n: 3 },
   ];
-  function seeded(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296); }
+  function seeded(s) {
+    let h = 0;
+    for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    return () => (h = (h * 1664525 + 1013904223) >>> 0) / 4294967296;
+  }
   function quests() {
     let q = store.get(K.quests, null);
     if (!q || q.date !== today()) {
-      const r = seeded(today()), xp = POOL.filter((p) => p.m === "xp"), rest = POOL.filter((p) => p.m !== "xp");
+      const r = seeded(today()),
+        xp = POOL.filter((p) => p.m === "xp"),
+        rest = POOL.filter((p) => p.m !== "xp");
       const pick = [xp[Math.floor(r() * xp.length)]];
-      while (pick.length < 3) { const c = rest[Math.floor(r() * rest.length)]; if (!pick.includes(c)) pick.push(c); }
+      while (pick.length < 3) {
+        const c = rest[Math.floor(r() * rest.length)];
+        if (!pick.includes(c)) pick.push(c);
+      }
       q = { date: today(), list: pick.map((p) => ({ id: p.id, prog: 0, done: false, claimed: false })) };
       store.set(K.quests, q);
     }
@@ -81,27 +143,51 @@
   }
   const claimable = () => quests().some((q) => q.done && !q.claimed);
   function claim(id) {
-    const q = store.get(K.quests); const it = q && q.list.find((x) => x.id === id);
+    const q = store.get(K.quests);
+    const it = q && q.list.find((x) => x.id === id);
     if (!it || !it.done || it.claimed) return 0;
-    it.claimed = true; store.set(K.quests, q);
-    if (q.list.every((x) => x.claimed)) { const f = frz(); if (f.n < 2) { f.n++; store.set("nic.freeze", f); emit("freeze", { earned: true, left: f.n }); } }
+    it.claimed = true;
+    store.set(K.quests, q);
+    if (q.list.every((x) => x.claimed)) {
+      const f = frz();
+      if (f.n < 2) {
+        f.n++;
+        store.set("nic.freeze", f);
+        emit("freeze", { earned: true, left: f.n });
+      }
+    }
     award(10, "quest");
     emit("quest", { id, claimed: true });
     return 10;
   }
   function track(metric, n = 1) {
     quests(); // roll over the day if needed
-    const q = store.get(K.quests); let changed = false;
+    const q = store.get(K.quests);
+    let changed = false;
     q.list.forEach((it) => {
       const def = POOL.find((p) => p.id === it.id);
       if (!def || def.m !== metric || it.done) return;
       it.prog = def.max ? Math.max(it.prog, n) : it.prog + n;
-      if (it.prog >= def.n) { it.prog = def.n; it.done = true; emit("quest", { id: it.id, done: true, t: def.t }); }
+      if (it.prog >= def.n) {
+        it.prog = def.n;
+        it.done = true;
+        emit("quest", { id: it.id, done: true, t: def.t });
+      }
       changed = true;
     });
     if (changed) store.set(K.quests, q);
-    if (metric === "combo") { const s = stats(); if (n > (s.bestCombo || 0)) { s.bestCombo = n; store.set(K.stats, s); } if (n >= 10) unlock("combo10"); }
-    if (metric === "demo") { const s = bump("demos"); if (s.demos >= 5) unlock("demo5"); }
+    if (metric === "combo") {
+      const s = stats();
+      if (n > (s.bestCombo || 0)) {
+        s.bestCombo = n;
+        store.set(K.stats, s);
+      }
+      if (n >= 10) unlock("combo10");
+    }
+    if (metric === "demo") {
+      const s = bump("demos");
+      if (s.demos >= 5) unlock("demo5");
+    }
   }
 
   // ---------- achievements (each unlocks an accessory) ----------
@@ -121,19 +207,33 @@
   const FREE = ["beanie", "bowtie", "monocle", "moustache", "scarf", "hearts"];
   const achState = () => store.get(K.ach, {});
   function unlock(id) {
-    const s = achState(); if (s[id]) return;
-    s[id] = today(); store.set(K.ach, s);
+    const s = achState();
+    if (s[id]) return;
+    s[id] = today();
+    store.set(K.ach, s);
     const a = ACH.find((x) => x.id === id);
     emit("ach", a);
   }
-  const unlockedAcc = () => { const s = achState(); return [...FREE, ...ACH.filter((a) => s[a.id]).map((a) => a.acc)]; };
+  const unlockedAcc = () => {
+    const s = achState();
+    return [...FREE, ...ACH.filter((a) => s[a.id]).map((a) => a.acc)];
+  };
 
   // ---------- lesson completion ----------
   /** kind: "lesson" | "boss" | "practice" | "revise". Practice and revision keep the streak alive but aren't lessons. */
   function lessonDone({ acc = 1, review = false, kind = "lesson" } = {}) {
-    const t = today(), list = days(), first = !list.includes(t), before = streak();
-    if (first) { list.push(t); store.set(K.days, list.slice(-400)); }
-    if (kind === "practice" || kind === "revise") { if (first) emit("streak", { from: before, to: streak() }); return { firstToday: first, streakFrom: before, streak: streak(), review }; }
+    const t = today(),
+      list = days(),
+      first = !list.includes(t),
+      before = streak();
+    if (first) {
+      list.push(t);
+      store.set(K.days, list.slice(-400));
+    }
+    if (kind === "practice" || kind === "revise") {
+      if (first) emit("streak", { from: before, to: streak() });
+      return { firstToday: first, streakFrom: before, streak: streak(), review };
+    }
     const s = bump("lessons");
     track("lesson");
     if (acc >= 0.9) track("acc90");
@@ -141,14 +241,47 @@
     if (s.lessons >= 10) unlock("lessons10");
     if (new Date().getHours() >= 22) unlock("night");
     const now = streak();
-    if (now >= 3) unlock("streak3"); if (now >= 7) unlock("streak7"); if (now >= 30) unlock("streak30");
+    if (now >= 3) unlock("streak3");
+    if (now >= 7) unlock("streak7");
+    if (now >= 30) unlock("streak30");
     if (first) emit("streak", { from: before, to: now });
     return { firstToday: first, streakFrom: before, streak: now, review };
   }
-  function answered(ok) { const s = stats(); s.answered++; if (ok) s.right++; store.set(K.stats, s); }
+  function answered(ok) {
+    const s = stats();
+    s.answered++;
+    if (ok) s.right++;
+    store.set(K.stats, s);
+  }
 
-  NIC.game = { today, award, track, on, goal, setGoal: (g) => { store.set(K.goal, g); emit("xp", { n: 0, total: xpState().total, today: todayXP() }); },
-    todayXP, totalXP: () => xpState().total, streak, freezes: () => frz().n, doneToday: () => days().includes(today()), week, quests, claim, claimable, stats, answered, lessonDone, unlock, ACH, achState, unlockedAcc, FREE };
+  NIC.game = {
+    today,
+    award,
+    track,
+    on,
+    goal,
+    setGoal: (g) => {
+      store.set(K.goal, g);
+      emit("xp", { n: 0, total: xpState().total, today: todayXP() });
+    },
+    todayXP,
+    totalXP: () => xpState().total,
+    streak,
+    freezes: () => frz().n,
+    doneToday: () => days().includes(today()),
+    week,
+    quests,
+    claim,
+    claimable,
+    stats,
+    answered,
+    lessonDone,
+    unlock,
+    ACH,
+    achState,
+    unlockedAcc,
+    FREE,
+  };
   if (NIC.cast) NIC.cast.unlocked = unlockedAcc;
   applyFreeze();
 })();

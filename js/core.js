@@ -11,7 +11,8 @@ window.NIC = (function () {
     t.innerHTML = html.trim();
     return t.content.firstElementChild;
   }
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const esc = (s) =>
+    String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
   // ---------- Randomness ----------
   const rnd = Math.random;
@@ -25,7 +26,8 @@ window.NIC = (function () {
     return a;
   }
   function gauss() {
-    let u = 0, v = 0;
+    let u = 0,
+      v = 0;
     while (u === 0) u = rnd();
     while (v === 0) v = rnd();
     return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
@@ -48,8 +50,26 @@ window.NIC = (function () {
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   const COLORS = {};
   function colors() {
-    if (COLORS._t !== document.documentElement.dataset.themeNow) { Object.keys(COLORS).forEach((k) => delete COLORS[k]); COLORS._t = document.documentElement.dataset.themeNow; }
-    if (!COLORS.teal) ["teal", "rose", "violet", "amber", "blue", "text", "text-dim", "text-faint", "line", "line-2", "bg-2", "panel", "panel-2"].forEach((k) => (COLORS[k.replace("-", "_")] = css("--" + k)));
+    if (COLORS._t !== document.documentElement.dataset.themeNow) {
+      Object.keys(COLORS).forEach((k) => delete COLORS[k]);
+      COLORS._t = document.documentElement.dataset.themeNow;
+    }
+    if (!COLORS.teal)
+      [
+        "teal",
+        "rose",
+        "violet",
+        "amber",
+        "blue",
+        "text",
+        "text-dim",
+        "text-faint",
+        "line",
+        "line-2",
+        "bg-2",
+        "panel",
+        "panel-2",
+      ].forEach((k) => (COLORS[k.replace("-", "_")] = css("--" + k)));
     return COLORS;
   }
 
@@ -60,30 +80,51 @@ window.NIC = (function () {
     const series = opts.series.filter((s) => s.data.length);
     let n = Math.max(2, ...series.map((s) => s.data.length));
     if (opts.xMax) n = Math.max(n, opts.xMax);
-    let lo = opts.yMin, hi = opts.yMax;
+    let lo = opts.yMin,
+      hi = opts.yMax;
     const all = series.flatMap((s) => s.data).filter((v) => Number.isFinite(v));
     if (lo === undefined) lo = all.length ? Math.min(...all) : 0;
     if (hi === undefined) hi = all.length ? Math.max(...all) : 1;
-    if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+    if (hi - lo < 1e-9) {
+      hi += 1;
+      lo -= 1;
+    }
     const X = (i) => pad.l + (i / (n - 1)) * (w - pad.l - pad.r);
     const Y = (v) => pad.t + (1 - (v - lo) / (hi - lo)) * (h - pad.t - pad.b);
     ctx.clearRect(0, 0, w, h);
     ctx.font = "11px " + css("--mono");
-    ctx.strokeStyle = C.line; ctx.fillStyle = C.text_faint; ctx.lineWidth = 1;
+    ctx.strokeStyle = C.line;
+    ctx.fillStyle = C.text_faint;
+    ctx.lineWidth = 1;
     for (let k = 0; k <= 4; k++) {
-      const v = lo + ((hi - lo) * k) / 4, y = Y(v);
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
-      ctx.textAlign = "right"; ctx.fillText(fmt(+v.toFixed(2)), pad.l - 6, y + 4);
+      const v = lo + ((hi - lo) * k) / 4,
+        y = Y(v);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(w - pad.r, y);
+      ctx.stroke();
+      ctx.textAlign = "right";
+      ctx.fillText(fmt(+v.toFixed(2)), pad.l - 6, y + 4);
     }
     ctx.textAlign = "left";
     if (opts.xLabel) ctx.fillText(opts.xLabel, pad.l, h - 8);
-    ctx.textAlign = "right"; ctx.fillText(String(n - 1), w - pad.r, h - 8);
+    ctx.textAlign = "right";
+    ctx.fillText(String(n - 1), w - pad.r, h - 8);
     series.forEach((s) => {
-      ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 2; ctx.setLineDash(s.dash || []);
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = s.width || 2;
+      ctx.setLineDash(s.dash || []);
       ctx.beginPath();
       s.data.forEach((v, i) => (i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v))));
-      ctx.stroke(); ctx.setLineDash([]);
-      if (s.dots) s.data.forEach((v, i) => { ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(X(i), Y(v), 3, 0, 7); ctx.fill(); });
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (s.dots)
+        s.data.forEach((v, i) => {
+          ctx.fillStyle = s.color;
+          ctx.beginPath();
+          ctx.arc(X(i), Y(v), 3, 0, 7);
+          ctx.fill();
+        });
     });
   }
 
@@ -97,11 +138,16 @@ window.NIC = (function () {
     const bw = (w - pad.l - pad.r) / n;
     ctx.clearRect(0, 0, w, h);
     ctx.font = "11px " + css("--mono");
-    ctx.strokeStyle = C.line; ctx.fillStyle = C.text_faint;
+    ctx.strokeStyle = C.line;
+    ctx.fillStyle = C.text_faint;
     for (let k = 0; k <= 4; k++) {
       const y = pad.t + (1 - k / 4) * (h - pad.t - pad.b);
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
-      ctx.textAlign = "right"; ctx.fillText((hi * k / 4).toFixed(opts.decimals ?? 2), pad.l - 5, y + 4);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(w - pad.r, y);
+      ctx.stroke();
+      ctx.textAlign = "right";
+      ctx.fillText(((hi * k) / 4).toFixed(opts.decimals ?? 2), pad.l - 5, y + 4);
     }
     const gw = (bw * 0.78) / groups.length;
     groups.forEach((g, gi) => {
@@ -114,24 +160,46 @@ window.NIC = (function () {
       });
     });
     if (opts.labels) {
-      ctx.fillStyle = C.text_faint; ctx.textAlign = "center";
+      ctx.fillStyle = C.text_faint;
+      ctx.textAlign = "center";
       const every = Math.ceil(n / 24);
-      opts.labels.forEach((lb, i) => { if (i % every === 0) ctx.fillText(lb, pad.l + i * bw + bw / 2, h - 8); });
+      opts.labels.forEach((lb, i) => {
+        if (i % every === 0) ctx.fillText(lb, pad.l + i * bw + bw / 2, h - 8);
+      });
     }
   }
   function roundRect(ctx, x, y, w, h, r) {
     r = Math.max(0, Math.min(r, h / 2, w / 2));
     ctx.beginPath();
-    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   }
 
   // ---------- Progress (predictions + visited) ----------
   const store = {
-    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    get(k, d) {
+      try {
+        return JSON.parse(localStorage.getItem(k)) ?? d;
+      } catch {
+        return d;
+      }
+    },
     set(k, v) {
-      try { localStorage.setItem(k, JSON.stringify(v)); }
-      catch (e) { if (!store.warned && N_fx()) { store.warned = true; N_fx().toast("<b>Progress can't be saved</b><span>This browser is blocking storage (private mode or full).</span>", { tone: "rose", ms: 4000 }); } }
+      try {
+        localStorage.setItem(k, JSON.stringify(v));
+      } catch (e) {
+        if (!store.warned && N_fx()) {
+          store.warned = true;
+          N_fx().toast(
+            "<b>Progress can't be saved</b><span>This browser is blocking storage (private mode or full).</span>",
+            { tone: "rose", ms: 4000 },
+          );
+        }
+      }
     },
   };
   function updateScore() {
@@ -162,11 +230,22 @@ window.NIC = (function () {
       });
       const ok = pick === opts.a;
       const ex = qs(".explain", node);
-      NIC.feedback(ex, ok ? "ok" : "no", `<span class="verdict ${ok ? "ok" : "no"}">${ok ? "Correct!" : pick === -1 ? "Answer:" : "Not quite."}</span>${opts.why}`, first);
+      NIC.feedback(
+        ex,
+        ok ? "ok" : "no",
+        `<span class="verdict ${ok ? "ok" : "no"}">${ok ? "Correct!" : pick === -1 ? "Answer:" : "Not quite."}</span>${opts.why}`,
+        first,
+      );
       if (first) {
-        const s = store.get("nic.predict", {}); s[opts.id] = ok; store.set("nic.predict", s); updateScore();
+        const s = store.get("nic.predict", {});
+        s[opts.id] = ok;
+        store.set("nic.predict", s);
+        updateScore();
         const fx = window.NIC && NIC.fx;
-        if (fx) { fx.reveal(ex); ok ? fx.pop(qsa(".opt", node)[opts.a]) : fx.shake(qsa(".opt", node)[pick]); }
+        if (fx) {
+          fx.reveal(ex);
+          ok ? fx.pop(qsa(".opt", node)[opts.a]) : fx.shake(qsa(".opt", node)[pick]);
+        }
       }
     };
     if (opts.id in saved) reveal(saved[opts.id] ? opts.a : -1, false);
@@ -181,46 +260,81 @@ window.NIC = (function () {
    * A step with a check needs an answer before "Next" unlocks.
    */
   function lesson(id, def, life, onFinish) {
-    const steps = def.steps, pos = store.get("nic.lessonPos", {});
-    const answered = {}, tries = {};
-    let i = Math.min(pos[id] || 0, steps.length - 1), seen = Math.max(i, store.get("nic.lessonSeen", {})[id] || 0);
-    const node = el(`<div class="card lesson" id="learn"><div class="lesson-top"><span class="tag teal">Learn it step by step</span><button class="lesson-x" data-nav="restart" aria-label="Back to step 1" title="Back to step 1"><svg viewBox="0 0 16 16"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.5h2.5"/></svg></button>
+    const steps = def.steps,
+      pos = store.get("nic.lessonPos", {});
+    const answered = {},
+      tries = {};
+    let i = Math.min(pos[id] || 0, steps.length - 1),
+      seen = Math.max(i, store.get("nic.lessonSeen", {})[id] || 0);
+    const node =
+      el(`<div class="card lesson" id="learn"><div class="lesson-top"><span class="tag teal">Learn it step by step</span><button class="lesson-x" data-nav="restart" aria-label="Back to step 1" title="Back to step 1"><svg viewBox="0 0 16 16"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.5v2.5h2.5"/></svg></button>
       <div class="lesson-dots">${steps.map((s, k) => `<button aria-label="Step ${k + 1}: ${esc(s.t.replace(/<[^>]+>/g, ""))}" data-k="${k}"><i></i></button>`).join("")}</div><span class="lesson-count"></span></div>
       <div class="lesson-stage" aria-live="polite"></div>
       <div class="lesson-nav"><button class="btn ghost" data-nav="back">Back</button><span class="lesson-kbd faint"><kbd>←</kbd> <kbd>→</kbd> keys work too</span><button class="btn primary" data-nav="next">Continue</button></div></div>`);
-    const stage = qs(".lesson-stage", node), next = qs('[data-nav="next"]', node), back = qs('[data-nav="back"]', node);
+    const stage = qs(".lesson-stage", node),
+      next = qs('[data-nav="next"]', node),
+      back = qs('[data-nav="back"]', node);
     const fx = () => window.NIC && NIC.fx;
     function show(dir) {
       const s = steps[i];
       seen = Math.max(seen, i);
-      pos[id] = i; store.set("nic.lessonPos", pos);
-      const sn = store.get("nic.lessonSeen", {}); sn[id] = Math.max(sn[id] || 0, seen); store.set("nic.lessonSeen", sn);
-      if (i === steps.length - 1) { const d = store.get("nic.lessonDone", {}); if (!d[id]) { d[id] = true; store.set("nic.lessonDone", d); window.dispatchEvent(new Event("nic:progress")); } }
+      pos[id] = i;
+      store.set("nic.lessonPos", pos);
+      const sn = store.get("nic.lessonSeen", {});
+      sn[id] = Math.max(sn[id] || 0, seen);
+      store.set("nic.lessonSeen", sn);
+      if (i === steps.length - 1) {
+        const d = store.get("nic.lessonDone", {});
+        if (!d[id]) {
+          d[id] = true;
+          store.set("nic.lessonDone", d);
+          window.dispatchEvent(new Event("nic:progress"));
+        }
+      }
       stage.innerHTML = `<div class="lesson-step-n">Step ${i + 1}</div><h2 class="lesson-title">${s.t}</h2><div class="lesson-body">${s.b}</div><div class="lesson-visual"></div>${s.c ? `<div class="lesson-check"><div class="q">${s.c.q}</div><div class="opts">${s.c.o.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join("")}</div><div class="why"></div></div>` : ""}`;
       const vis = qs(".lesson-visual", stage);
-      if (typeof s.v === "function") s.v(vis, life); else if (s.v) vis.innerHTML = s.v;
+      if (typeof s.v === "function") s.v(vis, life);
+      else if (s.v) vis.innerHTML = s.v;
       if (s.c) {
         const why = qs(".lesson-check .why", stage);
         const finish = (pick) => {
-          qsa(".lesson-check .opt", stage).forEach((b, k) => { b.disabled = true; if (k === s.c.a) b.classList.add("right"); });
+          qsa(".lesson-check .opt", stage).forEach((b, k) => {
+            b.disabled = true;
+            if (k === s.c.a) b.classList.add("right");
+          });
           const ok = pick === s.c.a;
-          NIC.feedback(why, ok ? "ok" : "no", `<b class="verdict ${ok ? "ok" : "no"}">${ok ? (tries[i] ? "Got it." : ["Yes!", "Nice!", "Spot on!", "Exactly!"][i % 4]) : "Here's the answer:"}</b> ${s.c.why}`);
-          answered[i] = true; updNav();
-          if (fx()) { fx().reveal(why); if (pick === s.c.a) fx().pop(qsa(".lesson-check .opt", stage)[s.c.a]); }
+          NIC.feedback(
+            why,
+            ok ? "ok" : "no",
+            `<b class="verdict ${ok ? "ok" : "no"}">${ok ? (tries[i] ? "Got it." : ["Yes!", "Nice!", "Spot on!", "Exactly!"][i % 4]) : "Here's the answer:"}</b> ${s.c.why}`,
+          );
+          answered[i] = true;
+          updNav();
+          if (fx()) {
+            fx().reveal(why);
+            if (pick === s.c.a) fx().pop(qsa(".lesson-check .opt", stage)[s.c.a]);
+          }
         };
-        qsa(".lesson-check .opt", stage).forEach((b) => b.addEventListener("click", () => {
-          const k = +b.dataset.k;
-          if (k === s.c.a) return finish(k);
-          // wrong: let them try once more before revealing — retrieval beats being told
-          tries[i] = (tries[i] || 0) + 1;
-          b.classList.add("wrong"); b.disabled = true;
-          if (fx()) fx().shake(b);
-          if (tries[i] >= 2 || s.c.o.length <= 2) return finish(k);
-          NIC.feedback(why, "retry", `<b class="verdict no">Not quite</b> — have another go.`);
-          if (fx()) fx().reveal(why);
-        }));
+        qsa(".lesson-check .opt", stage).forEach((b) =>
+          b.addEventListener("click", () => {
+            const k = +b.dataset.k;
+            if (k === s.c.a) return finish(k);
+            // wrong: let them try once more before revealing — retrieval beats being told
+            tries[i] = (tries[i] || 0) + 1;
+            b.classList.add("wrong");
+            b.disabled = true;
+            if (fx()) fx().shake(b);
+            if (tries[i] >= 2 || s.c.o.length <= 2) return finish(k);
+            NIC.feedback(why, "retry", `<b class="verdict no">Not quite</b> — have another go.`);
+            if (fx()) fx().reveal(why);
+          }),
+        );
       }
-      qsa(".lesson-dots button", node).forEach((d, k) => { d.classList.toggle("cur", k === i); d.classList.toggle("seen", k <= seen && k !== i); d.disabled = k > seen; });
+      qsa(".lesson-dots button", node).forEach((d, k) => {
+        d.classList.toggle("cur", k === i);
+        d.classList.toggle("seen", k <= seen && k !== i);
+        d.disabled = k > seen;
+      });
       qs(".lesson-count", node).textContent = `${i + 1} / ${steps.length}`;
       updNav();
       if (dir && fx()) fx().step(stage, dir);
@@ -236,17 +350,41 @@ window.NIC = (function () {
     const go = (d, animate = true) => {
       if (d > 0) {
         if (steps[i].c && !answered[i]) return;
-        if (i < steps.length - 1) { i++; show(animate ? 1 : 0); if (NIC.sfx) NIC.sfx.play("step"); }
-        else { if (fx()) fx().celebrate(next, { big: true }); if (onFinish) onFinish(); }
-      } else if (i > 0) { i--; show(animate ? -1 : 0); if (NIC.sfx) NIC.sfx.play("back"); }
+        if (i < steps.length - 1) {
+          i++;
+          show(animate ? 1 : 0);
+          if (NIC.sfx) NIC.sfx.play("step");
+        } else {
+          if (fx()) fx().celebrate(next, { big: true });
+          if (onFinish) onFinish();
+        }
+      } else if (i > 0) {
+        i--;
+        show(animate ? -1 : 0);
+        if (NIC.sfx) NIC.sfx.play("back");
+      }
     };
     next.addEventListener("click", () => go(1));
-    qs('[data-nav="restart"]', node).addEventListener("click", () => { if (i) { i = 0; show(-1); } });
+    qs('[data-nav="restart"]', node).addEventListener("click", () => {
+      if (i) {
+        i = 0;
+        show(-1);
+      }
+    });
     back.addEventListener("click", () => go(-1));
-    qsa(".lesson-dots button", node).forEach((d) => d.addEventListener("click", () => { const k = +d.dataset.k; if (k <= seen && k !== i) { const dir = k > i ? 1 : -1; i = k; show(dir); } }));
+    qsa(".lesson-dots button", node).forEach((d) =>
+      d.addEventListener("click", () => {
+        const k = +d.dataset.k;
+        if (k <= seen && k !== i) {
+          const dir = k > i ? 1 : -1;
+          i = k;
+          show(dir);
+        }
+      }),
+    );
     // Keyboard: ←/→ step through when the lesson is on screen. Keyboard actions never animate.
     const onKey = (e) => {
-      if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test((e.target.tagName || ""))) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(e.target.tagName || "")) return;
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       const r = node.getBoundingClientRect();
       if (r.bottom < 80 || r.top > window.innerHeight - 80) return;
@@ -262,18 +400,28 @@ window.NIC = (function () {
 
   /** "What to do" checklist — tick each item off as you do it in the playground. */
   function guide(items) {
-    const node = el(`<div class="card guide" id="try"><div class="card-head"><span class="tag amber">What to do</span><span class="faint guide-count"></span></div>
+    const node =
+      el(`<div class="card guide" id="try"><div class="card-head"><span class="tag amber">What to do</span><span class="faint guide-count"></span></div>
       <ol class="guide-list">${items.map((t, k) => `<li><button class="guide-item" data-k="${k}" aria-pressed="false"><span class="gi-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span><span class="gi-n">${k + 1}</span><span class="gi-t">${t}</span></button></li>`).join("")}</ol></div>`);
-    const upd = () => { const n = qsa(".guide-item.done", node).length; qs(".guide-count", node).textContent = n ? `${n} of ${items.length} done` : "tick them off as you go"; };
-    qsa(".guide-item", node).forEach((b) => b.addEventListener("click", (e) => {
-      if (e.target.closest("a, code")) return;
-      const on = !b.classList.contains("done");
-      b.classList.toggle("done", on); b.setAttribute("aria-pressed", on);
-      if (on && window.NIC && NIC.fx) NIC.fx.pop(qs(".gi-box", b));
-      if (NIC.sfx) NIC.sfx.play(on ? "check" : "uncheck");
-      upd();
-      if (on && qsa(".guide-item.done", node).length === items.length) { if (NIC.fx) NIC.fx.celebrate(qs(".guide-count", node)); node.dispatchEvent(new CustomEvent("nic:guide-done", { bubbles: true })); }
-    }));
+    const upd = () => {
+      const n = qsa(".guide-item.done", node).length;
+      qs(".guide-count", node).textContent = n ? `${n} of ${items.length} done` : "tick them off as you go";
+    };
+    qsa(".guide-item", node).forEach((b) =>
+      b.addEventListener("click", (e) => {
+        if (e.target.closest("a, code")) return;
+        const on = !b.classList.contains("done");
+        b.classList.toggle("done", on);
+        b.setAttribute("aria-pressed", on);
+        if (on && window.NIC && NIC.fx) NIC.fx.pop(qs(".gi-box", b));
+        if (NIC.sfx) NIC.sfx.play(on ? "check" : "uncheck");
+        upd();
+        if (on && qsa(".guide-item.done", node).length === items.length) {
+          if (NIC.fx) NIC.fx.celebrate(qs(".guide-count", node));
+          node.dispatchEvent(new CustomEvent("nic:guide-done", { bubbles: true }));
+        }
+      }),
+    );
     upd();
     return node;
   }
@@ -286,37 +434,84 @@ window.NIC = (function () {
 
   function header(mod, lede) {
     const unit = (window.NIC && NIC.unitName && NIC.unitName(mod)) || "Lecture";
-    return el(`<header class="mod-head"><div class="kicker">${unit} ${mod.lecture} · ${mod.num}</div><h1>${mod.title}</h1><p class="lede">${lede}</p></header>`);
+    return el(
+      `<header class="mod-head"><div class="kicker">${unit} ${mod.lecture} · ${mod.num}</div><h1>${mod.title}</h1><p class="lede">${lede}</p></header>`,
+    );
   }
 
   /** Lifecycle helper: timers and rAF loops cleaned automatically when the route changes. */
   function lifecycle() {
-    const timers = new Set(), frames = new Set(), cleanups = [];
+    const timers = new Set(),
+      frames = new Set(),
+      cleanups = [];
     return {
-      interval(fn, ms) { const id = setInterval(fn, ms); timers.add(id); return () => { clearInterval(id); timers.delete(id); }; },
-      timeout(fn, ms) { const id = setTimeout(fn, ms); timers.add(id); return id; },
-      frame(fn) { const id = requestAnimationFrame((t) => { frames.delete(id); fn(t); }); frames.add(id); return id; },
-      onCleanup(fn) { cleanups.push(fn); },
-      onResize(fn) { window.addEventListener("nic:resize", fn); cleanups.push(() => window.removeEventListener("nic:resize", fn)); },
-      dispose() { timers.forEach((id) => { clearInterval(id); clearTimeout(id); }); frames.forEach(cancelAnimationFrame); cleanups.forEach((f) => f()); },
+      interval(fn, ms) {
+        const id = setInterval(fn, ms);
+        timers.add(id);
+        return () => {
+          clearInterval(id);
+          timers.delete(id);
+        };
+      },
+      timeout(fn, ms) {
+        const id = setTimeout(fn, ms);
+        timers.add(id);
+        return id;
+      },
+      frame(fn) {
+        const id = requestAnimationFrame((t) => {
+          frames.delete(id);
+          fn(t);
+        });
+        frames.add(id);
+        return id;
+      },
+      onCleanup(fn) {
+        cleanups.push(fn);
+      },
+      onResize(fn) {
+        window.addEventListener("nic:resize", fn);
+        cleanups.push(() => window.removeEventListener("nic:resize", fn));
+      },
+      dispose() {
+        timers.forEach((id) => {
+          clearInterval(id);
+          clearTimeout(id);
+        });
+        frames.forEach(cancelAnimationFrame);
+        cleanups.forEach((f) => f());
+      },
     };
   }
 
   function slider(label, min, max, step, value, fmtFn = (v) => v) {
-    const node = el(`<label class="field">${label}<input type="range" min="${min}" max="${max}" step="${step}" value="${value}"><output>${fmtFn(value)}</output></label>`);
-    const input = qs("input", node), out = qs("output", node);
+    const node = el(
+      `<label class="field">${label}<input type="range" min="${min}" max="${max}" step="${step}" value="${value}"><output>${fmtFn(value)}</output></label>`,
+    );
+    const input = qs("input", node),
+      out = qs("output", node);
     input.addEventListener("input", () => (out.textContent = fmtFn(+input.value)));
-    Object.defineProperty(node, "value", { get: () => +input.value, set: (v) => { input.value = v; out.textContent = fmtFn(+v); } });
+    Object.defineProperty(node, "value", {
+      get: () => +input.value,
+      set: (v) => {
+        input.value = v;
+        out.textContent = fmtFn(+v);
+      },
+    });
     node.onInput = (fn) => input.addEventListener("input", () => fn(+input.value));
     return node;
   }
 
   function seg(options, value, onChange) {
-    const node = el(`<div class="seg">${options.map(([v, l]) => `<button data-v="${v}" class="${v === value ? "on" : ""}">${l}</button>`).join("")}</div>`);
-    qsa("button", node).forEach((b) => b.addEventListener("click", () => {
-      qsa("button", node).forEach((x) => x.classList.toggle("on", x === b));
-      onChange(b.dataset.v);
-    }));
+    const node = el(
+      `<div class="seg">${options.map(([v, l]) => `<button data-v="${v}" class="${v === value ? "on" : ""}">${l}</button>`).join("")}</div>`,
+    );
+    qsa("button", node).forEach((b) =>
+      b.addEventListener("click", () => {
+        qsa("button", node).forEach((x) => x.classList.toggle("on", x === b));
+        onChange(b.dataset.v);
+      }),
+    );
     return node;
   }
 
@@ -325,9 +520,22 @@ window.NIC = (function () {
   const bump = (x, c, w, hgt) => hgt * Math.exp(-((x - c) ** 2) / (2 * w * w));
   const LANDSCAPES = {
     unimodal: { name: "Unimodal", f: (x) => bump(x, 0.62, 0.2, 1) },
-    multimodal: { name: "Multimodal", f: (x) => 0.1 + bump(x, 0.12, 0.04, 0.45) + bump(x, 0.3, 0.05, 0.62) + bump(x, 0.5, 0.035, 0.5) + bump(x, 0.7, 0.045, 1) + bump(x, 0.88, 0.04, 0.72) + 0.04 * Math.sin(x * 60) },
+    multimodal: {
+      name: "Multimodal",
+      f: (x) =>
+        0.1 +
+        bump(x, 0.12, 0.04, 0.45) +
+        bump(x, 0.3, 0.05, 0.62) +
+        bump(x, 0.5, 0.035, 0.5) +
+        bump(x, 0.7, 0.045, 1) +
+        bump(x, 0.88, 0.04, 0.72) +
+        0.04 * Math.sin(x * 60),
+    },
     plateau: { name: "Plateau", f: (x) => (x < 0.55 ? 0.28 : 0.28 + bump(x, 0.8, 0.07, 0.72) * 1) },
-    deceptive: { name: "Deceptive", f: (x) => (x < 0.86 ? 0.8 * (1 - x / 0.86) + 0.05 : 0.05 + ((x - 0.86) / 0.14) * 0.95) },
+    deceptive: {
+      name: "Deceptive",
+      f: (x) => (x < 0.86 ? 0.8 * (1 - x / 0.86) + 0.05 : 0.05 + ((x - 0.86) / 0.14) * 0.95),
+    },
     random: { name: "Random", f: null },
   };
   function makeLandscape(kind) {
@@ -344,16 +552,27 @@ window.NIC = (function () {
     const Y = (v) => pad.t + (1 - v / (L.max * 1.08)) * (h - pad.t - pad.b);
     ctx.clearRect(0, 0, w, h);
     const grad = ctx.createLinearGradient(0, pad.t, 0, h);
-    grad.addColorStop(0, "rgba(88,204,2,0.22)"); grad.addColorStop(1, "rgba(88,204,2,0.01)");
-    ctx.beginPath(); ctx.moveTo(X(0), h - pad.b);
+    grad.addColorStop(0, "rgba(88,204,2,0.22)");
+    grad.addColorStop(1, "rgba(88,204,2,0.01)");
+    ctx.beginPath();
+    ctx.moveTo(X(0), h - pad.b);
     L.vals.forEach((v, i) => ctx.lineTo(X(i), Y(v)));
-    ctx.lineTo(X(L.N - 1), h - pad.b); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
-    ctx.beginPath(); L.vals.forEach((v, i) => (i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v))));
-    ctx.strokeStyle = C.teal; ctx.lineWidth = L.kind === "random" ? 1 : 2; ctx.stroke();
+    ctx.lineTo(X(L.N - 1), h - pad.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    L.vals.forEach((v, i) => (i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v))));
+    ctx.strokeStyle = C.teal;
+    ctx.lineWidth = L.kind === "random" ? 1 : 2;
+    ctx.stroke();
     // global optimum marker
-    ctx.fillStyle = C.amber; ctx.font = "11px " + css("--mono"); ctx.textAlign = "center";
+    ctx.fillStyle = C.amber;
+    ctx.font = "11px " + css("--mono");
+    ctx.textAlign = "center";
     ctx.fillText("★ global", X(L.best), Y(L.max) - 5);
-    ctx.fillStyle = C.text_faint; ctx.textAlign = "left";
+    ctx.fillStyle = C.text_faint;
+    ctx.textAlign = "left";
     ctx.fillText("candidate solutions s ∈ S →", pad.l, h - 4);
     return { X, Y };
   }
@@ -362,26 +581,47 @@ window.NIC = (function () {
   const TSP = {
     cities: ["A", "B", "C", "D", "E"],
     D: {
-      A: { B: 5, C: 7, D: 4, E: 15 }, B: { A: 5, C: 3, D: 4, E: 10 }, C: { A: 7, B: 3, D: 2, E: 7 },
-      D: { A: 4, B: 4, C: 2, E: 9 }, E: { A: 15, B: 10, C: 7, D: 9 },
+      A: { B: 5, C: 7, D: 4, E: 15 },
+      B: { A: 5, C: 3, D: 4, E: 10 },
+      C: { A: 7, B: 3, D: 2, E: 7 },
+      D: { A: 4, B: 4, C: 2, E: 9 },
+      E: { A: 15, B: 10, C: 7, D: 9 },
     },
     pos: { A: [90, 190], B: [215, 70], C: [345, 150], D: [220, 250], E: [470, 270] },
-    len(t) { let s = 0; for (let i = 0; i < t.length; i++) s += this.D[t[i]][t[(i + 1) % t.length]]; return s; },
+    len(t) {
+      let s = 0;
+      for (let i = 0; i < t.length; i++) s += this.D[t[i]][t[(i + 1) % t.length]];
+      return s;
+    },
     /** Adjacent swap, treating the tour as a ring (position k-1 is adjacent to 0), as in the lecture. */
-    swap(t, i) { const a = t.split(""); const j = (i + 1) % a.length; [a[i], a[j]] = [a[j], a[i]]; return a.join(""); },
-    neighbours(t) { return t.split("").map((_, i) => this.swap(t, i)); },
+    swap(t, i) {
+      const a = t.split("");
+      const j = (i + 1) % a.length;
+      [a[i], a[j]] = [a[j], a[i]];
+      return a.join("");
+    },
+    neighbours(t) {
+      return t.split("").map((_, i) => this.swap(t, i));
+    },
   };
 
   function tspSVG(tour, opts = {}) {
-    const P = TSP.pos, D = TSP.D;
+    const P = TSP.pos,
+      D = TSP.D;
     const edges = [];
-    if (opts.allEdges) TSP.cities.forEach((a, i) => TSP.cities.slice(i + 1).forEach((b) => edges.push(`<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="var(--line-2)" stroke-width="1" />
-        <text x="${(P[a][0] + P[b][0]) / 2}" y="${(P[a][1] + P[b][1]) / 2 - 4}" fill="var(--text-faint)" font-size="11" text-anchor="middle" font-family="var(--mono)">${D[a][b]}</text>`)));
+    if (opts.allEdges)
+      TSP.cities.forEach((a, i) =>
+        TSP.cities.slice(i + 1).forEach((b) =>
+          edges.push(`<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="var(--line-2)" stroke-width="1" />
+        <text x="${(P[a][0] + P[b][0]) / 2}" y="${(P[a][1] + P[b][1]) / 2 - 4}" fill="var(--text-faint)" font-size="11" text-anchor="middle" font-family="var(--mono)">${D[a][b]}</text>`),
+        ),
+      );
     const t = tour || "";
     const path = [];
     const closed = opts.open ? t.length - 1 : t.length;
     for (let i = 0; i < closed && t.length > 1; i++) {
-      const a = t[i], b = t[(i + 1) % t.length];
+      const a = t[i],
+        b = t[(i + 1) % t.length];
       const hl = opts.highlight && opts.highlight.includes(i);
       path.push(`<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${hl ? "var(--violet)" : opts.color || "var(--teal)"}" stroke-width="${hl ? 4 : 3}" stroke-linecap="round" />
         <text x="${(P[a][0] + P[b][0]) / 2 + 6}" y="${(P[a][1] + P[b][1]) / 2 + 14}" fill="var(--text)" font-size="12" font-weight="600" text-anchor="middle" font-family="var(--mono)">${D[a][b]}</text>`);
@@ -401,7 +641,7 @@ window.NIC = (function () {
   function matrixHTML(hlPairs = []) {
     const c = TSP.cities;
     const isHl = (a, b) => hlPairs.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
-    return `<table class="t matrix"><tr><th></th>${c.map((x) => `<th>${x}</th>`).join("")}</tr>${c.map((a) => `<tr><th>${a}</th>${c.map((b) => a === b ? `<td class="faint">–</td>` : `<td class="${isHl(a, b) ? "hl" : ""}">${TSP.D[a][b]}</td>`).join("")}</tr>`).join("")}</table>`;
+    return `<table class="t matrix"><tr><th></th>${c.map((x) => `<th>${x}</th>`).join("")}</tr>${c.map((a) => `<tr><th>${a}</th>${c.map((b) => (a === b ? `<td class="faint">–</td>` : `<td class="${isHl(a, b) ? "hl" : ""}">${TSP.D[a][b]}</td>`)).join("")}</tr>`).join("")}</table>`;
   }
 
   const N_fx = () => window.NIC && window.NIC.fx;
@@ -409,8 +649,14 @@ window.NIC = (function () {
   const shieldStack = [];
   function shield(on) {
     const els = ["#main", "#topbar", "#dock", "#pop"].map((s) => document.querySelector(s)).filter(Boolean);
-    if (on) { shieldStack.push(document.activeElement); els.forEach((e) => e.setAttribute("inert", "")); }
-    else { const back = shieldStack.pop(); if (!shieldStack.length) els.forEach((e) => e.removeAttribute("inert")); if (back && back.isConnected && back.focus) back.focus({ preventScroll: true }); }
+    if (on) {
+      shieldStack.push(document.activeElement);
+      els.forEach((e) => e.setAttribute("inert", ""));
+    } else {
+      const back = shieldStack.pop();
+      if (!shieldStack.length) els.forEach((e) => e.removeAttribute("inert"));
+      if (back && back.isConnected && back.focus) back.focus({ preventScroll: true });
+    }
   }
 
   // ---------- Lazy vendor loading (plain <script>/<link> tags, so it works over file:// too) ----------
@@ -419,48 +665,129 @@ window.NIC = (function () {
   const loading = {};
   /** Load vendor scripts/styles once, in order. lazy("vendor/three.min.js") → Promise. */
   function lazy(...srcs) {
-    return srcs.reduce((p, src) => p.then(() => loading[src] || (loading[src] = new Promise((ok, bad) => {
-      const css = src.endsWith(".css"), t = document.createElement(css ? "link" : "script");
-      const url = base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD;
-      if (css) { t.rel = "stylesheet"; t.href = url; } else { t.src = url; }
-      t.onload = () => ok(); t.onerror = () => { delete loading[src]; bad(new Error("failed to load " + src)); };
-      document.head.appendChild(t);
-    }))), Promise.resolve());
+    return srcs.reduce(
+      (p, src) =>
+        p.then(
+          () =>
+            loading[src] ||
+            (loading[src] = new Promise((ok, bad) => {
+              const css = src.endsWith(".css"),
+                t = document.createElement(css ? "link" : "script");
+              const url = base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD;
+              if (css) {
+                t.rel = "stylesheet";
+                t.href = url;
+              } else {
+                t.src = url;
+              }
+              t.onload = () => ok();
+              t.onerror = () => {
+                delete loading[src];
+                bad(new Error("failed to load " + src));
+              };
+              document.head.appendChild(t);
+            })),
+        ),
+      Promise.resolve(),
+    );
   }
 
   /** Typeset $…$ (inline) and $$…$$ (display) maths inside root with KaTeX. Loads KaTeX on first use. */
   const HAS_TEX = /\$\$[\s\S]+?\$\$|\$[^$\s][^$]*?\$/;
   function tex(root) {
     if (!root || !HAS_TEX.test(root.textContent)) return Promise.resolve(false);
-    return lazy("vendor/katex/katex.min.css", "vendor/katex/katex.min.js", "vendor/katex/auto-render.min.js").then(() => {
-      const had = new Set(root.querySelectorAll(".katex"));
-      window.renderMathInElement(root, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false, ignoredClasses: ["katex"] });
-      // the raw $…$ text was on screen a moment ago: fade the typeset maths in (opacity only, so reduced motion keeps it)
-      const fx = window.NIC && window.NIC.fx, fresh = [...root.querySelectorAll(".katex")].filter((k) => !had.has(k) && !k.parentElement.closest(".katex"));
-      if (fx && fx.ok && fresh.length) {
-        const a = fx.animate(fresh, { opacity: [0, 1] }, { duration: fx.DUR.s, ease: fx.EASE });
-        fresh.forEach((k) => fx.clean(k, a, ["opacity"]));
-      }
-      return true;
-    }).catch(() => false);
+    return lazy("vendor/katex/katex.min.css", "vendor/katex/katex.min.js", "vendor/katex/auto-render.min.js")
+      .then(() => {
+        const had = new Set(root.querySelectorAll(".katex"));
+        window.renderMathInElement(root, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+          ],
+          throwOnError: false,
+          ignoredClasses: ["katex"],
+        });
+        // the raw $…$ text was on screen a moment ago: fade the typeset maths in (opacity only, so reduced motion keeps it)
+        const fx = window.NIC && window.NIC.fx,
+          fresh = [...root.querySelectorAll(".katex")].filter((k) => !had.has(k) && !k.parentElement.closest(".katex"));
+        if (fx && fx.ok && fresh.length) {
+          const a = fx.animate(fresh, { opacity: [0, 1] }, { duration: fx.DUR.s, ease: fx.EASE });
+          fresh.forEach((k) => fx.clean(k, a, ["opacity"]));
+        }
+        return true;
+      })
+      .catch(() => false);
   }
   // Typeset anything added to the page later (lesson screens, feedback sheets, the guidebook…), like emoji.js does.
   {
-    let q = new Set(), pend = false;
-    const flush = () => { pend = false; const s = q; q = new Set(); s.forEach((n) => n.isConnected && !n.closest(".katex") && tex(n)); };
-    const start = () => new MutationObserver((recs) => {
-      recs.forEach((r) => r.addedNodes.forEach((n) => { if (n.nodeType === 1 && HAS_TEX.test(n.textContent)) q.add(n); else if (n.nodeType === 3 && n.parentElement && HAS_TEX.test(n.nodeValue)) q.add(n.parentElement); }));
-      if (q.size && !pend) { pend = true; setTimeout(flush, 0); }
-    }).observe(document.body, { childList: true, subtree: true });
+    let q = new Set(),
+      pend = false;
+    const flush = () => {
+      pend = false;
+      const s = q;
+      q = new Set();
+      s.forEach((n) => n.isConnected && !n.closest(".katex") && tex(n));
+    };
+    const start = () =>
+      new MutationObserver((recs) => {
+        recs.forEach((r) =>
+          r.addedNodes.forEach((n) => {
+            if (n.nodeType === 1 && HAS_TEX.test(n.textContent)) q.add(n);
+            else if (n.nodeType === 3 && n.parentElement && HAS_TEX.test(n.nodeValue)) q.add(n.parentElement);
+          }),
+        );
+        if (q.size && !pend) {
+          pend = true;
+          setTimeout(flush, 0);
+        }
+      }).observe(document.body, { childList: true, subtree: true });
     document.body ? start() : document.addEventListener("DOMContentLoaded", start);
   }
   /** One maths string → HTML (sync once KaTeX is loaded; falls back to the raw text before that). */
-  const texStr = (s, display = false) => (window.katex ? window.katex.renderToString(s, { throwOnError: false, displayMode: display }) : esc(s));
+  const texStr = (s, display = false) =>
+    window.katex ? window.katex.renderToString(s, { throwOnError: false, displayMode: display }) : esc(s);
 
   return {
-    BUILD, lazy, asset: (src) => base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD, tex, texStr, shield,
-    modules, register, qs, qsa, el, esc, rnd, randint, choice, shuffle, gauss, clamp, fmt,
-    setupCanvas, colors, lineChart, barChart, roundRect, store, updateScore, predict, lesson, guide, takeaways, LESSONS: {}, header, lifecycle,
-    slider, seg, LANDSCAPES, makeLandscape, drawLandscape, TSP, tspSVG, matrixHTML,
+    BUILD,
+    lazy,
+    asset: (src) => base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD,
+    tex,
+    texStr,
+    shield,
+    modules,
+    register,
+    qs,
+    qsa,
+    el,
+    esc,
+    rnd,
+    randint,
+    choice,
+    shuffle,
+    gauss,
+    clamp,
+    fmt,
+    setupCanvas,
+    colors,
+    lineChart,
+    barChart,
+    roundRect,
+    store,
+    updateScore,
+    predict,
+    lesson,
+    guide,
+    takeaways,
+    LESSONS: {},
+    header,
+    lifecycle,
+    slider,
+    seg,
+    LANDSCAPES,
+    makeLandscape,
+    drawLandscape,
+    TSP,
+    tspSVG,
+    matrixHTML,
   };
 })();
