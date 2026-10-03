@@ -11,75 +11,288 @@
      so pages that load styles.css without this file (trailer/) still resolve them */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-pop: cubic-bezier(0.34, 1.8, 0.64, 1); /* bigger overshoot for small pops */
-  --m-shine: rgba(255, 255, 255, 0.55);         /* highlight swept over coloured fills */
+  --m-shine: rgba(255, 255, 255, 0.55); /* highlight swept over coloured fills */
 }
 
 /* ---------- tactile press: instant squash down, springy release ---------- */
-html :is(.btn, .predict .opt, .lesson-check .opt, .chip-btn, .qm-t, .td-main, .td-chip, .p-jump, .us-guide, .ob-c, .pl-ref) {
-  transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease, filter var(--dur-2) ease, opacity var(--dur-2) ease;
+html
+  :is(
+    .btn,
+    .predict .opt,
+    .lesson-check .opt,
+    .chip-btn,
+    .qm-t,
+    .td-main,
+    .td-chip,
+    .p-jump,
+    .us-guide,
+    .ob-c,
+    .pl-ref
+  ) {
+  transition:
+    transform var(--dur-3) var(--ease-spring),
+    box-shadow var(--dur-3) var(--ease-out),
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease,
+    color var(--dur-2) ease,
+    filter var(--dur-2) ease,
+    opacity var(--dur-2) ease;
 }
-html :is(.btn, .predict .opt, .lesson-check .opt, .chip-btn, .qm-t, .td-main, .td-chip, .p-jump, .us-guide, .ob-c, .pl-ref):active:not(:disabled) {
-  transition-duration: var(--dur-press), var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
+html
+  :is(
+    .btn,
+    .predict .opt,
+    .lesson-check .opt,
+    .chip-btn,
+    .qm-t,
+    .td-main,
+    .td-chip,
+    .p-jump,
+    .us-guide,
+    .ob-c,
+    .pl-ref
+  ):active:not(:disabled) {
+  transition-duration:
+    var(--dur-press), var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
 }
-html :is(.tb-btn, .dock button, .seg button) { transition: transform var(--dur-3) var(--ease-spring), background-color var(--dur-2) ease, color var(--dur-2) ease, border-color var(--dur-2) ease; }
-html :is(.tb-btn, .dock button, .seg button):active { transition-duration: var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2); }
-html .p-node { transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3) var(--ease-out), filter var(--dur-2) ease; }
-html .p-node:active { transition-duration: var(--dur-press), var(--dur-press), var(--dur-2); }
+html :is(.tb-btn, .dock button, .seg button) {
+  transition:
+    transform var(--dur-3) var(--ease-spring),
+    background-color var(--dur-2) ease,
+    color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+}
+html :is(.tb-btn, .dock button, .seg button):active {
+  transition-duration: var(--dur-press), var(--dur-2), var(--dur-2), var(--dur-2);
+}
+html .p-node {
+  transition:
+    transform var(--dur-3) var(--ease-spring),
+    box-shadow var(--dur-3) var(--ease-out),
+    filter var(--dur-2) ease;
+}
+html .p-node:active {
+  transition-duration: var(--dur-press), var(--dur-press), var(--dur-2);
+}
 /* a matched pair leaves the board: it fades and sinks (quiz.css sets the end state) */
-html .qm-t.gone { transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out), background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease, box-shadow var(--dur-2) ease; }
+html .qm-t.gone {
+  transition:
+    opacity var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out),
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease,
+    color var(--dur-2) ease,
+    box-shadow var(--dur-2) ease;
+}
 
 /* ---------- a selected answer tile springs (the right one bounces, a wrong one shakes: NIC.fx) ---------- */
-@keyframes m-sel { 0% { transform: scale(0.97); } 55% { transform: scale(1.015); } 100% { transform: scale(1); } }
-html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .ob-c.on) { animation: m-sel var(--dur-3) var(--ease-out); }
+@keyframes m-sel {
+  0% {
+    transform: scale(0.97);
+  }
+  55% {
+    transform: scale(1.015);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .ob-c.on) {
+  animation: m-sel var(--dur-3) var(--ease-out);
+}
 
 /* ---------- dock: one indicator slides between tabs (js/app.js dockInd) ---------- */
-.dk-ind { position: absolute; box-sizing: border-box; border-radius: 16px; background: var(--blue-dim); border: 2px solid var(--blue-edge); pointer-events: none; transform-origin: 50% 50%; transition: transform var(--dur-3) var(--ease-spring); }
-.dock.m-ind button.on { background: transparent; border-color: transparent; }
-.dock.m-ind:has(> button.on:active) .dk-ind { transform: scale(0.93); transition-duration: var(--dur-press); }
-.dock button svg { transform-origin: 50% 80%; }
+.dk-ind {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--blue-dim);
+  border: 2px solid var(--blue-edge);
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+.dock.m-ind button.on {
+  background: transparent;
+  border-color: transparent;
+}
+.dock.m-ind:has(> button.on:active) .dk-ind {
+  transform: scale(0.93);
+  transition-duration: var(--dur-press);
+}
+.dock button svg {
+  transform-origin: 50% 80%;
+}
 
 /* ---------- path: the current node breathes; the popover grows out of its node ---------- */
-@keyframes m-breathe { 0%, 100% { transform: scale(0.94); opacity: 0.5; } 50% { transform: scale(1.06); opacity: 1; } }
-html .p-row.cur .p-node::after { animation: m-breathe 2.2s ease-in-out infinite; }
-html .node-pop { transform-origin: calc(50% + var(--ax, 0px)) -8px; }
-.p-badge { transform-origin: 50% 50%; }
+@keyframes m-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+html .p-row.cur .p-node::after {
+  animation: m-breathe 2.2s ease-in-out infinite;
+}
+html .node-pop {
+  transform-origin: calc(50% + var(--ax, 0px)) -8px;
+}
+.p-badge {
+  transform-origin: 50% 50%;
+}
 
 /* elements animating out (popovers, tooltips, modals) never catch clicks */
-.m-ghost, .m-ghost * { pointer-events: none !important; }
+.m-ghost,
+.m-ghost * {
+  pointer-events: none !important;
+}
 
 /* ---------- lesson progress bar: springy fill, shine on advance, pulse while hot ---------- */
-.player .pl-fill { transition: transform var(--dur-bar) var(--ease-spring), background-color var(--dur-4) var(--ease-out); } /* colour: the hot (combo) fill fades in */
-.pl-fill::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 34%; background: var(--m-shine); opacity: 0; transform: translateX(-110%) skewX(-24deg); pointer-events: none; }
-.pl-bar.m-shine .pl-fill::before { animation: m-shine 700ms var(--ease-out) 80ms; }
-@keyframes m-shine { 0% { opacity: 0; transform: translateX(-110%) skewX(-24deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateX(320%) skewX(-24deg); } }
-.pl-bar.hot::after { content: ""; position: absolute; inset: -5px; border-radius: 99px; border: 3px solid var(--amber-edge); pointer-events: none; animation: m-hot 1.1s ease-in-out infinite alternate; }
-@keyframes m-hot { from { opacity: 0.2; } to { opacity: 0.9; } }
+.player .pl-fill {
+  transition:
+    transform var(--dur-bar) var(--ease-spring),
+    background-color var(--dur-4) var(--ease-out);
+} /* colour: the hot (combo) fill fades in */
+.pl-fill::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  background: var(--m-shine);
+  opacity: 0;
+  transform: translateX(-110%) skewX(-24deg);
+  pointer-events: none;
+}
+.pl-bar.m-shine .pl-fill::before {
+  animation: m-shine 700ms var(--ease-out) 80ms;
+}
+@keyframes m-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(-110%) skewX(-24deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(320%) skewX(-24deg);
+  }
+}
+.pl-bar.hot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 99px;
+  border: 3px solid var(--amber-edge);
+  pointer-events: none;
+  animation: m-hot 1.1s ease-in-out infinite alternate;
+}
+@keyframes m-hot {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
 
 /* ---------- page transitions (NIC.fx.swap → View Transitions API) ----------
    The top bar and dock stay put; the page underneath slides in the direction of travel
    (html[data-vt="fwd" | "back"]) or crossfades ("fade"). Names only exist during a transition. */
-html[data-vt] .topbar { view-transition-name: cs-top; }
-html[data-vt] .dock { view-transition-name: cs-dock; }
-::view-transition-group(cs-top), ::view-transition-group(cs-dock) { animation: none; }
-::view-transition-old(cs-top), ::view-transition-old(cs-dock) { display: none; }
-::view-transition-new(cs-top), ::view-transition-new(cs-dock) { animation: none; }
-::view-transition-old(root) { animation: m-vt-fade-out var(--dur-2) var(--ease-in) both; }
-::view-transition-new(root) { animation: m-vt-fade-in var(--dur-3) var(--ease-out) both; }
-html[data-vt="fwd"]::view-transition-old(root) { animation-name: m-vt-out-left; }
-html[data-vt="fwd"]::view-transition-new(root) { animation-name: m-vt-in-right; }
-html[data-vt="back"]::view-transition-old(root) { animation-name: m-vt-out-right; }
-html[data-vt="back"]::view-transition-new(root) { animation-name: m-vt-in-left; }
-@keyframes m-vt-fade-out { to { opacity: 0; } }
-@keyframes m-vt-fade-in { from { opacity: 0; } }
-@keyframes m-vt-out-left { to { opacity: 0; transform: translateX(-28px); } }
-@keyframes m-vt-out-right { to { opacity: 0; transform: translateX(28px); } }
-@keyframes m-vt-in-right { from { opacity: 0; transform: translateX(28px); } }
-@keyframes m-vt-in-left { from { opacity: 0; transform: translateX(-28px); } }
+html[data-vt] .topbar {
+  view-transition-name: cs-top;
+}
+html[data-vt] .dock {
+  view-transition-name: cs-dock;
+}
+::view-transition-group(cs-top),
+::view-transition-group(cs-dock) {
+  animation: none;
+}
+::view-transition-old(cs-top),
+::view-transition-old(cs-dock) {
+  display: none;
+}
+::view-transition-new(cs-top),
+::view-transition-new(cs-dock) {
+  animation: none;
+}
+::view-transition-old(root) {
+  animation: m-vt-fade-out var(--dur-2) var(--ease-in) both;
+}
+::view-transition-new(root) {
+  animation: m-vt-fade-in var(--dur-3) var(--ease-out) both;
+}
+html[data-vt="fwd"]::view-transition-old(root) {
+  animation-name: m-vt-out-left;
+}
+html[data-vt="fwd"]::view-transition-new(root) {
+  animation-name: m-vt-in-right;
+}
+html[data-vt="back"]::view-transition-old(root) {
+  animation-name: m-vt-out-right;
+}
+html[data-vt="back"]::view-transition-new(root) {
+  animation-name: m-vt-in-left;
+}
+@keyframes m-vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes m-vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes m-vt-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
+@keyframes m-vt-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+@keyframes m-vt-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+@keyframes m-vt-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
 
 /* ---------- reduced motion: fades stay, movement and idle loops go ---------- */
 @media (prefers-reduced-motion: reduce) {
-  html .p-row.cur .p-node::after { animation: none; opacity: 0.8; transform: none; }
-  .pl-fill::before { display: none; }
-  .pl-bar.hot::after { animation: none; opacity: 0.6; }
-  html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .ob-c.on) { animation: none; }
+  html .p-row.cur .p-node::after {
+    animation: none;
+    opacity: 0.8;
+    transform: none;
+  }
+  .pl-fill::before {
+    display: none;
+  }
+  .pl-bar.hot::after {
+    animation: none;
+    opacity: 0.6;
+  }
+  html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .ob-c.on) {
+    animation: none;
+  }
 }

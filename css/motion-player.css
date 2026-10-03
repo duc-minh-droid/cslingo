@@ -7,44 +7,149 @@
    In f-ok / f-no the footer keeps the height it had before (--pl-foot-h, set in JS) and the sheet
    (.pl-foot-in) sits on top of the stage, so the stage never shrinks in one step. The stage is padded by the
    overlap (--pl-sheet-pad) so what the sheet covers can still be scrolled into view. */
-.player .pl-foot { position: relative; z-index: 3; }
-.player .pl-foot.f-sheet { min-height: var(--pl-foot-h, 0px); background: var(--panel); border-color: var(--line); }
-.player .pl-foot.f-sheet .pl-foot-in { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; }
+.player .pl-foot {
+  position: relative;
+  z-index: 3;
+}
+.player .pl-foot.f-sheet {
+  min-height: var(--pl-foot-h, 0px);
+  background: var(--panel);
+  border-color: var(--line);
+}
+.player .pl-foot.f-sheet .pl-foot-in {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+}
 /* full-bleed colour behind the centred sheet: a spread shadow clipped to the sheet's own height */
-.player .pl-foot.f-ok.f-sheet .pl-foot-in { background: var(--teal-dim); box-shadow: 0 0 0 100vmax var(--teal-dim); clip-path: inset(0 -100vmax); }
-.player .pl-foot.f-no.f-sheet .pl-foot-in { background: var(--rose-dim); box-shadow: 0 0 0 100vmax var(--rose-dim); clip-path: inset(0 -100vmax); }
-.player .pl-stage { padding-bottom: var(--pl-sheet-pad, 0px); scroll-padding-bottom: var(--pl-sheet-pad, 0px); }
+.player .pl-foot.f-ok.f-sheet .pl-foot-in {
+  background: var(--teal-dim);
+  box-shadow: 0 0 0 100vmax var(--teal-dim);
+  clip-path: inset(0 -100vmax);
+}
+.player .pl-foot.f-no.f-sheet .pl-foot-in {
+  background: var(--rose-dim);
+  box-shadow: 0 0 0 100vmax var(--rose-dim);
+  clip-path: inset(0 -100vmax);
+}
+.player .pl-stage {
+  padding-bottom: var(--pl-sheet-pad, 0px);
+  scroll-padding-bottom: var(--pl-sheet-pad, 0px);
+}
 
 /* ---------- progress bar: the mistakes round is its own state ---------- */
-.pl-bar.retry .pl-fill { background: var(--amber); }
+.pl-bar.retry .pl-fill {
+  background: var(--amber);
+}
 
 /* ---------- retry counter chip (mistakes still to fix) ---------- */
-.pl-retry { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 900; color: var(--amber-ink); }
-.pl-retry[hidden] { display: none; }
-.pl-retry svg { width: 22px; height: 22px; color: var(--amber); }
+.pl-retry {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--amber-ink);
+}
+.pl-retry[hidden] {
+  display: none;
+}
+.pl-retry svg {
+  width: 22px;
+  height: 22px;
+  color: var(--amber);
+}
 
 /* ---------- combo chip: small "+1" at 1–2 in a row ---------- */
-.pl-combo.mini { color: var(--teal-ink); letter-spacing: 0; font-size: 13px; }
+.pl-combo.mini {
+  color: var(--teal-ink);
+  letter-spacing: 0;
+  font-size: 13px;
+}
 
 /* complete screen's blue button stays blue on hover (.btn.primary:hover would turn it green) */
-.pl-go.pl-go-blue:hover { background: var(--blue); border-color: var(--blue); filter: brightness(1.05); }
+.pl-go.pl-go-blue:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  filter: brightness(1.05);
+}
 /* screens take focus by script (tabindex=-1) for screen readers; no ring around the whole screen */
-.pl-screen:focus, .pl-screen:focus-visible { outline: none; }
+.pl-screen:focus,
+.pl-screen:focus-visible {
+  outline: none;
+}
 
 /* back button beside the quit ✕ (hidden on the first screen, questions-only sessions and end screens) */
-.pl-back[hidden] { display: none; }
-.pl-back:hover { transform: none; }
-.pl-back:hover svg { transform: translateX(-2px); }
-.pl-back svg { transition: transform var(--dur-2) var(--ease-spring); }
-@media (max-width: 480px) { .pl-top .pl-back { margin-left: -6px; } }
+.pl-back[hidden] {
+  display: none;
+}
+.pl-back:hover {
+  transform: none;
+}
+.pl-back:hover svg {
+  transform: translateX(-2px);
+}
+.pl-back svg {
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+@media (max-width: 480px) {
+  .pl-top .pl-back {
+    margin-left: -6px;
+  }
+}
 
 /* quick check: the step's figure/table travels with the question (open when the question refers to it) */
-.pl-look { margin: 0 0 16px; border: 2px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 3px 0 var(--line); }
-.pl-look > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 14px; cursor: pointer; font-weight: 800; font-size: 14px; color: var(--blue-ink); user-select: none; }
-.pl-look > summary::-webkit-details-marker { display: none; }
-.pl-look > summary svg { width: 20px; height: 20px; flex: none; }
-.pl-look > summary span { flex: 1; min-width: 0; }
-.pl-look-car { width: 10px; height: 10px; border-right: 3px solid currentColor; border-bottom: 3px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); transition: transform var(--dur-2) var(--ease-out); }
-.pl-look[open] .pl-look-car { transform: rotate(225deg) translate(-2px, -2px); }
-.pl-look-in { padding: 0 14px 14px; margin: 0; overflow-x: auto; }
-.pl-look-in > :first-child { margin-top: 0; }
+.pl-look {
+  margin: 0 0 16px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 3px 0 var(--line);
+}
+.pl-look > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--blue-ink);
+  user-select: none;
+}
+.pl-look > summary::-webkit-details-marker {
+  display: none;
+}
+.pl-look > summary svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.pl-look > summary span {
+  flex: 1;
+  min-width: 0;
+}
+.pl-look-car {
+  width: 10px;
+  height: 10px;
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.pl-look[open] .pl-look-car {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+.pl-look-in {
+  padding: 0 14px 14px;
+  margin: 0;
+  overflow-x: auto;
+}
+.pl-look-in > :first-child {
+  margin-top: 0;
+}

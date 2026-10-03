@@ -7,67 +7,285 @@
    ===================================================================== */
 
 /* ---------- shared .seg pill (NIC.segPill): one indicator slides to the chosen button ---------- */
-html .seg.m-pill { position: relative; }
-html .seg.m-pill > button { position: relative; z-index: 1; }
-html .seg.m-pill > button.on { background: transparent; border-color: transparent; }
-.seg-ind { position: absolute; z-index: 0; box-sizing: border-box; border-radius: 10px; background: var(--blue-dim); border: 2px solid var(--blue-edge); pointer-events: none; transform-origin: 50% 50%; transition: opacity var(--dur-2) ease; }
-.seg-ind.off { opacity: 0; }
-html .seg.m-pill:has(> button.on:active) .seg-ind { transform: scale(0.95); transition: transform var(--dur-press), opacity var(--dur-2) ease; }
+html .seg.m-pill {
+  position: relative;
+}
+html .seg.m-pill > button {
+  position: relative;
+  z-index: 1;
+}
+html .seg.m-pill > button.on {
+  background: transparent;
+  border-color: transparent;
+}
+.seg-ind {
+  position: absolute;
+  z-index: 0;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: var(--blue-dim);
+  border: 2px solid var(--blue-edge);
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  transition: opacity var(--dur-2) ease;
+}
+.seg-ind.off {
+  opacity: 0;
+}
+html .seg.m-pill:has(> button.on:active) .seg-ind {
+  transform: scale(0.95);
+  transition:
+    transform var(--dur-press),
+    opacity var(--dur-2) ease;
+}
 
 /* ---------- sound switch (Profile > Settings): the knob slides ---------- */
-.pf-sw { appearance: none; position: relative; flex: none; width: 56px; height: 32px; padding: 0; border: 2px solid var(--line); border-radius: 99px; background: var(--bg-2); cursor: pointer; transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease; -webkit-tap-highlight-color: transparent; }
-.pf-sw i { position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: var(--panel); box-shadow: 0 2px 0 var(--line); transition: transform var(--dur-3) var(--ease-spring); }
-.pf-sw.on { background: var(--teal); border-color: var(--teal-lip); }
-.pf-sw.on i { transform: translateX(24px); background: #fff; box-shadow: 0 2px 0 var(--teal-lip); } /* white on the green fill */
-.pf-sw:active i { transform: scale(0.9); transition-duration: var(--dur-press); }
-.pf-sw.on:active i { transform: translateX(24px) scale(0.9); }
-.pf-sw:focus-visible { outline: 3px solid var(--blue-edge); outline-offset: 2px; }
+.pf-sw {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: 99px;
+  background: var(--bg-2);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-2) ease,
+    border-color var(--dur-2) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pf-sw i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: 0 2px 0 var(--line);
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+.pf-sw.on {
+  background: var(--teal);
+  border-color: var(--teal-lip);
+}
+.pf-sw.on i {
+  transform: translateX(24px);
+  background: #fff;
+  box-shadow: 0 2px 0 var(--teal-lip);
+} /* white on the green fill */
+.pf-sw:active i {
+  transform: scale(0.9);
+  transition-duration: var(--dur-press);
+}
+.pf-sw.on:active i {
+  transform: translateX(24px) scale(0.9);
+}
+.pf-sw:focus-visible {
+  outline: 3px solid var(--blue-edge);
+  outline-offset: 2px;
+}
 
 /* ---------- path chest: bright through the payoff, then greys out slowly ---------- */
-html .p-chest-svg { transition: transform 150ms ease, filter 700ms var(--ease-out); }
-html .p-chest-row.paying .p-chest { cursor: default; }
+html .p-chest-svg {
+  transition:
+    transform 150ms ease,
+    filter 700ms var(--ease-out);
+}
+html .p-chest-row.paying .p-chest {
+  cursor: default;
+}
 
 /* ---------- jump-to-current button: the arrow flips instead of snapping ---------- */
-html .p-jump svg { transition: transform var(--dur-3) var(--ease-spring); }
+html .p-jump svg {
+  transition: transform var(--dur-3) var(--ease-spring);
+}
 
 /* ---------- quest claim: the row fades to green ---------- */
-html .q-row { transition: background-color var(--dur-4) ease; border-radius: 12px; }
-html .q-row.claimed { background: var(--teal-dim); }
-html .q-row.claimed .q-bar span { background: var(--teal); }
+html .q-row {
+  transition: background-color var(--dur-4) ease;
+  border-radius: 12px;
+}
+html .q-row.claimed {
+  background: var(--teal-dim);
+}
+html .q-row.claimed .q-bar span {
+  background: var(--teal);
+}
 
 /* ---------- "+n XP" chip that flies from the complete screen to the top-bar counter ---------- */
-.tb-fly { position: fixed; left: 0; top: 0; z-index: 120; padding: 4px 10px; border-radius: 99px; background: var(--amber); color: #fff; font-weight: 900; font-size: 15px; white-space: nowrap; box-shadow: 0 3px 0 var(--amber-lip); pointer-events: none; will-change: transform, opacity; }
+.tb-fly {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 120;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--amber);
+  color: #fff;
+  font-weight: 900;
+  font-size: 15px;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--amber-lip);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
 
 /* ---------- streak flame ignition (first lit flame of the day) ---------- */
-html .tb-streak.ignite { position: relative; isolation: isolate; } /* the glow sits behind the flame, above the bar */
-html .tb-streak.lit.ignite > svg { animation: tb-ignite 700ms var(--ease-pop) both, flicker 0.8s ease-in-out 700ms infinite alternate; }
-html .tb-streak.ignite::before { content: ""; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: var(--amber-dim); box-shadow: 0 0 0 3px var(--amber-edge); pointer-events: none; z-index: -1; animation: tb-glow 1100ms var(--ease-out) both; }
-@keyframes tb-ignite { 0% { transform: scale(0.4) rotate(-12deg); opacity: 0.4; } 45% { transform: scale(1.45) rotate(6deg); opacity: 1; } 70% { transform: scale(0.92); } 100% { transform: scale(1); } }
-@keyframes tb-glow { 0% { opacity: 0; transform: scale(0.4); } 30% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.5); } }
+html .tb-streak.ignite {
+  position: relative;
+  isolation: isolate;
+} /* the glow sits behind the flame, above the bar */
+html .tb-streak.lit.ignite > svg {
+  animation:
+    tb-ignite 700ms var(--ease-pop) both,
+    flicker 0.8s ease-in-out 700ms infinite alternate;
+}
+html .tb-streak.ignite::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background: var(--amber-dim);
+  box-shadow: 0 0 0 3px var(--amber-edge);
+  pointer-events: none;
+  z-index: -1;
+  animation: tb-glow 1100ms var(--ease-out) both;
+}
+@keyframes tb-ignite {
+  0% {
+    transform: scale(0.4) rotate(-12deg);
+    opacity: 0.4;
+  }
+  45% {
+    transform: scale(1.45) rotate(6deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes tb-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
 
 /* ---------- sync: "Signing in…" dots, pending dot while progress uploads ---------- */
-.sy-dots i { font-style: normal; animation: sy-dot 1s ease-in-out infinite; }
-.sy-dots i:nth-child(2) { animation-delay: 0.15s; }
-.sy-dots i:nth-child(3) { animation-delay: 0.3s; }
-@keyframes sy-dot { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-html .sy-row { position: relative; }
-.sy-dot { position: absolute; left: 26px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 2px var(--panel); opacity: 0; pointer-events: none; transition: opacity var(--dur-2) ease; }
-.sy-row.busy .sy-dot { opacity: 1; animation: sy-dot 1s ease-in-out infinite; }
+.sy-dots i {
+  font-style: normal;
+  animation: sy-dot 1s ease-in-out infinite;
+}
+.sy-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.sy-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes sy-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+html .sy-row {
+  position: relative;
+}
+.sy-dot {
+  position: absolute;
+  left: 26px;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 2px var(--panel);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-2) ease;
+}
+.sy-row.busy .sy-dot {
+  opacity: 1;
+  animation: sy-dot 1s ease-in-out infinite;
+}
 
 /* reduced motion: fades stay, movement goes */
 @media (prefers-reduced-motion: reduce) {
-  html .tb-streak.lit.ignite > svg { animation: none; }
-  html .tb-streak.ignite::before { animation-name: tb-glow-fade; }
-  @keyframes tb-glow-fade { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
-  .pf-sw i, html .p-jump svg { transition-duration: 0ms; }
-  .sy-dots i, .sy-row.busy .sy-dot { animation: none; opacity: 1; }
+  html .tb-streak.lit.ignite > svg {
+    animation: none;
+  }
+  html .tb-streak.ignite::before {
+    animation-name: tb-glow-fade;
+  }
+  @keyframes tb-glow-fade {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  .pf-sw i,
+  html .p-jump svg {
+    transition-duration: 0ms;
+  }
+  .sy-dots i,
+  .sy-row.busy .sy-dot {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* ---------- path chest: opens in place (js/app.js chestAnim). Parts start hidden; .is-open is the resting open state. ---------- */
-.p-chest-svg { overflow: visible; }
-.p-chest-svg .ch-rays, .p-chest-svg .ch-lid-o, .p-chest-svg .ch-in, .p-chest-svg .ch-glow, .p-chest-svg .ch-coin { opacity: 0; }
-.p-chest-svg .ch-rays, .p-chest-svg .ch-lid-o, .p-chest-svg .ch-lid-c { transform-box: view-box; }
-.p-chest-svg.is-open .ch-lid-c { opacity: 0; }
-.p-chest-svg.is-open .ch-lid-o, .p-chest-svg.is-open .ch-in { opacity: 1; }
-.p-chest-row.paying { z-index: 6; }
-.p-chest-row.paying .p-chest-svg { filter: drop-shadow(0 5px 0 rgba(0,0,0,.12)); }
+.p-chest-svg {
+  overflow: visible;
+}
+.p-chest-svg .ch-rays,
+.p-chest-svg .ch-lid-o,
+.p-chest-svg .ch-in,
+.p-chest-svg .ch-glow,
+.p-chest-svg .ch-coin {
+  opacity: 0;
+}
+.p-chest-svg .ch-rays,
+.p-chest-svg .ch-lid-o,
+.p-chest-svg .ch-lid-c {
+  transform-box: view-box;
+}
+.p-chest-svg.is-open .ch-lid-c {
+  opacity: 0;
+}
+.p-chest-svg.is-open .ch-lid-o,
+.p-chest-svg.is-open .ch-in {
+  opacity: 1;
+}
+.p-chest-row.paying {
+  z-index: 6;
+}
+.p-chest-row.paying .p-chest-svg {
+  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.12));
+}
