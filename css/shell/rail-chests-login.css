@@ -323,14 +323,14 @@
   width: 100%;
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--blue-on);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 .btn.si-go:disabled {
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--blue-on);
   box-shadow: 0 var(--lip) 0 var(--blue-lip);
   transform: none;
   opacity: 0.75;

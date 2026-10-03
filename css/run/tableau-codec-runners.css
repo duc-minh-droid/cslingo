@@ -77,7 +77,7 @@
 }
 .rn-tab tr.rn-tab-leave > td.rn-tab-enter {
   background: var(--amber);
-  color: #fff;
+  color: var(--amber-on);
 }
 .rn-tab tr.rn-tab-new > * {
   background: var(--teal-dim);
@@ -181,7 +181,7 @@
   stroke: var(--amber-lip);
 }
 .rn-huf-sel .rn-huf-s {
-  fill: #fff;
+  fill: var(--amber-on);
 }
 .rn-huf-node.rn-pickable .rn-huf-box {
   stroke: var(--violet);
@@ -265,7 +265,7 @@
 .rn-lzw-cell.rn-lzw-cur {
   background: var(--amber);
   border-color: var(--amber-lip);
-  color: #fff;
+  color: var(--amber-on);
 }
 .rn-lzw-mid {
   display: flex;
@@ -316,13 +316,13 @@
 .rn-lzw-yn.rn-lzw-on[data-k="yes"] {
   background: var(--teal);
   border-color: var(--teal-lip);
-  color: #fff;
+  color: var(--teal-on);
   box-shadow: 0 2px 0 var(--teal-lip);
 }
 .rn-lzw-yn.rn-lzw-on[data-k="no"] {
   background: var(--rose);
   border-color: var(--rose-lip);
-  color: #fff;
+  color: var(--rose-on);
   box-shadow: 0 2px 0 var(--rose-lip);
 }
 .rn-lzw-yn.rn-lzw-off {
@@ -353,7 +353,7 @@
   padding: 0 5px;
   border-radius: 8px;
   background: var(--violet);
-  color: #fff;
+  color: var(--violet-on);
   font-family: var(--mono);
   font-weight: 900;
 }

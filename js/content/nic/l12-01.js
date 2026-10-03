@@ -292,7 +292,7 @@
           why: "Evolution produced some of the most complex things we know of, including us. It does this with no designer, just variation plus selection over many generations.",
           solves: "Optimisation and design: timetables, antenna shapes, pipe networks, car shapes.",
           mod: "Weeks 1–5: evolutionary algorithms, genetic programming. (Also ant colony optimisation, which the syllabus groups here even though it's collective behaviour.)",
-          c: "var(--teal)",
+          c: "var(--teal-ink)",
         },
         brain: {
           n: "Brains",
@@ -300,7 +300,7 @@
           why: "We solve many problems that seem very hard for computers, like recognising a face instantly, from a network of simple neurons.",
           solves: "Pattern recognition and learning from data: classification, prediction.",
           mod: "Weeks 10–11: neural networks, neuromorphic computing, self-organising maps.",
-          c: "var(--violet)",
+          c: "var(--violet-ink)",
         },
         swarm: {
           n: "Collective behaviour",
@@ -308,7 +308,7 @@
           why: "Individually simple agents (one ant, one bird) with no leader can show intelligent behaviour as a group, like ants finding the shortest path to food.",
           solves: "Shortest paths, scheduling, and modelling complex systems that emerge from simple agents.",
           mod: "Weeks 7–9: flocking, multi-agent systems, particle swarm optimisation, multi-objective methods.",
-          c: "var(--amber)",
+          c: "var(--amber-ink)",
         },
       };
       const card = el(`<div class="card"><div class="card-head"><h2>Click a natural system</h2></div>

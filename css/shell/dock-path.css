@@ -67,24 +67,28 @@ body.in-lesson {
   --u-lip: var(--teal-lip);
   --u-soft: var(--teal-dim);
   --u-ink: var(--teal-ink);
+  --u-on: var(--teal-on);
 }
 .u-blue {
   --u: var(--blue);
   --u-lip: var(--blue-lip);
   --u-soft: var(--blue-dim);
   --u-ink: var(--blue-ink);
+  --u-on: var(--blue-on);
 }
 .u-violet {
   --u: var(--violet);
   --u-lip: var(--violet-lip);
   --u-soft: var(--violet-dim);
   --u-ink: var(--violet-ink);
+  --u-on: var(--violet-on);
 }
 .u-orange {
   --u: var(--amber);
   --u-lip: var(--amber-lip);
   --u-soft: var(--amber-dim);
   --u-ink: var(--amber-ink);
+  --u-on: var(--amber-on);
 }
 .unit-sticky {
   position: sticky;
@@ -100,7 +104,7 @@ body.in-lesson {
   border-radius: 18px;
   background: var(--u);
   box-shadow: 0 var(--lip) 0 var(--u-lip);
-  color: #fff;
+  color: var(--u-on);
   transition:
     background-color var(--dur-4) ease,
     box-shadow var(--dur-4) ease;
@@ -118,10 +122,10 @@ body.in-lesson {
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .us-t h2 {
-  color: #fff;
+  color: var(--u-on);
   margin: 2px 0 0;
   font-size: 20px;
   line-height: 1.2;
@@ -132,10 +136,10 @@ body.in-lesson {
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid color-mix(in srgb, var(--u-on) 40%, transparent);
   border-radius: 14px;
   background: transparent;
-  color: #fff;
+  color: var(--u-on);
   font: inherit;
   font-size: 13px;
   font-weight: 900;
@@ -242,7 +246,7 @@ body.in-lesson {
 .p-row.cur .p-node {
   --nc: var(--u);
   --nl: var(--u-lip);
-  --nf: #fff;
+  --nf: var(--u-on);
 }
 .p-row.boss .p-node {
   width: 84px;
@@ -253,7 +257,7 @@ body.in-lesson {
 .p-row.boss.st-done .p-node {
   --nc: var(--gold);
   --nl: #e0a800;
-  --nf: #fff;
+  --nf: var(--gold-on);
 }
 .p-ring {
   position: absolute;
@@ -360,7 +364,7 @@ body.in-lesson {
   padding: 16px;
   border-radius: 18px;
   background: var(--u);
-  color: #fff;
+  color: var(--u-on);
   box-shadow: 0 5px 0 var(--u-lip);
   transform-origin: 50% 0;
 }
@@ -380,13 +384,13 @@ body.in-lesson {
   font-size: 18px;
   font-weight: 900;
   line-height: 1.25;
-  color: #fff;
+  color: var(--u-on);
 }
 .node-pop small {
   display: block;
   margin: 2px 0 8px;
   font-weight: 800;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .node-pop p {
   margin: 0 0 12px;
@@ -397,7 +401,7 @@ body.in-lesson {
 .node-pop .btn {
   width: 100%;
   background: #fff;
-  color: var(--u-ink, var(--u));
+  color: var(--u-on);
   --b: #fff;
   --lipc: rgba(0, 0, 0, 0.12);
   text-transform: uppercase;

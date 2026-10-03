@@ -60,6 +60,14 @@
   --violet-ink: #8e38e2;
   --violet-dim: #f4e6ff;
   --violet-edge: #e2b8ff;
+  /* on-colours: text and glyphs sitting ON a saturated fill. White fails contrast on these fills (2.1 to 3.3:1), so they use a deep
+     shade of the same hue (4.8 to 8.5:1). Same in both themes, because the fills are the same in both. */
+  --teal-on: #173a00;
+  --blue-on: #06283d;
+  --rose-on: #450707;
+  --amber-on: #3d2000;
+  --violet-on: #2b0d4d;
+  --gold-on: #3d2e00;
   /* lips: the dark edge under a sticker; they stay dark in both themes (the -ink tokens are for text) */
   --teal-lip: #58a700;
   --blue-lip: #1899d6;

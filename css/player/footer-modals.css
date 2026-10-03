@@ -71,13 +71,13 @@
   fill: var(--teal);
 }
 .f-ok .pl-fb-h svg path {
-  stroke: #fff;
+  stroke: var(--teal-on);
 }
 .f-no .pl-fb-h svg circle {
   fill: var(--rose);
 }
 .f-no .pl-fb-h svg path {
-  stroke: #fff;
+  stroke: var(--rose-on);
 }
 .pl-xp {
   margin-left: 4px;

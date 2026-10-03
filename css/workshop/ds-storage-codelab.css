@@ -354,11 +354,11 @@
 }
 .cl-test.ok .cl-dot {
   background: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
 }
 .cl-test.no .cl-dot {
   background: var(--rose);
-  color: #fff;
+  color: var(--rose-on);
 }
 .cl-tt {
   display: flex;

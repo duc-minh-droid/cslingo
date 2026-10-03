@@ -57,7 +57,7 @@
 }
 .predict .opt.multi.sel .opt-box::after {
   content: "✓";
-  color: #fff;
+  color: var(--blue-on);
 }
 .predict .opt.missed {
   border-style: dashed;
@@ -303,11 +303,11 @@
 }
 .qc-seg button.right {
   background: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
 }
 .qc-seg button.wrong {
   background: var(--rose);
-  color: #fff;
+  color: var(--rose-on);
 }
 .qc-row.right {
   border-color: var(--teal-edge);

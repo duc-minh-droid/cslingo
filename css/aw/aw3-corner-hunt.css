@@ -150,7 +150,7 @@
 }
 .aw3-pi circle:last-child {
   fill: var(--blue);
-  stroke: #fff;
+  stroke: var(--panel);
   stroke-width: 3;
   transition: fill var(--dur-2) ease;
 }
@@ -165,7 +165,7 @@
 }
 .aw3-w circle {
   fill: var(--blue);
-  stroke: #fff;
+  stroke: var(--panel);
   stroke-width: 3;
 }
 .aw3-w.opt circle {

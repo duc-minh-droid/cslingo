@@ -99,7 +99,7 @@
 }
 .dj-pkt {
   fill: var(--amber);
-  stroke: #fff;
+  stroke: var(--panel);
   stroke-width: 2;
 }
 .dj-legend {

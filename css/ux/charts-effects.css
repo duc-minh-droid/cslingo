@@ -136,9 +136,6 @@
 .qc-seg button {
   min-height: 44px;
 }
-.ob-modal {
-  padding: 20px 20px 22px;
-}
 /* touch screens: buttons and the small controls inside demos and labs reach a comfortable size without growing on desktop */
 @media (pointer: coarse) {
   .btn {
@@ -148,18 +145,39 @@
     min-height: 40px;
   }
   summary.btn.small,
-  .wk-hint > summary {
+  .wk-hint > summary,
+  .node-pop .np-more summary {
     display: inline-flex;
     align-items: center;
-    min-height: 36px;
+    min-height: 40px;
   }
   .cl-extab {
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 40px;
+    min-height: 40px;
   }
   .tb-logo {
-    padding: 10px 6px;
-    margin: -10px -2px -10px -6px; /* a larger hit area without moving anything */
+    padding: 14px 6px;
+    margin: -14px -2px -14px -6px; /* a larger hit area without moving anything */
+  }
+  .tb-btn {
+    min-width: 40px;
+    justify-content: center;
+  }
+  /* switches, sliders and ticks inside demos: a 44px row to press, without redrawing the control */
+  label.field {
+    min-height: 44px;
+  }
+  input[type="range"] {
+    height: 44px;
+  }
+  input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+  .pf-sw::after {
+    content: "";
+    position: absolute;
+    inset: -6px -4px;
   }
 }
 /* toast text stacks beside its icon instead of squeezing into a tall column on phones */

@@ -124,7 +124,7 @@ html .q-row.claimed .q-bar span {
   padding: 4px 10px;
   border-radius: 99px;
   background: var(--amber);
-  color: #fff;
+  color: var(--amber-on);
   font-weight: 900;
   font-size: 15px;
   white-space: nowrap;

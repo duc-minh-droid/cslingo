@@ -13,19 +13,19 @@
     "mk-check": coin(
       "#58cc02",
       "#58a700",
-      '<path d="M7.1 11.9l3.3 3.2 6.5-6.6" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>',
+      '<path d="M7.1 11.9l3.3 3.2 6.5-6.6" fill="none" stroke="#173a00" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>',
     ),
     "mk-cross": coin(
       "#ff4b4b",
       "#ea2b2b",
-      '<path d="M8.4 8l7.2 7.2M15.6 8l-7.2 7.2" fill="none" stroke="#fff" stroke-width="2.9" stroke-linecap="round"/>',
+      '<path d="M8.4 8l7.2 7.2M15.6 8l-7.2 7.2" fill="none" stroke="#450707" stroke-width="2.9" stroke-linecap="round"/>',
     ),
   };
   ["①", "②", "③", "④", "⑤"].forEach((c, k) => {
     MARKS[`mk-${k + 1}`] = coin(
       "#1cb0f6",
       "#1899d6",
-      `<text x="12" y="16" text-anchor="middle" font-family="Nunito, ui-rounded, sans-serif" font-weight="900" font-size="13" fill="#fff">${k + 1}</text>`,
+      `<text x="12" y="16" text-anchor="middle" font-family="Nunito, ui-rounded, sans-serif" font-weight="900" font-size="13" fill="#06283d">${k + 1}</text>`,
     );
     D.map[c] = `mk-${k + 1}`;
   });

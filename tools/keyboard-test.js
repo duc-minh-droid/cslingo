@@ -84,6 +84,18 @@ export async function keyboardChecks(page) {
     if ((await key()) === before) problems.push("Enter after clicking a runner button no longer continues");
   }
 
+  // 5. a popover from the top bar: "/" opens the course list, Escape closes it, and the dim layer (shown on phones)
+  //    follows both ways, whatever the width
   await page.evaluate(() => NIC.player.isOpen() && NIC.player.close(true));
+  await page.evaluate(() => (location.hash = "#home"));
+  await page.waitForTimeout(500);
+  const dimmed = () => page.evaluate(() => document.querySelector(".tb-scrim").classList.contains("on"));
+  await page.keyboard.press("/");
+  await page.waitForTimeout(250);
+  if (!(await page.$("#pop .pop-card"))) problems.push("/ did not open the course popover");
+  if (!(await dimmed())) problems.push("a popover opened without its dim layer");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(250);
+  if (await dimmed()) problems.push("the dim layer stayed after the popover closed");
   return problems;
 }

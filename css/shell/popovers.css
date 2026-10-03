@@ -190,7 +190,7 @@
   place-items: center;
   border-radius: 50%;
   background: var(--teal);
-  color: #fff;
+  color: var(--teal-on);
 }
 .q-got svg {
   width: 18px;
@@ -257,7 +257,7 @@
 .ps-day i svg {
   width: 18px;
   height: 18px;
-  color: #fff;
+  color: var(--amber-on);
 }
 .ps-day.on i {
   background: var(--amber);

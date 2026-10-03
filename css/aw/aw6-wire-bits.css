@@ -5,31 +5,37 @@
   --k: var(--teal);
   --ki: var(--teal-ink);
   --kd: var(--teal-dim);
+  --ko: var(--teal-on);
 }
 .aw7-c-blue {
   --k: var(--blue);
   --ki: var(--blue-ink);
   --kd: var(--blue-dim);
+  --ko: var(--blue-on);
 }
 .aw7-c-violet {
   --k: var(--violet);
   --ki: var(--violet-ink);
   --kd: var(--violet-dim);
+  --ko: var(--violet-on);
 }
 .aw7-c-amber {
   --k: var(--amber);
   --ki: var(--amber-ink);
   --kd: var(--amber-dim);
+  --ko: var(--amber-on);
 }
 .aw7-c-rose {
   --k: var(--rose);
   --ki: var(--rose-ink);
   --kd: var(--rose-dim);
+  --ko: var(--rose-on);
 }
 .aw7-c-dim {
   --k: var(--text-dim);
   --ki: var(--text-dim);
   --kd: var(--bg-2);
+  --ko: var(--bg);
 }
 
 /* ================================ PHASE 6 ================================ */

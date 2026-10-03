@@ -193,7 +193,7 @@
   padding: 1px 6px;
   border-radius: 6px;
   background: var(--blue);
-  color: #fff;
+  color: var(--blue-on);
   font-size: 12px;
 }
 .aw11-code small {

@@ -35,7 +35,7 @@
   /* the letter badge on an answer tile wakes up */
   html :is(.predict .opt, .lesson-check .opt, .pl-body .opt):hover:not(:disabled) .opt-l {
     border-color: var(--blue-edge);
-    color: var(--blue);
+    color: var(--blue-ink);
     transform: scale(1.08);
   }
   .opt-l {
