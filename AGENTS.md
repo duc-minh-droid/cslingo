@@ -33,7 +33,8 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `js/codelab.js` | Code lab engine `NIC.codelab(root, life, {starter, entry, tests, scene, hints, solution})`: Python editor (autocomplete, auto-pairs, resizable split pane), real CPython tests in a Web Worker, example input/output, trace replay. See §6g. |
 | `js/algo-workshops-N.js` + `css/aw-*.css`, `css/workshop.css` | Algorithms workshops, one file per phase (`N.W` no-code, `N.C` code lab). |
 | `js/ds-workshops.js` | The three Data Science workshops (`ds-ops`, `ds-querylab`, `ds-engine`). |
-| `js/l12.js l3.js l4.js lab.js lessons.js` | Nature-Inspired (`nic`) modules and lessons. |
+| `js/content.js` | `NIC.content`: the manifest of course script groups (nic / ds / algo) and the on-demand loader. **Lesson, workshop and boss files are not in `index.html`**: list them in the right group here (order = run order). The first course a route needs loads at startup, the others load when idle, and pages that span courses (Revise, search, the course picker) wait for `NIC.content.all()`. |
+| `js/l12.js l3.js l4.js lab.js lessons.js` | Nature-Inspired (`nic`) modules and lessons (group `nic` in `content.js`). |
 | `js/ds.js` | Data Science (`ds`) modules and lessons. |
 | `js/algo-p1.js … algo-p10.js` | Algorithms (`algo`) modules and lessons, one file per phase. |
 | `js/quiz.js` | Boss-quiz engine: `NIC.registerBoss`, `NIC.QUIZ_TYPES`, `NIC.bossDef`, `NIC.qfig`. |
@@ -95,15 +96,15 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 
 Never rename these keys, because that wipes users' progress. There is no reset button (progress is never deleted from the app).
 
-## 3. Libraries (all vendored, loaded in `index.html`)
+## 3. Libraries (all vendored; Motion and confetti in `index.html`, the rest on demand)
 
 | Library | File | Used for |
 |---|---|---|
 | Motion (motion.dev UMD) | `vendor/motion.js` | All JS animation, via `NIC.fx` or `Motion.animate/inView`. |
-| Chart.js 4 | `vendor/chart.umd.js` | Every line/bar chart, through `NIC.lineChart/barChart`. |
+| Chart.js 4 | `vendor/chart.umd.js` (lazy, loaded by `js/charts.js` after startup) | Every line/bar chart, through `NIC.lineChart/barChart` (plain canvas drawing until it arrives). |
 | canvas-confetti | `vendor/confetti.browser.js` | `NIC.fx.celebrate`. |
 | Fluent Emoji (Flat), Microsoft, MIT | `vendor/fluent-emoji.js` (generated) | All pictographic icons in content (see §4 Emoji). |
-| GSAP 3.15 + DrawSVG + MotionPath (free) | `vendor/gsap/` | Runner frame tweens (`NIC.fig.rn`). Loaded in `index.html`. |
+| GSAP 3.15 + DrawSVG + MotionPath (free) | `vendor/gsap/` | Runner frame tweens (`NIC.fig.rn`). Lazy, loaded by `js/run.js` after startup; code must check `window.gsap`. |
 | KaTeX 0.18 | `vendor/katex/` (lazy) | Maths typesetting: write `$…$` or `$$…$$` in any content. |
 | three.js r159 (UMD build) | `vendor/three.min.js` (lazy) | `NIC.fig.surface3d`. The deprecation warning line was stripped. |
 | lottie-web light 5.13 | `vendor/lottie_light.min.js` (lazy) | Plays `assets/lottie.js`. |
@@ -232,7 +233,7 @@ Put it in the course's file (for example `js/ds.js`, or a new `js/algo-pN.js`):
 })();
 ```
 
-Then add `<script src="js/<file>.js"></script>` to `index.html`. Put it after `js/emoji.js`, `js/charts.js`, `js/fig.js` and `js/quiz.js`, and before `js/player.js` and `js/app.js`.
+Then add `"js/<file>.js"` to that course's group in `js/content.js` (not to `index.html`; engine files such as a new figure builder still go in `index.html`, after `js/emoji.js`, `js/charts.js`, `js/fig.js` and `js/quiz.js` and before `js/player.js` and `js/app.js`).
 
 Rules:
 - `predict` ids must be globally unique.
@@ -291,7 +292,7 @@ function myRun(box, life) {
    ```
 2. Add `"os"` to `SUBJ_ORDER` in the same file.
 3. Pick a mascot for `who`. Reuse a character, or add one to `CHARS` in `js/cast.js`. A character needs `body`, `belly`, `limb`, `foot`, `shape` (the SVG path in the 120×124 rig), `bellyEl`, `top`, `hy` and `hs`. Hats sit on y≈32.
-4. Create `js/os.js` (and `js/boss-os.js`) with `subject: "os"`, and add their script tags.
+4. Create `js/os.js` (and `js/boss-os.js`) with `subject: "os"`, and add them as a new group `os` in `js/content.js` (plus its home id in `courseOf`).
 5. Update `README.md`: the course table and the lesson/boss counts. The counts appear in the trailer outro too.
 
 ### 6g. Workshops (no-code hands-on labs)

@@ -7,7 +7,6 @@
 :focus-visible { outline: 3px solid var(--blue-edge); outline-offset: 2px; border-radius: 10px; }
 button:focus:not(:focus-visible) { outline: none; }
 
-.read-progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 50; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; border-radius: 0 4px 4px 0; }
 .dev-banner { position: sticky; top: 0; z-index: 60; background: var(--rose); color: #fff; font-weight: 800; font-size: 13px; padding: 8px 16px; }
 
 /* ---------- Lesson ---------- */
@@ -63,9 +62,6 @@ button:focus:not(:focus-visible) { outline: none; }
 .fb-row-m .bubble { flex: 1; margin-bottom: 6px; border-color: transparent; }
 .fb-row-m .bubble::before { left: -8px; bottom: 16px; border: 0; transform: rotate(45deg); }
 
-.playground-head { display: flex; align-items: center; gap: 12px; margin: 38px 0 14px; }
-.playground-head h2 { margin: 0; }
-.playground-head::after { content: ""; flex: 1; height: 0; border-top: 3px dashed var(--line); }
 
 /* guide checklist */
 .guide-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }

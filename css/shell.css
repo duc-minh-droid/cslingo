@@ -287,11 +287,7 @@ body.in-lesson { overflow: hidden; }
 .sy-out { margin-left: auto; appearance: none; border: 2px solid var(--line); background: var(--panel); border-radius: 10px; padding: 4px 10px; font: inherit; font-size: 12.5px; font-weight: 800; color: var(--text-dim); cursor: pointer; }
 .sy-modal { max-width: 460px; }
 .sy-form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-.sy-email { font: inherit; font-size: 16px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 14px; background: var(--panel-2); outline: none; }
-.sy-email:focus { border-color: var(--blue-edge); background: var(--panel); }
 .sy-msg { margin-top: 12px; font-size: 14px; }
-.sy-choose { max-width: 440px; text-align: center; }
-.sy-choose .controls { justify-content: center; }
 
 /* ---------- Streak safety ---------- */
 .sk-risk { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; padding: 9px 12px; border-radius: 12px; background: var(--rose-dim); color: var(--rose-ink); font-size: 13.5px; }
@@ -320,8 +316,6 @@ body.in-lesson { overflow: hidden; }
 .dk-badge[hidden] { display: none; }
 .pe-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
 .np-restart { display: block; width: 100%; margin-top: 8px; appearance: none; border: 0; background: none; color: #fff; opacity: .85; font: inherit; font-weight: 800; font-size: 13px; text-decoration: underline; cursor: pointer; }
-.rs-modal { max-width: 420px; text-align: center; }
-.rs-modal .controls { justify-content: center; }
 
 /* ---------- Desktop rail (≥1240px): streak, goal, quests beside the path ---------- */
 .rail { display: none; }

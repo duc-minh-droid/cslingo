@@ -48,7 +48,7 @@
   const FILES = ["js/bank-nic.js", "js/bank-ds.js", "js/bank-algo.js"];
   let loadP = null, loaded = false;
   function load() {
-    return loadP || (loadP = Promise.all(FILES.map((f) => N.lazy(f))).then(() => { loaded = true; }).catch((e) => { loadP = null; throw e; }));
+    return loadP || (loadP = Promise.all([N.content ? N.content.all() : null, ...FILES.map((f) => N.lazy(f))]).then(() => { loaded = true; }).catch((e) => { loadP = null; throw e; }));
   }
   function due(r, now) { return !r || now - r.t >= GAP[Math.min(r.box, 5)] * DAY; }
 

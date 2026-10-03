@@ -46,14 +46,20 @@
   const inSubj = (s) => modules.filter((m) => subjOf(m) === s);
   const inLec = (s, lec) => inSubj(s).filter((m) => m.lecture === +lec);
 
-  // ---- Guard rail: a module whose lecture isn't declared would silently vanish from the path ----
-  const orphans = modules.filter((m) => !SUBJECTS[subjOf(m)] || !SUBJECTS[subjOf(m)].lectures[m.lecture]);
-  const dupes = modules.map((m) => m.id).filter((id, i, a) => a.indexOf(id) !== i);
-  if (orphans.length || dupes.length) {
-    const msg = [orphans.length && `Modules with an undeclared lecture: ${orphans.map((m) => m.id).join(", ")}`, dupes.length && `Duplicate ids: ${dupes.join(", ")}`].filter(Boolean).join(" · ");
-    console.error("[visualizer]", msg);
-    document.body.prepend(el(`<div class="dev-banner">⚠ ${msg}</div>`));
+  /* Modules arrive course by course (js/content.js), so sort and check them after every load. Guard rail: a module whose lecture
+     isn't declared would silently vanish from the path. */
+  function indexModules() {
+    modules.sort((a, b) => SUBJ_ORDER.indexOf(subjOf(a)) - SUBJ_ORDER.indexOf(subjOf(b)) || a.lecture - b.lecture || a.order - b.order);
+    const orphans = modules.filter((m) => !SUBJECTS[subjOf(m)] || !SUBJECTS[subjOf(m)].lectures[m.lecture]);
+    const dupes = modules.map((m) => m.id).filter((id, i, a) => a.indexOf(id) !== i);
+    const old = qs(".dev-banner"); if (old) old.remove();
+    if (orphans.length || dupes.length) {
+      const msg = [orphans.length && `Modules with an undeclared lecture: ${orphans.map((m) => m.id).join(", ")}`, dupes.length && `Duplicate ids: ${dupes.join(", ")}`].filter(Boolean).join(" · ");
+      console.error("[visualizer]", msg);
+      document.body.prepend(el(`<div class="dev-banner">⚠ ${msg}</div>`));
+    }
   }
+  NIC.content.onLoad(indexModules);
 
   // ---- Progress model ----
   const isBoss = (m) => m.num === "Boss";
@@ -203,6 +209,7 @@
     card.style.setProperty("--ax", r.left + r.width / 2 - left + "px");
     if (fx.ok && !instant) fx.clean(card, fx.animate(card, fx.reduce() ? { opacity: [0, 1] } : { opacity: [0, 1], transform: ["translateY(-8px) scale(0.94)", "translateY(0px) scale(1)"] }, { ...fx.SPRING_UI }));
     (POP_MOUNT[kind] || (() => {}))(card);
+    if (kind === "course" && !NIC.content.allLoaded()) NIC.content.all().then(() => { if (popKind === "course") { const c = qs(".pop-card", pop); if (c) { c.innerHTML = POPS.course(); POP_MOUNT.course(c); } } }); // progress and search span every course
   }
   document.addEventListener("pointerdown", (e) => { if (popKind && !e.target.closest(".pop-card, [data-pop]")) closePop(); if (!e.target.closest(".p-node, .node-pop")) closeNodePop(); });
 
@@ -873,6 +880,12 @@
   let routeTok = 0, lastRoute = null;
   function route() {
     const id = location.hash.slice(1) || store.get("nic.lastHome", "home");
+    // a course's lessons download the first time it is needed (the rest load quietly after the first screen)
+    const need = NIC.content.courseOf(id);
+    if (need && !(need === "all" ? NIC.content.allLoaded() : NIC.content.has(need))) {
+      (need === "all" ? NIC.content.all() : NIC.content.load(need)).then(route, (e) => console.error(e));
+      return;
+    }
     const mod = modules.some((m) => m.id === id), prev = lastRoute, tok = ++routeTok;
     lastRoute = { id, mod, tab: tabOf(id) };
     const go = (sw) => { if (tok === routeTok) render(!!sw); }; // a newer route wins over a transition still waiting to run
@@ -956,12 +969,15 @@
   updateScore();
   if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // the path restores its own scroll (scrollMem)
   NIC.refresh = () => { updateScore(); renderTop(); route(); };
-  const boot = () => { route(); setTimeout(onboarding, 400); };
+  const boot = () => {
+    route(); setTimeout(onboarding, 400);
+    // the other courses (and then the revision questions) download once the first screen is up
+    setTimeout(() => (window.requestIdleCallback || setTimeout)(() => NIC.content.all().then(() => NIC.bank && NIC.bank.load()).catch(() => {})), 1200);
+  };
+  { const first = NIC.content.courseOf(location.hash.slice(1) || store.get("nic.lastHome", "home")); (first === "all" ? NIC.content.all() : NIC.content.load(first)).catch(() => {}); } // overlap the download with the account sync
   // logged in before: load the account's progress first so the page opens already up to date (js/sync.js waits at most 2.5 s)
   if (NIC.syncReady) NIC.syncReady.then(boot); else boot();
   // offline + installable: only on the deployed site (dev servers and file:// would cache stale work)
   if ("serviceWorker" in navigator && location.protocol === "https:" && !/^(localhost|127\.|\[::1\])/.test(location.hostname))
     addEventListener("load", () => navigator.serviceWorker.register(`sw.js?v=${NIC.BUILD}`).catch(() => {}));
-  // the revision questions are not part of startup; fetch them quietly once the first screen is settled, so Revise opens instantly (and works offline)
-  addEventListener("load", () => setTimeout(() => (window.requestIdleCallback || setTimeout)(() => NIC.bank && NIC.bank.load().catch(() => {})), 3000));
 })();

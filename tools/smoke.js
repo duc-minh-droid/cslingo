@@ -2,6 +2,7 @@
    Opens every module in the lesson player, walks every screen (answering questions correctly),
    plays every step-through runner to the end (answering its predicts), presses buttons on the Try-it demo, and reports any errors. */
 async function smoke({ subjects = null, buttons = 12 } = {}) {
+  if (NIC.content) await NIC.content.all(); // every course's lessons load on demand
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const errors = [];
   const onErr = (e) => errors.push({ where: location.hash, msg: String(e.message || e.reason || e) });
