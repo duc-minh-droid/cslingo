@@ -1,0 +1,303 @@
+(function () {
+  const B = NIC.bank;
+
+  B.add("a6-wire", [
+    {
+      type: "mcq",
+      q: "A Hamming(7,4) receiver reads its three checks, written p4 p2 p1, as 1 0 1. Assuming exactly one bit flipped, which position should it flip back?",
+      o: ["1", "3", "5", "6"],
+      a: 2,
+      hint: "Read 101 as a binary number: 4 + 0 + 1.",
+      why: "The syndrome p4 p2 p1 = 101 is binary for 5, so the flipped bit is at position 5. Checks p4 and p1 failed because position 5 is guarded by both, and p2 passed because 5 is not in its group.",
+    },
+    {
+      type: "cat",
+      q: "Exactly one bit of a frame is flipped on the wire. Sort each scheme by what the receiver can do about it.",
+      buckets: ["Detects the error only", "Detects it and repairs it"],
+      items: [
+        ["Even parity bit", 0],
+        ["Hamming(7,4)", 1],
+        ["CRC", 0],
+        ["Sending every bit three times and taking a majority vote", 1],
+      ],
+      hint: "To repair a bit you must know WHICH bit it is, not just that something is wrong.",
+      why: "Parity and CRC say 'something broke' but give no position. Hamming's three checks form a number that names the bit. The triple-repeat scheme also repairs, as two copies out-vote the flipped one, but it costs three times the bits.",
+    },
+    {
+      type: "slider",
+      q: "Hamming(7,4) sends 4 data bits inside a 7-bit block. The 3 extra bits are overhead. What percentage extra is sent compared with the data alone?",
+      min: 0,
+      max: 100,
+      step: 5,
+      start: 50,
+      ans: 75,
+      tol: 5,
+      unit: "%",
+      hint: "3 extra for every 4 data bits: that is three quarters.",
+      why: "3 / 4 = 0.75, which is 75% extra. That is a lot more than a single parity bit costs, but it buys the power to repair any single flipped bit instead of just noticing it.",
+    },
+    {
+      type: "multi",
+      q: "Even parity is used on an 8-bit frame. Select every noise pattern that the receiver is sure to notice.",
+      o: [
+        "Exactly one bit flipped",
+        "Exactly two bits flipped",
+        "Exactly three bits flipped",
+        "Exactly four bits flipped",
+        "All eight bits flipped",
+      ],
+      a: [0, 2],
+      hint: "Each flip changes the count of 1s from even to odd, or back again. What does an even number of flips do?",
+      why: "One flip makes the count of 1s odd, and so does three flips. Two flips put it back to even, as do four, and flipping all eight is an even number of flips, so those all look clean. Parity catches an odd number of flipped bits and misses an even number.",
+    },
+  ]);
+
+  B.add("a7-build", [
+    {
+      type: "mcq",
+      q: "A queue holds nodes with counts 2, 3, 5, 7 and 11. Huffman merges the two smallest nodes each time, and every merge costs the sum of the two counts. What is the total cost of all the merges?",
+      o: ["40", "52", "60", "75"],
+      a: 2,
+      hint: "Merges: 2 + 3 = 5, then 5 + 5 = 10, then 7 + 10 = 17, then 11 + 17 = 28. Add the four results.",
+      why: "The merges cost 5, 10, 17 and 28, and 5 + 10 + 17 + 28 = 60. That equals the bits of the whole message: 11 × 1 + 7 × 2 + 5 × 3 + 2 × 4 + 3 × 4 = 60. Each merge adds one bit to every symbol below it.",
+    },
+    {
+      type: "cat",
+      q: "Each list is a set of binary codes for different symbols. Sort each set by whether a receiver reading a bit stream can decode it without ambiguity.",
+      buckets: ["Prefix-free (decodable)", "Ambiguous"],
+      items: [
+        ["0, 10, 11", 0],
+        ["0, 01, 11", 1],
+        ["00, 01, 10, 11", 0],
+        ["1, 10, 100", 1],
+        ["0, 10, 110, 111", 0],
+      ],
+      hint: "Is any code the beginning of another code in the same set?",
+      why: "A set works when no code is the start of another, as every symbol then ends at a leaf of the tree. 0 begins 01, and 1 begins 10 and 100, so those sets are ambiguous: after reading 0 you cannot tell if the symbol has ended. The other three sets have no code that is the start of another.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of building a Huffman tree in order.",
+      items: [
+        "List every symbol with its count",
+        "Take the two smallest nodes",
+        "Join them under a new node whose count is their sum, and put it back",
+        "Repeat until one node is left, then read the 0s and 1s down each branch",
+      ],
+      hint: "Merging is repeated; reading the codes is only possible once the tree is done.",
+      why: "The counts are the starting nodes. Each round takes the two smallest and returns their parent to the queue, so the queue shrinks by one node. When one node (the root) remains, every symbol sits on a leaf and its code is the path from the root.",
+    },
+    {
+      type: "slider",
+      q: "A report uses 8 symbols that all appear equally often, and 40 reports are sent. Huffman gives them a tree of equal depth. How many bits does the whole stream take?",
+      min: 0,
+      max: 200,
+      step: 10,
+      start: 80,
+      ans: 120,
+      tol: 10,
+      unit: "bits",
+      hint: "8 equal symbols need codes of the same length: 2 × 2 × 2 = 8, so how many bits?",
+      why: "With equal counts nothing can be shortened, so Huffman builds a balanced tree where every code has 3 bits (2³ = 8). Forty reports cost 40 × 3 = 120 bits. Huffman only saves bits when some symbols are more common than others.",
+    },
+  ]);
+
+  B.add("a8-chain", [
+    {
+      type: "mcq",
+      q: "A chain's puzzle is a hash that starts with two hex zeros (00). The rules are changed to need three hex zeros (000). Each hex digit is one of 16 values, so each extra leading zero cuts the chance of success. How much more work does one block now need, on average?",
+      o: ["About 2 times", "About 3 times", "About 16 times", "About 256 times"],
+      a: 2,
+      hint: "One extra hex digit has to be 0, and there are 16 possible digits.",
+      why: "The chance of a hash starting 00 is 1 in 16 × 16 = 256. For 000 it is 1 in 16 × 16 × 16 = 4,096. That is 16 times harder, so it needs about 16 times as many guesses. Each extra zero multiplies the work by 16, not by a fixed amount.",
+    },
+    {
+      type: "cat",
+      q: "A chain of five correctly mined blocks is checked by Verify. Sort each action by what Verify then reports.",
+      buckets: ["Every check still passes", "Some check fails"],
+      items: [
+        ["Change the data in block 2 and leave the nonce alone", 1],
+        ["Add a correctly mined block 6 on the end", 0],
+        ["Press Verify twice with no edits", 0],
+        ["Change the data in block 2 and re-mine only block 2", 1],
+      ],
+      hint: "Changing a block changes its hash. Which block stores that hash?",
+      why: "Changing block 2's data breaks its own seal. Re-mining only block 2 fixes the seal, but its hash is new, so block 3's prev link no longer matches. Adding a properly mined block on the end and just re-running Verify change nothing in the blocks already there.",
+    },
+    {
+      type: "order",
+      q: "Block 1 of a chain has been edited. Put the repair in order.",
+      items: [
+        "Edit the data in block 1",
+        "Re-mine block 1 until its hash starts with 00",
+        "Copy block 1's new hash into block 2's prev, then re-mine block 2",
+        "Do the same for block 3, and for every block after it",
+      ],
+      hint: "Each block depends on the hash of the block before it.",
+      why: "The edit makes block 1's seal fail, so it is mined again and gets a new hash. Block 2's prev must be updated to that hash, so block 2 must be mined again, and the same knock-on effect continues down the chain. This is why changing old history is so costly.",
+    },
+    {
+      type: "multi",
+      q: "Select every reason why rewriting an old block in a mined chain is hard.",
+      o: [
+        "Each block's hash covers the hash of the block before it",
+        "Re-mining an early block forces re-mining every later block",
+        "Mining is guess and check, with no shortcut to a valid nonce",
+        "Hashes can be reversed to find the nonce that gives 00",
+        "A longer chain makes early blocks easier to change",
+      ],
+      a: [0, 1, 2],
+      hint: "Which two facts link the blocks, and what does the mining step force you to do?",
+      why: "The prev hash links every block to the one before it, so one edit breaks all later seals. Each repair needs fresh mining, and mining can only be done by trying nonces. A hash cannot be reversed, and more blocks on top make an old block harder to alter, not easier.",
+    },
+  ]);
+
+  B.add("a9-mix", [
+    {
+      type: "mcq",
+      q: "A recording takes 20 samples per second, so it can only show frequencies below 10 Hz correctly. A pure 14 Hz tone is sampled. At which frequency does its bar appear in the spectrum?",
+      o: ["4 Hz", "6 Hz", "14 Hz", "34 Hz"],
+      a: 1,
+      hint: "A tone above half the sampling rate folds back: look at its distance from 20.",
+      why: "The tone is too fast for 20 samples per second, so its samples look like a slower wave. 14 Hz folds to 20 − 14 = 6 Hz, which is below the 10 Hz limit. This is aliasing: the spectrum shows a tone that was never in the signal.",
+    },
+    {
+      type: "cat",
+      q: "A signal is sampled 40 times per second, so the limit is 20 Hz. Sort each pure tone by how it appears in the spectrum.",
+      buckets: ["Shown at its true frequency", "Aliased to a wrong frequency"],
+      items: [
+        ["5 Hz", 0],
+        ["19 Hz", 0],
+        ["25 Hz", 1],
+        ["35 Hz", 1],
+        ["15 Hz", 0],
+      ],
+      hint: "Which tones are below 20 Hz, half of the 40 samples per second?",
+      why: "Tones below 20 Hz are seen correctly: 5, 15 and 19. 25 Hz folds to 40 − 25 = 15 Hz and 35 Hz folds to 5 Hz, so they hide as tones that are not there. To see a tone you must sample at more than twice its frequency.",
+    },
+    {
+      type: "slider",
+      q: "A 12 Hz wave is sampled 48 times per second. How many samples fall in each cycle of the wave?",
+      min: 0,
+      max: 20,
+      step: 1,
+      start: 8,
+      ans: 4,
+      tol: 0,
+      hint: "48 samples in one second, and the wave repeats 12 times in that second.",
+      why: "48 / 12 = 4 samples per cycle. That is comfortably more than the 2 per cycle that are the least needed to catch the tone. Fewer than 2 samples per cycle makes the wave alias.",
+    },
+    {
+      type: "order",
+      q: "Put the idea of the FFT in order, from first move to last.",
+      items: [
+        "Split the samples into even-indexed and odd-indexed ones",
+        "Keep splitting each half until each piece is one sample",
+        "A single sample is its own tiny spectrum",
+        "Combine pairs of pieces back up, one product for each pair of bins",
+      ],
+      hint: "It splits all the way down and then builds back up.",
+      why: "The FFT divides first, repeatedly, until the pieces are trivial: a single sample's spectrum is itself. It then combines neighbouring spectra into bigger ones, sharing one product between each pair of output bins. Halving at every level is what turns about n × n work into about n log n.",
+    },
+  ]);
+
+  B.add("a10-code", [
+    {
+      type: "mcq",
+      q: "A query and a key have 16 numbers each (d_k = 16). Their dot product q · k is 12. What score goes into the softmax after the scaling by √d_k?",
+      o: ["0.75", "3", "6", "192"],
+      a: 1,
+      hint: "√16 = 4. Divide 12 by 4.",
+      why: "The scaled score is 12 / √16 = 12 / 4 = 3. Dividing by √d_k stops large vectors from producing huge scores, which would make the softmax almost all-or-nothing. Multiplying by 16 or dividing by 16 would give 192 or 0.75, which is the wrong scaling.",
+    },
+    {
+      type: "cat",
+      q: "A token has scores 2, 1 and 0 for its three keys. Sort each change by what it does to the softmax weights.",
+      buckets: ["Weights get sharper", "Weights get flatter"],
+      items: [
+        ["Multiply every score by 2", 0],
+        ["Divide every score by 2", 1],
+        ["Make all three scores equal", 1],
+        ["Raise one score far above the others", 0],
+      ],
+      hint: "Softmax weights depend on the GAPS between scores.",
+      why: "Bigger gaps make the biggest score dominate, so doubling the scores or lifting one far above the rest sharpens the weights. Halving the scores shrinks the gaps, and equal scores give equal weights (1/3 each). Adding the same amount to every score changes nothing at all.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of attention for one token in order.",
+      items: [
+        "Score each key: q · k divided by √d_k",
+        "Subtract the biggest score from every score",
+        "Take exp of each score and divide by their sum to get the weights",
+        "Add up the value vectors, each multiplied by its weight",
+      ],
+      hint: "The weights must exist before values can be blended by them.",
+      why: "The scores come first. Subtracting the biggest avoids overflow and does not change the weights. Softmax turns the scores into weights that add up to 1, and the last move is the blend of the value vectors using those weights.",
+    },
+    {
+      type: "slider",
+      q: "A token gives weights 0.75 to token 1 and 0.25 to token 2. Their value vectors are v1 = (8, 0) and v2 = (0, 8). What is the FIRST number of the blended output vector?",
+      min: 0,
+      max: 8,
+      step: 1,
+      start: 4,
+      ans: 6,
+      tol: 0,
+      hint: "First number: 0.75 × 8 + 0.25 × 0.",
+      why: "The output is 0.75 × (8, 0) + 0.25 × (0, 8) = (6, 2). Its first number is 6, since v1 carries most of the weight and only v1 has a first number above 0. The blend always lies between the value vectors.",
+    },
+  ]);
+
+  B.add("a11-picker", [
+    {
+      type: "mcq",
+      q: "A deep-space probe sends data it cannot resend. At most one bit in each block is flipped by noise, and the ground station must repair it without asking again. Which tool fits?",
+      o: ["Hamming code", "A single even parity bit", "A CRC check", "Huffman coding"],
+      a: 0,
+      hint: "Which of these can say WHICH bit is wrong?",
+      why: "Only Hamming's check bits form a syndrome that names the flipped position, so the receiver can repair it. A parity bit and a CRC only notice that something broke, which would need a resend. Huffman coding compresses data and does nothing against noise.",
+    },
+    {
+      type: "match",
+      q: "Match each brief to the tool that fits it.",
+      pairs: [
+        ["Join twelve offices with the least cable overall", "Kruskal's minimum spanning tree"],
+        ["Quickest route for a van on roads that are never negative", "Dijkstra"],
+        ["Rank web pages by who links to them", "PageRank"],
+        ["Find which pitches are in a recording", "FFT"],
+        ["Shrink a text file with short codes for common letters", "Huffman coding"],
+      ],
+      hint: "Find the decisive phrase in each brief: total, route, links, pitches, common.",
+      why: "A cheapest network that touches every site is a spanning tree. A route from one start with non-negative roads is Dijkstra. Rank from links is PageRank, pitches in a recording mean frequencies and so the FFT, and short codes for common letters is Huffman.",
+    },
+    {
+      type: "cat",
+      q: "Dijkstra and Kruskal both grow a result greedily. Sort each description by the tool it belongs to.",
+      buckets: ["Dijkstra", "Kruskal"],
+      items: [
+        ["Measures distances from a chosen start node", 0],
+        ["Sorts the cables from cheapest to dearest", 1],
+        ["Keeps a waiting room of tentative distances", 0],
+        ["Ends with exactly n − 1 cables for n towns", 1],
+        ["Skips a cable whose two ends are already connected", 1],
+      ],
+      hint: "One answers 'how far from here?', the other 'what is the cheapest network?'.",
+      why: "Dijkstra works outwards from a start node, with tentative distances waiting to be settled. Kruskal sorts the cables, skips any that would close a loop and finishes with a tree of n − 1 cables. They look alike, but one minimises a journey and the other the total wiring.",
+    },
+    {
+      type: "multi",
+      q: "Select every brief that points to a linear programme (a linear goal with linear limits).",
+      o: [
+        "Maximise profit when two products compete for machine hours",
+        "Find the quickest route between two stations",
+        "Minimise cost while meeting minimum amounts of protein and fibre",
+        "Join every town with the least cable",
+        "Find the pitches in a noisy recording",
+      ],
+      a: [0, 2],
+      hint: "Look for one goal to maximise or minimise and several fixed limits.",
+      why: "Profit under machine limits and cost under minimum nutrient levels both have a linear goal and linear rules, so simplex applies. Quickest route is Dijkstra, joining towns is a spanning tree, and pitches in a recording is the FFT.",
+    },
+  ]);
+})();
