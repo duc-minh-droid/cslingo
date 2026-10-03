@@ -24,6 +24,9 @@
     return ln(x1, y1, x2 - 3 * Math.cos(a), y2 - 3 * Math.sin(a), { c, w }) + `<polygon points="${f1(x2)},${f1(y2)} ${p(0.5)} ${p(-0.5)}" fill="${c}"/>`;
   };
   const circ = (x, y, r, k = "p", o = {}) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" fill="${o.f || KIND[k][0]}" stroke="${o.st || KIND[k][1]}" stroke-width="${o.sw || 2}"/>`;
+  // drawn ticks and crosses (a ✓ or ✗ typed inside SVG text would be swapped for a badge and misplaced)
+  const tick = (x, y, c = "var(--teal-ink)") => `<path d="M ${f1(x - 6)} ${f1(y)} l 4.5 4.5 l 8 -9" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const cross = (x, y, c = "var(--rose-ink)") => `<path d="M ${f1(x - 5)} ${f1(y - 5)} l 10 10 M ${f1(x + 5)} ${f1(y - 5)} l -10 10" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`;
   const pk = (id, inner) => `<g data-pick="${id}">${inner}</g>`;
   const svg = (w, h, body, label) => `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}" style="width:100%;height:auto;display:block;max-width:${Math.min(Math.round(w * 1.45), 560)}px;margin:0 auto">${body}</svg>`;
   const tint = (c, p) => `color-mix(in srgb, ${c} ${p}%, var(--panel))`;
@@ -66,19 +69,19 @@
     rows.forEach(([n, h, ok], i) => {
       const y = 52 + i * 38;
       s += pk(`n${n}`, rc(6, y, 328, 32, "p", { r: 8 }) + tx(16, y + 21, n, { a: "start", s: 14, c: "var(--text-dim)" }) + tx(100, y + 21, h, { a: "start", s: 15, m: 1 }) +
-        rc(246, y + 5, 80, 22, ok ? "g" : "r", { r: 11, sw: 1.5 }) + tx(286, y + 21, ok ? "✓ sealed" : "✗ not yet", { s: 12, c: ok ? "var(--teal-ink)" : "var(--rose-ink)" }));
+        rc(240, y + 5, 88, 22, ok ? "g" : "r", { r: 11, sw: 1.5 }) + (ok ? tick(258, y + 14) : cross(258, y + 16)) + tx(296, y + 21, ok ? "sealed" : "not yet", { s: 12, c: ok ? "var(--teal-ink)" : "var(--rose-ink)" }));
     });
     return svg(340, 52 + rows.length * 38 + 2, s, "Mining log with five nonces, their hashes and the script's verdicts");
   }
 
   // H4: checksum on the same server as the file
   function figChecksumPipes() {
-    const lane = (y, title, file, dig, kind, note) =>
+    const lane = (y, title, file, dig, kind) =>
       tx(8, y, title, { a: "start", s: 12, c: "var(--text-dim)" }) +
       rc(8, y + 8, 100, 28, kind) + tx(58, y + 27, file, { s: 12, m: 1 }) + rc(8, y + 42, 100, 28, kind) + tx(58, y + 61, dig, { s: 12, m: 1 }) +
       arrow(112, y + 39, 134, y + 39) + rc(138, y + 8, 100, 62, "p") + lines(188, y + 33, ["your PC hashes", "the file, compares"], { s: 12 }) +
-      arrow(242, y + 39, 264, y + 39) + rc(268, y + 20, 66, 38, "a") + lines(301, y + 37, ["match", note], { s: 12, c: "var(--amber-ink)" });
-    const s = lane(18, "Honest server", "setup.zip", "digest 9f2c…", "n", "✓") + lane(112, "After the break-in", "evil.zip", "digest 41ab…", "r", "✓");
+      arrow(242, y + 39, 264, y + 39) + rc(268, y + 20, 66, 38, "a") + tx(301, y + 37, "match", { s: 12, c: "var(--amber-ink)" }) + tick(301, y + 46, "var(--amber-ink)");
+    const s = lane(18, "Honest server", "setup.zip", "digest 9f2c…", "n") + lane(112, "After the break-in", "evil.zip", "digest 41ab…", "r");
     return svg(340, 196, s, "Two pipelines: an honest download and one where the attacker replaced both the file and its checksum, both ending in a match");
   }
 
@@ -145,11 +148,11 @@
 
   // K3: Venn of public-channel set-up and bulk speed
   function figVenn() {
-    let s = `<circle cx="125" cy="118" r="88" fill="var(--blue)" fill-opacity=".14" stroke="var(--blue)" stroke-width="2.5"/><circle cx="225" cy="118" r="88" fill="var(--amber)" fill-opacity=".14" stroke="var(--amber)" stroke-width="2.5"/>`;
-    s += lines(88, 62, ["Can set up a secret", "over a public channel"], { s: 12, c: "var(--blue-ink)" }) + lines(264, 62, ["Fast enough for", "bulk data"], { s: 12, c: "var(--amber-ink)" });
-    s += tx(86, 118, "RSA", { s: 15 }) + tx(86, 142, "Diffie–Hellman", { s: 13 }) + tx(272, 130, "AES", { s: 15 }) + tx(272, 148, "(shared key)", { s: 11, c: "var(--text-dim)" });
-    s += `<ellipse cx="175" cy="118" rx="30" ry="42" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-dasharray="5 4"/>` + tx(175, 124, "?", { s: 20, c: "var(--text-faint)" });
-    return svg(350, 220, s, "Venn diagram: RSA and Diffie-Hellman sit in the public-channel circle, AES in the bulk-data circle, and the overlap is empty");
+    let s = `<circle cx="120" cy="150" r="100" fill="var(--blue)" fill-opacity=".14" stroke="var(--blue)" stroke-width="2.5"/><circle cx="230" cy="150" r="100" fill="var(--amber)" fill-opacity=".14" stroke="var(--amber)" stroke-width="2.5"/>`;
+    s += lines(8, 14, ["Can set up a secret", "over a public channel"], { a: "start", s: 12, c: "var(--blue-ink)" }) + lines(342, 14, ["Fast enough for", "bulk data"], { a: "end", s: 12, c: "var(--amber-ink)" });
+    s += tx(74, 144, "RSA", { s: 15 }) + tx(74, 168, "Diffie–Hellman", { s: 12 }) + tx(282, 146, "AES", { s: 15 }) + tx(282, 164, "(shared key)", { s: 11, c: "var(--text-dim)" });
+    s += `<ellipse cx="175" cy="150" rx="30" ry="46" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-dasharray="5 4"/>` + tx(175, 157, "?", { s: 20, c: "var(--text-faint)" });
+    return svg(350, 256, s, "Venn diagram: RSA and Diffie-Hellman sit in the public-channel circle, AES in the bulk-data circle, and the overlap is empty");
   }
 
   // K4: a tree of certificates
@@ -162,7 +165,6 @@
     s += pk("A", rc(15, 150, 140, 46, "p") + lines(85, 168, ["shop.example", "signed by Intermediate"], { s: 12, lh: 14 }));
     s += pk("B", rc(185, 150, 140, 46, "p") + lines(255, 168, ["shop.example", "signed by FreeCert"], { s: 12, lh: 14 }));
     s += pk("C", rc(100, 226, 140, 46, "p") + lines(170, 244, ["shop.example", "signed by itself"], { s: 12, lh: 14 }));
-    s += `<path d="M 100 256 C 70 256, 70 226, 100 232" fill="none" stroke="var(--line-2)" stroke-width="2.5"/>`;
     return svg(340, 280, s, "Certificate tree: Root CA signs an Intermediate CA which signs one shop.example certificate; a second comes from an unknown FreeCert; a third signs itself");
   }
 
@@ -203,14 +205,14 @@
       return ln(12, cy, 328, cy, { c: "var(--line)", w: 1.5 }) + `<polyline points="${pts(0, 32)}" fill="none" stroke="${first}" stroke-width="2.5" stroke-linejoin="round"/><polyline points="${pts(32, 63)}" fill="none" stroke="${second}" stroke-width="2.5" stroke-linejoin="round"/>`;
     };
     const bars = (x0, amps, title) => {
-      let s = tx(x0 + 70, 138, title, { s: 12, c: "var(--text-dim)" });
-      for (let k = 0; k <= 12; k++) { const h = amps[k] * 100, c = k === 4 ? "var(--blue)" : k === 8 ? "var(--amber)" : "var(--line-2)"; s += `<rect x="${x0 + k * 11 + 1}" y="${f1(222 - h)}" width="8" height="${f1(Math.max(h, 1))}" rx="2" fill="${c}"/>`; }
-      return s + ln(x0, 223, x0 + 143, 223, { c: "var(--line-2)", w: 1.5 }) + tx(x0, 238, "0", { s: 11, c: "var(--text-faint)", a: "start" }) + tx(x0 + 143, 238, "12 Hz", { s: 11, c: "var(--text-faint)", a: "end" });
+      let s = tx(x0 + 71, 134, title, { s: 12, c: "var(--text-dim)" });
+      for (let k = 0; k <= 12; k++) { const h = amps[k] * 120, c = k === 4 ? "var(--blue)" : k === 8 ? "var(--amber)" : "var(--line-2)"; s += `<rect x="${x0 + k * 11 + 1}" y="${f1(206 - h)}" width="8" height="${f1(Math.max(h, 1))}" rx="2" fill="${c}"/>`; }
+      return s + ln(x0, 207, x0 + 143, 207, { c: "var(--line-2)", w: 1.5 }) + tx(x0, 222, "0", { s: 11, c: "var(--text-faint)", a: "start" }) + tx(x0 + 143, 222, "12 Hz", { s: 11, c: "var(--text-faint)", a: "end" });
     };
     const s = tx(8, 14, "Recording A: slow tone, then fast tone", { a: "start", s: 12, c: "var(--text-dim)" }) + wave(A, 42, "var(--blue)", "var(--amber)") +
       tx(8, 78, "Recording B: fast tone, then slow tone", { a: "start", s: 12, c: "var(--text-dim)" }) + wave(Bs, 106, "var(--amber)", "var(--blue)") +
       bars(10, sa, "Spectrum of A") + bars(180, sb, "Spectrum of B");
-    return svg(340, 246, s, "Two one-second recordings with the same two tones in opposite order, and their identical magnitude spectra");
+    return svg(340, 230, s, "Two one-second recordings with the same two tones in opposite order, and their identical magnitude spectra");
   }
 
   // D2: the fold plot at fs = 40 Hz
@@ -222,7 +224,7 @@
     s += tx(8, 24, "peak you see (Hz)", { a: "start", s: 12, c: "var(--text-dim)" });
     s += `<polyline points="${[0, 20, 40, 60, 80].map((f) => `${f1(X(f))},${f1(Y(fold(f)))}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>`;
     s += tx(181, 220, "true frequency of the tone (Hz). Tap marked tones.", { s: 12, c: "var(--text-dim)" });
-    [10, 20, 30, 50, 60, 70].forEach((f) => { s += pk(String(f), `<rect x="${f1(X(f) - 16)}" y="176" width="32" height="26" rx="8" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>` + tx(X(f), 194, f, { s: 13 })); });
+    [10, 20, 30, 50, 60, 70].forEach((f) => { s += pk(String(f), `<rect x="${f1(X(f) - 14)}" y="176" width="28" height="26" rx="8" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>` + tx(X(f), 194, f, { s: 13 })); });
     [0, 40, 80].forEach((f) => (s += ln(X(f), 168, X(f), 172, { c: "var(--text-faint)", w: 2 })));
     return svg(330, 228, s, "Zig-zag plot: apparent frequency against true frequency when sampling at 40 Hz");
   }
@@ -287,7 +289,6 @@
       for (let i = 0; i < 8; i++) if (!(i & d)) { const j = i + d; s += ln(a, Y(i), b, Y(j), { c: "var(--blue)", w: 2 }) + ln(a, Y(j), b, Y(i), { c: "var(--blue)", w: 2 }); s += circ(a, Y(i), 3.2, "p", { f: "var(--blue)", st: "var(--blue)", sw: 1 }) + circ(a, Y(j), 3.2, "p", { f: "var(--blue)", st: "var(--blue)", sw: 1 }); }
     });
     order.forEach((v, i) => (s += tx(38, Y(i) + 4, `x${v}`, { a: "end", s: 12 })));
-    s += tx(316, 130, "→", { s: 18, c: "var(--text-faint)" });
     return svg(340, 242, s, "An eight-point butterfly network with inputs in bit-reversed order and three stages");
   }
 
@@ -295,7 +296,7 @@
   function figRuler() {
     let s = ln(20, 44, 320, 44, { c: "var(--text-faint)", w: 2.5 });
     for (let e = 1; e <= 10; e++) { const x = 20 + ((e - 1) * 300) / 9; s += ln(x, 38, x, 50, { c: "var(--text-faint)", w: 2 }); }
-    [[1, "10"], [3, "1,000"], [6, "1 million"], [9, "1 billion"]].forEach(([e, t]) => (s += tx(20 + ((e - 1) * 300) / 9, 72, t, { s: 12, c: "var(--text-dim)", a: e === 1 ? "start" : e === 9 ? "end" : "middle" })));
+    [[1, "10"], [3, "1,000"], [6, "1 million"], [9, "1 billion"]].forEach(([e, t]) => (s += tx(20 + ((e - 1) * 300) / 9, 72, t, { s: 12, c: "var(--text-dim)", a: e === 1 ? "start" : "middle" })));
     s += tx(170, 18, "number of operations, each tick is 10× the last", { s: 12, c: "var(--text-dim)" });
     return svg(340, 84, s, "A logarithmic ruler from 10 operations to 10 billion");
   }
@@ -346,7 +347,7 @@
   function figHeat() {
     const toks = ["the", "cat", "sat", "down"], M = [[0.1, 0.5, 0.3, 0.1], [0.05, 0.15, 0.7, 0.1], [0.1, 0.55, 0.25, 0.1], [0.05, 0.55, 0.3, 0.1]];
     const x0 = 78, y0 = 62, cw = 56, ch = 38;
-    let s = tx(8, 16, "Rows: the token that is looking. Columns: the token looked at.", { a: "start", s: 11, c: "var(--text-dim)" }) + tx(8, 32, "Each row adds up to 1.", { a: "start", s: 11, c: "var(--text-dim)" });
+    let s = tx(8, 16, "Rows: the token that is looking.", { a: "start", s: 11, c: "var(--text-dim)" }) + tx(8, 32, "Columns: the token looked at. Each row adds to 1.", { a: "start", s: 11, c: "var(--text-dim)" });
     toks.forEach((t, c) => (s += pk(`c${c}`, rc(x0 + c * cw + 2, y0 - 26, cw - 4, 22, "p", { r: 7 }) + tx(x0 + c * cw + cw / 2, y0 - 10, t, { s: 12 }))));
     M.forEach((row, r) => {
       s += tx(x0 - 8, y0 + r * ch + ch / 2 + 4, toks[r], { a: "end", s: 12, c: "var(--text-dim)" });
@@ -374,14 +375,15 @@
 
   // C1: cards after a Verify
   function figVerifiedChain() {
-    const cards = [["Genesis", "✓ sealed", "g"], ["Block 1", "✓ sealed", "g"], ["Block 2", "✗ seal broken", "r"], ["Block 3", "after a break", "r"]];
+    const cards = [["Genesis", "sealed", "g"], ["Block 1", "sealed", "g"], ["Block 2", "seal broken", "r"], ["Block 3", "after a break", "n"]];
     let s = "";
     cards.forEach(([t, st, k], i) => {
       const x = 6 + i * 84;
-      s += pk(`b${i}`, rc(x, 12, 78, 62, k === "r" && i === 3 ? "n" : k, { r: 10, d: i === 3 ? "5 4" : "", st: i === 3 ? "var(--rose)" : undefined }) + tx(x + 39, 34, t, { s: 13 }) + lines(x + 39, 56, [st], { s: 11, c: k === "g" ? "var(--teal-ink)" : "var(--rose-ink)" }));
+      s += pk(`b${i}`, rc(x, 12, 78, 62, k, { r: 10, d: i === 3 ? "5 4" : "", st: i === 3 ? "var(--rose)" : undefined }) + tx(x + 39, 34, t, { s: 13 }) + tx(x + 39, 58, st, { s: 11, c: k === "g" ? "var(--teal-ink)" : "var(--rose-ink)" }));
     });
-    s += tx(8, 102, "Links:", { a: "start", s: 12, c: "var(--text-dim)" }) + tx(60, 102, "0→1 ✓", { a: "start", s: 12, c: "var(--teal-ink)" }) + tx(140, 102, "1→2 ✓", { a: "start", s: 12, c: "var(--teal-ink)" }) + tx(220, 102, "2→3 ✗ prev ≠ hash", { a: "start", s: 12, c: "var(--rose-ink)" });
-    return svg(340, 114, s, "Four block cards after Verify: block 2 has a broken seal and the link from block 2 to block 3 is broken");
+    const link = (x, ok, t) => (ok ? tick(x, 102) : cross(x, 100)) + tx(x + 12, 106, t, { a: "start", s: 12, c: ok ? "var(--teal-ink)" : "var(--rose-ink)" });
+    s += tx(8, 106, "Links:", { a: "start", s: 12, c: "var(--text-dim)" }) + link(70, true, "0 to 1") + link(142, true, "1 to 2") + link(214, false, "2 to 3: prev ≠ hash");
+    return svg(340, 118, s, "Four block cards after Verify: block 2 has a broken seal and the link from block 2 to block 3 is broken");
   }
 
   // C2: dot plot of tries
@@ -403,16 +405,16 @@
     mineBlock(bl[0], 2); for (let i = 1; i < 4; i++) { bl[i].prev = blockHash(bl[i - 1]); mineBlock(bl[i], 2); }
     const stale = bl.map((b) => ({ ...b })); stale[1].data = "alice pays mallory 50";
     const linked = stale.map((b) => ({ ...b })); for (let i = 1; i < 4; i++) linked[i].prev = blockHash(linked[i - 1]);
+    const mark = (x, y, ok) => (ok ? tick(x, y) : cross(x, y - 1));
     const panel = (y0, title, ch) => {
-      let s = tx(8, y0, title, { a: "start", s: 13 }) + tx(52, y0 + 22, "prev", { s: 11, c: "var(--text-faint)" }) + tx(142, y0 + 22, "hash", { s: 11, c: "var(--text-faint)" }) + tx(264, y0 + 22, "link   seal", { s: 11, c: "var(--text-faint)" });
+      let s = tx(8, y0, title, { a: "start", s: 13 }) + tx(86, y0 + 20, "prev", { s: 11, c: "var(--text-faint)" }) + tx(182, y0 + 20, "own hash", { s: 11, c: "var(--text-faint)" }) + tx(262, y0 + 20, "link", { s: 11, c: "var(--text-faint)" }) + tx(306, y0 + 20, "seal", { s: 11, c: "var(--text-faint)" });
       for (let i = 1; i < 4; i++) {
-        const b = ch[i], h = blockHash(b), y = y0 + 30 + (i - 1) * 28, linkOk = b.prev === blockHash(ch[i - 1]), sealOk = zeros(h) >= 2;
-        s += tx(8, y + 17, `#${i}`, { a: "start", s: 12, c: "var(--text-dim)" }) + tx(52, y + 17, b.prev, { m: 1, s: 12, c: linkOk ? "var(--ink)" : "var(--rose-ink)" }) + tx(142, y + 17, h, { m: 1, s: 12, c: sealOk ? "var(--teal-ink)" : "var(--rose-ink)" }) +
-          tx(250, y + 17, linkOk ? "✓" : "✗", { s: 14, c: linkOk ? "var(--teal-ink)" : "var(--rose-ink)" }) + tx(292, y + 17, sealOk ? "✓" : "✗", { s: 14, c: sealOk ? "var(--teal-ink)" : "var(--rose-ink)" });
+        const b = ch[i], h = blockHash(b), y = y0 + 28 + (i - 1) * 26, linkOk = b.prev === blockHash(ch[i - 1]), sealOk = zeros(h) >= 2;
+        s += tx(8, y + 17, `block ${i}`, { a: "start", s: 12, c: "var(--text-dim)" }) + tx(86, y + 17, b.prev, { m: 1, s: 12, c: linkOk ? "var(--ink)" : "var(--rose-ink)" }) + tx(182, y + 17, h, { m: 1, s: 12, c: sealOk ? "var(--teal-ink)" : "var(--rose-ink)" }) + mark(262, y + 13, linkOk) + mark(306, y + 13, sealOk);
       }
       return s;
     };
-    return svg(330, 232, panel(18, "After editing block 1", stale) + ln(8, 124, 322, 124, { c: "var(--line)", w: 1.5 }) + panel(144, "After pressing “Re-link, no mining”", linked), "Two small tables of prev and hash values for blocks 1 to 3, before and after re-linking");
+    return svg(330, 252, panel(16, "After editing block 1", stale) + ln(8, 128, 322, 128, { c: "var(--line)", w: 1.5 }) + panel(148, "After pressing Re-link, no mining", linked), "Two small tables of prev and hash values for blocks 1 to 3, before and after re-linking");
   }
 
   // C5: a timeline of the repair bill
@@ -427,15 +429,15 @@
 
   // C6: the Verify walk as a flow chart
   function figVerifyFlow() {
-    const S = [["l1", "Block 1", ["link: prev is", "genesis hash?"]], ["s1", "Block 1", ["seal: hash", "starts 00?"]], ["l2", "Block 2", ["link: prev is", "block 1's hash?"]], ["s2", "Block 2", ["seal: hash", "starts 00?"]], ["l3", "Block 3", ["link: prev is", "block 2's hash?"]], ["s3", "Block 3", ["seal: hash", "starts 00?"]]];
-    let s = tx(172, 14, "Verify runs the checks in this order and stops at the first ✗", { s: 12, c: "var(--text-dim)" });
+    const S = [["l1", "1 · Block 1", ["link: prev is", "genesis hash?"]], ["s1", "2 · Block 1", ["seal: hash", "starts 00?"]], ["l2", "3 · Block 2", ["link: prev is", "block 1's hash?"]], ["s2", "4 · Block 2", ["seal: hash", "starts 00?"]], ["l3", "5 · Block 3", ["link: prev is", "block 2's hash?"]], ["s3", "6 · Block 3", ["seal: hash", "starts 00?"]]];
+    let s = tx(172, 14, "Walk order 1 to 6. It stops at the first failure.", { s: 12, c: "var(--text-dim)" });
     S.forEach(([id, b, t], i) => {
-      const col = i >> 1, row = i & 1, x = 6 + col * 114, y = 26 + row * 78;
-      s += pk(id, rc(x, y, 104, 58, "p") + tx(x + 52, y + 16, b, { s: 12, c: "var(--text-dim)" }) + lines(x + 52, y + 33, t, { s: 11, lh: 13 }));
-      if (row === 0) s += arrow(x + 52, y + 60, x + 52, y + 76, "var(--text-faint)");
-      else if (col < 2) s += arrow(x + 104, y + 29, x + 124, y - 49, "var(--text-faint)");
+      const col = i % 3, row = i < 3 ? 0 : 1, x = 6 + col * 114, y = 26 + row * 82;
+      s += pk(id, rc(x, y, 100, 58, "p") + tx(x + 50, y + 16, b, { s: 11.5, c: "var(--text-dim)" }) + lines(x + 50, y + 33, t, { s: 11, lh: 13 }));
+      if (col < 2) s += arrow(x + 102, y + 29, x + 112, y + 29, "var(--text-faint)");
     });
-    return svg(342, 170, s, "Flow chart of six checks: a link check then a seal check for each of blocks 1, 2 and 3, in order");
+    s += `<path d="M 290 86 L 290 98 L 56 98 L 56 104" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-linejoin="round"/><polygon points="56,108 51,100 61,100" fill="var(--text-faint)"/>`;
+    return svg(332, 172, s, "Flow chart of six checks, a link check then a seal check for each of blocks 1, 2 and 3, in order");
   }
 
   B.add("a8-chain", [
@@ -513,19 +515,19 @@
 
   // M4: before and after one even/odd split
   function figSplitAreas() {
-    let s = tx(70, 16, "One 16-point DFT", { s: 12, c: "var(--text-dim)" }) + rc(22, 26, 96, 96, "b", { r: 6 }) + tx(70, 79, "16 × 16", { s: 15, c: "var(--blue-ink)" });
-    s += tx(70, 142, "every output needs all 16 samples", { s: 11, c: "var(--text-faint)" });
-    s += tx(246, 16, "Split once, then combine", { s: 12, c: "var(--text-dim)" });
-    s += rc(160, 26, 48, 48, "g", { r: 5 }) + tx(184, 55, "8 × 8", { s: 12, c: "var(--teal-ink)" }) + rc(216, 26, 48, 48, "g", { r: 5 }) + tx(240, 55, "8 × 8", { s: 12, c: "var(--teal-ink)" });
-    s += tx(184, 88, "evens", { s: 11, c: "var(--text-faint)" }) + tx(240, 88, "odds", { s: 11, c: "var(--text-faint)" });
-    s += rc(160, 100, 104, 14, "a", { r: 5 }) + tx(212, 126, "combine: one product for each of 8 bin pairs", { s: 11, c: "var(--amber-ink)" });
-    return svg(300, 150, s, "A single 16 by 16 square against two 8 by 8 squares plus a thin combine strip");
+    let s = tx(58, 16, "One 16-point DFT", { s: 12, c: "var(--text-dim)" }) + rc(10, 26, 96, 96, "b", { r: 6 }) + tx(58, 79, "16 × 16", { s: 15, c: "var(--blue-ink)" });
+    s += lines(58, 142, ["every output reads", "all 16 samples"], { s: 11, c: "var(--text-faint)", lh: 14 });
+    s += tx(214, 16, "Split, then combine", { s: 12, c: "var(--text-dim)" });
+    s += rc(150, 26, 60, 60, "g", { r: 5 }) + tx(180, 61, "8 × 8", { s: 13, c: "var(--teal-ink)" }) + rc(218, 26, 60, 60, "g", { r: 5 }) + tx(248, 61, "8 × 8", { s: 13, c: "var(--teal-ink)" });
+    s += tx(180, 102, "evens", { s: 11, c: "var(--text-faint)" }) + tx(248, 102, "odds", { s: 11, c: "var(--text-faint)" });
+    s += rc(150, 112, 128, 14, "a", { r: 5 }) + lines(214, 142, ["combine: one product", "for each of 8 bin pairs"], { s: 11, c: "var(--amber-ink)", lh: 14 });
+    return svg(300, 164, s, "A single 16 by 16 square against two 8 by 8 squares plus a thin combine strip");
   }
 
   B.add("a9-mix", [
     { type: "pick", q: "The mixer holds two waves: <b>Wave 1</b> at 3 Hz with strength 1 and <b>Wave 2</b> at 8 Hz with strength 0.5. Which spectrum will it show? Tap it.",
       fig: figMixerBoard(), a: "C",
-      why: "Each wave gets its own bar: frequency decides where the bar stands and strength decides how tall it is. So there is a full bar at 3 Hz and a half-height one at 8 Hz (C). A has the strengths swapped, and B has put a bar at 11 Hz, as if waves added their frequencies. They don't: waves add, frequencies stay." },
+      why: "Each wave gets its own bar: frequency decides where the bar stands and strength decides how tall it is. So there is a full bar at 3 Hz and a half-height one at 8 Hz (C). A has the strengths swapped, and B has moved Wave 2 to 11 Hz (3 + 8), as if frequencies added up. They don't: waves add, frequencies stay." },
     { type: "pick", q: "You sample tones of 5, 11, 19 and 27 Hz at 16, 32 and 64 samples per second. Tap <b>every</b> cell where the bar will show up at the <b>wrong</b> frequency.",
       fig: figAliasGrid(), a: ["11-16", "19-16", "27-16", "19-32", "27-32"], hint: "A tone shows correctly only if it is below half the sampling rate: 8, 16 or 32 Hz.",
       why: "The limit is half the sampling rate: 8 Hz at 16/s, 16 Hz at 32/s and 32 Hz at 64/s. At 16/s only 5 Hz is safe (11, 19 and 27 fold back to 5, 3 and 5). At 32/s, 19 and 27 fold to 13 and 5. At 64/s everything is below 32 Hz, so all four are right. Note 27 Hz at 16/s lands on 5 Hz: it impersonates the real 5 Hz tone." },
@@ -550,19 +552,19 @@
   function figScoreTable() {
     const rows = [[0, 0, 0], [-2, 0, 0], [1, 1, 0], [2, 0, 0]], shown = rows.map((r) => softmax(r).map((v) => v.toFixed(2)));
     shown[2] = ["0.50", "0.50", "0.00"];
-    let s = tx(16, 16, "scores", { a: "start", s: 11, c: "var(--text-faint)" }) + tx(160, 16, "weights printed by the student's code", { a: "start", s: 11, c: "var(--text-faint)" });
+    let s = tx(16, 16, "scores", { a: "start", s: 11, c: "var(--text-faint)" }) + tx(160, 16, "weights printed", { a: "start", s: 11, c: "var(--text-faint)" });
     rows.forEach((r, i) => { const y = 24 + i * 44; s += pk(`r${i}`, rc(6, y, 328, 38, "p") + tx(16, y + 24, `[${r.join(", ")}]`.replace(/-/g, "−"), { a: "start", s: 14, m: 1 }) + tx(160, y + 24, `[${shown[i].join(", ")}]`, { a: "start", s: 14, m: 1 })); });
     return svg(340, 204, s, "Four rows each showing three scores and the three softmax weights a student's code printed");
   }
 
   // X2: two pipelines for softmax
   function figSoftmaxPipes() {
-    const box = (x, y, k, a, b, c) => rc(x, y, 78, 62, k) + lines(x + 39, y + 20, [a, b, c].filter(Boolean), { s: 11, lh: 14 });
+    const box = (x, y, k, a, b, c) => rc(x, y, 96, 62, k) + lines(x + 48, y + 20, [a, b, c].filter(Boolean), { s: 11, lh: 14 });
     let s = tx(8, 14, "Naive", { a: "start", s: 12, c: "var(--text-dim)" });
-    s += box(8, 22, "p", "scores", "1000, 1000,", "998") + arrow(88, 53, 106, 53) + box(108, 22, "r", "e^score", "overflow!", "") + arrow(188, 53, 206, 53) + box(208, 22, "n", "divide by", "the total", "(never reached)");
+    s += box(8, 22, "p", "scores", "1000, 1000,", "998") + arrow(106, 53, 122, 53) + box(124, 22, "r", "e^score", "overflow!", "") + arrow(222, 53, 238, 53) + box(240, 22, "n", "divide by", "the total", "(never reached)");
     s += tx(8, 108, "Subtract the largest score first", { a: "start", s: 12, c: "var(--text-dim)" });
-    s += box(8, 116, "p", "minus max", "0, 0, −2", "") + arrow(88, 147, 106, 147) + box(108, 116, "p", "e^score", "1, 1, 0.14", "") + arrow(188, 147, 206, 147) + box(208, 116, "g", "divide by", "the total", "0.47 0.47 0.06");
-    return svg(300, 186, s, "Naive softmax fails at the exponential on scores near 1000; subtracting the largest score first gives weights 0.47, 0.47, 0.06");
+    s += box(8, 116, "p", "minus the max", "0, 0, −2", "") + arrow(106, 147, 122, 147) + box(124, 116, "p", "e^score", "1, 1, 0.14", "") + arrow(222, 147, 238, 147) + box(240, 116, "g", "divide by", "the total", "0.47 0.47 0.06");
+    return svg(344, 186, s, "Naive softmax fails at the exponential on scores near 1000; subtracting the largest score first gives weights 0.47, 0.47, 0.06");
   }
 
   // X3: where can a blended output land?
@@ -571,8 +573,8 @@
     let s = ln(X(0), Y(0), X(4), Y(0), { c: "var(--line-2)", w: 1.5 }) + ln(X(0), Y(0), X(0), Y(4), { c: "var(--line-2)", w: 1.5 });
     for (let v = 1; v <= 4; v++) s += tx(X(v), Y(0) + 15, v, { s: 11, c: "var(--text-faint)" }) + tx(X(0) - 9, Y(v) + 4, v, { s: 11, c: "var(--text-faint)", a: "end" });
     [[3, 0, "v1 (3, 0)", 1], [0, 3, "v2 (0, 3)", 1], [3, 3, "v3 (3, 3)", 1]].forEach(([x, y, t]) => { s += `<rect x="${X(x) - 6}" y="${Y(y) - 6}" width="12" height="12" rx="2" fill="var(--violet)" stroke="var(--violet-lip)" stroke-width="1.5"/>`; });
-    s += tx(X(3) + 8, Y(0) - 12, "v1", { a: "start", s: 12, c: "var(--violet-ink)" }) + tx(X(0) + 10, Y(3) - 10, "v2", { a: "start", s: 12, c: "var(--violet-ink)" }) + tx(X(3) + 10, Y(3) - 10, "v3", { a: "start", s: 12, c: "var(--violet-ink)" });
-    [["A", 2, 2], ["B", 1, 1], ["C", 3.5, 3.2], ["D", 1, 2.2], ["E", 2.4, 0.2], ["F", 2.5, 2.5]].forEach(([id, x, y]) => (s += pk(id, circ(X(x), Y(y), 12, "p") + tx(X(x), Y(y) + 5, id, { s: 13 }))));
+    s += tx(X(3) + 12, Y(0) - 2, "v1", { a: "start", s: 12, c: "var(--violet-ink)" }) + tx(X(0) + 12, Y(3) - 4, "v2", { a: "start", s: 12, c: "var(--violet-ink)" }) + tx(X(3), Y(3) - 12, "v3", { s: 12, c: "var(--violet-ink)" });
+    [["A", 2, 2], ["B", 1, 1], ["C", 3.55, 2.4], ["D", 1, 2.2], ["E", 2.4, 0.2], ["F", 2.5, 2.5]].forEach(([id, x, y]) => (s += pk(id, circ(X(x), Y(y), 12, "p") + tx(X(x), Y(y) + 5, id, { s: 13 }))));
     return svg(336, 284, s, "Three value vectors v1 (3,0), v2 (0,3) and v3 (3,3) as purple squares and six candidate outputs A to F");
   }
 
@@ -587,7 +589,7 @@
   // X6: matrix shapes in one attention head
   function figShapes() {
     const u = 20, mat = (id, x, y, r, c, name, wrong) => pk(id, rc(x, y, c * u, r * u, wrong ? "p" : "p", { r: 5 }) + tx(x + (c * u) / 2, y + (r * u) / 2 - 2, name, { s: 12 }) + tx(x + (c * u) / 2, y + (r * u) / 2 + 13, `${r}×${c}`, { s: 12, c: "var(--text-dim)" }));
-    let s = tx(8, 14, "3 tokens, d_k = 4, value vectors of 2 numbers. Shape = rows × columns.", { a: "start", s: 11, c: "var(--text-dim)" });
+    let s = tx(8, 14, "3 tokens, d_k = 4, values of 2 numbers. Shape = rows × columns.", { a: "start", s: 11, c: "var(--text-dim)" });
     s += mat("Q", 10, 34, 3, 4, "Q") + tx(104, 70, "×", { s: 18, c: "var(--text-faint)" }) + mat("Kt", 122, 24, 4, 3, "Kᵀ") + tx(196, 70, "→", { s: 18, c: "var(--text-faint)" }) + mat("scores", 214, 34, 3, 3, "scores");
     s += tx(244, 112, "↓ softmax", { s: 11, c: "var(--text-faint)" });
     s += mat("weights", 10, 134, 3, 3, "weights") + tx(88, 170, "×", { s: 18, c: "var(--text-faint)" }) + mat("V", 104, 134, 3, 2, "V") + tx(160, 170, "=", { s: 18, c: "var(--text-faint)" }) + mat("out", 176, 134, 3, 3, "out");
@@ -607,7 +609,7 @@
       why: "e^(s − m) = e^s ÷ e^m. Every term gets divided by the same e^m, and so does the total, so the common factor cancels in the final division. The weights are identical, but the numbers stay small enough to compute. Without this step Python raises an OverflowError on <code>math.exp(1000)</code>." },
     { type: "pick", q: "Three value vectors are fixed: v1 = (3, 0), v2 = (0, 3) and v3 = (3, 3). A token blends them with positive weights that add up to 1. Tap <b>every</b> candidate that no choice of weights could ever produce.",
       fig: figHull(), a: ["B", "C", "E"], hint: "A blend with weights adding to 1 stays inside the triangle with corners v1, v2 and v3. Which side is x + y = 3?",
-      why: "A weighted average with positive weights summing to 1 always lands inside the triangle with corners v1, v2, v3 (x ≤ 3, y ≤ 3 and x + y ≥ 3). B (1, 1) and E (2.4, 0.2) have x + y below 3, and C sticks out past x = 3 and y = 3. A, D and F are inside. Attention can only mix its values, never invent something outside them." },
+      why: "A weighted average with positive weights summing to 1 always lands inside the triangle with corners v1, v2, v3 (x ≤ 3, y ≤ 3 and x + y ≥ 3). B (1, 1) and E (2.4, 0.2) have x + y below 3, and C sticks out past x = 3. A, D and F are inside. Attention can only mix its values, never invent something outside them." },
     { type: "order", q: "A token's three keys give these score patterns (the other two scores are 0). Order them from the <b>most even</b> weights to the <b>sharpest</b>, judged by the biggest weight.",
       fig: figGauge(), hint: "e ≈ 2.7, e³ ≈ 20 and e⁶ ≈ 400. A score of −3 gives a tiny e⁻³ ≈ 0.05.",
       items: ["scores [0, 0, 0]", "scores [−3, 0, 0]", "scores [1, 0, 0]", "scores [3, 0, 0]", "scores [6, 0, 0]"],
@@ -624,12 +626,12 @@
 
   // P1: decision flow
   function figToolFlow() {
-    const Q = [["Link every point as", "cheaply as possible?", "mst", "MST (Prim / Kruskal)"], ["An outline round", "scattered points?", "hull", "Convex hull"], ["Best mix under", "straight-line limits?", "lp", "Linear programming"], ["One goal, plus an honest", "estimate of distance left?", "astar", "A*"]];
+    const Q = [["Link every point as", "cheaply as possible?", "mst", ["MST", "Prim / Kruskal"]], ["An outline round", "scattered points?", "hull", ["Convex hull"]], ["Best mix under", "straight-line limits?", "lp", ["Linear", "programming"]], ["One goal, plus an honest", "estimate of distance left?", "astar", ["A*"]]];
     let s = "";
     Q.forEach(([a, b, id, name], i) => {
       const y = 8 + i * 66;
-      s += rc(8, y, 190, 44, "b") + lines(103, y + 19, [a, b], { s: 12, lh: 15 }) + arrow(200, y + 22, 244, y + 22, "var(--teal)", 2.5) + tx(222, y + 14, "yes", { s: 11, c: "var(--teal-ink)" });
-      s += pk(id, rc(248, y + 3, 100, 38, "g") + tx(298, y + 26, name, { s: name.length > 14 ? 11 : 13, c: "var(--teal-ink)" }));
+      s += rc(8, y, 190, 44, "b") + lines(103, y + 19, [a, b], { s: 12, lh: 15 }) + arrow(200, y + 22, 238, y + 22, "var(--teal)", 2.5) + tx(219, y + 14, "yes", { s: 11, c: "var(--teal-ink)" });
+      s += pk(id, rc(242, y + 1, 108, 42, "g") + lines(296, y + (name.length > 1 ? 18 : 25), name, { s: 12, lh: 14, c: "var(--teal-ink)" }));
       s += arrow(103, y + 46, 103, y + 64, "var(--rose)", 2.5) + tx(122, y + 59, "no", { s: 11, c: "var(--rose-ink)" });
     });
     s += pk("dijk", rc(8, 272, 190, 38, "g") + tx(103, 296, "Dijkstra", { s: 13, c: "var(--teal-ink)" }));
@@ -655,7 +657,7 @@
     let s = "";
     panels.forEach(([id, title, keep], p) => {
       const y0 = p * 118 + 6; let g = rc(4, y0, 292, 112, "p", { r: 10 }) + tx(14, y0 + 20, title, { a: "start", s: 12, c: "var(--text-dim)" });
-      all.forEach(([a, b, w]) => { const on = keep.includes(a + b), [xa, ya] = pos[a], [xb, yb] = pos[b]; g += ln(xa + 16, ya + y0 + 8, xb + 16, yb + y0 + 8, on ? { c: "var(--blue)", w: 4 } : { c: "var(--line)", w: 1.5, d: "3 4" }); if (on) g += tx((xa + xb) / 2 + 16 + (a === "A" && b === "B" ? 11 : 0), (ya + yb) / 2 + y0 + (a + b === "CD" ? 12 : 3), w, { s: 12, c: "var(--blue-ink)" }); });
+      all.forEach(([a, b, w]) => { const on = keep.includes(a + b), [xa, ya] = pos[a], [xb, yb] = pos[b]; g += ln(xa + 16, ya + y0 + 8, xb + 16, yb + y0 + 8, on ? { c: "var(--blue)", w: 4 } : { c: "var(--line)", w: 1.5, d: "3 4" }); if (on) g += tx((xa + xb) / 2 + 16 + (xa === xb ? 11 : 0), (ya + yb) / 2 + y0 + 8 + (xa === xb ? 4 : -6), w, { s: 12, c: "var(--blue-ink)" }); });
       Object.entries(pos).forEach(([k, [x, y]]) => (g += circ(x + 16, y + y0 + 8, 11, "p") + tx(x + 16, y + y0 + 13, k, { s: 12 })));
       s += pk(id, g);
     });
@@ -683,7 +685,7 @@
       why: "PageRank scores pages and attention weights score tokens. Dijkstra returns routes and an MST a set of links. Huffman and LZW return shorter bit strings and a CRC returns a few check bits. Knowing the output shape is the quickest way to rule tools out." },
     { type: "pick", q: "A planner uses four tools. Three things then change in the data. Tap <b>every</b> cell where the tool will now give wrong answers.",
       fig: (function () {
-        const rows = ["A road gets a negative cost", "The cost curve gets a second dip", "The distance estimate sometimes overshoots"], cols = [["Dijkstra", ""], ["A*", ""], ["MST", ""], ["Golden-", "section"]], x0 = 120, y0 = 52, cw = 56, ch = 44;
+        const rows = ["A road gets a negative cost", "The cost curve gets a second dip", "The distance estimate sometimes overshoots"], cols = [["Dijkstra", ""], ["A*", ""], ["MST", ""], ["Golden-", "section"]], x0 = 148, y0 = 52, cw = 52, ch = 44;
         let s = "";
         cols.forEach(([a, b], c) => (s += lines(x0 + c * cw + cw / 2, y0 - 22, b ? [a, b] : [a], { s: 11, lh: 12 })));
         rows.forEach((t, r) => {
@@ -691,7 +693,7 @@
           s += lines(x0 - 8, y0 + r * ch + ch / 2 - 2, [w.slice(0, mid).join(" "), w.slice(mid).join(" ")], { a: "end", s: 11, c: "var(--text-dim)", lh: 13 });
           cols.forEach((_, c) => (s += pk(`r${r}c${c}`, rc(x0 + c * cw + 3, y0 + r * ch + 3, cw - 6, ch - 6, "p", { r: 8 }) + tx(x0 + c * cw + cw / 2, y0 + r * ch + ch / 2 + 5, "?", { s: 14, c: "var(--text-faint)" }))));
         });
-        return svg(350, y0 + 3 * ch + 6, s, "A grid of three changes against four tools");
+        return svg(358, y0 + 3 * ch + 6, s, "A grid of three changes against four tools");
       })(), a: ["r0c0", "r0c1", "r1c3", "r2c1"],
       why: "Dijkstra and A* both rely on costs never being negative (a settled place can only get worse later). A* additionally trusts its estimate never to overshoot, so an overshooting estimate breaks A* but not Dijkstra, which does not use one. Golden-section search needs a single dip, so a second dip breaks it. An MST is untouched by any of the three: Prim and Kruskal still work with negative lengths." },
   ]);

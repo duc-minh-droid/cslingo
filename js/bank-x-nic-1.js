@@ -87,13 +87,13 @@
       const gx = x0 + gi * gw;
       for (let k = 0; k < 3; k++) {
         const v = d[k + 1], x = gx + 6 + k * 26, h = (v / 100) * H;
-        if (v === 0) g += T(x + 12, base - 8, "none", { z: 11, c: "var(--rose-ink)" });
+        if (v === 0) g += T(x + 12, base - 8, "✗", { z: 15, c: "var(--rose-ink)" });
         else g += R(x, base - h, 24, h, { f: col[k], s: ink[k], r: 4, sw: 1.5 });
       }
       g += T(gx + 45, base + 18, d[0] + " stops", { z: 13 });
     });
     g += [["Exact search", 0], ["Evolutionary algorithm", 1], ["Random guessing", 2]].map(([s, k], i) => R(10 + [0, 98, 292][i], 6, 12, 12, { f: col[k], s: ink[k], r: 3, sw: 1.5 }) + T(26 + [0, 98, 292][i], 16, s, { a: "start", z: 12 })).join("");
-    g += T(22, base + 38, "Score = % of the best plan known.", { a: "start", z: 12, c: "var(--text-dim)" }) + T(22, base + 56, "“none” = no answer within the time limit.", { a: "start", z: 12, c: "var(--text-dim)" });
+    g += T(22, base + 38, "Score = % of the best plan known.", { a: "start", z: 12, c: "var(--text-dim)" }) + T(22, base + 56, "✗ = no answer within the time limit.", { a: "start", z: 12, c: "var(--text-dim)" });
     return svg(440, 262, g);
   })();
 
@@ -577,7 +577,7 @@
     const arrow = (pid, d, label) => `<g data-pick="${pid}"><path d="${d}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/><path d="${d}" stroke="transparent" stroke-width="22" fill="none"/></g>`;
     ys.forEach((y, i) => (g += R(bx, y, bw, bh, { r: 10, f: i === 0 ? "var(--teal-dim)" : "var(--blue-dim)", s: i === 0 ? "var(--teal)" : "var(--blue-edge)", sw: 2.5 }) + T(bx + bw / 2, y + 23, names[i], { z: 14, c: "var(--ink)" })));
     g += `<polygon points="${bx + bw / 2},${decY - 4} ${bx + bw / 2 + 80},${decY + 22} ${bx + bw / 2},${decY + 48} ${bx + bw / 2 - 80},${decY + 22}" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2.5"/>` + T(bx + bw / 2, decY + 27, "Time left?", { z: 13, c: "var(--ink)" });
-    g += R(310, decY + 4, 106, 38, { r: 10, f: "var(--rose-dim)", s: "var(--rose)", sw: 2.5 }) + T(363, decY + 28, "Stop: report best", { z: 12, c: "var(--ink)" });
+    g += R(312, decY + 2, 100, 42, { r: 10, f: "var(--rose-dim)", s: "var(--rose)", sw: 2.5 }) + T(362, decY + 20, "Stop and", { z: 13, c: "var(--ink)" }) + T(362, decY + 36, "report best", { z: 13, c: "var(--ink)" });
     g += arrow("a1", `M${bx + bw / 2} ${ys[0] + bh} L${bx + bw / 2} ${ys[1] - 6}`) + arrow("a2", `M${bx + bw / 2} ${ys[1] + bh} L${bx + bw / 2} ${ys[2] - 6}`) + arrow("a3", `M${bx + bw / 2} ${ys[2] + bh} L${bx + bw / 2} ${ys[3] - 6}`) + arrow("a4", `M${bx + bw / 2} ${ys[3] + bh} L${bx + bw / 2} ${decY - 8}`);
     g += arrow("a5", `M${bx + bw / 2 + 80} ${decY + 22} L${306} ${decY + 22}`) + T(272, decY + 14, "no", { z: 12, c: "var(--text-dim)" });
     g += arrow("a6", `M${bx + bw / 2 - 80} ${decY + 22} L${14} ${decY + 22} L${14} ${ys[0] + bh / 2} L${bx - 4} ${ys[0] + bh / 2}`) + T(64, decY + 14, "yes", { z: 12, c: "var(--text-dim)" });
@@ -644,7 +644,7 @@
     [0, 5, 10, 15, 20, 25].forEach((e) => (g += L(X(e), y - 5, X(e), y + 5, { sw: 2 }) + T(X(e), y + 25, e === 0 ? "1 s" : "10<tspan dy='-5' style='font-size:10px'>" + e + "</tspan>", { z: 12, c: "var(--text-dim)" })));
     [[4.94, "a day", 62], [9.5, "a century", 40], [17.6, "age of the universe", 62]].forEach(([e, s, ty]) => (g += L(X(e), ty + 6, X(e), y, { c: "var(--amber)", d: "3 3", sw: 2 }) + T(X(e), ty, s, { z: 12, c: "var(--amber-ink)" })));
     [3, 9, 15, 21, 24].forEach((e, i) => (g += `<g data-pick="m${e}">${C(X(e), y, 13, { f: "var(--blue-dim)", s: "var(--blue)", sw: 3 })}</g>${T(X(e), y + 5, "ABCDE"[i], { z: 13, c: "var(--ink)" })}`));
-    g += T(220, 150, "seconds, on a log scale: each tick is 100,000 times the one before", { z: 12, c: "var(--text-dim)" }) + T(220, 16, "How long would the full search take?", { z: 13, c: "var(--text-dim)" });
+    g += T(205, 150, "seconds (log scale: each tick is ×100,000)", { z: 12, c: "var(--text-dim)" }) + T(220, 16, "How long would the full search take?", { z: 13, c: "var(--text-dim)" });
     return svg(410, 162, g);
   })();
 
@@ -817,7 +817,7 @@
      l2-mst
      ===================================================================== */
   const mstPlans = (() => {
-    const pos = { A: [20, 70], B: [66, 24], C: [66, 116], D: [118, 70], E: [162, 24], F: [162, 116] };
+    const pos = { A: [18, 70], B: [58, 24], C: [58, 116], D: [104, 70], E: [148, 24], F: [148, 116] };
     const plans = [
       ["1", [["C", "D", 1], ["A", "B", 2], ["E", "F", 2], ["B", "C", 3], ["D", "E", 3]]],
       ["2", [["A", "B", 2], ["B", "C", 3], ["C", "D", 1], ["D", "F", 6], ["E", "F", 2]]],
