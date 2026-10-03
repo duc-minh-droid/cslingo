@@ -1,6 +1,7 @@
 /* Answers every boss question correctly through the lesson player and checks each boss scores full marks.
    Load tools/answer.js first. Run in the page: await bossTest()  → { bosses, failures: [...] } */
 async function bossTest() {
+  if (NIC.content) await NIC.content.all(); // every course's lessons load on demand
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const failures = [];
   const bosses = NIC.modules.filter((m) => m.num === "Boss");

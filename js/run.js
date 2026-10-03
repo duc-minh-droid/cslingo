@@ -17,7 +17,10 @@
 (function () {
   const N = NIC;
   const G = () => window.gsap;
-  if (window.gsap) window.gsap.registerPlugin(...[window.DrawSVGPlugin, window.MotionPathPlugin].filter(Boolean));
+  const regGsap = () => { if (window.gsap) window.gsap.registerPlugin(...[window.DrawSVGPlugin, window.MotionPathPlugin].filter(Boolean)); };
+  regGsap();
+  // GSAP (about 25 KB gzipped) loads after startup; the runner and the roulette wheel animate with it once it arrives
+  if (!window.gsap) N.lazy("vendor/gsap/gsap.min.js", "vendor/gsap/DrawSVGPlugin.min.js", "vendor/gsap/MotionPathPlugin.min.js").then(regGsap, () => {});
   const reduce = () => N.fx && N.fx.reduce();
   const FX = () => (N.fx && N.fx.ok ? N.fx : null); // Motion helpers, or null without Motion
   const DUR = (N.fx && N.fx.DUR) || { xs: 0.09, s: 0.16, m: 0.24, l: 0.32 };

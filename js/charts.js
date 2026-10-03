@@ -5,6 +5,8 @@
    - Hover shows a crosshair + tooltip; dataset names come from the .legend that follows the canvas.
    Falls back to the plain canvas drawing if Chart.js didn't load. */
 (function () {
+  // Chart.js (68 KB gzipped) loads after startup; charts drawn before it arrives use the plain canvas versions, later ones animate.
+  const install = () => {
   const Chart = window.Chart;
   if (!Chart) return;
   const N = NIC, fx = () => N.fx;
@@ -208,4 +210,6 @@
       ch.options.animation = { duration: 450, easing: "easeOutCubic" };
     }, opts.height || 200, opts.markers);
   };
+  };
+  NIC.lazy("vendor/chart.umd.js").then(install, () => {});
 })();

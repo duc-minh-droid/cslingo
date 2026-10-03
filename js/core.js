@@ -458,7 +458,7 @@ window.NIC = (function () {
   const texStr = (s, display = false) => (window.katex ? window.katex.renderToString(s, { throwOnError: false, displayMode: display }) : esc(s));
 
   return {
-    BUILD, lazy, tex, texStr, shield,
+    BUILD, lazy, asset: (src) => base + src + (src.includes("?") ? "&" : "?") + "v=" + BUILD, tex, texStr, shield,
     modules, register, qs, qsa, el, esc, rnd, randint, choice, shuffle, gauss, clamp, fmt,
     setupCanvas, colors, lineChart, barChart, roundRect, store, updateScore, predict, lesson, guide, takeaways, LESSONS: {}, header, lifecycle,
     slider, seg, LANDSCAPES, makeLandscape, drawLandscape, TSP, tspSVG, matrixHTML,

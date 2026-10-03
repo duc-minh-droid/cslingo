@@ -101,6 +101,7 @@
   }
 
   function practice(opts = {}) {
+    if (N.content && !N.content.allLoaded()) { N.content.all().then(() => practice(opts)); return; } // it draws on every finished course
     if (S) close(true);
     S = base("practice", opts);
     S.who = "berry"; S.mod = { id: "practice", num: "Practice", title: "Practice" };
