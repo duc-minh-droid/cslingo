@@ -175,14 +175,18 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #fff;
-  background: var(--teal);
+  background: var(--teal-ink);
   transition: background-color var(--dur-2) ease;
 }
 .wk-badge.slow {
-  background: var(--amber);
+  background: var(--amber-ink);
 }
 .wk-badge.down {
-  background: var(--rose);
+  background: var(--rose-ink);
+}
+/* night: the ink tokens are light there, so these become bright fills with dark text */
+:root[data-theme-now="dark"] .wk-badge {
+  color: var(--bg);
 }
 
 /* ---------- W2: query lab ---------- */

@@ -46,7 +46,7 @@
    0001     ← bring down the last two bits
       100   ← shorter than 1101: stop
 
-remainder = <b style="color:var(--amber)">100</b>  →  send 1011<b style="color:var(--amber)">100</b></pre>`,
+remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="color:var(--amber-ink)">100</b></pre>`,
       },
       {
         t: "Why the receiver can check it",
@@ -194,7 +194,7 @@ remainder = <b style="color:var(--amber)">100</b>  →  send 1011<b style="color
         ]
           .map(
             ([bit, n]) =>
-              `<tr><td><b style="color:var(--violet)">${n}</b></td>${[1, 2, 3, 4, 5, 6, 7].map((i) => `<td>${i & bit ? "●" : ""}</td>`).join("")}</tr>`,
+              `<tr><td><b style="color:var(--violet-ink)">${n}</b></td>${[1, 2, 3, 4, 5, 6, 7].map((i) => `<td>${i & bit ? "●" : ""}</td>`).join("")}</tr>`,
           )
           .join("")}</table>`,
       },

@@ -116,7 +116,7 @@
       },
       {
         t: "How to read the dashboard",
-        b: `<p><b style="color:var(--teal)">best</b>: fitness of the best member. <b style="color:var(--violet)">mean</b>: population average. <b style="color:var(--amber)">diversity</b>: how different members are from each other (1 = all different, 0 = all identical).</p><p>The small thumbnails are the population, best first. Red outlines on "Best so far" mark wrong pixels.</p>`,
+        b: `<p><b style="color:var(--teal-ink)">best</b>: fitness of the best member. <b style="color:var(--violet-ink)">mean</b>: population average. <b style="color:var(--amber-ink)">diversity</b>: how different members are from each other (1 = all different, 0 = all identical).</p><p>The small thumbnails are the population, best first. Red outlines on "Best so far" mark wrong pixels.</p>`,
         c: {
           q: "Diversity has dropped to 0 and mutation is off. What can still change?",
           o: [

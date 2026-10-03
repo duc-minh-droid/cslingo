@@ -54,8 +54,8 @@
           log.unshift([i, b.dataset.c]);
           idx++;
           qs("[data-fb]", card).innerHTML = ok
-            ? `<span style="color:var(--teal)">✓ ${items[i][1]}</span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`
-            : `<span style="color:var(--rose)">✗ It's <b>${items[i][1]}</b></span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`;
+            ? `<span style="color:var(--teal-ink)">✓ ${items[i][1]}</span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`
+            : `<span style="color:var(--rose-ink)">✗ It's <b>${items[i][1]}</b></span>${items[i][2] ? ` <span class="dim">· ${items[i][2]}</span>` : ""}`;
           draw();
         }),
     );
@@ -196,7 +196,7 @@
           logs.unshift(`London sold a ticket → ${a}. Copied to New York straight away.`);
         } else
           logs.unshift(
-            `London sold a ticket → ${a}. <span style="color:var(--amber)">Link is cut, so New York still thinks ${b}.</span>`,
+            `London sold a ticket → ${a}. <span style="color:var(--amber-ink)">Link is cut, so New York still thinks ${b}.</span>`,
           );
         cdraw();
       };
@@ -204,11 +204,11 @@
         if (link) logs.unshift(`New York answers <b>${b}</b>, which is correct and up to date. ✓`);
         else if (pref === "consistent")
           logs.unshift(
-            `<span style="color:var(--rose)">New York refuses: "can't confirm the latest value, try later".</span> Consistent, but <b>unavailable</b>.`,
+            `<span style="color:var(--rose-ink)">New York refuses: "can't confirm the latest value, try later".</span> Consistent, but <b>unavailable</b>.`,
           );
         else
           logs.unshift(
-            `New York answers <b>${b}</b>${b !== a ? ` <span style="color:var(--amber)">but the real value is ${a}: stale!</span> Available, but <b>inconsistent</b>.` : " (happens to still be correct)."}`,
+            `New York answers <b>${b}</b>${b !== a ? ` <span style="color:var(--amber-ink)">but the real value is ${a}: stale!</span> Available, but <b>inconsistent</b>.` : " (happens to still be correct)."}`,
           );
         cdraw();
       };

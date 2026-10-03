@@ -61,7 +61,7 @@
       },
       {
         t: "Query, key, value",
-        b: `<p>Each token's vector is turned into three new vectors:</p><p><b style="color:var(--violet)">Query</b>: "what am I looking for?"<br><b style="color:var(--teal)">Key</b>: "what do I contain?"<br><b style="color:var(--amber)">Value</b>: "what I'll pass on if you pick me"</p><p>For "it", the query should match the key of "robot".</p>`,
+        b: `<p>Each token's vector is turned into three new vectors:</p><p><b style="color:var(--violet-ink)">Query</b>: "what am I looking for?"<br><b style="color:var(--teal-ink)">Key</b>: "what do I contain?"<br><b style="color:var(--amber-ink)">Value</b>: "what I'll pass on if you pick me"</p><p>For "it", the query should match the key of "robot".</p>`,
         v: F.flow([
           { t: '"it" query', c: "violet" },
           { t: "· each key", s: "dot product = score", c: "teal" },

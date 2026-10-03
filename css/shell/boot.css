@@ -1,0 +1,66 @@
+/* first paint, before any script has run: a quiet skeleton in #main (render() clears it) and a "still loading" note after 10 s */
+.boot {
+  display: grid;
+  gap: 14px;
+  padding: 24px 0 6px;
+}
+.boot i {
+  display: block;
+  border-radius: 18px;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  animation: bootPulse 1.2s ease-in-out infinite alternate;
+}
+.boot i:nth-child(1) {
+  height: 128px;
+}
+.boot i:nth-child(2) {
+  height: 96px;
+  animation-delay: 0.15s;
+}
+.boot i:nth-child(3) {
+  height: 76px;
+  animation-delay: 0.3s;
+}
+.boot b {
+  width: 84px;
+  height: 84px;
+  margin: 18px auto 0;
+  border-radius: 50%;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+}
+.boot p {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: bootNote 0.3s ease 10s forwards;
+}
+@keyframes bootPulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes bootNote {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot i {
+    animation: none;
+  }
+  .boot p {
+    animation-duration: 0.01ms;
+  }
+}
+.main.is-wait {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity var(--dur-3) ease;
+}

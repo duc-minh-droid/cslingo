@@ -110,7 +110,7 @@
             : cost(sel) === best
               ? `<div class="callout teal"><b>Optimal!</b> ${cost(sel)} is the cheapest ${maxDeg ? "tree with max degree 2" : "spanning tree"} for this graph.</div>`
               : `<div class="callout">Valid spanning tree. The cheapest possible is <b>${best}</b>.</div>`
-          : `<p class="dim">A <b>spanning tree</b> connects all 5 nodes with no cycles, which always takes exactly <b>n − 1 = 4</b> edges.${sel.size > 0 && !tree && sel.size >= 4 ? ' <span style="color:var(--rose)">Yours has a cycle or leaves a node out.</span>' : ""}</p>`;
+          : `<p class="dim">A <b>spanning tree</b> connects all 5 nodes with no cycles, which always takes exactly <b>n − 1 = 4</b> edges.${sel.size > 0 && !tree && sel.size >= 4 ? ' <span style="color:var(--rose-ink)">Yours has a cycle or leaves a node out.</span>' : ""}</p>`;
       }
       qs("#t36", card).onclick = () => {
         sel = new Set(["AB", "DE", "BC", "BE"]);
@@ -139,7 +139,7 @@
         if (!cands.length) {
           prim.done = true;
           qs("#primLog", card).innerHTML +=
-            `<div style="color:var(--rose)">No feasible edge left: greedy is stuck.</div>`;
+            `<div style="color:var(--rose-ink)">No feasible edge left: greedy is stuck.</div>`;
           return;
         }
         const pick = cands.reduce((b, e) => (e[2] < b[2] ? e : b));
@@ -294,7 +294,7 @@
         });
         const best = fits[bi];
         qs("#info", card).innerHTML =
-          `evals ${evals.toLocaleString()} · NN ${nnLen.toFixed(3)} · EA ${best.toFixed(3)} ${best < nnLen ? `<b style="color:var(--teal)">(EA ahead by ${((1 - best / nnLen) * 100).toFixed(1)}%)</b>` : `<span style="color:var(--amber)">(NN ahead)</span>`}`;
+          `evals ${evals.toLocaleString()} · NN ${nnLen.toFixed(3)} · EA ${best.toFixed(3)} ${best < nnLen ? `<b style="color:var(--teal-ink)">(EA ahead by ${((1 - best / nnLen) * 100).toFixed(1)}%)</b>` : `<span style="color:var(--amber-ink)">(NN ahead)</span>`}`;
       }
       function stop() {
         if (running) {

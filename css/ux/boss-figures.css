@@ -15,7 +15,7 @@
 .boss-meta b {
   font-size: 26px;
   font-weight: 900;
-  color: var(--teal);
+  color: var(--teal-ink);
 }
 .boss-bar {
   position: relative;
@@ -78,7 +78,7 @@
 }
 .boss-dots button.cur {
   border-color: var(--blue);
-  color: var(--blue);
+  color: var(--blue-ink);
   box-shadow: 0 3px 0 var(--blue);
 }
 .boss-dots button.cur.ok,
@@ -114,7 +114,7 @@
 .br-score b {
   font-size: 64px;
   font-weight: 900;
-  color: var(--teal);
+  color: var(--teal-ink);
   line-height: 1;
 }
 .br-score span {

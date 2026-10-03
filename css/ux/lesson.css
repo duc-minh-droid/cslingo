@@ -224,7 +224,7 @@ button:focus:not(:focus-visible) {
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--amber-ink);
   margin-bottom: 2px;
 }
 .lesson-check .opts {

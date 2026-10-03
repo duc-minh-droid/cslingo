@@ -126,7 +126,7 @@
     steps: [
       {
         t: "A triangle, not a point",
-        b: `<p>In 2-D, Nelder–Mead keeps 3 points: a triangle, called a <b>simplex</b>. Each corner has a function value. Sort them: <b style="color:var(--teal)">best</b>, <b style="color:var(--amber)">middle</b>, <b style="color:var(--rose)">worst</b>.</p><p>Every move is about getting rid of the worst corner.</p>`,
+        b: `<p>In 2-D, Nelder–Mead keeps 3 points: a triangle, called a <b>simplex</b>. Each corner has a function value. Sort them: <b style="color:var(--teal-ink)">best</b>, <b style="color:var(--amber-ink)">middle</b>, <b style="color:var(--rose-ink)">worst</b>.</p><p>Every move is about getting rid of the worst corner.</p>`,
         v: `<svg class="fig" viewBox="0 0 420 180" style="max-height:180px"><polygon points="90,140 250,150 150,40" fill="rgba(206,130,255,.14)" stroke="var(--violet)" stroke-width="2" class="fi"/><circle cx="90" cy="140" r="8" fill="var(--teal)" class="fi"/><text x="90" y="166" class="fig-sub" style="fill:var(--teal)">best</text><circle cx="250" cy="150" r="8" fill="var(--amber)" class="fi"/><text x="250" y="174" class="fig-sub" style="fill:var(--amber)">middle</text><circle cx="150" cy="40" r="8" fill="var(--rose)" class="fi"/><text x="150" y="24" class="fig-sub" style="fill:var(--rose)">worst</text><text x="340" y="96" class="fig-sub">downhill →</text></svg>`,
       },
       {

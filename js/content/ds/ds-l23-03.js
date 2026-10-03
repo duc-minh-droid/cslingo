@@ -72,7 +72,7 @@
         b.onclick = () => {
           if (!alive) {
             scanned = 0;
-            lastGet = `<span style="color:var(--rose)">The hash map died with the process, so the database cannot jump to <b>${k}</b>.</span> It must <b>rebuild</b> the map by reading every segment.`;
+            lastGet = `<span style="color:var(--rose-ink)">The hash map died with the process, so the database cannot jump to <b>${k}</b>.</span> It must <b>rebuild</b> the map by reading every segment.`;
           } else if (!idx[k]) {
             scanned = 1;
             lastGet = `Not in the map: <b>${k}</b> does not exist.`;
@@ -206,7 +206,7 @@
       const taken = f.taken[0] === s && f.taken[1] === j,
         skipped = f.skipped.some((x) => x[0] === s && x[1] === j);
       const bd = taken ? "var(--teal)" : skipped ? "var(--rose)" : head ? "var(--blue)" : "var(--line-2)";
-      return `<div class="${head ? "sm-head" : ""}" data-k="${k}" style="border:2px solid ${bd};border-radius:9px;padding:4px 8px;margin:4px 0;font-size:13px;opacity:${consumed && !taken && !skipped ? 0.35 : 1};background:${taken ? "color-mix(in srgb, var(--teal) 16%, var(--panel-2))" : head ? "color-mix(in srgb, var(--blue) 12%, var(--panel-2))" : "var(--panel-2)"};${head ? "cursor:pointer" : ""}${skipped ? ";text-decoration:line-through" : ""}"><b class="mono">${k}</b>: ${v === null ? '<span style="color:var(--rose)">✗ tombstone</span>' : v}</div>`;
+      return `<div class="${head ? "sm-head" : ""}" data-k="${k}" style="border:2px solid ${bd};border-radius:9px;padding:4px 8px;margin:4px 0;font-size:13px;opacity:${consumed && !taken && !skipped ? 0.35 : 1};background:${taken ? "color-mix(in srgb, var(--teal) 16%, var(--panel-2))" : head ? "color-mix(in srgb, var(--blue) 12%, var(--panel-2))" : "var(--panel-2)"};${head ? "cursor:pointer" : ""}${skipped ? ";text-decoration:line-through" : ""}"><b class="mono">${k}</b>: ${v === null ? '<span style="color:var(--rose-ink)">✗ tombstone</span>' : v}</div>`;
     };
     F.run(box, life, {
       code: [

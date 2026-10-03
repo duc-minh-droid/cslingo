@@ -16,7 +16,7 @@
       root.appendChild(
         header(
           this,
-          'To select a parent: choose <b>t</b> individuals at random <b>with replacement</b> and return the fittest. The lecture lists the pros and cons. <span style="color:var(--teal)">+ tunable, + avoids superfit/superpoor problems, + simple and efficient (no sorting).</span> <span style="color:var(--rose)">− one more parameter to tune.</span>',
+          'To select a parent: choose <b>t</b> individuals at random <b>with replacement</b> and return the fittest. The lecture lists the pros and cons. <span style="color:var(--teal-ink)">+ tunable, + avoids superfit/superpoor problems, + simple and efficient (no sorting).</span> <span style="color:var(--rose-ink)">− one more parameter to tune.</span>',
         ),
       );
       let Pn = 12,
@@ -88,7 +88,7 @@
           counts[w]++;
           draw(mark);
           qs("#msg", card).innerHTML =
-            `Picked ${picks.map((i) => `#${i + 1} (f=${fits[i]})`).join(", ")}${new Set(picks).size < picks.length ? ' <span style="color:var(--amber)">(repeats allowed: with replacement)</span>' : ""} → winner <b style="color:var(--teal)">#${w + 1}</b> with f=${fits[w]}.`;
+            `Picked ${picks.map((i) => `#${i + 1} (f=${fits[i]})`).join(", ")}${new Set(picks).size < picks.length ? ' <span style="color:var(--amber-ink)">(repeats allowed: with replacement)</span>' : ""} → winner <b style="color:var(--teal-ink)">#${w + 1}</b> with f=${fits[w]}.`;
         };
         show();
       };
@@ -203,7 +203,7 @@
                   [g[i], g[j]] = [g[j], g[i]];
                   changed = [i, j];
                   draw(
-                    '· <span style="color:var(--rose)">swap only rearranges values that are already there: no new value can appear</span>',
+                    '· <span style="color:var(--rose-ink)">swap only rearranges values that are already there: no new value can appear</span>',
                   );
                 }
               }),

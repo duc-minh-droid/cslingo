@@ -162,7 +162,7 @@
           if (Math.max(...pp.map(L.f)) >= L.max - 1e-9) b++;
         }
         qs("#rt", card).innerHTML =
-          `Global optimum found: Hillclimbing <b style="color:var(--teal)">${Math.round(a / 3)}%</b> · Population (P=${P}, t=${t}) <b style="color:var(--violet)">${Math.round(b / 3)}%</b>. <span class="faint">Try P=2 vs 30, or t=1 vs 8.</span>`;
+          `Global optimum found: Hillclimbing <b style="color:var(--teal-ink)">${Math.round(a / 3)}%</b> · Population (P=${P}, t=${t}) <b style="color:var(--violet-ink)">${Math.round(b / 3)}%</b>. <span class="faint">Try P=2 vs 30, or t=1 vs 8.</span>`;
       };
       life.onResize(draw);
       init();
@@ -250,7 +250,7 @@
             .join("")}</table>
         ${
           G.par
-            ? `<p style="margin-top:10px">Parent <span class="mono">${G.par}</span> → mutant <span class="mono" style="color:var(--violet)">${G.mut}</span>: slide says <b>${G.mSlide}</b>, recomputed <b style="color:${TSP.len(G.mut) !== G.mSlide ? "var(--rose)" : "inherit"}">${TSP.len(G.mut)}</b>. Slide: <i>${G.act}</i>.</p>
+            ? `<p style="margin-top:10px">Parent <span class="mono">${G.par}</span> → mutant <span class="mono" style="color:var(--violet-ink)">${G.mut}</span>: slide says <b>${G.mSlide}</b>, recomputed <b style="color:${TSP.len(G.mut) !== G.mSlide ? "var(--rose)" : "inherit"}">${TSP.len(G.mut)}</b>. Slide: <i>${G.act}</i>.</p>
         ${G.rep === -1 && TSP.len(G.mut) < worstReal ? `<div class="callout rose">With correct arithmetic the current worst is ${worstReal} (CDAEB), so a ${TSP.len(G.mut)} mutant <b>should have entered</b>, replacing CDAEB. The slide's decision follows from its wrong value of 31.</div>` : ""}
         ${G.rep >= 0 && TSP.len(G.pop[G.rep]) < worstReal ? `<div class="callout rose">Recomputed, the true worst is CDAEB (${worstReal}), not <span class="mono">${G.pop[G.rep]}</span> (${TSP.len(G.pop[G.rep])}). Replace-worst should have removed CDAEB.</div>` : ""}`
             : `<div class="callout teal">"And so on. Note: the population is starting to <b>converge</b>, genotypically and phenotypically." <span class="mono">ABECD</span> now appears twice. Convergence is the population losing diversity.</div>`

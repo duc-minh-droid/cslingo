@@ -414,3 +414,9 @@
     animation: none !important;
   }
 }
+
+/* scrolled well out of view: idle loops pause (js/cast.js sets data-off) */
+.mascot[data-off],
+.mascot[data-off] * {
+  animation-play-state: paused !important;
+}

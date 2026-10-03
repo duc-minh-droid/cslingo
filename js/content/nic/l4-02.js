@@ -41,7 +41,7 @@
       root.appendChild(
         header(
           this,
-          '<b>Generational</b>: apply selection and genetic operators repeatedly to build a <i>whole new</i> population. <b>Elitist</b> generational GAs copy the n best across unchanged. <b>Steady-state</b>: apply the operators only N times (N = 1 or 2), and the new children replace weak members. New solutions are <span style="color:var(--violet)">purple</span>, like on the slides. The problem here is OneMax on 20 bits, so fitness is the fraction of 1s.',
+          '<b>Generational</b>: apply selection and genetic operators repeatedly to build a <i>whole new</i> population. <b>Elitist</b> generational GAs copy the n best across unchanged. <b>Steady-state</b>: apply the operators only N times (N = 1 or 2), and the new children replace weak members. New solutions are <span style="color:var(--violet-ink)">purple</span>, like on the slides. The problem here is OneMax on 20 bits, so fitness is the fraction of 1s.',
         ),
       );
       const P = 10;
@@ -148,7 +148,7 @@
           .join("");
         qs("#expl", card).innerHTML =
           mode === "gen"
-            ? `Each step makes <b>${P - elite}</b> new children${elite ? ` and copies the best <b>${elite}</b> unchanged (green border)` : ""}. ${elite ? "" : '<span style="color:var(--rose)">No elitism: the best can be lost.</span>'}`
+            ? `Each step makes <b>${P - elite}</b> new children${elite ? ` and copies the best <b>${elite}</b> unchanged (green border)` : ""}. ${elite ? "" : '<span style="color:var(--rose-ink)">No elitism: the best can be lost.</span>'}`
             : `Each step makes <b>${nSS}</b> child${nSS > 1 ? "ren" : ""}. Each replaces the weakest member if it's no worse. Everyone else survives.`;
         N.lineChart(qs("#ch", card), {
           series: [

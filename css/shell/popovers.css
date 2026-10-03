@@ -110,7 +110,7 @@
   min-width: 42px;
   font-size: 12px;
   font-weight: 900;
-  color: var(--blue);
+  color: var(--blue-ink);
 }
 .goal-seg {
   display: flex;
