@@ -72,10 +72,17 @@
         b: `<p><code>best ← first item</code> fails silently on an <b>empty list</b> — there is no first item, so the invariant can't even start. That's why the checklist includes edge cases: decide what “biggest of nothing” means <i>before</i> the loop runs (return <code>none</code>, raise an error, anything explicit).</p>
         <p>Negative numbers and duplicates are <b>fine</b> — the comparison still works. It's the missing start that breaks it.</p>`,
         c: {
-          q: "Which input breaks the loop <code>best ← first item</code>?",
-          o: ["A list of negative numbers", "An empty list", "A list with duplicates"],
-          a: 1,
-          why: "No first item → the invariant can't start. Negatives and duplicates are handled by the comparison itself.",
+          type: "cat",
+          q: "The loop starts with <code>best ← first item</code>. Which inputs <b>break</b> it, and which does it handle fine?",
+          buckets: ["Breaks the loop", "Handled fine"],
+          items: [
+            ["An empty list, with nothing to read", 0],
+            ["A list of only negative numbers", 1],
+            ["A list with several duplicates", 1],
+            ["A list whose first item is the biggest", 1],
+          ],
+          hint: "Ask whether the very first line has something to read.",
+          why: "No first item → the invariant can't start. Negatives, duplicates and an early maximum are all handled by the comparison itself.",
         },
       },
       {
@@ -93,7 +100,7 @@
     ],
     guide: [
       "Press <b>Step one line</b> and watch the highlighted pseudocode line, the state, and the log — one click = one line executed.",
-      "Watch the <b>invariant box</b>: it should say “promise holds ✓” after every step, including i = 0.",
+      "Watch the <i>invariant box</i>: it should say “promise holds ✓” after every step, including i = 0.",
       "Press <b>Auto</b> to run to the end, then read the final invariant box — it becomes the answer.",
       "Switch the input to <b>Empty list</b> and run: the loop ends before it starts, and “none” is the honest answer.",
       "Answer the Predict question.",
@@ -352,7 +359,7 @@
       },
       {
         t: "Halving beats everything",
-        b: `<p><code>while i &gt; 1: work(); i ← i/2</code>. How many halvings to reach 1? <b>⌈log₂ n⌉</b>.</p><p>The magic consequence: <b>doubling n adds one step</b>. n = 8 → 3 steps; n = 16 → 4; n = 1024 → 10; n = a billion → ~30. That's why binary search and its cousins scale to planetary inputs.</p>`,
+        b: `<p><code>while i &gt; 1: work(); i ← floor(i / 2)</code>. How many times does <code>work()</code> run before i reaches 1? <b>⌊log₂ n⌋</b> (log₂ n rounded down).</p><p>The magic consequence: <b>doubling n adds one step</b>. n = 8 → 3 steps; n = 16 → 4; n = 1024 → 10; n = a billion → just 29. That's why binary search and its cousins scale to planetary inputs.</p>`,
         c: {
           q: "Doubling n makes an O(log n) algorithm…",
           o: [
@@ -378,21 +385,18 @@
           ]) +
           `<p class="dim" style="margin-top:8px">Constants and small terms never change the <i>order</i>. And any exponential eventually beats any polynomial — even 1.1ⁿ vs n¹⁰⁰.</p>`,
         c: {
-          q: "Two fragments both solve the problem. How do you decide which is better?",
-          o: [
-            "Whichever one has the fewest lines of code overall",
-            "Whichever one's time or memory grows more slowly",
-            "Whichever one runs faster on a small hand-picked test input",
-          ],
-          a: 1,
-          why: "Same answer, different scaling. Growth is the deciding information — it's the whole point of Big-O.",
+          type: "order",
+          q: "Two fragments solve the same problem, so growth decides which is better. Rank these from <b>slowest-growing</b> to <b>fastest-growing</b> as n gets large.",
+          items: ["log₂ n", "7n + 3", "n log₂ n", "n²", "2ⁿ"],
+          hint: "Ignore constants and small terms first, then ask what each shape does when n doubles.",
+          why: "Constants and small terms never change the order: log₂ n, then n (7n + 3), then n log₂ n, then n², then 2ⁿ. Growth is the deciding information, and it's the whole point of Big-O.",
         },
       },
     ],
     guide: [
       "Pick a loop pattern and press <b>Double n</b> a few times — watch the × column settle on a signature.",
       "Match each signature to a growth class: ×2 → linear, ×4 → quadratic, +1 → logarithmic.",
-      "Press <b>Run to 4096</b> on each pattern and compare the totals.",
+      "Press <b>Run to n = 4096</b> on each pattern and compare the totals.",
       "Look at the comparison bars (log scale) — how far ahead is the quadratic at n = 1024?",
       "Answer the Predict question.",
     ],

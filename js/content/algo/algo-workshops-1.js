@@ -71,7 +71,7 @@
 
         # 3. Damping: follow links with probability d, teleport with 1 - d.
         for p in pages:
-            # YOUR CODE: nxt[p] = d times the rank that arrived, plus the teleport floor
+            # YOUR CODE: nxt[p] = d * nxt[p] + the teleport floor
             pass
 
         trace({"iter": k, "rank": dict(nxt)})

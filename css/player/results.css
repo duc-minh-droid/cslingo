@@ -183,6 +183,32 @@
   color: var(--amber-ink);
   font-size: 20px;
 }
+/* revision complete: what the round set up (misses come back sooner, the rest on a later day). It lands after the cards. */
+.pd-after {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+  margin: 18px 0 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-dim);
+  animation: pd-after-in var(--dur-3) var(--ease-out) 1s both;
+}
+.pd-after b {
+  color: var(--blue-ink);
+}
+@keyframes pd-after-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd-after {
+    animation: none;
+  }
+}
 
 /* ---------- Duolingo touches: streak-gold progress bar, "N in a row" hype screen, previous-mistake tag ---------- */
 .pl-bar.hot .pl-fill {

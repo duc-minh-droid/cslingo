@@ -3,20 +3,42 @@
   const { bump, chips, curve, g, multi, row, table } = partScope;
   const L = NIC.LESSONS;
 
+  // the lesson's four landscape shapes, drawn unnamed and tappable (one <g data-pick> per panel)
+  const fourLandscapes = () => {
+    const spike = (x) => (x < 0.85 ? 0.8 * (1 - x / 0.85) + 0.05 : 0.05 + (x - 0.85) / 0.15);
+    const flat = (x) => (x < 0.6 ? 0.3 : 0.3 + bump(x, 0.8, 0.06, 0.7));
+    const shapes = [
+      ["one peak", "One smooth peak", (x) => bump(x, 0.55, 0.2, 1)],
+      ["several peaks", "Several peaks of different heights", multi],
+      ["flat area", "A big flat area with one small bump", flat],
+      ["downhill slope", "A slope down from the left, with a tall spike at the far right", spike],
+    ];
+    const panel = ([id, label, fn], k) => {
+      const x0 = 5 + (k % 2) * 215,
+        y0 = 5 + (k >> 1) * 110;
+      const pts = Array.from(
+        { length: 41 },
+        (_, i) => `${(x0 + 10 + (i / 40) * 180).toFixed(1)},${(y0 + 90 - (fn(i / 40) / 1.1) * 70).toFixed(1)}`,
+      );
+      return `<g data-pick="${id}" aria-label="${label}"><rect x="${x0}" y="${y0}" width="200" height="100" rx="12" fill="var(--bg-2)" stroke="var(--line-2)" stroke-width="2"/><polyline points="${x0 + 10},${y0 + 90} ${pts.join(" ")} ${x0 + 190},${y0 + 90}" fill="var(--teal-dim)" stroke="none"/><polyline points="${pts.join(" ")}" fill="none" stroke="var(--teal)" stroke-width="3"/></g>`;
+    };
+    return `<svg viewBox="0 0 430 220" role="group" aria-label="Four fitness landscapes">${shapes.map(panel).join("")}</svg>`;
+  };
+
   L["l3-hc"] = {
     sum: "Hillclimbing: keep <b>one</b> solution, try a small random change, and <b>keep it if it's not worse</b>. Repeat.",
     steps: [
       {
         t: "The idea in one sentence",
-        b: `<p>Start somewhere random. Make a small change. If it's no worse, move there. Repeat.</p><span class="analogy">A hiker in thick fog who can only feel the ground under their feet. They take a step. If it's not downhill they stay there, otherwise they step back.</span>`,
+        b: `<p><b>Hillclimbing (HC)</b> in a nutshell: start somewhere random. Make a small change. If it's no worse, move there. Repeat.</p><span class="analogy">A hiker in thick fog who can only feel the ground under their feet. They take a step. If it's not downhill they stay there, otherwise they step back.</span>`,
       },
       {
         t: "The 4 steps (from the slides)",
-        b: `<p><b>0.</b> Make a random solution <b>c</b> (the "current" solution) and score it.<br><b>1.</b> Copy c and mutate the copy to get <b>m</b>. Score m.<br><b>2.</b> If f(m) is <b>no worse</b> than f(c), c becomes m. Otherwise throw m away.<br><b>3.</b> Stop if you're out of time, else go to 1.</p><p>It's an EA with a population of <b>one</b>.</p>`,
+        b: `<p><b>0.</b> Make a random solution <b>c</b> (the "current" solution) and score it.<br><b>1.</b> Copy c and mutate the copy to get <b>m</b>. Score m.<br><b>2.</b> If f(m) is <b>no worse</b> than f(c), c becomes m. Otherwise throw m away.<br><b>3.</b> Stop if you're out of time, else go to 1.</p><p>It's an evolutionary algorithm (EA) with a population of <b>one</b>.</p>`,
       },
       {
         t: "The mutation: swap two neighbours",
-        b: `<p>For TSP, the lecture swaps two <b>adjacent</b> cities. The last and first positions count as adjacent (the tour is a loop).</p>`,
+        b: `<p>For the travelling salesperson problem (TSP), the lecture swaps two <b>adjacent</b> cities. The last and first positions count as adjacent (the tour is a loop).</p>`,
         v:
           row("current", g("ABDEC")) +
           row(
@@ -41,14 +63,17 @@
           ],
         ),
         c: {
-          q: "Why is <code>BADCE</code> (28, same as current) accepted?",
-          o: [
-            "Because it's shorter than the current tour",
-            "Because HC keeps anything no worse, and equal counts",
-            "Because HC accepts every mutant it tries",
+          type: "cat",
+          q: "Hillclimbing on tour length (shorter is better). The current tour has length 30. Will HC <b>accept</b> or <b>reject</b> each mutant?",
+          buckets: ["Accept", "Reject"],
+          items: [
+            ["A mutant of length 27", 0],
+            ["A mutant of length 31", 1],
+            ["A mutant of length 30 (equal)", 0],
+            ["A mutant of length 36", 1],
           ],
-          a: 1,
-          why: "Accepting equal moves lets HC wander across flat areas instead of freezing.",
+          hint: "HC keeps a mutant if it is no worse than the current tour. Is equal worse?",
+          why: "27 is better and 30 is equal, and HC keeps anything no worse. 31 and 36 are longer, so they are worse and get thrown away. Accepting equal moves lets HC wander across flat areas instead of freezing.",
         },
       },
       {
@@ -76,8 +101,8 @@
     guide: [
       "Keep <b>Lecture trace</b> mode and press <b>Mutate & decide</b> 4 times. Check that each decision matches the table in the lesson.",
       "Switch to <b>Random run</b> and press <b>Run 30 steps</b>.",
-      "Watch the <b>Neighbourhood of c</b> table: green rows are improving moves. When none are left, HC is stuck.",
-      "Press Reset a few times. Does it always end at 28?",
+      "Watch the <i>Neighbourhood of c</i> table: green rows are improving moves. When none are left, HC is stuck.",
+      "Press <b>Reset</b> a few times. Does it always end at 28?",
     ],
   };
 
@@ -98,10 +123,12 @@
         b: `<p><b>Unimodal</b>: one peak (easy).<br><b>Multimodal</b>: many peaks (you get stuck).<br><b>Plateau</b>: big flat areas (no hint where to go).<br><b>Deceptive</b>: slopes lead <i>away</i> from the best.</p>`,
         v: `<div class="grid two" style="gap:10px">${curve((x) => bump(x, 0.55, 0.2, 1), { h: 90, label: "unimodal" })}${curve(multi, { h: 90, label: "multimodal" })}${curve((x) => (x < 0.6 ? 0.3 : 0.3 + bump(x, 0.8, 0.06, 0.7)), { h: 90, label: "plateau" })}${curve((x) => (x < 0.85 ? 0.8 * (1 - x / 0.85) + 0.05 : 0.05 + (x - 0.85) / 0.15), { h: 90, label: "deceptive" })}</div>`,
         c: {
-          q: "On which landscape does hillclimbing always find the best?",
-          o: ["Multimodal", "Unimodal", "Deceptive"],
-          a: 1,
-          why: "With one peak, every uphill path leads to it.",
+          type: "pick",
+          q: "Fitness is the height of each landscape. Tap the landscape where hillclimbing, started anywhere, <b>always</b> finds the best solution.",
+          fig: fourLandscapes(),
+          a: "one peak",
+          hint: "Hillclimbing only ever walks uphill. Where could that walk end?",
+          why: "With one peak, every uphill path leads to it (unimodal). Several peaks trap you on the nearest one, a plateau gives no hint which way to go, and a deceptive slope leads away from the best.",
         },
       },
       {
@@ -166,10 +193,16 @@
         t: "Local optimum = no better neighbour",
         b: `<p>A solution is a <b>local optimum</b> if <b>none</b> of its neighbours is better. Since the operator defines the neighbours, <b>changing the operator changes which solutions are local optima</b>.</p>`,
         c: {
-          q: "10 cities, adjacent-swap with wrap-around. How many neighbours?",
-          o: ["9", "10", "45"],
-          a: 1,
-          why: "One per adjacent pair around the loop: 10.",
+          type: "match",
+          q: "A neighbour is one mutation away. Match each situation to its <b>number of neighbours</b>.",
+          pairs: [
+            ["A 6-bit string, flip one bit", "6 neighbours"],
+            ["8 cities in a loop, adjacent swap with wrap-around", "8 neighbours"],
+            ["10 cities in a loop, adjacent swap with wrap-around", "10 neighbours"],
+            ["10 cities in a row, adjacent swap, no wrap-around", "9 neighbours"],
+          ],
+          hint: "Count the adjacent pairs. In a loop the last city sits next to the first, so there is one pair per city.",
+          why: "One neighbour per mutation you could make: one bit flip per bit, or one swap per adjacent pair. In a loop, n cities have n adjacent pairs (the last touches the first). In a row there is one fewer.",
         },
       },
       {
@@ -199,10 +232,15 @@
         t: "Monte Carlo search",
         b: `<p>① Pick a random neighbour m.<br>② If it's better, move there.<br>③ If it's worse, move there anyway <b>with probability p</b> (e.g. 0.1, so 1 time in 10).</p><span class="analogy">A hiker who usually goes uphill but occasionally takes a step down, just to see what's over there.</span>`,
         c: {
-          q: "Monte Carlo with p = 0 is the same as…",
-          o: ["Tabu search", "Hillclimbing", "Random walk"],
-          a: 1,
-          why: "Never accepting worse moves is exactly HC. p = 1 accepts everything: a random walk.",
+          type: "match",
+          q: "Monte Carlo search accepts a worse neighbour with probability <b>p</b>. Match each setting to what it behaves like.",
+          pairs: [
+            ["p = 0", "Never goes downhill: hillclimbing"],
+            ["p = 1", "Goes anywhere: a random walk"],
+            ["p = 0.1", "Mostly uphill, now and then down"],
+          ],
+          hint: "p is the chance of accepting a move that makes things worse. What changes at 0 and at 1?",
+          why: "Never accepting worse moves (p = 0) is exactly HC. p = 1 accepts everything, so it's a random walk. A small p in between climbs most of the time and sometimes steps down.",
         },
       },
       {
@@ -228,7 +266,7 @@
       "Press <b>Run</b>. Three racers start from the same place: green = HC, amber = Monte Carlo, purple = Tabu. Diamonds mark each one's best-so-far.",
       "Watch HC freeze on a peak while the other two keep moving.",
       "Press <b>Run race</b> to compare success rates over 300 runs.",
-      "Set p to 0, then 1, and rerun the race. Then try Tabu tenure 2 vs 60.",
+      "Set <b>MC accept-worse p</b> to 0, then 1, and press <b>Run race</b> again. Then try <b>Tabu tenure</b> 2 vs 60.",
     ],
   };
 
@@ -255,25 +293,31 @@
       },
       {
         t: "New question 2: can we mix solutions?",
-        b: `<p>With two or more parents available, we're not limited to mutation. We can <b>recombine</b> them (crossover).</p><span class="key">These two differences (selection + recombination) are exactly what makes an EA more than local search.</span>`,
+        b: `<p>With two or more parents available, we're not limited to mutation. We can <b>recombine</b> them (crossover).</p><span class="key">These two differences (selection + recombination) are exactly what makes an evolutionary algorithm (EA) more than local search.</span>`,
       },
       {
         t: "Why keep the poor ones?",
         b: `<p>A low-scoring solution might be at the <b>bottom of the tallest mountain</b>. Keeping it gives it a chance to "develop" and climb.</p>`,
         c: {
-          q: "Why is keeping some weak solutions useful?",
-          o: [
-            "It isn't: they only waste evaluations",
-            "They may be exploring a region that leads to the best",
-            "They make each generation faster to evaluate",
-          ],
-          a: 1,
-          why: "Low fitness now doesn't mean low potential.",
+          type: "pick",
+          q: "The tallest peak is the best solution. One of these population members scores low but is still worth keeping. Tap it.",
+          fig: NIC.qfig.curve(
+            (x) => 0.1 + bump(x, 0.2, 0.08, 0.45) + bump(x, 0.75, 0.1, 1),
+            [
+              [0.2, "A"],
+              [0.55, "B"],
+              [0.03, "C"],
+            ],
+            { label: "solutions along the bottom, fitness as height" },
+          ),
+          a: "B",
+          hint: "Low fitness now is not the same as low potential. Where could each one climb to?",
+          why: "B is low but sits at the foot of the tallest mountain, so it can climb to the best. A is already on a small hilltop and C is on a plain by that small hill. Low fitness now is not low potential.",
         },
       },
       {
         t: "The slides' example: a steady-state EA on TSP",
-        b: `<p>Population of 5 tours. Each step: pick a parent → mutate it → if the mutant beats the <b>worst</b> member, it replaces it.</p><p>⚠ The slides have two arithmetic slips (CDAEB is really 34, and ADCEB is really 28). The replay below shows both values.</p>`,
+        b: `<p>Population of 5 tours for the travelling salesperson problem (TSP). Each step: pick a parent → mutate it → if the mutant beats the <b>worst</b> member, it replaces it.</p><p>⚠ The slides have two arithmetic slips (CDAEB is really 34, and ADCEB is really 28). The replay below shows both values.</p>`,
       },
       {
         t: "Convergence",
@@ -282,9 +326,9 @@
     ],
     guide: [
       "Press <b>Evolve</b>. Purple dots = the population. The single green dot below is a lone hillclimber for comparison.",
-      "Watch <b>Distinct hills occupied</b>: it starts high and shrinks as the population converges.",
+      "Press <b>Evolve</b> and watch <i>Distinct hills occupied</i> as the generations pass.",
       "Press <b>Run race</b>, then try Population 2 vs 30.",
-      "Scroll down and step through the <b>slides' TSP replay</b>. Check each number against the table.",
+      "Scroll down and press <b>Next generation</b> to step through the slides' TSP replay. Check each number against the table.",
     ],
   };
 
@@ -294,7 +338,7 @@
     steps: [
       {
         t: "Generational GA",
-        b: `<p>Each generation, use selection and genetic operators to build a <b>completely new population</b>. The old one is discarded.</p><span class="analogy">A school year: the whole class leaves and a new class arrives.</span>`,
+        b: `<p>In a generational <b>genetic algorithm (GA)</b>, each generation uses selection and genetic operators to build a <b>completely new population</b>. The old one is discarded.</p><span class="analogy">A school year: the whole class leaves and a new class arrives.</span>`,
         v:
           chips([
             ["S1", "0.1"],
@@ -350,20 +394,23 @@
         t: "Which one when?",
         b: `<p>Steady-state uses each good child <b>immediately</b>. With replace-weakest it's automatically elitist (the best is never the weakest). Generational changes more at once, which is more exploration, but without elitism it can lose good solutions.</p>`,
         c: {
-          q: "Is steady-state with replace-weakest elitist?",
-          o: [
-            "Yes: the best is never the one removed",
-            "No: the best can be replaced by a child",
-            "Only when the population size is 2",
+          type: "cat",
+          q: "Can the <b>best individual be lost</b> from the population? Sort each set-up.",
+          buckets: ["Best can be lost", "Best is never lost"],
+          items: [
+            ["Generational GA, no elitism", 0],
+            ["Generational GA that copies the best into the next generation", 1],
+            ["Steady-state, a child replaces the weakest", 1],
+            ["Steady-state, a child replaces a random member", 0],
           ],
-          a: 0,
-          why: "Only the worst ever gets replaced.",
+          hint: "The best is safe only if nothing ever removes it. Who gets replaced in each set-up?",
+          why: "Without elitism a generational GA replaces everyone, so the old best can vanish. Elitism protects it, and replace-weakest only ever removes the worst. Replacing a random member could remove the best.",
         },
       },
     ],
     guide: [
       "In <b>Generational</b> mode press <b>Step</b> a few times. Purple chips are new, and green borders are elites.",
-      "Set <b>Elites kept = 0</b> and press Run. Look for dips in the teal (best) line.",
+      "Set <b>Elites kept</b> to 0 and press <b>Run</b>. Look for dips in the teal (best) line.",
       "Switch to <b>Steady-state</b> and step: only 1–2 chips change per step.",
       "Press <b>Run comparison</b> for the fair head-to-head.",
     ],

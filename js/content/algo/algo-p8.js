@@ -78,21 +78,24 @@
           { max: 65536, fmt: (v) => "≈ " + v.toLocaleString() },
         ),
         c: {
-          q: "What does proof of work actually guarantee?",
-          o: [
-            "That every transaction recorded in the chain is true and valid",
-            "That rewriting history is costly, if honest miners dominate",
-            "That a block becomes final the moment it's mined",
+          type: "cat",
+          q: "What does proof of work actually give you? Sort each claim.",
+          buckets: ["Proof of work gives this", "It does not give this"],
+          items: [
+            ["Rewriting history costs real work, if honest miners dominate", 0],
+            ["Every transaction in the chain is true and valid", 1],
+            ["Checking a mined block takes only one hash", 0],
+            ["A block becomes final the moment it is mined", 1],
           ],
-          a: 1,
-          why: "It prices rewrites. It says nothing about whether the data inside is true, and an attacker with 51% of the power breaks it.",
+          hint: "Proof of work prices effort. Does effort say anything about whether the data inside is true?",
+          why: "It prices rewrites: a valid nonce is costly to find and cheap to check. It says nothing about whether the data is true, a mined block is not instantly final, and a 51% attacker breaks it.",
         },
       },
     ],
     guide: [
       "Press <b>Tamper</b>, then <b>Verify chain</b>. Where does it turn red?",
       "Press <b>Rewrite chain</b>. It's valid again. What does that tell you about hashes alone?",
-      "Mine at difficulty 1, then 2. Compare the attempt counts (roughly 16× more).",
+      "Press <b>Mine</b> at difficulty 1, then 2. Compare the attempt counts (roughly 16× more).",
     ],
   };
 
@@ -227,7 +230,7 @@
       {
         t: "The paint-mixing picture",
         b: `<p>Alice and Bob agree a public colour. Each mixes in a <b>secret</b> colour and sends the mixture. Each then adds their own secret to the <i>other's</i> mixture. Both end with the same final colour, and a watcher can't separate mixed paint.</p>`,
-        v: `<svg class="fig" viewBox="0 0 480 170" style="max-height:170px">${[
+        v: `<svg class="fig" viewBox="0 0 480 170" role="img" aria-label="Alice and Bob each mix a public colour with a secret one. Only the mixtures cross the wire. Each then adds their own secret to the other's mixture, and both end with the same colour." style="max-height:170px">${[
           ["Alice", 70, "#ff4b4b"],
           ["Bob", 410, "#1cb0f6"],
         ]
@@ -244,14 +247,17 @@
         b: `<p>Public: prime p = 23, base g = 5.</p>`,
         v: `<table class="t" style="max-width:560px"><tr><th></th><th>Alice</th><th>Bob</th></tr><tr><td>secret</td><td class="mono">a = 6</td><td class="mono">b = 15</td></tr><tr><td>sends</td><td class="mono">5⁶ mod 23 = <b>8</b></td><td class="mono">5¹⁵ mod 23 = <b>19</b></td></tr><tr class="hl"><td>computes</td><td class="mono">19⁶ mod 23 = <b>2</b></td><td class="mono">8¹⁵ mod 23 = <b>2</b></td></tr></table><div class="fig-cap">Both get 2. The wire only carried 23, 5, 8 and 19.</div>`,
         c: {
-          q: "An eavesdropper sees p = 23, g = 5, A = 8, B = 19. How could they get the secret?",
-          o: [
-            "Read it straight off the wire, since it's sent in the clear",
-            "Solve a discrete log: find a from 5ᵃ mod 23 = 8",
-            "Multiply A and B together modulo 23 to recover it",
+          type: "cat",
+          q: "In Diffie–Hellman an eavesdropper sees p, g, A and B. At real key sizes, which jobs are <b>easy for anyone</b> and which are <b>hard for the eavesdropper</b>?",
+          buckets: ["Easy for anyone", "Hard for the eavesdropper"],
+          items: [
+            ["Compute gᵃ mod p when you know a", 0],
+            ["Compute Bᵃ mod p when you know a (Alice's last step)", 0],
+            ["Find a from gᵃ mod p (a discrete log)", 1],
+            ["Find the shared key from p, g, A and B alone", 1],
           ],
-          a: 1,
-          why: "Computing gᵃ is easy; undoing it is hard. That asymmetry is the whole security.",
+          hint: "Going forward with a known secret is just repeated multiplication. What if you don't know the secret?",
+          why: "Computing gᵃ is easy, and so is raising B to the power a if you know a. Undoing it, finding a from gᵃ, is a discrete log: hard at real sizes. That asymmetry is the whole security.",
         },
       },
       {
@@ -375,12 +381,12 @@
           id: "a8-key-1",
           q: "DH gives Alice and Bob a shared secret over a public channel. What does it NOT give them?",
           opts: [
-            "A fast cipher for the actual messages",
+            "A secret value that both of them end up knowing",
             "Proof of who they're talking to",
             "A secret that an eavesdropper can't compute",
           ],
           a: 1,
-          why: "DH is key <b>agreement</b>, not authentication. Certificates/signatures bind public values to identities.",
+          why: "DH is key <b>agreement</b>, not authentication. Certificates/signatures bind public values to identities. (The shared secret then keys a fast symmetric cipher for the messages.)",
         }),
       );
       root.appendChild(

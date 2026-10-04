@@ -16,6 +16,40 @@
   };
   const col = (c) => COL[c] || c || "var(--teal)";
   let uid = 0;
+  /* Accessible names. A figure is a picture: it gets role="img" and a description built from its own data, so a screen reader
+     hears what the figure shows. Pass `label` to any builder to write your own. A figure with HTML content a reader should be
+     able to move through (compare, frames) is a group instead. */
+  const say = (h) =>
+    String(h ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\$+/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  const named = (label, role = "img") => `role="${role}" aria-label="${esc(say(label))}"`;
+  const list = (a, max = 14) =>
+    a.length > max ? `${a.slice(0, max).join(", ")} and ${a.length - max} more` : a.join(", ");
+  const num = (v) => (Number.isFinite(v) ? String(+v.toFixed(2)) : "off the chart");
+  /** What a graph shows, in words: its nodes (with any value shown beside them), its edges and weights, what is highlighted. */
+  const describeGraph = (nodes, edges, lit, directed) =>
+    `${directed ? "Directed graph" : "Graph"} with ${list(nodes.map(([n, sub]) => (sub !== undefined ? `${n} (${sub})` : n)))}. ${
+      edges.length
+        ? `Edges: ${list(
+            edges.map((e) => `${e.a} to ${e.b}${e.wt != null ? `, weight ${e.wt}` : ""}${e.on ? ", highlighted" : ""}`),
+            20,
+          )}.`
+        : "No edges."
+    }${lit.length ? ` Highlighted: ${list(lit)}.` : ""}`;
+  /** What a line plot shows: each line's start, end, lowest and highest value (from its own points), marks and vertical lines. */
+  function describePlot(S, { x, xl, yl, marks, vlines }) {
+    const lines = S.map((s, k) => {
+      const v = s.pts.map((p) => p[1]).filter(Number.isFinite);
+      if (!v.length) return "";
+      const [first, last] = [v[0], v[v.length - 1]];
+      return `${s.label || `Line ${k + 1}`} starts at ${num(first)}, ends at ${num(last)}, lowest ${num(Math.min(...v))}, highest ${num(Math.max(...v))}.`;
+    });
+    const at = (l, dflt) => list(l.map(([xv, lbl]) => `${lbl || dflt} at x ${num(xv)}`));
+    return `Line plot${yl ? ` of ${yl}` : ""}${xl ? ` against ${xl}` : ""}, x from ${num(x[0])} to ${num(x[1])}. ${lines.join(" ")}${marks.length ? ` Marked: ${at(marks, "point")}.` : ""}${vlines.length ? ` Vertical lines: ${at(vlines, "line")}.` : ""}`;
+  }
   /** A small dot that travels along path `d` forever (SVG SMIL — no JS loop, hidden under reduced motion). */
   const dot = (d, c = "var(--teal)", { dur = 1.8, begin = 0, r = 4 } = {}) =>
     `<circle class="flowdot" r="${r}" fill="${c}" opacity="0"><animateMotion dur="${dur}s" begin="${begin}s" repeatCount="indefinite" path="${d}" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1"/><animate attributeName="opacity" dur="${dur}s" begin="${begin}s" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.15;0.8;1"/></circle>`;
@@ -24,7 +58,7 @@
   const term = (word, tip) => `<span class="term" tabindex="0" data-tip="${esc(tip)}">${word}</span>`;
 
   /** Graph. nodes: {A:[x,y]} or {A:{x,y,label,c,sub}}; edges: [[a,b,w?,c?]]; opts: {w,h,directed,hl:{A:'teal','A-B':'rose'}, r} */
-  function graph({ nodes, edges = [], w = 460, h = 260, directed = false, hl = {}, r = 18, maxH } = {}) {
+  function graph({ nodes, edges = [], w = 460, h = 260, directed = false, hl = {}, r = 18, maxH, label } = {}) {
     const id = "g" + ++uid;
     const P = Object.fromEntries(
       Object.entries(nodes).map(([k, v]) => [k, Array.isArray(v) ? { x: v[0], y: v[1] } : v]),
@@ -63,11 +97,24 @@
     const defs = directed
       ? `<defs><marker id="${id}m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>`
       : "";
-    return `<svg class="fig" viewBox="0 0 ${w} ${h}" style="max-height:${maxH || h}px">${defs}${lines}${circles}</svg>`;
+    const nm = (k) => (P[k] && P[k].label) ?? k; // a node is named by its label when it has one
+    const lit = Object.keys(P)
+      .filter((k) => P[k].c || hl[k])
+      .map(nm);
+    const wired = edges.map(([a, b, wt, c]) => ({ a: nm(a), b: nm(b), wt, on: !!(c || eKey(a, b)) }));
+    const says =
+      label ||
+      describeGraph(
+        Object.entries(P).map(([k, v]) => [v.label ?? k, v.sub]),
+        wired,
+        lit,
+        directed,
+      );
+    return `<svg class="fig" viewBox="0 0 ${w} ${h}" style="max-height:${maxH || h}px" ${named(says)}>${defs}${lines}${circles}</svg>`;
   }
 
   /** Pipeline of boxes with arrows. items: ["text" | {t, s, c}]; opts: {w} */
-  function flow(items, { loop = false } = {}) {
+  function flow(items, { loop = false, label } = {}) {
     const n = items.length,
       bw = 132,
       gap = 34,
@@ -91,13 +138,16 @@
       ? `<path d="M${w - 4 - bw / 2} ${h - 10} C ${w - 4 - bw / 2} ${h + 26}, ${4 + bw / 2} ${h + 26}, ${4 + bw / 2} ${h - 8}" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#fl${uid})"/>${dot(`M${w - 4 - bw / 2} ${h - 10} C ${w - 4 - bw / 2} ${h + 26}, ${4 + bw / 2} ${h + 26}, ${4 + bw / 2} ${h - 8}`, "var(--violet)", { dur: 2.4, begin: 0.6 + n * 0.3 })}<text x="${w / 2}" y="${h + 28}" class="fig-sub" style="fill:var(--violet)">repeat</text>`
       : "";
     uid++;
-    return `<svg class="fig" viewBox="0 0 ${w} ${loop ? h + 36 : h}" style="max-height:${loop ? 150 : 110}px"><defs>
+    const says =
+      label ||
+      `Flow of ${n} steps: ${items.map((it) => (typeof it === "string" ? it : `${it.t}${it.s ? ` (${it.s})` : ""}`)).join(", then ")}${loop ? ", then repeat from the start" : ""}.`;
+    return `<svg class="fig" viewBox="0 0 ${w} ${loop ? h + 36 : h}" style="max-height:${loop ? 150 : 110}px" ${named(says)}><defs>
       <marker id="fa${uid - 1}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker>
       <marker id="fl${uid - 1}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--violet)"/></marker></defs>${box}${back}</svg>`;
   }
 
   /** Circular loop (e.g. the EA generation loop). items: ["text" | {t,c}] */
-  function cycle(items, { center = "" } = {}) {
+  function cycle(items, { center = "", label } = {}) {
     const n = items.length,
       R = 92,
       cx = 150,
@@ -125,22 +175,39 @@
         return `<g class="fi"><rect x="${x - 58}" y="${y - 17}" width="116" height="34" rx="17" fill="color-mix(in srgb, ${c} 14%, var(--panel-2))" stroke="${c}" stroke-width="1.5"/><text x="${x}" y="${y + 5}" class="fig-box" style="font-size:12.5px">${o.t}</text></g>`;
       })
       .join("");
-    return `<svg class="fig" viewBox="0 0 300 240" style="max-height:240px"><defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker></defs>${arcs}${nodes}${center ? `<text x="${cx}" y="${cy + 5}" class="fig-sub" style="font-size:13px;fill:var(--text-dim)">${center}</text>` : ""}</svg>`;
+    const says =
+      label ||
+      `Cycle of ${n} steps: ${items.map((it) => (typeof it === "string" ? it : it.t)).join(", then ")}, then back to the first.${center ? ` In the middle: ${center}.` : ""}`;
+    return `<svg class="fig" viewBox="0 0 300 240" style="max-height:240px" ${named(says)}><defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker></defs>${arcs}${nodes}${center ? `<text x="${cx}" y="${cy + 5}" class="fig-sub" style="font-size:13px;fill:var(--text-dim)">${center}</text>` : ""}</svg>`;
   }
 
   /** Horizontal bars (HTML). items: [[label, value, color?, note?]] opts: {max, fmt} */
-  function bars(items, { max, fmt = (v) => (Number.isInteger(v) ? v : v.toFixed(1)), unit = "" } = {}) {
+  function bars(items, { max, fmt = (v) => (Number.isInteger(v) ? v : v.toFixed(1)), unit = "", label } = {}) {
     const hi = max || Math.max(...items.map((i) => i[1]), 1e-9);
-    return `<div class="fig-bars">${items.map(([l, v, c, note]) => `<div class="fb-row fi"><span class="fb-l">${l}</span><span class="fb-track"><span class="fb-fill" style="--w:${Math.max(0.005, v / hi)};background:${col(c)}"></span></span><span class="fb-v">${fmt(v)}${unit}${note ? ` <small>${note}</small>` : ""}</span></div>`).join("")}</div>`;
+    const says =
+      label ||
+      `Bar chart. ${list(
+        items.map(([l, v, , note]) => `${l}: ${fmt(v)}${unit}${note ? ` (${note})` : ""}`),
+        20,
+      )}.`;
+    return `<div class="fig-bars" ${named(says)}>${items.map(([l, v, c, note]) => `<div class="fb-row fi"><span class="fb-l">${l}</span><span class="fb-track"><span class="fb-fill" style="--w:${Math.max(0.005, v / hi)};background:${col(c)}"></span></span><span class="fb-v">${fmt(v)}${unit}${note ? ` <small>${note}</small>` : ""}</span></div>`).join("")}</div>`;
   }
 
   /** Side-by-side comparison. a, b: {title, c, body} */
-  const compare = (a, b) =>
-    `<div class="fig-compare">${[a, b].map((x) => `<div class="fc fi" style="--c:${col(x.c)}"><div class="fc-h">${x.title}</div><div class="fc-b">${x.body}</div></div>`).join('<div class="fc-vs">vs</div>')}</div>`;
+  const compare = (a, b, label) =>
+    `<div class="fig-compare" ${named(label || `Comparison: ${a.title} against ${b.title}`, "group")}>${[a, b].map((x) => `<div class="fc fi" style="--c:${col(x.c)}"><div class="fc-h">${x.title}</div><div class="fc-b">${x.body}</div></div>`).join('<div class="fc-vs">vs</div>')}</div>`;
 
   /** Row of cells (arrays, bits, tokens). cells: [v | {v, c, sub}] */
-  const cells = (arr, { label = "", size = 34 } = {}) =>
-    `<div class="fig-cells">${label ? `<span class="fcl">${label}</span>` : ""}${arr
+  const cells = (arr, { label = "", size = 34, says } = {}) =>
+    `<div class="fig-cells" ${named(
+      says ||
+        `${label || "Row of cells"}: ${list(
+          arr.map((x) =>
+            typeof x === "object" && x !== null ? `${x.v}${x.sub !== undefined ? ` (${x.sub})` : ""}` : x,
+          ),
+          30,
+        )}`,
+    )}>${label ? `<span class="fcl">${label}</span>` : ""}${arr
       .map((x) => {
         if (typeof x === "string" && /^[^\w\s]{1,2}$|^(vs|or|and)$/.test(x)) return `<span class="op fi">${x}</span>`;
         const o = typeof x === "object" && x !== null ? x : { v: x };
@@ -149,7 +216,10 @@
       .join("")}</div>`;
 
   /** Line plot. series: [{f | pts, c, dash, label}], opts: {x:[a,b], y:[lo,hi], marks:[[x, label, c]], w, h, xl, yl, fill} */
-  function plot(series, { x = [0, 1], y, marks = [], w = 520, h = 190, xl = "", yl = "", n = 160, vlines = [] } = {}) {
+  function plot(
+    series,
+    { x = [0, 1], y, marks = [], w = 520, h = 190, xl = "", yl = "", n = 160, vlines = [], label } = {},
+  ) {
     const pad = { l: 34, r: 12, t: 14, b: 26 };
     const S = series.map((s) => ({
       ...s,
@@ -192,15 +262,16 @@
         return `<g class="fi"><circle cx="${X(xv)}" cy="${Y(yy)}" r="6" fill="${col(c)}"/>${lbl ? `<text x="${X(xv)}" y="${Y(yy) - 12}" class="fig-sub" style="fill:${col(c)}">${lbl}</text>` : ""}</g>`;
       })
       .join("");
-    return `<svg class="fig" viewBox="0 0 ${w} ${h}" style="max-height:${h}px">
+    const says = label || describePlot(S, { x, xl, yl, marks, vlines });
+    return `<svg class="fig" viewBox="0 0 ${w} ${h}" style="max-height:${h}px" ${named(says)}>
       <line x1="${pad.l}" y1="${h - pad.b}" x2="${w - pad.r}" y2="${h - pad.b}" stroke="var(--line-2)"/><line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h - pad.b}" stroke="var(--line-2)"/>
       ${xl ? `<text x="${w - pad.r}" y="${h - 6}" class="fig-sub" style="text-anchor:end">${xl}</text>` : ""}${yl ? `<text x="${pad.l + 4}" y="${pad.t + 2}" class="fig-sub" style="text-anchor:start">${yl}</text>` : ""}
       ${vl}${paths}${mk}</svg>`;
   }
 
   /** Numbered mini-storyboard: frames = [{t, v(html)}] shown as a row of panels. */
-  const frames = (fs) =>
-    `<div class="fig-frames">${fs.map((f, i) => `<div class="ff fi"><div class="ff-n">${i + 1}</div>${f.v || ""}<div class="ff-t">${f.t}</div></div>`).join("")}</div>`;
+  const frames = (fs, label) =>
+    `<div class="fig-frames" ${named(label || `Storyboard of ${fs.length} frames`, "group")}>${fs.map((f, i) => `<div class="ff fi"><div class="ff-n">${i + 1}</div>${f.v || ""}<div class="ff-t">${f.t}</div></div>`).join("")}</div>`;
 
   /**
    * Interactive 3-D surface on canvas. Drag to rotate, auto-rotates gently until touched.
@@ -211,6 +282,7 @@
     const o = { n: 34, height: 320, x: [0, 1], y: [0, 1], ...opts };
     const cv = document.createElement("canvas");
     cv.className = "viz surface3d";
+    cv.setAttribute("role", "img");
     cv.setAttribute("aria-label", opts.label || "3D surface — drag to rotate");
     container.appendChild(cv);
     const hint = document.createElement("div");

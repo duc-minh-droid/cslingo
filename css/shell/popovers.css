@@ -57,7 +57,19 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.pc-courses h3 {
+  margin-top: 4px;
+}
+/* while a search is typed the course rows make way, so the results start right under the box */
+.pop-card.pc-searching .pc-courses {
+  display: none;
+}
+@media (pointer: coarse) {
+  .pc-search kbd {
+    display: none; /* no "/" key on a touch screen */
+  }
 }
 .pc-search svg {
   position: absolute;
@@ -80,7 +92,14 @@
 .pc-res {
   display: grid;
   gap: 4px;
-  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.pc-res:empty {
+  display: none;
+}
+.pc-more {
+  margin: 4px 10px 0;
+  font-size: 13px;
 }
 .pc-hit {
   appearance: none;
@@ -106,8 +125,12 @@
 .pc-hit:focus-visible {
   background: var(--bg-2);
 }
+.pc-hit.active {
+  background: var(--blue-dim); /* the row Enter will open */
+}
 .pc-num {
-  min-width: 42px;
+  flex: none;
+  min-width: 64px;
   font-size: 12px;
   font-weight: 900;
   color: var(--blue-ink);

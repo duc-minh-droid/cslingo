@@ -1,0 +1,162 @@
+/* =====================================================================
+   Profile: "Your progress" (a mastery row per course and this week's XP) and the progress under a locked achievement.
+   ===================================================================== */
+.ov-card {
+  display: grid;
+  gap: 16px;
+  padding: 14px;
+}
+.ov-courses {
+  display: grid;
+  gap: 12px;
+}
+.ov-c {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ov-ct {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ov-ct b {
+  color: var(--ink);
+  font-weight: 900;
+}
+.ov-ct > span:not(.ov-bar) {
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.ov-bar {
+  position: relative;
+  display: block;
+  height: 10px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ov-bar > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--u);
+  transform-origin: 0 50%;
+}
+.ov-pc {
+  flex: none;
+  min-width: 44px;
+  text-align: right;
+  color: var(--u-ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* the week: seven bars, a dashed line at the daily goal */
+.ov-week {
+  padding-top: 14px;
+  border-top: 2px solid var(--line-soft);
+}
+.ov-wh {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.ov-wh b {
+  color: var(--ink);
+  font-weight: 900;
+}
+.ov-wh span {
+  color: var(--amber-ink);
+  font-weight: 900;
+}
+.ov-bars {
+  --bh: 80px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.ov-bars::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc((1 - var(--goal)) * var(--bh));
+  border-top: 2px dashed var(--line-2);
+  pointer-events: none;
+}
+.ov-d {
+  display: grid;
+  grid-template-rows: var(--bh) auto auto;
+  justify-items: center;
+  gap: 2px;
+}
+.ov-d i {
+  align-self: end;
+  width: 100%;
+  max-width: 30px;
+  height: calc(var(--h) * var(--bh));
+  min-height: 4px;
+  border-radius: 8px 8px 4px 4px;
+  background: var(--line);
+}
+.ov-d.has i {
+  background: var(--gold);
+}
+.ov-d.met i {
+  background: var(--teal);
+}
+.ov-d span {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 900;
+}
+.ov-d.today span {
+  color: var(--amber-ink);
+}
+.ov-d em {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  min-height: 1.2em;
+}
+
+/* a locked achievement: how far along it is */
+.ach-prog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 4px;
+}
+.ach-bar {
+  position: relative;
+  display: block;
+  width: 80%;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ach-bar i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--teal);
+  transform-origin: 0 50%;
+}
+.ach-prog em {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}

@@ -87,7 +87,7 @@
     steps: [
       {
         t: "What you will practise",
-        b: `<p>You'll run <b>Dijkstra</b> yourself, with no code. Each node has a <b>distance</b> from the start (∞ until reached).</p><p>The rule is one line: <span class="key">settle the reached node with the smallest distance, then check its roads for shortcuts.</span></p>`,
+        b: `<p>You'll run <b>Dijkstra</b> yourself, with no code. Each node has a <b>distance</b> from the start (∞ until reached).</p><p>Nodes that have been reached but are not final yet wait in the <b>waiting room</b>. They are the tentative ones.</p><p>The rule is one line: <span class="key">settle the node in the waiting room with the smallest distance, then check its roads for shortcuts.</span></p>`,
         v: F.flow([
           { t: "Pick smallest", c: "blue" },
           { t: "Settle it", c: "teal" },
@@ -154,7 +154,7 @@
         # 1. Pick the unsettled node with the smallest distance.
         u = None
         for v in graph:
-            # YOUR CODE: if v is not done, is reachable, and is closer than u, let u = v
+            # YOUR CODE: if v is not done, reached and nearer, u = v
             pass
         if u is None:
             break                      # nothing left to settle

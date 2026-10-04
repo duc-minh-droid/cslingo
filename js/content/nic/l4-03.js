@@ -309,14 +309,14 @@
       root.appendChild(
         predict({
           id: "l4-pr-1",
-          q: "Your EA's population becomes nearly identical within a few generations and stalls on a mediocre solution. What's the most likely fix?",
+          q: "Selection picks parents completely at random, ignoring fitness. Over many generations, what do you expect?",
           opts: [
-            "Increase the tournament size to push harder",
-            "Lower selection pressure and/or raise mutation",
-            "Remove mutation so good genes aren't disrupted",
+            "The population drifts, with no steady improvement",
+            "Fitness climbs steadily, since crossover still helps",
+            "The best individual takes over within a few generations",
           ],
-          a: 1,
-          why: "Fast loss of diversity followed by stagnation is <b>premature convergence</b>, the classic sign of too much pressure. Lower the pressure or add exploration (more mutation) so the population keeps sampling other regions.",
+          a: 0,
+          why: "With no bias towards the fit there is nothing to <i>keep</i> the good solutions, so any improvement is luck and the population just drifts. That is <b>too little pressure</b>. The opposite extreme (always pick the best) is the one where a single copy takes over.",
         }),
       );
       root.appendChild(

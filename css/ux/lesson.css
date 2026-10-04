@@ -8,7 +8,7 @@
   color: var(--ink);
 }
 :focus-visible {
-  outline: 3px solid var(--blue-edge);
+  outline: 3px solid var(--blue-ink);
   outline-offset: 2px;
   border-radius: 10px;
 }

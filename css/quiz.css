@@ -320,6 +320,7 @@
 .q-pick svg {
   width: 100%;
   display: block;
+  overflow: visible; /* the focus ring of a target at the figure's edge isn't cut off */
 }
 .q-pick .pickable {
   cursor: pointer;
@@ -337,8 +338,17 @@
 .q-pick [data-pick]:focus {
   outline: none;
 } /* no browser focus box (it showed as a black rectangle) */
-.q-pick .pickable:focus-visible {
-  filter: drop-shadow(0 0 6px rgba(28, 176, 246, 0.9));
+/* keyboard focus: a ring drawn around SVG targets (TYPES.pick.focusRing, wider than the selection ring), an outline around HTML ones */
+.q-pick .pk-focus {
+  fill: none;
+  stroke: var(--blue-ink);
+  stroke-width: 3px;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.q-pick :not(svg *)[data-pick]:focus-visible {
+  outline: 3px solid var(--blue-ink);
+  outline-offset: 2px;
 }
 /* selected / graded: a rounded ring around the element's whole box (drawn by TYPES.pick.ring), so cells, rows, cards and nodes
    all get the same clean highlight instead of a black rectangle around each shape inside them */

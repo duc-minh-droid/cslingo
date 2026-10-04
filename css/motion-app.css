@@ -84,8 +84,12 @@ html .seg.m-pill:has(> button.on:active) .seg-ind {
   transform: translateX(24px) scale(0.9);
 }
 .pf-sw:focus-visible {
-  outline: 3px solid var(--blue-edge);
+  outline: 3px solid var(--blue-ink);
   outline-offset: 2px;
+}
+/* the keyboard focus ring uses the text shade of blue: --blue-edge is a pale tint that is hard to see on the white page */
+:focus-visible {
+  outline-color: var(--blue-ink);
 }
 
 /* ---------- path chest: bright through the payoff, then greys out slowly ---------- */

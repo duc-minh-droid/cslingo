@@ -367,10 +367,10 @@
       root.appendChild(
         predict({
           id: "l3-nb-1",
-          q: "Encoding: permutations of 10 cities. Mutation: swap any adjacent pair (wrapping around). How big is each neighbourhood?",
-          opts: ["9", "10", "45", "10! = 3,628,800"],
+          q: "On the 3-bit cube, choose <b>flip 1 or 2 bits</b>. How many neighbours does <code>000</code> have?",
+          opts: ["3", "6", "7"],
           a: 1,
-          why: "There are k adjacent pairs around a ring of k, so there are <b>10</b> neighbours. (Without wrap-around it would be 9. Swapping <i>any</i> pair gives C(10,2) = 45.) The neighbourhood is tiny compared with the 10! search space: that's the point of local search.",
+          why: "A neighbour is any string 1 or 2 flips away: 3 single flips (001, 010, 100) plus 3 double flips (011, 101, 110) = <b>6</b>. Only 111 is left out (it needs 3 flips). Plain bit flip would give 3, and <i>flip any bits</i> gives all 7. The wider the operator, the bigger the neighbourhood.",
         }),
       );
       root.appendChild(

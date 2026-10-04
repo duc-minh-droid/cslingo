@@ -34,7 +34,8 @@
     render(root) {
       root.appendChild(header(this, ""));
       const SYMS = ["A", "B", "C", "D"],
-        COL = ["var(--teal)", "var(--violet)", "var(--amber)", "var(--rose)"];
+        COL = ["var(--teal)", "var(--violet)", "var(--amber)", "var(--rose)"],
+        CK = ["teal", "violet", "amber", "rose"]; // the same hues as NIC.colors() keys: Chart.js cannot read var(--x)
       let wts = [8, 4, 2, 2]; // the loaded die: .5 .25 .125 .125 → H = 1.75
       const card =
         el(`<div class="card"><div class="card-head"><h2>A source that speaks four symbols</h2><span class="faint">sliders = how often each symbol appears</span></div>
@@ -65,7 +66,7 @@
           mx = lg2(SYMS.length);
         const H = p.reduce((a, pi) => a - (pi ? pi * lg2(pi) : 0), 0);
         N.barChart(qs("#cv", card), {
-          groups: [{ values: p, color: (i) => COL[i] }],
+          groups: [{ values: p, color: (i) => N.colors()[CK[i]] }],
           labels: SYMS,
           yMax: 1,
           decimals: 2,
@@ -97,14 +98,10 @@
       root.appendChild(
         predict({
           id: "a7-entropy-1",
-          q: "Drag A to 32 and the rest near 0. Entropy H becomes…",
-          opts: [
-            "about 2 bits, since there are still four symbols",
-            "about 0 bits: a near-certain source says almost nothing",
-            "about 1 bit, halfway between the two extremes",
-          ],
+          q: "Set A and B to 8, and C and D to 0. What does the entropy H become?",
+          opts: ["0.5 bits", "1 bit", "1.5 bits", "2 bits, since the alphabet still has four symbols"],
           a: 1,
-          why: "Entropy is a property of the <b>distribution</b>, not the alphabet. Four symbols where one is near-certain ≈ no news per symbol → H ≈ 0. That's why English text (very predictable) compresses so well.",
+          why: "Only A and B can ever appear, each half the time, just like a fair coin: <b>1 bit</b> per symbol. C and D have probability 0, so they add nothing, and the alphabet size doesn't matter. Entropy belongs to the <b>distribution</b>. You save 50% against a fixed 2-bit code.",
         }),
       );
       root.appendChild(
@@ -378,14 +375,10 @@
       root.appendChild(
         predict({
           id: "a7-huffman-1",
-          q: "Lecture set: after merging D+E → .20, the queue is C .20, DE .20, B .25, A .35. Which two merge next?",
-          opts: [
-            "A and B, the two biggest remaining nodes",
-            "C and DE: the merged node competes like any symbol",
-            "D and E again, since they were merged last",
-          ],
-          a: 1,
-          why: "The two smallest are now C (.20) and the new node DE (.20) — a tie. The merged node is just another queue entry; that's what makes the result a <b>tree</b>, not a flat table.",
+          q: "On the Lecture set (.35 .25 .20 .12 .08), which symbols end up with the longest, 3-bit codewords?",
+          opts: ["D and E, the two rarest", "A and B, the two most common", "C alone, the middle one"],
+          a: 0,
+          why: "The rarest symbols are merged first, so they sit deepest in the tree: D (.12) and E (.08) get 3 bits, while A, B and C get 2. The average is 0.35×2 + 0.25×2 + 0.20×2 + 0.12×3 + 0.08×3 = 2.20 bits.",
         }),
       );
       root.appendChild(

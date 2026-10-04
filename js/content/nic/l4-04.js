@@ -297,19 +297,23 @@
       root.appendChild(
         predict({
           id: "l4-rank-1",
-          q: "Superfit population 100, 0.4, 0.3, 0.2, 0.1 with <b>linear</b> rank selection. What's the best individual's selection probability?",
-          opts: ["≈ 99%", "5/15 ≈ 33%", "1/5 = 20%", "It depends on how much bigger 100 is"],
-          a: 1,
-          why: "Ranks are 5,4,3,2,1 and F = 5·6/2 = 15, so p = 5/15 = <b>33.3%</b>. Rank selection ignores how much fitter the superfit individual is, only that it's first. The same holds for negative values and for minimisation (just rank the other way).",
+          q: "Population 100, 0.4, 0.3, 0.2, 0.1 with <b>linear</b> rank selection. You add 1,000 to every fitness. What happens to the best individual's selection probability?",
+          opts: [
+            "It stays exactly the same",
+            "It falls, because the gaps become small",
+            "It rises, because every value got bigger",
+          ],
+          a: 0,
+          why: "Rank selection only looks at the <b>order</b> (5, 4, 3, 2, 1), and adding 1,000 to everything doesn't change the order, so the best keeps 5/15 ≈ 33%. Roulette would behave differently: the same shift flattens its wheel. The same holds for negative values and for minimisation (just rank the other way).",
         }),
       );
       root.appendChild(
         predict({
           id: "l4-rank-2",
-          q: "What does increasing the exponent b in rank<sup>b</sup> do?",
-          opts: ["Lowers selection pressure", "Raises selection pressure", "Nothing, since ranks are fixed"],
+          q: "Population of 5 with linear rank selection (b = 1). How many times more likely is the best to be picked than the worst?",
+          opts: ["Twice as likely", "5 times as likely", "100 times as likely"],
           a: 1,
-          why: 'Larger b stretches the gap between high and low ranks: b=2 is the lecture\'s "high bias", b=0.5 "low bias", and b=0 is uniform random. So b is a <b>pressure dial</b> that doesn\'t depend on the raw fitness scale.',
+          why: "Ranks are 5 for the best and 1 for the worst, so their chances are 5/15 and 1/15: <b>5 times</b>. Rank selection never lets the best run away with the wheel, whatever the raw fitness gap. Turn b up (b = 2 gives 25 times) and the gap widens: b is the pressure dial.",
         }),
       );
       root.appendChild(

@@ -60,7 +60,7 @@
       {
         t: "The rubber-band picture",
         b: `<p>Hammer pins into a board and stretch a rubber band around them all. When you let go, it snaps onto the outermost pins. Those pins form the <b>convex hull</b>. Pins inside the band don't touch it.</p>`,
-        v: `<svg class="fig" viewBox="0 0 460 250" style="max-height:230px"><polygon points="60,200 190,215 330,180 410,90 230,25" fill="rgba(88,204,2,.1)" stroke="var(--teal)" stroke-width="3" stroke-linejoin="round" class="draw"/>${[
+        v: `<svg class="fig" viewBox="0 0 460 250" role="img" aria-label="Pins on a board with a rubber band stretched round the outermost pins. The pins inside the band don't touch it." style="max-height:230px"><polygon points="60,200 190,215 330,180 410,90 230,25" fill="rgba(88,204,2,.1)" stroke="var(--teal)" stroke-width="3" stroke-linejoin="round" class="draw"/>${[
           [60, 200, 1],
           [190, 215, 1],
           [330, 180, 1],
@@ -94,10 +94,15 @@
           },
         ]),
         c: {
-          q: "p → a → b gives a cross product of 0. What does that mean?",
-          o: ["The walk turns left", "The walk turns right", "The three points are collinear"],
-          a: 2,
-          why: "Zero means the two direction vectors are parallel, so it's a straight line. Collinear points are the classic hull edge case.",
+          type: "match",
+          q: "For a walk p → a → b, match the sign of the cross product to what the walk does.",
+          pairs: [
+            ["Positive", "A left turn (counter-clockwise)"],
+            ["Negative", "A right turn (clockwise)"],
+            ["Zero", "The three points are in a straight line"],
+          ],
+          hint: "Positive is left and negative is right. What is neither?",
+          why: "Zero means the two direction vectors are parallel, so the three points are collinear. That is the classic hull edge case.",
         },
       },
       {
@@ -108,7 +113,7 @@
     guide: [
       "Click any three points in order. A path appears and the turn is reported.",
       "Find one left turn and one right turn.",
-      "Predict the sign <b>before</b> clicking the third point.",
+      "Predict the sign <i>before</i> clicking the third point.",
     ],
   };
 
@@ -199,7 +204,7 @@
       {
         t: "Swing the line",
         b: `<p>From the current point, try every other point as the "next" one. Keep the candidate that makes <b>all</b> the others lie to its left. That edge touches nothing inside, so it's a hull edge.</p>`,
-        v: `<svg class="fig" viewBox="0 0 420 200" style="max-height:190px"><circle cx="50" cy="160" r="7" fill="var(--amber)"/><text x="50" y="186" class="fig-sub">current</text>${[
+        v: `<svg class="fig" viewBox="0 0 420 200" role="img" aria-label="From the current point on the left, a line swings to the next hull point, with every other point on its left" style="max-height:190px"><circle cx="50" cy="160" r="7" fill="var(--amber)"/><text x="50" y="186" class="fig-sub">current</text>${[
           [180, 175, "var(--teal)"],
           [150, 110, "var(--text-faint)"],
           [300, 150, "var(--text-faint)"],
@@ -213,10 +218,17 @@
             "",
           )}<text x="210" y="195" class="fig-sub" style="fill:var(--teal)">every other point is on the left of this edge → hull edge</text></svg>`,
         c: {
-          q: "Gift wrapping costs O(n·h), where h is the number of hull points. When does it beat O(n log n)?",
-          o: ["Never: n log n always wins", "When h is small", "When h is roughly equal to n"],
-          a: 1,
-          why: "It's output-sensitive. A tiny hull means n·h ≪ n log n. In the worst case (every point on the hull) it's O(n²).",
+          type: "cat",
+          q: "Gift wrapping costs O(n·h), where h is the number of hull points. For each set of points, which method is cheaper: gift wrapping, or a method costing O(n log n)?",
+          buckets: ["Gift wrapping wins", "O(n log n) wins"],
+          items: [
+            ["10,000 points, but only 6 of them form the hull", 0],
+            ["500 points all sitting on a circle", 1],
+            ["2,000 points scattered inside a small triangle", 0],
+            ["300 points in a ring, with only a few inside", 1],
+          ],
+          hint: "Compare n·h with n log n. Is h small or close to n?",
+          why: "It's output-sensitive: a tiny hull means n·h is much less than n log n (6 or 3 hull points). When most points are on the hull, h is close to n and n·h approaches n², so n log n wins.",
         },
       },
       {

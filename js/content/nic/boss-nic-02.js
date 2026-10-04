@@ -7,7 +7,7 @@
     lecture: 4,
     title: "Lecture 4 boss quiz",
     blurb: "Nine questions: selection maths with new numbers, crossover by hand, diagnosing broken GAs.",
-    lede: "Selection probabilities, operators and diagnosis, all with numbers you haven't seen yet. Pen and paper for the first four.",
+    lede: "Selection probabilities, operators and diagnosis, all with numbers you haven't seen yet. The sums are small, and the hints break the harder ones into easy steps.",
     qs: [
       {
         type: "mcq",

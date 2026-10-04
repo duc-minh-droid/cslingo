@@ -7,6 +7,31 @@
   const L = N.LESSONS;
   const F = N.fig;
 
+  // five candidate plans (x, y) drawn against the two rule lines; the learner taps the feasible ones
+  const plansPick = () => {
+    const X = (x) => 40 + x * 48,
+      Y = (y) => 240 - y * 38;
+    const plans = [
+      [2, 2, "up"],
+      [4, 3, "left"],
+      [5, 3, "up"],
+      [1, 5, "up"],
+      [6, 1, "down"],
+    ];
+    const lbl = (x, y, t, c, a) =>
+      `<text x="${x}" y="${y}" text-anchor="${a}" style="font:800 13px var(--sans);fill:var(${c})">${t}</text>`;
+    const dots = plans.map(([x, y, side]) => {
+      const [tx, ty, a] =
+        side === "left"
+          ? [X(x) - 14, Y(y) + 5, "end"]
+          : side === "down"
+            ? [X(x), Y(y) + 28, "middle"]
+            : [X(x), Y(y) - 16, "middle"];
+      return `<g data-pick="(${x}, ${y})" aria-label="Plan (${x}, ${y})"><circle cx="${X(x)}" cy="${Y(y)}" r="20" fill="transparent"/><circle cx="${X(x)}" cy="${Y(y)}" r="9" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/>${lbl(tx, ty, `(${x}, ${y})`, "--ink", a)}</g>`;
+    });
+    return `<svg viewBox="0 0 400 270" role="group" aria-label="Plot of x across and y up, with the lines x + 2y = 10 and 3x + y = 15 and five candidate plans"><path d="M${X(0)} ${Y(6.2)} V${Y(0)} H${X(7.5)}" fill="none" stroke="var(--line-2)" stroke-width="2"/><line x1="${X(0)}" y1="${Y(5)}" x2="${X(7)}" y2="${Y(1.5)}" stroke="var(--violet)" stroke-width="3" stroke-dasharray="7 5"/><line x1="${X(3)}" y1="${Y(6)}" x2="${X(5)}" y2="${Y(0)}" stroke="var(--amber)" stroke-width="3" stroke-dasharray="7 5"/><g transform="rotate(21.6 ${X(6.4)} ${Y(1.75) - 14})">${lbl(X(6.4), Y(1.75) - 14, "x + 2y = 10", "--violet-ink", "middle")}</g>${lbl(X(3) + 10, Y(6) + 8, "3x + y = 15", "--amber-ink", "start")}${lbl(X(7.5) - 4, Y(0) + 18, "x", "--text-faint", "end")}${lbl(X(0) - 10, Y(6.2) + 4, "y", "--text-faint", "end")}${dots.join("")}</svg>`;
+  };
+
   /* ---------- shared LP geometry ----------
      max z = 3x + c₂y   s.t.  x + 2y ≤ 10,  3x + y ≤ 15,  (optional) y ≤ 4,  x, y ≥ 0
      Base vertices (0,0) (5,0) (4,3) (0,5). With c₂ = 2: z = 0, 15, 18, 10 → optimum (4,3), z = 18. */
@@ -126,14 +151,12 @@
           box.innerHTML = `<div class="fig-wrap">${lpSVG({ active: { c1: true, c2: true }, showZ: false }).svg}</div><div class="fig-cap">Every point in the green polygon is a legal production plan.</div>`;
         },
         c: {
-          q: "Is the plan (5, 3) feasible?",
-          o: [
-            "Yes, both numbers are positive",
-            "Yes, it only breaks one rule, which is allowed",
-            "No: x + 2y = 11 > 10 and 3x + y = 18 > 15",
-          ],
-          a: 2,
-          why: "Check every rule: 5 + 2·3 = 11 > 10 and 3·5 + 3 = 18 > 15. It breaks both, so it's outside.",
+          type: "pick",
+          q: "A factory must keep both rules: machine hours <code>x + 2y ≤ 10</code> and raw material <code>3x + y ≤ 15</code>, with x, y ≥ 0. Tap <b>every</b> plan (x, y) that is feasible.",
+          fig: plansPick(),
+          a: ["(2, 2)", "(4, 3)"],
+          hint: "A plan is feasible only if it passes both rules. Try each point in both inequalities.",
+          why: "(2, 2) and (4, 3) pass both rules ((4, 3) sits exactly on both limits). (5, 3) breaks both, (1, 5) breaks machine hours (11 > 10) and (6, 1) breaks raw material (19 > 15).",
         },
       },
       {
@@ -184,7 +207,7 @@
       },
     ],
     guide: [
-      "Drag the <b>£ per unit of y</b> slider slowly. Watch the orange optimum <b>jump</b> from corner to corner. It never slides.",
+      "Drag the <b>£ per unit of y</b> slider slowly. Watch the orange optimum <i>jump</i> from corner to corner. It never slides.",
       "Turn on <b>y ≤ 4</b>. A new corner appears. Does the optimum change at £2? At £5?",
       "Turn off a constraint. The region grows, and with both off it becomes unbounded.",
     ],

@@ -62,14 +62,17 @@
           },
         ),
         c: {
-          q: "What does poisoned reverse prevent?",
-          o: [
-            "Every routing loop in the network, however many routers are involved",
-            "Loops between two directly connected routers",
-            "The link failures themselves",
+          type: "cat",
+          q: "Poisoned reverse fixes some routing problems. Which does it stop, and which can still happen?",
+          buckets: ["Stopped by poisoned reverse", "Can still happen"],
+          items: [
+            ["Two neighbours bouncing a dead route between them", 0],
+            ["A loop A→B→C→A that runs through three routers", 1],
+            ["Advertising a route back to the neighbour it came from", 0],
+            ["The B–C link failing in the first place", 1],
           ],
-          a: 1,
-          why: "It stops a neighbour routing straight back through you. A→B→C→A loops survive it.",
+          hint: "It only changes what a router tells the neighbour whose route it is using.",
+          why: "It stops a neighbour routing straight back through you, so two-router loops die at once. Loops through three or more routers still count up (RIP caps infinity at 16), and links can still fail.",
         },
       },
       {

@@ -10,7 +10,7 @@
       "Slot 1 (0.6) isn't weaker than 0.5; slot 2 (0.3) is, so the scan stops there.",
     ),
     M(
-      "Same population and child. Which slot does replace <b>weakest</b> take?",
+      "Population 0.6, 0.3, 0.8, 0.2 (maximising). A child scores 0.5. Which slot does replace <b>weakest</b> take?",
       ["Slot 1", "Slot 2", "Slot 3", "Slot 4"],
       3,
       "The weakest is 0.2 in slot 4.",
@@ -175,7 +175,12 @@
       1,
       "Ranks 1 + 2 + 3 = 6, so 3/6.",
     ),
-    M("Same population of 3. Probability of the worst?", ["0", "1/6", "1/3", "1/2"], 1, "1/6."),
+    M(
+      "Linear rank selection, population 3. Probability of the worst?",
+      ["0", "1/6", "1/3", "1/2"],
+      1,
+      "Ranks 1 + 2 + 3 = 6, so the worst gets 1/6.",
+    ),
     M(
       "Linear rank selection, population 10. Probability of the best?",
       ["1/10", "about 0.18", "1/2", "about 0.9"],

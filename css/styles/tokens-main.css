@@ -177,10 +177,11 @@
   width: 0;
   height: 0;
 }
+/* No fixed height on html or body: the top bar is position: sticky inside body, and a body only as tall as the viewport made it
+   scroll away after one screen on every long page. The background still paints the whole canvas. */
 html,
 body {
   margin: 0;
-  height: 100%;
 }
 body {
   background: var(--bg);

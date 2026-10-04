@@ -29,10 +29,16 @@
         t: "Score each one with a fitness function",
         b: `<p>Our score is <b>f(s) = |weight − 100|</b>, how far we are from 100 kg. <b>Smaller is better</b> (a minimisation problem).</p><p><code>110</code>: 95 kg → f = 5.</p>`,
         c: {
-          q: "Items weigh 20 kg, 75 kg and 60 kg, and the target is 100 kg. What is f(<code>101</code>)? (items 1 and 3)",
-          o: ["20", "80", "5", "35"],
-          a: 0,
-          why: "20 + 60 = 80 kg, and |80 − 100| = 20.",
+          type: "order",
+          q: "Items weigh 20 kg, 75 kg and 60 kg, and the target is 100 kg, so f(s) = |weight − 100|. Put these subsets in order from <b>best</b> (smallest f) to <b>worst</b>.",
+          items: [
+            "<code>101</code>: items 1 and 3",
+            "<code>011</code>: items 2 and 3",
+            "<code>111</code>: all three items",
+            "<code>100</code>: item 1 only",
+          ],
+          hint: "Add up each subset's weight first, then see how far it is from 100 kg.",
+          why: "<code>101</code>: 20 + 60 = 80 kg, so f = 20. <code>011</code>: 75 + 60 = 135 kg, so f = 35. <code>111</code>: 155 kg, so f = 55. <code>100</code>: 20 kg, so f = 80. Smaller f is better.",
         },
       },
       {
@@ -57,7 +63,7 @@
     guide: [
       "Click the item buttons to build subsets. Watch weight and f(s) update.",
       "Try to find the best subset <i>before</i> revealing. Your tries fill in the table.",
-      "Once you've tried all 8 you've done exhaustive search. Then press Reveal to check.",
+      "Once you've tried all 8 you've done exhaustive search. Then press <b>Reveal</b> to check.",
     ],
   };
 
@@ -113,21 +119,28 @@
       },
       {
         t: "Easy vs hard",
-        b: `<p><b>Easy (tractable)</b>: a polynomial-time exact algorithm is known. Sorting and MST are examples.<br><b>Hard (intractable)</b>: the fastest <i>known</i> exact algorithm is exponential, often not much better than exhaustive search.</p><span class="key">"Hard" means no fast exact method is <b>known</b>. It doesn't mean the search space is big: sorting has n! orderings but is easy.</span>`,
+        b: `<p><b>Easy (tractable)</b>: a polynomial-time exact algorithm is known. Sorting and finding a minimum spanning tree (MST) are examples.<br><b>Hard (intractable)</b>: the fastest <i>known</i> exact algorithm is exponential, often not much better than exhaustive search.</p><span class="key">"Hard" means no fast exact method is <b>known</b>. It doesn't mean the search space is big: sorting has n! orderings but is easy.</span>`,
       },
       {
         t: "Why you should care",
-        b: `<p><b>Almost all important real-world problems are technically hard.</b> Searching all protein structures with 500 amino acids would take trillions of times longer than the age of the universe.</p><p>So for real problems we can't insist on the perfect answer. That's where EAs come in.</p>`,
+        b: `<p><b>Almost all important real-world problems are technically hard.</b> Searching all protein structures with 500 amino acids would take trillions of times longer than the age of the universe.</p><p>So for real problems we can't insist on the perfect answer. That's where evolutionary algorithms (EAs) come in.</p>`,
         c: {
-          q: "Which of these is hard?",
-          o: ["Sorting a list of names", "Finding a minimum spanning tree", "The travelling salesperson problem"],
-          a: 2,
-          why: "No polynomial exact algorithm is known for TSP. Sorting and MST are easy.",
+          type: "cat",
+          q: "Which problems are <b>easy</b> (a polynomial-time exact algorithm is known) and which are <b>hard</b>?",
+          buckets: ["Easy", "Hard"],
+          items: [
+            ["Sorting a list of names", 0],
+            ["The travelling salesperson problem", 1],
+            ["Finding a minimum spanning tree", 0],
+            ["Timetabling 500 exams with no clashes", 1],
+          ],
+          hint: "Hard means no fast exact method is known, not that the search space is big. Sorting has n! orderings but is easy.",
+          why: "No polynomial exact algorithm is known for TSP or for real timetabling, so both are hard. Sorting and finding a minimum spanning tree are easy.",
         },
       },
     ],
     guide: [
-      "Drag <b>n</b> slowly from 2 to 100 and watch the red (exponential) curve.",
+      "Drag the <b>problem size</b> slider slowly from 2 to 100 and watch the red (exponential) curve.",
       "Stop at n = 43 and 44: that's where it overtakes.",
       "Look at the time table at n = 20, 40 and 60. The easy rows barely change, while the hard rows explode.",
     ],
@@ -138,16 +151,22 @@
     steps: [
       {
         t: "The problem",
-        b: `<p>You want to connect 5 towns with cable. Each possible link has a cost. Connect <b>all</b> towns for the <b>lowest total cost</b>.</p><p>Applications: comms network backbones, electricity and water distribution.</p>`,
+        b: `<p>You want to connect 5 towns with cable. Each possible link has a cost. Connect <b>all</b> towns for the <b>lowest total cost</b>. That is the <b>minimum spanning tree (MST)</b> problem.</p><p>Applications: comms network backbones, electricity and water distribution.</p>`,
       },
       {
         t: "What is a spanning tree?",
         b: `<p>A <b>spanning tree</b> uses some of the links so that:</p><p>① every town is connected (it <b>spans</b>), and<br>② there are <b>no cycles</b> (no loops, since a loop means a wasted link).</p><span class="key">A spanning tree on n nodes always has exactly <b>n − 1</b> edges.</span>`,
         c: {
-          q: "How many edges does a spanning tree on 5 nodes have?",
-          o: ["5", "4", "10"],
-          a: 1,
-          why: "n − 1 = 4. One fewer and a node is left out. One more and you create a cycle.",
+          type: "match",
+          q: "A spanning tree on n nodes always has the same number of edges. Match each network to the number of links its spanning tree uses.",
+          pairs: [
+            ["3 towns", "2 links"],
+            ["5 towns", "4 links"],
+            ["8 towns", "7 links"],
+            ["20 towns", "19 links"],
+          ],
+          hint: "Every town except the first needs exactly one link to join the tree.",
+          why: "n − 1 edges. One fewer and a node is left out. One more and you create a cycle.",
         },
       },
       {
@@ -177,7 +196,7 @@
       "Click edges to build your own spanning tree (4 edges). The panel tells you if it's valid and optimal.",
       "Load <b>Slide tree #1</b> (36) and <b>#2</b> (20).",
       "Press <b>Run Prim step by step</b> repeatedly. Orange dashed edges are the candidates. It ends at 18, the optimum.",
-      "Tick the <b>degree ≤ 2 constraint</b> and run Prim again. It gets 20. Can you find the 19 by hand?",
+      "Tick <b>Constraint: no node may have degree above 2</b> and run Prim again. It gets 20. Can you find the 19 by hand?",
     ],
   };
 
@@ -208,13 +227,20 @@
       },
       {
         t: "Quality vs time",
-        b: `<p>The lecture's key curve: a <b>simple method gets good solutions fast</b> but levels off. A <b>sophisticated method (like an EA) is slow</b> but gets <b>better solutions eventually</b>.</p>`,
-        v: `<svg viewBox="0 0 520 150" style="width:100%;max-width:520px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px"><path d="M30 120 C 50 50, 90 45, 490 42" fill="none" stroke="var(--amber)" stroke-width="3"/><path d="M30 130 C 150 125, 220 60, 490 18" fill="none" stroke="var(--teal)" stroke-width="3"/><text x="300" y="60" fill="var(--amber)" font-size="12">simple: good fast</text><text x="330" y="16" fill="var(--teal)" font-size="12">EA: slow, better later</text><text x="20" y="145" fill="var(--text-faint)" font-size="11">time →</text><text x="4" y="14" fill="var(--text-faint)" font-size="11">quality</text></svg>`,
+        b: `<p>The lecture's key curve: a <b>simple method gets good solutions fast</b> but levels off. A <b>sophisticated method (like an evolutionary algorithm, or EA) is slow</b> but gets <b>better solutions eventually</b>.</p>`,
+        v: `<svg viewBox="0 0 520 150" role="img" aria-label="Solution quality against time. The simple method climbs quickly, then levels off. The evolutionary algorithm starts slower but ends higher." style="width:100%;max-width:520px;background:var(--bg-2);border:1px solid var(--line);border-radius:12px"><path d="M30 120 C 50 50, 90 45, 490 42" fill="none" stroke="var(--amber)" stroke-width="3"/><path d="M30 130 C 150 125, 220 60, 490 18" fill="none" stroke="var(--teal)" stroke-width="3"/><text x="300" y="60" fill="var(--amber)" font-size="12">simple: good fast</text><text x="330" y="16" fill="var(--teal)" font-size="12">EA: slow, better later</text><text x="20" y="145" fill="var(--text-faint)" font-size="11">time →</text><text x="4" y="14" fill="var(--text-faint)" font-size="11">quality</text></svg>`,
         c: {
-          q: "You have hours of compute and need the best route possible. Which method?",
-          o: ["The simple fast one", "The EA", "Exhaustive search"],
-          a: 1,
-          why: "With a big time budget the sophisticated method overtakes. With a tiny budget, the simple one wins.",
+          type: "cat",
+          q: "Using the quality-vs-time curve, which method would you reach for in each situation?",
+          buckets: ["Simple fast method", "EA (sophisticated)"],
+          items: [
+            ["A sat-nav must re-route you within a second", 0],
+            ["Hours of compute to plan the best possible delivery route", 1],
+            ["A game must choose a move in 50 milliseconds", 0],
+            ["An overnight run to design the cheapest pipe network", 1],
+          ],
+          hint: "On the curve, the simple method is ahead early on. The EA catches up and overtakes it later.",
+          why: "With a tiny time budget the simple method's quick, decent answer wins. With a big budget the sophisticated method overtakes and finds better solutions.",
         },
       },
       {
@@ -236,7 +262,7 @@
     steps: [
       {
         t: "The loop at a glance",
-        b: `<p>Lecture 3 opens with this cycle. Everything in Lectures 3 and 4 is a detail of one of these boxes.</p>`,
+        b: `<p>Lecture 3 opens with the cycle that every evolutionary algorithm (EA) follows. Everything in Lectures 3 and 4 is a detail of one of these boxes.</p>`,
         v:
           flow([
             ["Population", "violet"],
@@ -296,9 +322,16 @@
         t: "Replacement: who survives?",
         b: `<p>Here: the child replaces the <b>weakest</b> member if it's at least as good. Otherwise it's thrown away.</p>`,
         c: {
-          q: "Which step is <b>blind</b> to fitness (it never looks at scores)?",
-          o: ["Selection", "Mutation", "Replacement"],
-          a: 1,
+          type: "cat",
+          q: "Which steps of the EA recipe look at fitness scores, and which are <b>blind</b> to fitness?",
+          buckets: ["Uses fitness", "Blind to fitness"],
+          items: [
+            ["Selection: choose which parents breed", 0],
+            ["Mutation: flip one random bit", 1],
+            ["Replacement: choose who survives", 0],
+            ["Recombination: cut and join two parents", 1],
+          ],
+          hint: "Ask whether the step needs to compare scores, or just changes genes.",
           why: "Mutation and crossover just change genes. Selection and replacement use fitness to decide.",
         },
       },
@@ -338,10 +371,12 @@
             ["C", "A"],
           ]) + `<p class="mono" style="margin-top:8px">ABDEC = 5 + 4 + 9 + 7 + 7 = <b>32</b></p>`,
         c: {
-          q: "Using the table, what is the length of <code>ABCDE</code>?",
-          o: ["32", "34", "28"],
-          a: 1,
-          why: "A–B 5 + B–C 3 + C–D 2 + D–E 9 + E–A 15 = 34.",
+          type: "order",
+          q: "Using the distance table, put these tours in order from <b>shortest</b> to <b>longest</b>. Each tour returns to its start.",
+          fig: `<div style="max-width:360px">${NIC.matrixHTML()}</div>`,
+          items: ["<code>ABCED</code>", "<code>ABDEC</code>", "<code>ABCDE</code>", "<code>ACBDE</code>"],
+          hint: "Add the five hops of each tour, including the trip back to the start. Compare the totals.",
+          why: "ABCED = 5 + 3 + 7 + 9 + 4 = 28. ABDEC = 5 + 4 + 9 + 7 + 7 = 32. ABCDE = 5 + 3 + 2 + 9 + 15 = 34. ACBDE = 7 + 3 + 4 + 9 + 15 = 38.",
         },
       },
       {

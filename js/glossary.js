@@ -9,6 +9,10 @@
       "evolutionary algorithms?|EAs?",
       "A search that evolves a population of candidate answers using selection, crossover and mutation.",
     ],
+    [
+      "genetic algorithms?|GAs?",
+      "An evolutionary algorithm that evolves a population of encoded candidates, usually with crossover and mutation.",
+    ],
     ["populations?", "The set of candidate solutions the algorithm is working with at one time."],
     ["fitness", "A score for how good a candidate solution is. Higher (or lower, if minimising) means better."],
     ["tournaments?", "Pick a few random individuals and let the fittest of them win a place as a parent."],
@@ -38,7 +42,10 @@
     ],
     ["premature convergence", "The population becomes too similar too early and gets stuck on a mediocre answer."],
     ["diversity", "How different the individuals in the population are from each other."],
-    ["hill[- ]?climb(?:ing|er)?", "Repeatedly move to a better neighbouring solution until none is better."],
+    [
+      "hill[- ]?climb(?:ing|er)?|HC",
+      "Hillclimbing: repeatedly move to a better neighbouring solution until none is better.",
+    ],
     [
       "local optimum|local optima|local maxim(?:um|a)",
       "A solution better than all its neighbours but not the best overall.",

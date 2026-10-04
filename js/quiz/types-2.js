@@ -1,8 +1,12 @@
 (function () {
   const quiz = (NIC.shared.engineQuiz = NIC.shared.engineQuiz || {});
-  const { correct, fmtNum, optOrder, same, seeded } = quiz;
+  const { correct, fmtNum, keepFocus, nameGroup, optOrder, ringRect, same, seeded, targetLabel, textOf } = quiz;
   const N = NIC;
   const { qs, qsa, esc } = N;
+
+  /* Rings drawn around pick targets (see TYPES.pick.ring / focusRing): one of each per element. */
+  const rings = new WeakMap(),
+    focusRings = new WeakMap();
 
   const TYPES = {
     mcq: {
@@ -14,6 +18,7 @@
               `<button class="opt" role="radio" aria-checked="false" data-k="${k}"><span class="opt-l">${String.fromCharCode(65 + pos)}</span><span>${Q.o[k]}</span></button>`,
           )
           .join("")}</div>`;
+        nameGroup(qs(".opts", box), box, Q, "Answer options");
         qsa(".opt", box).forEach((b) => (b.onclick = () => submit(+b.dataset.k)));
       },
       grade: (Q, v) => v === Q.a,
@@ -32,12 +37,13 @@
     multi: {
       label: "Select all that apply",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="opts">${optOrder(Q)
+        box.innerHTML = `<div class="opts" role="group">${optOrder(Q)
           .map(
             (k) =>
               `<button class="opt multi" data-k="${k}" aria-pressed="false"><span class="opt-l opt-box"></span><span>${Q.o[k]}</span></button>`,
           )
           .join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        nameGroup(qs(".opts", box), box, Q, "Select all that apply");
         const chk = qs("[data-check]", box);
         qsa(".opt", box).forEach(
           (b) =>
@@ -91,6 +97,7 @@
               `<button class="opt" role="radio" aria-checked="false" data-v="${v}"><span class="opt-l">${String.fromCharCode(65 + pos)}</span><span>${fmtNum(v)}${Q.unit ? " " + Q.unit : ""}</span></button>`,
           )
           .join("")}</div>`;
+        nameGroup(qs(".opts", box), box, Q, "Answer options");
         qsa(".opt", box).forEach((b) => (b.onclick = () => submit(+b.dataset.v)));
       },
       grade: (Q, v) => Math.abs(v - Q.ans) <= (Q.tol ?? 1e-9),
@@ -113,12 +120,13 @@
       label: "Estimate — drag the slider",
       render(Q, box, submit) {
         const mid = Q.start ?? (Q.min + Q.max) / 2;
-        box.innerHTML = `<div class="q-slider"><input type="range" min="${Q.min}" max="${Q.max}" step="${Q.step}" value="${mid}" aria-label="estimate"><output>${fmtNum(mid)}${Q.unit ? " " + Q.unit : ""}</output></div><div class="q-live"></div><div class="q-actions"><button class="btn primary" data-check>Lock it in</button></div>`;
+        box.innerHTML = `<div class="q-slider"><input type="range" min="${Q.min}" max="${Q.max}" step="${Q.step}" value="${mid}" aria-label="Your estimate"><output aria-live="off">${fmtNum(mid)}${Q.unit ? " " + Q.unit : ""}</output></div><div class="q-live"></div><div class="q-actions"><button class="btn primary" data-check>Lock it in</button></div>`;
         const r = qs("input", box),
           out = qs("output", box),
           live = qs(".q-live", box);
         const upd = () => {
           out.textContent = fmtNum(+r.value) + (Q.unit ? " " + Q.unit : "");
+          r.setAttribute("aria-valuetext", out.textContent); // read as "40 ms", not just the bare number
           if (Q.live) live.innerHTML = Q.live(+r.value);
         };
         r.oninput = upd;
@@ -152,6 +160,7 @@
           <div class="qo-pool">${pool.map(([t, i]) => `<button class="chip-btn" data-i="${i}">${t}</button>`).join("")}</div></div><div class="q-actions"><button class="btn ghost small" data-undo>Undo</button><button class="btn primary" data-check disabled>Check</button></div>`;
         const placed = [];
         const draw = () => {
+          const had = document.activeElement;
           qsa(".qo-slot", box).forEach((s, k) => {
             const v = qs(".qo-v", s);
             if (placed[k] !== undefined) {
@@ -166,6 +175,7 @@
           });
           qsa(".qo-pool .chip-btn", box).forEach((b) => (b.disabled = placed.includes(+b.dataset.i)));
           qs("[data-check]", box).disabled = placed.length !== Q.items.length;
+          keepFocus(box, had); // a placed chip disables itself: the keyboard moves on to the next one
         };
         qsa(".qo-pool .chip-btn", box).forEach(
           (b) =>
@@ -207,20 +217,26 @@
           Q.pairs.map((p) => p[1]),
           idKey + "m",
         );
-        box.innerHTML = `<div class="q-match"><div class="qm-col">${Q.pairs.map(([l], k) => `<button class="qm-t qm-l" data-k="${k}">${l}</button>`).join("")}</div>
-          <div class="qm-col">${rights.map(([r, i]) => `<button class="qm-t qm-r" data-i="${i}">${r}</button>`).join("")}</div></div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        box.innerHTML = `<div class="q-match"><div class="qm-col" role="group" aria-label="Left column: pick one">${Q.pairs.map(([l], k) => `<button class="qm-t qm-l" data-k="${k}" aria-pressed="false">${l}</button>`).join("")}</div>
+          <div class="qm-col" role="group" aria-label="Right column: pick its match">${rights.map(([r, i]) => `<button class="qm-t qm-r" data-i="${i}" aria-pressed="false">${r}</button>`).join("")}</div></div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
         const chk = qs("[data-check]", box);
+        // the selected look (.sel) and the announced state (aria-pressed) always change together
+        const mark = (b, on) => {
+          b.classList.toggle("sel", on);
+          b.setAttribute("aria-pressed", String(on));
+        };
         let pick = { l: null, r: null },
           miss = 0,
           done = 0;
         const tryPair = () => {
           if (!pick.l || !pick.r) return;
           const L = pick.l,
-            R = pick.r;
+            R = pick.r,
+            had = document.activeElement;
           pick = { l: null, r: null };
           if (+L.dataset.k === +R.dataset.i) {
             [L, R].forEach((b) => {
-              b.classList.remove("sel");
+              mark(b, false);
               b.classList.add("good");
               b.disabled = true;
               if (N.fx && N.fx.bounce) N.fx.bounce(b);
@@ -238,10 +254,11 @@
               chk.disabled = false;
               N.sfx && N.sfx.play("check");
             }
+            keepFocus(box, had); // both tiles are used up: the keyboard moves on
           } else {
             miss++;
             [L, R].forEach((b) => {
-              b.classList.remove("sel");
+              mark(b, false);
               b.classList.add("bad");
               if (N.fx) N.fx.shake(b);
             });
@@ -256,13 +273,12 @@
               const side = b.classList.contains("qm-l") ? "l" : "r";
               if (pick[side] === b) {
                 pick[side] = null;
-                b.classList.remove("sel");
+                mark(b, false);
                 return;
               }
-              if (pick[side]) pick[side].classList.remove("sel");
+              if (pick[side]) mark(pick[side], false);
               pick[side] = b;
-              b.classList.add("sel");
-              b.setAttribute("aria-pressed", "true");
+              mark(b, true);
               if (!(pick.l && pick.r)) N.sfx && N.sfx.play("tap");
               tryPair();
             }),
@@ -288,7 +304,7 @@
     cat: {
       label: "Sort into the right bucket",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="q-cat">${Q.items.map(([t], k) => `<div class="qc-row" data-k="${k}"><span class="qc-t">${t}</span><span class="seg qc-seg">${Q.buckets.map((b, j) => `<button data-j="${j}">${b}</button>`).join("")}</span></div>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
+        box.innerHTML = `<div class="q-cat">${Q.items.map(([t], k) => `<div class="qc-row" data-k="${k}" role="group" aria-label="${esc(textOf(t))}"><span class="qc-t">${t}</span><span class="seg qc-seg">${Q.buckets.map((b, j) => `<button data-j="${j}" aria-pressed="false">${b}</button>`).join("")}</span></div>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
         const val = Q.items.map(() => -1),
           chk = qs("[data-check]", box);
         qsa(".qc-row", box).forEach((r) =>
@@ -296,7 +312,10 @@
             (b) =>
               (b.onclick = () => {
                 val[+r.dataset.k] = +b.dataset.j;
-                qsa("button", r).forEach((x) => x.classList.toggle("on", x === b));
+                qsa("button", r).forEach((x) => {
+                  x.classList.toggle("on", x === b);
+                  x.setAttribute("aria-pressed", String(x === b));
+                });
                 chk.disabled = val.includes(-1);
               }),
           ),
@@ -309,6 +328,7 @@
           qsa("button", r).forEach((b, j) => {
             b.disabled = true;
             b.classList.toggle("on", j === v[k]);
+            b.setAttribute("aria-pressed", String(j === v[k]));
             if (j === Q.items[k][1]) b.classList.add("right");
             else if (j === v[k]) b.classList.add("wrong");
           });
@@ -329,40 +349,47 @@
     },
     pick: {
       label: "Click on the diagram",
-      /* A rounded highlight around the element's whole box (SVG), instead of stroking every shape inside it. */
+      /* A rounded highlight around the element's whole box (SVG), instead of stroking every shape inside it.
+         `state` is the selection/grade ring (pk-ring); keyboard focus has its own ring (focusRing), so both can show at once. */
       ring(e, state) {
-        const old = e.querySelector(":scope > .pk-ring");
+        const old = rings.get(e);
         if (old) old.remove();
-        if (!state || !e.getBBox || !(e instanceof SVGGElement)) return;
-        const bb = e.getBBox();
-        if (!bb.width || !bb.height) return;
-        const pad = 5,
-          w = bb.width + pad * 2,
-          h = bb.height + pad * 2;
-        const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        r.setAttribute("class", `pk-ring ${state}`);
-        r.setAttribute("x", bb.x - pad);
-        r.setAttribute("y", bb.y - pad);
-        r.setAttribute("width", w);
-        r.setAttribute("height", h);
-        r.setAttribute("rx", Math.min(12, Math.min(w, h) / 2));
-        e.appendChild(r);
+        rings.delete(e);
+        // a bare shape already gets its own selected look (.sel in css/quiz.css); only a group needs the ring for that
+        const r = state && (state !== "sel" || e instanceof SVGGElement) && ringRect(e, `pk-ring ${state}`, 5);
+        if (r) rings.set(e, r);
+      },
+      /** Keyboard focus: an outlined ring around the target (a plain outline for HTML picks is in css/quiz.css). */
+      focusRing(e, on) {
+        const old = focusRings.get(e);
+        if (old) old.remove();
+        focusRings.delete(e);
+        const r = on && ringRect(e, "pk-focus", 9);
+        if (r) focusRings.set(e, r);
       },
       render(Q, box, submit) {
         const multi = Array.isArray(Q.a);
-        box.innerHTML = `<div class="q-pick">${typeof Q.fig === "function" ? "" : Q.fig}</div>${multi ? `<div class="q-actions"><span class="faint" data-count></span><button class="btn primary" data-check disabled>Check</button></div>` : ""}`;
+        box.innerHTML = `<div class="q-pick" role="group">${typeof Q.fig === "function" ? "" : Q.fig}</div>${multi ? `<div class="q-actions"><span class="faint" data-count></span><button class="btn primary" data-check disabled>Check</button></div>` : ""}`;
+        nameGroup(qs(".q-pick", box), box, Q, multi ? "Diagram: select all that apply" : "Diagram: choose one part");
         if (typeof Q.fig === "function") Q.fig(qs(".q-pick", box));
         const els = qsa("[data-pick]", box),
           sel = new Set();
-        els.forEach((e) => {
+        els.forEach((e, n) => {
           e.classList.add("pickable");
           e.setAttribute("tabindex", "0");
           e.setAttribute("role", "button");
+          e.setAttribute("aria-pressed", "false");
+          if (!e.getAttribute("aria-label")) e.setAttribute("aria-label", targetLabel(e, n, els.length));
           const act = () => {
-            if (!multi) return submit(e.dataset.pick);
+            if (!multi) {
+              submit(e.dataset.pick);
+              els.forEach((x) => x.setAttribute("aria-pressed", String(x === e)));
+              return;
+            }
             sel.has(e.dataset.pick) ? sel.delete(e.dataset.pick) : sel.add(e.dataset.pick);
             els.forEach((x) => {
               x.classList.toggle("sel", sel.has(x.dataset.pick));
+              x.setAttribute("aria-pressed", String(sel.has(x.dataset.pick)));
               TYPES.pick.ring(x, sel.has(x.dataset.pick) ? "sel" : "");
             });
             qs("[data-check]", box).disabled = !sel.size;
@@ -375,6 +402,8 @@
               act();
             }
           });
+          e.addEventListener("focus", () => e.matches(":focus-visible") && TYPES.pick.focusRing(e, true));
+          e.addEventListener("blur", () => TYPES.pick.focusRing(e, false));
         });
         if (multi) qs("[data-check]", box).onclick = () => submit([...sel].sort());
       },
@@ -386,6 +415,7 @@
           const p = e.dataset.pick;
           e.classList.remove("pickable", "sel");
           e.removeAttribute("tabindex");
+          e.setAttribute("aria-disabled", "true");
           e.style.pointerEvents = "none";
           const state = want.includes(p)
             ? got.includes(p)
@@ -395,6 +425,14 @@
               ? "pk-wrong"
               : "";
           if (state) e.classList.add(state);
+          // the result is in the name too, for a screen reader moving over the graded diagram
+          const said = {
+            "pk-right": "correct",
+            "pk-missed": "the answer you missed",
+            "pk-wrong": "your answer, wrong",
+          }[state];
+          if (said) e.setAttribute("aria-label", `${e.getAttribute("aria-label")}, ${said}`);
+          TYPES.pick.focusRing(e, false);
           TYPES.pick.ring(e, state);
         });
         qsa(".q-actions", box).forEach((a) => a.remove());
@@ -404,7 +442,7 @@
     bug: {
       label: "Click the faulty line",
       render(Q, box, submit) {
-        box.innerHTML = `<div class="q-code">${Q.code.map((ln, k) => `<button class="qc-line" data-k="${k}"><span class="qc-n">${k + 1}</span><code>${esc(ln)}</code></button>`).join("")}</div>`;
+        box.innerHTML = `<div class="q-code">${Q.code.map((ln, k) => `<button class="qc-line" data-k="${k}" aria-pressed="false"><span class="qc-n">${k + 1}</span><code>${esc(ln)}</code></button>`).join("")}</div>`;
         qsa(".qc-line", box).forEach((b) => (b.onclick = () => submit(+b.dataset.k)));
       },
       grade: (Q, v) => v === Q.a,

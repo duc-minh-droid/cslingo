@@ -41,7 +41,11 @@
         return `<circle cx="${X(x)}" cy="${Y(v) - 2}" r="7" fill="${c}"/>${lbl ? `<text x="${X(x)}" y="${Y(v) - 14}" fill="${c}" font-size="12" text-anchor="middle" font-family="var(--sans)">${lbl}</text>` : ""}`;
       })
       .join("");
-    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;display:block;background:var(--bg-2);border:1px solid var(--line);border-radius:12px">
+    const named = (opts.marks || []).map((m) => m[2]).filter(Boolean);
+    const says =
+      opts.alt ||
+      `Fitness landscape, a curve with hills and dips${opts.label ? ` (${opts.label.replace(/\s*→$/, "")})` : ""}${named.length ? `. Marked: ${named.join(", ")}` : ""}.`;
+    return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${NIC.esc(says)}" style="width:100%;max-width:${w}px;display:block;background:var(--bg-2);border:1px solid var(--line);border-radius:12px">
       <polyline points="${X(0)},${h - 16} ${pts.join(" ")} ${X(1)},${h - 16}" fill="rgba(88,204,2,0.12)" stroke="none"/>
       <polyline points="${pts.join(" ")}" fill="none" stroke="var(--teal)" stroke-width="2.5"/>${marks}
       ${opts.label ? `<text x="${w / 2}" y="${h - 3}" fill="var(--text-faint)" font-size="11" text-anchor="middle">${opts.label}</text>` : ""}</svg>`;
@@ -75,14 +79,17 @@
         t: "Inspired: why copy them?",
         b: `<p>Each one solves <b>very hard problems without anyone in charge</b>.</p><p>Evolution built things as complex as <i>us</i> with no designer. Your brain recognises a face instantly. A single ant is simple, yet the <i>colony</i> finds the shortest path to food.</p><span class="analogy">Nature has spent billions of years testing problem-solving strategies. We just copy the ones that work.</span>`,
         c: {
-          q: "One ant is simple. What can a whole ant colony do?",
-          o: [
-            "Nothing much beyond what one ant can do",
-            "Find short paths to food, with no leader",
-            "Only what the queen orders it to do",
+          type: "cat",
+          q: "One ant is simple. Which of these can <b>one ant</b> do alone, and which only happens with the <b>whole colony</b>?",
+          buckets: ["One ant alone", "Whole colony"],
+          items: [
+            ["Sniff out a scent trail left by another ant", 0],
+            ["Find the shortest path to a food source", 1],
+            ["Drop a little scent behind it as it walks", 0],
+            ["Re-route round a new obstacle with no leader", 1],
           ],
-          a: 1,
-          why: "Intelligence emerges from many simple agents interacting. That idea becomes Ant Colony Optimisation (your CA1).",
+          hint: "Ask: is it a simple rule one ant can follow, or a result that only shows up when thousands of ants interact?",
+          why: "Each ant follows simple rules, like sniffing and dropping scent. Short paths and re-routing emerge from many simple agents interacting. That idea becomes Ant Colony Optimisation (your CA1).",
         },
       },
       {
@@ -169,14 +176,15 @@
         t: "But real problems fight back",
         b: `<p>On the monkey problem each letter can be fixed independently, so keep-if-better wins easily.</p><p>On <b>hard</b> problems, one solution doing keep-if-better gets <b>stuck</b>: every small change looks worse, even though a much better answer exists further away. Nature solves this with extra ingredients (next module).</p>`,
         c: {
-          q: "Randomness in evolution is useful because…",
-          o: [
-            "It works well on its own, even without any selection step",
-            "It proposes changes; selection keeps the good ones",
-            "It guarantees the best answer if you wait long enough",
+          type: "match",
+          q: "Randomness in evolution is useful, but only with selection. Match each recipe to what it does.",
+          pairs: [
+            ["Random changes, no selection", "Wanders forever, like the monkey"],
+            ["Selection, no random changes", "Has nothing new to choose from"],
+            ["Random changes plus selection", "Keeps the improvements: evolution"],
           ],
-          a: 1,
-          why: "Randomness alone is the monkey. Randomness plus selection is evolution.",
+          hint: "Randomness proposes changes. Selection decides which ones are kept.",
+          why: "Randomness alone is the monkey. Selection alone has nothing new to pick from. Randomness proposes and selection keeps the good ones: that is evolution.",
         },
       },
     ],
@@ -192,7 +200,7 @@
     steps: [
       {
         t: "Randomness needs help",
-        b: `<p>Randomness (the lecture calls it <i>stochasticity</i>) is part of every EA. But to get a working algorithm we need extra ingredients copied from nature. There are three.</p>`,
+        b: `<p>Randomness (the lecture calls it <i>stochasticity</i>) is part of every evolutionary algorithm (EA). But to get a working algorithm we need extra ingredients copied from nature. There are three.</p>`,
       },
       {
         t: "Ingredient 1: a population",
@@ -219,14 +227,17 @@
           ["fitness 1", 5.3],
         ]),
         c: {
-          q: "Which of these is a <b>weak</b> bias?",
-          o: [
-            "Only the single fittest parent is ever allowed to breed",
-            "Fitter parents are likelier, but anyone can be chosen",
-            "Everyone gets exactly the same chance, whatever their fitness",
+          type: "cat",
+          q: "A <b>weak</b> bias favours the fit without shutting anyone out. Which ways of choosing a parent are a weak bias?",
+          buckets: ["Weak bias", "Not a weak bias"],
+          items: [
+            ["Chances in proportion to fitness: 9, 6, 3, 1 get 47%, 32%, 16%, 5%", 0],
+            ["The fittest individual breeds every time and the others never do", 1],
+            ["Every individual has exactly the same chance, fit or not", 1],
+            ["Fitter parents are likelier, but the weakest can still be chosen", 0],
           ],
-          a: 1,
-          why: '"It\'s not really plain survival of the fittest": the fitter you are, the more chance you have, and even the least fit still have some chance.',
+          hint: "A weak bias leans towards the fit. Always picking the best leans too hard, and a coin flip does not lean at all.",
+          why: "Fitter parents are likelier, yet even the least fit have some chance: a weak bias. Always picking the best is a strong bias, and equal chances are no bias at all.",
         },
       },
       {
@@ -273,7 +284,7 @@
     ],
     guide: [
       "Press <b>Evolve</b> with the defaults and watch the dots gather on the peaks.",
-      "Set <b>Population size to 1</b> (that's plain trial and error) and press Evolve. Does it reach the ★?",
+      "Set <b>Population size</b> to 1 (that's plain trial and error) and press <b>Evolve</b>. Does it reach the ★?",
       "Press <b>Run test</b> for population 1, then for population 20. Compare the percentages.",
       "Choose <b>Strong</b> bias and run the test: fast, but often stuck. Then try <b>None</b>: no progress.",
       "Tick <b>Recombination</b> and test again.",
@@ -285,7 +296,7 @@
     steps: [
       {
         t: "The one requirement",
-        b: `<p>An EA doesn't need to know <i>how</i> to solve your problem. It only needs a way to <b>score</b> any candidate (a <i>fitness function</i>). Everything else is generic.</p><span class="key">Can you say how good a solution is? Then you can evolve better ones.</span>`,
+        b: `<p>An evolutionary algorithm (EA) doesn't need to know <i>how</i> to solve your problem. It only needs a way to <b>score</b> any candidate (a <i>fitness function</i>). Everything else is generic.</p><span class="key">Can you say how good a solution is? Then you can evolve better ones.</span>`,
       },
       {
         t: "Six application areas",
@@ -306,10 +317,16 @@
         t: "Famous examples from the slides",
         b: `<p><b>Bentley's cars</b>: the chromosome is a series of slices through the car, and fitness comes from an airflow simulation. <i>"More like selective breeding than natural evolution."</i></p><p><b>NASA ST5 antenna</b>: evolved antennas beat the human expert designs.</p><p><b>Top Gun</b>: evolved fighter-pilot strategies.</p>`,
         c: {
-          q: "Designing an antenna shape to meet a spec is which category?",
-          o: ["Planning", "Design", "Classification"],
-          a: 1,
-          why: "Design: the EA searches the space of shapes, scored by how well each meets the requirements.",
+          type: "match",
+          q: "An EA can attack tasks in six areas. Match each task to its <b>category</b>.",
+          pairs: [
+            ["Evolving an antenna shape to meet a spec", "Design"],
+            ["Scheduling exams so no student has a clash", "Planning"],
+            ["Keeping a walking robot upright", "Control"],
+            ["Fitting a curve to noisy sensor readings", "Identification"],
+          ],
+          hint: "Ask what the EA is searching for: a shape, a schedule, a controller, or a function that fits data.",
+          why: "An antenna is a design: the EA searches the space of shapes. A timetable is planning, a balancing robot needs a controller, and fitting a curve to readings is identification.",
         },
       },
     ],
@@ -366,14 +383,17 @@
         t: "Step 3: Update the population",
         b: `<p>Decide who stays. Three common rules:</p><p>① <b>Replace the entire population</b> with children.<br>② <b>Merge</b> old + new, then keep the best |P|.<br>③ <b>Replace some old</b> with some new (e.g. the weakest).</p>`,
         c: {
-          q: "With rule ② (merge, keep best |P|), can the best solution ever be lost?",
-          o: [
-            "Yes, if all the children are worse",
-            "No: the best always stays in the top |P|",
-            "Only when mutation is switched on",
+          type: "cat",
+          q: "Suppose every child is worse than the best parent. Under each update rule, can the <b>best solution be lost</b>?",
+          buckets: ["Best can be lost", "Best always survives"],
+          items: [
+            ["① Replace the whole population with the children", 0],
+            ["② Merge old and new, then keep the best |P|", 1],
+            ["③ Replace randomly chosen parents with children", 0],
+            ["③ Replace the weakest parent with a child", 1],
           ],
-          a: 1,
-          why: "If you keep the best |P| of the merged pool, the current best always survives.",
+          hint: "Ask whether the rule could ever remove the single best parent.",
+          why: "Replacing everyone (①) or random parents (③) can throw the best away. If you keep the best |P| of the merged pool (②), or only ever replace the weakest, the current best always survives.",
         },
       },
       {
@@ -388,7 +408,7 @@
     ],
     guide: [
       "Press <b>Next stage</b> to walk through the 4 stages using the slide's numbers.",
-      "At stage 4, click each <b>update rule</b> and compare the next population. Which rule loses S5 (0.9)?",
+      "At stage 4, click <b>Replace the entire population</b>, <b>Merge</b> and <b>Replace some old</b> in turn and compare the next population. Which rule loses S5 (0.9)?",
       "Drag the <b>greediness</b> slider below and read what happens at each extreme.",
     ],
   };

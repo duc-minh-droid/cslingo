@@ -159,11 +159,10 @@
 
   const requested = new Map(); // file → promise, so a file listed in two groups loads once
 
-  /** Insert one file. Scripts use async=false: they download in parallel but run in the order they were inserted.
+  /** Insert one file once. Scripts use async=false: they download in parallel but run in the order they were inserted.
       Stylesheets go before the course-styles marker in <head>, which keeps the cascade order the page was written in. */
-  function loadOne(f) {
-    if (requested.has(f)) return requested.get(f);
-    const p = new Promise((ok, bad) => {
+  function insert(f) {
+    return new Promise((ok, bad) => {
       const css = f.endsWith(".css");
       const node = document.createElement(css ? "link" : "script");
       if (css) {
@@ -174,10 +173,30 @@
         node.src = N.asset(f);
       }
       node.onload = () => ok();
-      node.onerror = () => bad(new Error("failed to load " + f));
+      node.onerror = () => {
+        node.remove(); // a failed tag must not stay in <head>: the retry adds a fresh one
+        bad(new Error("failed to load " + f));
+      };
       if (css) document.head.insertBefore(node, document.querySelector('meta[name="course-styles"]'));
       else document.head.appendChild(node);
     });
+  }
+  /** A flaky connection drops a request now and then: try each file up to three times, waiting a little longer each time
+      (0.7 s, then 1.6 s), before giving up. The page then shows "Couldn't load" with a Try again button. */
+  const RETRY_MS = [700, 1600];
+  async function insertWithRetry(f) {
+    for (let n = 0; ; n++) {
+      try {
+        return await insert(f);
+      } catch (e) {
+        if (n >= RETRY_MS.length) throw e;
+        await new Promise((r) => setTimeout(r, RETRY_MS[n]));
+      }
+    }
+  }
+  function loadOne(f) {
+    if (requested.has(f)) return requested.get(f);
+    const p = insertWithRetry(f);
     requested.set(f, p);
     p.catch(() => requested.delete(f)); // a failed file can be tried again by the next load()
     return p;

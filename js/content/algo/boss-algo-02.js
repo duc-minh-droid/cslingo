@@ -81,7 +81,7 @@
   /* ================= Phase 6 ================= */
   boss(6, {
     blurb: "Seven questions: a new CRC, a new Hamming codeword to fix, and detection vs correction.",
-    lede: "New messages and a different generator. Work the bits on paper.",
+    lede: "New messages and a different generator. Take the bits one step at a time.",
     qs: [
       {
         type: "mcq",
@@ -150,7 +150,7 @@
   /* ================= Phase 7 ================= */
   boss(7, {
     blurb: "Eight questions: entropy and Huffman on new distributions, an LZW trace, choosing a compressor.",
-    lede: "New distributions and a new string for LZW. Keep a calculator handy for the logs.",
+    lede: "New distributions and a new string for LZW. The entropy options are far apart, so estimate rather than calculate.",
     qs: [
       {
         type: "mcq",
@@ -226,7 +226,7 @@
   /* ================= Phase 8 ================= */
   boss(8, {
     blurb: "Eight questions: new DH and RSA numbers, choosing the right primitive, chain attacks.",
-    lede: "New toy keys. The arithmetic is small enough for paper.",
+    lede: "New toy keys. Every number is small.",
     qs: [
       {
         type: "mcq",
@@ -304,7 +304,7 @@
   /* ================= Phase 9 ================= */
   boss(9, {
     blurb: "Eight questions: aliasing, bin spacing, a new hand DFT, FFT savings.",
-    lede: "New signals and sample rates. The DFT one works out on paper.",
+    lede: "New signals and sample rates. The DFT one uses the patterns from the lesson.",
     qs: [
       {
         type: "mcq",

@@ -5,6 +5,82 @@
    - Hover shows a crosshair + tooltip; dataset names come from the .legend that follows the canvas.
    Falls back to the plain canvas drawing if Chart.js didn't load. */
 (function () {
+  /** Legend labels written in the module HTML right after the chart (if the count matches). */
+  function legendNames(b, n) {
+    let s = b.nextElementSibling;
+    while (s && !s.classList.contains("legend") && s.tagName !== "CANVAS" && !s.classList.contains("chart-box"))
+      s = s.nextElementSibling;
+    const txt = (el) => {
+      const c = el.cloneNode(true);
+      c.querySelectorAll("sup").forEach((u) => (u.textContent = "^" + u.textContent));
+      c.querySelectorAll("sub").forEach((u) => (u.textContent = "_" + u.textContent));
+      return c.textContent.trim();
+    };
+    const names = s && s.classList.contains("legend") ? Array.from(s.children).map(txt) : [];
+    return names.length === n ? names : null;
+  }
+
+  /* ---------- accessible names ----------
+     A chart is a picture, so its canvas is an image (role="img") described from the data it was given: each line's start, end,
+     lowest and highest value, or each bar's value. This runs for the plain canvas drawing and the Chart.js one alike, on every
+     call, so the description follows a simulation. Pass `label` in the options to write your own. */
+  const num = (v) => (Number.isFinite(v) ? String(+v.toFixed(2)) : "no value");
+  const head = (a, max, sep = "; ") =>
+    a.length > max ? `${a.slice(0, max).join(sep)}${sep}and ${a.length - max} more` : a.join(sep);
+  function describeLine(opts, names) {
+    const lines = opts.series.map((s, k) => {
+      const v = s.data.filter(Number.isFinite),
+        name = (names && names[k]) || (opts.series.length > 1 ? `Line ${k + 1}` : "The line");
+      if (!v.length) return `${name} has no values yet`;
+      return `${name} starts at ${num(v[0])}, ends at ${num(v[v.length - 1])}, lowest ${num(Math.min(...v))}, highest ${num(Math.max(...v))}`;
+    });
+    const marks = (opts.markers || []).filter((m) => m.label).map((m) => `${m.label} at ${num(m.x)}`);
+    return `Line chart${opts.xLabel ? ` against ${opts.xLabel}` : ""}. ${head(lines, 5)}.${marks.length ? ` Markers: ${head(marks, 5)}.` : ""}`;
+  }
+  function describeBars(opts, names) {
+    const groups = opts.groups,
+      n = groups[0].values.length,
+      labels = opts.labels || Array.from({ length: n }, (_, i) => String(i + 1));
+    const at = (i) => (labels[i] === "" || labels[i] === undefined ? `bar ${i + 1}` : labels[i]);
+    const one = (g, k) => {
+      const name = (names && names[k]) || (groups.length > 1 ? `Group ${k + 1}` : ""),
+        pre = name ? `${name}: ` : "";
+      if (n <= 12) return `${pre}${g.values.map((v, i) => `${at(i)} = ${num(v)}`).join(", ")}`;
+      // a long histogram is summarised rather than read out bar by bar
+      const top = g.values.reduce((m, v, i) => (v > g.values[m] ? i : m), 0),
+        low = g.values.reduce((m, v, i) => (v < g.values[m] ? i : m), 0);
+      return `${pre}${n} bars, from ${at(0)} = ${num(g.values[0])} to ${at(n - 1)} = ${num(g.values[n - 1])}; tallest ${at(top)} = ${num(g.values[top])}, shortest ${at(low)} = ${num(g.values[low])}`;
+    };
+    return `Bar chart. ${head(groups.map(one), 4)}.`;
+  }
+  const strip = (h) => String(h).replace(/<[^>]+>/g, "");
+  function describe(kind, canvas, opts) {
+    try {
+      if (!canvas || !opts || !canvas.setAttribute) return;
+      // a label written into the page (not by us) is kept
+      if (canvas.hasAttribute("aria-label") && !canvas.hasAttribute("data-auto-label")) {
+        canvas.setAttribute("role", "img");
+        return;
+      }
+      const b = canvas.closest(".chart-box") || canvas;
+      const n = kind === "line" ? opts.series.length : opts.groups.length;
+      const names = opts.names || legendNames(b, n);
+      const text = strip(opts.label || (kind === "line" ? describeLine(opts, names) : describeBars(opts, names)));
+      canvas.setAttribute("data-auto-label", "");
+      canvas.setAttribute("role", "img");
+      if (canvas.getAttribute("aria-label") !== text) canvas.setAttribute("aria-label", text);
+    } catch (e) {
+      console.error(e); // a description must never stop a chart from drawing
+    }
+  }
+  const described = (kind, draw) =>
+    function (canvas, opts) {
+      describe(kind, canvas, opts);
+      return draw.apply(this, arguments);
+    };
+  if (NIC.lineChart) NIC.lineChart = described("line", NIC.lineChart);
+  if (NIC.barChart) NIC.barChart = described("bar", NIC.barChart);
+
   // Chart.js (68 KB gzipped) loads after startup; charts drawn before it arrives use the plain canvas versions, later ones animate.
   const install = () => {
     const Chart = window.Chart;
@@ -132,23 +208,29 @@
       return b;
     }
 
-    /** Legend labels written in the module HTML right after the chart (if the count matches). */
-    function legendNames(b, n) {
-      let s = b.nextElementSibling;
-      while (s && !s.classList.contains("legend") && s.tagName !== "CANVAS" && !s.classList.contains("chart-box"))
-        s = s.nextElementSibling;
-      const txt = (el) => {
-        const c = el.cloneNode(true);
-        c.querySelectorAll("sup").forEach((u) => (u.textContent = "^" + u.textContent));
-        c.querySelectorAll("sub").forEach((u) => (u.textContent = "_" + u.textContent));
-        return c.textContent.trim();
-      };
-      const names = s && s.classList.contains("legend") ? Array.from(s.children).map(txt) : [];
-      return names.length === n ? names : null;
+    /* Chart.js keeps every chart in Chart.instances until it is destroyed, so a lesson that is closed (or a screen that is
+       replaced) would leave its charts, datasets and listeners behind. Destroy the ones whose canvas has left the page.
+       Two canvases are spared: one in the player's live Try-it demo (the demo is parked out of the page between screens and
+       comes back when the learner returns), and one that has never been in the page (a demo can be built before it is
+       attached), which gets 30 s. */
+    const inLiveDemo = (cv) => {
+      const S = NIC.shared.enginePlayer && NIC.shared.enginePlayer.S;
+      return !!(S && S.demo && S.demo.contains(cv));
+    };
+    function sweep() {
+      const now = performance.now();
+      Object.values(Chart.instances || {}).forEach((c) => {
+        if (!c.canvas) return;
+        if (c.canvas.isConnected) c.$nicSeen = true;
+        else if (!inLiveDemo(c.canvas) && (c.$nicSeen || now - (c.$nicBorn || 0) > 30000)) c.destroy();
+      });
     }
+    // the player removes its screens a moment after it closes (its exit animation)
+    window.addEventListener("nic:player-closed", () => setTimeout(sweep, 700));
 
     let markerList = null;
     function upsert(canvas, type, build, patch, height, marks) {
+      sweep();
       markerList = marks || null;
       const now = performance.now();
       const b = box(canvas, height);
@@ -157,7 +239,8 @@
       const reduce = fx() && fx().reduce();
       if (!ch) {
         ch = new Chart(canvas, build(b, reduce));
-        ch.$nicLast = now;
+        ch.$nicLast = ch.$nicBorn = now;
+        ch.$nicSeen = canvas.isConnected;
         ch.$nicMarkers = markerList;
         if (markerList) ch.draw();
         return ch;
@@ -387,6 +470,8 @@
         opts.markers,
       );
     };
+    N.lineChart = described("line", N.lineChart);
+    N.barChart = described("bar", N.barChart);
   };
   NIC.lazy("vendor/chart.umd.js").then(install, () => {});
 })();

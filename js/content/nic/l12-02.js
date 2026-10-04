@@ -103,14 +103,15 @@
       root.appendChild(
         predict({
           id: "l1-monkey-1",
-          q: 'What is the single key difference between the monkey and "keep if better"?',
+          q: 'Press <b>Run both</b>. "Keep if better" changes one character per try. About how many tries will it need to match all 28 characters?',
           opts: [
-            "Keep-if-better tries far more strings per second",
-            "Keep-if-better keeps its progress and builds on it",
-            "The monkey is allowed a much bigger alphabet",
+            "About 30, one lucky try per character",
+            "A few thousand",
+            "About a billion",
+            "About 10<sup>40</sup>, the same as the monkey",
           ],
           a: 1,
-          why: "This is <b>cumulative selection</b>: small improvements are kept and built on. Randomness proposes changes, and selection decides what's kept. Randomness alone (the monkey) is hopeless.",
+          why: "Each correct letter is kept, so the search only has to fix the wrong positions one at a time. Averaged over many runs it takes about 3,000 tries (it can be a little under 2,000 or over 4,500). It is not as low as 30, because most single-letter changes are wasted. The monkey needs about 10<sup>40</sup>.",
         }),
       );
       root.appendChild(

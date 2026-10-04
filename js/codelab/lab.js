@@ -80,8 +80,10 @@
     });
   }
 
+  let labs = 0;
   function codelab(root, life, cfg) {
-    const tests = cfg.tests,
+    const kbdId = `cl-kbd-${++labs}`,
+      tests = cfg.tests,
       results = tests.map(() => null);
     let sel = 0,
       playing = false,
@@ -89,7 +91,8 @@
       tick = 0,
       hintN = 0,
       busy = false,
-      watched = false;
+      watched = false,
+      usedSolution = false; // "Use it" loaded the model answer: don't say the learner wrote it (until Reset)
     const missions = [
       ...tests.map((t, i) => ({ id: "t" + i, t: "Pass: " + t.name, d: t.desc || "", hint: t.hint })),
       ...(cfg.watch
@@ -108,11 +111,18 @@
       who: cfg.who,
       intro: cfg.intro,
       missions,
+      finish: () =>
+        `<b>Code lab complete!</b> All ${missions.length} missions done. ${
+          usedSolution
+            ? "Step through the solution and work out why each line is there."
+            : "That's working code you wrote."
+        }`,
       build(stage, api) {
         const card = el(`<div class="wk-card cl cl-edcard">
           <h3>Your code<span class="wk-sp"></span><button class="btn small ghost" data-reset>Reset</button></h3>
           ${cfg.brief ? `<div class="wk-note cl-brief">${cfg.brief}</div>` : ""}
-          <div class="cl-ed"><div class="cl-gut" aria-hidden="true"></div><div class="cl-wrap"><pre class="cl-hl" aria-hidden="true"></pre><textarea class="cl-ta" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea></div></div>
+          <div class="cl-ed"><div class="cl-gut" aria-hidden="true"></div><div class="cl-wrap"><pre class="cl-hl" aria-hidden="true"></pre><textarea class="cl-ta" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor" aria-describedby="${kbdId}"></textarea></div></div>
+          <p class="cl-kbd faint" id="${kbdId}">Tab indents. Press <kbd>Esc</kbd> then <kbd>Tab</kbd> to leave the editor.</p>
           <div class="wk-row cl-bar"><button class="btn primary" data-run>Run tests</button><button class="btn" data-hint>Hint</button><span class="cl-hintn faint"></span><span class="cl-pystat" data-py>Python: loading…</span><span class="wk-sp" style="flex:1"></span><details class="cl-sol"><summary class="btn small ghost">Show solution</summary><pre class="cl-solpre"></pre><button class="btn small" data-use>Use it</button></details></div>
           <div class="cl-hint" data-hintbox></div>
           <div class="cl-ex" data-ex></div>
@@ -162,6 +172,10 @@
             pyChip.textContent = ok ? "Python ready" : "Python unavailable";
             pyChip.classList.toggle("ok", !!ok);
             pyChip.classList.toggle("bad", !ok);
+          },
+          pyLoading = () => {
+            pyChip.textContent = "Python: loading…";
+            pyChip.classList.remove("ok", "bad");
           };
         if (PY.loaded) pyState(true);
         pyBoot().then((w) => pyState(!!w));
@@ -302,17 +316,26 @@
           const btn = qs("[data-run]", card);
           btn.disabled = true;
           btn.textContent = PY.loaded ? "Running…" : "Loading Python…";
+          if (!PY.loaded) pyLoading();
           const code = ta.value;
-          let pass = 0;
+          let pass = 0,
+            noPy = null;
           for (let i = 0; i < tests.length; i++) {
             const t = tests[i],
               r = await runOne(code, cfg.entry, t.args);
             btn.textContent = "Running…";
             if (!card.isConnected) return;
+            pyState(!r.noPy);
             r.pass = r.ok && (t.cmp ? t.cmp(r.out, t.expect) : same(r.out, t.expect));
             if (r.pass) pass++;
             results[i] = r;
             if (r.pass) api.done("t" + i);
+            if (r.noPy) {
+              // Python itself is missing: asking again for every test would only repeat the same failure
+              noPy = r;
+              for (let j = i + 1; j < tests.length; j++) results[j] = null;
+              break;
+            }
           }
           busy = false;
           btn.disabled = false;
@@ -326,9 +349,12 @@
             showFrame(0);
             step();
           }
-          if (pass === tests.length)
+          if (noPy) api.say(`<b>${esc(noPy.error)}</b>`, "sad");
+          else if (pass === tests.length)
             api.say(
-              `<b>All ${tests.length} tests pass!</b> That's a working ${cfg.noun || "algorithm"} you wrote yourself.`,
+              `<b>All ${tests.length} tests pass!</b> That's a working ${cfg.noun || "algorithm"}${
+                usedSolution ? ". Step through it and work out why each line is there." : " you wrote yourself."
+              }`,
               "love",
             );
           else if (results.some((r) => r && r.slow))
@@ -346,11 +372,13 @@
         qs("[data-run]", card).onclick = run;
         qs("[data-reset]", card).onclick = () => {
           ta.value = cfg.starter;
+          usedSolution = false;
           paint();
           api.say("Code reset to the starter.", "idle");
         };
         qs("[data-use]", card).onclick = () => {
           ta.value = cfg.solution;
+          usedSolution = true;
           paint();
           qs(".cl-sol", card).open = false;
           api.say(

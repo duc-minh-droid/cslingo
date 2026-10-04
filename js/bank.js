@@ -3,12 +3,15 @@
      NIC.bank.add("l3-hc", [ {type, q, ..., why}, ... ])   // same question types as boss quizzes (js/quiz/)
    A revision tab asks for a shuffled deck drawn from the sessions the learner has finished:
      const deck = NIC.bank.deck({ n: 10 });                // [{id, mod, subject, lecture, src, Q}]
-     NIC.bank.record(item.id, ok);                        // after each answer (updates the Leitner box)
+     NIC.bank.record(item.id, ok);                        // after each answer (updates the Leitner box; only a due question moves up)
+     NIC.bank.afterRound(ids) / roundBonus(n) / nextDue()  // what a finished round set up, for the complete screen and the Revise page
    Pool sources: bank questions + lesson quick checks of finished modules, and boss questions of
-   boss quizzes the learner has attempted. Progress lives in localStorage key `nic.rev`. */
+   boss quizzes the learner has attempted. Progress lives in localStorage key `nic.rev`.
+   Scheduling is by local calendar days (a box-2 question answered at 11 pm is due again from midnight), see dueAt(). */
 (function () {
   const N = NIC;
   const BANK = {}; // modId -> [Q]
+  let ids = null; // cache for validIds()
   const DAY = 864e5;
   const GAP = [0, 0, 1, 3, 7, 14]; // Leitner box -> days before it's due again (box 1 = always due)
 
@@ -26,6 +29,7 @@
     `${modId}:${hash(plain(Q.q) + JSON.stringify(Q.o || Q.items || Q.pairs || Q.buckets || ""))}`;
   function add(modId, qs) {
     (BANK[modId] = BANK[modId] || []).push(...qs);
+    ids = null; // the set of real question ids (see validIds) is stale
   }
 
   /** Every question the bank knows about, tagged with its module. `learnedOnly` filters to finished work. */
@@ -72,6 +76,8 @@
       (loadP = Promise.all([N.content.all(), N.content.loadFiles(FILES)])
         .then(() => {
           loaded = true;
+          ids = null;
+          window.dispatchEvent(new Event("nic:bank")); // dueSeen() is exact from now on: the dock badge can redraw
         })
         .catch((e) => {
           loadP = null;
@@ -79,9 +85,22 @@
         }))
     );
   }
-  function due(r, now) {
-    return !r || now - r.t >= GAP[Math.min(r.box, 5)] * DAY;
+  /** When a logged question is due again: midnight (local) that many calendar days after it was answered. setDate keeps this right across clock changes. */
+  function dueAt(r) {
+    const d = new Date(r.t);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + (GAP[Math.min(r.box || 1, 5)] || 0));
+    return d.getTime();
   }
+  function due(r, now) {
+    return !r || !r.t || now >= dueAt(r); // never answered, or no usable date: due
+  }
+  /** Whole local calendar days from a to b (b later = positive). */
+  const dayNum = (t) => {
+    const d = new Date(t);
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY;
+  };
+  const daysBetween = (a, b) => Math.round(dayNum(b) - dayNum(a));
 
   /** A shuffled revision deck. Due and previously-missed questions first, never two in a row from one module when avoidable. */
   function deck({ n = 10, subjects = null, learnedOnly = true, now = Date.now() } = {}) {
@@ -116,29 +135,95 @@
     return ranked;
   }
 
-  /** Reviews due among questions already answered, straight from the review log (no question content needed). */
+  /* Every question id that exists, once the lists are loaded (all content is in by then). A review-log entry whose question was
+     edited or removed has no id here, so it stops counting as due. Before the load, dueSeen() can only check the module. */
+  const validIds = () => ids || (ids = new Set(all().map((x) => x.id)));
+
+  /** Reviews due among questions already answered, from the review log. Needs no question content, but once the bank has loaded
+      it counts only entries that still match a real question, so the badge can clear after a question is edited. */
   function dueSeen({ subjects = null, now = Date.now() } = {}) {
     const R = log(),
-      done = N.store.get("nic.lessonDone", {});
+      done = N.store.get("nic.lessonDone", {}),
+      real = loaded ? validIds() : null;
     return Object.keys(R).filter((id) => {
       const mod = id.split(":")[0],
         m = modById(mod);
-      return m && (m.num === "Boss" || done[mod]) && (!subjects || subjects.includes(subjOf(m))) && due(R[id], now);
+      return (
+        m &&
+        (!real || real.has(id)) &&
+        (m.num === "Boss" || done[mod]) &&
+        (!subjects || subjects.includes(subjOf(m))) &&
+        due(R[id], now)
+      );
     }).length;
   }
 
-  /** Record an answer: right moves the question up a box (seen less often), wrong sends it back to box 1. */
+  /** Record an answer. Wrong always sends the question back to box 1. Right moves it up a box only when it was due: an early
+      replay ("Do these again", a lesson re-run) counts in the totals but leaves the schedule alone. Returns the log entry plus
+      `fixed`: a question that was missed before and is now right. */
   function record(id, ok, now = Date.now()) {
     const R = log(),
-      r = R[id] || { box: 1, n: 0, right: 0 };
+      prev = R[id],
+      r = prev || { box: 1, n: 0, right: 0 },
+      wasDue = due(prev, now),
+      fixed = !!(ok && prev && prev.right < prev.n && wasDue);
     r.n++;
     if (ok) r.right++;
-    r.box = ok ? Math.min(5, r.box + 1) : 1;
-    r.t = now;
+    if (!ok) {
+      r.box = 1;
+      r.t = now;
+    } else if (wasDue) {
+      r.box = Math.min(5, (r.box || 1) + 1);
+      r.t = now;
+    }
     R[id] = r;
     N.store.set("nic.rev", R);
-    return r;
+    if (fixed) detective();
+    return { ...r, fixed };
   }
+  /** Detective: getting a question you missed before right again inside a revision round. */
+  function detective() {
+    const S = N.shared && N.shared.enginePlayer && N.shared.enginePlayer.S;
+    if (S && S.kind === "revise" && N.game) N.game.unlock("fixer");
+  }
+
+  /** The soonest a not-yet-due answered question comes round again (ms timestamp, or null), among the finished work. */
+  function nextDue({ subjects = null, now = Date.now() } = {}) {
+    const R = log();
+    let best = null;
+    all({ learnedOnly: true, subjects }).forEach((it) => {
+      const r = R[it.id];
+      if (r && r.t && !due(r, now)) {
+        const t = dueAt(r);
+        if (best === null || t < best) best = t;
+      }
+    });
+    return best;
+  }
+  /** "today" / "tomorrow" / "in 3 days": when a due date falls, in whole calendar days from now. */
+  const whenLabel = (t, now = Date.now()) => {
+    const d = daysBetween(now, t);
+    return d <= 0 ? "today" : d === 1 ? "tomorrow" : `in ${d} days`;
+  };
+
+  /** What a finished round set up, for the revision complete screen: `soon` questions are due again straight away (the ones
+      missed), `next` is the earliest date the others come back (ms, or null) and `nextLabel` says it ("tomorrow"). Read this
+      after the round's answers were recorded. */
+  function afterRound(idList, { now = Date.now() } = {}) {
+    const R = log();
+    let soon = 0,
+      next = null;
+    (idList || []).forEach((id) => {
+      const r = R[id];
+      if (!r) return;
+      if (due(r, now)) soon++;
+      else if (next === null || dueAt(r) < next) next = dueAt(r);
+    });
+    return { soon, next, nextLabel: next === null ? "" : whenLabel(next, now) };
+  }
+
+  /** The completion bonus XP for a revision round of n questions: 5 for a round of 5, a little more for a longer one (7 for 10, 10 for 20). */
+  const roundBonus = (n) => Math.max(5, Math.round(5 * Math.sqrt((n || 0) / 5)));
 
   /** Counts for a revision home screen. */
   function stats({ subjects = null, now = Date.now() } = {}) {
@@ -182,5 +267,21 @@
     return out;
   }
 
-  N.bank = { add, all, deck, record, stats, dueSeen, problems, idFor, load, loaded: () => loaded, raw: BANK };
+  N.bank = {
+    add,
+    all,
+    deck,
+    record,
+    stats,
+    dueSeen,
+    nextDue,
+    whenLabel,
+    afterRound,
+    roundBonus,
+    problems,
+    idFor,
+    load,
+    loaded: () => loaded,
+    raw: BANK,
+  };
 })();

@@ -51,15 +51,21 @@
             g("ALCDOPGR", (i) => ("01001101"[i] === "1" ? "p2" : "p1")),
           ),
         c: {
-          q: "P1 = ABCD, P2 = WXYZ, mask 1010. Child 1?",
-          o: ["WBYD", "AXCZ", "WXCD"],
-          a: 0,
-          why: "Swap positions 1 and 3: W B Y D.",
+          type: "match",
+          q: "Uniform crossover on P1 = <code>ABCD</code> and P2 = <code>WXYZ</code>. A 1 in the mask swaps that gene in, a 0 keeps it. Match each mask to <b>child 1</b>.",
+          pairs: [
+            ["Mask 1010", "WBYD"],
+            ["Mask 0110", "AXYD"],
+            ["Mask 1100", "WXCD"],
+            ["Mask 0101", "AXCZ"],
+          ],
+          hint: "Start from ABCD. Wherever the mask has a 1, take the gene at that position from WXYZ instead.",
+          why: "1010 swaps positions 1 and 3: W B Y D. 0110 swaps 2 and 3: A X Y D. 1100 swaps 1 and 2: W X C D. 0101 swaps 2 and 4: A X C Z.",
         },
       },
       {
         t: "Limits of crossover",
-        b: `<p>Crossover only <b>recombines</b> existing genes. It can't invent a value neither parent has (that's mutation's job).</p><p>And it must fit the encoding: 1-point crossover on <b>permutations</b> creates duplicate cities.</p>`,
+        b: `<p>Crossover only <b>recombines</b> existing genes. It can't invent a value neither parent has (that's mutation's job).</p><p>And it must fit the encoding: 1-point crossover on <b>permutations</b> (like a travelling salesperson problem, or TSP, tour) creates duplicate cities.</p>`,
         v:
           row("Parent 1", g("ABCDE", "p1")) +
           row("Parent 2", g("EDCBA", "p2")) +
@@ -118,21 +124,25 @@
         t: "How to read the dashboard",
         b: `<p><b style="color:var(--teal-ink)">best</b>: fitness of the best member. <b style="color:var(--violet-ink)">mean</b>: population average. <b style="color:var(--amber-ink)">diversity</b>: how different members are from each other (1 = all different, 0 = all identical).</p><p>The small thumbnails are the population, best first. Red outlines on "Best so far" mark wrong pixels.</p>`,
         c: {
-          q: "Diversity has dropped to 0 and mutation is off. What can still change?",
-          o: [
-            "Crossover can still combine pixels into new pictures",
-            "Nothing: everyone is identical, so children are too",
-            "Selection can still add pixels no one has",
+          type: "cat",
+          q: "In the lab, diversity can fall to 0. Which operations can create a pixel value that <b>no one in the population has</b>, and which only reuse what is already there?",
+          buckets: ["Can create new pixels", "Only reuses what exists"],
+          items: [
+            ["Flip a random pixel in a copy", 0],
+            ["Take the left half from one parent and the right half from another", 1],
+            ["Pick the fitter of two random members", 1],
+            ["Re-roll a few random pixels in a child", 0],
+            ["Replace the worst member with a child", 1],
           ],
-          a: 1,
-          why: "Mutation is the only source of new genetic material.",
+          hint: "If every member is identical, mixing, picking and replacing them can only give back the same pixels.",
+          why: "Mutation is the only source of new genetic material. Crossover, selection and replacement only shuffle, pick and copy what exists, so with diversity 0 and mutation off nothing can change.",
         },
       },
     ],
     guide: [
       "Pick <b>Lecture algo 1</b> and press <b>Run</b>. Note the evaluation count when it hits 144/144.",
       "Pick <b>Lecture algo 2</b>, reset, and run it. Which is faster here?",
-      "Try the experiments listed below the lab one at a time. Change <b>one</b> knob per run.",
+      "Try the experiments listed below the lab one at a time. Change <i>one</i> knob per run.",
     ],
   };
   /* ---------- lesson figures (added to steps that had text only) ---------- */

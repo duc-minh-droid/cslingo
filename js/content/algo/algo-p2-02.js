@@ -172,7 +172,7 @@
       {
         t: "Dijkstra searches in every direction",
         b: `<p>Dijkstra only knows how far each cell is from the <b>start</b>. On a grid it expands in a growing diamond, including all the cells that head <i>away</i> from the goal.</p>`,
-        v: `<svg class="fig" viewBox="0 0 420 170" style="max-height:170px">${[5, 4, 3, 2, 1].map((r) => `<circle cx="110" cy="85" r="${r * 16}" fill="rgba(206,130,255,${0.05 + (5 - r) * 0.02})" stroke="rgba(206,130,255,.35)" class="fi"/>`).join("")}<circle cx="110" cy="85" r="7" fill="var(--amber)"/><text x="110" y="160" class="fig-sub">start: explores a full circle</text><circle cx="360" cy="85" r="7" fill="var(--rose)"/><text x="360" y="110" class="fig-sub">goal</text></svg>`,
+        v: `<svg class="fig" viewBox="0 0 420 170" role="img" aria-label="Dijkstra explores in a full circle around the start, including cells that head away from the goal on the right" style="max-height:170px">${[5, 4, 3, 2, 1].map((r) => `<circle cx="110" cy="85" r="${r * 16}" fill="rgba(206,130,255,${0.05 + (5 - r) * 0.02})" stroke="rgba(206,130,255,.35)" class="fi"/>`).join("")}<circle cx="110" cy="85" r="7" fill="var(--amber)"/><text x="110" y="160" class="fig-sub">start: explores a full circle</text><circle cx="360" cy="85" r="7" fill="var(--rose)"/><text x="360" y="110" class="fig-sub">goal</text></svg>`,
       },
       {
         t: "A* adds an estimate of the distance left",
@@ -211,14 +211,15 @@
           { max: 16 },
         ),
         c: {
-          q: "h = 2 × Manhattan distance. What's the result?",
-          o: [
-            "Always optimal, and faster too, because the heuristic is stronger",
-            "Fewer cells explored, but maybe not the shortest path",
-            "No change at all from ordinary A* with Manhattan distance",
+          type: "match",
+          q: "On an open grid, match each choice of the estimate <b>h</b> to what A* then does.",
+          pairs: [
+            ["h = 0 for every cell", "Behaves exactly like Dijkstra"],
+            ["h = Manhattan distance", "Never overestimates, so the path is still the shortest"],
+            ["h = 2 × Manhattan distance", "Explores fewer cells, but may miss the shortest path"],
           ],
-          a: 1,
-          why: "Overestimating breaks admissibility, so a good path can be passed over.",
+          hint: "Ask whether the estimate ever guesses higher than the true cost left, and what a guess of 0 tells A*.",
+          why: "With h = 0 there is no sense of direction, so A* is Dijkstra. Manhattan distance never overestimates, so the path stays shortest. Doubling it overestimates, so a good path can be missed.",
         },
       },
       {
@@ -230,7 +231,7 @@
       "Press <b>Run A*</b> and note the number of cells expanded.",
       "Press <b>Run Dijkstra</b>. Same path cost, but how many more cells?",
       "Set the <b>h weight</b> slider to 0 and run A* again: it matches Dijkstra.",
-      "Push the slider to 2.5. Is the path still the same length?",
+      "Push the <b>h weight</b> slider to 2.5. Is the path still the same length?",
     ],
   };
 

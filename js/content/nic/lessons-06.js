@@ -120,6 +120,7 @@
         v: chips([
           ["p1", 9],
           ["p2", 6],
+          ["p3", 4, "target"],
           ["c", 7, "new"],
         ]),
       },
@@ -129,6 +130,7 @@
           ["p1", 9],
           ["p2", 6],
           ["p3", 4, "target"],
+          ["c", 3, "new"],
         ]),
       },
     ]),
@@ -138,7 +140,14 @@
     6,
     `<table class="t" style="max-width:560px"><tr><th>box</th><th>common choices</th></tr><tr><td>algorithm type</td><td>generational · steady-state</td></tr><tr><td>selection</td><td>roulette · rank · tournament</td></tr><tr><td>crossover</td><td>1-point · uniform · none</td></tr><tr><td>replacement</td><td>replace weakest · first weaker</td></tr></table>`,
   );
-  addV("l3-tsp", 0, NIC.tspSVG("ABCDE", { allEdges: true, maxH: 250 }));
+  addV(
+    "l3-tsp",
+    0,
+    NIC.tspSVG("ABCDE", { allEdges: true, maxH: 250 }).replace(
+      "<svg ",
+      '<svg role="img" aria-label="Map of the five cities A to E, with a road and its distance between every pair" ',
+    ),
+  );
   addV(
     "l3-tsp",
     3,
@@ -183,8 +192,8 @@
     FG.cycle([
       { t: "current c", c: "teal" },
       { t: "mutate → m", c: "violet" },
-      { t: "f(m) ≥ f(c)?", c: "amber" },
-      { t: "keep better", c: "teal" },
+      { t: "m no worse?", c: "amber" },
+      { t: "keep m (c = m)", c: "teal" },
     ]),
   );
   addV(

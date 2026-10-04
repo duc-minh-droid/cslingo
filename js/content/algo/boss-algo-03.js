@@ -6,7 +6,7 @@
   /* ================= Phase 10 ================= */
   boss(10, {
     blurb: "Eight questions: new softmax numbers, masks, scaling, and what attention can't tell you.",
-    lede: "New scores and a new sentence. Softmax by hand is fine with e ≈ 2.718.",
+    lede: "New scores and a new sentence. Softmax only needs e ≈ 2.718 and a feel for the sizes.",
     qs: [
       {
         type: "mcq",
@@ -50,7 +50,7 @@
       {
         type: "mcq",
         q: "Scores are [5, 3, 1]. You subtract 5 from all of them before softmax (a common trick for numerical safety). What happens to the weights?",
-        o: ["They all shrink", "They're identical", "The first becomes 0", "They become uniform"],
+        o: ["They all shrink", "They stay exactly the same", "The first becomes 0", "They become equal to each other"],
         a: 1,
         why: "e^(s − 5) = e^s × e^(−5), and the common factor cancels when you normalise. That's why subtracting the max is safe.",
       },
@@ -186,7 +186,7 @@
         q: "Which pair shares the most similar core idea?",
         o: ["Prim and Dijkstra", "Huffman and RSA", "FFT and Kruskal", "Graham scan and PageRank"],
         a: 0,
-        why: "Prim adds the cheapest edge leaving the tree; Dijkstra settles the closest frontier node. Same greedy frontier pattern with a different key (edge weight vs path length).",
+        why: "Prim adds the cheapest edge leaving the tree; Dijkstra settles the closest tentative node. Same greedy pattern with a different key (edge weight vs path length).",
       },
       {
         type: "mcq",

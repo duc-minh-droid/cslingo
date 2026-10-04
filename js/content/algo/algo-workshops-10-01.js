@@ -122,12 +122,12 @@ def attention(Q, K, V):
 
         # Step 2: softmax turns the scores into weights that add up to 1.
         weights = []
-        # YOUR CODE: softmax. Fill weights with one share for each score.
+        # YOUR CODE: softmax. Fill weights, one share per score.
         trace({"type": "weights", "i": i, "weights": list(weights)})
 
         # Step 3: blend the value vectors, each scaled by its weight.
         mix = [0] * len(V[0])
-        # YOUR CODE: for every token j and slot d, add weights[j] * V[j][d] into mix[d].
+        # YOUR CODE: mix[d] += weights[j] * V[j][d] for every j, d
         trace({"type": "mix", "i": i, "mix": list(mix)})
 
         out.append(mix)

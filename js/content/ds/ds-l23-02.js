@@ -331,23 +331,23 @@
       root.appendChild(
         predict({
           id: "ds-log-1",
-          q: "A log database has 1,000,000 records and reads by scanning the whole file. It now grows to 10,000,000 records. About how does the time for one read change?",
-          opts: ["About ten times longer", "About the same", "About one hundred times longer"],
+          q: "You press <b>Set</b> on the same key three times with different values, then press <b>Get</b> for that key. Which value comes back?",
+          opts: ["The last one written", "The first one written", "All three, one per line"],
           a: 0,
-          why: "A scan touches every record, so time is proportional to n (O(n)). Ten times the data means about ten times the scan.",
+          why: "Set only appends, so all three lines stay in the file. Get looks for the <b>last</b> line with that key, because that is the newest value. The older lines are still there, wasting space, until the log is compacted.",
         }),
       );
       root.appendChild(
         predict({
           id: "ds-log-2",
-          q: "A record for the key 'dock' must be deleted from an append-only log. What does the database normally do?",
+          q: "A tombstone is appended to delete the key 'dock' from a 10-line log. What happens to the file's size?",
           opts: [
-            "Append a special tombstone record for 'dock'",
-            "Find the old lines and erase them in place",
-            "Copy the whole file, leaving out 'dock'",
+            "It grows by one line until a later compaction",
+            "It shrinks, because the old lines are erased",
+            "It stays the same: the tombstone overwrites a line",
           ],
           a: 0,
-          why: "Scanning and rewriting to delete is inefficient, so it appends a delete marker (tombstone). Later compaction removes the dead lines.",
+          why: "The log is append-only, so old lines are never touched: the delete marker is one extra line (11 now). The dead lines only disappear when a background compaction rewrites the segments without them.",
         }),
       );
       root.appendChild(

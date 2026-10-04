@@ -201,14 +201,14 @@
       root.appendChild(
         predict({
           id: "a7-lzw-1",
-          q: "The decoder receives a code <b>one slot past</b> its dictionary (the missing-entry case — try encoding <code>AAA</code>). The entry must be…",
+          q: "You encode <code>ABCDEFGH</code>, where no pair of letters ever repeats. How many codes does LZW output?",
           opts: [
-            "Corrupt, so the decoder should reject it",
-            "previous output + its own first character",
-            "previous output + its own last character",
+            "8: one per letter, so nothing is saved",
+            "4: it pairs up neighbouring letters",
+            "2: the whole alphabet counts as one phrase",
           ],
-          a: 1,
-          why: "It arises exactly when the encoder just created an entry and reused it instantly — a repeating pattern like XYXY…. p + first(p) is the only consistent value. Try <code>AAA</code>: codes 0,1 — code 1 arrives before entry 1 exists, and decodes to AA.",
+          a: 0,
+          why: "LZW only saves anything when a phrase it has already learned comes round again. Here every w + c is new, so each step just emits the single letter's code and adds an entry (AB, BC, CD…) that is never used. 8 letters give 8 codes, and the codes grow wider as the dictionary fills, so the output can even be bigger. Try it with a random string.",
         }),
       );
       root.appendChild(
@@ -260,10 +260,16 @@
         t: "Average the surprise → entropy",
         b: `<p>Weight each surprise by how often it happens: $H = \\sum_x p(x)\\,\\bigl(-\\log_2 p(x)\\bigr)$.</p><p>Loaded die: A 0.5, B 0.25, C 0.125, D 0.125 → H = 0.5·1 + 0.25·2 + 0.125·3 + 0.125·3 = <b>1.75 bits</b>.</p>`,
         c: {
-          q: "A source always sends A (p=1). Its entropy?",
-          o: ["1 bit", "0 bits", "2 bits"],
-          a: 1,
-          why: "−log₂1 = 0. Certainty = no news = nothing to compress or send.",
+          type: "order",
+          q: "Put these sources in order from <b>lowest</b> to <b>highest</b> entropy.",
+          items: [
+            "A source that always sends A (p = 1)",
+            "A source that sends A 90% of the time and B 10%",
+            "A fair coin: A and B equally likely",
+            "Four symbols, all equally likely",
+          ],
+          hint: "Entropy is the average surprise. The more predictable a source, the lower it is.",
+          why: "Always A is certainty: −log₂1 = 0 bits. A 90/10 source is mostly predictable (about 0.47 bits). A fair coin is 1 bit and four equally likely symbols are 2 bits, the most four symbols can carry.",
         },
       },
       {
@@ -290,7 +296,7 @@
       },
     ],
     guide: [
-      "Drag <b>A</b> to 32 and the rest toward 0 — watch H fall toward 0 and the 'saved' stat climb.",
+      "Drag <b>Symbol A</b> to 32 and the rest toward 0 — watch H fall toward 0 and the 'saved' stat climb.",
       "Set all four sliders equal: H hits the 2-bit ceiling (the uniform max).",
       "Recreate the loaded die (8, 4, 2, 2) and confirm H = 1.75 in the table.",
       "Watch which symbol contributes most to H — it's not always the most common one.",
@@ -324,10 +330,11 @@
           ["AB .60 + CDE .40 → 1.00 ✓", "rose"],
         ]),
         c: {
-          q: "After the first merge, the queue holds C .20, DE .20, B .25, A .35. Next merge?",
-          o: ["A and B", "C and DE", "D and E again"],
-          a: 1,
-          why: "The merged node competes on its total probability. That's what makes a tree rather than a flat assignment.",
+          type: "order",
+          q: "Huffman builds a tree for A .10, B .10, C .15, D .15 and E .50, always merging the <b>two smallest</b>. Put the merges in the order it does them.",
+          items: ["A (.10) + B (.10)", "C (.15) + D (.15)", "AB (.20) + CD (.30)", "E (.50) + ABCD (.50)"],
+          hint: "Each time, list the queue and take the two smallest. A merged node competes on its total.",
+          why: "Always merge the two smallest in the queue. A and B (.10) go first, then C and D (.15), because AB (.20) is bigger. Then AB and CD (.50), and E joins last. A merged node competes on its total.",
         },
       },
       {
@@ -346,7 +353,7 @@
       },
       {
         t: "What Huffman needs (and doesn't do)",
-        b: `<p>Huffman is <b>static</b>: it needs the symbol frequencies gathered in advance, and the tree/table must travel with the message. It learns <b>symbol skew</b>, not repeated phrases — that's LZW's job (next module).</p><span class="analogy">Huffman is a tailor measuring you once and sewing a suit. LZW is a tailor who adjusts the suit while you walk.</span>`,
+        b: `<p>Huffman is <b>static</b>: it needs the symbol frequencies gathered in advance, and the tree/table must travel with the message. It learns <b>symbol skew</b>, not repeated phrases — that's the job of LZW (Lempel–Ziv–Welch), the next module.</p><span class="analogy">Huffman is a tailor measuring you once and sewing a suit. LZW is a tailor who adjusts the suit while you walk.</span>`,
       },
     ],
     guide: [

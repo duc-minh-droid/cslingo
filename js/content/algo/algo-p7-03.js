@@ -9,7 +9,7 @@
     steps: [
       {
         t: "The shared-dictionary trick",
-        b: `<p>Huffman must send its frequency table along with the data. LZW sends <b>nothing</b> — yet both sides build identical dictionaries.</p><p>Start from a shared initial alphabet (each letter gets a code). <b>Encoder:</b> find the longest w already in the dict; when w+c isn't there, emit code(w) and <b>add w+c</b>. <b>Decoder:</b> each code outputs a string; then <b>add (previous output + first char of current)</b>. Same stream, same order → same entries at the same positions.</p>`,
+        b: `<p>Huffman must send its frequency table along with the data. LZW (Lempel–Ziv–Welch) sends <b>nothing</b> — yet both sides build identical dictionaries.</p><p>Start from a shared initial alphabet (each letter gets a code). <b>Encoder:</b> find the longest w already in the dict; when w+c isn't there, emit code(w) and <b>add w+c</b>. <b>Decoder:</b> each code outputs a string; then <b>add (previous output + first char of current)</b>. Same stream, same order → same entries at the same positions.</p>`,
         c: {
           q: "Why must decoding start at the beginning?",
           o: [
@@ -69,21 +69,24 @@
           720,
         ),
         c: {
-          q: "Which wins on uniform symbols but a highly repetitive message?",
-          o: [
-            "Huffman: it always beats LZW on any kind of text",
-            "LZW: the repeated phrases are the redundancy",
-            "Neither can compress this message, because the symbols are uniform",
+          type: "cat",
+          q: "Huffman learns which <i>symbols</i> are common. LZW learns which <i>sequences</i> repeat. Which compresses each message better?",
+          buckets: ["Huffman does better", "LZW does better"],
+          items: [
+            ["Letters used very unevenly, with no phrase ever repeated", 0],
+            ["Every letter equally common, but one long phrase repeats again and again", 1],
+            ["One symbol makes up 90% of a message of otherwise unrelated symbols", 0],
+            ["A log file where the same long lines repeat over and over", 1],
           ],
-          a: 1,
-          why: "Sequence-level redundancy is dictionary coding's home turf.",
+          hint: "Ask where the redundancy lives: in how often each symbol appears, or in which groups of symbols keep coming back.",
+          why: "Huffman exploits skewed symbol frequencies. LZW exploits repeated sequences: a repeated phrase is the redundancy even when every letter is equally common, which is dictionary coding's home turf.",
         },
       },
     ],
     guide: [
-      "Step through <b>BANANABANDANA</b>: 13 chars → 9 codes. Watch each new dictionary entry appear.",
+      "Press <b>Step</b> repeatedly on BANANABANDANA: 13 chars → 9 codes. Watch each new dictionary entry appear.",
       "Switch to <b>Decode</b> and run: the dictionary rebuilds identically — it was never sent.",
-      "Type <b>AAA</b>, encode (2 codes), then decode — the <b>missing entry</b> row fires: prev + its own first char.",
+      "Type AAA, press <b>Encode</b> (2 codes), then <b>Decode</b> — the <i>missing entry</i> row fires: prev + its own first char.",
       "Try a random string with no repeats — LZW can't compress what never repeats.",
     ],
   };

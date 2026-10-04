@@ -108,7 +108,7 @@
     lecture: 2,
     title: "Lecture 2 boss quiz",
     blurb: "Eight questions: search spaces, hardness, greedy vs exact, with fresh numbers.",
-    lede: "New numbers and new problems. Have pen and paper ready for two of them.",
+    lede: "New numbers and new problems. The sums are small, and the hints break them into easy steps.",
     qs: [
       {
         type: "mcq",

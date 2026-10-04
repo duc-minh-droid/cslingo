@@ -1,6 +1,6 @@
 # cslingo
 
-**Computer science, one bite at a time.** Duolingo-style lessons, live demos and boss quizzes for three university CS modules. Free, runs in your browser, no sign-up.
+**Computer science, one bite at a time.** Duolingo-style lessons, live demos and boss quizzes for three university CS modules. Free, runs in your browser, no account needed.
 
 **[▶ Play it](https://duc-minh-droid.github.io/cslingo/)** · **[Watch the trailer](https://duc-minh-droid.github.io/cslingo/trailer/)** · [trailer video (webm)](trailer/cslingo-trailer.webm)
 
@@ -29,7 +29,14 @@
 
 ## Privacy
 
-Everything you do (progress, XP, streak, quests) is stored in your browser's `localStorage`. You can optionally sign in with an email link to sync it across your devices; it's then also kept in a private Supabase row that only your account can read. There are no analytics.
+Everything you do (progress, XP, streak, quests) is stored in your browser's `localStorage`. You can optionally create an account to sync it across your devices: a username and a password, with no email address. It is then also kept in private Supabase tables that only your account can read (row-level security). There are no analytics.
+
+### Your data
+
+- **On this device.** Without an account, your progress lives only in this browser. Clearing site data, using a private window, or (on Safari) not opening the site for about a week can erase it. CSLingo asks the browser to keep its storage once you finish your first lesson, but a browser may say no. If the browser blocks storage altogether the app still works and tells you progress will only last until you close the tab.
+- **With an account.** Progress is merged, never overwritten: finished lessons, quiz answers, XP and review history only grow, so two devices add up. Because there is no email, **a forgotten password cannot be reset**. You can change it while logged in, from the account menu.
+- **Signing out** only logs you out on this device. A copy of the progress stays here, and if a different account logs in over it the app asks whether to add it to that account or start fresh.
+- **Deleting an account.** There is no in-app button yet: open an issue on this repository to have an account and its rows removed.
 
 ## Run it locally
 
@@ -54,7 +61,7 @@ npm install        # once: ESLint, Prettier, Playwright (dev tools only)
 npm run check      # lint + format check + the full test suite (about 3 minutes)
 ```
 
-`npm test` starts a static server and headless Chromium, then runs the in-page tests: `smoke()` walks every lesson in the player (it must return `errors: []`), `bossTest()` answers every boss question through the real UI, `bankTest()` renders and grades every revision question, and `answerBias()` audits multiple-choice answers for giveaways. GitHub Actions runs the same checks on every push and pull request.
+`npm test` starts a static server and headless Chromium, then runs the in-page tests: `smoke()` walks every lesson in the player (it must return `errors: []`), `bossTest()` answers every boss question through the real UI, `bankTest()` renders and grades every revision question, and `answerBias()` audits multiple-choice answers for giveaways. `tools/storage-test.js` loads the app with blocked or full storage and walks a lesson, and checks account sync against a fake Supabase client (first sync, switching accounts, log out, going offline). GitHub Actions runs the same checks on every push and pull request.
 
 Source files stay under 500 lines of code (ESLint enforces it): each area is a folder of small parts (`js/app/`, `js/player/`, `js/content/<course>/`, ...) that share one object under `NIC.shared`. `AGENTS.md` explains the layout and how to add a lesson, workshop, boss quiz or course.
 

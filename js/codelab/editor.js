@@ -3,7 +3,8 @@
 
   /** IDE-style typing for the Python code box: auto-closing pairs, type-over, wrap selection, smart Enter (indent after ":"),
       indent/outdent by 4 spaces, comment toggle (Ctrl/Cmd + /), backspace over a whole indent, auto-dedent for else/elif/except,
-      and pair-aware Backspace. Uses execCommand so undo (Ctrl+Z) still works. */
+      and pair-aware Backspace. Uses execCommand so undo (Ctrl+Z) still works.
+      Keyboard exit: Tab indents, so Escape blurs the editor (see the Escape branch) and is not passed on to the player. */
   function editorKeys(ta, run, ac) {
     const IND = "    ";
     const OPEN = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'" },
@@ -39,6 +40,16 @@
     ta.addEventListener("keydown", (e) => {
       if (e.isComposing) return;
       if (ac && ac.key(e)) return;
+      if (e.key === "Escape") {
+        // Tab indents in here, so Esc is the way out: it blurs the editor (Esc, then Tab, carries on to the next control).
+        // The press is consumed (preventDefault + stopPropagation, and e.clEsc = true for any listener that runs earlier) so
+        // the lesson player's own Esc ("Wait, don't go!") only fires from outside the editor, e.g. on the second press.
+        e.preventDefault();
+        e.stopPropagation();
+        e.clEsc = true;
+        ta.blur();
+        return;
+      }
       const v = ta.value,
         a = ta.selectionStart,
         b = ta.selectionEnd,

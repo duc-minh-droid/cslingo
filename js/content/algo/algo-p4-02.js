@@ -144,10 +144,17 @@
           { v: "CE 7", sub: "loop ✗", c: "rose" },
         ]),
         c: {
-          q: "What's the main difference between Prim and Kruskal?",
-          o: ["They give different answers", "Prim grows one connected tree", "Only speed"],
-          a: 1,
-          why: "Same optimum (both use the cut property), different intermediate structure.",
+          type: "cat",
+          q: "Does each description fit <b>Prim</b> or <b>Kruskal</b>?",
+          buckets: ["Prim", "Kruskal"],
+          items: [
+            ["Grows one connected tree from a start node", 0],
+            ["Sorts all the edges by weight first", 1],
+            ["Always adds the cheapest edge leaving the current tree", 0],
+            ["Starts as a forest of small trees that gradually merge", 1],
+          ],
+          hint: "One of them keeps a single tree the whole time. The other sorts the edges and joins separate pieces.",
+          why: "Both reach the same optimum, because both use the cut property. The difference is the intermediate structure: Prim grows one connected tree, while Kruskal sorts the edges and merges a forest.",
         },
       },
       {

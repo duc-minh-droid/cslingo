@@ -64,6 +64,7 @@
     const wrap = document.createElement("div");
     wrap.className = "viz surface3d surface-gl";
     wrap.style.height = o.height + "px";
+    wrap.setAttribute("role", "img");
     wrap.setAttribute("aria-label", opts.label || "3D surface: drag to rotate");
     // lay the GL box over the canvas one until it has faded in (see the crossfade after the first render)
     const oldCv = old.find((c) => c.tagName === "CANVAS");

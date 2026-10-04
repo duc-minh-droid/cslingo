@@ -7,17 +7,23 @@
   // =====================================================================
   //  Screens
   // =====================================================================
+  /** Where "Your place is saved" points: the ordinal of the base screen under the cursor. A hype screen belongs to the base screen
+      after it, and the tail the player adds at the end (mistakes round, recap) resumes on the last base screen. */
+  function resumeAt() {
+    const list = pl.S.screens;
+    for (let j = pl.S.i; j < list.length; j++) if (list[j].bi != null) return list[j].bi;
+    return list.reduce((m, x) => (x.bi != null && x.bi > m ? x.bi : m), 0);
+  }
   pl.show = function show(dir = 1) {
     const sc = pl.S.screens[pl.S.i];
     const oldSkip = pl.S.foot && qs(".pl-skip", pl.S.foot);
     if (oldSkip) oldSkip.remove();
     if (!sc) return pl.finish();
     if (sc.kind === "bossResult" && pl.S.answered) {
-      const B = pl.S.boss,
-        st = store.get("nic.quiz", {}),
-        n = B.qs.length,
-        c = B.qs.filter((_, i) => st[`${B.id}-${i}`] && st[`${B.id}-${i}`].ok).length;
-      pl.S.bossPct = c / n;
+      const r = N.bossResult(pl.S.boss.id),
+        c = r.right,
+        n = r.n;
+      pl.S.bossPct = r.pct;
       pl.S.bossScore = `${c}/${n}`;
       if (c === n) {
         game().unlock("perfect");
@@ -28,7 +34,7 @@
     }
     if (pl.S.kind === "lesson" && !["complete", "streak"].includes(sc.kind)) {
       const p = store.get("nic.lessonPos", {});
-      p[pl.S.mod.id] = pl.S.i;
+      p[pl.S.mod.id] = resumeAt();
       store.set("nic.lessonPos", p);
     }
     qsa(".pl-screen.leaving", pl.S.stage).forEach((x) => x.remove());
@@ -150,7 +156,7 @@
         vis.innerHTML = `${B.matrix ? `<div style="max-width:360px">${N.matrixHTML()}</div>` : ""}${B.aside || ""}`;
       };
     } else if (sc.pred && pl.S.demo) {
-      title = "The demo";
+      title = `Demo: ${stripTags(pl.S.mod.title)}`;
       demo = true;
       fill = (vis) => vis.appendChild(pl.S.demo); // the live demo moves here (the Try-it screen takes it back if you return)
     } else return;

@@ -196,10 +196,10 @@
       root.appendChild(
         predict({
           id: "l2-opt-1",
-          q: "Exhaustive search worked for 3 items (2<sup>3</sup> = 8). How many subsets would 60 items have?",
-          opts: ["60² = 3,600", "2⁶⁰ ≈ 1.15 × 10¹⁸", "60! ≈ 8.3 × 10⁸¹"],
-          a: 1,
-          why: "Each item is in or out, so there are 2<sup>60</sup> ≈ 1.15 × 10<sup>18</sup> subsets. At a billion checks a second that's about <b>36 years</b>. Enumeration only works for tiny S.",
+          q: "Exhaustive search over 30 items takes 1 hour. About how long would it take over 32 items?",
+          opts: ["About 1 hour 4 minutes", "About 2 hours", "About 4 hours"],
+          a: 2,
+          why: "Every extra item doubles the number of subsets, so 2 extra items double the work twice: 2 × 2 = 4 hours. Adding items does not add a little work, it multiplies it. Ten more items would take 1,024 times longer, over a month.",
         }),
       );
       root.appendChild(

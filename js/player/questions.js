@@ -32,7 +32,11 @@
         o.classList.toggle("sel", +o.dataset.k === v);
         o.setAttribute("aria-checked", +o.dataset.k === v);
       }),
-    bug: (b, v) => qsa(".qc-line", b).forEach((o) => o.classList.toggle("sel", +o.dataset.k === v)),
+    bug: (b, v) =>
+      qsa(".qc-line", b).forEach((o) => {
+        o.classList.toggle("sel", +o.dataset.k === v);
+        o.setAttribute("aria-pressed", +o.dataset.k === v); // the chosen line is announced as pressed, like the look says
+      }),
   };
 
   pl.askQ = function askQ(wrap, sc, { compact = false } = {}) {
@@ -86,24 +90,39 @@
         (pl.S.sheetMs || 0) + 20,
       );
     };
-    TT.render(
-      Q,
-      body,
-      (v) => {
-        if (answered) return;
-        if (!deferred) return grade(v);
-        pending = v;
-        if (SELECT[type]) SELECT[type](body, v);
-        else
-          qsa("[data-pick]", body).forEach((e) => {
-            e.classList.toggle("sel", e.dataset.pick === v);
-            if (TT.ring) TT.ring(e, e.dataset.pick === v ? "sel" : "");
-          });
-        sound("select");
-        foot("check", { onGo: () => grade(pending), enabled: true });
-      },
-      sc.idKey || sc.key,
-    );
+    // a retry shows the same options in a new order (NIC.optSalt feeds NIC.optOrder), so the answer can't be remembered by its position
+    N.optSalt = sc.retry ? `retry${pl.S.retries[sc.key] || 1}` : "";
+    try {
+      TT.render(
+        Q,
+        body,
+        (v) => {
+          if (answered) return;
+          if (!deferred) return grade(v);
+          pending = v;
+          if (SELECT[type]) SELECT[type](body, v);
+          else
+            qsa("[data-pick]", body).forEach((e) => {
+              e.classList.toggle("sel", e.dataset.pick === v);
+              if (TT.ring) TT.ring(e, e.dataset.pick === v ? "sel" : "");
+            });
+          sound("select");
+          foot("check", { onGo: () => grade(pending), enabled: true });
+        },
+        sc.idKey || sc.key,
+      );
+    } catch (e) {
+      // a question that can't draw must not strand the learner on a screen with no way forward: say so and offer to skip it.
+      // The error is still thrown (on the next tick) so the page's error handlers, smoke() and bug reports all see it.
+      body.innerHTML = `<div class="callout rose"><b>This question couldn't load.</b> Skip it and carry on.</div>`;
+      foot("continue", { label: "Skip", onGo: pl.next });
+      setTimeout(() => {
+        throw e;
+      });
+      return;
+    } finally {
+      N.optSalt = "";
+    }
     if (deferred) foot("check", { enabled: false });
     else {
       const chk = qs("[data-check]", body);
@@ -160,13 +179,27 @@
         game().track("practice");
         game().unlock("fixer");
       }
+      // Detective: a revision question you got wrong, right on its second go (the retry isn't logged, so the bank can't see it)
+      if (sc.retry && sc.revId && pl.S.kind === "revise") game().unlock("fixer");
       if (sc.practice || sc.retry) missed.drop(sc.key);
       if (first) pl.S.xp += pl.S.kind === "boss" ? 2 : 1;
       pl.S.combo++;
       pl.S.wrongRun = 0;
       game().track("combo", pl.S.combo);
-      if (pl.S.combo >= 5 && pl.S.combo % 5 === 0 && pl.S.kind !== "boss")
+      // a hype screen is a treat between questions: at most twice a session, never in a boss or revision round, and never
+      // as the last thing before the mistakes round or the finish
+      const nxt = pl.S.screens[pl.S.i + 1];
+      if (
+        pl.S.combo >= 5 &&
+        pl.S.combo % 5 === 0 &&
+        ["lesson", "practice"].includes(pl.S.kind) &&
+        (pl.S.hypes || 0) < 2 &&
+        nxt &&
+        !["mistakes", "recap", "complete", "streak"].includes(nxt.kind)
+      ) {
+        pl.S.hypes = (pl.S.hypes || 0) + 1;
         pl.S.screens.splice(pl.S.i + 1, 0, { kind: "hype", n: pl.S.combo });
+      }
     } else {
       pl.S.combo = 0;
       pl.S.wrongRun++;
@@ -237,7 +270,7 @@
   function queueMistake(sc) {
     // mistakes wait at the end of the main run, behind a "Let's fix your mistakes" interstitial
     if (!pl.S.screens.some((x) => x.kind === "mistakes")) pl.S.screens.push({ kind: "mistakes" });
-    pl.S.screens.push({ ...sc, retry: true, practice: false });
+    pl.S.screens.push({ ...sc, retry: true, practice: false, bi: null }); // not a base screen: it never sets the resume position
   }
 
   pl.finish = function finish() {

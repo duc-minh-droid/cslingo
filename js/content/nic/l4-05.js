@@ -390,14 +390,14 @@
       root.appendChild(
         predict({
           id: "l4-mut-1",
-          q: "The lecture asks about swap mutation on a k-ary encoding like 352872: <i>why is this probably not very good in this context?</i>",
+          q: "On the <b>Real-valued</b> tab you drag σ up. What happens to the cloud of mutants?",
           opts: [
-            "It's too slow to compute on long strings of digits",
-            "It can't introduce a value that isn't already there",
-            "It produces invalid chromosomes with repeated values in them",
+            "They spread out: more exploring, less exploiting",
+            "They stay close to the parent but get more numerous",
+            "They stop being valid numbers once σ is large",
           ],
-          a: 1,
-          why: "In the water-distribution example, if no pipe currently has diameter 4, swapping can <b>never</b> create one. Swap preserves the multiset of values, which is exactly right for permutations (every value must appear once) and exactly wrong for k-ary, where any value can go anywhere.",
+          a: 0,
+          why: "σ is the size of the random noise, so it is the <b>step size</b>. A bigger σ throws the mutants further from the parent: more chance of reaching somewhere new (exploration), but fewer mutants that are as good as the parent (less exploitation). A small σ does the opposite.",
         }),
       );
       root.appendChild(

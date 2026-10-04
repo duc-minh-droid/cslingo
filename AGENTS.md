@@ -65,24 +65,29 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 **Routing** (`js/app/routing.js`), by hash:
 - `#home`, `#ds-home`, `#algo-home`: that course's path.
 - `#practice`, `#revise`, `#profile`: the extra pages (dock tabs).
-- `#<moduleId>`: renders the path underneath and opens the **lesson player** on that module.
+- `#<moduleId>`: renders the path underneath and opens the **lesson player** on that module. A hash that names nothing (a typo, a lesson that was renamed) loads every course, and if it still names nothing it is replaced by the last course home.
+- **History:** opening a lesson pushes its hash on top of the page you came from (`opts.cameFrom`). Closing it pops that entry with `history.back()`, so Back never reopens a lesson you just left (a cold deep link or a reload has nothing to pop, so it uses `location.replace`). The browser's Back during a lesson or boss quiz asks the quit question and puts the lesson's hash back (`NIC.player.guardBack`).
 
 **The player** (`js/player/`) builds screens from data. Nothing in a module is written for the player directly:
 1. **Step screens:** one per `NIC.LESSONS[id].steps[k]`. A step's `c` (quick check) becomes its own MCQ screen right after the step. That screen carries the step's figure `v` and any table/figure/svg in its body in a "From step N" card, open when the question mentions a table, graph, figure and so on, closed otherwise. So a check may say "using the table…" as long as the table is in that step. Boss questions show the boss's `matrix`/`aside` card inline, and predicts show the live demo (`contextCard` in `js/player/`; it works in Practice and Revise too). The back button (and ←) exists in lessons only. It returns to the previous teaching screen, skips questions, and questions you already answered are skipped on the way forward. Boss quizzes, Practice and Revise have no back button.
 2. **Try it:** whatever `mod.render(root, life)` appends, minus its `header`, `.predict` and `.takeaways` nodes. `L.guide` becomes the tick-off checklist beside it.
-3. **Predict screens:** every `NIC.predict({...})` card that `render()` created. The player reads `node.__opts` and turns it into a question.
-4. **Mistakes round:** wrong answers are asked again at the end.
+3. **Predict screens:** every `NIC.predict({...})` card that `render()` created. The player reads `node.__opts` and turns it into a question. These come after the Try it screen, tagged "Now predict", with the live demo in a collapsed "Demo: <lesson title>" card (so write predicts as questions about a demo the learner has just used, and never as "predict before you press"). A predict must not repeat a quick check from the same lesson.
+4. **Mistakes round:** wrong answers are asked again at the end, behind a "N to redo" screen. A retry shows the same options in a new order (`NIC.optSalt`).
 5. **Recap:** the `NIC.takeaways(...)` node.
 6. **Complete, then streak:** XP / accuracy / time cards, then the streak screen.
 
-**Boss modules** (`num: "Boss"`) run in the same player, using the questions from `NIC.bossDef(id)`.
+**Resume position:** `nic.lessonPos[id]` is the ordinal of the screen among the lesson's *base* screens (steps, checks, Try it, predicts), saved on every screen. Screens the player injects (hype, the mistakes round and its retries, the recap) never count, so a position can never skip or overshoot a real screen: quitting in the recap or the mistakes round reopens on the last base screen. Give every base screen a `bi` (`session.js`), and an injected copy of one (a retry) `bi: null`.
+
+**Keys in the player:** Enter belongs to the control the keyboard has focused (Quit, Back, an answer option, a link, a `summary`, the quit sheet's buttons); only Continue / Check continues, plus an already-selected option (Enter checks it) and a control the mouse pressed (as it always did). `1`-`9` pick an option, `M` mutes (`NIC.sfx.set` fires `csl:sound`), Escape asks to quit, and closing on the very first screen with nothing answered needs no confirmation.
+
+**Boss modules** (`num: "Boss"`) run in the same player, using the questions from `NIC.bossDef(id)`. The pass mark is 80% (`NIC.BOSS_PASS`); the intro and result screens say so, and `NIC.bossResult(id)` returns `{n, answered, right, pct, need, passed, attempted}` (null until that boss has loaded) for anything that needs to know whether a boss is beaten. `NIC.bossReset(id)` forgets a boss's answers so its next visit starts at the intro.
 
 **Progress keys** (localStorage, all prefixed `nic.`):
 
 | Key | Holds |
 |---|---|
 | `lessonDone` | completed modules |
-| `lessonPos` | resume screen per module |
+| `lessonPos` | resume position per module: ordinal among its base screens (see Resume position) |
 | `visited` | modules opened |
 | `quiz` | boss answers, `{"<bossId>-<i>": {v, ok}}` |
 | `predict` | predict results |

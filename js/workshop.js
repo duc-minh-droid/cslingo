@@ -1,9 +1,10 @@
 /* Workshop engine: a no-code, hands-on "lab" screen with missions.
-     NIC.workshop(root, life, { who, title, intro, missions:[{id, t, d, hint}], build(stage, api) })
+     NIC.workshop(root, life, { who, title, intro, missions:[{id, t, d, hint}], build(stage, api), finish?() })
    build() draws the workshop's own stage and calls api.done(id) when the learner pulls a mission off.
      api.say(html, mood)   the coach (mascot + speech bubble) talks
      api.done(id)          tick a mission: springs the pip, floats +XP, confetti on the last one
      api.doneIds()         ids ticked so far
+   finish() (optional) returns the coach's closing line (html) when the last mission is done; the code lab uses it.
    The node dispatches `nic:wk-mission` ({id, n, total}) and `nic:wk-done` so the lesson player can award XP and unlock Continue.
    All classes are wk- prefixed. Motion is transform/opacity only; reduced motion keeps fades. */
 (function () {
@@ -80,7 +81,9 @@
         );
         if (last) {
           api.say(
-            `<b>Workshop complete!</b> You did all ${M.length} missions by hand. That's the skill, not the syntax.`,
+            cfg.finish
+              ? cfg.finish()
+              : `<b>Workshop complete!</b> All ${M.length} missions done. That's the skill, not the syntax.`,
             "love",
           );
           node.dispatchEvent(new CustomEvent("nic:wk-done", { bubbles: true }));
