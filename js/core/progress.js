@@ -3,30 +3,91 @@
   const { el, esc, qs, qsa } = core;
 
   // ---------- Progress (predictions + visited) ----------
+  /* Every read and write of progress goes through `store`. When the browser blocks or has filled localStorage (private
+     mode, quota), values fall back to an in-memory Map: the app keeps working and progress lasts until the tab closes. */
+  const mem = new Map();
+  const warn = () => {
+    if (!store.warned && core.N_fx()) {
+      store.warned = true;
+      core
+        .N_fx()
+        .toast(
+          "<b>Progress can't be saved</b><span>This browser is blocking storage (private mode or full), so it will only last until you close this tab.</span>",
+          { tone: "rose", ms: 5000 },
+        );
+    }
+  };
   const store = {
+    /** The raw string stored under k (null when there is none). Never throws. */
+    raw(k) {
+      if (mem.has(k)) return mem.get(k);
+      try {
+        return localStorage.getItem(k);
+      } catch {
+        return null;
+      }
+    },
+    /** Store a raw string. Returns false (and keeps it in memory) when the browser refuses. Never throws. */
+    setRaw(k, v) {
+      try {
+        localStorage.setItem(k, v);
+        mem.delete(k);
+        return true;
+      } catch {
+        mem.set(k, String(v));
+        warn();
+        return false;
+      }
+    },
+    removeRaw(k) {
+      mem.delete(k);
+      try {
+        localStorage.removeItem(k);
+      } catch {
+        /* blocked: there is nothing stored to remove */
+      }
+    },
+    /** Every key we hold, stored or in memory. */
+    keys() {
+      const out = new Set(mem.keys());
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k) out.add(k);
+        }
+      } catch {
+        /* blocked: only the in-memory keys */
+      }
+      return [...out];
+    },
     get(k, d) {
       try {
-        return JSON.parse(localStorage.getItem(k)) ?? d;
+        return JSON.parse(store.raw(k)) ?? d;
       } catch {
         return d;
       }
     },
     set(k, v) {
-      try {
-        localStorage.setItem(k, JSON.stringify(v));
-      } catch (e) {
-        if (!store.warned && core.N_fx()) {
-          store.warned = true;
-          core
-            .N_fx()
-            .toast(
-              "<b>Progress can't be saved</b><span>This browser is blocking storage (private mode or full).</span>",
-              { tone: "rose", ms: 4000 },
-            );
-        }
-      }
+      store.setRaw(k, JSON.stringify(v));
     },
   };
+  // Once there is something worth keeping, ask the browser not to clear our storage (Safari drops idle sites after 7 days).
+  window.addEventListener("nic:progress", () => {
+    try {
+      if (localStorage.getItem("csl.persist") || !Object.keys(store.get("nic.lessonDone", {})).length) return;
+      if (!navigator.storage || !navigator.storage.persist) return;
+      // browsers often say no at first: ask again at a later lesson (at most once a day, four times), and stop once granted
+      const [n, t] = (localStorage.getItem("csl.persistTry") || "0:0").split(":").map(Number);
+      if (n >= 4 || Date.now() - t < 864e5) return;
+      localStorage.setItem("csl.persistTry", `${n + 1}:${Date.now()}`); // outside nic.*, so these are neither synced nor reset
+      navigator.storage
+        .persist()
+        .then((ok) => ok && localStorage.setItem("csl.persist", "1"))
+        .catch(() => {});
+    } catch {
+      /* storage blocked: there is nothing to protect */
+    }
+  });
   function updateScore() {
     const s = store.get("nic.predict", {});
     const vals = Object.values(s);

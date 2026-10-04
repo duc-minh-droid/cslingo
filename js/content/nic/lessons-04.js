@@ -3,6 +3,15 @@
   const { bars, chips, g, row, table } = partScope;
   const L = NIC.LESSONS;
 
+  // a row of population slots, each one tappable (data-pick = "Slot n")
+  const slotRow = (vals) =>
+    `<svg viewBox="0 0 ${vals.length * 84 + 6} 92" role="group" aria-label="Population slots 1 to ${vals.length}">${vals
+      .map(
+        (v, i) =>
+          `<g data-pick="Slot ${i + 1}" aria-label="Slot ${i + 1}, fitness ${v}"><rect x="${6 + i * 84}" y="4" width="72" height="84" rx="14" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${42 + i * 84}" y="32" text-anchor="middle" style="font:800 13px var(--sans);fill:var(--text-faint)">Slot ${i + 1}</text><text x="${42 + i * 84}" y="66" text-anchor="middle" style="font:900 22px var(--sans);fill:var(--ink)">${v}</text></g>`,
+      )
+      .join("")}</svg>`;
+
   L["l4-replacement"] = {
     sum: "In a steady-state GA a new child needs a slot. <b>Replace weakest</b> or <b>replace first weaker</b>: who gets kicked out?",
     steps: [
@@ -33,10 +42,12 @@
           ]) +
           `<p class="dim" style="margin-top:6px">New child 0.4 → S1 (0.3) is already weaker, so it's replaced. Scanning stops, even though S6 is much weaker.</p>`,
         c: {
-          q: "Population 0.6, 0.2, 0.8, 0.1. Child 0.5, replace <b>first weaker</b>. Which slot?",
-          o: ["Slot 2 (0.2)", "Slot 4 (0.1)", "Slot 1 (0.6)"],
-          a: 0,
-          why: "Scan: 0.6 isn't weaker, 0.2 is. Stop at slot 2.",
+          type: "pick",
+          q: "A child with fitness 0.5 arrives (higher is fitter). With <b>replace first weaker</b>, tap the slot it takes.",
+          fig: slotRow([0.7, 0.8, 0.3, 0.9, 0.1]),
+          a: "Slot 3",
+          hint: "Scan from slot 1. Stop at the first member that is weaker than the child.",
+          why: "Scan from the top: 0.7 and 0.8 aren't weaker than 0.5, but 0.3 is. Stop at slot 3, even though slot 5 (0.1) is weaker still. That would be replace weakest.",
         },
       },
       {
@@ -50,9 +61,9 @@
     ],
     guide: [
       "Choose a strategy at the top, then press <b>Insert next child</b>. The orange highlight shows the scan.",
-      "Reset, switch strategy, and insert the same children. Compare which slots change.",
-      'Untick <b>treat equal as weaker</b> and redo "first weaker": S11 lands in a different slot.',
-      "Add random children and predict the slot before you insert.",
+      "Press <b>Reset to lecture example</b>, switch strategy, and press <b>Insert next child</b> for the same children. Compare which slots change.",
+      'Untick <b>Treat equal fitness</b> as "weaker" and redo "first weaker": S11 lands in a different slot.',
+      "Press <b>+ Random child</b> and predict the slot before you insert.",
     ],
   };
 
@@ -71,10 +82,17 @@
         t: "Too much pressure",
         b: `<p>Always picking the best means one individual's copies <b>take over</b> within a few generations. Diversity vanishes, and the population sits on whichever hill that individual was on: <b>premature convergence</b>, often at a local optimum.</p>`,
         c: {
-          q: "Your population becomes identical in 3 generations and stops improving. Diagnosis?",
-          o: ["Too little pressure", "Too much pressure", "Mutation rate too high"],
-          a: 1,
-          why: "Fast takeover plus stagnation is premature convergence.",
+          type: "cat",
+          q: "Is each symptom a sign of <b>too little</b> or <b>too much</b> selection pressure?",
+          buckets: ["Too little pressure", "Too much pressure"],
+          items: [
+            ["The whole population is identical after 3 generations", 1],
+            ["Fit and unfit individuals are picked about equally often", 0],
+            ["One individual's copies take over, then progress stops", 1],
+            ["Best fitness drifts up and down and never really improves", 0],
+          ],
+          hint: "Too much pressure makes everyone alike, fast. Too little means selection hardly favours the fit at all.",
+          why: "Fast takeover plus stagnation is premature convergence: too much pressure. Picking fit and unfit alike, so the population just drifts, is too little pressure.",
         },
       },
       {
@@ -88,7 +106,7 @@
     ],
     guide: [
       "Click each selection method. The heatmap reruns straight away.",
-      "Compare <b>Random</b> (colours shuffle but no orange takeover) with <b>Always best</b> (instant orange).",
+      "Compare <b>Random</b> with <b>Always best</b>: in which one does the orange cell take over?",
       'Read the "share of the original best" chart for each method.',
       "Scroll down and press <b>Run experiment</b> to find which tournament size works best.",
     ],
@@ -126,10 +144,16 @@
         t: "Problem 2: it depends on the exact numbers",
         b: `<p>Add 100 to every fitness: 200, 100.4, 100.3, 100.2, 100.1. The ranking is the same, but now the best only gets 200/601 ≈ <b>33%</b>.</p><span class="key">Roulette depends on <b>absolute</b> fitness values, so you have to design the fitness numbers very carefully.</span>`,
         c: {
-          q: "Fitnesses 1, 1, 2. What's the chance of picking the individual with fitness 2?",
-          o: ["33%", "50%", "66%"],
-          a: 1,
-          why: "2 / (1 + 1 + 2) = 2/4 = 50%.",
+          type: "match",
+          q: "A roulette wheel has four individuals with fitnesses 1, 3, 6 and 10. Match each fitness to its chance of being picked.",
+          pairs: [
+            ["f = 1", "5%"],
+            ["f = 3", "15%"],
+            ["f = 6", "30%"],
+            ["f = 10", "50%"],
+          ],
+          hint: "The wheel total is 1 + 3 + 6 + 10 = 20. Each slice is its fitness out of 20.",
+          why: "Each chance is f / (sum of all f), and the sum is 20. 1/20 = 5%, 3/20 = 15%, 6/20 = 30% and 10/20 = 50%.",
         },
       },
       {
@@ -172,10 +196,16 @@
             ["rank 1", 10],
           ]) + `<p class="dim" style="margin-top:6px">The superfit 100 now gets 40%, not 99%.</p>`,
         c: {
-          q: "Population of 5, linear rank. Chance of picking the best?",
-          o: ["5/15 = 33%", "1/5 = 20%", "5/10 = 50%"],
-          a: 0,
-          why: "Sum = 5·6/2 = 15, and the best has rank 5, so 5/15.",
+          type: "match",
+          q: "A population of 5 uses linear rank selection (the best has rank 5). Match each rank to its chance of being picked.",
+          pairs: [
+            ["Rank 5 (the best)", "33%"],
+            ["Rank 3", "20%"],
+            ["Rank 2", "13%"],
+            ["Rank 1 (the worst)", "7%"],
+          ],
+          hint: "The ranks add up to 5 + 4 + 3 + 2 + 1 = 15. Each chance is its rank out of 15.",
+          why: "Sum of ranks = 5·6/2 = 15, so the chances are 5/15 = 33%, 3/15 = 20%, 2/15 ≈ 13% and 1/15 ≈ 7%.",
         },
       },
       {
@@ -229,10 +259,15 @@
         t: "t controls the pressure",
         b: `<p><b>t = 1</b>: one random pick, so it's pure random selection (no pressure).<br><b>t = 2</b>: mild pressure.<br><b>Large t</b>: the winner is almost always near the top (high pressure).</p>`,
         c: {
-          q: "Tournament size t = 1 is the same as…",
-          o: ["Always picking the best", "Random selection", "Roulette"],
-          a: 1,
-          why: "One contestant always wins its own tournament.",
+          type: "match",
+          q: "Match each tournament size to the selection pressure it gives.",
+          pairs: [
+            ["t = 1", "Pure random selection, no pressure"],
+            ["t = 2", "Mild pressure: the fitter of two is kept"],
+            ["Large t, close to the population size", "The winner is almost always near the top"],
+          ],
+          hint: "The more contestants in each tournament, the harder it is for a weak one to win.",
+          why: "With t = 1 one contestant always wins its own tournament, so it is random selection. Larger tournaments favour the fit more and more.",
         },
       },
       {
@@ -257,7 +292,7 @@
     guide: [
       "Press <b>Run one tournament</b> and watch the t picks (amber), then the winner (green).",
       "Press <b>Run 5,000</b>: the green bars match the grey theory bars.",
-      "Drag <b>t</b> from 1 to 10 and watch the probabilities shift towards the top ranks.",
+      "Drag <b>Tournament size</b> from 1 to 10 and watch the probabilities shift towards the top ranks.",
       "Read the stats on the right: P(best wins), P(worst wins).",
     ],
   };
@@ -322,7 +357,7 @@
       },
       {
         t: "Permutation mutation",
-        b: `<p>Every city must appear <b>exactly once</b>. Single-gene mutation breaks that. Swap keeps it valid.</p>`,
+        b: `<p>In a travelling salesperson problem (TSP) tour, every city must appear <b>exactly once</b>. Single-gene mutation breaks that. Swap keeps it valid.</p>`,
         v:
           row("before", g("DEGJA")) +
           row(
@@ -336,10 +371,15 @@
             "still valid ✓",
           ),
         c: {
-          q: "Which mutation suits a TSP tour?",
-          o: ["Single-gene random value", "Swap two cities", "Add Gaussian noise"],
-          a: 1,
-          why: "Swap rearranges without duplicating or losing cities.",
+          type: "match",
+          q: "Match each kind of chromosome to a mutation that suits it.",
+          pairs: [
+            ["Integer (k-ary) vector like [3, 5, 2, 8]", "Single-gene: set one gene to a new random value"],
+            ["Real-valued vector like [0.30, 0.20, 0.40]", "Add a small Gaussian number to a gene"],
+            ["A TSP tour, where every city appears once", "Swap two cities, so none is lost or repeated"],
+          ],
+          hint: "A good mutation keeps the chromosome valid and can still reach new values.",
+          why: "Single-gene can create a value nobody has, Gaussian noise nudges a real number to a nearby one, and swap rearranges a tour without duplicating or losing cities.",
         },
       },
     ],

@@ -10,8 +10,17 @@
   outline: none;
 }
 .rn:focus-visible {
-  border-color: var(--blue-edge);
-  box-shadow: 0 4px 0 var(--blue-edge);
+  border-color: var(--blue-ink);
+  box-shadow: 0 4px 0 var(--blue-ink);
+}
+/* spoken only: the live region where a screen reader hears a prediction and its result */
+.rn-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 .rn-grid {
   display: grid;

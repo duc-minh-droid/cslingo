@@ -162,14 +162,16 @@
         t: "Rank is a flow, not a count",
         b: `<p>Counting incoming links is easy to cheat and wrong in spirit: one link from an important page outweighs fifty from empty blogs. PageRank treats rank like <b>water</b>:</p><p>① every page <b>pours all its rank</b> into its outgoing links, split equally;<br>② a link from an important page carries more;<br>③ a page linking to 100 places dilutes each drop to 1/100.</p>`,
         c: {
-          q: "X has rank 0.8 and 100 outgoing links; Y has rank 0.2 and one link. Both link to Z. Who contributes more?",
-          o: [
-            "X, because its rank is four times higher than Y's",
-            "Y: X's share is diluted to 0.008; Y gives 0.2",
-            "They tie, since each of them links to Z exactly once",
+          type: "order",
+          q: "Four pages each link to the same page Z. Put them in order from the link that carries the <b>most</b> rank to Z to the <b>least</b>.",
+          items: [
+            "Page K: rank 0.6, 2 outgoing links",
+            "Page L: rank 0.2, 1 outgoing link",
+            "Page M: rank 0.4, 4 outgoing links",
+            "Page N: rank 0.8, 100 outgoing links",
           ],
-          a: 1,
-          why: "A link's worth = source rank ÷ out-degree. 0.8/100 = 0.008 &lt; 0.2/1 = 0.2.",
+          hint: "A link carries the source's rank divided by its number of outgoing links.",
+          why: "A link's worth = source rank ÷ out-degree: K gives 0.6/2 = 0.3, L gives 0.2/1 = 0.2, M gives 0.4/4 = 0.1 and N gives 0.8/100 = 0.008. A big rank diluted over 100 links carries very little.",
         },
       },
       {
@@ -229,7 +231,7 @@
     guide: [
       "Press <b>Surf</b> and watch the dot hop along links. Occasionally it teleports (orange flash).",
       "Watch the visit bars settle — compare with the long-run PageRank values under each bar.",
-      "Drag damping to <b>1.00</b> (never teleport) on the leaky web: the surfer eventually parks at D forever.",
+      "Drag <b>damping</b> to 1.00 (never teleport) on the leaky web: the surfer eventually parks at D forever.",
       "Switch to <b>The link trap</b> with d = 1.00: watch A↔B oscillate while X starves. Then lower d and watch X come back to ~5%.",
       "Answer the Predict question.",
     ],

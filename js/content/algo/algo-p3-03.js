@@ -94,10 +94,10 @@
       root.appendChild(
         predict({
           id: "a3-br-1",
-          q: "f(c) < f(d) at interior points c < d of a unimodal function. What is the new bracket?",
-          opts: ["[a, d]", "[c, b]", "[a, c]"],
+          q: "Each <b>Iterate</b> shrinks the bracket to 0.618 of its width, and it gets under 0.01 after 10 steps. About how many <i>more</i> steps make it 100 times narrower still (under 0.0001)?",
+          opts: ["About 10 more", "About 100 more", "About 1,000 more"],
           a: 0,
-          why: "f(c) < f(d) means the minimum is at or left of d, so keep [a, d] and discard [d, b]. c survives and becomes one of the next pair of probes.",
+          why: "Ten steps multiply the width by 0.618<sup>10</sup> ≈ 0.008, a shrink of about 120×. Another 10 steps does the same again, which is already more than the 100× needed (the width is about 0.00007 after 20 steps). Every extra digit of accuracy costs a fixed handful of steps, and each step needs just one new evaluation.",
         }),
       );
       root.appendChild(
@@ -127,7 +127,7 @@
       {
         t: "A triangle, not a point",
         b: `<p>In 2-D, Nelder–Mead keeps 3 points: a triangle, called a <b>simplex</b>. Each corner has a function value. Sort them: <b style="color:var(--teal-ink)">best</b>, <b style="color:var(--amber-ink)">middle</b>, <b style="color:var(--rose-ink)">worst</b>.</p><p>Every move is about getting rid of the worst corner.</p>`,
-        v: `<svg class="fig" viewBox="0 0 420 180" style="max-height:180px"><polygon points="90,140 250,150 150,40" fill="rgba(206,130,255,.14)" stroke="var(--violet)" stroke-width="2" class="fi"/><circle cx="90" cy="140" r="8" fill="var(--teal)" class="fi"/><text x="90" y="166" class="fig-sub" style="fill:var(--teal)">best</text><circle cx="250" cy="150" r="8" fill="var(--amber)" class="fi"/><text x="250" y="174" class="fig-sub" style="fill:var(--amber)">middle</text><circle cx="150" cy="40" r="8" fill="var(--rose)" class="fi"/><text x="150" y="24" class="fig-sub" style="fill:var(--rose)">worst</text><text x="340" y="96" class="fig-sub">downhill →</text></svg>`,
+        v: `<svg class="fig" viewBox="0 0 420 180" role="img" aria-label="A triangle of three points: the best corner bottom left, the middle corner bottom right and the worst corner at the top. Downhill is to the right." style="max-height:180px"><polygon points="90,140 250,150 150,40" fill="rgba(206,130,255,.14)" stroke="var(--violet)" stroke-width="2" class="fi"/><circle cx="90" cy="140" r="8" fill="var(--teal)" class="fi"/><text x="90" y="166" class="fig-sub" style="fill:var(--teal)">best</text><circle cx="250" cy="150" r="8" fill="var(--amber)" class="fi"/><text x="250" y="174" class="fig-sub" style="fill:var(--amber)">middle</text><circle cx="150" cy="40" r="8" fill="var(--rose)" class="fi"/><text x="150" y="24" class="fig-sub" style="fill:var(--rose)">worst</text><text x="340" y="96" class="fig-sub">downhill →</text></svg>`,
       },
       {
         t: "Reflect the worst corner",
@@ -151,10 +151,16 @@
           },
         ]),
         c: {
-          q: "The reflected point is worse than all three corners. What does Nelder–Mead try next?",
-          o: ["Expand further", "Contract", "Restart randomly"],
-          a: 1,
-          why: "An overshoot calls for a contraction. Only if that also fails does the whole triangle shrink.",
+          type: "match",
+          q: "Nelder–Mead has reflected its worst corner. Match each outcome to its next move.",
+          pairs: [
+            ["The new point is decent", "Reflect: keep the new point"],
+            ["The new point is the best yet", "Expand: go even further"],
+            ["The new point is worse than all three corners", "Contract: pull back halfway"],
+            ["Contracting doesn't help either", "Shrink: squash toward the best corner"],
+          ],
+          hint: "Good news earns a bigger move. Bad news earns a smaller one.",
+          why: "A reflection worse than every corner is an overshoot, so contract. Only if that fails does the whole triangle shrink. A decent point is kept, and a new best is worth stretching towards.",
         },
       },
       {

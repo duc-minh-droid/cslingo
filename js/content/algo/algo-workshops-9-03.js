@@ -111,7 +111,7 @@
       },
       {
         t: "Halving the work",
-        b: `<p>The FFT splits the samples into <b>even-indexed</b> and <b>odd-indexed</b> ones, takes a small DFT of each, then combines. Each pair of output bins shares one product.</p>`,
+        b: `<p>The fast Fourier transform (FFT) splits the samples into <b>even-indexed</b> and <b>odd-indexed</b> ones, takes a small discrete Fourier transform (DFT) of each, then combines. Each pair of output bins shares one product.</p>`,
         v: F.flow([
           { t: "16 samples" },
           { t: "8 even + 8 odd", c: "blue" },

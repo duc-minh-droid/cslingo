@@ -132,23 +132,23 @@
       root.appendChild(
         predict({
           id: "ds-hashidx-1",
-          q: "A play-counter log receives 1,000,000 updates spread over 50 videos. After compaction, how many records remain for each video?",
-          opts: ["One: the latest count", "A few thousand", "Half of what it had"],
+          q: "A play-counter log holds 1,000,000 records spread over 50 videos. Roughly how many entries does the in-memory hash map need?",
+          opts: ["50, one per video", "1,000,000, one per record", "About 1,000, one per block of records"],
           a: 0,
-          why: "Compaction throws away overwritten values, keeping the newest record per key. A counter with few keys and many writes shrinks enormously.",
+          why: "The map holds one entry per distinct <b>key</b>: it points each key at the offset of its latest record. Many writes to the same key just update that one entry. That's why a few keys with lots of writes fit in memory easily, while billions of distinct keys do not.",
         }),
       );
       root.appendChild(
         predict({
           id: "ds-hashidx-2",
-          q: "Which request is a poor fit for a hash-indexed log?",
+          q: "The machine restarts and the in-memory hash map is gone, but the log files on disk are fine. How does the database get its index back?",
           opts: [
-            "All keys from user1000 up to user2000",
-            "The value of exactly one named key in the store",
-            "Overwriting one existing key's value with a new one",
+            "Re-read the log from its oldest record to its newest",
+            "Ask each client to resend every write it ever made to the store",
+            "It can't: without the map, the data on disk cannot be read at all",
           ],
           a: 0,
-          why: "A hash map does not keep keys in order, so a range query has no shortcut. It would need to look up keys one by one or scan.",
+          why: "The map is only a shortcut to data that is safely on disk. Rebuilding means scanning the segments from oldest to newest and re-adding every key, so the last write of each key wins. On a huge log that is slow, which is why real systems also save snapshots of the map.",
         }),
       );
       root.appendChild(

@@ -27,22 +27,22 @@
     };
   }
 
+  /** A step's quick check as a question. `{q, o, a, why}` is multiple choice; give it a `type` (order, cat, pick, multi, slider, bug,
+      match: anything in NIC.QUIZ_TYPES) and its fields instead and it is asked that way, like a boss question. */
+  const checkQ = (c) => ({ type: "mcq", ...c, why: c.why || "" });
+
+  /** The chip in the top bar: the lesson's number, or "Workshop" / "Code lab" for the 3.W / 3.C labs (the path's own wording). */
+  const chipOf = (mod) => {
+    const app = N.shared.engineApp;
+    return app && app.numLabel ? app.numLabel(mod) : mod.num;
+  };
+
   function lessonScreens(mod) {
     const L = N.LESSONS[mod.id] || { steps: [] };
     // each quick check gets its own screen straight after its step (like Duolingo), so the options are never below the fold
     const out = L.steps.flatMap((s, k) =>
       [{ kind: "step", k, s, Q: null, key: `read:${mod.id}:${k}` }].concat(
-        s.c
-          ? [
-              {
-                kind: "q",
-                check: true,
-                k,
-                Q: { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why || "" },
-                key: `step:${mod.id}:${k}`,
-              },
-            ]
-          : [],
+        s.c ? [{ kind: "q", check: true, k, Q: checkQ(s.c), key: `step:${mod.id}:${k}` }] : [],
       ),
     );
     // lift the demo, predicts and takeaways out of the module's own page
@@ -86,12 +86,15 @@
     pl.S.mod = mod;
     pl.S.who = (N.cast && N.cast.who(opts.who)) || "sprout";
     pl.S.review = !boss && !!store.get("nic.lessonDone", {})[mod.id];
-    pl.mount(boss ? "Boss" : mod.num);
+    pl.mount(boss ? "Boss" : chipOf(mod));
     if (boss) bossSession(mod, boss);
     else {
       pl.S.screens = lessonScreens(mod);
+      // lessonPos is an ordinal among these base screens (injected hype, mistakes and recap screens never count), so it can only
+      // ever point at a real screen: a stale or too-large value lands on the last one instead of starting over
+      pl.S.screens.forEach((sc, k) => (sc.bi = k));
       const pos = store.get("nic.lessonPos", {})[mod.id] || 0;
-      pl.S.i = pos > 0 && pos < pl.S.screens.length ? pos : 0;
+      pl.S.i = pos > 0 ? Math.min(pos, pl.S.screens.length - 1) : 0;
       if (pl.S.i > 0 && fx())
         setTimeout(
           () =>
@@ -114,7 +117,10 @@
   function bossSession(mod, B) {
     const key = (i) => `${B.id}-${i}`,
       st = store.get("nic.quiz", {});
-    let todo = B.qs.map((_, i) => i).filter((i) => !(key(i) in st && typeof st[key(i)] === "object"));
+    // a retake (N.bossFresh) asks every question again but keeps the stored answers until each is replaced, so backing out loses nothing
+    const fresh = N.bossFresh === B.id;
+    if (fresh) N.bossFresh = null;
+    const todo = B.qs.map((_, i) => i).filter((i) => fresh || !(key(i) in st && typeof st[key(i)] === "object"));
     pl.S.boss = B;
     if (!todo.length) {
       pl.S.screens = [{ kind: "bossResult" }];
@@ -158,13 +164,7 @@
       .filter((m) => done[m.id] && N.LESSONS[m.id])
       .forEach((m) =>
         N.LESSONS[m.id].steps.forEach((s, k) => {
-          if (s.c)
-            pool.push({
-              kind: "q",
-              Q: { type: "mcq", q: s.c.q, o: s.c.o, a: s.c.a, why: s.c.why || "" },
-              key: `step:${m.id}:${k}`,
-              practice: true,
-            });
+          if (s.c) pool.push({ kind: "q", Q: checkQ(s.c), key: `step:${m.id}:${k}`, practice: true });
         }),
       );
     for (let i = pool.length - 1; i > 0; i--) {
@@ -212,7 +212,9 @@
     if (pl.S && pl.S.kind === "revise" && pl.S.revIds)
       revWrite({
         ids: pl.S.revIds,
-        t: pl.S.start,
+        t: pl.S.revKey || pl.S.start, // the round's original start: its key in the history, even after a resume
+        elapsed: Date.now() - pl.S.start, // active time so far (S.start is moved forward on resume), so a paused round doesn't keep counting
+        at: Date.now(), // when this was last saved: the Revise page can age a round out by its last activity
         done: pl.S.firstTotal,
         right: pl.S.firstRight,
         wrong: pl.S.revWrong || [],
@@ -226,7 +228,7 @@
   function revLog() {
     if (!pl.S || !pl.S.revIds || !pl.S.revIds.length || !pl.S.firstTotal) return;
     const h = store.get("nic.revRounds", {});
-    h[pl.S.start] = {
+    h[pl.S.revKey || pl.S.start] = {
       n: pl.S.revIds.length,
       right: pl.S.firstRight,
       ids: pl.S.revIds,
@@ -297,13 +299,20 @@
       pl.S.firstTotal = Math.min(saved.done || 0, deck.length);
       pl.S.firstRight = Math.min(saved.right || 0, pl.S.firstTotal);
       pl.S.xp = saved.xp || 0;
-      if (saved.t) pl.S.start = saved.t;
+      if (saved.t) pl.S.revKey = saved.t;
+      pl.S.start = Date.now() - Math.max(0, +saved.elapsed || 0); // the Time card counts active time, not the days the round sat paused
       pl.S.revWrong = saved.wrong || [];
       pl.S.i = pl.S.firstTotal ? 1 + pl.S.firstTotal : 0; // already answered ones are skipped, the intro only shows for a fresh round
       if (pl.S.i >= pl.S.screens.length) {
-        revWrite(null);
-        pl.S.i = 0;
-        pl.S.firstTotal = pl.S.firstRight = pl.S.xp = 0;
+        // the main run was finished: carry on with the mistakes round (or finish) instead of asking everything again
+        const base = pl.S.screens.length;
+        const bad = new Set(pl.S.revWrong);
+        const redo = pl.S.screens.filter((x) => x.revId && bad.has(x.revId));
+        if (redo.length) {
+          pl.S.screens.push({ kind: "mistakes" });
+          redo.forEach((x) => pl.S.screens.push({ ...x, retry: true, practice: false, bi: null }));
+        }
+        pl.S.i = base;
       } else if (pl.S.firstTotal && fx())
         setTimeout(
           () =>

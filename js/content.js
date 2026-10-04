@@ -159,11 +159,10 @@
 
   const requested = new Map(); // file → promise, so a file listed in two groups loads once
 
-  /** Insert one file. Scripts use async=false: they download in parallel but run in the order they were inserted.
+  /** Insert one file once. Scripts use async=false: they download in parallel but run in the order they were inserted.
       Stylesheets go before the course-styles marker in <head>, which keeps the cascade order the page was written in. */
-  function loadOne(f) {
-    if (requested.has(f)) return requested.get(f);
-    const p = new Promise((ok, bad) => {
+  function insert(f) {
+    return new Promise((ok, bad) => {
       const css = f.endsWith(".css");
       const node = document.createElement(css ? "link" : "script");
       if (css) {
@@ -174,15 +173,75 @@
         node.src = N.asset(f);
       }
       node.onload = () => ok();
-      node.onerror = () => bad(new Error("failed to load " + f));
+      node.onerror = () => {
+        node.remove(); // a failed tag must not stay in <head>: the retry adds a fresh one
+        bad(new Error("failed to load " + f));
+      };
       if (css) document.head.insertBefore(node, document.querySelector('meta[name="course-styles"]'));
       else document.head.appendChild(node);
     });
+  }
+  /** A flaky connection drops a request now and then: try each file up to three times, waiting a little longer each time
+      (0.7 s, then 1.6 s), before giving up. The page then shows "Couldn't load" with a Try again button. */
+  const RETRY_MS = [700, 1600];
+  async function insertWithRetry(f) {
+    for (let n = 0; ; n++) {
+      try {
+        return await insert(f);
+      } catch (e) {
+        if (n >= RETRY_MS.length) throw e;
+        await new Promise((r) => setTimeout(r, RETRY_MS[n]));
+      }
+    }
+  }
+  function loadOne(f) {
+    if (requested.has(f)) return requested.get(f);
+    const p = insertWithRetry(f);
     requested.set(f, p);
     p.catch(() => requested.delete(f)); // a failed file can be tried again by the next load()
     return p;
   }
-  const loadFiles = (files) => Promise.all(files.map(loadOne)).then(() => {});
+  /** Over http(s) the scripts of a group are fetched in parallel (each with the retry above) and only then run, in manifest order.
+      A retried download therefore can't land after the parts that depend on it. Under file:// fetch is blocked, so tags are used. */
+  const texts = new Map(), // file → promise of its source
+    ran = new Set();
+  const fetchText = (f) => {
+    if (!texts.has(f)) {
+      const p = (async () => {
+        for (let n = 0; ; n++) {
+          try {
+            const r = await fetch(N.asset(f));
+            if (!r.ok) throw new Error("failed to load " + f);
+            return await r.text();
+          } catch (e) {
+            if (n >= RETRY_MS.length) throw e;
+            await new Promise((ok) => setTimeout(ok, RETRY_MS[n]));
+          }
+        }
+      })();
+      texts.set(f, p);
+      p.catch(() => texts.delete(f));
+    }
+    return texts.get(f);
+  };
+  async function loadScripts(files) {
+    const src = await Promise.all(files.map((f) => (ran.has(f) ? null : fetchText(f))));
+    files.forEach((f, i) => {
+      if (ran.has(f)) return;
+      ran.add(f);
+      const node = document.createElement("script");
+      node.text = src[i] + "\n//# sourceURL=" + f;
+      document.head.appendChild(node);
+      node.remove();
+      texts.delete(f);
+    });
+  }
+  function loadFiles(files) {
+    if (!/^https?:$/.test(location.protocol) || typeof fetch !== "function")
+      return Promise.all(files.map(loadOne)).then(() => {});
+    const js = files.filter((f) => !f.endsWith(".css"));
+    return Promise.all([...files.filter((f) => f.endsWith(".css")).map(loadOne), loadScripts(js)]).then(() => {});
+  }
 
   function load(course) {
     if (!GROUPS[course]) return Promise.resolve();

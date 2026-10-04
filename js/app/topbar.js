@@ -1,6 +1,6 @@
 (function () {
   const app = (NIC.shared.engineApp = NIC.shared.engineApp || {});
-  const { IC, SUBJECTS, SUBJ_ORDER, inSubj, main, progress, ring, subjOf } = app;
+  const { IC, SUBJECTS, SUBJ_ORDER, inSubj, main, numLabel, progress, ring, subjOf } = app;
   const { modules, qs, qsa, el, esc } = NIC;
   const fx = NIC.fx,
     game = NIC.game;
@@ -15,15 +15,20 @@
       doneToday = game.week().find((d) => d.today).on;
     const tx = game.todayXP(),
       g = game.goal();
+    const ready = game.claimable();
     top.innerHTML = `<div class="tb-in">
       <a class="tb-logo" href="#${S.home}" aria-label="CSLingo home"><b>cs</b>lingo</a>
-      <button class="tb-btn tb-course" data-pop="course" aria-label="Switch course">${NIC.mascot({ who: S.who, size: 30, poke: false })}<span>${S.code}</span>${IC.chev}</button>
+      <button class="tb-btn tb-course" data-pop="course" aria-label="Switch course or search lessons" aria-haspopup="true" aria-expanded="false">${NIC.mascot({ who: S.who, size: 30, poke: false })}<span>${S.code}</span>${IC.chev}</button>
       <div class="tb-right">
-        <button class="tb-btn tb-streak ${doneToday ? "lit" : ""}" data-pop="streak" aria-label="Streak">${IC.flame}<b>${st}</b></button>
-        <button class="tb-btn tb-xp" data-pop="xp" aria-label="Daily goal">${ring(tx / g)}<b>${tx}</b></button>
-        <button class="tb-btn tb-quest ${game.claimable() ? "ready" : ""}" data-pop="quests" aria-label="Daily quests">${IC.chest}<i class="tb-dot"></i></button>
-        <button class="tb-btn tb-me" data-pop="me" aria-label="Menu">${NIC.mascot({ who: "sprout", size: 30, poke: false, acc: ["beanie"] })}</button>
+        <button class="tb-btn tb-streak ${doneToday ? "lit" : ""}" data-pop="streak" aria-label="Streak: ${st} day${st === 1 ? "" : "s"}${doneToday ? ", done today" : ""}" aria-haspopup="true" aria-expanded="false">${IC.flame}<b>${st}</b></button>
+        <button class="tb-btn tb-xp" data-pop="xp" aria-label="Daily goal: ${tx} of ${g} XP" aria-haspopup="true" aria-expanded="false">${ring(tx / g)}<b>${tx}</b></button>
+        <button class="tb-btn tb-quest ${ready ? "ready" : ""}" data-pop="quests" aria-label="Daily quests${ready ? ", a reward is ready to claim" : ""}" aria-haspopup="true" aria-expanded="false">${IC.chest}<i class="tb-dot"></i></button>
+        <button class="tb-btn tb-me" data-pop="me" aria-label="Menu" aria-haspopup="true" aria-expanded="false">${NIC.mascot({ who: "sprout", size: 30, poke: false, acc: ["beanie"] })}</button>
       </div></div>`;
+    if (app.popKind) {
+      const open = qs(`[data-pop="${app.popKind}"]`, top);
+      if (open) open.setAttribute("aria-expanded", "true"); // the bar was redrawn under an open popover
+    }
     qsa("[data-pop]", top).forEach((b) =>
       b.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -142,6 +147,7 @@
     if (!app.popKind) return;
     const kind = app.popKind;
     app.popKind = null;
+    qsa("[data-pop][aria-expanded]", top).forEach((b) => b.setAttribute("aria-expanded", "false"));
     scrim.classList.remove("on");
     // exit: the card leaves as a ghost on <body> (it's position: fixed, so it stays put) while #pop is free for the next one
     const card = qs(".pop-card", pop);
@@ -159,8 +165,9 @@
     pop.hidden = true;
     pop.innerHTML = "";
   }
-  /** Wide screens: streak, daily goal and quests sit in a rail beside the path (Duolingo web layout). */
-  const RAIL_MQ = matchMedia("(min-width: 1240px)");
+  /** Wide screens: streak, daily goal and quests sit in a rail beside the path (Duolingo web layout). The rail is 300px wide and sits
+   336px right of centre, so it needs a 1272px window (css/shell/rail-chests-login.css uses the same number). */
+  const RAIL_MQ = matchMedia("(min-width: 1272px)");
   function rail() {
     let r = qs(".rail");
     if (!RAIL_MQ.matches || !qs(".path-page", main)) {
@@ -182,7 +189,8 @@
     if (app.popKind === kind) return closePop();
     if (app.popKind) closePop(); // switching (streak, then goal): the old card ghost-exits while the new one springs in
     app.popKind = kind;
-    pop.innerHTML = `<div class="pop-card pop-${kind}">${POPS[kind]()}</div>`;
+    anchor.setAttribute("aria-expanded", "true");
+    pop.innerHTML = `<div class="pop-card pop-${kind}" role="group" aria-label="${POP_NAMES[kind]}">${POPS[kind]()}</div>`;
     pop.hidden = false;
     scrim.style.top = top.getBoundingClientRect().bottom + "px";
     scrim.classList.add("on");
@@ -229,13 +237,81 @@
       h = Math.floor((m - n) / 36e5);
     return h >= 1 ? `${h} HOUR${h === 1 ? "" : "S"} LEFT` : `${Math.ceil((m - n) / 6e4)} MIN LEFT`;
   };
+  /* ---- lesson search: course popover ---- */
+  const MAX_HITS = 20;
+  /** Lower-case, possessives and apostrophes dropped, punctuation turned into spaces: "Dijkstra's" and "dijkstras" read the same. */
+  const norm = (t) =>
+    String(t || "")
+      .toLowerCase()
+      .replace(/['\u2019]s\b/g, "")
+      .replace(/['\u2019]/g, "")
+      .replace(/[^a-z0-9.]+/g, " ")
+      .replace(/(^| )\.+|\.+(?= |$)/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim();
+  let index = { n: -1, rows: [] };
+  /** Per lesson: its title, then its number, kind, unit title and course, then its blurb, all normalised once. */
+  function searchRows() {
+    if (index.n !== modules.length) {
+      index = {
+        n: modules.length,
+        rows: modules.map((m) => {
+          const S = SUBJECTS[subjOf(m)];
+          return {
+            m,
+            title: norm(m.title),
+            ctx: norm(`${m.num} ${numLabel(m)} ${S.lectures[m.lecture] || ""} ${S.name} ${S.code}`),
+            body: norm(m.blurb),
+          };
+        }),
+      };
+    }
+    return index.rows;
+  }
+  /** Every word of the query has to appear (in any order, spaces and plurals don't matter). A number matches a whole number or a
+      lesson number's first part ("3" finds "Phase 3" and 3.1, not 1.3). Title hits come first, then number, unit and course, then
+      the blurb; lessons keep their path order inside each group. */
+  function findLessons(q) {
+    const words = norm(q).split(" ").filter(Boolean),
+      glued = words.join("");
+    if (!glued) return [];
+    const has = (text, w) => {
+      if (/^\d/.test(w)) return text.split(" ").some((x) => x === w || x.startsWith(w + "."));
+      return text.includes(w) || (w.length > 3 && w.endsWith("s") && text.includes(w.slice(0, -1)));
+    };
+    const all = (text) =>
+      words.every((w) => has(text, w)) || (!/\d/.test(glued) && text.replace(/ /g, "").includes(glued));
+    const out = [];
+    searchRows().forEach((r, k) => {
+      const rank = all(r.title)
+        ? r.title.startsWith(words[0])
+          ? 0
+          : 1
+        : all(`${r.title} ${r.ctx}`)
+          ? 2
+          : all(`${r.title} ${r.ctx} ${r.body}`)
+            ? 3
+            : -1;
+      if (rank >= 0) out.push([rank, k, r.m]);
+    });
+    return out.sort((a, b) => a[0] - b[0] || a[1] - b[1]).map((x) => x[2]);
+  }
+
+  const POP_NAMES = {
+    course: "Courses and search",
+    streak: "Streak",
+    xp: "Daily goal",
+    quests: "Daily quests",
+    me: "Menu",
+  };
   const POPS = {
-    course: () => `<h3>Your courses</h3>${SUBJ_ORDER.map((k) => {
-      const S = SUBJECTS[k],
-        p = progress(inSubj(k));
-      return `<button class="pc-row ${k === app.course ? "on" : ""}" data-s="${k}">${NIC.mascot({ who: S.who, size: 44, poke: false, mood: k === app.course ? "happy" : "idle" })}<span class="pc-t"><b>${S.name}</b><small>${S.code} · ${p.d}/${p.n} done</small><span class="pc-bar"><span style="transform:scaleX(${p.f})"></span></span></span></button>`;
-    }).join("")}
-      <label class="pc-search">${IC.search}<input type="search" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd>/</kbd></label><div class="pc-res"></div>`,
+    course:
+      () => `<label class="pc-search">${IC.search}<input type="search" role="combobox" aria-expanded="false" aria-controls="pc-res" aria-autocomplete="list" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd aria-hidden="true">/</kbd></label><div class="pc-res" id="pc-res" role="listbox" aria-label="Matching lessons"></div><p class="faint pc-more" role="status" hidden></p>
+      <div class="pc-courses"><h3>Your courses</h3>${SUBJ_ORDER.map((k) => {
+        const S = SUBJECTS[k],
+          p = progress(inSubj(k));
+        return `<button class="pc-row ${k === app.course ? "on" : ""}" data-s="${k}" ${k === app.course ? 'aria-current="true"' : ""}>${NIC.mascot({ who: S.who, size: 44, poke: false, mood: k === app.course ? "happy" : "idle" })}<span class="pc-t"><b>${S.name}</b><small>${S.code} · ${p.d}/${p.n} done</small><span class="pc-bar"><span style="transform:scaleX(${p.f})"></span></span></span></button>`;
+      }).join("")}</div>`,
     streak: () => {
       const st = game.streak(),
         wk = game.week();
@@ -243,7 +319,7 @@
       <div class="ps-week small">${wk.map((d) => `<div class="ps-day ${d.on ? "on" : ""} ${d.frozen ? "frozen" : ""} ${d.today ? "today" : ""}"><span>${d.label}</span><i>${d.frozen ? NIC.emo("ice") : d.on ? IC.check : ""}</i></div>`).join("")}</div>
       ${!game.doneToday() && st && new Date().getHours() >= 18 ? `<div class="sk-risk">${NIC.emo("fire")}<b>Streak at risk!</b> Finish one lesson or practice before midnight.</div>` : ""}
       <p class="faint">${game.doneToday() ? "Today's done. See you tomorrow!" : "Finish a lesson or practice today to keep the flame alive."}</p>
-      <div class="sk-freeze">${NIC.emo("ice")}<span><b>${game.freezes()}</b> streak freeze${game.freezes() === 1 ? "" : "s"}</span><small>Covers a missed day automatically. Finish all 3 daily quests to earn one (max 2).</small></div>`;
+      <div class="sk-freeze">${NIC.emo("ice")}<span><b>${game.freezes()}</b> streak freeze${game.freezes() === 1 ? "" : "s"}</span><small>A freeze covers a day you miss. Claim all 3 daily quests to earn one (you can hold 2).</small></div>`;
     },
     xp: () => {
       const tx = game.todayXP(),
@@ -281,36 +357,64 @@
         }),
       );
       const inp = qs("input", card),
-        res = qs(".pc-res", card);
+        res = qs(".pc-res", card),
+        note = qs(".pc-more", card);
+      let hits = [],
+        at = -1;
+      const setActive = (k) => {
+        at = k;
+        qsa(".pc-hit", res).forEach((b, i) => {
+          b.classList.toggle("active", i === k);
+          b.setAttribute("aria-selected", i === k);
+        });
+        const b = qsa(".pc-hit", res)[k];
+        if (b) {
+          inp.setAttribute("aria-activedescendant", b.id);
+          b.scrollIntoView({ block: "nearest" });
+        } else inp.removeAttribute("aria-activedescendant");
+      };
       const run = () => {
-        const f = inp.value.trim().toLowerCase();
-        if (!f) {
+        const q = inp.value.trim();
+        card.classList.toggle("pc-searching", !!q); // the course rows make way for the results
+        inp.setAttribute("aria-expanded", !!q);
+        if (!q) {
+          hits = [];
           res.innerHTML = "";
+          note.hidden = true;
+          inp.removeAttribute("aria-activedescendant");
           return;
         }
-        const hits = modules
-          .filter((m) => (m.title + " " + m.num + " " + (m.blurb || "")).toLowerCase().includes(f))
-          .slice(0, 8);
+        const found = findLessons(q);
+        hits = found.slice(0, MAX_HITS);
         res.innerHTML = hits.length
           ? hits
-              .map(
-                (m) =>
-                  `<button class="pc-hit" data-id="${m.id}"><span class="pc-num">${m.num}</span><span>${m.title}<small>${SUBJECTS[subjOf(m)].name}</small></span></button>`,
-              )
-              .join("")
-          : `<p class="faint">No lessons match "${esc(f)}".</p>`;
+              .map((m, k) => {
+                const S = SUBJECTS[subjOf(m)],
+                  unit = (S.lectures[m.lecture] || "").split(" — ")[0];
+                return `<button class="pc-hit" role="option" id="pc-hit-${k}" aria-selected="false" data-id="${m.id}"><span class="pc-num">${numLabel(m)}</span><span>${esc(m.title)}<small>${S.name}${unit ? " · " + unit : ""}</small></span></button>`;
+              })
+              .join("") + ""
+          : "";
+        note.hidden = hits.length && found.length <= hits.length; // outside the listbox: only options belong inside it
+        note.textContent = !hits.length
+          ? `No lessons match "${q}".`
+          : `+${found.length - hits.length} more. Keep typing to narrow it down.`;
         qsa(".pc-hit", res).forEach((b) =>
           b.addEventListener("click", () => {
             closePop();
             location.hash = b.dataset.id;
           }),
         );
+        setActive(hits.length ? 0 : -1);
       };
       inp.addEventListener("input", run);
       inp.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
-          const h = qs(".pc-hit", res);
+          const h = qsa(".pc-hit", res)[Math.max(at, 0)];
           if (h) h.click();
+        } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && hits.length) {
+          e.preventDefault();
+          setActive((at + (e.key === "ArrowDown" ? 1 : -1) + hits.length) % hits.length);
         }
       });
       // touch: the keyboard would cover the course list, so only focus the search with a real pointer

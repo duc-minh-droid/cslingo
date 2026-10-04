@@ -4,6 +4,15 @@
   const N = NIC;
   const { el, qs, predict, takeaways, header, fmt } = N;
 
+  // the four output bins of a 4-point DFT as unlabelled boxes to tap (data-pick = "bin k = 0" to "bin k = 3")
+  const binPick = () =>
+    `<svg viewBox="0 0 420 150" role="group" aria-label="Four DFT output bins, k equals 0 to 3">${[0, 1, 2, 3]
+      .map(
+        (k) =>
+          `<g data-pick="bin k = ${k}" aria-label="Bin k = ${k}"><rect x="${30 + k * 95}" y="14" width="70" height="90" rx="12" fill="var(--bg-2)" stroke="var(--line-2)" stroke-width="3"/><text x="${65 + k * 95}" y="68" text-anchor="middle" style="font:900 18px var(--sans);fill:var(--text-dim)">?</text><text x="${65 + k * 95}" y="130" text-anchor="middle" style="font:800 13px var(--sans);fill:var(--text-faint)">bin k = ${k}</text></g>`,
+      )
+      .join("")}</svg>`;
+
   /* ============ 9.2 The halving trick ============ */
   reg({
     id: "a9-fft",
@@ -196,10 +205,10 @@
       root.appendChild(
         predict({
           id: "a9-fft-1",
-          q: "Repeated even/odd splits of [0 1 2 3 4 5 6 7] end at eight size-1 leaves. In what order?",
-          opts: ["0 1 2 3 4 5 6 7", "0 4 2 6 1 5 3 7", "0 2 4 6 1 3 5 7"],
+          q: "Even/odd splits are repeated on 16 samples numbered 0 to 15 until every leaf holds one sample. Which sample sits in the <b>second</b> leaf, right after sample 0?",
+          opts: ["1", "8", "15"],
           a: 1,
-          why: "Each split groups by the <i>lowest</i> remaining bit, so leaves end up in <b>bit-reversed</b> position order. Option C is only the first split.",
+          why: "Each split groups by the <i>lowest</i> remaining bit, so the leaves end up in <b>bit-reversed</b> order: position 1 is 0001 in binary, and reversed it reads 1000 = 8. The leaves run 0, 8, 4, 12, 2, 10, 6, 14, 1, … (for 8 samples the second leaf is 4, for the same reason).",
         }),
       );
       root.appendChild(
@@ -244,7 +253,7 @@
               ["Which frequencies are inside, and how strong?", "the <b>frequency domain</b> — the spectrum"],
             ],
           ) +
-          `<p class="dim" style="margin-top:8px">A messy-looking wiggle might be just two spikes in the spectrum. The DFT is a <b>decomposition</b>, not a transformation into something else.</p>`,
+          `<p class="dim" style="margin-top:8px">A messy-looking wiggle might be just two spikes in the spectrum. The discrete Fourier transform (DFT) is a <b>decomposition</b>, not a transformation into something else.</p>`,
       },
       {
         t: "How each bin listens",
@@ -274,10 +283,12 @@
           ) +
           `<p class="dim" style="margin-top:8px">Constant = all energy at k = 0 (DC). Impulse = every frequency at once. Alternating = the Nyquist bin k = N/2.</p>`,
         c: {
-          q: "[0, 1, 0, −1] is one cycle of a sine at bin 1. Which bins light up?",
-          o: ["only k = 1", "k = 1 and k = 3", "all four equally"],
-          a: 1,
-          why: "Bin 3 is 'negative frequency' −1 in disguise. Real signals always produce these conjugate pairs — half the spectrum is redundant.",
+          type: "pick",
+          q: "The N = 4 signal <code>[0, 1, 0, −1]</code> is one cycle of a sine at bin 1. Tap <b>every</b> output bin that lights up (is not zero).",
+          fig: binPick(),
+          a: ["bin k = 1", "bin k = 3"],
+          hint: "A real signal's spectrum comes in mirrored pairs. Which bin is the mirror of bin 1 when N = 4?",
+          why: "Bin 3 is “negative frequency” in disguise: X[1] = −2j and X[3] = +2j. Real signals always give these mirrored pairs, so half the spectrum is redundant. Bins 0 and 2 are zero.",
         },
       },
       {
@@ -300,9 +311,9 @@
       },
     ],
     guide: [
-      "Defaults: Wave 1 = 10 Hz, Wave 2 = 12 Hz amp 0.5. Match the two spectrum peaks to the sliders.",
-      "Drag <b>Wave 1</b> past 50 Hz and watch its dot-pattern slow down while the true curve speeds up. Set it to exactly <b>60 Hz</b> — where does the peak land?",
-      "Set a frequency to a non-integer like <b>10.5 Hz</b>: the single peak smears. That's leakage.",
+      "Defaults: Wave 1 = 5 Hz (amplitude 1), Wave 2 = 12 Hz (amplitude 0.5). Match the two spectrum peaks to the sliders.",
+      "Drag <b>Wave 1</b> past 50 Hz and watch its dot-pattern slow down while the true curve speeds up. Set it to exactly 60 Hz — where does the peak land?",
+      "Set <b>Wave 1 freq</b> to a non-integer like 10.5 Hz: the single peak smears. That's leakage.",
       "Switch to <b>Impulse</b>, <b>Constant</b> and <b>Checkerboard</b> and match each spectrum to the N = 4 hand DFTs from the lesson.",
       "Answer both Predict questions.",
     ],
@@ -313,7 +324,7 @@
     steps: [
       {
         t: "Where the waste is",
-        b: `<p>The direct DFT computes N outputs, each a sum of N products: <b>N² multiply-adds</b>.</p><p>But look closer: outputs reuse almost the same twiddle factors over and over. The same products get recomputed thousands of times. If work could be <b>shared</b>, huge savings appear.</p>`,
+        b: `<p>The direct discrete Fourier transform (DFT) computes N outputs, each a sum of N products: <b>N² multiply-adds</b>.</p><p>But look closer: outputs reuse almost the same twiddle factors over and over. The same products get recomputed thousands of times. If work could be <b>shared</b>, huge savings appear. Sharing the work is exactly what the <b>fast Fourier transform (FFT)</b> does.</p>`,
       },
       {
         t: "The split that halves the work",
@@ -337,10 +348,16 @@
           genomes([0, 4, 2, 6, 1, 5, 3, 7]) +
           `<p class="dim" style="margin-top:8px">Leaf position → index = <b>reverse the bits</b>: position 001 lands index 100 = 4; position 011 lands 110 = 6. This is the famous bit-reversed order.</p>`,
         c: {
-          q: "In the leaf order 0 4 2 6 1 5 3 7, which index sits at position 6 (counting positions from 0)?",
-          o: ["6", "3", "5"],
-          a: 1,
-          why: "Position 6 = 110 in binary; reversed = 011 = 3.",
+          type: "match",
+          q: "The leaves of an 8-point FFT sit in bit-reversed order: the index at each position (counting from 0) is that position's 3 bits reversed. Match each position to its index.",
+          pairs: [
+            ["Position 1", "Index 4"],
+            ["Position 3", "Index 6"],
+            ["Position 4", "Index 1"],
+            ["Position 6", "Index 3"],
+          ],
+          hint: "Write the position in 3 binary digits, then read them backwards.",
+          why: "Position 1 = 001 reverses to 100 = 4. Position 3 = 011 reverses to 110 = 6. Position 4 = 100 reverses to 001 = 1. Position 6 = 110 reverses to 011 = 3.",
         },
       },
       {
@@ -367,7 +384,7 @@
       },
     ],
     guide: [
-      "Press <b>Next step</b> (or Auto-play) and watch the tree split to the leaves, then merge back up.",
+      "Press <b>Split</b> (or <b>Auto-play</b>) and watch the tree split to the leaves, then press <b>Combine</b> to merge back up.",
       "At the leaves, check the bit row: position bits reversed give the index 0 4 2 6 1 5 3 7.",
       "Watch the butterfly counter during the combine steps: 4 per level × 3 levels = 12, vs 64 for the direct DFT.",
       "In the race card, drag <b>log₂ N</b> to 13 (N = 8,192) and read the speedup. Toggle log scale off to see the FFT bar vanish.",
@@ -384,11 +401,11 @@
       return a;
     });
   const wheel = (angles, c, lbl) =>
-    `<svg class="fig" viewBox="0 0 200 200" style="max-height:170px"><circle cx="100" cy="100" r="70" fill="none" stroke="var(--line)"/>${angles.map((a) => `<line x1="100" y1="100" x2="${100 + 62 * Math.cos(a)}" y2="${100 + 62 * Math.sin(a)}" stroke="${c}" stroke-width="2.5" class="draw" marker-end=""/>`).join("")}<text x="100" y="192" class="fig-sub">${lbl}</text></svg>`;
+    `<svg class="fig" viewBox="0 0 200 200" role="img" aria-label="${lbl}" style="max-height:170px"><circle cx="100" cy="100" r="70" fill="none" stroke="var(--line)"/>${angles.map((a) => `<line x1="100" y1="100" x2="${100 + 62 * Math.cos(a)}" y2="${100 + 62 * Math.sin(a)}" stroke="${c}" stroke-width="2.5" class="draw" marker-end=""/>`).join("")}<text x="100" y="192" class="fig-sub">${lbl}</text></svg>`;
   addV(
     "a9-dft",
     1,
-    `<div class="fig-compare"><div class="fc fi" style="--c:var(--teal)"><div class="fc-h">Matching frequency</div>${wheel(arrows(0), "var(--teal)", "all arrows line up → big sum")}</div><div class="fc-vs">vs</div><div class="fc fi" style="--c:var(--rose)"><div class="fc-h">Wrong frequency</div>${wheel(arrows(1), "var(--rose)", "arrows point everywhere → cancel to ~0")}</div></div>`,
+    `<div class="fig-compare" role="group" aria-label="A matching frequency compared with a wrong frequency"><div class="fc fi" style="--c:var(--teal)"><div class="fc-h">Matching frequency</div>${wheel(arrows(0), "var(--teal)", "all arrows line up → big sum")}</div><div class="fc-vs">vs</div><div class="fc fi" style="--c:var(--rose)"><div class="fc-h">Wrong frequency</div>${wheel(arrows(1), "var(--rose)", "arrows point everywhere → cancel to ~0")}</div></div>`,
   );
   addV(
     "a9-dft",
@@ -409,7 +426,7 @@
         const t = i / 8;
         return `<circle cx="${X(t)}" cy="${Y(Math.sin(2 * Math.PI * 7 * t))}" r="5" fill="var(--amber)" class="fi"/>`;
       }).join("");
-      return `<svg class="fig" viewBox="0 0 ${W} ${H}">${curve(7, "rgba(28,176,246,.5)")}${curve(1, "var(--rose)", "6 4")}${dots}</svg><div class="legend"><span style="--c:rgba(28,176,246,.8)">true 7 Hz signal</span><span style="--c:var(--amber)">8 samples per second</span><span style="--c:var(--rose)">the 1 Hz wave those dots also fit</span></div>`;
+      return `<svg class="fig" viewBox="0 0 ${W} ${H}" role="img" aria-label="A true 7 Hz sine wave, sampled 8 times in a second. The 8 dots fit a slow 1 Hz wave just as well.">${curve(7, "rgba(28,176,246,.5)")}${curve(1, "var(--rose)", "6 4")}${dots}</svg><div class="legend"><span style="--c:rgba(28,176,246,.8)">true 7 Hz signal</span><span style="--c:var(--amber)">8 samples per second</span><span style="--c:var(--rose)">the 1 Hz wave those dots also fit</span></div>`;
     })(),
   );
   Object.assign(partScope, { addV });

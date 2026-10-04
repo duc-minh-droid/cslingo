@@ -282,7 +282,7 @@
       "S → A → B → T = 1 + 2 + 1 = 4.",
     ),
     M(
-      "Same graph. Order in which nodes are settled?",
+      "Edges: S–A 1, S–B 4, A–B 2, B–T 1, A–T 5. Starting at S, in what order does Dijkstra settle the nodes?",
       ["S, B, A, T", "S, A, B, T", "S, A, T, B", "S, T, A, B"],
       1,
       "Distances 0, 1, 3, 4.",

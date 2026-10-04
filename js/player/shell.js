@@ -16,7 +16,7 @@
     const root = el(`<div class="player" role="dialog" aria-modal="true" aria-label="${stripTags(pl.S.mod.title)}">
       <header class="pl-top"><button class="pl-x" aria-label="Quit lesson">${IC.x}</button><button class="pl-x pl-back" aria-label="Previous screen" title="Back" hidden>${IC.back}</button>
         <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="pl-fill"></span><span class="pl-combo"></span></div>
-        <span class="pl-retry" hidden title="Mistakes to fix">${IC.retry}<b>0</b></span>
+        <span class="pl-retry" hidden title="Mistakes to fix">${IC.retry}<b>0</b><em>to fix</em></span>
         <span class="pl-chip">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
       <div class="pl-stage"></div>
       <footer class="pl-foot"><div class="pl-foot-in"><div class="pl-fb" aria-live="polite"></div><div class="pl-actions"><button class="btn big primary pl-go">Continue</button></div></div></footer>
@@ -212,6 +212,14 @@
     });
   }
 
+  /** An explanation taller than its box scrolls. While there is more to read below, its bottom edge fades out (a mask: .more). */
+  function fadeCue(box) {
+    if (!box || !window.ResizeObserver) return;
+    const upd = () => box.classList.toggle("more", box.scrollHeight - box.scrollTop - box.clientHeight > 4);
+    box.addEventListener("scroll", upd, { passive: true });
+    new ResizeObserver(upd).observe(box); // also runs once the sheet has laid out
+  }
+
   /** Footer: mode = continue | check | ok | no | hidden */
   function foot(mode, { label, onGo, fb = "", enabled = true, danger = false } = {}) {
     if (pl.S.go) pl.S.go.classList.remove("pl-go-blue");
@@ -223,6 +231,7 @@
     else pl.S.foot.style.removeProperty("--pl-foot-h");
     const fbEl = qs(".pl-fb", pl.S.foot);
     fbEl.innerHTML = fb;
+    fadeCue(qs(".pl-fb-t", fbEl));
     pl.S.go.textContent = label || (mode === "check" ? "Check" : mode === "no" ? "Got it" : "Continue");
     pl.S.go.disabled = !enabled;
     pl.S.go.className = `btn big pl-go ${mode === "no" || danger ? "rose" : "primary"}`;

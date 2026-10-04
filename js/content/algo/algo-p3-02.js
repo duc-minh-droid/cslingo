@@ -6,6 +6,38 @@
   const L = N.LESSONS;
   const F = N.fig;
 
+  // three rules drawn as bars: how far x can grow before each one is broken (tap the rule that stops you)
+  const ratioBars = () => {
+    const rules = [
+      ["Machine hours", "2x ≤ 18", 9],
+      ["Raw material", "3x ≤ 12", 4],
+      ["Labour", "x ≤ 6", 6],
+    ];
+    const X = (v) => 110 + v * 30;
+    const bars = rules.map(
+      ([name, ineq, lim], i) =>
+        `<g data-pick="${name}" aria-label="${name}, ${ineq}"><rect x="${X(0)}" y="${12 + i * 54}" width="${X(lim) - X(0)}" height="38" rx="12" fill="var(--bg-2)" stroke="var(--line-2)" stroke-width="3"/><text x="${X(lim) - 12}" y="${37 + i * 54}" text-anchor="end" style="font:900 15px var(--sans);fill:var(--ink)">${ineq}</text><text x="8" y="${37 + i * 54}" style="font:800 13px var(--sans);fill:var(--text-dim)">${name}</text></g>`,
+    );
+    const ticks = [0, 2, 4, 6, 8, 10].map(
+      (v) =>
+        `<text x="${X(v)}" y="190" text-anchor="middle" style="font:700 11px var(--sans);fill:var(--text-faint)">${v}</text>`,
+    );
+    return `<svg viewBox="0 0 420 200" role="group" aria-label="Three bars showing how far x can grow before each rule is broken: machine hours up to 9, raw material up to 4, labour up to 6">${bars.join("")}<line x1="${X(0)}" y1="172" x2="${X(10)}" y2="172" stroke="var(--line-2)" stroke-width="2"/>${ticks.join("")}<text x="${X(10) + 8}" y="190" style="font:800 12px var(--sans);fill:var(--text-faint)">x</text></svg>`;
+  };
+  // the line [a, b] with probes c < d: heights show f(c) and f(d); the three pieces are tappable
+  const bracketPick = () => {
+    const pos = { a: 30, c: 170, d: 330, b: 470 },
+      piece = (id, x1, x2) =>
+        `<g data-pick="${id}" aria-label="Piece ${id}"><rect x="${x1 + 4}" y="136" width="${x2 - x1 - 8}" height="30" rx="15" fill="var(--bg-2)" stroke="var(--line-2)" stroke-width="3"/><text x="${(x1 + x2) / 2}" y="157" text-anchor="middle" style="font:900 14px var(--sans);fill:var(--ink)">${id}</text></g>`;
+    const probe = (k, h, c) =>
+      `<line x1="${pos[k]}" y1="130" x2="${pos[k]}" y2="${130 - h}" stroke="var(${c})" stroke-width="6" stroke-linecap="round"/><text x="${pos[k]}" y="${120 - h}" text-anchor="middle" style="font:800 13px var(--sans);fill:var(--text-dim)">f(${k})</text>`;
+    const pt = Object.entries(pos).map(
+      ([k, x]) =>
+        `<text x="${x}" y="190" text-anchor="middle" style="font:900 15px var(--sans);fill:var(--ink)">${k}</text>`,
+    );
+    return `<svg viewBox="0 0 500 200" role="group" aria-label="The interval from a to b with probe points c and d. The bar at c is tall and the bar at d is short, so f(c) is higher than f(d). Three pieces to tap: a to c, c to d, d to b">${probe("c", 78, "--rose")}${probe("d", 36, "--teal")}${piece("[a, c]", pos.a, pos.c)}${piece("[c, d]", pos.c, pos.d)}${piece("[d, b]", pos.d, pos.b)}${pt.join("")}</svg>`;
+  };
+
   /** Step-through simplex tableau on the 3.1 factory LP, with the current corner moving on the plot. */
   function simplexRun(box, life) {
     const VARS = ["x", "y", "s1", "s2"];
@@ -205,10 +237,12 @@
           { max: 10 },
         ),
         c: {
-          q: "Which constraint decides where you stop?",
-          o: ["The loosest bound", "The tightest bound", "A random one"],
-          a: 1,
-          why: "Push past the tightest bound and you've broken that constraint. That's the ratio test.",
+          type: "pick",
+          q: "Increasing x, you can go as far as each rule allows (the bars). Tap the rule that <b>decides where you stop</b>.",
+          fig: ratioBars(),
+          a: "Raw material",
+          hint: "You can't push x past any single rule. Which bar do you hit first as x grows from 0?",
+          why: "Machine hours would let x reach 9 (2x ≤ 18), labour 6, raw material only 4 (3x ≤ 12). Push past the tightest bound and you have broken that rule. Taking the smallest of the limits is the ratio test.",
         },
       },
       {
@@ -335,10 +369,12 @@
             h: 170,
           }) + `<div class="fig-cap">f(c) &lt; f(d), so everything to the right of d is thrown away.</div>`,
         c: {
-          q: "f(c) < f(d) on a unimodal function. Which piece do you discard?",
-          o: ["[a, c]", "[d, b]", "The whole bracket"],
-          a: 1,
-          why: "If the minimum were right of d, f would rise to d and then fall again, which isn't unimodal.",
+          type: "pick",
+          q: "f is unimodal (it dips once) on [a, b]. Probing two interior points c &lt; d shows <b>f(c) is higher than f(d)</b>. Tap the piece you can discard.",
+          fig: bracketPick(),
+          a: "[a, c]",
+          hint: "Think about where the single dip can hide. Could it be to the left of c if f(c) is already higher than f(d)?",
+          why: "If the minimum were left of c, f would have to rise through c and then fall again to f(d), which a unimodal f can't do. So [a, c] goes. (If f(c) were lower, [d, b] would go.)",
         },
       },
       {

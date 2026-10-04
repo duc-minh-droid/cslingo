@@ -1,9 +1,30 @@
 /* Revise tab (#revise): shuffled revision decks drawn from finished sessions via NIC.bank.
    NIC.revisePage(main, life, {names}) renders the page; the session itself runs in NIC.player.revise().
-   Preferences (deck size, courses) live in localStorage key `nic.revPrefs`. */
+   Preferences (deck size, courses) live in localStorage key `nic.revPrefs`; a round in progress in `csl.revSession` (see savedRound). */
 (function () {
   const N = NIC,
     { el, qs, qsa, store, esc } = N;
+  const STALE = 24 * 36e5; // a saved round older than this is dropped: yesterday's half-finished deck isn't "your round" any more
+  let navigated = false; // true once the hash has changed since the page loaded: then Practice is being visited, not refreshed
+  window.addEventListener("hashchange", () => (navigated = true));
+  /** The saved round (csl.revSession) if it is still worth resuming, else null (and an old one is cleared).
+      The player stores {ids, t (round key = first start), elapsed (active ms), done, right, wrong, xp, paused, opts}, plus `at`
+      (when it was last saved) once the player writes it; before that the start time stands in. */
+  function savedRound() {
+    const r = N.player && N.player.revSaved && N.player.revSaved();
+    if (!r) return null;
+    const last = +r.at || +r.t || 0;
+    if (last && Date.now() - last > STALE) {
+      const pl = N.shared && N.shared.enginePlayer;
+      try {
+        pl && pl.revWrite ? pl.revWrite(null) : localStorage.removeItem("csl.revSession");
+      } catch {
+        /* storage blocked: it just stays */
+      }
+      return null;
+    }
+    return r;
+  }
   const ICON = `<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2.5" fill="currentColor" opacity=".45"/><rect x="7" y="3" width="14" height="15" rx="2.5" fill="currentColor"/><path d="M11 10.5l2 2 4-4.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const SIZES = [5, 10, 20];
 
@@ -84,46 +105,68 @@
       const redo = qs("[data-redo]", m);
       if (redo)
         redo.addEventListener("click", () => {
-          N.player.revise({ ids: items.map((x) => x.id), home: "practice" });
+          startRound(() => N.player.revise({ ids: items.map((x) => x.id), home: "practice" }));
         });
     }
 
-    const head = `<div class="sp-hero u-blue rv-hero">${N.mascot({ who: "chip", size: 130, mood: pool.length ? "determined" : "sleepy", act: pool.length ? "dance" : "sleep", acc: ["propeller"] })}
-      <div><h1>Due reviews</h1><p>A shuffled mix from every session you've finished. Get one right and it comes back later; miss it and it comes back soon.</p></div></div>`;
+    const app = N.shared.engineApp || {},
+      here = app.SUBJECTS && app.SUBJECTS[app.course]; // the course the learner is in (empty-state link)
+    const hero = (h, p) =>
+      `<div class="sp-hero u-blue rv-hero">${N.mascot({ who: "chip", size: 130, mood: pool.length ? "determined" : "sleepy", act: pool.length ? "dance" : "sleep", acc: ["propeller"] })}
+      <div><h1 class="rv-h">${h}</h1><p class="rv-p">${p}</p></div></div>`;
+    const EXPLAIN =
+      "A shuffled mix from every lesson you've finished. Get one right and it comes back later; miss it and it comes back soon.";
     if (!pool.length) {
       main.appendChild(
         el(
-          `<div class="page side-page">${head}<div class="card rv-empty"><b>Nothing to revise yet</b><p class="faint">Finish a lesson and its questions join your deck here.</p><a class="btn big primary" href="#home">Go to lessons</a></div></div>`,
+          `<div class="page side-page">${hero("Nothing to revise yet", EXPLAIN)}<div class="card rv-empty"><b>Finish a lesson first</b><p class="faint">Its questions join your deck here.</p><a class="btn big primary" href="#${esc(here ? here.home : "home")}">Go to ${here ? esc(here.name) + " " : ""}lessons</a></div></div>`,
         ),
       );
       return;
     }
 
-    // an unfinished round: reopen it straight away after a refresh, otherwise offer Continue
-    const saved = N.player.revSaved && N.player.revSaved();
-    if (saved && !page.booted && !saved.paused) {
+    // an unfinished round: a refresh reopens it straight away; arriving here some other way (or after the round went stale) offers Continue
+    const saved = savedRound();
+    const resume = () =>
+      N.player.revise({ resume: true, ...(saved.opts || {}), home: (saved.opts && saved.opts.home) || "practice" });
+    if (saved && !page.booted && !navigated && !saved.paused) {
       page.booted = true;
-      setTimeout(
-        () =>
-          N.player.revise({ resume: true, ...(saved.opts || {}), home: (saved.opts && saved.opts.home) || "practice" }),
-        0,
-      );
+      setTimeout(resume, 0);
     }
     page.booted = true;
+    const qNo = saved ? `Question ${Math.min((saved.done || 0) + 1, saved.ids.length)} of ${saved.ids.length}` : "";
+    const where = qNo + ((+saved?.elapsed || 0) >= 6e4 ? ` · ${Math.round(saved.elapsed / 6e4)} min so far` : "");
     const resumeCard = saved
-      ? `<div class="card rv-resume"><div><b>Continue your revision</b><span class="faint">Question ${Math.min(saved.done + 1, saved.ids.length)} of ${saved.ids.length}</span></div><button class="btn primary rv-continue">Continue</button></div>`
+      ? `<div class="card rv-resume"><div><b>Continue your revision</b><span class="faint">${where}</span></div><button class="btn primary rv-continue">Continue</button></div>`
       : "";
-    const node = el(`<div class="page side-page">${head}
+    const node = el(`<div class="page side-page">${hero("Revision", EXPLAIN)}
+      <div class="rv-stats" role="group"></div>
       ${resumeCard}
       <div class="card rv-setup">
         <div class="rv-row"><b>Courses</b><div class="seg rv-subj">${subjects.length > 1 ? `<button data-s="*">All</button>` : ""}${subjects.map((s) => `<button data-s="${s}">${esc(names[s] || s)}</button>`).join("")}</div></div>
         <div class="rv-row"><b>Questions</b><div class="seg rv-size">${SIZES.map((n) => `<button data-n="${n}">${n}</button>`).join("")}</div></div>
-        <button class="btn big primary rv-go">Start revision</button>
+        <button class="btn big rv-go"></button>
       </div>
       <div class="rv-done"><h2>Your rounds</h2><div class="rv-list"></div></div>
     </div>`);
     main.appendChild(node);
 
+    /** Start a round. With a saved one waiting, ask first: starting replaces it (the answers already given still count). */
+    function startRound(begin) {
+      if (!saved) return begin();
+      if (!N.modal) return confirm(`Replace your saved round? You're on ${qNo.toLowerCase()}.`) && begin();
+      const m = N.modal(
+        `<div class="rv-ask" role="alertdialog" aria-labelledby="rv-ask-h"><h2 id="rv-ask-h">Replace your saved round?</h2>
+          <p>You're on ${qNo.toLowerCase()}. A new round drops your place in it. Answers you've already given still count.</p>
+          <button class="btn big primary" data-keep>Keep my round</button><button class="btn big ghost" data-new>Start a new round</button></div>`,
+        { cls: "rv-ask-modal" },
+      );
+      qs("[data-keep]", m).addEventListener("click", () => m.close());
+      qs("[data-new]", m).addEventListener("click", () => {
+        m.close();
+        begin();
+      });
+    }
     const fx = N.fx || {};
     /** The history: one row per finished round, newest first (nic.revRounds, saved by the player when a round completes). */
     const rounds = Object.entries(store.get("nic.revRounds", {}))
@@ -161,6 +204,7 @@
     );
     qs(".rv-done", node).hidden = !rounds.length;
 
+    /** Everything that depends on the chosen courses: the heading, the due / mastered / accuracy row and the main button. */
     function paint() {
       qsa(".rv-subj button", node).forEach((b) =>
         b.classList.toggle(
@@ -171,9 +215,42 @@
         ),
       );
       qsa(".rv-size button", node).forEach((b) => b.classList.toggle("on", +b.dataset.n === prefs.n));
+      const st = N.bank.stats({ subjects: prefs.subjects }),
+        unseen = st.available - st.seen,
+        next = N.bank.nextDue({ subjects: prefs.subjects });
+      const dueN = `${st.dueSeen} review${st.dueSeen === 1 ? "" : "s"} due`;
+      const [h, p] = saved
+        ? ["Pick up where you left off", "Your round is saved. Continue it, or start a new one below."]
+        : st.dueSeen
+          ? [dueN, EXPLAIN]
+          : st.seen
+            ? [
+                "All caught up",
+                `Nothing is due${next ? `, and your next review is ${N.bank.whenLabel(next)}` : ""}. ${unseen ? "You can still try new questions." : "You can still practise anyway."}`,
+              ]
+            : ["Start revising", EXPLAIN];
+      qs(".rv-h", node).textContent = h;
+      qs(".rv-p", node).textContent = p;
+      const pct = st.seen ? `${Math.round(st.accuracy * 100)}%` : "–";
+      const stats = qs(".rv-stats", node);
+      stats.setAttribute(
+        "aria-label",
+        `${st.dueSeen} due, ${st.mastered} mastered, ${st.seen ? pct + " right" : "none answered yet"}`,
+      );
+      stats.innerHTML = `<div class="rv-st ${st.dueSeen ? "due" : st.seen ? "clear" : ""}"><b>${st.dueSeen}</b><span>due</span></div><div class="rv-st"><b>${st.mastered}</b><span>mastered</span></div><div class="rv-st"><b>${pct}</b><span>right</span></div>`;
       const go = qs(".rv-go", node),
         avail = pool.filter(inScope).length;
-      go.textContent = "Start revision";
+      go.textContent = saved
+        ? "Start a new round"
+        : st.dueSeen
+          ? `Review ${Math.min(prefs.n, st.dueSeen)} due`
+          : st.seen
+            ? unseen
+              ? "Try new questions"
+              : "Practise anyway"
+            : "Start revision";
+      go.classList.toggle("primary", !saved); // a round waiting to be continued is the main action
+      go.classList.toggle("ghost", !!saved);
       go.disabled = !avail;
     }
     const save = () => store.set("nic.revPrefs", { n: prefs.n, subjects: prefs.subjects });
@@ -201,12 +278,9 @@
       }),
     );
     const cont = qs(".rv-continue", node);
-    if (cont)
-      cont.addEventListener("click", () =>
-        N.player.revise({ resume: true, ...(saved.opts || {}), home: (saved.opts && saved.opts.home) || "practice" }),
-      );
+    if (cont) cont.addEventListener("click", resume);
     qs(".rv-go", node).addEventListener("click", () =>
-      N.player.revise({ home: "practice/due", n: prefs.n, subjects: prefs.subjects }),
+      startRound(() => N.player.revise({ home: "practice/due", n: prefs.n, subjects: prefs.subjects })),
     );
     paint();
     if (!calm && fx.enter) fx.enter(Array.from(node.children), { stagger: 0.03 }); // 7 blocks, total stagger under 200ms

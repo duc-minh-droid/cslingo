@@ -203,14 +203,10 @@
       root.appendChild(
         predict({
           id: "l3-ls-1",
-          q: "What do Monte Carlo search with <b>p = 0</b> and with <b>p = 1</b> turn into?",
-          opts: [
-            "p=0 → random walk, p=1 → hillclimbing",
-            "p=0 → hillclimbing, p=1 → random walk",
-            "Both become Tabu search",
-          ],
+          q: "Monte Carlo search with <b>p = 0.10</b> sits on a peak where every neighbour is worse. About how often does it step down?",
+          opts: ["Never, it only accepts better moves", "About once every 10 tries", "On every try until it falls off"],
           a: 1,
-          why: "p = 0 never accepts a worse move, which is exactly <b>hillclimbing</b>. p = 1 accepts everything, which is a <b>random walk</b> that ignores fitness (only the best-so-far record saves it). The useful range is in between: enough downhill moves to escape small hills, not so many that you drift off good ones. Try both extremes with the slider.",
+          why: "p is the chance of accepting a worse neighbour on <b>each</b> try. At 0.10 that is 1 try in 10 on average, so it does leave the peak, but not at once. With p = 0 it would never leave (that is hillclimbing). The useful range is in between: enough downhill moves to escape small hills, not so many that you drift off good ones.",
         }),
       );
       root.appendChild(

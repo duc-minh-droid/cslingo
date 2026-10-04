@@ -96,6 +96,19 @@
   min-width: 38px;
   text-align: right;
 }
+/* the mistakes chip says what its number is; on phones it takes the lesson number's place so the bar keeps its length */
+.pl-retry em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 420px) {
+  .pl-top:has(.pl-retry:not([hidden])) .pl-chip {
+    display: none;
+  }
+}
 .pl-ref {
   appearance: none;
   width: 40px;
@@ -227,6 +240,16 @@
   font-weight: 900;
   color: var(--text-dim);
 }
+.pl-kinds b.pl-pass {
+  margin-top: -4px;
+  color: var(--teal-ink);
+}
+.pl-pass-note {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
 .pl-kind {
   padding: 5px 12px;
   border: 2px solid var(--line);
@@ -323,7 +346,41 @@
   align-items: start;
 }
 .pl-try-grid:not(:has(.pl-try-side)) {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+}
+/* a demo wider than its column scrolls sideways instead of being cut off by the stage. The padding (cancelled by the margin)
+   keeps hover lifts, card lips and focus rings from being clipped by the scroll box. */
+.pl-try-demo {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden; /* the stage scrolls vertically; a transform in flight must not flash a scrollbar here */
+  padding: 4px 4px 8px;
+  margin: -4px -4px -8px;
+}
+/* wide tables and display maths scroll in place on narrow screens, in lessons, questions and demos alike */
+.pl-in :has(> table),
+.pl-in .katex-display {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+/* things inside a demo with a fixed or no-wrap width shrink instead of pushing the whole demo wider */
+.pl-try-demo .btn {
+  white-space: normal;
+}
+.pl-try-demo .grid > * {
+  min-width: 0;
+}
+.pl-try-demo .stat b {
+  overflow-wrap: anywhere;
+}
+.pl-try-demo label.field {
+  max-width: 100%;
+}
+.pl-try-demo label.field input:not([type="range"], [type="checkbox"]) {
+  min-width: 0;
+  max-width: 100%;
 }
 .pl-try-side {
   position: sticky;
@@ -337,7 +394,7 @@
 }
 @media (max-width: 980px) {
   .pl-try-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .pl-try-side {
     position: sticky;

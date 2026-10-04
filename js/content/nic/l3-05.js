@@ -170,14 +170,14 @@
       root.appendChild(
         predict({
           id: "l3-pop-1",
-          q: "Why is it <i>useful</i> that the population keeps some poor solutions around?",
+          q: "Press <b>Evolve</b> and keep an eye on <b>Distinct hills occupied</b>. What happens to it as the generations pass?",
           opts: [
-            "It isn't, since poor solutions just waste evaluations",
-            "A poor solution may sit on the slope of a different, higher hill",
-            "Poor solutions make selection faster",
+            "It shrinks as the population gathers on a few hills",
+            "It stays put, since individuals never change hills",
+            "It grows, because mutation keeps finding new hills",
           ],
-          a: 1,
-          why: "Lecture: <i>keep 'poor' solutions in the population and give them a chance to 'develop'</i>. Low fitness now doesn't mean low potential. Watch the \"distinct hills occupied\" counter: it starts high (parallel exploration) and drops as the population converges.",
+          a: 0,
+          why: "Selection copies good solutions, so the population <b>converges</b>: individuals pile up on one or two hills and the counter falls from its high start. Early on, the spread across hills is parallel exploration. Later, the loss of that spread is the price of selection pressure.",
         }),
       );
 

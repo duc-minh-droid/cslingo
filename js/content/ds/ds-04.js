@@ -180,14 +180,10 @@
       root.appendChild(
         predict({
           id: "ds-mt-1",
-          q: '"Making a system simpler" in the lecture\'s sense means…',
-          opts: [
-            "Cutting features until the code is small",
-            "Removing accidental complexity",
-            "Running on fewer, bigger servers",
-          ],
-          a: 1,
-          why: "Simpler doesn't mean less functionality. Accidental complexity (inconsistent architecture, obscure dependencies, poor style or docs) isn't inherent in the problem. Abstraction is a frequent cure.",
+          q: "With the data-access layer in place, the system grows to 8 services and 6 databases. How many connections must someone understand?",
+          opts: ["14", "48", "8"],
+          a: 0,
+          why: "Every service talks to the layer (8) and the layer talks to every database (6): 8 + 6 = <b>14</b>. Without it every service would reach every database directly: 8 × 6 = 48. An abstraction turns a product into a sum, so each new service or database adds one connection, not one per partner. That is accidental complexity removed.",
         }),
       );
       root.appendChild(
@@ -222,14 +218,15 @@
         t: "Where a single server breaks",
         b: `<p>Three limitations of the one-server approach:</p><p>① <b>Availability & fault tolerance</b>: if it dies, everything is down.<br>② <b>Scalability</b>: one machine can only get so big, and adding more means keeping them in sync (synchronisation, consistency).<br>③ <b>Maintenance</b>: hard to update or fix without downtime.</p>`,
         c: {
-          q: "The one server crashes and the whole site is offline. Which limitation is this?",
-          o: [
-            "Scalability: one machine can't grow further",
-            "Availability / fault tolerance",
-            "Maintenance: repairs need downtime",
+          type: "match",
+          q: "A company runs everything on one server. Match each problem to the <b>limitation</b> it shows.",
+          pairs: [
+            ["The server crashes and the whole site is offline", "Availability"],
+            ["One machine can't cope with a million customers a day", "Scalability"],
+            ["Fixing the database means taking the site down overnight", "Maintenance"],
           ],
-          a: 1,
-          why: "One machine = one point of failure.",
+          hint: "Ask what went wrong: it stopped working, it couldn't grow, or it was hard to repair or update.",
+          why: "A crash on a single machine takes everything down (availability and fault tolerance). One machine can only grow so big (scalability). Repairs that need downtime are a maintenance problem.",
         },
       },
       {
@@ -250,7 +247,7 @@
     guide: [
       "In the first demo, drag the load up and watch <b>Single powerful server</b>. Then click the mainframe to break it.",
       "Switch to <b>Cluster</b>, break one or two nodes, and compare what's left.",
-      "In the consistency demo, <b>cut the link</b>, buy a ticket in London, then read in New York, first in <b>consistent</b> mode, then in <b>available</b> mode.",
+      "In the consistency demo, click <b>Link OK</b> to cut it, buy a ticket in London, then read in New York, first in <b>consistent</b> mode, then in <b>available</b> mode.",
     ],
   };
   L["ds-blocks"] = {
@@ -290,17 +287,23 @@
         b: `<p>Each block can be built in many ways, and <b>the problem decides which</b>. The lecture's example is spatial (map) data:</p>`,
         v: `<div class="mini-row">${box("Representation", "GeoJSON")}${box("Storage", "PostGIS")}${box("Indexing", "R-tree")}</div>`,
         c: {
-          q: '"Every Sunday, recompute recommendations from all purchases" is…',
-          o: ["a cache of recent recommendations", "batch processing", "an index over purchases"],
-          a: 1,
-          why: "A periodic job over lots of accumulated data.",
+          type: "match",
+          q: "Match each job to the <b>building block</b> that does it.",
+          pairs: [
+            ["Keep every order safe so it is still there tomorrow", "Database"],
+            ["Reuse an answer from a few seconds ago instead of recomputing it", "Cache"],
+            ["Jump straight to one product among millions", "Index"],
+            ["Every Sunday, recompute recommendations from all purchases", "Batch processing"],
+          ],
+          hint: "Think what each block is for: remember, reuse, find fast, or run a big periodic job.",
+          why: "A database remembers, a cache avoids repeating expensive work, and an index avoids scanning every record. A periodic job over lots of accumulated data is batch processing.",
         },
       },
     ],
     guide: [
       "Sort the 8 scenarios into the right block.",
-      "In the cache demo, set the cache size to <b>0</b> and press Send requests. Note the average latency.",
-      "Reset, set the cache size to <b>4</b>, and run again. Compare the hit rate and latency.",
+      "In the cache demo, set the <b>cache size</b> to 0 and press <b>Send requests</b>. Note the average latency.",
+      "Press <b>Reset</b>, set the <b>cache size</b> to 4, and press <b>Send requests</b> again. Compare the hit rate and latency.",
       "Drag the <b>Records</b> slider in the index demo up to a billion.",
     ],
   };
@@ -315,10 +318,17 @@
         t: "Fault vs failure: the key distinction",
         b: `<p><b>Fault</b>: <i>one component</i> works in an unexpected way (a disk dies, a process hangs).<br><b>Failure</b>: <i>the entire system</i> stops providing the service.</p><span class="analogy">A plane losing one of its four engines is a fault. The plane falling out of the sky is a failure. Good design means one engine out doesn't bring the plane down.</span>`,
         c: {
-          q: "One of 50 web servers crashes, and users see no difference. Fault or failure?",
-          o: ["Failure", "Fault"],
-          a: 1,
-          why: "A component misbehaved, but the service kept running.",
+          type: "cat",
+          q: "Was each event a <b>fault</b> (one part misbehaved) or a <b>failure</b> (the whole service stopped)?",
+          buckets: ["Fault", "Failure"],
+          items: [
+            ["One of 50 web servers crashes, and users see no difference", 0],
+            ["Every server crashes at once from the same bug and the site goes down", 1],
+            ["A disk dies but its mirror keeps serving requests", 0],
+            ["The checkout page shows an error to every shopper", 1],
+          ],
+          hint: "A fault is one part misbehaving. It only becomes a failure if users lose the service.",
+          why: "In the first and third events a component misbehaved, but the service kept running: faults. In the others users lost the service: failures.",
         },
       },
       {
@@ -347,10 +357,10 @@
       },
     ],
     guide: [
-      "In the disk demo, keep <b>1 copy</b> and press <b>Run a year</b>. Every orange flash is also a service failure.",
-      "Set <b>copies = 2</b>, reset, and press <b>Run 10 years</b>. Compare disk faults with service failures.",
+      "In the disk demo, set <b>copies of each piece of data</b> to 1 and press <b>Run a year</b>. Every orange flash is also a service failure.",
+      "Set <b>copies of each piece of data</b> to 2, press <b>Reset</b>, and press <b>Run 10 years</b>. Compare disk faults with service failures.",
       "In the second demo, press <b>Hardware fault</b> once (tolerated), then again (cascade!). Reset and try <b>Software bug</b>.",
-      "Lower the total load and check how many hardware faults the cluster can now survive.",
+      "Lower the <b>total load</b> and check how many hardware faults the cluster can now survive.",
     ],
   };
   L["ds-load"] = {
@@ -374,10 +384,17 @@
           ) +
           `<p class="dim" style="margin-top:8px">Also think about <b>bottlenecks</b>, <b>average vs extreme cases</b>, and the <b>cost of different operations</b>.</p>`,
         c: {
-          q: "For a chat app, which is a sensible load parameter?",
-          o: ["Messages sent per second", "Screen resolution", "Number of developers"],
-          a: 0,
-          why: "It's what the servers actually have to handle.",
+          type: "cat",
+          q: "For a chat app, which of these are sensible <b>load parameters</b>?",
+          buckets: ["Load parameter", "Not a load parameter"],
+          items: [
+            ["Messages sent per second", 0],
+            ["Number of developers on the team", 1],
+            ["Users online at the same time", 0],
+            ["Screen resolution of users' phones", 1],
+          ],
+          hint: "A load parameter is something that makes the servers work harder as it grows.",
+          why: "Load is what the servers actually have to handle: messages per second and users online. Team size and screen resolution don't stress the servers.",
         },
       },
       {
@@ -407,7 +424,7 @@
       "In the distribution demo, drag <b>Share of slow requests</b> from 0% to 15%. Watch the mean vs median vs p99.",
       'Move the <b>Target</b> line and read the "Within target" percentage: that\'s the fraction of happy users.',
       "In the load demo, drag <b>Load</b> towards capacity and watch the response time shoot up (question ①).",
-      "Set a target response time and read how many servers you need (question ②).",
+      "Set the <b>target response time</b> and read how many servers you need (question ②).",
     ],
   };
 })();

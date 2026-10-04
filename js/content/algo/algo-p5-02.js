@@ -6,6 +6,18 @@
   const L = N.LESSONS;
   const F = N.fig;
 
+  // the stack R, S, T (solid chain) and the next point U arriving (dashed): the learner taps the point that gets popped
+  const popPick = () => {
+    const at = { R: [40, 190], S: [220, 190], T: [265, 100], U: [355, 55] };
+    const seg = (a, b, dash) =>
+      `<line x1="${at[a][0]}" y1="${at[a][1]}" x2="${at[b][0]}" y2="${at[b][1]}" stroke="var(--line-2)" stroke-width="3" ${dash ? 'stroke-dasharray="7 6"' : ""}/>`;
+    const dots = Object.entries(at).map(
+      ([k, [x, y]]) =>
+        `<g data-pick="${k}" aria-label="Point ${k}"><circle cx="${x}" cy="${y}" r="22" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${x}" y="${y + 6}" text-anchor="middle" style="font:900 17px var(--sans);fill:var(--ink)">${k}</text></g>`,
+    );
+    return `<svg viewBox="0 0 400 230" role="group" aria-label="Four points. R at the bottom left, S at the bottom, T up and to the right of S, and U further up and right. R, S and T are joined by a solid line, and a dashed line leads from T to U">${seg("R", "S")}${seg("S", "T")}${seg("T", "U", true)}${dots.join("")}</svg>`;
+  };
+
   /* ============ 5.3 Graham scan ============ */
   /** Step-through Graham scan on a draggable copy of PTS: pivot, angle sort, then push/pop with the turn test. */
   function grahamRun(box, life) {
@@ -191,7 +203,7 @@
       {
         t: "Sort by angle",
         b: `<p>The lowest point is on the hull, so use it as the <b>anchor</b>. Sort the rest by the angle they make with the anchor, sweeping counter-clockwise. Hull corners will now come up in boundary order.</p>`,
-        v: `<svg class="fig" viewBox="0 0 420 200" style="max-height:190px"><circle cx="150" cy="180" r="8" fill="var(--amber)"/><text x="150" y="198" class="fig-sub">anchor</text>${[
+        v: `<svg class="fig" viewBox="0 0 420 200" role="img" aria-label="The lowest point is the anchor. The other points are numbered 1 to 6 in order of their angle round it, counter-clockwise." style="max-height:190px"><circle cx="150" cy="180" r="8" fill="var(--amber)"/><text x="150" y="198" class="fig-sub">anchor</text>${[
           [380, 150, 1],
           [360, 90, 2],
           [250, 110, 3],
@@ -223,14 +235,12 @@
           },
         ]),
         c: {
-          q: "Why does a point get popped?",
-          o: [
-            "It's too far from the anchor point",
-            "It makes a right turn (or a straight line)",
-            "It was placed in the wrong sorted position",
-          ],
-          a: 1,
-          why: "A wrong-direction turn means the middle point sits inside the edge that skips it.",
+          type: "pick",
+          q: "A Graham scan has points R, S and T on its stack (T on top) as it walks counter-clockwise, and U arrives next. Tap the point that gets <b>popped</b>.",
+          fig: popPick(),
+          a: "T",
+          hint: "Look at the turn S → T → U. Does the walk turn left or right at T?",
+          why: "S → T → U turns right, so T is a dent: it sits inside the edge S–U that skips it, and gets popped. R → S → T turns left, so S stays.",
         },
       },
       {
@@ -314,14 +324,14 @@
       root.appendChild(
         predict({
           id: "a5-gr-1",
-          q: "Interior point B gets pushed, then popped. The pop happens because…",
+          q: "Graham scan runs on a million points. Which part takes most of the time?",
           opts: [
-            "B lies too close to the anchor point",
-            "Adding the next point makes B a right turn",
-            "B was sorted into the wrong position",
+            "The sort by angle, O(n log n)",
+            "The stack scan, since it checks every point's turn",
+            "The pops, which can cost O(n²) in the worst case",
           ],
-          a: 1,
-          why: "Interior points always end up on the wrong side of a hull edge — the stack catches them at the next turn test.",
+          a: 0,
+          why: "Every point is pushed once and popped at most once, so the whole stack scan is only O(n), even though points sometimes pop several others. The sort is O(n log n) and dominates: about 20 comparisons per point for a million points, against a few turn tests.",
         }),
       );
       root.appendChild(

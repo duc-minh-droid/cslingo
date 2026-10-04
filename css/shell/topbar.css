@@ -289,15 +289,7 @@
     font-size: 18px;
   }
 }
-@media (max-width: 380px) {
-  .tb-course > .mascot {
-    display: none;
-  }
-}
 @media (max-width: 340px) {
-  .tb-course > .mascot {
-    display: block; /* with the logo gone, the course mascot is the brand mark */
-  }
   .tb-btn {
     padding: 0 2px;
   }

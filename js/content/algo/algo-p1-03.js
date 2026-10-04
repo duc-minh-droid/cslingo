@@ -5,6 +5,29 @@
   const { el, qs, predict, takeaways, header, randint, rnd } = N;
   const L = NIC.LESSONS;
 
+  // the lesson's 5-page link matrix H as a tappable figure: every column heading and row heading is a target
+  const matrixPick = () => {
+    const names = ["P", "Q", "R", "S", "T"],
+      H = [
+        [0, 0, 0.5, 0, 0],
+        [0.5, 0, 0, 0, 0],
+        [0.5, 1, 0, 1, 0],
+        [0, 0, 0.5, 0, 0],
+        [0, 0, 0, 0, 0],
+      ];
+    const cell = (kind, i) =>
+      `<g data-pick="${kind === "col" ? "Column" : "Row"} ${names[i]}" aria-label="${kind === "col" ? "Column" : "Row"} ${names[i]}"><rect x="${kind === "col" ? 56 + i * 48 : 4}" y="${kind === "col" ? 4 : 56 + i * 48}" width="44" height="44" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${kind === "col" ? 78 + i * 48 : 26}" y="${kind === "col" ? 32 : 84 + i * 48}" text-anchor="middle" style="font:900 16px var(--sans);fill:var(--ink)">${names[i]}</text></g>`;
+    const nums = H.map((r, i) =>
+      r
+        .map(
+          (v, j) =>
+            `<text x="${78 + j * 48}" y="${84 + i * 48}" text-anchor="middle" style="font:800 15px var(--sans);fill:var(--text-dim)">${v}</text>`,
+        )
+        .join(""),
+    ).join("");
+    return `<svg viewBox="0 0 304 300" role="group" aria-label="Link matrix H of five pages, with column headings P to T across the top and row headings P to T down the side">${names.map((_, i) => cell("col", i)).join("")}${names.map((_, i) => cell("row", i)).join("")}${nums}</svg>`;
+  };
+
   N.register({
     id: "a1-surfer",
     subject: "algo",
@@ -272,10 +295,12 @@
           ) +
           `<p class="dim" style="margin-top:8px">Column sums: 1, 1, 1, 1, <b>0</b> — T's column leaks, exactly like the token trace.</p>`,
         c: {
-          q: "Which single fact catches a transposed H?",
-          o: ["The matrix is square", "Sources are columns", "All entries are small"],
-          a: 1,
-          why: "Orientation is where most PageRank bugs live. Column-stochastic = every source distributes all of its rank.",
+          type: "pick",
+          q: "In the matrix H, the entry <b>H[i, j]</b> is the chance of jumping <i>from page j to page i</i>. Page R links to P and S. Tap the heading of the line that holds R's outgoing shares.",
+          fig: matrixPick(),
+          a: "Column R",
+          hint: "R's rank pours out to P and S, so look for the line with a share at P and a share at S.",
+          why: "Sources are columns: R's rank pours down column R, with 0.5 at P and 0.5 at S. Row R holds what flows into R. A transposed H would swap the two.",
         },
       },
       {
@@ -331,7 +356,7 @@
     guide: [
       "Press <b>Iterate</b> once: watch the five bars jump from the start vector.",
       "Press <b>Run</b>: the bars settle and the error curve dives toward zero — that's convergence.",
-      "Set damping to <b>0.75</b> and the start vector to <b>session p₀</b>: the first step should print the session's numbers (0.14 / 0.215 / 0.44 / 0.14 / 0.065).",
+      "Set <b>damping</b> to 0.75 and the start vector to <b>session p₀</b>: the first step should print the session's numbers (0.14 / 0.215 / 0.44 / 0.14 / 0.065).",
       "Turn <b>repair dangling</b> OFF and run: watch total mass leak below 1.0 — T's column goes nowhere.",
       "Drag damping near 1.00: convergence crawls. That's d ≈ 1 being fragile.",
       "Answer the Predict question.",

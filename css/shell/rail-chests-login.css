@@ -1,8 +1,8 @@
-/* ---------- Desktop rail (≥1240px): streak, goal, quests beside the path ---------- */
+/* ---------- Desktop rail (≥1272px): streak, goal, quests beside the path ---------- */
 .rail {
   display: none;
 }
-@media (min-width: 1240px) {
+@media (min-width: 1272px) {
   .rail {
     display: flex;
     flex-direction: column;
@@ -30,7 +30,7 @@
     display: none;
   }
 }
-@media (min-width: 1240px) {
+@media (min-width: 1272px) {
   .rail-card {
     max-height: none !important;
     overflow: visible !important;

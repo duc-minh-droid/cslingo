@@ -27,10 +27,16 @@
         t: "Approach 2: fan out when you write",
         b: `<p>Keep a <b>timeline cache</b> (a mailbox) for every user. When someone posts, look up their followers and <b>insert the tweet into each follower's mailbox</b>. Reading your timeline = just open your mailbox.</p><span class="analogy">Your friends post a copy to every one of their followers. More work for them, but you just open your letterbox.</span>`,
         c: {
-          q: "In approach 2, a user with 200 followers posts once. How many writes?",
-          o: ["1", "200", "400"],
-          a: 1,
-          why: "One copy per follower's timeline cache.",
+          type: "match",
+          q: "One user posts one tweet. Match each case to the <b>number of writes</b> it causes.",
+          pairs: [
+            ["Approach 1, any user", "1 write"],
+            ["Approach 2, a user with 30 followers", "30 writes"],
+            ["Approach 2, a user with 200 followers", "200 writes"],
+            ["Approach 2, a celebrity with 30 million followers", "30 million writes"],
+          ],
+          hint: "Approach 1 inserts the tweet once. Approach 2 inserts one copy per follower.",
+          why: "Approach 1 inserts one tweet into a global collection. Approach 2 writes one copy into each follower's timeline cache, so the writes equal the follower count. That's why celebrities are the problem.",
         },
       },
       {
@@ -70,10 +76,17 @@
         t: "Horizontal scaling (scaling out)",
         b: `<p>Add <b>more ordinary machines</b> and spread the work across them. Also called <b>shared-nothing</b> (each machine has its own CPU, memory and disk).</p><span class="analogy">Instead of a lorry, you run a fleet of vans. If one breaks down, the others keep delivering.</span>`,
         c: {
-          q: "Which gives better fault tolerance?",
-          o: ["Scaling up", "Scaling out"],
-          a: 1,
-          why: "Losing one of many machines only removes a slice of capacity.",
+          type: "cat",
+          q: "Does each description fit <b>scaling up</b> or <b>scaling out</b>?",
+          buckets: ["Scaling up", "Scaling out"],
+          items: [
+            ["A shared-memory machine: everything in one box", 0],
+            ["Ordinary machines, each with its own CPU, memory and disk", 1],
+            ["Losing one machine only removes a slice of capacity", 1],
+            ["If the single machine dies, the whole system is down", 0],
+          ],
+          hint: "Think about what happens to the service when one machine breaks.",
+          why: "Scaling out has better fault tolerance: losing one of many machines only removes a slice of capacity. Scaling up keeps everything on one machine, which is still a single point of failure.",
         },
       },
       {
@@ -103,14 +116,17 @@
         t: "Simplicity: easy for new people",
         b: `<p>Simpler doesn't mean fewer features. It means removing <b>accidental complexity</b>: complexity that isn't part of the problem and only comes from <i>how</i> it was built (inconsistent architecture, obscure dependencies, poor style or docs).</p><p><b>Abstraction</b> is often the best tool: hide messy details behind a clean interface.</p>`,
         c: {
-          q: "Which is accidental complexity?",
-          o: [
-            "The tax rules a payroll system is legally required to follow",
-            "Five services wired differently to one database",
-            "The need to store every user's personal data securely",
+          type: "cat",
+          q: "Is each source of complexity <b>essential</b> (part of the problem) or <b>accidental</b> (self-inflicted)?",
+          buckets: ["Essential", "Accidental"],
+          items: [
+            ["The tax rules a payroll system is legally required to follow", 0],
+            ["Five services wired differently to one database", 1],
+            ["The need to store every user's personal data securely", 0],
+            ["Obscure dependencies that nobody documented", 1],
           ],
-          a: 1,
-          why: "Tax rules are essential (they're part of the problem). The inconsistent wiring is self-inflicted.",
+          hint: "Would the complexity still be there if the system were built as cleanly as possible?",
+          why: "Tax rules and security are essential: they are part of the problem itself. Inconsistent wiring and undocumented dependencies only come from how the system was built.",
         },
       },
       {
@@ -130,7 +146,7 @@
     ],
     guide: [
       "Look at the tangled architecture and count the connections (20).",
-      "Press <b>Change: replace Orders DB</b>: red shows everything that must be edited.",
+      'Press <b>Change: replace "Orders DB"</b>: red shows everything that must be edited.',
       "Press <b>Add a data-access layer</b>, then run the same change again.",
       "Sort the 9 statements into operability, simplicity or evolvability.",
     ],
@@ -141,7 +157,7 @@
     if (L[id] && L[id].steps[i] && !L[id].steps[i].v) L[id].steps[i].v = v;
   };
   const dots = (n, cols, bad = [], c = "var(--teal)") =>
-    `<svg class="fig" viewBox="0 0 ${cols * 14 + 4} ${Math.ceil(n / cols) * 14 + 4}" style="max-height:120px">${Array.from({ length: n }, (_, i) => `<circle cx="${9 + (i % cols) * 14}" cy="${9 + Math.floor(i / cols) * 14}" r="5" fill="${bad.includes(i) ? "var(--rose)" : c}" opacity="${bad.includes(i) ? 1 : 0.55}"/>`).join("")}</svg>`;
+    `<svg class="fig" viewBox="0 0 ${cols * 14 + 4} ${Math.ceil(n / cols) * 14 + 4}" role="img" aria-label="${n} dots in rows of ${cols}${bad.length ? `, with ${bad.length === 1 ? "one marked in red" : `${bad.length} marked in red`}` : ""}" style="max-height:120px">${Array.from({ length: n }, (_, i) => `<circle cx="${9 + (i % cols) * 14}" cy="${9 + Math.floor(i / cols) * 14}" r="5" fill="${bad.includes(i) ? "var(--rose)" : c}" opacity="${bad.includes(i) ? 1 : 0.55}"/>`).join("")}</svg>`;
   // response times: gamma(k = 2.5, θ = 100 ms) → p50 ≈ 218 ms, p95 ≈ 554 ms, p99 ≈ 754 ms, mean 250 ms
   const gammaPdf = (ms) => {
     const x = ms / 100;

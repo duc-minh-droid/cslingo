@@ -1,6 +1,6 @@
 /* One command for every check that needs the app running:  npm test
    Serves the repo, opens it in headless Chromium and runs the in-page suites (smoke, boss quizzes, revision bank,
-   answer-bias audit) plus the structure check. Exits non-zero on any failure, so CI can block a bad change.
+   answer-bias audit), the keyboard checks, the accessibility checks (tools/a11y-test.js), the storage and account-sync checks (tools/storage-test.js) plus the structure check. Exits non-zero on any failure, so CI can block a bad change.
    Needs Playwright with a Chromium (`npx playwright install chromium`), or PLAYWRIGHT_CHROMIUM_PATH for a local one. */
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
@@ -9,6 +9,9 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { checkStructure } from "./check-structure.js";
 import { keyboardChecks } from "./keyboard-test.js";
+import { storageChecks } from "./storage-test.js";
+import { shellChecks } from "./shell-test.js";
+import { a11yChecks } from "./a11y-test.js";
 
 const root = join(fileURLToPath(import.meta.url), "..", "..");
 const require = createRequire(import.meta.url);
@@ -138,6 +141,24 @@ for (const [name, run] of steps) {
   const problems = await keyboardChecks(page);
   console.log(`${problems.length ? "FAIL" : "ok  "} keyboard (${Math.round((Date.now() - t) / 1000)}s)`);
   fail("keyboard", problems);
+}
+{
+  const t = Date.now();
+  const problems = await storageChecks(browser, url); // blocked or full storage, and account sync against a fake client
+  console.log(`${problems.length ? "FAIL" : "ok  "} storage and sync (${Math.round((Date.now() - t) / 1000)}s)`);
+  fail("storage", problems);
+}
+{
+  const t = Date.now();
+  const problems = await shellChecks(page); // the top bar, the phase banner, course search, boss status, phone widths
+  console.log(`${problems.length ? "FAIL" : "ok  "} shell (${Math.round((Date.now() - t) / 1000)}s)`);
+  fail("shell", problems);
+}
+{
+  const t = Date.now();
+  const problems = await a11yChecks(page); // answer controls, figure and chart descriptions, the runner and the focus ring
+  console.log(`${problems.length ? "FAIL" : "ok  "} accessibility (${Math.round((Date.now() - t) / 1000)}s)`);
+  fail("accessibility", problems);
 }
 fail("page errors", [...new Set(pageErrors)]);
 fail("requests", [...new Set(badRequests)]);

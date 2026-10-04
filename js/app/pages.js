@@ -15,6 +15,17 @@
     });
   }
 
+  /** "4/7 days" under a locked achievement, with a small bar when there is more than one step to go. */
+  function achBar(id) {
+    const p = game.achProgress ? game.achProgress(id) : null;
+    if (!p || !p.unit) return ""; // the one-go achievements (night, fixer) have no steps to show
+    const bar =
+      p.need > 1
+        ? `<span class="ach-bar" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="${p.need}" aria-valuenow="${p.have}"><i style="transform:scaleX(${p.have / p.need})"></i></span>`
+        : "";
+    return `<span class="ach-prog">${bar}<em>${p.have}/${p.need} ${esc(p.unit)}</em></span>`;
+  }
+
   function profilePage() {
     const st = game.stats(),
       ach = game.achState(),
@@ -44,8 +55,9 @@
         <div class="pf-stat">${IC.check.replace('stroke="currentColor"', 'stroke="#58cc02"')}<b>${Object.keys(store.get("nic.lessonDone", {})).length}</b><span>Lessons done</span></div>
         <div class="pf-stat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#1cb0f6" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#1cb0f6"/></svg><b>${st.answered ? Math.round((100 * st.right) / st.answered) : 0}%</b><span>Accuracy</span></div>
       </div>
+      ${app.overviewHTML ? app.overviewHTML() : ""}
       <h2>Achievements</h2>${!game.ACH.some((a) => ach[a.id]) && NIC.art ? `<div class="card ab-empty-card">${NIC.art.empty("achievements")}<b>No achievements yet</b><span class="faint">Finish your first lesson to unlock your first hat.</span></div>` : ""}
-      <div class="ach-grid">${game.ACH.map((a) => `<div class="ach ${ach[a.id] ? "got" : ""}">${NIC.mascot({ who: "sprout", size: 64, acc: [a.acc], mood: ach[a.id] ? "happy" : "sleepy", poke: !!ach[a.id] })}${ach[a.id] ? "" : `<span class="ach-lock">${IC.lock}</span>`}<b>${a.t}</b><span>${a.d}</span><small>${ach[a.id] ? `Unlocked ${NIC.cast.ACC[a.acc].name}` : `Unlocks ${NIC.cast.ACC[a.acc].name}`}</small></div>`).join("")}</div>
+      <div class="ach-grid">${game.ACH.map((a) => `<div class="ach ${ach[a.id] ? "got" : ""}">${NIC.mascot({ who: "sprout", size: 64, acc: [a.acc], mood: ach[a.id] ? "happy" : "sleepy", poke: !!ach[a.id] })}${ach[a.id] ? "" : `<span class="ach-lock">${IC.lock}</span>`}<b>${a.t}</b><span>${a.d}</span>${ach[a.id] ? "" : achBar(a.id)}<small>${ach[a.id] ? `Unlocked ${NIC.cast.ACC[a.acc].name}` : `Unlocks ${NIC.cast.ACC[a.acc].name}`}</small></div>`).join("")}</div>
       <h2>Settings</h2>
       <div class="card settings"><div class="set-row"><b>Daily goal</b><div class="seg goal-seg">${[
         [10, "Casual"],
@@ -58,7 +70,7 @@
             `<button data-g="${v}" class="${v === game.goal() ? "on" : ""}">${t}<small>${v} XP</small></button>`,
         )
         .join("")}</div></div>
-        ${NIC.sync ? `<div class="set-row"><b>Account</b>${NIC.sync.email() ? `<span class="faint">${esc(NIC.sync.email())}</span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in</button>`}</div>` : ""}
+        ${NIC.sync ? `<div class="set-row"><b>Account</b>${NIC.sync.status().loggedIn ? `<span class="faint">${esc(NIC.sync.status().user)}<br><span data-sy-line>${esc(NIC.account.syncLine())}</span></span><button class="btn" data-act="signout">Sign out</button>` : `<button class="btn primary" data-act="signin">Log in</button>`}</div>` : ""}
         ${
           NIC.theme
             ? `<div class="set-row"><b>Theme</b><div class="seg theme-seg" role="radiogroup" aria-label="Theme">${[
@@ -87,13 +99,8 @@
         app.renderTop();
       }),
     );
-    const snd = qs("#pfSound", page);
-    snd.addEventListener("click", () => {
-      NIC.sfx.set(!NIC.sfx.on());
-      const on = NIC.sfx.on();
-      snd.classList.toggle("on", on);
-      snd.setAttribute("aria-checked", on);
-    });
+    // the switch follows "csl:sound" (js/app/events.js), so the menu row, the M key and this switch always agree
+    qs("#pfSound", page).addEventListener("click", () => NIC.sfx.set(!NIC.sfx.on()));
     qsa("[data-theme-pick]", page).forEach((b) =>
       b.addEventListener("click", () => {
         app.pickSeg(themeSeg, b);
@@ -102,7 +109,8 @@
       }),
     );
     app.wireSync(page);
-    if (!app.calm) fx.enter(qsa(".shelf-spot, .pf-stat, .ach", page), { stagger: 0.03 });
+    if (app.overviewMount) app.overviewMount(page);
+    if (!app.calm) fx.enter(qsa(".shelf-spot, .pf-stat, .ov-card, .ach", page), { stagger: 0.03 });
     app.life.onCleanup(NIC.cast.idle(page));
   }
   Object.assign(app, { practicePage, profilePage });

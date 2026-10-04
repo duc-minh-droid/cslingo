@@ -258,27 +258,23 @@
       root.appendChild(
         predict({
           id: "l4-types-1",
-          q: "In a generational GA <b>without</b> elitism, can the best fitness in the population go <i>down</i> from one generation to the next?",
-          opts: [
-            "No, because selection always favours the best individual",
-            "Yes: everyone is replaced, and the children may be worse",
-            "Only if the mutation rate is set to 100% for every gene",
-          ],
+          q: "A generational GA has a population of 20 and keeps <b>2 elites</b>. How many new children does it build each generation?",
+          opts: ["20", "18", "2"],
           a: 1,
-          why: "Selection makes good parents <i>likely</i>, but their children are recombined and mutated, so nothing guarantees one of them matches the old best. That's the reason for <b>elitism</b>: copying the n best unchanged means the best fitness can never decrease. Set elites = 0 and run: look for dips in the green line.",
+          why: "The 2 elites are copied across unchanged, so only the other 18 places are filled with children made by selection, crossover and mutation: 2 + 18 = 20. With elites kept = 0 the whole 20 would be new. Raise <b>Elites kept</b> in the demo and watch the dips in the green line disappear.",
         }),
       );
       root.appendChild(
         predict({
           id: "l4-types-2",
-          q: "Steady-state GA with replace-weakest: is it elitist?",
+          q: "A child with excellent fitness has just been created. Which kind of GA can pick it as a parent soonest?",
           opts: [
-            "Yes: the best is never the weakest, so it stays",
-            "No: elitism only exists in generational GAs, never steady-state",
-            "Only when the population contains a single member",
+            "Steady-state: it joins the population at once",
+            "Generational: it is used within the same generation",
+            "Both equally soon, since each makes children the same way",
           ],
           a: 0,
-          why: "Replacing only the weakest member means the best always survives, so steady-state + replace-worst is <b>implicitly elitist</b>. It's also greedy, which raises selection pressure and can cause early convergence.",
+          why: "A steady-state GA puts a good child into the population straight away, so the very next selection can pick it. A generational GA builds its new population from the old one, so the child is only available as a parent after the whole generation is finished. That speed is also why steady-state converges sooner (more selection pressure).",
         }),
       );
       root.appendChild(

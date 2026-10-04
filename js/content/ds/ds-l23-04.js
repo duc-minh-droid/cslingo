@@ -19,14 +19,14 @@
         mem = {},
         segs = [],
         counter = 0,
-        steps = "Press <b>Write</b> a few times, then <b>Get</b> a key.",
+        steps = "Press <b>Write a random key</b> a few times, then press a <b>Get</b> button.",
         checks = "-";
       const card =
         el(`<div class="card"><div class="card-head"><h2>Memtable and SSTables</h2><span class="tag">writes go to memory first</span></div>
         <div class="controls" id="t1"></div>
         <div class="controls"><button class="btn primary" id="tw">Write a random key</button><button class="btn" id="td">Delete a random key</button><button class="btn" id="tm">Merge all segments</button><button class="btn ghost" id="tr">Reset</button></div>
         <div id="tv"></div>
-        <div class="controls" id="tg"><span class="faint" style="font-size:13px">Get key:</span></div>
+        <div class="controls" id="tg"><span class="faint" style="font-size:13px">Read a key:</span></div>
         <div class="stat-row"><div class="stat"><small>Memtable entries</small><b id="tn"></b></div><div class="stat blue"><small>SSTable segments</small><b id="ts"></b></div><div class="stat amber"><small>Places checked by last Get</small><b id="tc"></b></div></div>
         <p id="tt" class="dim" style="min-height:64px"></p></div>`);
       root.appendChild(card);
@@ -67,7 +67,7 @@
         qs("#tt", card).innerHTML = steps;
       };
       POOL.forEach((k) => {
-        const b = el(`<button class="btn small">${k}</button>`);
+        const b = el(`<button class="btn small">Get ${k}</button>`);
         qs("#tg", card).appendChild(b);
         b.onclick = () => {
           const log = [];
@@ -135,7 +135,7 @@
         segs = [];
         counter = 0;
         checks = "-";
-        steps = "Press <b>Write</b> a few times, then <b>Get</b> a key.";
+        steps = "Press <b>Write a random key</b> a few times, then press a <b>Get</b> button.";
         draw();
       };
       draw();
@@ -156,14 +156,10 @@
       root.appendChild(
         predict({
           id: "ds-sstable-2",
-          q: "Why can an SSTable's in-memory index hold only some of the keys, unlike a hash index?",
-          opts: [
-            "Sorted order lets you scan a short block",
-            "SSTables are always so small that every key fits anyway",
-            "The database guesses the offsets of the missing keys from a hash",
-          ],
+          q: "Three sorted segments are merged. The key <code>fig</code> is in the oldest one with value 10 and in the newest with value 30. What does the merged segment store for <code>fig</code>?",
+          opts: ["30, the newest value", "10, the oldest value", "Both values, 10 then 30"],
           a: 0,
-          why: "Sorted order means a key lives between two indexed keys, so you jump to the nearer indexed one and scan a short block. The index can be sparse.",
+          why: "A merge keeps <b>one</b> record per key, and the newest segment wins, so <code>fig</code> becomes 30. The older 10 was overwritten and is dropped, which is also how compaction frees space.",
         }),
       );
       root.appendChild(
@@ -239,10 +235,15 @@
           { size: 160 },
         ),
         c: {
-          q: "Which option lets the database query and index inside the nested data, while keeping it in the user row?",
-          o: ["A JSON text blob the DB cannot see into", "A structured JSON or XML column type", "Nothing can do that"],
-          a: 1,
-          why: "Newer SQL versions support structured column types that can be indexed and queried. A plain text blob is opaque.",
+          type: "match",
+          q: "A profile has many positions. Match each way of storing them to what it gives you.",
+          pairs: [
+            ["Separate tables with a foreign key", "Normalised rows that point back to the user"],
+            ["A structured JSON or XML column", "Stays in the user row, and the DB can query and index inside it"],
+            ["JSON or XML as plain text", "Stays in the user row, but the DB cannot see inside it"],
+          ],
+          hint: "Two options keep the data in the user row. What can the database do with each one?",
+          why: "Newer SQL versions support structured column types that can be indexed and queried. A plain text blob is opaque, and separate tables spread the data over rows linked by a foreign key.",
         },
       },
       {
@@ -304,10 +305,17 @@
           { title: "Schema-on-write", c: "violet", body: "every row must fit the table's schema when written" },
         ),
         c: {
-          q: "In which style does the application decide how to interpret a record's fields when it reads it?",
-          o: ["Schema-on-write", "Schema-on-read"],
-          a: 1,
-          why: "Schema-on-read: structure is implicit and interpreted at read time.",
+          type: "cat",
+          q: "Does each description fit <b>schema-on-read</b> or <b>schema-on-write</b>?",
+          buckets: ["Schema-on-read", "Schema-on-write"],
+          items: [
+            ["Typical of a document store: records may differ", 0],
+            ["The database rejects a row that doesn't fit the table", 1],
+            ["The application copes with each record's shape as it reads it", 0],
+            ["Typical of a relational table: the schema is enforced on every write", 1],
+          ],
+          hint: "Ask who checks the shape of a record, and when: the application at read time, or the database at write time.",
+          why: "Schema-on-read: structure is implicit and interpreted when the app reads, like dynamic typing. Schema-on-write: the schema is explicit and enforced when data is written, like static typing.",
         },
       },
       {

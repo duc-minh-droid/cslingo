@@ -1,6 +1,6 @@
 (function () {
   const app = (NIC.shared.engineApp = NIC.shared.engineApp || {});
-  const { IC, SUBJECTS, inLec, inSubj, isBoss, main, progress, rail, status, subjOf } = app;
+  const { IC, SUBJECTS, inLec, inSubj, isBoss, kindOf, main, nodeLabel, progress, rail, status, subjOf } = app;
   const { modules, qs, qsa, el, esc, store } = NIC;
   const fx = NIC.fx,
     game = NIC.game;
@@ -200,45 +200,80 @@
     });
   }
 
-  /** The boss in this course with the lowest score under 80%, if any. */
+  /** The boss in this course with the lowest score that has been tried and not passed, if any. */
   function weakBoss(s) {
-    const q = store.get("nic.quiz", {});
     return (
       inSubj(s)
         .filter(isBoss)
-        .map((m) => {
-          const B = NIC.bossDef(m.id);
-          if (!B) return null;
-          const n = B.qs.length,
-            c = B.qs.filter((_, i) => q[`${m.id}-${i}`] && q[`${m.id}-${i}`].ok).length;
-          return { m, f: c / n };
-        })
-        .filter((x) => x && x.f < 0.8)
-        .sort((a, b) => a.f - b.f)
+        .map((m) => ({ m, R: NIC.bossResult && NIC.bossResult(m.id) }))
+        .filter((x) => x.R && x.R.attempted && !x.R.passed)
+        .sort((a, b) => a.R.pct - b.R.pct)
         .map((x) => x.m)[0] || null
     );
   }
+  /** The Practice page opens on the courses chosen last time. A button inside one course's path means that course, so pick it first. */
+  function scopeRevise(s) {
+    const p = store.get("nic.revPrefs", {});
+    store.set("nic.revPrefs", { n: p.n || 10, subjects: [s] });
+  }
+  const KIND_SUB = { boss: "Boss quiz", workshop: "Workshop", codelab: "Code lab" };
 
-  /** "What should I do now?" One primary action (continue > due reviews > next lesson) plus the others as chips. */
-  function todayCard(s, all, next) {
-    const pos = store.get("nic.lessonPos", {});
-    const started = all.find((m) => status(m) !== "done" && pos[m.id] > 0);
+  const NUDGE_KEY = "csl.nudge"; // when "Keep your streak safe" was dismissed; outside nic.*, so it is neither synced nor reset
+  let nudgeSeen = false; // in case storage is blocked: still only ask once per visit
+  const nudgeShut = () => {
+    if (nudgeSeen) return true;
+    try {
+      return !!localStorage.getItem(NUDGE_KEY);
+    } catch {
+      return false;
+    }
+  };
+  /** One quiet card for a logged-out learner who now has something to lose: two lessons done, or a streak of two days. */
+  function nudgeCard() {
+    if (!NIC.sync || nudgeShut() || navigator.onLine === false || NIC.sync.status().loggedIn) return "";
+    if (Object.keys(store.get("nic.lessonDone", {})).length < 2 && game.streak() < 2) return "";
+    return `<div class="card nudge-card" role="region" aria-label="Keep your streak safe">${NIC.mascot({ who: "blaze", size: 56, mood: "happy", poke: false })}
+      <div class="nd-t"><b>Keep your streak safe</b><span>Your progress lives only in this browser. Make an account to back it up and pick it up on any device.</span></div>
+      <div class="nd-acts"><button class="btn small primary" data-nudge="up">Create account</button><button class="btn small ghost" data-nudge="no">Not now</button></div></div>`;
+  }
+  function wireNudge(page) {
+    const card = qs(".nudge-card", page);
+    if (!card) return;
+    qs('[data-nudge="up"]', card).addEventListener("click", () => NIC.account.signIn(null, { mode: "up" }));
+    qs('[data-nudge="no"]', card).addEventListener("click", () => {
+      nudgeSeen = true;
+      try {
+        localStorage.setItem(NUDGE_KEY, String(Date.now()));
+      } catch {
+        /* storage blocked: it stays hidden for this visit only */
+      }
+      const go = () => card.remove();
+      if (fx.ok && fx.exit) {
+        card.classList.add("m-ghost");
+        fx.exit(card, { y: -8, scale: 0.97 }).then(go, go);
+      } else go();
+    });
+  }
+
+  /** "What should I do now?" One primary action (continue > due reviews > next lesson) plus the others as chips.
+      resume is the lesson the path marks as current; it is only "Continue" once the learner is past its first screen. */
+  function todayCard(s, all, next, resume) {
+    const started = resume && !isBoss(resume) && status(resume) === "started" ? resume : null;
     const due = NIC.bank ? NIC.bank.dueSeen({ subjects: [s] }) : 0;
     const acts = [];
-    if (started) {
-      const L = NIC.LESSONS[started.id];
+    if (started)
       acts.push({
         k: "cont",
         to: started.id,
         t: `Continue ${esc(started.title)}`,
-        sub: L ? `You stopped partway through` : "",
+        sub: `You stopped partway through`,
         icon: IC.play,
       });
-    }
     if (due >= 5)
       acts.push({
         k: "due",
         to: "practice/due",
+        rev: 1,
         t: `Review ${due} due question${due === 1 ? "" : "s"}`,
         sub: "Short spaced reviews keep it stuck",
         icon: IC.reset,
@@ -248,18 +283,19 @@
         k: "next",
         to: next.id,
         t: `${status(next) === "new" && !Object.keys(store.get("nic.lessonDone", {})).length ? "Start" : "Next"}: ${esc(next.title)}`,
-        sub: `${next.num === "Boss" ? "Boss quiz" : "Lesson " + next.num}`,
+        sub: KIND_SUB[kindOf(next)] || `Lesson ${next.num}`,
         icon: IC.star,
       });
-    if (due > 0 && due < 5) acts.push({ k: "due", to: "practice/due", t: `Review ${due} due`, icon: IC.reset });
+    if (due > 0 && due < 5) acts.push({ k: "due", to: "practice/due", rev: 1, t: `Review ${due} due`, icon: IC.reset });
     if (!acts.length) return "";
     const [top, ...rest] = acts;
-    return `<div class="td-card"><button class="td-main" data-to="${top.to}"><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
+    const attr = (a) => `data-to="${a.to}"${a.rev ? " data-rev" : ""}`;
+    return `<div class="td-card"><button class="td-main" ${attr(top)}><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
       ${
         rest.length
           ? `<div class="td-more">${rest
               .slice(0, 3)
-              .map((a) => `<button class="td-chip" data-to="${a.to}">${a.icon}<span>${a.t}</span></button>`)
+              .map((a) => `<button class="td-chip" ${attr(a)}>${a.icon}<span>${a.t}</span></button>`)
               .join("")}</div>`
           : ""
       }</div>`;
@@ -289,12 +325,15 @@
     const lastId = store.get("nic.last", {})[s],
       last = modules.find((m) => m.id === lastId);
     const next = all.find((m) => status(m) !== "done");
-    const resume = last && status(last) !== "done" ? last : next;
+    const resume = last && status(last) === "started" ? last : next; // a lesson only taken a look at is not "where you were"
     const lecs = Object.entries(S.lectures).filter(([lec]) => inLec(s, lec).length);
+    const weak = weakBoss(s),
+      won = P.n > 0 && P.d === P.n;
     const page = el(`<div class="page path-page">
       <h1 class="sr-only">${S.name}</h1>
       ${NIC.art ? NIC.art.banner(s, { title: S.name, sub: `${S.code} · ${P.d}/${P.n} lessons done` }) : ""}
-      ${todayCard(s, all, next)}
+      ${todayCard(s, all, next, resume)}
+      ${nudgeCard()}
       <div class="unit-sticky"><div class="us-in"></div></div>
       ${lecs
         .map(([lec, title], u) => {
@@ -328,22 +367,25 @@
                         ? IC.play
                         : IC.star;
                 const L = NIC.LESSONS[m.id],
+                  R = boss && NIC.bossResult ? NIC.bossResult(m.id) : null,
                   pos = store.get("nic.lessonPos", {})[m.id] || 0,
                   frac =
                     st === "started" && L
                       ? Math.min(0.95, pos / (L.steps.length + L.steps.filter((x) => x.c).length + 2))
-                      : 0;
+                      : st === "started" && R
+                        ? Math.min(0.95, R.answered / R.n)
+                        : 0;
                 return `<div class="p-row st-${st} ${boss ? "boss" : ""} ${cur ? "cur" : ""}" style="--k:${zig(i).toFixed(3)};top:${i * ROW}px" data-id="${m.id}">
-                <button class="p-node" aria-label="${m.num} ${esc(m.title)}">${cur || st === "started" ? `<svg class="p-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--u)" stroke-width="8" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289 * (1 - frac)}" transform="rotate(-90 50 50)"/></svg>` : ""}<span class="p-face">${ic}</span></button>
-                ${cur ? `<span class="p-bubble">${status(m) === "started" ? "Continue" : P.d ? "Jump in" : "Start"}</span>` : ""}</div>`;
+                <button class="p-node" aria-label="${esc(nodeLabel(m, st))}" aria-haspopup="true" aria-expanded="false">${cur || st === "started" ? `<svg class="p-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="var(--u)" stroke-width="8" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${289 * (1 - frac)}" transform="rotate(-90 50 50)"/></svg>` : ""}<span class="p-face">${ic}</span></button>
+                ${cur ? `<span class="p-bubble" aria-hidden="true">${st === "started" ? "Continue" : P.d ? "Jump in" : "Start"}</span>` : ""}</div>`;
               })
               .join("")}
             <div class="p-cast ${side}" style="top:${castRow * ROW - 10}px">${NIC.mascot({ who: cast.who || S.who, size: 110, act: cast.act, acc: cast.acc, mood: cast.mood || "idle" })}</div>
           </div></section>`;
         })
         .join("")}
-      <div class="path-end ${P.d === P.n ? "won" : ""}">${NIC.mascot({ who: S.who, size: 100, mood: P.d === P.n ? "love" : "determined", acc: ["crown"], act: P.d === P.n ? "dance" : "" })}<b>${P.d === P.n ? "Course complete!" : `${P.n - P.d} to go`}</b><span class="faint">${S.name} · ${P.d}/${P.n} done</span>
-        ${P.d === P.n ? `<div class="pe-acts"><button class="btn primary" data-to="practice/due">Revise this course</button>${weakBoss(s) ? `<button class="btn" data-to="${weakBoss(s).id}">Retry ${esc(weakBoss(s).title)}</button>` : ""}</div>` : ""}</div>
+      <div class="path-end ${won ? "won" : ""}">${NIC.mascot({ who: S.who, size: 100, mood: won ? "love" : "determined", acc: ["crown"], act: won ? "dance" : "" })}<b>${won ? "Course complete!" : P.n ? `${P.n - P.d} to go` : "Lessons are on their way"}</b><span class="faint">${S.name} · ${P.d}/${P.n} done</span>
+        ${won || weak ? `<div class="pe-acts">${won ? `<button class="btn primary" data-to="practice/due" data-rev>Review this course</button>` : ""}${weak ? `<button class="btn${won ? "" : " primary"}" data-to="${weak.id}">Retry ${esc(weak.title)}</button>` : ""}</div>` : ""}</div>
     </div>`);
     main.appendChild(page);
     if (at) restorePath(page, at);
@@ -366,9 +408,11 @@
     jumpButton(page);
     qsa("[data-to]", page).forEach((b) =>
       b.addEventListener("click", () => {
+        if (b.hasAttribute("data-rev")) scopeRevise(s); // "Review N due" on this course's path means this course
         location.hash = b.dataset.to;
       }),
     );
+    wireNudge(page);
     app.stickyHeader(page, quiet);
     // entrance: nodes on the first screen spring in one after another; the rest spring in as they scroll into view
     if (!quiet) {

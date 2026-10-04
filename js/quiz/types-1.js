@@ -65,14 +65,22 @@
     if (nums.every((v) => Number.isFinite(v))) return idx.slice().sort((a, b) => nums[a] - nums[b] || a - b);
     const pinned = idx.filter((k) => PIN.test(plain[k])),
       free = idx.filter((k) => !PIN.test(plain[k]));
-    let s = 0;
-    for (const c of String(Q.q) + "|" + plain.join("|")) s = (s * 31 + c.charCodeAt(0)) >>> 0;
-    for (let i = free.length - 1; i > 0; i--) {
-      s = (s * 1664525 + 1013904223) >>> 0;
-      const j = s % (i + 1);
-      [free[i], free[j]] = [free[j], free[i]];
-    }
-    return free.concat(pinned);
+    const shuffled = (salt) => {
+      const a = free.slice();
+      let s = 0;
+      for (const c of String(Q.q) + "|" + plain.join("|") + salt) s = (s * 31 + c.charCodeAt(0)) >>> 0;
+      for (let i = a.length - 1; i > 0; i--) {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        const j = s % (i + 1);
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+    let order = shuffled("");
+    // N.optSalt is set while a retry renders (js/player/questions.js): same options, a different order than the first try
+    if (N.optSalt && free.length > 1)
+      for (let t = 0; t < 4 && order.join() === shuffled("").join(); t++) order = shuffled(`#${N.optSalt}${t}`);
+    return order.concat(pinned);
   }
   N.optOrder = optOrder;
   const fmtNum = (v) => (Number.isInteger(v) ? String(v) : String(+(+v).toFixed(4)));
@@ -81,5 +89,73 @@
     box.insertAdjacentHTML("beforeend", `<div class="q-correct">${html}</div>`);
     if (N.fx && N.fx.reveal) N.fx.reveal(box.lastElementChild);
   };
-  Object.assign(quiz, { correct, fmtNum, optOrder, same, seeded });
+  /** Plain text of an HTML snippet (tags and $ maths marks dropped, spaces collapsed): for aria-labels. */
+  const textOf = (h) =>
+    String(h ?? "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\$+/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  let nameSeq = 0;
+  /** Give `node` (a group of answer controls) the question's prompt as its name: the player's .pl-prompt or .pl-q-text beside
+      `box`, else the question text, else `fallback`. */
+  const nameGroup = (node, box, Q, fallback) => {
+    const p = box.parentElement && box.parentElement.querySelector(".pl-prompt, .pl-q-text");
+    if (p) {
+      p.id = p.id || `qp-${++nameSeq}`;
+      node.setAttribute("aria-labelledby", p.id);
+    } else node.setAttribute("aria-label", textOf(Q && Q.q).slice(0, 200) || fallback);
+  };
+  /** Controls that disable themselves when pressed (order chips, matched tiles) drop the keyboard's place. Call with the
+      element that had focus before the update: if it can no longer take focus, the next enabled control in `box` gets it. */
+  const keepFocus = (box, had) => {
+    if (!had || !box.contains(had) || !had.disabled) return;
+    const next = [...box.querySelectorAll("button:not([disabled])")].find(
+      (b) => !b.matches("[data-undo]") && !b.classList.contains("gone"),
+    );
+    if (next) next.focus({ preventScroll: true });
+  };
+  /** A rounded rect around an SVG element's whole box, `pad` units out, kept beside it: inside a <g>, after anything else. Null for HTML. */
+  function ringRect(e, cls, pad) {
+    if (!(e instanceof SVGGraphicsElement)) return null;
+    const own = [...e.querySelectorAll(":scope > .pk-ring, :scope > .pk-focus")];
+    own.forEach((r) => (r.style.display = "none")); // our own rings don't count towards the box
+    let bb = null;
+    try {
+      bb = e.getBBox();
+    } catch (err) {
+      /* not rendered (hidden or detached): no ring */
+    }
+    own.forEach((r) => (r.style.display = ""));
+    if (!bb || !bb.width || !bb.height) return null;
+    const w = bb.width + pad * 2,
+      h = bb.height + pad * 2;
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("class", cls);
+    r.setAttribute("x", bb.x - pad);
+    r.setAttribute("y", bb.y - pad);
+    r.setAttribute("width", w);
+    r.setAttribute("height", h);
+    r.setAttribute("rx", Math.min(12, Math.min(w, h) / 2));
+    if (e instanceof SVGGElement) e.appendChild(r);
+    else {
+      // a lone shape can't hold children: the ring sits right after it and copies its transform
+      if (e.getAttribute("transform")) r.setAttribute("transform", e.getAttribute("transform"));
+      e.after(r);
+    }
+    return r;
+  }
+  /** The name a screen reader gives a pick target that the figure didn't label itself: its <title> or text, else its place. */
+  function targetLabel(e, n, total) {
+    const t = e.querySelector(":scope > title");
+    const words = [], // one text piece at a time, so "A" and "3" read as "A 3", not "A3"
+      w = document.createTreeWalker(t || e, NodeFilter.SHOW_TEXT);
+    for (let x = w.nextNode(); x; x = w.nextNode()) words.push(x.nodeValue);
+    const txt = textOf(words.join(" "));
+    if (txt) return txt.length > 80 ? txt.slice(0, 77) + "…" : txt;
+    const k = e.dataset.pick;
+    return `Option ${n + 1} of ${total}${/^\d+$/.test(k) ? "" : `, ${k}`}`;
+  }
+
+  Object.assign(quiz, { correct, fmtNum, keepFocus, nameGroup, optOrder, ringRect, same, seeded, targetLabel, textOf });
 })();

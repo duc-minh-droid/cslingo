@@ -20,12 +20,67 @@
 .rv-go {
   width: 100%;
 }
+/* due / mastered / accuracy under the hero */
+.rv-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.rv-st {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  text-align: center;
+}
+.rv-st b {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.rv-st span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+.rv-st.due b {
+  color: var(--amber-ink);
+}
+.rv-st.clear b {
+  color: var(--teal-ink);
+}
+/* "Replace your saved round?" */
+.rv-ask {
+  display: grid;
+  gap: 10px;
+  padding: 30px 22px 6px;
+  text-align: center;
+}
+.rv-ask h2 {
+  margin: 0;
+  padding: 0 34px; /* clear of the close button */
+}
+.rv-ask p {
+  margin: 0 0 6px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
 .rv-empty {
   text-align: center;
   display: grid;
   gap: 8px;
   justify-items: center;
   padding: 28px;
+}
+.rv-empty .btn {
+  white-space: normal;
+  max-width: 100%;
+  text-align: center;
 }
 .rv-empty b {
   font-size: 20px;

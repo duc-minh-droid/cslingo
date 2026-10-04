@@ -8,6 +8,47 @@
   const DEFS = {};
   N.__bossQ = (id, i) => DEFS[id].qs[i]; // used by tools/boss-test.js
   N.bossDef = (id) => DEFS[id]; // the lesson player runs boss quizzes from these definitions
+
+  /** A boss counts as beaten at 80% or more (the player's intro and result screens say so). */
+  const PASS = 0.8;
+  N.BOSS_PASS = PASS;
+  /** Score of a boss quiz, read from the saved answers (nic.quiz). Returns null while that boss's content isn't loaded.
+      {n questions, answered, right, pct (right / n), need (right answers to pass), passed (all answered and right >= need),
+       attempted (at least one answered)}. The path popover and the player share it, so "done" means the same everywhere. */
+  N.bossResult = (id) => {
+    const B = DEFS[id];
+    if (!B) return null;
+    const st = store.get("nic.quiz", {}),
+      n = B.qs.length,
+      need = Math.ceil(n * PASS - 1e-9);
+    let answered = 0,
+      right = 0;
+    B.qs.forEach((_, i) => {
+      const a = st[`${id}-${i}`];
+      if (a && typeof a === "object") {
+        answered++;
+        if (a.ok) right++;
+      }
+    });
+    return {
+      n,
+      answered,
+      right,
+      pct: n ? right / n : 0,
+      need,
+      passed: n > 0 && answered === n && right >= need,
+      attempted: answered > 0,
+    };
+  };
+  /** Forget a boss's answers so its next visit starts at the intro (the path's "Retake" and the result screen's retake use it). */
+  N.bossReset = (id) => {
+    const B = DEFS[id];
+    if (!B) return;
+    const st = store.get("nic.quiz", {});
+    B.qs.forEach((_, i) => delete st[`${id}-${i}`]);
+    store.set("nic.quiz", st);
+    window.dispatchEvent(new Event("nic:progress"));
+  };
   N.registerBoss = (B) =>
     (DEFS[B.id] = B) &&
     N.register({

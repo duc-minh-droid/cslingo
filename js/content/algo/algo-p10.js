@@ -69,14 +69,15 @@
           { t: "Σ weight × value", s: 'new vector for "it"', c: "amber" },
         ]),
         c: {
-          q: "What's the value vector's job?",
-          o: [
-            "To set how much attention weight each token receives",
-            "To carry the content passed on, scaled by weight",
-            "To hide future tokens from the query during text generation",
+          type: "match",
+          q: "Match each vector in attention to its job.",
+          pairs: [
+            ["Query", "Asks what this token is looking for"],
+            ["Key", "Says what a token contains, so it can be scored against a query"],
+            ["Value", "Carries the content that gets passed on, scaled by the weight"],
           ],
-          a: 1,
-          why: "Keys decide how much each token counts; values are what actually gets passed on.",
+          hint: "Queries and keys decide the weights. Values are what actually gets passed along.",
+          why: "Keys (scored against the query) decide how much each token counts. Values are what actually gets passed on, scaled by those weights.",
         },
       },
       {
@@ -106,7 +107,7 @@
       {
         t: "No peeking at the future",
         b: `<p>When a model <b>generates</b> text, word 3 must not see words 4, 5, 6 (they haven't been written yet). A <b>causal mask</b> sets those scores to −∞ <i>before</i> softmax, so their weights become exactly 0.</p>`,
-        v: `<svg class="fig" viewBox="0 0 300 170" style="max-height:170px">${[0, 1, 2, 3, 4].map((r) => [0, 1, 2, 3, 4].map((c) => `<rect x="${60 + c * 30}" y="${20 + r * 28}" width="26" height="24" rx="4" fill="${c > r ? "var(--bg)" : "rgba(88,204,2," + (0.2 + 0.15 * (4 - Math.abs(r - c))) + ")"}" stroke="var(--line)" class="fi"/>`).join("")).join("")}<text x="30" y="92" class="fig-sub" transform="rotate(-90 30 92)">each word…</text><text x="135" y="162" class="fig-sub">…may only look left</text></svg>`,
+        v: `<svg class="fig" viewBox="0 0 300 170" role="img" aria-label="A grid of attention weights in which each word may only look left. Everything to the right of the diagonal is blocked." style="max-height:170px">${[0, 1, 2, 3, 4].map((r) => [0, 1, 2, 3, 4].map((c) => `<rect x="${60 + c * 30}" y="${20 + r * 28}" width="26" height="24" rx="4" fill="${c > r ? "var(--bg)" : "rgba(88,204,2," + (0.2 + 0.15 * (4 - Math.abs(r - c))) + ")"}" stroke="var(--line)" class="fi"/>`).join("")).join("")}<text x="30" y="92" class="fig-sub" transform="rotate(-90 30 92)">each word…</text><text x="135" y="162" class="fig-sub">…may only look left</text></svg>`,
       },
       {
         t: "The cost and the caveat",
@@ -114,7 +115,7 @@
       },
     ],
     guide: [
-      "Find the row for <b>it</b> in the heatmap. Which column is brightest?",
+      'Find the row for "it" in the heatmap. Which column is brightest?',
       "Tick <b>Causal mask</b>. The upper-right triangle fades out.",
       "Untick <b>Scale by √d_k</b>. The weights get sharper, closer to all-or-nothing.",
     ],
@@ -136,7 +137,7 @@
       const card = el(`<div class="card"><div class="controls">
         <label class="field" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="mk"> Causal mask (decoder mode)</label>
         <label class="field" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="sc" checked> Scale by √d_k</label></div>
-        <div id="hm"></div><div class="legend"><span style="--c:var(--teal)">high weight</span><span style="--c:var(--line-2)">~zero / masked</span></div>
+        <div id="hm" style="overflow-x:auto;border:2px solid var(--line);border-radius:12px;max-width:100%" tabindex="0" role="region" aria-label="Attention weights, scrolls sideways on a phone"></div><div class="legend"><span style="--c:var(--teal)">high weight</span><span style="--c:var(--line-2)">~zero / masked</span></div>
         <div class="callout" id="out"></div></div>`);
       root.appendChild(card);
       qs("#mk", card).onchange = (e) => {
@@ -175,10 +176,14 @@
       root.appendChild(
         predict({
           id: "a10-at-1",
-          q: "Adding 5 to every score in a row changes the softmax weights…",
-          opts: ["All increase", "Not at all", "Uniformly toward 0"],
+          q: "Tick <b>Causal mask</b>. The first token in the sentence can only see itself. What weight does it give itself?",
+          opts: [
+            "0, since masked scores become zero",
+            "1.00, as nothing else is left to share",
+            "0.125, an equal share of the eight tokens",
+          ],
           a: 1,
-          why: "e^(s+c) factors out and cancels in normalisation. That's also why max-subtraction for numerical stability is exact.",
+          why: "The mask sets every later token's score to −∞, so their weights are exactly 0. Softmax weights must still add up to 1, so the one token left (itself) gets <b>1.00</b>. Row by row the weights then spread over more of the earlier tokens, giving the triangle you see.",
         }),
       );
       root.appendChild(

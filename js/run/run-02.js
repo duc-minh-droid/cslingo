@@ -5,16 +5,17 @@
 
   function run(box, life, o) {
     const who = o.who || (N.player && N.player.state && N.player.state().who) || "sprout";
-    const root = N.el(`<div class="rn" tabindex="0" aria-label="Step-through figure. Arrow keys step, space plays.">
+    const root =
+      N.el(`<div class="rn" tabindex="0" role="group" aria-label="Step-through figure. Arrow keys step, space plays.">
       <div class="rn-grid ${o.code ? "has-code" : ""}"><div class="rn-stage"></div>${o.code ? `<ol class="rn-code">${o.code.map((l, n) => `<li data-n="${n + 1}"><code>${N.esc(l)}</code></li>`).join("")}</ol>` : ""}</div>
-      <div class="rn-dock"><div class="rn-cap">${N.mascot ? N.mascot({ who, size: 46, mood: "idle", cls: "rn-m" }) : ""}<div class="rn-bubble" aria-live="polite"><span class="rn-n"></span><span class="rn-t"></span></div></div>
-      <div class="rn-ask" hidden></div>
+      <div class="rn-dock"><div class="rn-cap">${N.mascot ? N.mascot({ who, size: 46, mood: "idle", cls: "rn-m" }) : ""}<div class="rn-bubble" aria-live="polite" aria-atomic="true"><span class="rn-n"></span><span class="rn-t"></span></div></div>
+      <div class="rn-ask" role="group" aria-label="Predict" hidden></div><div class="rn-sr" role="status" aria-live="polite" aria-atomic="true"></div>
       <div class="rn-bar">
         <button class="rn-b" data-a="back" aria-label="Step back">${I.back}</button>
         <button class="rn-b rn-play" data-a="play" aria-label="Play">${I.play}</button>
         <button class="rn-b" data-a="next" aria-label="Step forward">${I.next}</button>
         <input class="rn-scrub" type="range" min="0" max="1" value="0" aria-label="Scrub through the steps">
-        <button class="rn-b rn-speed" data-a="speed" aria-label="Speed">1×</button>
+        <button class="rn-b rn-speed" data-a="speed" aria-label="Speed 1×">1×</button>
         <button class="rn-b" data-a="again" aria-label="Restart">${I.again}</button>
       </div></div></div>`);
     box.appendChild(root);
@@ -24,6 +25,7 @@
       num = $(".rn-n"),
       scrub = $(".rn-scrub"),
       askBox = $(".rn-ask"),
+      said = $(".rn-sr"), // a screen reader hears the question and its result here (the box itself is hidden between asks)
       playBtn = $(".rn-play");
     let frames = [],
       i = 0,
@@ -86,6 +88,7 @@
       }
       root.querySelectorAll(".rn-code li").forEach((li, n) => li.classList.toggle("on", n === f.line));
       scrub.value = k;
+      scrub.setAttribute("aria-valuetext", `Step ${k + 1} of ${frames.length}`);
       scrub.style.setProperty("--p", frames.length > 1 ? k / (frames.length - 1) : 1);
       $('[data-a="back"]').disabled = k === 0;
       $('[data-a="next"]').disabled = k === frames.length - 1;
@@ -134,16 +137,53 @@
       playBtn.setAttribute("aria-label", "Play");
     }
 
+    const plainText = (h) =>
+      String(h ?? "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\$+/g, "") // maths marks
+        .replace(/\s+/g, " ")
+        .trim();
+    /** Say something to a screen reader: clear the live region, then fill it a moment later so repeats are heard too. */
+    function say(html) {
+      said.textContent = "";
+      life.timeout(() => (said.textContent = plainText(html)), 40);
+    }
+    /** The words a target shows, one text piece at a time ("B" and "4" read as "B 4", not "B4"). */
+    function shown(e) {
+      const out = [],
+        w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT);
+      for (let n = w.nextNode(); n; n = w.nextNode()) if (n.nodeValue.trim()) out.push(n.nodeValue.trim());
+      return out.join(" ");
+    }
+    /** A pick target's name: what it shows (with its key in front when the text doesn't already carry it). */
+    function pickName(p) {
+      const t = plainText(p.getAttribute("aria-label") || shown(p)),
+        key = p.dataset.k;
+      return t && (!key || t.includes(key)) ? t : key ? (t ? `${key}: ${t}` : key) : t || "option";
+    }
+    const PICK_ATTRS = ["tabindex", "role", "aria-label"];
+
     function ask(k) {
       const A = frames[k].ask,
         wasPlaying = playing;
       clearTimeout(timer);
       asking = { k, A, wasPlaying };
       const picks = [...stage.querySelectorAll(A.pick)];
-      picks.forEach((p) => p.classList.add("rn-pickable"));
+      // each target is reachable and named for the keyboard and a screen reader (Enter or Space picks it)
+      asking.was = picks.map((p) => [p, PICK_ATTRS.map((a) => p.getAttribute(a))]);
+      picks.forEach((p) => {
+        p.classList.add("rn-pickable");
+        p.setAttribute("tabindex", "0");
+        p.setAttribute("role", "button");
+        p.setAttribute("aria-label", pickName(p));
+      });
       askBox.hidden = false;
       askBox.classList.remove("m-ghost");
       askBox.innerHTML = `<div class="rn-q"><span class="rn-qtag">Predict</span>${A.q}</div><button class="rn-skip">Show me</button>`;
+      say(`Predict. ${A.q} Choose a highlighted part with Tab, then Enter, or press Show me.`);
+      // when the keyboard asked for this step, it carries on there: the first target takes focus
+      const at = document.activeElement;
+      if (picks[0] && at && root.contains(at) && at.matches(":focus-visible")) picks[0].focus({ preventScroll: true });
       N.sfx && N.sfx.play("pop");
       const x = FX();
       if (x)
@@ -171,7 +211,11 @@
       const { k, A, wasPlaying } = asking,
         right = [].concat(A.a).map(String);
       stage.removeEventListener("click", asking.onPick);
-      stage.querySelectorAll(".rn-pickable").forEach((p) => p.classList.remove("rn-pickable"));
+      const hadFocus = stage.contains(document.activeElement) || askBox.contains(document.activeElement); // a target or Show me
+      asking.was.forEach(([p, old]) => {
+        p.classList.remove("rn-pickable");
+        PICK_ATTRS.forEach((a, n) => (old[n] === null ? p.removeAttribute(a) : p.setAttribute(a, old[n])));
+      });
       const ok = v !== null && right.includes(String(v)),
         skipped = v === null;
       answered.add(k);
@@ -186,8 +230,14 @@
         }
       }
       askBox.innerHTML = `<div class="rn-res ${skipped ? "" : ok ? "ok" : "no"}"><b>${skipped ? "Here's what happens." : ok ? "Spot on!" : `Not quite: it's ${right.join(" or ")}.`}</b> ${A.why || ""}</div>`;
+      say(askBox.innerHTML);
       if (FX()) FX().reveal(askBox.firstElementChild);
       goto(k);
+      if (hadFocus) {
+        // the control that had focus (a target, or Show me) is going away: carry on from Next (or the figure at the last step)
+        const nx = $('[data-a="next"]');
+        (nx && !nx.disabled ? nx : root).focus({ preventScroll: true });
+      }
       life.timeout(
         () => {
           if (!asking) hideAsk();
@@ -343,6 +393,7 @@
       } else if (a === "speed") {
         speed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
         b.textContent = speed + "×";
+        b.setAttribute("aria-label", `Speed ${speed}×`);
         N.sfx && N.sfx.play("select");
       }
     });
@@ -352,14 +403,18 @@
     });
     root.addEventListener("keydown", (e) => {
       if (e.target.closest("input")) return;
-      const k = e.key;
-      if (k === "ArrowRight") {
+      const k = e.key,
+        pk = asking && e.target.closest && e.target.closest(".rn-pickable");
+      if (pk && stage.contains(pk) && (k === "Enter" || k === " ")) {
+        resolve(pk.dataset.k);
+      } else if (k === "ArrowRight") {
         stop();
         forward();
       } else if (k === "ArrowLeft") {
         stop();
         if (!asking) goto(i - 1);
-      } else if (k === " ") {
+      } else if (k === " " && e.target === root) {
+        // Space plays only from the figure itself: on a button inside it, Space presses that button
         playing ? stop() : play();
       } else return;
       e.preventDefault();

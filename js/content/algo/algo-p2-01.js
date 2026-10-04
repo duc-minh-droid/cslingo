@@ -269,21 +269,28 @@
           h: 205,
         }),
         c: {
-          q: "A graph has a negative edge. What can go wrong with Dijkstra?",
-          o: [
-            "Nothing: it still gives the right distances, only more slowly",
-            "It can settle a node before a cheaper route appears",
-            "It just runs more slowly than usual because of the extra checks",
-          ],
-          a: 1,
-          why: 'The "settled means final" guarantee depends on non-negative weights.',
+          type: "pick",
+          q: "Dijkstra runs from A on this directed graph, which has one negative edge (D→B = −4). Tap the node it <b>settles with the wrong distance</b>.",
+          fig: N.qfig.graph(
+            { A: [50, 105], C: [170, 45], D: [300, 45], B: [300, 170] },
+            [
+              ["A", "C", 3],
+              ["C", "D", 4],
+              ["D", "B", "−4"],
+              ["A", "B", 5],
+            ],
+            { pick: "nodes", directed: true, w: 360, h: 215 },
+          ),
+          a: "B",
+          hint: "Dijkstra settles the smallest tentative distance first. Is there a cheaper way to reach that node that it hasn't seen yet?",
+          why: "After settling C (3), the smallest tentative distance is B at 5, so B is locked in. But A → C → D → B costs 3 + 4 − 4 = 3. “Settled means final” needs non-negative weights.",
         },
       },
     ],
     guide: [
-      "Press <b>Step</b> repeatedly. The settled set grows A → C → B → D → E.",
-      "Before each press, guess which node settles next (smallest tentative number in the table).",
-      'Tick <b>Make B→D weight −10</b>, then step again. Find the moment the "final" answer turns out to be wrong.',
+      "Press <b>Settle next</b> repeatedly. The settled set grows A → C → B → D → E.",
+      "Before each press, guess which node settles next (the tentative node with the smallest distance in the table).",
+      'Tick <b>Negative-edge mode</b> (it makes C→B = −3), then press <b>Settle next</b> again. Find the moment the "final" answer turns out to be wrong.',
     ],
   };
 
@@ -396,7 +403,7 @@
             "Settling relaxes the node's edges: <code>dist[v] = min(dist[v], dist[u] + w(u,v))</code>.",
             "The correctness argument needs <b>non-negative edges</b>. A negative one can undercut a node that's already settled.",
           ],
-          "The closest node on the frontier is already optimal: settle it, then relax its edges.",
+          "The closest tentative node is already optimal: settle it, then relax its edges.",
         ),
       );
     },

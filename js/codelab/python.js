@@ -5,6 +5,9 @@
   // One worker is shared by every code lab and starts loading as soon as a lab opens. An infinite loop is stopped after 2 s
   // by terminating the worker (it restarts in the background). Python values come back as plain JS: dict -> object,
   // list/tuple -> array, set -> Set, float("inf") -> Infinity.
+  // Loading Python is watched: the worker posts a "stage" message at each step (started, module fetched) and "ready" at the end, and
+  // every message restarts a PY.bootMs clock. If the clock runs out the boot is abandoned (PY.ready is cleared, so the next run starts
+  // a fresh one) and runOne() answers with noPy, so a stalled download can never leave "Loading Python…" on screen for ever.
   const PY_WORKER = `
     let py = null;
     const conv = (x) => (x && x.toJs ? x.toJs({ dict_converter: Object.fromEntries, create_pyproxies: false }) : x);
@@ -18,7 +21,9 @@
       const m = e.data;
       try {
         if (m.type === "init") {
+          postMessage({ type: "stage" });
           const mod = await import(m.base + "pyodide.mjs");
+          postMessage({ type: "stage" });
           py = await mod.loadPyodide({ indexURL: m.base });
           py.runPython("_frames = []\\ndef trace(f):\\n    if len(_frames) < 4000:\\n        _frames.append(f)\\n");
           postMessage({ type: "ready" }); return;
@@ -36,12 +41,26 @@
         else postMessage({ type: "done", ok: false, error: nice(err), frames: frames() });
       }
     };`;
-  const PY = { w: null, ready: null, loaded: false, error: "" };
+  const PY = { w: null, ready: null, loaded: false, error: "", bootMs: 75000 };
   let blobUrl = null;
   function pyBoot() {
     if (PY.ready) return PY.ready;
     PY.ready = new Promise((resolve) => {
-      let w = null;
+      let w = null,
+        timer = 0,
+        over = false;
+      const arm = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fail("it took too long to load"), PY.bootMs);
+      };
+      const fail = (why) => {
+        if (over) return;
+        over = true;
+        clearTimeout(timer);
+        PY.error = why;
+        if (PY.w === w) pyReset(); // stops this worker and clears PY.ready, so the next run starts a fresh boot
+        resolve(null);
+      };
       try {
         blobUrl = blobUrl || URL.createObjectURL(new Blob([PY_WORKER], { type: "text/javascript" }));
         w = new Worker(blobUrl, { type: "module" });
@@ -51,23 +70,21 @@
       }
       PY.w = w;
       w.onmessage = (e) => {
+        if (over) return;
+        arm(); // any message from the worker means it is alive and moving: restart the clock
         if (e.data.type === "ready") {
+          over = true;
+          clearTimeout(timer);
           PY.loaded = true;
           resolve(w);
-        } else if (e.data.type === "fail") {
-          PY.error = e.data.error;
-          resolve(null);
-        }
+        } else if (e.data.type === "fail") fail(e.data.error);
       };
-      w.onerror = () => {
-        PY.error = "the Python files couldn't be loaded";
-        resolve(null);
-      };
+      w.onerror = () => fail("the Python files couldn't be loaded");
       try {
         w.postMessage({ type: "init", base: new URL("vendor/pyodide/", document.baseURI).href });
+        arm();
       } catch (e) {
-        PY.error = String(e);
-        resolve(null);
+        fail(String(e));
       }
     });
     return PY.ready;
@@ -88,7 +105,11 @@
       pyReset();
       return {
         ok: false,
-        error: `Python couldn't start (${PY.error || "unknown reason"}). The code labs need the site opened over http(s), not as a file.`,
+        error: `Python couldn't start (${PY.error || "unknown reason"}). ${
+          location.protocol === "file:"
+            ? "The code labs need the site opened over http(s), not as a file."
+            : "Check your connection, then press Run tests to try again."
+        }`,
         frames: [],
         noPy: true,
       };

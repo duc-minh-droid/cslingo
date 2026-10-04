@@ -47,6 +47,12 @@
   min-width: 0;
   max-height: 34vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* a long explanation scrolls: its bottom edge fades while there is more to read (js/player/shell.js toggles .more) */
+.pl-fb-t.more {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
 }
 .pl-fb-h {
   display: flex;
@@ -126,6 +132,10 @@
   }
   .pl-fb-row .mascot {
     --ms: 48px !important;
+  }
+  .pl-fb-t {
+    max-height: 45vh;
+    max-height: 45dvh;
   }
   .pl-read .lesson-title {
     font-size: 24px;

@@ -27,15 +27,22 @@
           },
         ]),
         c: {
-          q: "A byte with parity has 2 bits flipped. What happens?",
-          o: ["It's detected", "It's missed", "It's corrected"],
-          a: 1,
-          why: "Parity only sees odd vs even. It also can't say <i>which</i> bit flipped, so it can't correct anything.",
+          type: "cat",
+          q: "A byte is sent with one even-parity bit. For each error pattern, does parity <b>detect</b> it or <b>miss</b> it?",
+          buckets: ["Detected", "Missed"],
+          items: [
+            ["1 bit flipped", 0],
+            ["2 bits flipped", 1],
+            ["3 bits flipped", 0],
+            ["4 bits flipped", 1],
+          ],
+          hint: "Parity only counts whether the number of 1s is odd or even. What does an even number of flips do to that count?",
+          why: "Parity only checks odd vs even. An odd number of flips (1, 3) changes it and is detected. An even number (2, 4) restores it and is missed. It can't say <i>which</i> bit flipped, either.",
         },
       },
       {
         t: "CRC = long division with XOR",
-        b: `<p>Treat the bits as a polynomial and divide by a fixed <b>generator</b>, here 1101. It's ordinary long division, except subtraction is <b>XOR</b> (no borrows). Append zeros first, one per generator degree.</p>`,
+        b: `<p>A <b>cyclic redundancy check (CRC)</b> treats the bits as a polynomial and divides by a fixed <b>generator</b>, here 1101. It's ordinary long division, except subtraction is <b>XOR</b> (no borrows). Append zeros first, one per generator degree.</p>`,
         v: `<pre class="fig-wrap mono" style="font-size:14px;line-height:1.55;margin:0">  1011000   ← message 1011 + three 0s
 ^ 1101
   ────
@@ -69,7 +76,7 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
     ],
     guide: [
       "Click bits in the parity strip. One flip is caught; a second flip hides the first.",
-      "Step through the CRC division and check each XOR yourself.",
+      "Press <b>Next XOR</b> to step through the CRC division and check each XOR yourself.",
       "Confirm the final remainder: 100.",
     ],
   };
@@ -216,10 +223,16 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
           },
         ]),
         c: {
-          q: "The syndrome is p4 = 1, p2 = 1, p1 = 0. Which position is wrong?",
-          o: ["3", "5", "6"],
-          a: 2,
-          why: "p4 p2 p1 = 110 in binary = 6. Each position's binary number is exactly the set of checks it belongs to.",
+          type: "match",
+          q: "In a 7-bit Hamming codeword, match each pattern of failed checks to the <b>position</b> of the flipped bit.",
+          pairs: [
+            ["p4 = 1, p2 = 1, p1 = 0", "Position 6"],
+            ["p4 = 1, p2 = 0, p1 = 1", "Position 5"],
+            ["p4 = 0, p2 = 1, p1 = 1", "Position 3"],
+            ["p4 = 1, p2 = 1, p1 = 1", "Position 7"],
+          ],
+          hint: "Read the checks p4 p2 p1 as a binary number, with a failed check as 1.",
+          why: "110 in binary is 6, 101 is 5, 011 is 3 and 111 is 7. Each position's binary number is exactly the set of checks it belongs to.",
         },
       },
       {
@@ -230,7 +243,7 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
     guide: [
       "Click one bit of the codeword to corrupt it. The syndrome names its position.",
       "Press <b>Correct</b>. The codeword is fixed.",
-      "Now flip <b>two</b> bits and press Correct. It confidently fixes the wrong one.",
+      "Now flip <i>two</i> bits and press <b>Correct</b>. Is the codeword repaired?",
     ],
   };
 
@@ -316,10 +329,14 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
       root.appendChild(
         predict({
           id: "a6-ham-1",
-          q: "Data 1011 is sent as codeword 0110011. Bit 6 flips on the way. What syndrome does the receiver compute?",
-          opts: ["110 = position 6", "010 = position 2", "000: the error goes unnoticed"],
+          q: "Two bits of a Hamming(7,4) codeword flip in transit. The receiver corrects the position its syndrome names. What happens?",
+          opts: [
+            "It flips a third bit, and the data is still wrong",
+            "It repairs both flipped bits",
+            "It notices two errors and refuses to correct",
+          ],
           a: 0,
-          why: "Position 6 is binary 110, so it belongs to p4's and p2's groups but not p1's. Exactly those two checks fail, and the syndrome 110 names the culprit.",
+          why: "Hamming(7,4) can only repair <b>one</b> error. With two flips the failed checks spell out the XOR of the two positions, which is a third position, so the 'fix' damages an innocent bit and nothing warns the receiver. An extra overall parity bit (SECDED) would at least reveal the double error.",
         }),
       );
       root.appendChild(

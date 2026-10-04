@@ -16,6 +16,11 @@
    Python is real CPython (Pyodide, vendor/pyodide) in a Web Worker: 2 s limit per test, so an infinite loop can't freeze the page.
    Results come back as JS: dict -> object, list/tuple -> array, set -> Set, float('inf') -> Infinity. Needs http(s), not file://.
    The editor behaves like an IDE: auto-closing pairs, indent after a colon, Tab = 4 spaces, Ctrl+/ comments, autocomplete.
+   Keys: Ctrl/Cmd+Enter runs the tests. Tab indents, so Esc is the keyboard way out: it blurs the editor and the keydown is consumed
+   (preventDefault, stopPropagation, `e.clEsc = true`), so the player's Esc ("Wait, don't go!") does not also open. A second Esc, now
+   outside the editor, reaches the player as usual. The hint under the editor (.cl-kbd) says so.
+   Python loading is watched (js/codelab/python.js): PY.bootMs (default 75 s, restarts on every worker message) after which a stalled
+   start is abandoned and the run reports noPy; the first noPy stops the test loop.
    All classes are cl- prefixed (css/workshop/). */
 (function () {
   const lab = (NIC.shared.engineCodelab = NIC.shared.engineCodelab || {});

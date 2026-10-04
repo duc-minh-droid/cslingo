@@ -378,10 +378,14 @@
       root.appendChild(
         predict({
           id: "l4-lab-1",
-          q: "You turn mutation to 0 and use crossover only. The diversity line falls to 0 while the best is at 130/144. What happens next?",
-          opts: ["It keeps improving slowly through crossover", "It's stuck for good", "It resets itself"],
-          a: 1,
-          why: "Crossover exploits: it mixes what's already there. If every individual has a 0 where the target needs a 1, no amount of recombination creates the 1. Mutation is the source of new genetic material, the <b>exploration</b> half of the pair.",
+          q: "You choose Generational + <b>Roulette</b>, and every fitness sits between 0.5 and 0.9. How does selection behave?",
+          opts: [
+            "Weak: the best is only about twice the worst's chance",
+            "Strong: the 0.9 individual wins almost every single spin",
+            "None: every individual has exactly the same sized slice",
+          ],
+          a: 0,
+          why: "Roulette slices are sized by raw fitness, and 0.9 is only 1.8 times 0.5, so the wheel is <b>nearly uniform</b> and the pressure is weak. Rank selection would ignore the small gaps and keep the pressure up. That's roulette's weakness when fitnesses are bunched together.",
         }),
       );
       root.appendChild(

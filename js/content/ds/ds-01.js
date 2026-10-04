@@ -160,10 +160,10 @@
         el(`<div class="card"><div class="card-head"><h2>Consistency vs availability</h2><span class="tag">the first trade-off</span></div>
         <p class="dim">The same "tickets left" value is stored on two servers (replicas) in different cities. They copy updates to each other over a network link.</p>
         <div class="controls" id="c1"></div>
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:10px 0">
-          <div class="card" style="margin:0;background:var(--bg-2);text-align:center"><div class="faint">🇬🇧 London replica</div><div class="mono" style="font-size:28px" id="va"></div><button class="btn small" id="buy">Buy 1 ticket here</button></div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center;margin:10px 0">
+          <div class="card" style="margin:0;padding:12px 8px;background:var(--bg-2);text-align:center"><div class="faint">🇬🇧 London replica</div><div class="mono" style="font-size:28px" id="va"></div><button class="btn small" id="buy" style="white-space:normal">Buy 1 ticket here</button></div>
           <button class="btn" id="lnk"></button>
-          <div class="card" style="margin:0;background:var(--bg-2);text-align:center"><div class="faint">🇺🇸 New York replica</div><div class="mono" style="font-size:28px" id="vb"></div><button class="btn small" id="read">Read "tickets left" here</button></div>
+          <div class="card" style="margin:0;padding:12px 8px;background:var(--bg-2);text-align:center"><div class="faint">🇺🇸 New York replica</div><div class="mono" style="font-size:28px" id="vb"></div><button class="btn small" id="read" style="white-space:normal">Read "tickets left" here</button></div>
         </div><div id="clog" class="log"></div></div>`);
       root.appendChild(cv);
       qs("#c1", cv).append(
@@ -225,14 +225,10 @@
       root.appendChild(
         predict({
           id: "ds-why-1",
-          q: "An online shop's single database server dies at 2 a.m. What limitation of the traditional approach is this?",
-          opts: [
-            "Scalability: the server couldn't grow",
-            "Availability and fault tolerance",
-            "Maintenance: it needed an upgrade",
-          ],
-          a: 1,
-          why: "With everything on one server, any fault takes the whole service down. Spreading work over several machines lets the service survive individual faults.",
+          q: "Cut the link and choose <b>stay available</b>. Buy 1 ticket in London (5 → 4), then read in New York. What does New York answer?",
+          opts: ["5, which is stale", "4, since both cities share one copy", "Nothing: it refuses to answer"],
+          a: 0,
+          why: "The link is cut, so the sale never reached New York. In <b>available</b> mode it still answers, with its old copy: 5. Fast, but wrong. In <b>consistent</b> mode it would refuse instead. That is the trade-off: while the network is split, you can't have both.",
         }),
       );
       root.appendChild(

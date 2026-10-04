@@ -113,7 +113,7 @@
       },
       {
         t: "Near neighbours",
-        b: `<p>The hard cases are cousins: <b>Dijkstra</b> and <b>MST</b> both grow outwards greedily, but one minimises a journey and the other the total wiring. <b>CRC</b> and <b>Hamming</b> both add check bits, but only one can repair.</p>`,
+        b: `<p>The hard cases are cousins: <b>Dijkstra</b> and the minimum spanning tree (<b>MST</b>) both grow outwards greedily, but one minimises a journey and the other the total wiring. The cyclic redundancy check (<b>CRC</b>) and <b>Hamming</b> codes both add check bits, but only one can repair.</p>`,
         v: F.compare(
           { title: "Shortest path", c: "blue", body: "cheapest journey from one start" },
           { title: "MST", c: "teal", body: "cheapest wiring for everyone" },

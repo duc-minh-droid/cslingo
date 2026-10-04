@@ -213,15 +213,14 @@
       root.appendChild(
         predict({
           id: "l3-recipe-1",
-          q: "Which two stages use fitness values to <i>make a decision</i>?",
+          q: "In this demo the mutant replaces the weakest member only if it is at least as fit. Over many loops, what can happen to <b>best f</b>?",
           opts: [
-            "Selection and Replacement",
-            "Recombination and Mutation",
-            "Mutation and Replacement",
-            "Only the Fitness stage",
+            "It can only stay the same or rise",
+            "It drops whenever the mutant is poor",
+            "It rises on every single loop",
           ],
           a: 0,
-          why: "Selection uses fitness to decide <b>who breeds</b>. Replacement uses it to decide <b>who survives</b>. Recombination and mutation are blind: they don't look at fitness at all. That's why variation operators <i>explore</i> and selection/replacement <i>exploit</i>.",
+          why: "Only the weakest member is ever overwritten, and only by something at least as good, so the best member always survives: best f never falls. It does not rise every loop, because most mutants are no better than the best (they just replace a weaker member).",
         }),
       );
 

@@ -79,7 +79,7 @@ def convex_hull(points):
     # 1. The pivot: the lowest point (the leftmost one if two are equally low).
     pivot = points[0]
     for q in points:
-        # YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q
+        # YOUR CODE: if q is lower (ties: leftmost), pivot = q
         pass
     trace({"type": "pivot", "pivot": list(pivot)})
 
@@ -104,7 +104,7 @@ def convex_hull(points):
             b = stack[-1]
             t = orient(a, b, p)
             pop = False
-            # YOUR CODE: set pop = True when a -> b -> p is not a left turn (a right turn or straight on)
+            # YOUR CODE: pop = True if a -> b -> p is not a left turn
             pass
             trace({"type": "test", "a": list(a), "b": list(b), "p": list(p), "t": t, "pop": pop, "stack": [list(s) for s in stack]})
             if not pop:
@@ -120,11 +120,11 @@ def convex_hull(points):
     "        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])",
   )
     .replace(
-      "        # YOUR CODE: if q is lower than pivot (smaller y), or level with it but further left, pivot = q\n        pass",
+      "        # YOUR CODE: if q is lower (ties: leftmost), pivot = q\n        pass",
       "        if q[1] < pivot[1] or (q[1] == pivot[1] and q[0] < pivot[0]):\n            pivot = q",
     )
     .replace(
-      "            # YOUR CODE: set pop = True when a -> b -> p is not a left turn (a right turn or straight on)\n            pass",
+      "            # YOUR CODE: pop = True if a -> b -> p is not a left turn\n            pass",
       "            if t <= 0:\n                pop = True",
     );
 

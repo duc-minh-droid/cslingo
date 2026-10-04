@@ -7,6 +7,29 @@
   const L = N.LESSONS;
   const F = N.fig;
 
+  // two groups of towns and the four cables that cross the cut between them (each cable is tappable)
+  const cutPick = () => {
+    const at = { A: [70, 70], B: [70, 190], C: [350, 45], D: [350, 130], E: [350, 215] };
+    const cables = [
+      ["A", "C", 6],
+      ["A", "D", 3],
+      ["B", "D", 8],
+      ["B", "E", 4],
+    ];
+    const wires = cables.map(([a, b, w]) => {
+      const [x1, y1] = at[a],
+        [x2, y2] = at[b],
+        lx = x1 + (x2 - x1) * 0.62,
+        ly = y1 + (y2 - y1) * 0.62;
+      return `<g data-pick="Cable ${a} to ${b}" aria-label="Cable ${a} to ${b}, weight ${w}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--line-2)" stroke-width="3"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="22"/><rect x="${lx - 14}" y="${ly - 12}" width="28" height="22" rx="11" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/><text x="${lx}" y="${ly + 4}" text-anchor="middle" style="font:900 13px var(--sans);fill:var(--ink)">${w}</text></g>`;
+    });
+    const dots = Object.entries(at).map(
+      ([k, [x, y]]) =>
+        `<circle cx="${x}" cy="${y}" r="19" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" style="font:900 15px var(--sans);fill:var(--ink)">${k}</text>`,
+    );
+    return `<svg viewBox="0 0 420 260" role="group" aria-label="Towns A and B on one side of a dashed cut and C, D and E on the other. Four cables cross it: A to C weight 6, A to D weight 3, B to D weight 8, B to E weight 4"><rect x="20" y="25" width="110" height="210" rx="26" fill="var(--bg-2)" stroke="var(--line)" stroke-width="2"/><rect x="290" y="12" width="110" height="236" rx="26" fill="var(--bg-2)" stroke="var(--line)" stroke-width="2"/><line x1="210" y1="6" x2="210" y2="254" stroke="var(--rose)" stroke-width="3" stroke-dasharray="8 6"/>${wires.join("")}${dots.join("")}</svg>`;
+  };
+
   const POS = { A: [70, 150], B: [185, 55], C: [215, 215], D: [345, 80], E: [415, 200] };
   const EDGES = [
     ["A", "B", 4],
@@ -91,14 +114,12 @@
           { title: "Swap to A–C (3)", c: "teal", body: "total = T + 3: <b>strictly cheaper</b>, still connected" },
         ),
         c: {
-          q: "A cut has crossing edges of weight 2, 5 and 7. Which one is guaranteed safe?",
-          o: [
-            "The 5, as the middle value is safest",
-            "The 2, because the lightest edge across a cut is safe",
-            "None: you need to see the whole graph first",
-          ],
-          a: 1,
-          why: "Any spanning tree using the 5 or the 7 can swap to the 2 and only get cheaper.",
+          type: "pick",
+          q: "The dashed line is a cut: it splits the towns into {A, B} and {C, D, E}, and four cables cross it. Tap the cable that is <b>guaranteed</b> to be in some minimum spanning tree.",
+          fig: cutPick(),
+          a: "Cable A to D",
+          hint: "Picture a tree that uses a heavier crossing cable. Could you swap it for another crossing cable and only get cheaper?",
+          why: "The lightest edge across a cut is always safe. Any spanning tree using one of the heavier crossing cables (6, 8 or 4) can swap to the 3 and only get cheaper, and it stays connected.",
         },
       },
       {
@@ -123,7 +144,7 @@
       },
     ],
     guide: [
-      "Look at the dashed red line and click the <b>cheapest</b> edge crossing it.",
+      "Look at the dashed red line and click the <i>cheapest</i> edge crossing it.",
       "Solve all three cuts. Each answer is a forced MST edge.",
       "Say the rule out loud: lightest across a cut is safe, heaviest on a cycle is never needed.",
     ],

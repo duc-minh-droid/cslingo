@@ -45,6 +45,25 @@ async function bankTest() {
       }
     });
   }
+  // lesson quick checks join the revision pool too (typed ones: cat, order, pick, match): they must render and grade as well
+  if (NIC.content && NIC.content.all) await NIC.content.all();
+  for (const x of NIC.bank.all({ learnedOnly: false }).filter((y) => y.src === "check")) {
+    const Q = x.Q,
+      t = Q.type || "mcq",
+      at = `check ${x.mod} step ${Q.step} (${t})`;
+    try {
+      const box = document.createElement("div");
+      holder.appendChild(box);
+      T[t].render(Q, box, () => {}, x.id);
+      const v = right(Q);
+      if (!T[t].grade(Q, v)) failures.push(`${at}: correct answer grades as wrong`);
+      T[t].reveal(Q, box, v, true);
+      if (/\[object Object\]|\bundefined\b|\bNaN\b/.test(box.textContent + " " + T[t].answer(Q)))
+        failures.push(`${at}: shows a raw value`);
+    } catch (e) {
+      failures.push(`${at}: ${e.message}`);
+    }
+  }
   holder.remove();
   // deck / record / stats on a sandboxed copy of progress
   const keep = { rev: localStorage.getItem("nic.rev"), done: localStorage.getItem("nic.lessonDone") };
@@ -61,6 +80,7 @@ async function bankTest() {
     const s1 = NIC.bank.stats();
     if (s1.seen !== 12 || s1.due !== s0.due - 6)
       failures.push(`record: seen ${s1.seen}, due ${s1.due} (was ${s0.due})`);
+    scheduleChecks(failures);
     localStorage.setItem("nic.lessonDone", "{}");
     const onlyBoss = NIC.bank.all({ learnedOnly: true }).filter((x) => x.src !== "boss");
     if (onlyBoss.length) failures.push("learnedOnly: unfinished modules leaked into the pool");
@@ -72,4 +92,88 @@ async function bankTest() {
     missing = NIC.modules.filter((m) => m.num !== "Boss" && !m.workshop && !covered.has(m.id)).map((m) => m.id);
   if (missing.length) failures.push(`modules with no bank questions: ${missing.join(", ")}`);
   return { questions: n, modulesCovered: covered.size, failures };
+}
+
+/* Review scheduling (run inside bankTest's sandbox: every module finished, `nic.rev` is restored afterwards). Uses real question ids
+   and explicit clocks, so nothing depends on today's date. Covers: due by local calendar day, record() promoting only a question
+   that was due, wrong always demoting, dueSeen() ignoring ids that no longer exist, and the helpers for the revision complete screen. */
+function scheduleChecks(failures) {
+  const bank = NIC.bank,
+    [A, A2, A3] = bank.all({ learnedOnly: true }).filter((x) => x.src === "bank");
+  const at = (day, h, m = 0, s = 0) => new Date(2030, 5, 15 + day, h, m, s).getTime(); // local time, day 0 = 15 June 2030
+  const put = (o) => localStorage.setItem("nic.rev", JSON.stringify(o));
+  const get = (id) => JSON.parse(localStorage.getItem("nic.rev"))[id];
+  const isDue = (box, t, now) => {
+    put({ [A.id]: { box, n: 1, right: box > 1 ? 1 : 0, t } });
+    return bank.dueSeen({ now }) === 1;
+  };
+  const must = (ok, msg) => ok || failures.push(`schedule: ${msg}`);
+  // due by calendar day, not by elapsed hours
+  must(
+    isDue(2, at(0, 23, 59), at(1, 0, 1)),
+    "box 2 answered at 23:59 should be due two minutes later, at the next midnight",
+  );
+  must(!isDue(2, at(0, 0, 1), at(0, 23, 59)), "box 2 answered at 00:01 is not due the same day");
+  must(isDue(2, at(0, 0, 1), at(1, 0, 0)), "box 2 answered at 00:01 is due from the next midnight");
+  must(!isDue(3, at(0, 10), at(2, 23, 59)), "box 3 (3 days) must not be due on day 2");
+  must(isDue(3, at(0, 10), at(3, 0, 0)), "box 3 (3 days) is due from midnight of day 3");
+  must(!isDue(4, at(0, 23, 59), at(6, 23, 59)) && isDue(4, at(0, 23, 59), at(7, 0, 0)), "box 4 (7 days) boundary");
+  must(!isDue(5, at(0, 8), at(13, 23, 59)) && isDue(5, at(0, 8), at(14, 0, 0)), "box 5 (14 days) boundary");
+  must(isDue(1, at(0, 12), at(0, 12)), "box 1 is always due");
+  // record(): promote only when due, demote always
+  put({});
+  let r = bank.record(A.id, true, at(0, 9));
+  must(
+    r.box === 2 && r.n === 1 && r.right === 1 && r.t === at(0, 9) && !r.fixed,
+    "first right answer moves a new question to box 2",
+  );
+  r = bank.record(A.id, true, at(0, 15)); // answered again the same day: not due, so no promotion and the schedule is untouched
+  must(
+    r.box === 2 && get(A.id).t === at(0, 9) && r.n === 2 && r.right === 2,
+    "an early right answer keeps the box and the due date but counts in the totals",
+  );
+  r = bank.record(A.id, false, at(0, 16)); // wrong early still demotes
+  must(
+    r.box === 1 && get(A.id).t === at(0, 16) && r.n === 3 && r.right === 2,
+    "a wrong answer always sends the question back to box 1",
+  );
+  r = bank.record(A.id, true, at(0, 17)); // box 1 is due: promotes, and it is a missed question put right
+  must(r.box === 2 && r.fixed === true, "a missed question answered right is promoted and reported as fixed");
+  put({ [A.id]: { box: 3, n: 2, right: 2, t: at(-3, 9) } });
+  r = bank.record(A.id, true, at(0, 9));
+  must(r.box === 4 && r.fixed === false, "a due question answered right moves up one box (not fixed: never missed)");
+  put({ [A.id]: { box: 5, n: 4, right: 4, t: at(-20, 9) } });
+  must(bank.record(A.id, true, at(0, 9)).box === 5, "box 5 stays at 5");
+  put({ [A.id]: { box: 4, n: 3, right: 3, t: at(0, 9) } });
+  must(bank.record(A.id, false, at(1, 9)).box === 1, "a wrong answer on a not-due question sends it to box 1");
+  put({ [A.id]: { box: 2, n: 1, right: 1 } }); // a log entry with no date (should not hide the question forever)
+  must(bank.dueSeen({ now: at(0, 9) }) === 1, "an entry with no date counts as due");
+  // dueSeen() ignores log entries for questions that no longer exist (the bank is loaded here)
+  put({
+    [A.id]: { box: 1, n: 1, right: 0, t: at(0, 9) },
+    [`${A.mod}:zzzzzzz`]: { box: 1, n: 1, right: 0, t: at(0, 9) },
+  });
+  must(bank.dueSeen({ now: at(0, 10) }) === 1, "dueSeen counted a log entry whose question no longer exists");
+  // helpers for the revision complete screen
+  put({
+    [A.id]: { box: 1, n: 2, right: 1, t: at(0, 9) }, // missed: due again straight away
+    [A2.id]: { box: 3, n: 1, right: 1, t: at(0, 9) }, // right: back in 3 days
+    [A3.id]: { box: 2, n: 1, right: 1, t: at(0, 9) }, // right: back tomorrow
+  });
+  const ar = bank.afterRound([A.id, A2.id, A3.id, "no:such"], { now: at(0, 10) });
+  must(
+    ar.soon === 1 && ar.next === at(1, 0, 0) && ar.nextLabel === "tomorrow",
+    `afterRound gave ${JSON.stringify(ar)}`,
+  );
+  must(
+    bank.afterRound([A.id, A2.id], { now: at(0, 10) }).nextLabel === "in 3 days",
+    "afterRound: next label for a box-3 question",
+  );
+  must(
+    bank.whenLabel(at(5, 0), at(0, 22)) === "in 5 days" && bank.whenLabel(at(0, 0), at(0, 22)) === "today",
+    "whenLabel wording",
+  );
+  must(bank.nextDue({ now: at(0, 10) }) === at(1, 0, 0), "nextDue is the earliest not-yet-due date");
+  const bonus = [5, 10, 20].map(bank.roundBonus);
+  must(bonus.join() === "5,7,10" && bonus.every((x, k) => k === 0 || x >= bonus[k - 1]), `roundBonus gave ${bonus}`);
 }

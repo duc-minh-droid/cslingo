@@ -138,10 +138,10 @@
       root.appendChild(
         predict({
           id: "l3-tsp-2",
-          q: "How many <b>distinct</b> tours does the 5-city map have?",
-          opts: ["120", "24", "12", "5"],
-          a: 2,
-          why: "(5−1)!/2 = 24/2 = <b>12</b>. Fix the start city (÷5 rotations) and ignore direction (÷2 reversals). Brute force is trivial here, which makes it a good sandbox for watching hillclimbing.",
+          q: "Drag the <b>Cities k</b> slider from 5 to 6. How many times more distinct tours are there?",
+          opts: ["Twice as many", "5 times as many", "6 times as many"],
+          a: 1,
+          why: "Distinct tours = (k−1)!/2. 5 cities have 4!/2 = 12 tours and 6 cities have 5!/2 = <b>60</b>: five times as many. Going from k to k + 1 cities multiplies the tours by k, so the count explodes. Brute force is easy for 5 cities, which makes this a good sandbox for watching hillclimbing.",
         }),
       );
 
@@ -296,27 +296,27 @@
       root.appendChild(
         predict({
           id: "l3-hc-1",
-          q: "In the lecture trace, current = <code>BADEC</code> (28) and the mutant <code>BADCE</code> is also 28. What does hillclimbing do?",
+          q: "In the lecture trace, the current tour is <code>ABDEC</code> (32) and the mutant <code>ABEDC</code> is 33. What happens next?",
           opts: [
-            "Rejects it, because it isn't an improvement",
-            "Accepts it: HC keeps mutants that are no worse",
-            "Stops, because no progress means it's finished",
+            "It keeps ABDEC and mutates ABDEC again",
+            "It moves to ABEDC and mutates that next",
+            "It stops, because a worse mutant means it is stuck",
           ],
-          a: 1,
-          why: "Step 2 says <i>if f(m) is <b>no worse</b> than f(c), replace c with m</i>. Accepting equal moves lets HC drift across <b>plateaus</b> instead of freezing, which matters on landscapes with lots of equal-fitness regions.",
+          a: 0,
+          why: "Step 2 only replaces c when m is no worse. 33 is longer than 32, so the mutant is thrown away and c stays <code>ABDEC</code>. Step 1 then copies c again for the next mutant. One worse mutant doesn't mean HC is stuck: it is stuck only when <i>every</i> neighbour is worse.",
         }),
       );
       root.appendChild(
         predict({
           id: "l3-hc-2",
-          q: "HC reaches a tour where <b>none</b> of its 5 adjacent-swap neighbours is shorter. Is that tour guaranteed to be optimal?",
+          q: "Press <b>Reset</b> and run 30 steps a few times. On this 5-city map every run that gets stuck ends at 28. What does that show?",
           opts: [
-            "Yes: if no neighbour is better, nothing is",
-            "No: it's only a local optimum for this mutation",
-            "Only if HC ran for more than k! steps",
+            "Only that this map is kind: every dead end is a best tour",
+            "Hillclimbing always finds the best tour on any map",
+            "28 is the only tour length this map can have",
           ],
-          a: 1,
-          why: '"Nothing better nearby" depends on what <i>nearby</i> means, and the mutation operator defines that. With a different operator (e.g. swap <i>any</i> two cities) the same tour might have better neighbours. Try random runs: some start points get stuck above 28.',
+          a: 0,
+          why: "On this tiny map every tour where no adjacent swap helps has length 28, which is also the best, so every run succeeds. That's luck of the map, not a guarantee. A longer tour can have no shorter neighbour on other maps (or with a different operator), and then HC stops on a hill that isn't the highest. The lecture trace shows tours of 32, 33 and 38 too, so 28 is not the only length.",
         }),
       );
       root.appendChild(
