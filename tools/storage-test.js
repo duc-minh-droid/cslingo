@@ -62,7 +62,7 @@ async function brokenStorage(browser, url, problems, label, stub) {
   if (!r.done) problems.push(`${label}: a finished lesson was not remembered for the session`);
   if (!(r.xp > 0)) problems.push(`${label}: no XP was kept`);
   if (!r.nodes) problems.push(`${label}: the path was empty after the lesson`);
-  const warned = await page.evaluate(() => /Progress can't be saved/.test(document.body.innerText));
+  const warned = await page.evaluate(() => !!NIC.store.warned); // the toast itself fades after 5 s
   if (!warned) problems.push(`${label}: the learner was never told progress can't be saved`);
   await context.close();
 }

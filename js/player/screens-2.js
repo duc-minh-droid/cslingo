@@ -240,7 +240,7 @@
       qsa("[data-retry]", node).forEach((b) =>
         b.addEventListener("click", () => {
           // "Retake the quiz" forgets every answer, so it starts again at the intro; "Retry the N missed" keeps the right ones
-          if (b.dataset.retry === "all") N.bossReset(B.id);
+          if (b.dataset.retry === "all") N.bossFresh = B.id;
           else {
             const s2 = store.get("nic.quiz", {});
             miss.forEach(([, i]) => delete s2[key(i)]);

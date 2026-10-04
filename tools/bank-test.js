@@ -45,6 +45,25 @@ async function bankTest() {
       }
     });
   }
+  // lesson quick checks join the revision pool too (typed ones: cat, order, pick, match): they must render and grade as well
+  if (NIC.content && NIC.content.all) await NIC.content.all();
+  for (const x of NIC.bank.all({ learnedOnly: false }).filter((y) => y.src === "check")) {
+    const Q = x.Q,
+      t = Q.type || "mcq",
+      at = `check ${x.mod} step ${Q.step} (${t})`;
+    try {
+      const box = document.createElement("div");
+      holder.appendChild(box);
+      T[t].render(Q, box, () => {}, x.id);
+      const v = right(Q);
+      if (!T[t].grade(Q, v)) failures.push(`${at}: correct answer grades as wrong`);
+      T[t].reveal(Q, box, v, true);
+      if (/\[object Object\]|\bundefined\b|\bNaN\b/.test(box.textContent + " " + T[t].answer(Q)))
+        failures.push(`${at}: shows a raw value`);
+    } catch (e) {
+      failures.push(`${at}: ${e.message}`);
+    }
+  }
   holder.remove();
   // deck / record / stats on a sandboxed copy of progress
   const keep = { rev: localStorage.getItem("nic.rev"), done: localStorage.getItem("nic.lessonDone") };

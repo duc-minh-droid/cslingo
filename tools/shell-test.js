@@ -239,8 +239,9 @@ export async function shellChecks(page) {
       kind: NIC.player.state().kind,
       left: Object.keys(NIC.store.get("nic.quiz", {})).length,
     }));
-    if (retake.kind !== "bossIntro" || retake.left)
-      bad(`Retry quiz opened "${retake.kind}" with ${retake.left} old answers, not the intro`);
+    // the retake starts at the intro but wipes nothing: backing out must not lose the earlier answers
+    if (retake.kind !== "bossIntro" || retake.left !== 8)
+      bad(`Retry quiz opened "${retake.kind}" with ${retake.left} stored answers, not the intro with all 8 kept`);
     await p.evaluate(() => NIC.player.close()); // the X: it also puts the path's address back
     await p.waitForTimeout(500);
     await quiz(8);

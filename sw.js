@@ -90,7 +90,11 @@ self.addEventListener("message", (e) => {
 /* A page: the network, unless it is slow or broken and a saved copy exists. */
 async function page(req) {
   const net = fetch(req).then(async (r) => {
-    if (r.ok) (await caches.open(CACHE)).put(SHELL, r.clone());
+    // only the app's own document is the shell (not trailer/ or another page in scope), and a complete cache keeps the shell of its build
+    const path = new URL(req.url).pathname,
+      root = new URL("./", self.registration.scope).pathname;
+    if (r.ok && (path === root || path === root + "index.html") && !(await ready(CACHE)))
+      (await caches.open(CACHE)).put(SHELL, r.clone());
     return r;
   });
   net.catch(() => {}); // the race below may already have settled: never leave this one unhandled

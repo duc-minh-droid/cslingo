@@ -117,7 +117,10 @@
   function bossSession(mod, B) {
     const key = (i) => `${B.id}-${i}`,
       st = store.get("nic.quiz", {});
-    let todo = B.qs.map((_, i) => i).filter((i) => !(key(i) in st && typeof st[key(i)] === "object"));
+    // a retake (N.bossFresh) asks every question again but keeps the stored answers until each is replaced, so backing out loses nothing
+    const fresh = N.bossFresh === B.id;
+    if (fresh) N.bossFresh = null;
+    const todo = B.qs.map((_, i) => i).filter((i) => fresh || !(key(i) in st && typeof st[key(i)] === "object"));
     pl.S.boss = B;
     if (!todo.length) {
       pl.S.screens = [{ kind: "bossResult" }];
@@ -301,9 +304,15 @@
       pl.S.revWrong = saved.wrong || [];
       pl.S.i = pl.S.firstTotal ? 1 + pl.S.firstTotal : 0; // already answered ones are skipped, the intro only shows for a fresh round
       if (pl.S.i >= pl.S.screens.length) {
-        revWrite(null);
-        pl.S.i = 0;
-        pl.S.firstTotal = pl.S.firstRight = pl.S.xp = 0;
+        // the main run was finished: carry on with the mistakes round (or finish) instead of asking everything again
+        const base = pl.S.screens.length;
+        const bad = new Set(pl.S.revWrong);
+        const redo = pl.S.screens.filter((x) => x.revId && bad.has(x.revId));
+        if (redo.length) {
+          pl.S.screens.push({ kind: "mistakes" });
+          redo.forEach((x) => pl.S.screens.push({ ...x, retry: true, practice: false, bi: null }));
+        }
+        pl.S.i = base;
       } else if (pl.S.firstTotal && fx())
         setTimeout(
           () =>

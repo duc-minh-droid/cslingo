@@ -153,6 +153,7 @@
   function onboarding() {
     if (navigator.webdriver || store.get("nic.onboarded", false) || Object.keys(store.get("nic.lessonDone", {})).length)
       return; // automated test browsers skip it
+    if (!app.lastRoute && (onboarding.waited = (onboarding.waited || 0) + 1) < 100) return setTimeout(onboarding, 200); // the first route hasn't rendered (its course is still downloading)
     if (NIC.player.isOpen()) {
       // a cold deep link into a lesson: the welcome waits until the player closes and the path is showing
       window.addEventListener("nic:player-closed", () => setTimeout(onboarding, 400), { once: true });

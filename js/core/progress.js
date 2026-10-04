@@ -75,8 +75,15 @@
   window.addEventListener("nic:progress", () => {
     try {
       if (localStorage.getItem("csl.persist") || !Object.keys(store.get("nic.lessonDone", {})).length) return;
-      localStorage.setItem("csl.persist", "1"); // once; outside nic.*, so it is neither synced nor reset
-      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+      if (!navigator.storage || !navigator.storage.persist) return;
+      // browsers often say no at first: ask again at a later lesson (at most once a day, four times), and stop once granted
+      const [n, t] = (localStorage.getItem("csl.persistTry") || "0:0").split(":").map(Number);
+      if (n >= 4 || Date.now() - t < 864e5) return;
+      localStorage.setItem("csl.persistTry", `${n + 1}:${Date.now()}`); // outside nic.*, so these are neither synced nor reset
+      navigator.storage
+        .persist()
+        .then((ok) => ok && localStorage.setItem("csl.persist", "1"))
+        .catch(() => {});
     } catch {
       /* storage blocked: there is nothing to protect */
     }

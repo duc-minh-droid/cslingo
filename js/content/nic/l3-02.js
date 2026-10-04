@@ -309,7 +309,7 @@
       root.appendChild(
         predict({
           id: "l3-hc-2",
-          q: "Press <b>Reset</b> and run 30 steps a few times. On this 5-city map every run ends at 28. What does that show?",
+          q: "Press <b>Reset</b> and run 30 steps a few times. On this 5-city map every run that gets stuck ends at 28. What does that show?",
           opts: [
             "Only that this map is kind: every dead end is a best tour",
             "Hillclimbing always finds the best tour on any map",

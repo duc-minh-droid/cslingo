@@ -59,7 +59,9 @@
       qsa(".us-opt", menu).forEach((b) =>
         b.addEventListener("click", () => {
           closeMenu(true);
-          units[+b.dataset.k].scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "start" });
+          const target = units[+b.dataset.k];
+          target.style.scrollMarginTop = Math.round(box.getBoundingClientRect().bottom + 8) + "px"; // its divider lands just under the banner
+          target.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "start" });
           NIC.sfx.play("whoosh");
         }),
       );
@@ -71,6 +73,10 @@
       const dir = u > curU ? 1 : -1,
         open = !menu.hidden;
       curU = u;
+      const lost =
+        !!document.activeElement &&
+        document.activeElement.classList.contains("us-pick") &&
+        inn.contains(document.activeElement);
       const sec = units[u];
       box.className = `unit-sticky u-${UNIT_COLORS[u % 4]}`;
       inn.innerHTML = `<div class="us-t"><small>${sec.dataset.lbl} · ${sec.dataset.p}</small><h2>${
@@ -81,6 +87,7 @@
       qs(".us-guide", inn).addEventListener("click", () => guidebook(sec));
       const pick = qs(".us-pick", inn);
       if (pick) pick.addEventListener("click", () => (menu.hidden ? openMenu() : closeMenu(false)));
+      if (lost && pick) pick.focus({ preventScroll: true }); // the button that had the keyboard was just replaced
       // the banner is sticky: never leave an inline transform on it
       if (!still && fx.ok && !fx.reduce())
         fx.clean(
@@ -99,7 +106,7 @@
       const y = box.getBoundingClientRect().bottom;
       let u = 0;
       units.forEach((sec, k) => {
-        if (sec.getBoundingClientRect().top < y + 10) u = k;
+        if (sec.getBoundingClientRect().top < y + 34) u = k; // slack: a one-line banner after the jump is shorter
       });
       return u;
     };
@@ -391,7 +398,7 @@
     };
     qs(".np-go", nodePopEl).addEventListener("click", (e) => {
       e.stopPropagation();
-      if (boss && (st === "done" || failed)) NIC.bossReset(m.id); // a retake starts again at the intro, not on the old result
+      if (boss && (st === "done" || failed)) NIC.bossFresh = m.id; // a retake asks everything again; the stored answers stay until each is replaced
       launch();
     });
     const rs = qs(".np-restart", nodePopEl);

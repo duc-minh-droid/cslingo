@@ -52,7 +52,9 @@
         try {
           await NIC.sync.signOut();
         } catch (e) {
-          fx.toast("<b>Couldn't sign out</b><span>Check your connection and try again.</span>");
+          fx.toast(
+            `<b>Couldn't sign out</b><span>${e && e.unsynced ? e.message : "Check your connection and try again."}</span>`,
+          );
         }
       });
   };

@@ -156,7 +156,7 @@
     // persistence
     if (sc.bossIdx !== undefined) {
       const st = store.get("nic.quiz", {});
-      st[sc.idKey] = { v, ok };
+      if (!(st[sc.idKey] && st[sc.idKey].ok && !ok)) st[sc.idKey] = { v, ok }; // a right answer is never replaced by a wrong one (as in the account merge)
       store.set("nic.quiz", st);
       if (ok) game().track("boss");
       window.dispatchEvent(new Event("nic:progress"));

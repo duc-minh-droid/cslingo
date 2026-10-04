@@ -180,7 +180,7 @@
           opts: [
             "0, since masked scores become zero",
             "1.00, as nothing else is left to share",
-            "0.20, an equal share of the five tokens",
+            "0.125, an equal share of the eight tokens",
           ],
           a: 1,
           why: "The mask sets every later token's score to −∞, so their weights are exactly 0. Softmax weights must still add up to 1, so the one token left (itself) gets <b>1.00</b>. Row by row the weights then spread over more of the earlier tokens, giving the triangle you see.",

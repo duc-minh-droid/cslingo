@@ -306,7 +306,7 @@
   };
   const POPS = {
     course:
-      () => `<label class="pc-search">${IC.search}<input type="search" role="combobox" aria-expanded="false" aria-controls="pc-res" aria-autocomplete="list" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd aria-hidden="true">/</kbd></label><div class="pc-res" id="pc-res" role="listbox" aria-label="Matching lessons"></div>
+      () => `<label class="pc-search">${IC.search}<input type="search" role="combobox" aria-expanded="false" aria-controls="pc-res" aria-autocomplete="list" placeholder="Find a lesson" autocomplete="off" aria-label="Find a lesson"><kbd aria-hidden="true">/</kbd></label><div class="pc-res" id="pc-res" role="listbox" aria-label="Matching lessons"></div><p class="faint pc-more" role="status" hidden></p>
       <div class="pc-courses"><h3>Your courses</h3>${SUBJ_ORDER.map((k) => {
         const S = SUBJECTS[k],
           p = progress(inSubj(k));
@@ -357,7 +357,8 @@
         }),
       );
       const inp = qs("input", card),
-        res = qs(".pc-res", card);
+        res = qs(".pc-res", card),
+        note = qs(".pc-more", card);
       let hits = [],
         at = -1;
       const setActive = (k) => {
@@ -379,6 +380,7 @@
         if (!q) {
           hits = [];
           res.innerHTML = "";
+          note.hidden = true;
           inp.removeAttribute("aria-activedescendant");
           return;
         }
@@ -391,11 +393,12 @@
                   unit = (S.lectures[m.lecture] || "").split(" — ")[0];
                 return `<button class="pc-hit" role="option" id="pc-hit-${k}" aria-selected="false" data-id="${m.id}"><span class="pc-num">${numLabel(m)}</span><span>${esc(m.title)}<small>${S.name}${unit ? " · " + unit : ""}</small></span></button>`;
               })
-              .join("") +
-            (found.length > hits.length
-              ? `<p class="faint pc-more">+${found.length - hits.length} more. Keep typing to narrow it down.</p>`
-              : "")
-          : `<p class="faint">No lessons match "${esc(q)}".</p>`;
+              .join("") + ""
+          : "";
+        note.hidden = hits.length && found.length <= hits.length; // outside the listbox: only options belong inside it
+        note.textContent = !hits.length
+          ? `No lessons match "${q}".`
+          : `+${found.length - hits.length} more. Keep typing to narrow it down.`;
         qsa(".pc-hit", res).forEach((b) =>
           b.addEventListener("click", () => {
             closePop();

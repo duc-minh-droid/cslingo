@@ -10,7 +10,11 @@
   /** Nothing to lose: the very first screen with no answer given (or a finished lesson), so closing needs no "Wait, don't go". */
   const nothingToLose = () => {
     const sc = pl.S.screens[pl.S.i];
-    return (sc && ["complete", "streak"].includes(sc.kind)) || (pl.S.i === 0 && !pl.S.answered);
+    return (
+      (sc && ["complete", "streak"].includes(sc.kind)) ||
+      (pl.S.i === 0 && !pl.S.answered) ||
+      (pl.S.kind === "revise" && !pl.S.firstTotal)
+    );
   };
   const QUIT_COPY = {
     lesson: "Your place is saved, but the XP for this lesson isn't banked yet.",
@@ -105,7 +109,7 @@
   /* Enter belongs to the control the keyboard has focused (Quit, Back, an answer option, a link, a details summary): it presses
      that control, it does not mean "Continue". Only the Continue/Check button itself continues. Two exceptions keep the quick
      flow: a control the mouse pressed (Enter continues, as it always did) and an option that is already selected (Enter checks it). */
-  const CONTROL = "button, a[href], summary, [role=radio]";
+  const CONTROL = "button, a[href], summary, [role=radio], [role=button], [data-pick]";
   const ownsEnter = (t) => {
     const c = t.closest && t.closest(CONTROL);
     if (!c || c === pl.S.go || (pressed && pressed === c)) return false;

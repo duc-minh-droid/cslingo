@@ -62,6 +62,18 @@
     return d;
   };
 
+  /** Read the stored session. A stored login whose token couldn't be refreshed (offline, a flaky network) stays marked as this
+      device's account: it is retried when the network returns, and only a real log out or a rejected login clears it. */
+  async function readSession() {
+    const { data, error } = await sb.auth.getSession();
+    const u = data && data.session && data.session.user;
+    const net =
+      error && (navigator.onLine === false || /fetch|network|timeout|load failed/i.test(String(error.message)));
+    if (!u && net && S.raw("nic.syncUser")) return setState("offline");
+    setUser(u ? { id: u.id, email: u.email } : null, "INITIAL");
+  }
+  const recover = () => !user && sb && S.raw("nic.syncUser") && readSession().catch((e) => console.error(e));
+
   function client() {
     if (ready) return ready;
     ready = N.lazy("vendor/supabase.js").then(() => {
@@ -70,13 +82,11 @@
       });
       sb.auth.onAuthStateChange((ev, session) => {
         const u = session && session.user;
+        // an empty session at start-up or after a failed refresh is not a log out (the offline case is handled below)
+        if (!u && ev !== "SIGNED_OUT" && S.raw("nic.syncUser")) return;
         setUser(u ? { id: u.id, email: u.email } : null, ev);
       });
-      return sb.auth.getSession().then(({ data }) => {
-        const u = data.session && data.session.user;
-        setUser(u ? { id: u.id, email: u.email } : null, "INITIAL");
-        return sb;
-      });
+      return readSession().then(() => sb);
     });
     ready.catch(() => (ready = null)); // offline when the library was fetched: the next attempt starts again
     return ready;
@@ -129,7 +139,11 @@
       if (!user || user.id !== u.id) return; // logged out while the question was open
       if (!pick) return sb.auth.signOut({ scope: "local" }).catch((e) => console.error(e)); // "Cancel": nothing was merged
       if (pick === "fresh") {
+        if (S.raw("nic.syncDirty") && S.raw("nic.lastUser"))
+          S.setRaw("csl.backup." + S.raw("nic.lastUser"), JSON.stringify(snapshot())); // changes that never reached the old account
         S.keys().forEach((k) => k.startsWith("nic.") && !KEEP_ON_FRESH.has(k) && S.removeRaw(k));
+        S.removeRaw("csl.revSession"); // a paused revision round belongs to the old account
+        S.removeRaw("nic.syncDirty");
         refreshNow();
       }
     }
@@ -161,104 +175,7 @@
   /* ---------- merge: progress only ever grows, so two devices can never erase each other ----------
      Each key has a rule (union of finished lessons, higher XP per day, latest review of a question, ...). Anything without
      a rule takes the side that changed last. A "Reset everything" stamps nic.resetAt, and the newer reset wins wholesale. */
-  const U = (x, y, f) => {
-    const o = { ...x };
-    Object.keys(y).forEach((k) => {
-      o[k] = k in o ? f(o[k], y[k]) : y[k];
-    });
-    return o;
-  };
-  const stable = (v) =>
-    Array.isArray(v)
-      ? v.map(stable)
-      : v && typeof v === "object"
-        ? Object.fromEntries(
-            Object.keys(v)
-              .sort()
-              .map((k) => [k, stable(v[k])]),
-          )
-        : v;
-  const canon = (s) => {
-    const p = parse(s);
-    return p === undefined ? String(s) : JSON.stringify(stable(p));
-  };
-  const sameData = (a, b) => {
-    const ka = Object.keys(a),
-      kb = Object.keys(b);
-    return ka.length === kb.length && ka.every((k) => k in b && canon(a[k]) === canon(b[k]));
-  };
-  const sumDays = (d) => Object.values(d).reduce((t, n) => t + num(n), 0);
-  const RULES = {
-    "nic.lessonDone": (x, y) => U(x, y, (p, q) => p || q),
-    "nic.visited": (x, y) => U(x, y, (p, q) => p || q),
-    "nic.predict": (x, y) => U(x, y, (p, q) => p || q),
-    "nic.chests": (x, y) => U(x, y, (p, q) => (p < q ? p : q)),
-    "nic.ach": (x, y) => U(x, y, (p, q) => (p < q ? p : q)),
-    "nic.lessonPos": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
-    "nic.lessonSeen": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
-    "nic.stats": (x, y) => U(x, y, (p, q) => Math.max(num(p), num(q))),
-    "nic.quiz": (x, y) => U(x, y, (p, q) => ((p && p.ok) || !(q && q.ok) ? p : q)), // a right answer is never replaced by a wrong one
-    "nic.revRounds": (x, y) => U(x, y, (p, q) => p), // finished revision rounds: every device's rounds are kept
-    "nic.rev": (x, y) => U(x, y, (p, q) => (num(q && q.t) > num(p && p.t) ? q : p)), // the most recent review of each question
-    "nic.activeDays": (x, y) => [...new Set([...x, ...y])].sort(),
-    "nic.freeze": (x, y) => {
-      const used = [...new Set([...(x.used || []), ...(y.used || [])])];
-      return {
-        n: Math.max(
-          0,
-          Math.max(num(x.n), num(y.n)) - (used.length - Math.max((x.used || []).length, (y.used || []).length)),
-        ),
-        used,
-      };
-    },
-    "nic.xp": (x, y) => {
-      const dx = x.days || {},
-        dy = y.days || {},
-        days = U(dx, dy, (p, q) => Math.max(num(p), num(q)));
-      return {
-        ...x,
-        days,
-        total: Math.max(num(x.total), num(y.total)) + Math.max(0, sumDays(days) - Math.max(sumDays(dx), sumDays(dy))),
-      };
-    },
-    "nic.quests": (x, y) => {
-      if (x.date !== y.date) return x.date > y.date ? x : y;
-      const list = x.list.map((it) => {
-        const o = y.list.find((z) => z.id === it.id);
-        return o
-          ? {
-              ...it,
-              prog: Math.max(num(it.prog), num(o.prog)),
-              done: it.done || o.done,
-              claimed: it.claimed || o.claimed,
-            }
-          : it;
-      });
-      return { ...x, list: list.concat(y.list.filter((z) => !x.list.some((it) => it.id === z.id))) };
-    },
-  };
-  /** Merge two snapshots {"nic.*": raw string}. preferLocal says which side wins keys that have no rule. */
-  function mergeData(local, cloud, preferLocal) {
-    const rl = num(parse(local["nic.resetAt"])),
-      rc = num(parse(cloud["nic.resetAt"]));
-    if (rc > rl) return { ...cloud }; // the account was reset after this device last synced
-    if (rl > rc) return { ...local }; // this device reset: the account follows
-    const out = {};
-    new Set([...Object.keys(local), ...Object.keys(cloud)]).forEach((k) => {
-      const a = local[k],
-        b = cloud[k];
-      if (a === undefined) out[k] = b;
-      else if (b === undefined) out[k] = a;
-      else if (canon(a) === canon(b)) out[k] = a;
-      else {
-        const pa = parse(a),
-          pb = parse(b),
-          r = RULES[k];
-        out[k] = r && pa !== undefined && pb !== undefined ? JSON.stringify(r(pa, pb)) : preferLocal ? a : b;
-      }
-    });
-    return out;
-  }
+  const { stable, canon, sameData, sumDays, mergeData } = N.shared.syncMerge;
 
   /* ---------- the account's tables: one row per item, so a save only touches what changed ----------
      public.progress_items (kind, item, value): finished lessons, quiz answers, XP per day, reviews, ...
@@ -465,11 +382,14 @@
   window.addEventListener("online", () => {
     warned = false;
     if (user) syncNow();
-    else if (!sb && S.raw("nic.syncUser")) client().catch((e) => console.error(e)); // the library never loaded while offline: try again
+    else if (!sb && S.raw("nic.syncUser"))
+      client().catch((e) => console.error(e)); // the library never loaded while offline: try again
+    else recover(); // loaded, but the session couldn't be refreshed offline
   });
   window.addEventListener("offline", () => user && setState("offline"));
   setInterval(() => {
     if (user && document.visibilityState === "visible") syncNow();
+    else if (!user) recover();
   }, 45000);
   window.addEventListener("hashchange", () => {
     if (waiting && !(N.player && N.player.isOpen())) {
@@ -518,6 +438,11 @@
     async signOut() {
       const c = await client();
       await syncNow();
+      if (S.raw("nic.syncDirty")) {
+        const e = new Error("Some changes on this device haven't reached your account yet. Connect and try again.");
+        e.unsynced = true;
+        throw e; // signing out now would leave them only on this device
+      }
       await c.auth.signOut({ scope: "local" });
     },
     async changePassword(password) {

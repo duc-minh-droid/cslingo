@@ -300,7 +300,7 @@
         b: `<p>A low-scoring solution might be at the <b>bottom of the tallest mountain</b>. Keeping it gives it a chance to "develop" and climb.</p>`,
         c: {
           type: "pick",
-          q: "The tallest peak is the best solution. One of these population members scores low but is still worth keeping. Tap it.",
+          q: "The tallest peak is the best solution. Two of these population members score low, but only one sits at the foot of that tallest peak, so it is worth keeping. Tap it.",
           fig: NIC.qfig.curve(
             (x) => 0.1 + bump(x, 0.2, 0.08, 0.45) + bump(x, 0.75, 0.1, 1),
             [

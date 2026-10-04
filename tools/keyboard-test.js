@@ -210,6 +210,33 @@ export async function keyboardChecks(page) {
     await page.evaluate(() => NIC.player.close(true));
   }
 
+  // 6d. Enter on a pick target selects it; it must not also press Check (a multi-answer pick needs more than one tap)
+  const pickOpened = await page.evaluate(async () => {
+    await NIC.content.all();
+    await NIC.bank.load();
+    const it = NIC.bank
+      .all({ learnedOnly: false })
+      .find((x) => x.src === "bank" && x.Q.type === "pick" && Array.isArray(x.Q.a) && x.Q.a.length > 1);
+    if (!it) return false;
+    if (NIC.player.isOpen()) NIC.player.close(true);
+    NIC.player.revise({ ids: [it.id] });
+    await new Promise((r) => setTimeout(r, 600));
+    document.querySelector(".pl-actions .btn:last-child").click(); // the intro
+    await new Promise((r) => setTimeout(r, 600));
+    const t = document.querySelector(".pl-screen:not(.leaving) [data-pick]");
+    if (!t) return false;
+    t.focus();
+    return true;
+  });
+  if (!pickOpened) problems.push("could not open a multi-answer pick question");
+  else {
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(200);
+    const foot = await page.evaluate(() => NIC.player.state().foot);
+    if (!/check/.test(foot)) problems.push("Enter on a pick target graded the question after one selection");
+    await page.evaluate(() => NIC.player.close(true));
+  }
+
   // 7. Back after a lesson closes must not reopen it, and the browser's Back during a lesson asks before leaving
   const where = () => page.evaluate(() => ({ hash: location.hash, open: NIC.player.isOpen() }));
   const goHome = async () => {

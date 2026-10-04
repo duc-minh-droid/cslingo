@@ -68,7 +68,7 @@
           items: [
             ["Two neighbours bouncing a dead route between them", 0],
             ["A loop A→B→C→A that runs through three routers", 1],
-            ["Advertising a route back to the neighbour it came from", 0],
+            ["Telling a neighbour a route works through you when it really goes through that neighbour", 0],
             ["The B–C link failing in the first place", 1],
           ],
           hint: "It only changes what a router tells the neighbour whose route it is using.",
