@@ -30,7 +30,7 @@
             ? `<text x="${mx}" y="${my + 4}" text-anchor="middle" style="font:800 13px var(--sans);fill:var(--text-dim)">${wt}</text>`
             : "";
         return pick === "edges"
-          ? `<g data-pick="${a}-${b}" aria-label="${esc(`Edge ${a} to ${b}${wt !== undefined ? `, weight ${wt}` : ""}`)}">${vis}<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="transparent" stroke-width="18"/>${lbl}</g>`
+          ? `<g data-pick="${a}-${b}" data-edge aria-label="${esc(`Edge ${a} to ${b}${wt !== undefined ? `, weight ${wt}` : ""}`)}"><line class="pk-edge" x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}"/>${vis}<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="transparent" stroke-width="18"/>${lbl}</g>`
           : vis + lbl;
       })
       .join("");

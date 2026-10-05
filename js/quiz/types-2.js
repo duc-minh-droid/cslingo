@@ -356,6 +356,8 @@
         if (old) old.remove();
         rings.delete(e);
         // a bare shape already gets its own selected look (.sel in css/quiz.css); only a group needs the ring for that
+        // an edge is highlighted along its own line (.pk-edge), not by a box around its diagonal
+        if (e.hasAttribute("data-edge")) return;
         const r = state && (state !== "sel" || e instanceof SVGGElement) && ringRect(e, `pk-ring ${state}`, 5);
         if (r) rings.set(e, r);
       },
@@ -364,6 +366,7 @@
         const old = focusRings.get(e);
         if (old) old.remove();
         focusRings.delete(e);
+        if (e.hasAttribute("data-edge")) return;
         const r = on && ringRect(e, "pk-focus", 9);
         if (r) focusRings.set(e, r);
       },

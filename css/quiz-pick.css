@@ -1,0 +1,116 @@
+/* pick (click on diagram) */
+.q-pick svg {
+  width: 100%;
+  display: block;
+  overflow: visible; /* the focus ring of a target at the figure's edge isn't cut off */
+}
+.q-pick,
+.q-pick [data-pick] {
+  -webkit-tap-highlight-color: transparent; /* the dark box phones flash around a tapped shape */
+  -webkit-user-select: none;
+  user-select: none;
+}
+.q-pick .pickable {
+  cursor: pointer;
+  transition:
+    opacity var(--dur-2) ease,
+    filter var(--dur-2) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .q-pick .pickable:hover {
+    filter: drop-shadow(0 0 5px rgba(28, 176, 246, 0.7));
+  }
+}
+.q-pick .pickable,
+.q-pick .pickable:focus,
+.q-pick [data-pick]:focus {
+  outline: none;
+} /* no browser focus box (it showed as a black rectangle) */
+/* keyboard focus: a ring drawn around SVG targets (TYPES.pick.focusRing, wider than the selection ring), an outline around HTML ones */
+.q-pick .pk-focus {
+  fill: none;
+  stroke: var(--blue-ink);
+  stroke-width: 3px;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.q-pick :not(svg *)[data-pick]:focus-visible {
+  outline: 3px solid var(--blue-ink);
+  outline-offset: 2px;
+}
+/* selected / graded: a rounded ring around the element's whole box (drawn by TYPES.pick.ring), so cells, rows, cards and nodes
+   all get the same clean highlight instead of a black rectangle around each shape inside them */
+.q-pick .pk-ring {
+  fill: var(--blue);
+  fill-opacity: 0.14;
+  stroke: var(--blue);
+  stroke-width: 3px;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.q-pick .pk-ring.pk-right {
+  fill: var(--teal);
+  stroke: var(--teal);
+}
+.q-pick .pk-ring.pk-wrong {
+  fill: var(--rose);
+  stroke: var(--rose);
+}
+.q-pick .pk-ring.pk-missed {
+  fill: var(--teal);
+  fill-opacity: 0.08;
+  stroke: var(--teal);
+  stroke-dasharray: 6 5;
+}
+/* a picked graph edge: a soft round band along the line itself (focus is a dashed band, so both can show) */
+.q-pick .pk-edge {
+  stroke: transparent;
+  stroke-width: 12px;
+  stroke-linecap: round;
+  fill: none;
+  pointer-events: none;
+  transition: stroke var(--dur-2) ease;
+}
+.q-pick [data-edge]:focus-visible .pk-edge {
+  stroke: var(--blue-dim);
+}
+.q-pick [data-edge].sel .pk-edge {
+  stroke: var(--blue);
+  stroke-opacity: 0.35;
+}
+.q-pick [data-edge].pk-right .pk-edge {
+  stroke: var(--teal);
+  stroke-opacity: 0.45;
+}
+.q-pick [data-edge].pk-wrong .pk-edge {
+  stroke: var(--rose);
+  stroke-opacity: 0.45;
+}
+.q-pick [data-edge].pk-missed .pk-edge {
+  stroke: var(--teal);
+  stroke-opacity: 0.3;
+  stroke-dasharray: 2 9;
+}
+@media (hover: hover) and (pointer: fine) {
+  .q-pick [data-edge].pickable:hover {
+    filter: none;
+  }
+  .q-pick [data-edge].pickable:hover .pk-edge {
+    stroke: var(--blue);
+    stroke-opacity: 0.22;
+  }
+}
+/* picks that are plain HTML boxes rather than SVG */
+.q-pick :not(svg *)[data-pick].sel {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* a pick that is a bare shape (no group around it): a blue outline plus a soft halo */
+.q-pick :is(circle, rect, ellipse, polygon, path, line).sel {
+  stroke: var(--blue) !important;
+  stroke-width: 4px !important;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(28, 176, 246, 0.6));
+}
