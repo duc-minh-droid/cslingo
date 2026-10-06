@@ -1,0 +1,294 @@
+/* CSLingo explainer videos: the 1080 x 1080 canvas and the shared pieces scenes are built from.
+   Same rules as the app: stickers with a solid lip, no gradients, no soft shadows, Nunito, ink shades for text,
+   on-shades for text on a saturated fill, no white colour/fill/stroke (use var(--bg) / var(--panel)). Tokens come from css/styles/tokens-main.css. */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg-2);
+  overflow: hidden;
+  font-family: var(--sans);
+  color: var(--text);
+}
+body.rec {
+  background: var(--bg);
+}
+
+/* ---------- canvas ---------- */
+.v-root {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1080px;
+  height: 1080px;
+  margin-left: -540px;
+  transform-origin: 50% 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+body.rec .v-root {
+  margin-left: 0;
+  left: 0;
+}
+.v-scene {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.v-stage {
+  position: absolute;
+  left: 72px;
+  top: 262px;
+  width: 936px;
+  height: 640px;
+}
+.v-bare .v-stage {
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1080px;
+}
+.v-progress {
+  position: absolute;
+  left: 72px;
+  top: 26px;
+  width: 936px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--line);
+}
+.v-progress i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 8px;
+  background: var(--teal);
+}
+.v-kicker {
+  position: absolute;
+  left: 72px;
+  top: 74px;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal-ink);
+}
+.v-title {
+  position: absolute;
+  left: 72px;
+  top: 114px;
+  width: 936px;
+}
+.v-title-line {
+  font-size: 66px;
+  line-height: 1.1;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.v-caption {
+  position: absolute;
+  left: 72px;
+  top: 928px;
+  width: 936px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 38px;
+  line-height: 1.22;
+  font-weight: 800;
+  color: var(--ink);
+  visibility: hidden;
+}
+.v-mascot {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.v-mascot svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- colour roles ----------
+   green = valid / correct, red = invalid / wrong, blue = what we are changing or looking at, orange = missing / attention,
+   purple = the operator (swap, cross, repair), grey = neutral. */
+.c-green {
+  --c: var(--teal);
+  --c-ink: var(--teal-ink);
+  --c-dim: var(--teal-dim);
+  --c-edge: var(--teal-edge);
+  --c-lip: var(--teal-lip);
+  --c-on: var(--teal-on);
+}
+.c-blue {
+  --c: var(--blue);
+  --c-ink: var(--blue-ink);
+  --c-dim: var(--blue-dim);
+  --c-edge: var(--blue-edge);
+  --c-lip: var(--blue-lip);
+  --c-on: var(--blue-on);
+}
+.c-red {
+  --c: var(--rose);
+  --c-ink: var(--rose-ink);
+  --c-dim: var(--rose-dim);
+  --c-edge: var(--rose-edge);
+  --c-lip: var(--rose-lip);
+  --c-on: var(--rose-on);
+}
+.c-orange {
+  --c: var(--amber);
+  --c-ink: var(--amber-ink);
+  --c-dim: var(--amber-dim);
+  --c-edge: var(--amber-edge);
+  --c-lip: var(--amber-lip);
+  --c-on: var(--amber-on);
+}
+.c-purple {
+  --c: var(--violet);
+  --c-ink: var(--violet-ink);
+  --c-dim: var(--violet-dim);
+  --c-edge: var(--violet-edge);
+  --c-lip: var(--violet-lip);
+  --c-on: var(--violet-on);
+}
+.c-grey {
+  --c: var(--line-2);
+  --c-ink: var(--text-dim);
+  --c-dim: var(--panel-2);
+  --c-edge: var(--line-2);
+  --c-lip: var(--node-off-lip);
+  --c-on: var(--ink);
+}
+
+/* ---------- stickers ---------- */
+.v-card {
+  position: absolute;
+  box-sizing: border-box;
+  border: 3px solid var(--c-edge, var(--line-2));
+  border-radius: 26px;
+  background: var(--c-dim, var(--panel));
+  box-shadow: 0 6px 0 var(--c-edge, var(--line-2));
+  color: var(--c-ink, var(--ink));
+  font-weight: 800;
+}
+.v-card.plain {
+  background: var(--panel);
+  color: var(--ink);
+}
+/* one gene of a chromosome: a rounded tile with one letter or number in it */
+.v-gene {
+  position: absolute;
+  box-sizing: border-box;
+  width: 104px;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--c-edge, var(--line-2));
+  border-radius: 24px;
+  background: var(--c-dim, var(--panel));
+  box-shadow: 0 6px 0 var(--c-edge, var(--line-2));
+  color: var(--c-ink, var(--ink));
+  font-size: 58px;
+  font-weight: 900;
+  line-height: 1;
+}
+.v-gene.solid {
+  background: var(--c);
+  border-color: var(--c-lip);
+  box-shadow: 0 6px 0 var(--c-lip);
+  color: var(--c-on);
+}
+.v-gene.ghost {
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+/* a small pill label */
+.v-tag {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 6px 18px 7px;
+  border: 3px solid var(--c-edge, var(--line-2));
+  border-radius: 999px;
+  background: var(--c-dim, var(--panel-2));
+  color: var(--c-ink, var(--ink));
+  font-size: 28px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.v-tag.solid {
+  background: var(--c);
+  border-color: var(--c-lip);
+  color: var(--c-on);
+}
+/* plain text on the stage */
+.v-text {
+  position: absolute;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.v-text.dim {
+  color: var(--text-dim);
+}
+.v-text.big {
+  font-size: 44px;
+  font-weight: 900;
+}
+.v-mono {
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+/* ---------- preview controls (hidden when recording) ---------- */
+.v-ui {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  background: var(--bg);
+  border-top: 2px solid var(--line);
+}
+.v-ui input[type="range"] {
+  flex: 1;
+}
+.v-btn {
+  min-width: 84px;
+  padding: 8px 14px;
+  border: 2px solid var(--blue-edge);
+  border-radius: 12px;
+  background: var(--blue-dim);
+  box-shadow: 0 3px 0 var(--blue-edge);
+  color: var(--blue-ink);
+  font: 900 15px var(--sans);
+  cursor: pointer;
+}
+.v-time {
+  min-width: 90px;
+  font: 800 15px var(--sans);
+  color: var(--text-dim);
+}
+body.rec .v-ui {
+  display: none;
+}
+/* recording is frame by frame: nothing may animate on its own */
+body.rec *,
+body.rec *::before,
+body.rec *::after {
+  animation: none !important;
+  transition: none !important;
+}
