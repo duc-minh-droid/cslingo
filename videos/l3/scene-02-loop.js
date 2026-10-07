@@ -51,7 +51,7 @@
   const T = {
     fit: 2.8,
     tourA: 4.35,
-    tourB: 5.0,
+    tourB: 5.3,
     cut: 6.15,
     kid: 6.7,
     mut: 8.25,
@@ -187,9 +187,10 @@
           });
           const isLoser = i === 1 || i === 3;
           const tour = i < 2 ? T.tourA : T.tourB;
-          const dim = isLoser ? ramp(t, tour + 0.4, tour + 0.7, E.lin) * (1 - ramp(t, 6.1, 6.4, E.lin)) : 0;
+          const dim = isLoser ? ramp(t, tour + 0.35, tour + 0.65, E.lin) * (1 - ramp(t, 6.1, 6.4, E.lin)) : 0;
+          const pass = i >= 2 ? ramp(t, 4.7, 4.9, E.lin) * (1 - ramp(t, 5.15, 5.35, E.lin)) : 0;
           const winner = i === 0 || i === 2;
-          const winK = winner ? ramp(t, tour + 0.4, tour + 0.55, E.lin) * (1 - ramp(t, 6.2, 6.5, E.lin)) : 0;
+          const winK = winner ? ramp(t, tour + 0.35, tour + 0.5, E.lin) * (1 - ramp(t, 6.2, 6.5, E.lin)) : 0;
           const frameK = ramp(t, tour, tour + 0.2, E.lin) * (1 - ramp(t, 6.2, 6.5, E.lin));
           const isWeak = i === WEAK;
           const slide = isWeak ? ramp(t, T.out, T.out + 0.5, E.inOut) : 0;
@@ -198,13 +199,14 @@
           else setFrame(r, "violet", frameK, null);
           const nVal = L3.count(0, F[i], t >= t0 ? clamp((nLit - 0.001) / Math.max(1, ones.length)) : 0);
           r.pill.set({ text: `f = ${t >= t0 ? Math.max(nLit, 0) : nVal}`, ...pop(pk) });
-          V.place(r.g, { x: -(1 - k) * 40 + slide * 170, o: Math.min(clamp(k * 3), 1 - slide) * (1 - 0.65 * dim) });
+          V.place(r.g, { x: -(1 - k) * 40 + slide * 170, o: Math.min(clamp(k * 3), 1 - slide) * (1 - 0.65 * dim) * (1 - 0.55 * pass) });
         });
 
         // ---- selection: copies fly down to the work block
         par.forEach((r, i) => {
-          const a = i === 0 ? 4.85 : 5.5;
-          const k = ramp(t, a, a + 0.5, E.inOut);
+          const a = i === 0 ? 4.8 : 5.65;
+          const k = ramp(t, a, a + 0.45, E.inOut);
+          setFrame(r, "violet", 0, null);
           const fromY = POP_Y[SEL[i]] - WORK_Y[i];
           r.ch.all(() => ({}));
           r.pill.set(pop(1));

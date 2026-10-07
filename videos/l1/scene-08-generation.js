@@ -136,6 +136,10 @@
           return path;
         }),
       );
+      // the best dot stands right under the star, so lift the star clear of it
+      const starG = L1.star(44);
+      const sx = px(L1.land.star)[0];
+      ls.over.append(starG);
       const olds = POPS[0].map(() => ls.dot({ tone: "blue" }));
       const kids = POPS[0].map(() => ls.dot({ tone: "purple", hollow: true }));
       // children that share a midpoint stand slightly apart while they are ghosts
@@ -176,7 +180,7 @@
           class: "v-tag c-grey",
           text: name,
           style: {
-            left: f1(left),
+            left: `${f1(left)}px`,
             top: "480px",
             width: `${RIB_W[i]}px`,
             height: "56px",
@@ -204,7 +208,9 @@
         const slow = t < FAST0;
 
         // landscape
-        ls.set({ k: ramp(t, 0.3, 1.2, E.inOut), star: ramp(t, 0.9, 1.5, E.lin) });
+        ls.set({ k: ramp(t, 0.3, 1.2, E.inOut), star: 0 });
+        const sk = ramp(t, 0.9, 1.5, E.lin);
+        V.place(starG, { x: sx, y: PEAK - 56, s: Math.max(0, E.pop(sk)), o: clamp(sk * 6) });
 
         // ribbon
         const act = ribbonAt(t);
@@ -264,8 +270,8 @@
           rings[j].setAttribute("cx", f1(c[0]));
           rings[j].setAttribute("cy", f1(c[1] + 2));
           V.place(rings[j], { s: rk, o: so });
-          const bx = j === 3 ? c[0] - 100 : c[0] - 31;
-          const by = j === 3 ? c[1] - 20 : c[1] - 82;
+          const bx = j === 3 ? c[0] - 100 : j === 1 ? c[0] + 30 : c[0] - 31;
+          const by = j === 3 || j === 1 ? c[1] - 20 : c[1] - 82;
           badges[j].style.left = `${f1(bx)}px`;
           badges[j].style.top = `${f1(by)}px`;
           V.place(badges[j], { s: rk, o: so });

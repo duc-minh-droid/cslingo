@@ -125,8 +125,8 @@
       const rowY = (P) => P.box.y + 20;
 
       // ----- tags and their icons -----
-      const mcTag = tagBox(top.tag("Monte Carlo", { at: "tl", tone: "purple" }), 230, 58);
-      const pTag = top.tag("worse step: 1 in 10", { at: { x: 24 + 230 + 14, y: rowY(top) }, anchor: "l", tone: "grey" });
+      const mcTag = tagBox(top.tag("Monte Carlo", { at: "tl", tone: "purple" }), 244, 68);
+      const pTag = top.tag("worse step: 1 in 10", { at: { x: 24 + 244 + 14, y: rowY(top) }, anchor: "l", tone: "grey" });
       tagBox(pTag, 0, 20);
       const tbTag = tagBox(bot.tag("Tabu", { at: "tl", tone: "grey" }), 170, 96);
       const legend = tagBox(top.tag("best so far", { at: "tr", tone: "orange" }), 250, 56);
@@ -139,7 +139,7 @@
       };
       const topIcons = iconLayer(top);
       const botIcons = iconLayer(bot);
-      const miniDie = L5.dice(24 + 14 + 30, rowY(top) + 26, 34, { face: 5, tone: "purple" });
+      const miniDie = L5.dice(24 + 14 + 32, rowY(top) + 26, 34, { face: 5, tone: "purple" });
       topIcons.append(miniDie);
       const crumbIcons = V.s("g", {});
       [0, 1, 2].forEach((j) => {
@@ -169,7 +169,7 @@
         const m = {
           star: P.marker("star", { size: 44 }),
           crumbs: PATH.map(() => P.marker("crumb", { size: 16 })),
-          cands: [0, 1, 2, 3, 4, 5].map(() => P.marker("ghost", { tone: "grey", size: 30 })),
+          cands: [0, 1, 2, 3, 4, 5].map(() => P.marker("ghost", { tone: "grey", size: 22 })),
           prop: P.marker("ghost", { size: 30 }),
           stuck: P.marker("badge", {}),
           quick: P.marker("badge", {}),
@@ -274,7 +274,7 @@
             });
             if (c.tabu) {
               const xk = pops(t, s0 + 0.55, 0.3) * gone;
-              B.xs[0].set({ i: c.i, dy: 20, icon: "cross", k: xk, s: 0.7, o: xk > 0.001 ? 1 : 0 });
+              B.xs[0].set({ i: c.i, dy: 49, icon: "cross", k: xk, s: 0.55, o: xk > 0.001 ? 1 : 0 });
             }
           });
         });

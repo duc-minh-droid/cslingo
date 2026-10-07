@@ -184,7 +184,7 @@
           const edge = keptNow && ok(r.cand, i) ? { borderColor: "var(--teal-lip)" } : null;
           const tile = tri.tiles[i];
           tile.style.borderColor = edge ? edge.borderColor : "";
-          const o = { tone, y: ty, x: tx, o: to };
+          const o = { tone, y: ty, x: tx, o: to, text: r.cur[i] };
           if (i === r.gene)
             return {
               ...o,

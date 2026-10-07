@@ -4,7 +4,6 @@
 (function () {
   const V = window.VID;
   const L2 = V.l2;
-  const L5 = V.l5;
   const { h, place, ramp, ease: E, flash, clamp } = V;
   const prim = L2.prim(0);
   if (prim.tree.join() !== "AC,CD,CE,BE" || prim.cost !== 18) throw new Error("scene 05: Prim changed");
@@ -71,7 +70,6 @@
             inTree.add(st.to);
           }
           if (ts >= 0 && ts < DUR) {
-            const cands = new Set(st.candKeys);
             const chosen = ts >= 0.9;
             // candidates: orange dashed until the pick, then back to grey
             if (!chosen)
@@ -88,9 +86,7 @@
             if (ts >= 0.9 && ts < 1.5) {
               fly = { ts, from: g.pill(st.pick), w: st.w };
             }
-            void cands;
           }
-          if (ts >= 0.9) ringNew = ringNew || {};
           if (ts >= 0.9 && ts < DUR) ringNew = { town: st.to, k: ramp(ts, 0.9, 1.3, E.out) };
           const prev = i ? STEPS[i - 1].total : 0;
           const c = ramp(ts, 0.9, 1.5, E.out);
