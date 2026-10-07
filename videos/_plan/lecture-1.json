@@ -1,0 +1,300 @@
+{
+ "slug": "lecture-1",
+ "dir": "l1",
+ "title": "Lecture 1 · What is NIC?",
+ "outline": "Lecture 1 (Nature-Inspired Computation, ECM3412): 'What is NIC? Evolution as problem solving'. Video 'lecture-1' (dir l1), 10 scenes, about 112 s, square 1080x1080, no narration. STORY: (2) Nature-Inspired Computation copies the problem-solving tricks of three natural systems that have no boss: evolution (variation + survival over generations -> evolutionary algorithms, improves designs), brains (neurons strengthen useful connections -> neural networks, learns patterns), collective behaviour (ants lay scent, short trails get more scent -> ant colony / swarm methods, finds short paths); nature-inspired methods give good results in reasonable time on messy real problems; this lecture is about evolution. (3) Evolution is trial and error: randomly change a solution and KEEP the change if it is not worse (cumulative selection). Toy example: target CAT, start QZT (1 correct), tries CZT (2, keep), CZQ (1, discard), CAT (3, keep). (4) The infinite monkey: target 'METHINKS IT IS LIKE A WEASEL' = 28 characters, 27 choices each (A-Z and space), so 27^28 = 11,972,515,182,562,019,788,602,740,026,717,047,105,681 = about 1.2 x 10^40 possibilities (41 digits); at a billion tries a second that is about 4 x 10^23 years; every random try starts from scratch. Keep-if-better (change one letter, keep if no worse) needs only about 3,000 tries (the real seeded run below: 3,037). (5) Real problems fight back: one keep-if-better climber gets stuck on the first hill of a fitness landscape (a landscape = every possible solution along the bottom, height = how good, a star marks the best); ingredient 1 is a POPULATION (many candidates at once: like twenty hikers in fog, some land on the big mountain). In the lecture's own playground (multimodal landscape, 240 points, 60 generations, tested 200 times) one climber reaches the top peak in 42 of 200 runs and a population of 20 in 167 of 200 (seed 1). (6) Ingredient 2: weakly-biased selection + mutation. Fitter parents are likelier to be picked, but even the weakest still has some chance; example fitnesses 9, 6, 3, 1 give picking chances 47.4%, 31.6%, 15.8%, 5.3% (chance proportional to fitness). Always picking the best is a strong bias (everyone becomes a copy of the best, premature convergence); equal chances is no bias (nothing pushes towards better). (7) Mutation = a small random change to a copied parent (needed). Ingredient 3, recombination = a child made from pieces of two parents, e.g. AAAAAA x BBBBBB cut after gene 3 -> AAABBB (optional, often helps). (8) One generation, in order (boss-quiz order): score every individual, select parents (weak bias), recombine (optional), mutate, replace the population; then repeat. Real run on the landscape with 6 dots: average fitness 49% -> 73% -> 82% -> 92% -> 93% -> 95% of the best over five generations. (9) An EA does not need to know how to solve your problem, only a way to score any candidate (a fitness function): 'if you can score it, you can evolve it'. Six application areas: planning (routing, scheduling, packing), design (circuits, antennas, structures; NASA ST5 antenna beat human designs; Bentley's car shapes scored by an airflow simulation), simulation (model competing firms), identification (fit a function to data), control (a gas turbine or robot controller), classification (spam detection, diagnosis); Top Gun = evolved fighter-pilot strategies. (10) Recap + 'Beat the Lecture 1 boss quiz' (boss questions test: the six categories, the 27x blow-up per extra character, keep-if-better vs always-keep, the order of a generation, strong selection being a broken ingredient, graded fitness needed, matching nature to computing ideas). COLOUR ROLES in this video: green = good / correct / kept / matches the target / the best hill; red = bad / thrown away / stuck / the monkey; blue = the thing we look at or change (the current solution, the population dots, parent 1); purple = the operator or the second parent (random change, mutate, recombine, parent 2); orange = chosen / attention / the star (best solution) / the fitness function; grey = neutral. RANDOMNESS: everything random is seeded (mulberry32 from js/content/nic/l12-01.js, copied into helpers) so frames are pure functions of t; the seeds below were chosen and checked with node. The scenes must throw at build time if a quoted number does not match.",
+ "titleCard": {
+  "kicker": "Nature-Inspired · Lecture 1",
+  "title": "What is NIC?",
+  "sub": "Evolution as problem solving",
+  "who": "sprout",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-nature.js",
+   "kicker": "WHAT IS NIC?",
+   "title": [
+    "Copy nature's",
+    "problem solvers"
+   ],
+   "dur": 12,
+   "spec": "IDEA: Nature-Inspired Computation copies the problem-solving tricks of three natural systems. None of them has a boss. (Lesson 1.1.)\n\nLAYOUT (stage px, 936 x 640): three sticker rows (class v-card plain c-grey, 936 x 184) at y = 0, 204, 408. Every row has: a 330 x 150 animated pictogram box at x = 20, y = 17; the system name at x = 380, y = 30 (v-text big, 40 px): 'Evolution', 'Brains', 'Collective behaviour'; under it at y = 104 a soft blue tag (v-tag c-blue, 28 px) with a small grey L5.arrow (36 px) in front: 'improves designs', 'learns patterns', 'finds short paths'. Row i slides up 30 px and fades in over 0.5 s at a_i = 0.4, 3.3, 6.2 s; its name follows 0.2 s later; its blue tag pops (V.ease.pop) when that row's pictogram animation has finished.\n\nROW 1, EVOLUTION (variation plus survival; pictogram is built by L1.miniEvo): six vertical bars, 34 px wide, 14 px gap, bottom edge at y = 140 of the box above a thin grey baseline, blue tiles (sticker look). Heights in px H0 = [40, 92, 60, 28, 76, 50]. Three generations start at 1.0, 2.0 and 3.0 s and each lasts 0.9 s. Rule (compute it in code, do not type the arrays): the two shortest bars are removed, the two tallest each leave one copy in a vacated slot (the tallest's copy goes into the slot of the shortest bar first) and the copy's height is its parent's height plus a small change, deltas per generation [+6, -5], [+5, -4], [+4, -6] (tallest first). Results: g1 = [71, 92, 60, 98, 76, 50] (mean 74.5), g2 = [71, 92, 88, 98, 76, 103] (mean 88.0), g3 = [107, 92, 88, 98, 92, 103] (mean 96.7); g0 mean = 57.7. Per generation: 0.00-0.35 s the two shortest bars turn red and squash to nothing while the two tallest get an orange outline pulse (chosen); 0.35-0.80 s the two copies grow from 0 into the vacated slots (E.pop) and the outlines fade. A dashed green horizontal line shows the mean height and glides to each new mean. Nothing is written in the pictogram.\n\nROW 2, BRAINS (pictogram L1.miniBrain): nodes as circles of radius 18 (sticker, grey rim, blue when active): inputs I1, I2, I3 at (26, 30), (26, 75), (26, 120); hidden H1, H2 at (165, 50), (165, 100); output O at (304, 75). Eight grey edges (I->H all six, H->O both), stroke 5.6 px at weight w = 0.3. The useful path is I1->H1->O. Three passes start at 4.0, 4.9 and 5.8 s: a blue packet (r = 9) runs I1 -> H1 -> O in 0.8 s (0.4 s per edge); when it reaches O the node O pulses green and the two useful edges strengthen (smooth 0.3 s): w = 0.5, 0.7, 0.9 -> stroke width 2 + 12 w = 8.0, 10.4, 12.8 px, and the edges tint grey -> green (the other six stay grey, 5.6 px). Nothing is written.\n\nROW 3, COLLECTIVE (pictogram L1.miniAnts): nest = grey disc r 16 at (80, 40), food = green disc r 16 at (260, 40). Short trail: straight line between them (length 180 px). Long trail: from the nest down to (80, 130), across to (260, 130), up to the food (length 90 + 180 + 90 = 360 px, exactly twice the short one). Both trails are orange lines whose width = 3 + 0.5 x scent. Ants are small orange discs (r 7) with a darker lip walking nest -> food at 400 px/s. Three waves of 10 ants leave at 6.8, 7.7 and 8.6 s, 0.05 s apart. Real model (compute it): scent starts at 1 on both trails; wave w sends n_short = round(10 x s_short / (s_short + s_long)) ants on the short trail and the rest on the long one; after the wave s_short += n_short and s_long += n_long / 2 (the long trail is twice as long, so each ant leaves half as much scent per unit of trail). Results: waves send 5/5, 6/4, 7/3 ants (a 4th wave would be 7/3, a 5th 8/2); scents after the three waves: short 19, long 7, so the final widths are 12.5 px (short) and 6.5 px (long). Each trail's width eases to the new value over 0.4 s when its wave leaves. Nothing is written.\n\nFINAL BEAT 10.0-11.6 s: rows 2 and 3 dim to 40% opacity; row 1 gets a 4 px orange outline (v-card c-orange edge) and an orange solid tag 'this lecture' (v-tag solid c-orange, 28 px) pops in at its top right corner (x = 700, y = 18).\n\nEND STATE: three rows, evolution highlighted, bars at g3 (mean 96.7).\n\nCAPTIONS (local seconds): [0.5, 3.2, \"Evolution: the fitter ones survive and breed.\"] [3.5, 6, \"Brains: useful connections get stronger.\"] [6.5, 9.7, \"Ants: short trails get more scent.\"] [10, 11.5, \"No one is in charge. Today: evolution.\"]",
+   "caps": [
+    [
+     0.5,
+     3.2,
+     "Evolution: the fitter ones survive and breed."
+    ],
+    [
+     3.5,
+     6,
+     "Brains: useful connections get stronger."
+    ],
+    [
+     6.5,
+     9.7,
+     "Ants: short trails get more scent."
+    ],
+    [
+     10,
+     11.5,
+     "No one is in charge. Today: evolution."
+    ]
+   ]
+  },
+  {
+   "n": 3,
+   "file": "scene-03-keep.js",
+   "kicker": "EVOLUTION",
+   "title": [
+    "Trial and error,",
+    "keep what works"
+   ],
+   "dur": 10,
+   "spec": "IDEA: evolution is trial and error with one rule: randomly change a solution and keep the change if it is not worse. The lecture's toy problem: evolve the letters QZT into CAT (lesson 1.2, step 'The fix: keep what works').\n\nLAYOUT (stage px): left block, rows of three 92 px tiles (L5.chromosome, gap 12, x0 = 190, font from the helper): TARGET row at y = 20 (ghost tiles C A T: dashed green outline, no fill), CURRENT row at y = 190 (blue tiles), TRY row at y = 360 (visible only during a try). Row tags at x = 0 (v-tag 28 px, width 150, centred on the row): 'target' (c-grey), 'current' (c-blue), 'try' (c-purple). After every row except the target, three match pips (L1.pips: 24 px discs, gap 10, at x = 190 + 336 = 526): hollow grey when that letter is wrong, solid green when it equals the target's letter in that position. Right block (x = 640..936): the rule as a flow of stickers, each 296 x 60 (v-tag, 30 px, centred at x = 788): 'random change' (solid purple, y = 20), grey L5.arrow pointing down, 'not worse?' (solid orange, y = 140), grey arrows down to 'keep' (solid green + L5.tick, y = 270) and, under it, 'throw away' (solid red + L5.cross, y = 360). The sticker for the current step scales to 1.08 and its lip brightens; the others stay at 70% opacity.\n\nDATA (compute with code, assert): target CAT; current starts as QZT (1 correct, the T). Three tries, each changes ONE tile of a copy of the current row: try 1 gene 1 Q -> C gives CZT (2 correct), try 2 gene 3 T -> Q gives CZQ (1 correct), try 3 gene 2 Z -> A gives CAT (3 correct). Rule keep if correct(try) >= correct(current): verdicts must come out keep, discard, keep. After try 1 the current row is CZT, after try 3 it is CAT.\n\nTIMELINE: 0.3-1.0 target ghosts pop in (0.08 s stagger) with their tag; 1.0-1.8 CURRENT row QZT pops in, one green pip (the T); 1.9-2.4 the right-hand flow pops in. TRY 1 (2.4-4.4): a copy of the current row slides down into the TRY row (0.4 s, tag 'try' fades in); tile 1 flips Q -> C with chromosome.flip (the flipped tile is solid purple while it changes; sticker 'random change' lit); the try row's pips show 2 green; 'not worse?' lights, then 'keep' lights and the try row's tiles turn blue-with-green-edge; at 3.8 the try row slides up onto the current row (current row's letters become C Z T with a pop, its pips become 2 green). TRY 2 (4.5-6.2): copy slides down again, tile 3 flips T -> Q (purple), pips show 1 green; 'not worse?' lights, then 'throw away' lights (red); the try row shakes 6 px x 3 times (sin) and turns red, then fades out downwards (5.6-6.1); the current row does not change. TRY 3 (6.3-8.2): copy, tile 2 flips Z -> A, pips 3 green, 'keep' lights, the row slides up and the current row becomes C A T: all three tiles turn solid green with a tick pop (L5.tick above the row, drawn on) and the pips are 3 green. 8.4-9.4 hold.\n\nEND STATE: CURRENT row C A T solid green with 3 green pips, 'keep' sticker lit, TARGET ghosts behind. No try row.\n\nCAPTIONS (local seconds): [0.4, 2.2, \"Goal: turn QZT into CAT.\"] [2.4, 4.6, \"Change one letter at random. Better? Keep it.\"] [4.8, 6.4, \"Worse? Throw it away.\"] [6.6, 9.4, \"Progress adds up. That is cumulative selection.\"]",
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "Goal: turn QZT into CAT."
+    ],
+    [
+     2.4,
+     4.6,
+     "Change one letter at random. Better? Keep it."
+    ],
+    [
+     4.8,
+     6.4,
+     "Worse? Throw it away."
+    ],
+    [
+     6.6,
+     9.4,
+     "Progress adds up. That is cumulative selection."
+    ]
+   ]
+  },
+  {
+   "n": 4,
+   "file": "scene-04-race.js",
+   "kicker": "THE RACE",
+   "title": [
+    "Random guessing",
+    "vs keep-if-better"
+   ],
+   "dur": 15,
+   "spec": "IDEA: a typing monkey and keep-if-better get the same number of tries on the same 28-letter target. One starts from scratch every time, the other builds on what it has (lesson 1.2, 'That sounds hopeless' + 'The fix'). This is the lecture's own demo, with seeded numbers.\n\nDATA (helpers L1.weasel, all assert-checked): target 'METHINKS IT IS LIKE A WEASEL' (28 characters, alphabet A-Z plus space = 27). KEEPER = mulberry32(17): start string = 28 draws A[floor(r*27)] = 'SFOECUHOGSVIGFRTHNSSPQPKBBXI' (0 correct); each try: i = floor(r*28), c = A[floor(r*27)], candidate = current with position i set to c, tries++; keep if correct(candidate) >= correct(current). It reaches 28/28 at exactly 3,037 tries (894 of those tries changed the string). Correct count first reaches 1 at try 8, 5 at 183, 10 at 507, 15 at 904, 20 at 1362, 25 at 1605, 26 at 1707, 27 at 2108, 28 at 3037. MONKEY = mulberry32(117): every try is 28 fresh draws A[floor(r*27)]; over the same 3,037 tries its best match ever is 6 of 28 (1 at try 3, 2 at 4, 3 at 31, 6 at 47). Both counters advance in lockstep (as in the app demo). 27^28 = 11972515182562019788602740026717047105681 (41 digits, about 1.2 x 10^40); 3,037 has 4 digits.\n\nLAYOUT (stage px): TARGET chip at the top, y = 0 (v-card plain c-green, 936 x 56): a dim v-text 'target' and the sentence in v-mono bold 30 px. PANEL A at y = 72 (v-card plain, 936 x 198): header row at y + 12: solid red tag 'monkey' (x = 20), grey soft stat chips 'tries 3,037' (x = 280) and 'best 6 / 28' (x = 580) (28 px, numbers formatted by hand with thousands commas). Below it the 28 letters as two rows of 14 tiles (L1.letterGrid: size 52, pitch 60, font about 29 px, rows at y + 70 and y + 132; row 1 = characters 0-13 'METHINKS IT IS', row 2 = characters 14-27 ' LIKE A WEASEL' with a space shown as a dim '.' dot). A tile is solid green when its letter equals the target letter at that place, otherwise neutral grey with an ink letter. PANEL B at y = 290 identical, tag solid green 'keep if better', chips 'tries' and 'match n / 28'. BOTTOM STRIP y = 506..636 appears at 10.6: two digit rows (L1.digits): red tag 'monkey' at x = 0, 41 red squares (10 x 22 px, pitch 13) from x = 180, then the sticker '1.2 x 10^40' (V.h html with <sup>) at x = 730; green tag 'keeper' at x = 0, 4 green squares and '3,037'.\n\nTIMELINE: 0.3-1.4 the target chip, then both panels pop in (stagger 0.15 s); try 1 shown. 1.4-9.4 THE RACE: tries(t) = round(3037 x ramp(t, 1.4, 9.4, linear)) for both panels. The monkey row shows the random string of a sampled try that changes every 0.12 s (hold it between samples to avoid strobing); its 'tries' chip counts every try and 'best' is the true best-so-far (it jumps to 3 and 6 early and then never moves again). The keeper rows show stateAt(tries) sampled at 12 Hz, newly correct letters pop (scale 1.15 -> 1) and turn green; 'match' counts up to 28 / 28. Most of the last stretch is waiting for the final letter (try 2108 -> 3037), keep that real pacing. 9.4 the keeper reaches 28/28: all its tiles flash, a green L5.tick disc pops at its header; both counters stop at 3,037. 9.4-10.6 hold. 10.6-13.4 the digit rows: the 41 red squares pop in left to right over 1.6 s (0.04 s each), then the sticker; the 4 green squares pop in over 0.3 s, then '3,037'. 13.4-14.4 hold.\n\nEND STATE: monkey 'best 6 / 28' (3,037 tries), keeper 28 / 28 in green, digit rows 41 red squares vs 4 green squares.\n\nCAPTIONS (local seconds): [0.4, 2.6, \"Same target. Same number of tries.\"] [2.8, 6, \"The monkey starts from scratch every time.\"] [6.2, 9.3, \"Keep-if-better locks in each correct letter.\"] [9.5, 10.6, \"The monkey is still on 6 of 28.\"] [10.8, 14.4, \"Monkey: a 41-digit number of tries. Keeper: 3,037.\"]",
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Same target. Same number of tries."
+    ],
+    [
+     2.8,
+     6,
+     "The monkey starts from scratch every time."
+    ],
+    [
+     6.2,
+     9.3,
+     "Keep-if-better locks in each correct letter."
+    ],
+    [
+     9.5,
+     10.6,
+     "The monkey is still on 6 of 28."
+    ],
+    [
+     10.8,
+     14.4,
+     "Monkey: a 41-digit number of tries. Keeper: 3,037."
+    ]
+   ]
+  },
+  {
+   "n": 5,
+   "file": "scene-05-population.js",
+   "kicker": "INGREDIENT 1",
+   "title": [
+    "One climber gets stuck.",
+    "Many climbers don't."
+   ],
+   "dur": 13,
+   "spec": "IDEA: keep-if-better with ONE solution gets stuck on a hill; keeping a POPULATION of candidates spreads the search so some land on the big mountain (lesson 1.3 ingredient 1 + 1.2 'But real problems fight back'). Uses the lecture playground's landscape and algorithm.\n\nDATA (helpers L1.land, L1.climber, L1.popRun, L1.test200, assert-checked). Landscape = the app's 'multimodal' landscape, 240 points, f(x) = 0.1 + 0.45 e^-((x-0.12)^2/(2 0.04^2)) + 0.62 e^-((x-0.3)^2/(2 0.05^2)) + 0.5 e^-((x-0.5)^2/(2 0.035^2)) + 1.0 e^-((x-0.7)^2/(2 0.045^2)) + 0.72 e^-((x-0.88)^2/(2 0.04^2)) + 0.04 sin(60x), x = i/239. Hills (local maxima, index: height as % of the best): 30: 55%, 74: 66%, 120: 53%, 167: 100% (the STAR, f = 1.0643), 209: 80%. ONE CLIMBER = mulberry32(23): start i = randint(0,239) = 22; each generation candidate m = clamp(i + randint(-4, 4), 0, 239) and the climber moves if f(m) >= f(i). Its 16 candidates are 18x 23+ 21x 21x 20x 23+ 27+ 30+ 26x 32x 27x 26x 34x 33x 30+ 32x (+ accepted, x rejected); it reaches the top of the first hill (30) at generation 8 and never leaves it. POPULATION = mulberry32(16), 20 dots: start positions are 20 x randint(0,239) (151, 34, 180, 93, 81, 4, 225, 123, 45, 224, 109, 1, 65, 100, 139, 203, 81, 99, 203, 38); each generation each of the 20 children = clamp(winner + randint(-4, 4), 0, 239) where winner is the fitter of two random dots (a = randint(0,19), b = randint(0,19), a wins ties). Record each child's parent index. Dots near the star (indices 143-187) per generation 0..16: 2,2,2,2,4,4,2,1,2,2,4,5,6,7,12,19,20 (the dots wander between the second, third and fifth hills for a long time with only 1 to 7 on the star hill; the fifth hill, index 209, 80% of the best, holds the most dots from generation 7 to 13 and the star takes over at generations 14-16 - keep this real drama). 200-RUN TEST = mulberry32(1) for each setting, 200 runs x 60 generations, success = best fitness >= 98% of the maximum: one climber 42 of 200 runs, population of 20 (same algorithm as above) 167 of 200 runs; keep the per-run flags in order for the waffle.\n\nLAYOUT (stage px): landscape plot at x = 0..936, curve baseline y = 280, the star's peak at y = 50 (so scale = 230 px per f = 1.0643), x(i) = 18 + i/239 x 900. Green curve (6 px) with a light green fill (flat tint, no gradient); thin grey baseline. The star is an orange SVG star (L1.star, 44 px, with a lip) above index 167 (about x = 647, y = 22). Tags: top-left (x = 0, y = 0) a soft blue tag that reads '1 climber' then '20 climbers' (28 px). Dots are blue discs r 13 with a darker lip standing on the curve. RESULT BLOCK (appears at 10.3) y = 330..560: two waffles side by side (L1.waffle, 20 columns x 10 rows, cell 16 x 16 px, pitch 18) at x = 30 and x = 500 with labels under each (28 px): '1 climber: 42 of 200' and '20 climbers: 167 of 200'; cell k = run k, green if it reached the top, grey otherwise. INGREDIENT BAR (L1.ingredientBar, y = 588) with 'Population' active.\n\nTIMELINE: 0.3-1.3 the curve draws left to right and the fill follows; the star pops in at 1.0 (spring), 1.3-1.8 the climber dot pops in at index 22 with the '1 climber' tag. 1.8-5.0 THE ONE CLIMBER: generation g (1..16) runs 1.8 + 0.2 g; each candidate shows as a small hollow ring on the curve at index m (0.2 s); if accepted the dot slides there and the ring fills blue; if rejected the ring turns red with a tiny red L5.cross for 0.15 s and fades, the dot stays and jiggles 3 px. From generation 9 on only red rejections happen. At 4.3 a solid red tag 'stuck' pops above the dot and the star pulses once. 5.0-5.6 the climber fades, the tag changes to '20 climbers', 20 blue dots pop onto the curve at their start positions (0.02 s stagger). 5.8-10.1 THE POPULATION: 16 generations at 0.27 s: each new dot sprouts from its parent's old position (copy starts on top of the parent, travels to its new index along the curve, y follows the curve) while the old dots fade out in the second half of the step; the star hill finally holds all 20 dots. 10.3-12.5 the waffles: left waffle cells appear in run order over 0.8 s, then the right one over 0.8 s, then the two labels pop.\n\nEND STATE: 20 blue dots on the star hill, waffles 42 vs 167 green cells, ingredient 1 highlighted.\n\nCAPTIONS (local seconds): [0.4, 1.8, \"A landscape: height is how good.\"] [1.9, 4.2, \"One climber keeps steps only if better.\"] [4.3, 5.4, \"Stuck on the first hill.\"] [5.8, 10, \"Twenty climbers spread out and compete.\"] [10.3, 12.5, \"200 runs: more climbers find the top.\"]",
+   "caps": [
+    [
+     0.4,
+     1.8,
+     "A landscape: height is how good."
+    ],
+    [
+     1.9,
+     4.2,
+     "One climber keeps steps only if better."
+    ],
+    [
+     4.3,
+     5.4,
+     "Stuck on the first hill."
+    ],
+    [
+     5.8,
+     10,
+     "Twenty climbers spread out and compete."
+    ],
+    [
+     10.3,
+     12.5,
+     "200 runs: more climbers find the top."
+    ]
+   ]
+  },
+  {
+   "n": 6,
+   "file": "scene-06-selection.js",
+   "kicker": "INGREDIENT 2",
+   "title": [
+    "Fitter parents are",
+    "likelier, not certain"
+   ],
+   "dur": 12,
+   "spec": "IDEA: a weak bias in selection: fitter parents are more likely to be picked, but even the weakest still has a chance. Too strong or no bias both fail (lesson 1.3 ingredient 2; boss question on strong selection).\n\nDATA (compute, assert): parent fitnesses F = [9, 6, 3, 1] (parents A, B, C, D), total 19, chance = F / 19 = 47.4%, 31.6%, 15.8%, 5.3% (shown rounded 47, 32, 16, 5, which sum to 100). 20 PICKS = mulberry32(46): for each pick u = r x 19, walk A (9), B (6), C (3), D (1) subtracting until u < the fitness; the sequence is A C A C A A B A B B B A B D A B C A A A, i.e. counts A 10, B 6, C 3, D 1 (the weakest, D, is picked once, at pick 14). Three states of the same tokens: WEAK = that sequence (chips 47 / 32 / 16 / 5 %); STRONG = all 20 picks go to A (chips 100 / 0 / 0 / 0 %); NONE = pick j goes to parent j mod 4 (5 each, chips 25 / 25 / 25 / 25 %).\n\nLAYOUT (stage px): four columns centred at x = 117, 351, 585, 819. Bars (rounded blue sticker, 120 wide, bottom edge y = 250, height 22 px per fitness unit = 198, 132, 66, 22) with the fitness number in v-text big above each bar (9, 6, 3, 1). Under the baseline a blue v-gene letter tile (66 px, A B C D) at y = 256. Probability chip under it (soft grey v-tag, 28 px) at y = 330. Bins: a dashed grey rounded rectangle 150 x 188 at y = 382 under each column, holding orange token discs (28 px, sticker lip) in a 4-column grid, pitch 34, filling from the bottom row. Verdict tag at the top centre (y = 0, 52 high): green solid with L5.tick 'weak bias', red solid with L5.cross 'only the best' or 'equal chances'. INGREDIENT BAR (y = 588) with 'Selection + mutation' active, 'Population' done.\n\nTIMELINE: 0.3-1.4 the four bars grow from the baseline (E.out, 0.12 s stagger) with letter tiles and numbers; 1.4-2.6 the four probability chips pop in (47%, 32%, 16%, 5%). 2.8-6.0 THE PICKS: pick k (0..19) at 2.8 + 0.16 k: the picked parent's tile and chip pulse (scale 1.12, orange outline for 0.2 s) and an orange token emerges from under the chip (y = 376) and drops into its bin (0.35 s, ease in-out, small bounce). At 6.0 the single D token gets an orange ring pulse. 6.2-8.0 STRONG: chips morph to 100/0/0/0 and all 20 tokens fly into A's bin over 0.5 s (4 columns x 5 rows), the red tag 'only the best' pops; A's bar pulses. 8.2-10.0 NONE: chips morph to 25% each, tokens redistribute 5 per bin, red tag 'equal chances'. 10.1-11.4 WEAK again: chips back to 47/32/16/5, tokens back to 10/6/3/1, tag green 'weak bias'; the D token pulses once more. Token positions are pure functions of t: for each state each token has a slot (bin, rank); interpolate slots with E.inOut.\n\nEND STATE: weak-bias state, green tag, stacks 10 / 6 / 3 / 1.\n\nCAPTIONS (local seconds): [0.4, 2.6, \"Four parents with fitness 9, 6, 3 and 1.\"] [2.8, 6, \"Fitter parents are likelier to be picked.\"] [6.2, 8, \"Only the best? Everyone becomes a copy.\"] [8.2, 10, \"Equal chances? Nothing pushes towards better.\"] [10.1, 11.5, \"Weak bias: fitter, but nobody is shut out.\"]",
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Four parents with fitness 9, 6, 3 and 1."
+    ],
+    [
+     2.8,
+     6,
+     "Fitter parents are likelier to be picked."
+    ],
+    [
+     6.2,
+     8,
+     "Only the best? Everyone becomes a copy."
+    ],
+    [
+     8.2,
+     10,
+     "Equal chances? Nothing pushes towards better."
+    ],
+    [
+     10.1,
+     11.5,
+     "Weak bias: fitter, but nobody is shut out."
+    ]
+   ]
+  },
+  {
+   "n": 7,
+   "file": "scene-07-variation.js",
+   "kicker": "VARIATION",
+   "title": [
+    "Mutate, and",
+    "mix two parents"
+   ],
+   "dur": 12,
+   "spec": "IDEA: how children differ from their parents: mutation (a small random change to a copy, required) and recombination (a child made of pieces of two parents, optional but often helpful). Lesson 1.3 ingredients 2 and 3, using the lesson's own AAAAAA x BBBBBB figure.\n\nDATA: P1 = AAAAAA, P2 = BBBBBB. MUTATION: copy of P1 with gene 4 replaced by a random letter K -> AAAKAA (position and letter fixed by hand). RECOMBINATION: cut after gene 3, child = first 3 genes of P1 + last 3 of P2 = AAABBB (compute with L5.cross1-style slicing and assert).\n\nLAYOUT (stage px): two panels side by side, each a v-card plain c-grey 444 x 480 (y = 40): LEFT x = 0, RIGHT x = 492. Panel headers (y = 0): left solid purple tag 'mutate' with an L5.dice icon, right soft purple tag 'recombine' (28 px). Genes are L5.chromosome rows of six 56 px tiles, gap 8, x0 = 34 inside each panel. LEFT: parent row at y = 110 (blue 'A' tiles, tag 'parent' above), child row at y = 300; a purple L5.arrow (down) between them at x = 222, y = 190..270. RIGHT: P1 row at y = 90 (blue), P2 row at y = 190 (purple), child row at y = 340; vertical dashed orange cut line between gene 3 and gene 4 (x = panel + 34 + 3 x 64 - 4), y = 70..280; optionally L6.scissors (56 px) snipping down the line, otherwise just draw the dashed line. INGREDIENT BAR (y = 588): 'Population' done, 'Selection + mutation' active then done, 'Recombination' active from 5.2.\n\nTIMELINE: 0.4-1.2 left panel and the parent row AAAAAA pop in (0.06 s stagger). 1.4-2.4 a copy of the parent slides down into the child row (tiles blue). 2.6-3.6 an L5.dice hops over the child row and lands on gene 4 (a small arc, face 5, tone purple); at 3.4 gene 4 flips A -> K (chromosome.flip) and becomes a solid purple tile with a pulse; the child row is now A A A K A A. 3.8-4.8 hold. 5.2-6.0 the right panel pops in with P1 (blue) and P2 (purple); 6.2-6.9 the dashed cut line draws top to bottom (scissors, if used, follow it); 7.0-8.2 the head AAA of P1 (copies) slides down into the child row's left three slots while the tail BBB of P2 (copies) slides down into its right three slots; 8.3-8.7 the child row settles with a small pulse (tiles keep blue / purple colours: left three blue, right three purple). 8.9-9.6 two small tags pop: green soft 'needed' on the left panel header, grey soft 'optional' on the right one. 9.6-11.5 hold.\n\nEND STATE: left child AAAKAA (one purple tile), right child AAABBB (three blue, three purple), tags 'needed' and 'optional'.\n\nCAPTIONS (local seconds): [0.4, 4.9, \"Mutation: copy a parent, change one gene at random.\"] [5.2, 8.6, \"Recombination: mix pieces of two parents.\"] [8.9, 11.5, \"Mutation is needed. Recombination often helps.\"]",
+   "caps": [
+    [
+     0.4,
+     4.9,
+     "Mutation: copy a parent, change one gene at random."
+    ],
+    [
+     5.2,
+     8.6,
+     "Recombination: mix pieces of two parents."
+    ],
+    [
+     8.9,
+     11.5,
+     "Mutation is needed. Recombination often helps."
+    ]
+   ]
+  },
+  {
+   "n": 8,
+   "file": "scene-08-generation.js",
+   "kicker": "THE CYCLE",
+   "title": [
+    "One generation:",
+    "select, vary, replace"
+   ],
+   "dur": 13,
+   "spec": "IDEA: one generation of an evolutionary algorithm is a fixed cycle - score, select, recombine (optional), mutate, replace - and repeating it makes the population climb (lesson 1.3 'One generation, start to finish'; boss question on the order). Slow motion for generation 1, then four fast generations. Same landscape as scene 5.\n\nDATA (L1.popRun(40, 6, 5, {rec: true}), assert-checked): mulberry32(40); 6 dots; start indices randint(0,239) = 153, 195, 6, 166, 83, 182 (fitness % of the best 51, 28, 16, 100, 50, 51; average 49%). Each generation, for each of 6 children: parent 1 = winner of two random dots (fitter wins, a wins ties), parent 2 = winner of two more, midpoint = round((p1 + p2) / 2), child = clamp(midpoint + randint(-4, 4), 0, 239) (this is exactly the lecture playground with Recombination ticked). Generation 1 children as (parent1 index, parent2 index, midpoint, child): (3,0,160,156), (1,0,174,177), (2,5,94,95), (3,3,166,163), (0,5,168,170), (3,0,160,161); times each dot was picked as a parent: 4, 1, 1, 4, 0, 2 (dot 4 is never picked; the weakest dot 2 still is, once). Populations: g1 = 156, 177, 95, 163, 170, 161; g5 = 164, 163, 169, 166, 176, 167. Average fitness per generation 0..5 = 49%, 73%, 82%, 92%, 93%, 95% of the best.\n\nLAYOUT (stage px): the scene-5 landscape (L1.landscape) at x = 0..936 with baseline y = 430 and the star peak at y = 90 (scale 340 px per f = 1.0643) and the orange star; 6 blue dots on the curve (r 14). Top-left chip 'generation 0' (soft grey v-tag, 28 px), top-right chip 'average 49%' (soft green v-tag, with a thin bar under it, 200 px, filled to the percentage). STAGE RIBBON at y = 480..540, centred: five stickers 'Score', 'Select', 'Recombine', 'Mutate', 'Replace' (v-tag 30 px; widths about 110, 120, 190, 130, 140) joined by grey L5.arrows (36 px). 'Recombine' has a dashed outline (optional). The active sticker is solid (Score orange, Select orange, Recombine purple, Mutate purple, Replace green), the others soft grey.\n\nTIMELINE (slow generation 0 -> 1): 0.3-1.2 landscape and dots pop in, ribbon pops in. 1.2-3.0 SCORE: a thin dotted vertical stalk grows from the baseline up to each dot (taller = fitter); dots pulse in order. 3.0-5.0 SELECT: orange rings round the dots with a number badge (28 px) 'x4', 'x1', 'x1', 'x4', 'x0', 'x2' (picks as parent; dot 4 dims to 40%). 5.0-7.0 RECOMBINE: for each child c (0.2 s stagger) two thin purple arcs (4 px) rise from the curve points of its two parents to a hollow purple ghost ring standing on the curve at the midpoint index; (3,3) gives a ghost exactly above dot 3. 7.0-8.6 MUTATE: each ghost wiggles (+-4 px sine, 0.3 s) and slides to its final child index and fills blue. 8.6-10.0 REPLACE: old dots, stalks, rings and arcs fade out (0.4 s), the six blue children stay, chips change to 'generation 1' and 'average 73%' (the bar eases). 10.2-12.4 REPEAT: generations 2, 3, 4, 5 at 0.5 s each: new dots sprout from their first parent's old position (as in scene 5) and the chips count 'generation 2..5' and 'average 82%, 92%, 93%, 95%'; the ribbon cycles quickly (active sticker advances every 0.1 s) until it rests on Replace.\n\nEND STATE: generation 5, six blue dots clustered on the star hill, 'average 95%'.\n\nCAPTIONS (local seconds): [0.4, 2.9, \"Score every dot: height is fitness.\"] [3.1, 4.9, \"Pick parents: the fitter, the likelier.\"] [5.1, 6.9, \"Optional: mix two parents.\"] [7.1, 8.6, \"Mutate: nudge each child a little.\"] [8.8, 10.2, \"The children become the new population.\"] [10.4, 12.5, \"Repeat: the dots climb towards the star.\"]",
+   "caps": [
+    [
+     0.4,
+     2.9,
+     "Score every dot: height is fitness."
+    ],
+    [
+     3.1,
+     4.9,
+     "Pick parents: the fitter, the likelier."
+    ],
+    [
+     5.1,
+     6.9,
+     "Optional: mix two parents."
+    ],
+    [
+     7.1,
+     8.6,
+     "Mutate: nudge each child a little."
+    ],
+    [
+     8.8,
+     10.2,
+     "The children become the new population."
+    ],
+    [
+     10.4,
+     12.5,
+     "Repeat: the dots climb towards the star."
+    ]
+   ]
+  },
+  {
+   "n": 9,
+   "file": "scene-09-apps.js",
+   "kicker": "APPLICATIONS",
+   "title": [
+    "If you can score it,",
+    "you can evolve it"
+   ],
+   "dur": 12,
+   "spec": "IDEA: an EA does not need to know how to solve the problem, only how to score any candidate (the fitness function); everything that can be scored falls into six application areas (lesson 1.4).\n\nBEAT 1, 0.3-5.0 s, THE SCORE (a black box): three candidate cards stacked on the left (v-card plain, 330 x 100 at y = 70, 210, 350), each a row of six 44 px tiles (pitch 52) where a green tile is a part that works and a grey tile one that does not: C1 = 010010 (2 green), C2 = 111010 (4), C3 = 110111 (5). Score = number of green tiles (count in code). In the middle an orange solid sticker (x = 380..600, y = 130..330) labelled 'fitness function' on two lines with an orange-on gauge pictogram (L1.gauge: a half-circle dial with a needle) - nothing is visible inside it. On the right three horizontal bars (green, 40 px high, x = 660, length = score / 6 x 230 px = 77, 153, 192 px) in the rows of their candidates, each with its score as a 32 px number at the bar end. Candidate k (0..2) is scored at 1.3 + 1.0 k: a small copy of its tiles slides into the box (0.35 s, box pulses, needle swings to the matching dial position), then a packet (green disc) flies to the bar slot and the bar grows (0.4 s, E.out) and the number pops. At 4.3 the longest bar (5) gets an orange ring and a green L5.tick 'keep': the EA keeps the best. 4.7-5.2 beat 1 fades out (0.3 s).\n\nBEAT 2, 5.2-11.5 s, SIX AREAS: a 3 x 2 grid of v-card plain c-blue tiles (296 x 230) at x = 0, 320, 640 and y = 20, 290 (gap 24 / 40), each with a 140 px tall pictogram (SVG, drawn in the roles' colours, 6 px strokes, sticker lips) and the area name at the bottom in v-text big 32 px. Tiles pop in with E.pop at 5.4 + 0.7 i: (1) Planning: a timetable, a 4 x 3 grid of 22 px cells with five filled blue/purple blocks and a thin orange header bar; (2) Design: an antenna, a base plate and a bent zigzag wire (blue, 6 px) with a small orange ball at the tip; (3) Simulation: two circles (one blue, one orange) joined by two opposite L5.arrows (a swap loop); (4) Identification: six small green dots scattered along a rising line and a blue fitted curve through them; (5) Control: a cart (rounded rect with two wheel discs) carrying an upright stick with a ball on top, tilted by 12 degrees, with a curved purple L5.arrow beside it; (6) Classification: two envelopes, the left with a green tick badge, the right with a red cross badge. At 9.0 all six tiles bob once (y -6 px, E.pop, 0.05 s stagger).\n\nEND STATE: six area tiles, all visible, nothing else.\n\nCAPTIONS (local seconds): [0.4, 5, \"An EA only needs a score for each candidate.\"] [5.4, 8.6, \"Six areas, one requirement: you can score it.\"] [8.8, 11.5, \"Anything you can score, you can evolve.\"]",
+   "caps": [
+    [
+     0.4,
+     5,
+     "An EA only needs a score for each candidate."
+    ],
+    [
+     5.4,
+     8.6,
+     "Six areas, one requirement: you can score it."
+    ],
+    [
+     8.8,
+     11.5,
+     "Anything you can score, you can evolve."
+    ]
+   ]
+  }
+ ],
+ "recap": {
+  "file": "scene-10-recap.js",
+  "dur": 9,
+  "spec": "A bare scene (full 1080 x 1080 stage, no headline or caption bar), in the style of videos/l5/scene-10-recap.js: kicker 'RECAP' (v-kicker, top-left), headline 'Remember' (v-title-line, 76 px) and Sprout (V.mascot('sprout', {size: 168, mood: 'love'}) top-right with a gentle bob), three v-card plain rows (x = 72, w = 936, h = 180, tops 240, 444, 648) that slide in at 0.8, 1.8 and 2.8 s; each row has an animated pictogram on the left (about 340 x 140 box, shown 1.1x) and a bold two-line label (v-text big, 36 px, left = 440) that fades in 0.15 s later. Row colours follow the roles: green, blue, orange. Pictograms are made from the same helpers as the scenes (L1.letterGrid / chromosome, L1.landscape, L1.gauge).\n\nROW 1 (green card), label 'Copy nature:\\nkeep what works': three 56 px tiles Q Z T (blue) with three pips pop in at 1.2 s; 1.7 s tile 1 flips Q -> C (purple flash, then blue), 2.6 s tile 2 flips Z -> A, 3.1 s all three tiles turn solid green and an L5.tick draws on to their right; holds. ROW 2 (blue card), label 'Population, weak\\nselection, mutation': a mini landscape (curve with the five hills, 340 x 120, star on top) and six blue dots (r 8) replaying the first 5 generations of the scene-8 run (popRun(40, 6, 5, {rec: true})) between 3.6 s and 6.4 s (0.55 s per generation, dots slide along the curve), ending clustered on the star. ROW 3 (orange card), label 'Can you score it?\\nThen you can evolve it': a candidate tile row 110111 (6 tiles, 34 px) -> L5.arrow -> small orange gauge whose needle swings to the 5/6 position -> a green bar that fills to 5/6; the packet tile travels along the arrow once at 4.6 s (pure function of t, then holds).\n\nBOTTOM (y = 904 centre, like l5): one solid blue tag (v-tag solid c-blue, 34 px) 'Beat the Lecture 1 boss quiz' pops in at 6.4 s (scale 0.8 -> 1 with E.pop, fade 0.3 s) centred on x = 540. Total 9 s. No captions."
+ },
+ "helpers": "PAGE: videos/lecture-1.html lists, after engine.js and cards.js: l5/common.js (VID.l5), l6/common.js + l6/common-2.js (VID.l6), then l1/common.js, l1/common-2.js, l1/common-3.js (VID.l1, short name L1 in scenes), then the scenes in order. Each helper file at most 500 code lines.\n\nREUSE FROM l5 (videos/l5/common.js): L5.tone(name) for the six role colours as CSS var strings; L5.chromosome(parent, {x, y, genes, size, gap, tone, tones}) for every row of letter/gene tiles (genes may be a string or an array of strings; row.set(i, {x,y,s,sx,r,o,tone,text,solid,ghost}), row.flip(i, k, {from,to,tone,toTone,hop}), row.all(fn), row.pos(i), row.mid(i)); L5.tick / L5.cross / L5.arrow / L5.dice with L5.drawOn(g, k) for symbols (never glyphs); L5.svg(parent, w, h) for a full-stage SVG; L5.cross1 style head+tail slicing for the recombination child. REUSE FROM l6 (videos/l6/common*.js): only L6.scissors(size, tone).snip(k) (optional, scene 7). Everything else is new:\n\n== l1/common.js (pure data, no DOM; every function is deterministic) ==\nL1.rng(seed) -> r (the exact mulberry32 of js/content/nic/l12-01.js: a |= 0; a = (a + 0x6d2b79f5) | 0; t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296); L1.randint(r, a, b) = a + Math.floor(r() * (b - a + 1)).\nL1.weasel = {TARGET, ALPHA, matches(str), keeper(seed) -> {tries, start, stateAt(k) (the string after k tries, 1 <= k <= tries; precompute the string-changing events and checkpoint every 25 tries), firstAt: {m: try}}, monkey(seed, n) -> {tries: n, string(k) (the k-th random string, 1-based), matchesAt(k), bestAt(k) (best matches over tries 1..k)}}. Spec: keeper(17) -> tries 3037, start 'SFOECUHOGSVIGFRTHNSSPQPKBBXI'; monkey(117, 3037).bestAt(3037) = 6 and bestAt(47) = 6, bestAt(46) = 3. Both throw on mismatch.\nL1.land = {N: 240, f(i), pct(i) = f/max, max, star: 167, hills: [30, 74, 120, 167, 209]} (the multimodal landscape formula in scene 5). L1.climber(seed, gens) -> [{start}, {cand, ok, x}, ...] (single hill climber, accept if f(cand) >= f(x)); L1.popRun(seed, P, gens, {rec}) -> [{pop: [indices], info: [{p1, p2, mid, kid}] }] where info is absent for generation 0 and p2/mid are null when rec is false (parent choice = fitter of two random dots, a wins ties; RNG call order exactly as in scene 5/8 specs); L1.test200(P, seed) -> array of 200 0/1 flags (60 generations each, success = max fitness >= 0.98 x max; P = 1 uses the single-climber rule). Asserts: climber(23, 16) candidates as in scene 5, popRun(16, 20, 16) star counts, test200(1, 1) sums to 42 and test200(20, 1) to 167, popRun(40, 6, 5, {rec: true}) averages 49, 73, 82, 92, 93, 95.\nL1.picks(seed, fitnesses, n) -> array of parent indices (fitness-proportional: u = r() x total, subtract in order); picks(46, [9, 6, 3, 1], 20) -> A C A C A A B A B B B A B D A B C A A A. L1.antWaves(waves, lenShort, lenLong, perWave) -> [{nShort, nLong, sShort, sLong}] (the scent model in scene 2: 5/5, 6/4, 7/3 for three waves with lengths 180 and 360). L1.evoBars() -> {gens: [[...6 heights] x 4], means: [57.7, 74.5, 88.0, 96.7], dead, copies} (scene 2 rule). L1.fmt(n) -> number with thousands commas (3037 -> '3,037'). L1.CAT -> {target: 'CAT', start: 'QZT', tries: [[0,'C'],[2,'Q'],[1,'A']], verdicts: [keep, discard, keep], rows} computed by the keep-if-not-worse rule.\n\n== l1/common-2.js (drawing blocks used by several scenes) ==\nL1.landscape(parent, {x, y, w, h, base, peak}) -> ls: draws the curve (green stroke 6 px, flat light green fill, grey baseline) of L1.land mapped so the baseline is at stage y = base and the star's peak at y = peak, x(i) = 18 + i/239 x (w - 36); ls.px(i) -> [x, y] on the curve (fractional i interpolates), ls.set({k (draw progress 0..1 left to right, fill follows), star (0..1 spring pop of the orange star), o}), ls.dot({tone: 'blue', r: 14}) -> d with d.set({i, lift, s, o, tone, ring (0..1 pulse ring in the tone)}) (dots stand on the curve at index i, lifted by lift px, with the sticker lip), ls.under / ls.over (SVG groups so stalks, arcs, rings and ghosts can be drawn below or above the dots). Also L1.sprout(oldIdx[], newIdx[], parentOf[], u) -> {kids: [{i, o}], olds: [{i, o}]} (u 0..1): the step used in scenes 5, 8 and the recap where each child copy starts on top of its parent's old index, travels to its own index and the old dots fade out in the second half of the step.\nL1.star(size, tone = 'orange') -> SVG <g> five-point star with lip. L1.ingredientBar(parent, {y: 588}) -> update(states, k): three tags 'Population', 'Selection + mutation', 'Recombination' each with a number disc 1/2/3 (v-tag, 28 px, widths about 190, 330, 250, centred, gaps 20); states[i] is 'off' (soft grey), 'active' (solid blue) or 'done' (soft green with tick); the third has a dashed outline (optional); k 0..1 pops the bar in.\nL1.letterGrid(parent, {text, cols: 14, size: 52, gap: 8, x, y, rowGap: 10, tone}) -> {set(i, {tone, text, s, o, solid}), all(fn), el, rows, tile(i)} built from L5.chromosome rows (a space is shown as a dim '.' dot). L1.pips(parent, {n: 3, size: 24, gap: 10, x, y}) -> update(filledFlags[], pop k). L1.digits(parent, {n, tone, x, y, w: 10, h: 22, pitch: 13}) -> update(k 0..1: how many squares have popped, left to right). L1.waffle(parent, {flags[200], cols: 20, cell: 16, pitch: 18, x, y}) -> update(k 0..1: cells revealed in run order, green if flag else grey). L1.chip(parent, text, tone, {x, y, solid, width}) = v-tag convenience with place(). L1.gauge(parent, {x, y, w, tone}) -> g with g.set(needle 0..1) (half-circle dial with three coloured arcs, needle, hub; orange-on strokes when on an orange sticker).\n\n== l1/common-3.js (pictograms) ==\nL1.miniEvo(parent, {x, y, t0}) -> update(t), L1.miniBrain(parent, {x, y, t0}) -> update(t), L1.miniAnts(parent, {x, y, t0}) -> update(t): each is a 330 x 150 box (scene 2 rows 1 to 3) and update(t) takes the scene's local seconds; t0 is the time of its first event: evolution generations at t0, t0 + 1.0, t0 + 2.0 (scene 2: t0 = 1.0, each 0.9 s long), brain passes at t0, t0 + 0.9, t0 + 1.8 (scene 2: 4.0), ant waves at t0, t0 + 0.9, t0 + 1.8 (scene 2: 6.8); before t0 they show the starting state, after the last event the end state (the scene positions them with V.place for the row's entrance). L1.picto(kind, size) -> SVG for the six areas: 'planning', 'design', 'simulation', 'identification', 'control', 'classification' (scene 9), drawn at absolute coordinates inside a size x size box, strokes 6 px, role colours, sticker lips; they never use glyphs or white.\n\nSHARED CONVENTIONS: all scene code derives positions, counts and strings from these helpers (never typed in); each scene asserts its quoted numbers at build time (throw new Error). Letter tiles keep font >= 28 px; superscripts only through V.h(..., {html: '10<sup>40</sup>'}); captions are plain text (no superscripts). Sticker look: 3 px edge + 6 px lip, no gradients, no soft shadows, no white (use var(--panel) / var(--bg)); text on light uses -ink shades, text on a saturated fill the -on shade (the v-tag solid / v-gene solid classes already do this)."
+}
