@@ -1,14 +1,14 @@
 /* Lecture 6 · Genetic programming, scene 06-mutation: subtree mutation in three moves.
    Left: the parent x² + 1 = (+ (x X X) 1). Right: its child, a copy that gets edited. The picture is a "diff": grey = unchanged,
    orange = the piece that is different.
-   1. PICK: the parent grows in, centred. A pointer hops over the nodes and lands on the leaf 1 (it turns orange). The parent slides
-      left, a copy slides out to the right, and every node except the chosen one turns grey.
-   2. CUT: scissors snip the edge above the chosen subtree, it drops away and leaves a dashed hole.
-   3. GROW: a dice rolls in the hole, then a fresh random subtree (+ X 1) pops in (orange), one node after another.
-   The formulas appear last: x² + 1 for the parent and x² + (x + 1) = x² + x + 1 for the child, the new part in orange.
+   1. PICK: the parent grows in, centred. A pointer hops over the nodes and lands on the x² subtree (three nodes, all orange). The
+      parent slides left, a copy slides out to the right, and every node outside the chosen subtree turns grey.
+   2. CUT: scissors snip the edge above the chosen subtree, all three nodes drop away and leave a dashed hole.
+   3. GROW: a dice rolls in the hole, then a fresh random subtree (+ X (x X X)) pops in (orange), one node after another.
+   The formulas appear last: x² + 1 for the parent and (x + x²) + 1 = x² + x + 1 for the child, the new part in orange.
    Both trees are drawn from ONE layout (the child's), so the unchanged part sits exactly where it sat in the parent; the parent
-   just hides the two nodes of the new subtree and shows its leaf 1 where the child has its new root. Every formula and size is
-   computed from the real trees (L.parse, L.replaceSubtree, L.formula) and checked when the scene is built. */
+   just hides the two deepest nodes of the new subtree and shows its own x² subtree on the three top nodes of the new one.
+   Every formula and size is computed from the real trees (L.parse, L.replaceSubtree, L.formula) and checked when the scene is built. */
 (function () {
   const V = window.VID;
   const L = V.l6;
@@ -21,27 +21,31 @@
 
   // ---------- the programs, built and checked with the real helpers ----------
   const PARENT = L.parse("(+#root (*#mul X#xa X#xb) 1#one)");
-  const NEW_SUB = L.parse("(+ X 1)"); // the freshly grown random subtree
-  const CHILD = L.replaceSubtree(PARENT, "one", NEW_SUB);
-  const NEW_ROOT = CHILD.kids[1];
+  const NEW_SUB = L.parse("(+ X (* X X))"); // the freshly grown random subtree
+  const CHILD = L.replaceSubtree(PARENT, "mul", NEW_SUB);
+  const NEW_ROOT = CHILD.kids[0];
   const ID = {
     root: CHILD.id,
-    mul: CHILD.kids[0].id,
-    xa: CHILD.kids[0].kids[0].id,
-    xb: CHILD.kids[0].kids[1].id,
-    nw: NEW_ROOT.id, // the leaf 1 of the parent / the root of the new subtree
-    nx: NEW_ROOT.kids[0].id,
-    n1: NEW_ROOT.kids[1].id,
+    one: CHILD.kids[1].id,
+    nw: NEW_ROOT.id, // the x node of the parent / the root of the new subtree
+    nx: NEW_ROOT.kids[0].id, // the parent's first x / the new X
+    nm: NEW_ROOT.kids[1].id, // the parent's second x / the new ×
+    na: NEW_ROOT.kids[1].kids[0].id,
+    nb: NEW_ROOT.kids[1].kids[1].id,
   };
-  const KEPT = L.formula(CHILD.kids[0]); // x²
-  const F_NEW = L.formula(NEW_SUB); // x + 1
+  const KEPT = L.formula(L.subtreeAt(PARENT, "mul")); // x²
+  const F_NEW = L.formula(NEW_SUB); // x + x²
   const F_PARENT = L.formula(PARENT);
   const F_CHILD = L.formula(CHILD);
-  const SAME = [ID.root, ID.mul, ID.xa, ID.xb]; // the nodes that do not change
-  if (F_PARENT !== `${KEPT} + 1` || F_NEW !== "x + 1" || F_CHILD !== `${KEPT} + ${F_NEW}`)
+  const F_SIMPLE = "x² + x + 1";
+  const CUTSET = [ID.nw, ID.nx, ID.nm]; // the subtree that is cut (as drawn in the parent and in the copy)
+  const SAME = [ID.root, ID.one]; // the nodes that do not change
+  const PLAB = { [ID.nw]: "*", [ID.nx]: "X", [ID.nm]: "X" }; // what those three nodes say in the parent
+  const PTONE = { [ID.nw]: "purple", [ID.nx]: "blue", [ID.nm]: "blue" };
+  if (F_PARENT !== `${KEPT} + 1` || F_NEW !== `x + ${KEPT}` || F_CHILD !== `${F_NEW} + 1`)
     throw new Error(`scene 06: formulas changed: ${F_PARENT} -> ${F_CHILD}`);
   // nodes are conserved except for the swapped piece: size(child) = size(parent) - size(cut) + size(new)
-  if (L.size(CHILD) !== L.size(PARENT) - L.size(L.subtreeAt(PARENT, "one")) + L.size(NEW_SUB))
+  if (L.size(CHILD) !== L.size(PARENT) - L.size(L.subtreeAt(PARENT, "mul")) + L.size(NEW_SUB))
     throw new Error("scene 06: the child has the wrong size");
   if (L.POINTS.some(([x, y]) => Math.abs(L.fn(CHILD)(x) - y) > 1e-9))
     throw new Error("scene 06: the child should be x² + x + 1, the lecture's target");
@@ -49,12 +53,12 @@
   // ---------- timeline (local seconds) ----------
   const TREE_AT = 0.2; // the parent grows in, node by node, in the middle of the stage
   const PFORM_AT = 1; // the parent's formula
-  const HOPS = [ID.mul, ID.xa, ID.root, ID.xb, ID.nw]; // the pointer visits these, the last one is the pick
+  const HOPS = [ID.one, ID.nx, ID.root, ID.nm, ID.nw]; // the pointer visits these, the last one is the pick
   const HOP0 = 1.1;
   const HOP = 0.36; // seconds per node
   const MOVE = 0.2; // ... of which the pointer travels this long
   const ARR = HOPS.map((_, i) => HOP0 + i * HOP);
-  const PICK = ARR[ARR.length - 1]; // 2.54: the leaf 1 is chosen
+  const PICK = ARR[ARR.length - 1]; // the x² subtree is chosen
   const SLIDE = [2.95, 3.45]; // the parent slides to the left
   const COPY = [3.4, 4]; // the child slides out of the parent
   const GREY = 4.1; // everything but the chosen node turns grey
@@ -64,15 +68,15 @@
   const FALL = 0.55; // ... and drops away
   const HOLE_AT = CUT + 0.35; // the dashed hole
   const DICE = [6.15, 6.85]; // the dice rolls in the hole
-  const NEW_AT = { nw: 6.9, nx: 7.25, n1: 7.55 }; // the new subtree pops in
+  const NEW_AT = { nw: 6.9, nx: 7.2, nm: 7.5, na: 7.8, nb: 8.05 }; // the new subtree pops in
   const NEW_D = 0.55;
-  const NEW_PILL = 7.9;
-  const FORM_AT = [8.1, 8.7]; // the child's formula, then its simplified form
+  const NEW_PILL = 8.5;
+  const FORM_AT = [8.9, 9.6]; // the child's formula, then its simplified form
 
   // ---------- layout (stage px, 936 x 640) ----------
   const NODE = 68;
-  const ROWS = 1.8;
-  const TOP = 92;
+  const ROWS = 1.4;
+  const TOP = 64;
   const PX = 222; // the parent's visible centre once it has slid left
   const MID = 468; // ... and before: the middle of the stage
   const CX = 706; // the child's centre
@@ -111,7 +115,10 @@
           c.setAttribute("cy", String(p ? p[1] * 11 : 0));
           show(c, p ? 1 : 0);
         });
-        g.setAttribute("transform", `translate(${f1(x)} ${f1(y)}) rotate(${f1(r)}) scale(${Math.max(0, sc).toFixed(3)})`);
+        g.setAttribute(
+          "transform",
+          `translate(${f1(x)} ${f1(y)}) rotate(${f1(r)}) scale(${Math.max(0, sc).toFixed(3)})`,
+        );
         show(g, sc > 0.01 ? 1 : 0);
       },
     };
@@ -163,11 +170,11 @@
   V.scene({
     kicker: "MUTATION",
     title: ["Mutation: swap in", "a new subtree"],
-    dur: 10,
+    dur: 11,
     caps: [
-      [0.4, 3, "Pick a node at random."],
-      [3.5, 6, "Cut off its subtree."],
-      [6.3, 9.5, "Grow a new random subtree in its place."],
+      [0.4, 3.3, "Pick a node at random."],
+      [3.5, 6.2, "Cut off its subtree."],
+      [6.3, 11, "Grow a new random subtree in its place."],
     ],
     build(stage) {
       // ----- HTML under the shared SVG layer: the two tags and the two formula cards -----
@@ -219,30 +226,49 @@
         );
       const pToks = [tok(KEPT), tok(" + "), tok("1")];
       const pCard = card(PX, 300, 100, row(56, ...pToks));
-      const c1 = [tok(KEPT), tok(" + "), tok("("), tok(F_NEW), tok(")")];
-      const c2 = [tok("= "), tok(KEPT), tok(" + "), tok(F_NEW)];
+      const c1 = [tok("("), tok(F_NEW), tok(")"), tok(" + "), tok("1")];
+      const c2 = [tok(`= ${F_SIMPLE}`)];
       const line2 = row(46, ...c2);
-      const cCard = card(CX, 420, 168, row(56, ...c1), line2);
+      const cCard = card(CX, 420, 150, row(56, ...c1), line2);
+      cCard.style.top = `${CARD_Y + 12}px`;
       stage.append(tagP, tagC, pCard, cCard);
 
       // ----- SVG: two trees from one layout, the hole, pills, pointer, dice -----
-      const treeBox = { root: CHILD, x: CX - 200, y: TOP, w: 400, h: 380, node: NODE, rows: ROWS, room: 0, hidden: true };
+      const treeBox = {
+        root: CHILD,
+        x: CX - 200,
+        y: TOP,
+        w: 400,
+        h: 370,
+        node: NODE,
+        rows: ROWS,
+        room: 0,
+        hidden: true,
+      };
       const trP = L.tree(stage, treeBox); // the parent (the new subtree's two nodes stay hidden, its leaf 1 sits at the new root)
       const trC = L.tree(stage, treeBox); // the child
       if (trC.scale !== 1) throw new Error("scene 06: the tree does not fit its box");
-      const vis = trP.nodes.filter((n) => n.id !== ID.nx && n.id !== ID.n1);
+      const vis = trP.nodes.filter((n) => n.id !== ID.na && n.id !== ID.nb);
       const visL = Math.min(...vis.map((n) => n.cx - n.w / 2));
       const visR = Math.max(...vis.map((n) => n.cx + n.w / 2));
       const PDX = [MID, PX].map((c) => c - (visL + visR) / 2); // shift of the parent: centred, then slid left
       const pdx = (t) => lerp(PDX[0], PDX[1], ease.inOut(ramp(t, SLIDE[0], SLIDE[1], lin)));
       const pp = (id, t = SLIDE[1]) => ({ x: trP.pos(id).x + pdx(t), y: trP.pos(id).y }); // where the parent's node is drawn
-      [...vis.map((n) => [n.cx + PDX[0], n]), ...vis.map((n) => [n.cx + PDX[1], n]), ...trC.nodes.map((n) => [n.cx, n])].forEach(
-        ([x, n]) => {
-          if (x - n.w / 2 < 12 || x + n.w / 2 > 924 || n.cy + n.h / 2 + 8 > 628) throw new Error(`scene 06: ${n.id} is off the stage`);
-        },
-      );
+      [
+        ...vis.map((n) => [n.cx + PDX[0], n]),
+        ...vis.map((n) => [n.cx + PDX[1], n]),
+        ...trC.nodes.map((n) => [n.cx, n]),
+      ].forEach(([x, n]) => {
+        if (x - n.w / 2 < 12 || x + n.w / 2 > 924 || n.cy + n.h / 2 + 8 > 628)
+          throw new Error(`scene 06: ${n.id} is off the stage`);
+      });
       const lay = L.layer(stage);
-      const holeEdge = s("path", { fill: "none", "stroke-width": 6, "stroke-dasharray": "10 9", "stroke-linecap": "round" });
+      const holeEdge = s("path", {
+        fill: "none",
+        "stroke-width": 6,
+        "stroke-dasharray": "10 9",
+        "stroke-linecap": "round",
+      });
       holeEdge.style.stroke = "var(--amber)";
       lay.edges.append(holeEdge);
       const hole = makeHole(lay.nodes);
@@ -258,7 +284,7 @@
       const dice = makeDice(lay.badges);
       // HTML drawn above the layer: the copy arrow and the scissors
       const arrow = L.arrow(48, "grey");
-      const SCIS = 72;
+      const SCIS = 92;
       const scissors = L.scissors(SCIS, "orange");
       stage.append(arrow, scissors);
 
@@ -276,26 +302,32 @@
           m * m * m * ey1 + 3 * m * m * u * eym + 3 * m * u * u * eym + u * u * u * ey2,
         ];
       };
-      holeEdge.setAttribute("d", `M${f1(ex1)} ${f1(ey1)}C${f1(ex1)} ${f1(eym)} ${f1(hp.x)} ${f1(eym)} ${f1(hp.x)} ${f1(ey2)}`);
+      holeEdge.setAttribute(
+        "d",
+        `M${f1(ex1)} ${f1(ey1)}C${f1(ex1)} ${f1(eym)} ${f1(hp.x)} ${f1(eym)} ${f1(hp.x)} ${f1(ey2)}`,
+      );
       const [cutX, cutY] = bez(0.55);
       const JAW = { x: cutX + 18, y: cutY }; // the scissors' pivot while cutting
       const AWAY = { x: JAW.x + 150, y: JAW.y - 90 };
 
       // ----- the parent tree -----
       function drawParent(t) {
-        [ID.root, ID.mul, ID.nw, ID.xa, ID.xb].forEach((id, i) =>
+        [ID.root, ID.nw, ID.one, ID.nx, ID.nm].forEach((id, i) =>
           trP.reveal(id, ramp(t, TREE_AT + i * 0.15, TREE_AT + i * 0.15 + 0.55, lin)),
         );
-        trP.set([ID.nx, ID.n1], { o: 0 });
+        trP.set([ID.na, ID.nb], { o: 0 });
         trP.set(trP.all(), { dx: pdx(t) });
-        trP.set(ID.nw, { label: "1", tone: "blue" });
+        CUTSET.forEach((id) => trP.set(id, { label: PLAB[id], tone: PTONE[id] }));
         HOPS.slice(0, -1).forEach((id, i) => {
           // the pointer sits on a node: a ring and a small bump
           const on = fade(t, ARR[i] - 0.04, 0.04) * (1 - fade(t, ARR[i + 1] - MOVE, 0.06));
           if (on > 0) trP.set(id, { halo: 0.7 * on, pulse: 0.45 * on });
         });
         if (t >= GREY) trP.set(SAME, { tone: "grey", look: "soft" });
-        if (t >= PICK) trP.set(ID.nw, { tone: "orange", halo: 1, pulse: 0.8 * flash(t, PICK, PICK + 0.35) });
+        if (t >= PICK) {
+          trP.set(CUTSET, { tone: "orange" });
+          trP.set(ID.nw, { pulse: 0.8 * flash(t, PICK, PICK + 0.35), halo: 1 });
+        }
         trP.draw();
       }
 
@@ -303,27 +335,28 @@
       function drawChild(t) {
         const ck = ramp(t, COPY[0], COPY[1], ease.out);
         const seen = fade(t, COPY[0], 0.2);
-        [ID.root, ID.mul, ID.xa, ID.xb, ID.nw].forEach((id) => {
+        [ID.root, ID.one, ...CUTSET].forEach((id) => {
           const a = pp(id);
           const b = trC.pos(id);
           trC.set(id, { dx: (1 - ck) * (a.x - b.x), dy: (1 - ck) * (a.y - b.y), o: seen });
         });
         if (t >= GREY) trC.set(SAME, { tone: "grey", look: "soft" });
-        if (t < CUT) trC.set(ID.nw, { label: "1", tone: "orange", halo: 1 });
-        else if (t < NEW_AT.nw) {
-          // cut off: the leaf drops away; the real edge is gone, the dashed one marks the hole
+        if (t < NEW_AT.nw) {
+          // the subtree that will be cut: orange, then it drops away (the real edge is gone, the dashed one marks the hole)
           const u = clamp((t - CUT) / FALL);
-          trC.set(ID.nw, {
-            label: "1",
-            tone: "orange",
-            halo: 1 - u,
-            dx: 40 * u,
-            dy: 150 * ease.in(u),
-            r: 30 * u,
-            o: 1 - ramp(u, 0.45, 1, lin),
-            ek: 1,
-            eo: 0,
+          CUTSET.forEach((id, i) => {
+            const st = { label: PLAB[id], tone: "orange", halo: id === ID.nw ? 1 - u : 0 };
+            if (t >= CUT)
+              Object.assign(st, {
+                dx: 40 * u + 6 * i,
+                dy: 150 * ease.in(u),
+                r: (30 - 12 * i) * u,
+                o: 1 - ramp(u, 0.45, 1, lin),
+              });
+            if (t >= CUT && id === ID.nw) Object.assign(st, { ek: 1, eo: 0 });
+            trC.set(id, st);
           });
+          trC.reveal([ID.na, ID.nb], 0);
         } else {
           trC.set(ID.nw, {
             tone: "orange",
@@ -331,12 +364,12 @@
             s: pop(t, NEW_AT.nw),
             pulse: 0.6 * flash(t, NEW_AT.nw + 0.1, NEW_AT.nw + 0.5),
           });
+          [ID.nx, ID.nm, ID.na, ID.nb].forEach((id) => {
+            const a = NEW_AT[{ [ID.nx]: "nx", [ID.nm]: "nm", [ID.na]: "na", [ID.nb]: "nb" }[id]];
+            trC.reveal(id, ramp(t, a, a + NEW_D, lin));
+            trC.set(id, { tone: "orange", pulse: 0.6 * flash(t, a + 0.15, a + 0.55) });
+          });
         }
-        [ID.nx, ID.n1].forEach((id) => {
-          const a = NEW_AT[id === ID.nx ? "nx" : "n1"];
-          trC.reveal(id, ramp(t, a, a + NEW_D, lin));
-          trC.set(id, { tone: "orange", pulse: 0.6 * flash(t, a + 0.15, a + 0.55) });
-        });
         trC.draw();
 
         // the dashed hole and its edge
@@ -363,7 +396,8 @@
         show(ripple, k > 0 && k < 1 ? 0.9 * (1 - k) : 0);
       }
 
-      const gapMid = (Math.max(...vis.map((n) => n.cx + PDX[1] + n.w / 2)) + Math.min(...trC.nodes.map((n) => n.cx - n.w / 2))) / 2;
+      const gapMid =
+        (Math.max(...vis.map((n) => n.cx + PDX[1] + n.w / 2)) + Math.min(...trC.nodes.map((n) => n.cx - n.w / 2))) / 2;
       function drawCopy(t) {
         // the arrow and its label sit between the two trees once the copy has landed, and leave before the cut
         const a = COPY[1] - 0.15;
@@ -401,19 +435,18 @@
         newPill.apply({
           text: newText,
           tone: "orange",
-          x: nw.x + NODE / 2 + 12 + pillW(newText) / 2,
+          x: nw.x - NODE / 2 - 12 - pillW(newText) / 2,
           y: nw.y - 4,
           s: pop(t, NEW_PILL, 0.4),
           o: fade(t, NEW_PILL, 0.1),
         });
-        const m = trC.pos(ID.mul);
-        const xa = trC.pos(ID.xa);
+        const one = trC.pos(ID.one);
         samePill.apply({
           text: sameText,
           tone: "grey",
           look: "soft",
-          x: m.x,
-          y: xa.y + NODE / 2 + 34,
+          x: one.x + NODE / 2 + 12 + pillW(sameText) / 2,
+          y: one.y,
           s: pop(t, GREY + 0.2, 0.4),
           o: fade(t, GREY + 0.2, 0.1),
         });
@@ -428,13 +461,13 @@
         tag(tagC, COPY[0] + 0.1);
         const a = fade(t, PFORM_AT, 0.35);
         place(pCard, { x: slide, y: (1 - ease.out(a)) * 16, o: a });
-        color(pToks[0], t >= GREY ? DIM : INK);
-        color(pToks[1], INK);
-        color(pToks[2], t >= PICK ? ORG : INK);
+        color(pToks[0], t >= PICK ? ORG : INK);
+        color(pToks[1], t >= GREY ? DIM : INK);
+        color(pToks[2], t >= GREY ? DIM : INK);
         const b = fade(t, FORM_AT[0], 0.35);
         place(cCard, { y: (1 - ease.out(b)) * 16, o: b });
-        [DIM, INK, ORG, ORG, ORG].forEach((c, i) => color(c1[i], c));
-        [INK, DIM, INK, ORG].forEach((c, i) => color(c2[i], c));
+        [ORG, ORG, ORG, DIM, DIM].forEach((c, i) => color(c1[i], c));
+        color(c2[0], INK);
         const c = fade(t, FORM_AT[1], 0.3);
         place(line2, { y: (1 - ease.out(c)) * 10, o: c });
       }

@@ -160,7 +160,7 @@
   function tourMap(parent, opt = {}) {
     const { x = 0, y = 0, w = 400, h = 300 } = opt;
     const k = Math.min(w / 400, h / 300);
-    const [R, GAP, RING, HEAD, HW, LIP, SW, LANE] = [32, 7, 45, 22, 10, 5, 8, 8].map((v) => v * k);
+    const [R, GAP, RING, HEAD, HW, LIP, SW, LANE] = [32, 7, 45, 22, 10, 5, 8, 15].map((v) => v * k);
     const P = {};
     CITIES.split("").forEach((c) => (P[c] = [(CITY_REF[c][0] * w) / 400, (CITY_REF[c][1] * h) / 300]));
     const city = (c) => {

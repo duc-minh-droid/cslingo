@@ -21,8 +21,8 @@
   const GROW = { from: 2.0, gap: 0.11, dur: 0.7 };
   const DIAL_IN = [3.55, 3.95];
   const TAGS_IN = [3.55, 3.95]; // the "root" and "leaf" labels
-  const SLIDE = [8.5, 9.0]; // the dial moves from TIME = 5 to TIME = 11
-  const CLEAR = [8.5, 8.8]; // the old values fade away
+  const SLIDE = [9.0, 9.5]; // the dial moves from TIME = 5 to TIME = 11
+  const CLEAR = [9.0, 9.3]; // the old values fade away
   const POP = 0.4;
   const NEVER = 1e9;
 
@@ -46,7 +46,7 @@
     };
   }
   // the second round is a repeat, so it runs a little quicker and its answer holds for about 0.8 s
-  const P = [phase(4.4, 1, 5), phase(9.3, 0.75, 11)];
+  const P = [phase(4.4, 1, 5), phase(9.8, 0.75, 11)];
 
   // value badges: each node can show a list of values over time (the second replaces the first)
   const BADGE = {};
@@ -83,11 +83,11 @@
   V.scene({
     kicker: "PROGRAMS AS TREES",
     title: ["A program", "is a tree"],
-    dur: 13,
+    dur: 14,
     caps: [
       [0.4, 3.5, "A program can be drawn as a tree."],
-      [4, 8, "It runs from the leaves up to the root."],
-      [8.5, 12.5, "Change the input and a different branch is used."],
+      [4, 8.9, "It runs from the leaves up to the root."],
+      [9.0, 14, "Change the input and a different branch is used."],
     ],
     build(stage) {
       // ----- the code line -----

@@ -15,9 +15,9 @@
   // chromosome geometry (stage px); slot centres are 116 px apart
   const SIZE = 88;
   const PITCH = SIZE + 32;
-  const ROW = { x: 184, y: 352 };
+  const ROW = { x: 184, y: 372 };
   const SPAN = (J - I) * PITCH;
-  const LIFT = 148; // how far a tile climbs over (or dips under) the gene between them
+  const LIFT = 110; // how far a tile climbs over (or dips under) the gene between them
   const slotX = (i) => ROW.x + PITCH * i + SIZE / 2;
 
   // the hop: x glides while the tile climbs steeply first, so it clears the middle gene (a flattened arch)
@@ -84,11 +84,11 @@
     title: ["Swap mutation", "keeps it valid"],
     dur: 9,
     caps: [
-      [0.4, 3.4, "Swap exchanges two genes."],
+      [0.4, 4, "Swap exchanges two genes."],
       [4, 8.5, "Nothing is created or lost, so the tour stays valid."],
     ],
     build(stage) {
-      const map = L5.tourMap(stage, { x: 4, y: 22, w: 340, h: 255 });
+      const map = L5.tourMap(stage, { x: 30, y: 30, w: 380, h: 285 });
       // the arrows lie under the tiles, so a tile slides along its own arrow
       const svg = L5.svg(stage);
       const up = svg.appendChild(hopArrow(slotX(I), slotX(J), ROW.y - 22, true));
@@ -101,7 +101,7 @@
         gap: PITCH - SIZE,
         tone: "blue",
       });
-      const badge = L5.badge(stage, { x: 596, y: 24 });
+      const badge = L5.badge(stage, { x: 500, y: 60 });
 
       // purple rings travel with the two chosen tiles
       const ringOf = (i) =>
@@ -125,7 +125,7 @@
       const tag = V.h("div", {
         class: "v-tag solid c-purple",
         text: "swap",
-        style: { left: "408px", top: "94px", width: "120px", textAlign: "center", fontSize: "34px" },
+        style: { left: "592px", top: "196px", width: "120px", textAlign: "center", fontSize: "34px" },
       });
       stage.append(tag);
 

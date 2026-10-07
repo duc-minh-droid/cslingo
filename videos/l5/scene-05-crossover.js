@@ -70,9 +70,9 @@
     title: ["Crossover can break", "a tour too"],
     dur: 14,
     caps: [
-      [0.4, 3, "Two parents. Cut both after gene 2."],
-      [3.5, 8, "Swap the tails to make two children."],
-      [8.5, 13.5, "Both children are broken: a city twice, another missing."],
+      [0.4, 3.5, "Two parents. Cut both after gene 2."],
+      [3.5, 8.4, "Swap the tails to make two children."],
+      [8.4, 13.3, "Each child repeats one city and misses another."],
     ],
     build(stage) {
       const work = stage.appendChild(

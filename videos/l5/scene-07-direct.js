@@ -102,8 +102,8 @@
     title: ["Direct: the genes", "are the answer"],
     dur: 10,
     caps: [
-      [0.4, 4, "Direct: each gene is the slot of one exam."],
-      [4.5, 7, "Mutation moves just one exam..."],
+      [0.4, 4.5, "Direct: each gene is the slot of one exam."],
+      [4.5, 7.2, "Mutation moves just one exam..."],
       [7.2, 9.6, "...but it can create a clash. Fitness must punish it."],
     ],
     build(stage) {

@@ -189,8 +189,8 @@
     dur: 14,
     caps: [
       [0.4, 3.5, "Build programs from two sets: functions and terminals."],
-      [4, 9, "Grow downwards, picking parts at random."],
-      [9.5, 13.5, "At the depth limit only terminals are allowed, so it stops."],
+      [4, 9.2, "Grow downwards, picking parts at random."],
+      [9.5, 14, "At the limit, only terminals."],
     ],
     build(stage) {
       // ----- HTML first (everything drawn below the shared SVG layer): lanes, the limit line, bins, the formula card -----

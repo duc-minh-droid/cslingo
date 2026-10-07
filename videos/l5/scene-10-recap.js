@@ -5,7 +5,7 @@
           then a swap of two genes (5.3-6.3) and back (7.5-8.5) keeps it valid.
    Row 3: genes go straight into the answer (direct, from 5.0) or through a decoder box first (indirect, from 6.0);
           the packets keep looping.
-   6.4 the "Try Workshop 5.W" sticker pops in. */
+   4.6 the "Not every bit is equal" tag and 6.4 the plain "Next: Workshop 5.W" tag pop in. */
 (function () {
   const V = window.VID;
   const L5 = V.l5;
@@ -325,17 +325,18 @@
       const head = V.h("div", {
         class: "v-title-line",
         text: "Remember",
-        style: { position: "absolute", left: "72px", top: "96px", fontSize: "76px" },
+        style: { position: "absolute", left: "72px", top: "108px", fontSize: "76px" },
       });
+      const kicker = V.h("div", { class: "v-kicker", text: "RECAP" });
       const mascot = V.mascot("sprout", { size: 168, mood: "love" });
       mascot.style.left = "840px";
       mascot.style.top = "38px";
-      stage.append(head, mascot);
+      stage.append(kicker, head, mascot);
 
       const rows = [
         ["blue", "The encoding is\nthe big decision", mapToGenes],
         ["green", "Keep every child valid", brokenToValid],
-        ["purple", "Direct or indirect?", genesToAnswer],
+        ["purple", "Direct: the answer\nIndirect: instructions", genesToAnswer],
       ].map(([tone, text, make], i) => {
         const card = V.h("div", {
           class: `v-card plain c-${tone}`,
@@ -354,8 +355,8 @@
             display: "flex",
             alignItems: "center",
             whiteSpace: "pre",
-            fontSize: "44px",
-            lineHeight: "1.12",
+            fontSize: "36px",
+            lineHeight: "1.2",
           },
         });
         card.append(pic, label);
@@ -363,41 +364,47 @@
         return { card, label, update: make(pic) };
       });
 
-      // bottom sticker
-      const play = svgOf(
+      // bottom row: the bit-weights reminder (four bars, each twice the last) and what comes next (plain tags, not buttons)
+      const bars = svgOf(
         "svg",
-        { width: 30, height: 30, viewBox: "0 0 30 30" },
-        svgOf("path", {
-          d: "M 9 5 L 25 15 L 9 25 Z",
-          "stroke-width": 4,
-          "stroke-linejoin": "round",
-          style: { fill: "var(--blue-on)", stroke: "var(--blue-on)" },
-        }),
+        { width: 64, height: 44, viewBox: "0 0 64 44" },
+        ...[0, 1, 2, 3].map((k) =>
+          svgOf("rect", {
+            x: 2 + k * 16,
+            y: 42 - [8, 16, 28, 40][k],
+            width: 12,
+            height: [8, 16, 28, 40][k],
+            rx: 4,
+            style: { fill: "var(--amber-on)" },
+          }),
+        ),
       );
-      const cta = V.h(
+      const tagStyle = { position: "relative", display: "flex", alignItems: "center", gap: "14px", fontSize: "34px" };
+      const bitTag = V.h(
         "div",
-        {
-          class: "v-tag solid c-blue",
-          style: {
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            fontSize: "40px",
-            padding: "10px 34px 12px",
-            boxShadow: "0 6px 0 var(--c-lip)",
-          },
-        },
-        play,
-        V.h("span", { text: "Try Workshop 5.W" }),
+        { class: "v-tag solid c-orange", style: { ...tagStyle, padding: "8px 28px 10px 22px" } },
+        bars,
+        V.h("span", { text: "Not every bit is equal" }),
       );
-      const ctaBar = V.h("div", {
-        style: { ...box(0, 902, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
+      const nextTag = V.h("div", {
+        class: "v-tag c-grey",
+        text: "Next: Workshop 5.W",
+        style: { ...tagStyle, padding: "8px 26px 10px" },
       });
-      ctaBar.append(cta);
+      const ctaBar = V.h("div", {
+        style: {
+          ...box(0, 904, 1080, 80),
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "24px",
+        },
+      });
+      ctaBar.append(bitTag, nextTag);
       stage.append(ctaBar);
 
       return (t) => {
+        V.place(kicker, { y: (1 - ramp(t, 0.05, 0.45)) * 10, o: ramp(t, 0.05, 0.45) });
         V.place(head, { y: (1 - ramp(t, 0.1, 0.6)) * 20, o: ramp(t, 0.1, 0.6) });
         const m = ramp(t, 0.2, 0.9, E.pop);
         V.place(mascot, {
@@ -413,11 +420,9 @@
           V.place(r.label, { x: (1 - kl) * 24, o: kl });
           r.update(t);
         });
-        const c = ramp(t, 6.4, 7.0, E.pop);
-        V.place(cta, {
-          s: (0.8 + 0.2 * c) * (1 + 0.03 * ramp(t, 7.0, 7.4) * Math.sin((2 * Math.PI * (t - 7)) / 1.6)),
-          o: ramp(t, 6.4, 6.7),
-        });
+        const [c1, c2] = [ramp(t, 4.6, 5.2, E.pop), ramp(t, 6.4, 7.0, E.pop)];
+        V.place(bitTag, { s: 0.8 + 0.2 * c1, o: ramp(t, 4.6, 4.9) });
+        V.place(nextTag, { s: 0.8 + 0.2 * c2, o: ramp(t, 6.4, 6.7) });
       };
     },
   });

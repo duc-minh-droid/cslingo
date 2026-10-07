@@ -400,8 +400,8 @@
     const evoTag = tag(P.top, "Evolution", "purple", CX, 538, 220);
 
     return (t) => {
-      const kp = ramp(t, 3.3, 3.8);
-      place(P.root, { y: Math.round((1 - kp) * 18), o: fade(t, 3.3, 0.3) });
+      const kp = ramp(t, 1.6, 2.1);
+      place(P.root, { y: Math.round((1 - kp) * 18), o: fade(t, 1.6, 0.3) });
       labels.forEach((l) => place(l, { s: pop(t, 3.75), o: fade(t, 3.75) }));
       // you give the behaviour: the examples arrive one by one
       place(pIn, { s: pop(t, 3.5, 0.45), o: fade(t, 3.5) });

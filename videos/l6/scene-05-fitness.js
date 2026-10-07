@@ -3,6 +3,7 @@
    inputs: an orange "x" marker sweeps across, and at each of the 11 inputs a red bar shows how far the answer is from the target.
    The bars then fill in as a red area, and the error in the card on the right counts up with it (0.67 for x + 1).
    The line morphs into the second candidate, x² + 1, and its card fills up to 1.00. The smaller error wins a green crown.
+   Finally all four generation-0 programs are ranked by error (0.67, 1.00, 1.70, 2.67), smallest on top.
    Every number is computed from the real trees and the real area (L.GEN0, L.area); nothing is typed in. */
 (function () {
   const V = window.VID;
@@ -60,6 +61,8 @@
   const AREA2 = [7.6, 8.3];
   const THUMB2 = 8.35;
   const WIN = 9;
+  const RANK = [10.4, 10.8]; // the two cards give way to all four generation-0 programs, ranked
+  const RANK_ROW = 10.7; // rows pop in 0.25 s apart
   const arrive = (i) => lerp(SWEEP[0], SWEEP[1], i / (XS.length - 1));
 
   // ---------- small pieces ----------
@@ -81,6 +84,31 @@
       s("path", { d: "M19 50H49", "stroke-width": 5, style: on }),
     );
     return h("div", { style: abs(CW - 96, -58, 68, 74) }, svg);
+  }
+
+  // ---------- the final ranking: one row per generation-0 program, smallest error first ----------
+  const ROW_H = 118;
+  const ROW_PITCH = 134;
+  function makeRow(P, i) {
+    const TW = CW - 32;
+    const first = i === 0;
+    const root = h("div", { style: abs(CX, PY + i * ROW_PITCH, CW, ROW_H) });
+    const base = h("div", { class: `v-card ${first ? "c-green" : "plain"}`, style: abs(0, 0, CW, ROW_H) });
+    const tag = h("div", { class: "v-tag solid c-blue", text: P.formula, style: { left: "16px", top: "12px" } });
+    const num = h("div", {
+      class: "v-text big",
+      text: P.error.toFixed(2),
+      style: abs(CW - 16 - 112, 10, 112, null, "text-align:right;font-size:48px;line-height:1.1"),
+    });
+    num.style.color = first ? "var(--teal-ink)" : "var(--rose-ink)";
+    const track = h("div", { style: abs(16, 80, TW, 16, "border-radius:8px;background:var(--line)") });
+    track.append(
+      h("div", {
+        style: `position:absolute;left:0;top:0;height:100%;width:${(clamp(P.error / 3) * TW).toFixed(1)}px;border-radius:8px;background:var(--${first ? "teal" : "rose"})`,
+      }),
+    );
+    root.append(base, tag, num, track);
+    return root;
   }
 
   // ---------- a result card: program tag, error number, error meter, tiny plot ----------
@@ -160,12 +188,12 @@
 
   V.scene({
     kicker: "FITNESS",
-    title: ["Fitness: run the program", "and add up the errors"],
-    dur: 11,
+    title: ["Fitness: run the program", "and measure its error"],
+    dur: 13.5,
     caps: [
-      [0.4, 4, "Run the program on many inputs."],
-      [4.5, 7.5, "Error = how far its answers are from the target."],
-      [8, 10.5, "Smaller error is fitter."],
+      [0.4, 4.2, "Run the program on many inputs."],
+      [4.5, 9.2, "Error = the area between its curve and the target."],
+      [9.3, 13.5, "Lower error means a fitter program."],
     ],
     build(stage) {
       const wrap = stage.appendChild(h("div", { style: abs(0, 0, 936, 640) }));
@@ -255,11 +283,13 @@
       const c1 = makeCard(CARD_Y[0], P1, F1, true);
       const c2 = makeCard(CARD_Y[1], P2, F2, false);
       stage.append(c1.root, c2.root);
+      const rows = L.GEN0.map(makeRow); // generation 0 is already in rank order
+      stage.append(...rows);
 
       return (t) => {
         // the plot starts centred, slides left for the cards, and dims when the winner is picked
         const dim = ramp(t, WIN, WIN + 0.35, ease.inOut);
-        place(wrap, { x: lerp(START_X, 0, ramp(t, SLIDE[0], SLIDE[1], ease.inOut)), o: lerp(1, 0.5, dim) });
+        place(wrap, { x: lerp(START_X, 0, ramp(t, SLIDE[0], SLIDE[1], ease.inOut)), o: lerp(1, 0.6, dim) });
         const kPlot = ramp(t, 0.3, 0.8);
         place(pl.svg, { y: (1 - kPlot) * 24, o: kPlot });
 
@@ -308,6 +338,14 @@
         const e2 = k2 >= 1 ? P2.error : area(F2, -1 + 2 * k2);
         c1.apply(t, { at: CARD1, v: e1, hot: fade(t, AREA1[0], 0.2), thumb: THUMB1, w: dim, dim: 0 });
         c2.apply(t, { at: CARD2, v: e2, hot: fade(t, AREA2[0], 0.2), thumb: THUMB2, w: 0, dim });
+        const gone = ramp(t, RANK[0], RANK[1], ease.lin);
+        [c1.root, c2.root].forEach((r) => (r.style.visibility = gone >= 1 ? "hidden" : ""));
+        if (gone > 0) place(c1.root, { o: 1 - gone });
+        if (gone > 0) place(c2.root, { o: 1 - gone });
+        rows.forEach((r, i) => {
+          const at = RANK_ROW + i * 0.25;
+          place(r, { y: (1 - ramp(t, at, at + 0.35)) * 18, s: 0.88 + 0.12 * pop(t, at, 0.5), o: fade(t, at, 0.2) });
+        });
       };
     },
   });

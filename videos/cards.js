@@ -28,7 +28,7 @@
             width: "1080px",
             top: "568px",
             textAlign: "center",
-            fontSize: "116px",
+            fontSize: title.length > 14 ? "92px" : "116px",
             lineHeight: "1.05",
           },
         });

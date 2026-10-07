@@ -107,9 +107,11 @@
     title: ["Not every bit", "is equal"],
     dur: 11,
     caps: [
-      [0.4, 3.5, "A coordinate is stored as five bits."],
-      [4, 9, "A flip of the 1-bit moves the value 1. The 8-bit moves it 8."],
-      [9.3, 10.7, "Which bit you flip matters."],
+      [0.4, 2.4, "A coordinate is stored as five bits."],
+      [2.4, 5.1, "Flip the 1-bit: the value moves 1."],
+      [5.1, 8, "Flip the 8-bit: it moves 8."],
+      [8, 9.5, "Flip the sign: + becomes −, a jump of 4."],
+      [9.5, 10.6, "Which bit you flip matters."],
     ],
     build(stage) {
       const svg = L5.svg(stage);

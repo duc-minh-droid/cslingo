@@ -174,8 +174,8 @@
     dur: 11,
     caps: [
       [0.4, 3.5, "Indirect: each gene is an instruction for a decoder."],
-      [4, 7, "The decoder never creates a clash."],
-      [7.5, 10.5, "But one early gene can move many exams."],
+      [4, 7.4, "The decoder never creates a clash."],
+      [7.4, 10.6, "One early change moves several exams."],
     ],
     build(stage) {
       // ----- genes, with the exam each one belongs to written above it
@@ -318,8 +318,8 @@
       const clear = L5.badge(stage, { x: 0, y: TAG_Y, w: 290, h: 58, valid: "no clash" });
       const moved = V.h("div", {
         class: "v-tag solid c-orange",
-        text: `${MOVED.length} exams moved`,
-        style: `${at(463, TAG_Y, 330, 58)}padding:0;${FLEX}font-size:34px;box-shadow:0 5px 0 var(--c-lip);`,
+        text: `1 gene, ${MOVED.length} exams moved`,
+        style: `${at(463, TAG_Y, 440, 58)}padding:0;${FLEX}font-size:34px;box-shadow:0 5px 0 var(--c-lip);`,
       });
       stage.append(moved);
 

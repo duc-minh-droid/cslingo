@@ -10,18 +10,20 @@
   // the two arrows that run C -> E -> C: the route doubles back
   const EDGE = [...AFTER].map((c, i) => ([c, AFTER[(i + 1) % 5]].sort().join("") === "CE" ? "red" : "blue"));
   const GENE = 1;
+  const FLIP = [2.5, 3.3]; // the gene turns over
+  const BREAK = (FLIP[0] + FLIP[1]) / 2; // the second gene turns into C: from here the chromosome is not a tour
 
   V.scene({
     kicker: "MUTATION",
     title: ["Random mutation", "can break a tour"],
     dur: 11,
     caps: [
-      [0.4, 3.2, "Mutation: pick a gene, give it a random new value."],
+      [0.4, 3.9, "Mutation: pick a gene, give it a random new value."],
       [4, 10.5, "Now C is visited twice and D is never visited."],
     ],
     build(stage) {
       const map = L5.tourMap(stage, { x: 50, y: 84, w: 440, h: 330 });
-      const row = L5.chromosome(stage, { x: 180, y: 452, genes: BEFORE, tone: "blue" });
+      const row = L5.chromosome(stage, { x: 180, y: 436, genes: BEFORE, tone: "blue" });
       const badge = L5.badge(stage, { x: 600, y: 190 });
       const svg = L5.svg(stage);
       const mid = row.mid(GENE);
@@ -37,17 +39,17 @@
         },
       });
       stage.append(ring);
-      const dice = L5.dice(0, 0, 54, { face: 5, tone: "blue" });
+      const dice = L5.dice(0, 0, 66, { face: 5, tone: "blue" });
       const diceG = V.s("g", {}, dice);
       svg.append(diceG);
       const tag = V.h("div", {
         class: "v-tag solid c-blue",
         text: "random new value",
-        style: { left: `${mid.x + 52}px`, top: "576px", height: "48px", padding: "0 18px", fontSize: "28px" },
+        style: { left: `${mid.x + 62}px`, top: "566px", height: "52px", padding: "0 18px", fontSize: "28px" },
       });
       stage.append(tag);
       return (t) => {
-        const k = ramp(t, 2.5, 3.3, E.inOut);
+        const k = ramp(t, FLIP[0], FLIP[1], E.inOut);
         const ringK = t < 3.4 ? ramp(t, 1, 1.5) : ramp(t, 4.6, 5.3);
         // the old route cross-fades into the new one (arrows both tours share stay put)
         const mix = ramp(t, 3.5, 4.5, E.inOut);
@@ -79,16 +81,16 @@
         const roll = ramp(t, 1.5, 2.5, E.lin);
         const faces = [5, 2, 4, 1, 6, 3, 5];
         const f = faces[Math.min(6, Math.floor(roll * 7))];
-        diceG.replaceChildren(L5.dice(0, 0, 54, { face: f, tone: "blue" }));
+        diceG.replaceChildren(L5.dice(0, 0, 66, { face: f, tone: "blue" }));
         V.place(diceG, {
-          x: mid.x - 96,
-          y: 600 + -6 * Math.abs(Math.sin(roll * 18)) * (roll > 0 && roll < 1 ? 1 : 0),
+          x: mid.x,
+          y: 594 + -6 * Math.abs(Math.sin(roll * 18)) * (roll > 0 && roll < 1 ? 1 : 0),
           s: 0.6 + 0.4 * on,
           r: roll > 0 && roll < 1 ? Math.sin(roll * 22) * 14 : 0,
           o: Math.min(1, on * 3),
         });
-        V.place(tag, { x: -90, o: Math.min(1, on * 3), s: 0.85 + 0.15 * on });
-        badge(t < 5.4 ? "valid" : "invalid", t < 5.4 ? ramp(t, 0.0, 0.01) : ramp(t, 5.4, 6.1, E.pop));
+        V.place(tag, { o: Math.min(1, on * 3), s: 0.85 + 0.15 * on });
+        badge(t < BREAK ? "valid" : "invalid", t < BREAK ? ramp(t, 0.0, 0.01) : ramp(t, BREAK, BREAK + 0.7, E.pop));
       };
     },
   });

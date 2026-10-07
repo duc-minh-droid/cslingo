@@ -1,9 +1,8 @@
-/* Lecture 5 · Encodings, scene 06-repair: the two broken children of scene 05 are fixed by "repair". The repeated city is
-   found, the second copy is lifted out and the missing city flies into its slot along an arc, so each child is a valid tour.
-   Story (local seconds): 0-1.5 children, damage and broken routes appear, a copy / swap / repair strip (copy and swap already
-   ticked), 1.9 repair lights up purple, 2.5 and 3.3 the repeat and the missing city are pointed out, 4.2 child 1 is repaired
-   (lift, fly, turn green, route and badge become valid), 6.6 child 2 the same, 9.6 repair is ticked, 10 a dot walks each
-   repaired tour while the matching gene bumps. */
+/* Lecture 5 · Encodings, scene 06-repair: the two broken children of scene 05 are fixed by "repair". The repeated city and the
+   missing city are pointed out, then the missing city flies along a purple arrow into the repeat's slot, so each child is a
+   valid tour again.
+   Story (local seconds): 0-2 children, damage and broken routes appear, 2 and 2.8 the repeat and the missing city are pointed
+   out, 3.6 child 1 is repaired (lift, fly, turn green, route and badge become valid), 7.2 child 2 the same. */
 (function () {
   const V = window.VID;
   const L5 = V.l5;
@@ -26,7 +25,7 @@
   const SZ = 88;
   const GAP = 12;
   const BX = 12;
-  const Y0 = [100, 362]; // top of each child's block
+  const Y0 = [40, 330]; // top of each child's block
   const ROW_Y = Y0.map((y) => y + 54);
   const BAND_Y = ROW_Y.map((y) => y + SZ + 16); // under the genes: badge and the missing city
   const slotX = (i) => BX + i * (SZ + GAP) + SZ / 2; // centre of a gene slot
@@ -35,23 +34,16 @@
   const MISS_X = BX + BADGE.w + 18; // the "missing" tag, then the missing city on its right
   const GHOST_X = MISS_X + 134 + 12;
   const MAP = { x: 562, w: 320, h: 240 };
-  const PILL = { w: 190, h: 54, gap: 64, y: 20 };
-  const pillX = (i) => (936 - (3 * PILL.w + 2 * PILL.gap)) / 2 + i * (PILL.w + PILL.gap);
   const BOW = [30, 36]; // how far each flight bends away from a straight line
 
   // ---- timeline (seconds)
   const T = {
-    pill: [0.6, 0.9, 1.2], // copy, swap, repair appear
-    light: 1.9, // repair turns purple
-    find: 2.5, // the repeated city is pointed out
-    miss: 3.3, // the missing city is pointed out
-    start: [4.3, 6.6], // each child's repair begins
-    done: 9.8, // repair gets its tick
-    dot: 10.3, // a ring walks the repaired tours
-    hop: 0.4,
+    find: 2.0, // the repeated city is pointed out
+    miss: 2.8, // the missing city is pointed out
+    start: [3.6, 7.2], // each child's repair begins
   };
   // one child's repair, in seconds after its start
-  const R = { lift: [0, 0.4], leave: [0.35, 0.7], fly: [0.6, 1.4], mix: [1.5, 2.1], sweep: 2.1, badge: [2.35, 3.0] };
+  const R = { lift: [0, 0.5], leave: [0.4, 0.9], fly: [1.0, 2.0], mix: [2.1, 2.7], sweep: 2.7, badge: [2.9, 3.5] };
 
   const f1 = (n) => n.toFixed(1);
   const centred = { padding: "0", display: "flex", alignItems: "center", justifyContent: "center" };
@@ -70,64 +62,18 @@
     return { at, d: `M ${f1(a.x)} ${f1(a.y)} Q ${f1(c.x)} ${f1(c.y)} ${f1(b.x)} ${f1(b.y)}` };
   }
 
-  /* one step of the strip: a pill with a round icon (plus while waiting or active, tick when done) */
-  function makePill(parent, i, text) {
-    const style = { ...box(pillX(i), PILL.y, PILL.w, PILL.h), ...centred, gap: "10px", fontSize: "32px" };
-    const el = parent.appendChild(V.h("div", { class: "v-tag c-grey", style }));
-    const ic = V.s("svg", { width: 38, height: 38, viewBox: "0 0 38 38" });
-    const disc = V.s("circle", { cx: 19, cy: 19, r: 17 });
-    const tickG = L5.tick(19, 19, 24, "green", { on: true, w: 5 });
-    const plus = V.s("path", {
-      d: "M 19 10 L 19 28 M 10 19 L 28 19",
-      fill: "none",
-      "stroke-width": 5,
-      "stroke-linecap": "round",
-    });
-    ic.append(disc, tickG, plus);
-    el.append(ic, V.h("span", { text }));
-    return (state, k, tickK = 1, extra = 0) => {
-      const cls = { idle: "v-tag c-grey", active: "v-tag solid c-purple", done: "v-tag c-green" }[state];
-      if (el.className !== cls) el.className = cls;
-      el.style.boxShadow = `0 4px 0 var(--c-${state === "active" ? "lip" : "edge"})`;
-      disc.style.fill = state === "done" ? "var(--c)" : "var(--panel)";
-      plus.style.stroke = state === "active" ? "var(--violet-ink)" : "var(--text-dim)";
-      V.show(plus, +(state !== "done"));
-      V.show(tickG, +(state === "done"));
-      L5.drawOn(tickG, tickK);
-      V.place(el, { ...pop(k), s: (0.8 + 0.2 * E.pop(k)) * (1 + 0.12 * extra) });
-    };
-  }
-
   V.scene({
     kicker: "REPAIR",
-    title: ["Fix it with", "copy, swap, repair"],
+    title: ["Repair: swap the repeat", "for the missing city"],
     dur: 13,
     caps: [
-      [0.4, 4, "Repair: find the repeated city and the missing one."],
-      [4.5, 9, "Put the missing city where the repeat was."],
-      [9.5, 12.5, "Both children are valid tours again."],
+      [0.4, 3.4, "Repair: find the repeated city and the missing one."],
+      [3.7, 10.4, "Put the missing city where the repeat was."],
+      [10.8, 12.6, "Both children are valid tours again."],
     ],
     build(stage) {
-      // maps first (lowest layer), then the strip
+      // the maps (lowest layer)
       const maps = KIDS.map((_, c) => L5.tourMap(stage, { x: MAP.x, y: Y0[c] + 2, w: MAP.w, h: MAP.h }));
-      const strip = L5.svg(stage);
-      const pills = ["copy", "swap", "repair"].map((text, i) => makePill(stage, i, text));
-      const stripArrows = [0, 1].map((i) => {
-        const y = PILL.y + PILL.h / 2;
-        const a = L5.arrow(pillX(i) + PILL.w + 10, y, pillX(i + 1) - 10, y, "grey", 1, { w: 5, head: 16, ink: true });
-        return strip.appendChild(a);
-      });
-      const ping = stage.appendChild(
-        V.h("div", {
-          style: {
-            position: "absolute",
-            ...box(pillX(2), PILL.y, PILL.w, PILL.h),
-            boxSizing: "border-box",
-            border: "4px solid var(--violet)",
-            borderRadius: "999px",
-          },
-        }),
-      );
 
       // one block per child
       const rows = KIDS.map((k, c) =>
@@ -163,7 +109,7 @@
         ),
       );
 
-      // the lines on top of the genes: the red bracket joining the repeat, the dotted flight path, the walking dot
+      // the lines on top of the genes: the red bracket joining the repeat, the flight path
       const over = L5.svg(stage);
       const ghostC = (c) => ({ x: GHOST_X + GHOST / 2, y: BAND_Y[c] + BADGE.h / 2 });
       const holeC = (c) => ({ x: slotX(FIX[c].i), y: ROW_Y[c] + SZ / 2 });
@@ -186,22 +132,21 @@
       });
       const guides = flights.map((fl) =>
         over.appendChild(
-          V.s("path", {
-            d: fl.d,
-            fill: "none",
-            "stroke-width": 7,
-            "stroke-linecap": "round",
-            style: { stroke: "var(--violet)", strokeDasharray: "2 16" },
-          }),
+          V.s(
+            "g",
+            {},
+            V.s("path", {
+              d: fl.d,
+              fill: "none",
+              pathLength: "1",
+              "data-draw": "1",
+              "stroke-width": 7,
+              "stroke-linecap": "round",
+              style: { stroke: "var(--violet)" },
+            }),
+          ),
         ),
       );
-      // a purple ring walks the repaired tour city by city (hollow, so the letter inside stays readable)
-      const dots = KIDS.map(() => {
-        const ring = V.s("circle", { cx: 0, cy: 0, r: 19, fill: "none", "stroke-width": 5 });
-        ring.style.stroke = "var(--violet)";
-        return over.appendChild(V.s("g", {}, ring));
-      });
-
       // the missing city: a dashed tile that turns solid orange and flies into the empty slot
       const ghosts = KIDS.map((_, c) =>
         stage.appendChild(
@@ -214,18 +159,6 @@
       );
 
       return (t) => {
-        // ---- the strip: copy and swap are done, repair lights up, then is ticked too
-        pills.forEach((setPill, i) => {
-          const k = ramp(t, T.pill[i], T.pill[i] + 0.4, E.lin);
-          if (i < 2) return setPill("done", k, ramp(t, T.pill[i] + 0.2, T.pill[i] + 0.6, E.lin));
-          const state = t >= T.done ? "done" : t >= T.light ? "active" : "idle";
-          const extra = flash(t, T.light, T.light + 0.5) + flash(t, T.done, T.done + 0.5);
-          setPill(state, k, ramp(t, T.done + 0.1, T.done + 0.5, E.lin), extra);
-        });
-        stripArrows.forEach((a, i) => L5.drawOn(a, ramp(t, T.pill[i + 1] - 0.25, T.pill[i + 1] + 0.1, E.lin)));
-        const pk = ramp(t, T.light, T.light + 0.7, E.out);
-        V.place(ping, { s: 1 + 0.35 * pk, o: t >= T.light ? (1 - pk) * 0.9 : 0 });
-
         KIDS.forEach((kid, c) => {
           const [s0, d, f] = [T.start[c], 0.2 * c, FIX[c]];
           const landT = s0 + R.fly[1];
@@ -241,11 +174,10 @@
             const red = isBad && (j === f.i || t < s0);
             const hit =
               isBad && t < s0 ? flash(t, T.find + (j === f.i ? 0.15 : 0), T.find + (j === f.i ? 0.15 : 0) + 0.6) : 0;
-            const arrive = j === 0 ? T.dot - 0.35 : T.dot + (j - 0.25) * T.hop;
             const st = {
               tone: swept ? "green" : red ? "red" : TONE0[c][j],
               s: E.pop(ap) * (1 + 0.12 * hit) * (1 + 0.1 * flash(t, sweepT(j), sweepT(j) + 0.4)),
-              y: (1 - E.out(ap)) * -20 - 14 * flash(t, arrive - 0.12, arrive + 0.3),
+              y: (1 - E.out(ap)) * -20,
               o: clamp(ap * 4),
             };
             if (j !== f.i) return st;
@@ -269,13 +201,11 @@
           L5.drawOn(brackets[c], bk);
           V.show(brackets[c], 1 - ramp(t, s0, s0 + 0.3, E.lin));
 
-          // ---- the empty slot and the dotted flight path
+          // ---- the empty slot and the purple flight path
           const holeK = ramp(t, s0 + 0.3, s0 + 0.6, E.lin) * (landed ? 0 : 1);
           V.place(holes[c], { s: 0.85 + 0.15 * E.pop(ramp(t, s0 + 0.3, s0 + 0.7, E.lin)), o: holeK });
-          V.show(
-            guides[c],
-            ramp(t, s0 + 0.35, s0 + 0.6, E.lin) * (1 - ramp(t, s0 + 0.95, s0 + R.fly[1] - 0.05, E.lin)),
-          );
+          L5.drawOn(guides[c], ramp(t, s0 + 0.5, s0 + R.fly[0], E.inOut));
+          V.show(guides[c], 1 - ramp(t, landT, landT + 0.4, E.lin));
 
           // ---- the missing city: pulses, then turns solid orange and flies along the arc
           const p0 = ghostC(c);
@@ -334,15 +264,6 @@
             pulse,
             o: ramp(t, 0.15 + d, 0.5 + d, E.lin),
           });
-
-          // ---- the dot walks the repaired tour, one city per gene
-          const h = clamp((t - T.dot) / T.hop, 0, N);
-          const seg = Math.min(Math.floor(h), N - 1);
-          const [a, b] = [maps[c].pt(FIXED[c][seg]), maps[c].pt(FIXED[c][(seg + 1) % N])];
-          const fr = ramp(h - seg, 0, 0.75, E.inOut);
-          const dk =
-            ramp(t, T.dot - 0.6, T.dot - 0.3, E.lin) * (1 - ramp(t, T.dot + N * T.hop, T.dot + N * T.hop + 0.3, E.lin));
-          V.place(dots[c], { x: lerp(a.x, b.x, fr), y: lerp(a.y, b.y, fr), s: 0.6 + 0.4 * E.pop(dk), o: dk });
         });
       };
     },

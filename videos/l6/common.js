@@ -295,19 +295,26 @@
     if (op === "+") return [line(`M${-u} 0H${u}M0 ${-u}V${u}`)];
     if (op === "-") return [line(`M${-u} 0H${u}`)];
     if (op === "*")
-      return [
-        line(`M${-u * 0.85} ${-u * 0.85}L${u * 0.85} ${u * 0.85}M${u * 0.85} ${-u * 0.85}L${-u * 0.85} ${u * 0.85}`),
-      ];
+      return [line(`M${-u * 0.6} ${-u * 0.6}L${u * 0.6} ${u * 0.6}M${u * 0.6} ${-u * 0.6}L${-u * 0.6} ${u * 0.6}`)];
     if (op === "/") return [line(`M${-u * 1.1} 0H${u * 1.1}`), dot(-u * 0.95), dot(u * 0.95)];
     if (op === ">") return [line(`M${-u * 0.6} ${-u * 1.05}L${u * 0.75} 0L${-u * 0.6} ${u * 1.05}`)];
     const fs = sz * 0.56;
-    const shown = isNum(label) ? label.replace("-", "−") : label;
+    const variable = /^[A-Z]$/.test(label); // a one-letter variable is a lower-case italic x, never confused with the × operator
+    const shown = isNum(label) ? label.replace("-", "−") : variable ? label.toLowerCase() : label;
     const text = s(
       "text",
-      { "text-anchor": "middle", y: f1(fs * (/[A-Z0-9]/.test(label) ? 0.35 : 0.26)), fill: "currentColor" },
+      {
+        "text-anchor": "middle",
+        y: f1(fs * (variable ? 0.28 : /[A-Z0-9]/.test(label) ? 0.35 : 0.26)),
+        fill: "currentColor",
+      },
       shown,
     );
-    css(text, { fontSize: `${f1(fs)}px`, fontWeight: "900" });
+    css(text, {
+      fontSize: `${f1(fs * (variable ? 1.12 : 1))}px`,
+      fontWeight: "900",
+      fontStyle: variable ? "italic" : "normal",
+    });
     return [text];
   }
   function makeTile(group, label, sz, tone0, look0) {
