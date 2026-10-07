@@ -1,0 +1,172 @@
+{
+ "findings": [
+  {
+   "scene": "scene-09-update.js",
+   "severity": "must",
+   "problem": "In the 'Replace the weakest' phase the mean readout is broken: the grey 'average' tag is overlapped by the '0.39' tag, so it reads 'aver 0.39 -> 0.49'. The whole strip also sits directly under the rule tag (touching it) and on top of the green tick above S5, so three things pile up at y 420-490.",
+   "fix": "Widen/space the readout (one tag 'mean 0.39 -> 0.49', no overlapping children), move it below the bars' value labels or to the empty top-right (x 560-924, y 440-520), and keep the tick clear of it.",
+   "evidence": "s9@10.8, s9@10, s9@11.8 (text clipped to 'aver')"
+  },
+  {
+   "scene": "scene-09-update.js",
+   "severity": "should",
+   "problem": "Rule tag (y 357-425) overlaps the loop strip's return arrow line (y ~358); the arrow runs behind the tag's top edge in all three rules and looks like a collision. Strip and tag are also jammed against the two-line headline.",
+   "fix": "Move the rule tag down about 30 px (and the bars with it or shrink the 0.9 value gap) or shorten the strip's return arrow; add 16 px between headline and strip.",
+   "evidence": "s9@1, s9@4.5, s9@8"
+  },
+  {
+   "scene": "scene-09-update.js",
+   "severity": "should",
+   "problem": "Rules 2 and 3 never state their result: 'best kept' appears only as a tiny tick above S5 (rule 3) and rule 2 has no badge or mean (0.49), so the contrast with the red 'best lost' of rule 1 (the scene's point) is weak. Rule 1 leaves the right two thirds of the stage empty.",
+   "fix": "Show the same badge pair in every rule (red 'best lost' / green 'best kept') and the mean for rules 2 and 3 (0.49); in rule 1 keep the faded old bars as ghosts so the stage is not empty.",
+   "evidence": "s9@2.5 (empty right side), s9@4.5, s9@8 (no badge), s9@3.3 (badge only in rule 1)"
+  },
+  {
+   "scene": "scene-03-too-many.js",
+   "severity": "must",
+   "problem": "The '30 items' tag appears while the big number is still '64' (red), so the learner reads '30 items = 64'. In the same state the '30 items' tag touches the 1,073,741,824 number and the 'about 1 billion' tag floats off to the right.",
+   "fix": "Keep the tag and number in step (switch the tag to '30 items' only when the count switches to 1,073,741,824) and leave at least 16 px between the tag and the number.",
+   "evidence": "s3@5.1 ('30 items' beside 64), s3@5.9 (tag touching number)"
+  },
+  {
+   "scene": "scene-03-too-many.js",
+   "severity": "should",
+   "problem": "The 'x 2' tag covers cells of the grid (it sits on the seam over 3-6 cells) and the headline 'doubles the work' sits over a half-empty stage: in the doubling phase the lower 45 % is blank and the 6-items state (64) shows no number at 4.5 s.",
+   "fix": "Put the 'x 2' tag beside the seam outside the grid and bring the count in before the grid finishes; move the grid/number block down about 80 px or scale it up so the stage is balanced.",
+   "evidence": "s3@2.5, s3@4.5, s3@5.9 (bottom half empty)"
+  },
+  {
+   "scene": "scene-03-too-many.js",
+   "severity": "should",
+   "problem": "In the New York Tunnels phase the '1.9 x 10^25 designs' pill overlaps the '16 x 16 x ... x 16 (21 times)' tag above it, and the '16 sizes each' tag changes style between states (faded and moved). The exponent is 17-30 px and detached from the 10. The clock row is clear, but 'designs a second' has a tiny 10^9 exponent.",
+   "fix": "Give the result pill its own row 20 px below the formula tag (or fade the formula tag out before the result arrives); enlarge exponents (min 28 px for the digits) and tighten their offset.",
+   "evidence": "s3@10 (overlap), s3@8.5, s3@11.8"
+  },
+  {
+   "scene": "scene-02-fitness.js",
+   "severity": "must",
+   "problem": "The red 'f = N' tags are overlapped by the purple 'f(s) = |weight - 100|' tag every time (f = 25, 80, 100, 5 all lose their lower edge), so the key quantity is partly hidden exactly when it should be read.",
+   "fix": "Move the formula tag clear of the gap tags (for example to y ~ 600 above the tiles' title row or to the top-right beside the 100 kg tag) or push the gap tag up 40 px.",
+   "evidence": "s2@5 (f = 25), s2@7 (f = 80), s2@11.5 (f = 5), s2@3.5 (f = 100)"
+  },
+  {
+   "scene": "scene-02-fitness.js",
+   "severity": "should",
+   "problem": "While the 60 kg block travels it sits on top of the '1' bit tile and the '100 kg' tag; the label '60 kg' is half hidden behind the tile ('60 k'). The final state also shows no caption and leaves the bottom third empty: the point (exhaustive search, best = 110, f = 5) is only a star.",
+   "fix": "Route moving blocks below the bit-tile row or hide the tile until the block lands; keep the caption 'Best: 110, f = 5' up to the end and mark 110 with a 'best' tag.",
+   "evidence": "s2@9 (label 60 k covered), s2@11.5 (no caption)"
+  },
+  {
+   "scene": "scene-02-fitness.js",
+   "severity": "nit",
+   "problem": "Shelf blocks start at y 262, right under the headline descenders; 'Every solution gets a fitness score' leaves under 14 px of air. Same tight spacing in scenes 4, 7, 8, 9.",
+   "fix": "Start every stage figure at least 20 px lower, or shrink the title block.",
+   "evidence": "s2@2, s8@1, s9@1"
+  },
+  {
+   "scene": "scene-04-exponential.js",
+   "severity": "must",
+   "problem": "Phase 2 tag reads 'n = 60 . 10^9 steps a second', which says n = 60 times a billion. It is the central unit of the 3.6 microseconds versus 36 years comparison and will be misread. The exponent 9 is also about 17 px, below the 28 px minimum.",
+   "fix": "Split into two tags: 'n = 60' and '10^9 steps a second' (or '1 billion steps a second'), with large exponents.",
+   "evidence": "s4@9, s4@7.5"
+  },
+  {
+   "scene": "scene-04-exponential.js",
+   "severity": "should",
+   "problem": "Phase 2 switches from the n^1.1 versus 1.1^n curves to n^2 versus 2^n without saying so, so a first-time learner does not know why the formulas changed. The 3.6 us bar is a hairline and the 2^n bar is a flat red block; the bars carry the 'not to scale' tag only at the very end. Superscripts ('n 2', '2 n', '1.1 n') are tiny and float away from their base.",
+   "fix": "Add a one-line bridge ('Now a real run: n = 60') and show the two formulas as tags above the bars; keep exponents attached and at least 28 px; show 'not to scale' as soon as the bars appear.",
+   "evidence": "s4@7.5, s4@9, s4@10.8"
+  },
+  {
+   "scene": "scene-04-exponential.js",
+   "severity": "nit",
+   "problem": "A stray 4 px red dash floats mid-plot (about 595, 481) at n = 45, a leftover from the 'exponential wins' tag animation. At the crossing the two dots overlap and the green dot is hidden behind the red one.",
+   "fix": "Hide the callout until it is placed; offset the dots at the crossing or draw the green one on top.",
+   "evidence": "s4@4.6"
+  },
+  {
+   "scene": "scene-05-prim.js",
+   "severity": "should",
+   "problem": "The running total flies in as a small '+6' pill and lands on top of the cost number ('1 5' with a green blob across it), so the sum is unreadable during every addition. Candidate cables overlap heavily (dashed orange across the whole graph); the picked one is only distinguished by turning green after the faded orange.",
+   "fix": "Make the +w pill travel to the label above the number (not over the digits) and fade it before the number counts; fade non-chosen candidates faster and keep chosen cable thick green.",
+   "evidence": "s5@7 (blob over 15), s5@4"
+  },
+  {
+   "scene": "scene-05-prim.js",
+   "severity": "nit",
+   "problem": "Cable weight pills and 'cost' label are the smallest text in the video (about 24 px glyphs inside 28 px pills). The weight 6 on A-D and C-E pills look alike and the 'easy: fast and optimal' tag sits low, close to the caption.",
+   "fix": "Raise weight pill text to 30 px with more padding and move the closing tag up 20 px.",
+   "evidence": "s5@2.5, s5@10.5"
+  },
+  {
+   "scene": "scene-06-constraint.js",
+   "severity": "should",
+   "problem": "The rule is introduced by changing the cost to 3 -> 0 (the count-down passes odd numbers), and the cap rule is shown only as 12 px dots under towns that the eye cannot find. The red ring/cross on C (the town that breaks the rule in the optimal tree) is small and mostly hidden by C's dots and ring. Learners may not see why the optimum is now illegal.",
+   "fix": "Make slot dots 20 px and larger rings, hold the red 'C has 3 cables' state for a full second with a caption, and avoid mid-count numbers by fading the cost rather than counting down.",
+   "evidence": "s6@1.6 (red ring half drawn), s6@2.5 (cost 3), s6@6.3 (dots hidden by rings)"
+  },
+  {
+   "scene": "scene-06-constraint.js",
+   "severity": "should",
+   "problem": "The greedy tree (20) and the better tree (19) are never visible together: the 10-second mix dissolves from the greedy tree into the best tree through a mixed state (A-C, A-D and C-E in green with 5 and 3 half drawn), and 'greedy 20' / 'best 19' tags touch each other. The key claim (20 versus 19) rests on the tag text.",
+   "fix": "Keep the greedy tree as a faded grey overlay or show it small on the right beside the best tree; separate the two result tags by 20 px and show the 19 tree with its 4 costs 6+4+6+3.",
+   "evidence": "s6@9.8, s6@10.5, s6@11.8"
+  },
+  {
+   "scene": "scene-06-constraint.js",
+   "severity": "nit",
+   "problem": "At step 3 and 4 the red cross covers the weight pill of the blocked cable (7, 6, 14) so the learner cannot see which cable it was; moving orange pill overlaps the 6 pill at E.",
+   "fix": "Place the cross beside the pill, not over it.",
+   "evidence": "s6@7.3, s6@8"
+  },
+  {
+   "scene": "scene-07-approximate.js",
+   "severity": "should",
+   "problem": "Text collides inside the panels and chart: the 'EA ahead' tag sits across the chart's top border and the right panel's bottom; the '17 % shorter' tag covers the bottom edge of the EA tour (a route line and a city vanish behind it); 'time' sits on the axis end and 'instant' sits on the dashed line and the finished curve. Tour panels' top cities touch the name tags.",
+   "fix": "Place 'EA ahead' and '17 % shorter' in clear space (above the chart or between panels), put 'time' under the axis, move the dashed line label above the line, and start cities 20 px lower in the panels.",
+   "evidence": "s7@6.2, s7@8, s7@12.8"
+  },
+  {
+   "scene": "scene-07-approximate.js",
+   "severity": "should",
+   "problem": "The chart has no value axis or crossing marker, and 'better' is an arrow with a grey tag on top of the plot, so a first-time learner cannot tell that higher means a shorter tour. The caption 'The EA starts from random tangles.' is still on screen at 5.0 s when the EA tour is already neat and 4.84.",
+   "fix": "Label the y axis 'shorter tour' with the arrow, add a vertical crossing marker with the time/evaluation, and change the caption at about 4 s ('It improves and overtakes').",
+   "evidence": "s7@5, s7@6.2"
+  },
+  {
+   "scene": "scene-07-approximate.js",
+   "severity": "nit",
+   "problem": "Left panel shows a tour with a visible long crossing; the learner may think the 'quick method' is bad rather than decent (caption says decent). No 'no guarantee of optimality' idea is visible at all, though it is the scene's lesson point.",
+   "fix": "Add a small tag on the final state ('good, but no guarantee').",
+   "evidence": "s7@12.8"
+  },
+  {
+   "scene": "scene-08-select-vary.js",
+   "severity": "should",
+   "problem": "The dice is the only visual for mutation and recombination and is never named, so 'vary' is a black box; the two child arrows (dice to S11 short diagonal, dice to S12 long vertical) are inconsistent in length and the S12 arrow runs through empty space past the dice. Selecting S5 and S9 gives no visible reason for 'fitter more likely, not only best' (no probability cue).",
+   "fix": "Name the operation with a tag next to the dice ('mutate / recombine'), draw two equal curved arrows from the dice to the children, and show a small likelihood marker (taller bar = bigger chance) during Select.",
+   "evidence": "s8@6, s8@8, s8@2.7"
+  },
+  {
+   "scene": "scene-08-select-vary.js",
+   "severity": "nit",
+   "problem": "Between loop strip and bars there is a large empty area on the left (y 360-460), and the strip touches the headline; Update lights up at the end while the scene is titled 'select, then vary'.",
+   "fix": "Raise the bars or move the strip down 20 px; keep Update grey until the next scene.",
+   "evidence": "s8@4.5, s8@10.8"
+  },
+  {
+   "scene": "scene-10-recap.js",
+   "severity": "should",
+   "problem": "The recap leaves out the easy-versus-hard split (Prim, the degree rule) and approximate algorithms (quick method versus EA): half of the video's content has no card. 'Hard problems blow up' is the only complexity card, with unlabelled curves; the loop card is mid-animation (no arrows) at 4 s and gets its arrows only late.",
+   "fix": "Make the second card 'Easy: exact in fast time. Hard: only approximate' with a green and red tag and add the EA overtakes card, or reduce to three cards that each cover a story beat; have the loop arrows drawn from the start of the card.",
+   "evidence": "s10@4, s10@8.8"
+  },
+  {
+   "scene": "video",
+   "severity": "should",
+   "problem": "Colour roles drift: red is used for the f gap bars, hard, blocked, lost and the 1.9 x 10^25 number, but also for the 64 and 'exponential' in scene 3 where nothing is wrong; blue marks both items and the start town; the same blue 'solutions' grid then turns red/green. The first scene uses grey 'cost' cards that turn green or red without a legend. Scene boundaries fade to blank for a beat (s2 at 12 s is empty) which makes the 12 s scenes feel 0.4 s shorter than planned.",
+   "fix": "Keep red for bad/hard only (use blue or ink for the plain counts), and tighten the fades to under 0.2 s.",
+   "evidence": "s3@5.1 (red 64), s2@12 (blank frame)"
+  }
+ ]
+}
