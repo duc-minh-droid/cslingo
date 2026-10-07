@@ -1,0 +1,103 @@
+/* Lecture 6 workshops: styles (classes prefixed nw6-). */
+.nw6-pair {
+  align-items: start;
+}
+.nw6-tbox {
+  min-width: 0;
+  overflow-x: auto;
+  padding: 8px 6px 4px;
+  border: 2px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.nw6-meta {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.nw6-meta b {
+  color: var(--ink);
+}
+.nw6-acts,
+.nw6-pal,
+.nw6-set {
+  margin-top: 12px;
+}
+.nw6-pal small,
+.nw6-set small {
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.nw6-pal .btn.small {
+  min-width: 44px;
+}
+.nw6-note {
+  min-height: 1.4em;
+  margin: 10px 0 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+.nw6-tbox g[data-id]:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.nw6-tab {
+  width: 100%;
+  max-width: none;
+}
+.nw6-tab td,
+.nw6-tab th {
+  vertical-align: middle;
+}
+.nw6-rate {
+  display: block;
+  min-width: 56px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+.nw6-rate i {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}
+.nw6-formula {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.nw6-lab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.nw6-lab-tree {
+  min-width: 0;
+  overflow-x: auto;
+}
+.nw6-pts {
+  width: 100%;
+  max-width: none;
+}
+.nw6-pts tr.cur td {
+  background: var(--blue-dim);
+  font-weight: 900;
+}
+.nw6-pts tr.bad td {
+  color: var(--rose-ink);
+}
+.nw6-total {
+  margin: 8px 0 0;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+@media (max-width: 640px) {
+  .nw6-lab {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -4,6 +4,10 @@
   const { el, qs, qsa, predict, takeaways, header } = N;
   const L = N.LESSONS;
   const F = N.fig;
+  const table = (head, rows, mw = 660) =>
+    `<table class="t" style="max-width:${mw}px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows
+      .map((r) => `<tr class="${r.hl ? "hl" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`)
+      .join("")}</table>`;
 
   /* ============ 2.1 Dijkstra step by step ============ */
   const GPOS = { A: [70, 150], B: [220, 60], C: [200, 235], D: [370, 120], E: [390, 250] };
@@ -286,6 +290,80 @@
           why: "After settling C (3), the smallest tentative distance is B at 5, so B is locked in. But A → C → D → B costs 3 + 4 − 4 = 3. “Settled means final” needs non-negative weights.",
         },
       },
+      {
+        t: "Reading the path back",
+        b: `<p>The distances tell you <i>how far</i>. To get the actual route, store a <b>parent</b> for each node: the node you came from when you last improved its distance.</p><p>Then walk backwards from the target: E ← D ← B ← C ← A. Reverse it to get the route A → C → B → D → E.</p>`,
+        v:
+          F.cells([
+            { v: "A", sub: "0", c: "amber" },
+            "→",
+            { v: "C", sub: "2", c: "teal" },
+            "→",
+            { v: "B", sub: "3", c: "teal" },
+            "→",
+            { v: "D", sub: "6", c: "teal" },
+            "→",
+            { v: "E", sub: "8", c: "rose" },
+          ]) +
+          `<div class="fig-cap">Each node's parent is the one on its left. Distances are the numbers underneath.</div>`,
+        c: {
+          q: "Dijkstra has finished with a distance for every node. What extra record lets you rebuild the route to E?",
+          o: [
+            "Each node's parent, the node it was reached from",
+            "A sorted list of all the edge weights",
+            "The number of nodes that were settled before E",
+          ],
+          a: 0,
+          why: "Following parents from E back to the start gives the route in reverse.",
+        },
+      },
+      {
+        t: "Edge cases",
+        b: `<p><b>Unreachable node</b>: its distance stays ∞ to the end.<br><b>Stop early</b>: if you only need one target, stop the moment it is <i>settled</i>. Its distance is final then.<br><b>Ties</b>: two nodes with the same smallest distance. Either may go first; the final distances are the same.<br><b>All weights 1</b>: Dijkstra settles nodes in order of hop count, just like breadth-first search.</p>`,
+        v: table(
+          ["Situation", "What happens"],
+          [
+            ["Node with no road in", "stays at ∞"],
+            ["Only one target needed", "stop when the target is settled"],
+            ["Two equal smallest distances", "either order, same final answer"],
+            ["Every weight is 1", "behaves like breadth-first search"],
+          ],
+        ),
+        c: {
+          q: "You only need the distance from A to E. When can Dijkstra stop?",
+          o: [
+            "As soon as E is first reached by any edge",
+            "When E is the smallest tentative node, settled",
+            "Only after every node has been settled",
+          ],
+          a: 1,
+          why: "A tentative value can still drop. Once E is settled it is final, and nothing after it can improve it.",
+        },
+      },
+      {
+        t: "How fast is it?",
+        b: `<p>The simple version scans every unsettled node to find the smallest: up to N − 1, then N − 2, … comparisons, which is $\\frac{N(N-1)}{2}$, so $O(N^2)$. For N = 6 that is 15; for N = 1,000 it is almost half a million.</p><p>Store the tentative distances in a <b>min-heap</b> (priority queue) and the minimum is found cheaply: about $O((N + E)\\log N)$.</p>`,
+        v: table(
+          ["Nodes N", "simple scan N(N−1)/2"],
+          [
+            [6, 15],
+            [10, 45],
+            [100, 4950],
+            [1000, 499500],
+          ],
+          340,
+        ),
+        c: {
+          q: "Which change speeds Dijkstra up on a big sparse graph?",
+          o: [
+            "Keep tentative distances in a min-heap",
+            "Settle nodes in alphabetical order",
+            "Check every pair of nodes for a shortcut",
+          ],
+          a: 0,
+          why: "The costly step is finding the smallest tentative distance. A heap does that quickly.",
+        },
+      },
     ],
     guide: [
       "Press <b>Settle next</b> repeatedly. The settled set grows A → C → B → D → E.",
@@ -298,8 +376,8 @@
     id: "a2-dijkstra",
     subject: "algo",
     lecture: 2,
-    order: 1,
-    num: "2.1",
+    order: 2,
+    num: "2.2",
     title: "Dijkstra step by step",
     blurb: "Settle nodes one by one and watch the shortest-path tree grow — then break it with a negative edge.",
     render(root) {

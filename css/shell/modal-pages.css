@@ -245,6 +245,11 @@
   top: 72px;
   z-index: 200;
 }
+/* while a lesson is open the toast sits just above the feedback sheet, so it never covers the question */
+body.in-lesson .toast {
+  top: auto;
+  bottom: calc(var(--pl-sheet-h, 96px) + 12px);
+}
 .toast .mascot {
   flex-shrink: 0;
 }
@@ -403,6 +408,10 @@
 .p-face .p-topic svg {
   width: 38px;
   height: 38px;
+}
+.p-face .p-film {
+  display: grid;
+  place-items: center;
 }
 .p-row.st-new:not(.cur) .p-topic,
 .p-row:not(.st-done):not(.st-started):not(.cur) .p-topic {

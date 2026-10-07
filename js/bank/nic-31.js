@@ -1,257 +1,388 @@
+/* ===== bank-x-nic-3.js ===== */
+/* NIC revision bank, third round of varied, visual questions (x-nic-3).
+   Lecture 4 (types, replacement, pressure, roulette, rank, tournament, mutation, crossover, lab): four new questions each.
+   Every figure is needed to answer, and each uses a diagram kind not yet used for that module.
+   Figures are drawn about 340 to 380 units wide so their text stays readable at phone width. */
 (function () {
   const partScope = (NIC.shared.bankNic = NIC.shared.bankNic || {});
-  const { ci, hit, ln, outcomeFig, pl, rc, rng, svg, tabuFig, treeProbFig, tx } = partScope;
+
   const B = NIC.bank;
+  const FS = 1.1;
+  const T = (x, y, s, o = {}) =>
+    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${((o.s || 13) * FS).toFixed(1)}px var(--sans);fill:${o.c || "var(--text)"}">${s}</text>`;
+  const svg = (w, h, body) => `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px">${body}</svg>`;
+  const pk = (id, body) => `<g data-pick="${id}">${body}</g>`;
+  const R = (x, y, w, h, fill, o = {}) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.r === undefined ? 6 : o.r}" fill="${fill}"${o.fo ? ` fill-opacity="${o.fo}"` : ""} stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw || 2}"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}/>`;
+  const L = (x1, y1, x2, y2, o = {}) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${o.c || "var(--line-2)"}" stroke-width="${o.w || 2}"${o.dash ? ` stroke-dasharray="${o.dash}"` : ""}${o.cap ? ' stroke-linecap="round"' : ""}${o.mk ? ` marker-end="url(#${o.mk})"` : ""}/>`;
+  const C = (x, y, r, fill, o = {}) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"${o.fo ? ` fill-opacity="${o.fo}"` : ""} stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw || 3}"/>`;
+  const f2 = (v) => v.toFixed(2);
+  const DIM = "var(--text-dim)",
+    FAINT = "var(--text-faint)";
+  partScope.uid = 0;
+  const arrowDef = (id, c = "var(--line-2)") =>
+    `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker></defs>`;
+  const swatch = (x, y, fill, label, o = {}) =>
+    R(x, y - 11, 13, 13, fill, { fo: o.fo, r: 3, s: o.s }) + T(x + 18, y, label, { a: "start", s: 11, c: DIM });
 
-  // real tabu runs on an 8-bit problem (same start, tabu list holds the last 1 or 6 solutions visited)
-  const TT = {
-    P: [
-      57, 39, 41, 48, 41, 45, 45, 47, 49, 58, 45, 44, 36, 40, 29, 38, 37, 31, 37, 27, 31, 36, 41, 43, 45, 37, 32, 45,
-      47, 36, 37,
-    ],
-    Q: [
-      57, 39, 41, 48, 41, 39, 41, 48, 41, 39, 41, 48, 41, 39, 41, 48, 41, 39, 41, 48, 41, 39, 41, 48, 41, 39, 41, 48,
-      41, 39, 41,
-    ],
-  };
-  const tenureFig = () => {
-    const Y = (c) => 130 - (c - 20) * 2.4;
-    let s = "";
-    [
-      ["P", 44],
-      ["Q", 270],
-    ].forEach(([k, px]) => {
-      const X = (i) => px + i * 5.8;
-      s +=
-        rc(px - 6, 26, 194, 118, { r: 8, s: "var(--line)", f: "var(--bg-2)" }) +
-        tx(px + 91, 18, "Run " + k, { f: "900 14px" });
-      [30, 40, 50].forEach(
-        (v) =>
-          (s +=
-            ln(px - 4, Y(v), px + 186, Y(v), "var(--line)", 1) +
-            (k === "P" ? tx(px - 10, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) : "")),
-      );
-      s += pl(
-        TT[k].map((v, i) => [X(i), Y(v)]),
-        k === "P" ? "var(--violet)" : "var(--blue)",
-        3,
-      );
-      s += tx(px + 91, 164, "steps 0 to 30", { f: "700 11px", c: "var(--text-faint)" });
-    });
-    s += `<text transform="translate(12,85) rotate(-90)" text-anchor="middle" style="font:700 11px var(--sans);fill:var(--text-faint)">cost</text>`;
-    s += ["P", "Q"]
-      .map((k, i) => hit(k, rc(38 + i * 226, 22, 206, 126, { f: "transparent", s: "transparent", sw: 2, r: 12 })))
+  /* ---------- l4-types ---------- */
+  // Swimlane of lifespans in a generational GA (population 3, one elite)
+  const lifeFig = (() => {
+    const lanes = [
+      ["I1", 0, 1],
+      ["I2", 0, 2],
+      ["I3", 0, 1],
+      ["C4", 1, 2],
+      ["C5", 1, 3],
+      ["C6", 2, 3],
+      ["C7", 2, 3],
+    ];
+    const x0 = 44,
+      cw = 100,
+      y0 = 34,
+      lh = 29,
+      X = (t) => x0 + t * cw,
+      bottom = y0 + lanes.length * lh;
+    let s = [0, 1, 2].map((g) => T(X(g) + cw / 2, 16, "Generation " + (g + 1), { c: DIM, s: 11 })).join("");
+    s += [0, 1, 2, 3].map((t) => L(X(t), 24, X(t), bottom, { dash: t && t < 3 ? "6 5" : null })).join("");
+    s += lanes
+      .map(([id, a, b], i) => {
+        const y = y0 + i * lh;
+        return pk(
+          id,
+          R(X(a) + 4, y + 3, (b - a) * cw - 8, lh - 8, id[0] === "I" ? "var(--blue)" : "var(--teal)", { fo: 0.85 }) +
+            T(22, y + lh / 2 + 4, id, { s: 13 }),
+        );
+      })
       .join("");
-    return svg(470, 176, s);
-  };
-
-  B.add("l3-local", [
-    {
-      type: "multi",
-      q: "Tabu search keeps the last 3 flipped bits on its list. Each step flips the cheapest bit that is NOT on the list, then adds it to the list (the oldest entry drops out). After this step, which bits will be tabu? Select all.",
-      fig: tabuFig(),
-      o: ["bit 1", "bit 2", "bit 3", "bit 4", "bit 5", "bit 6"],
-      a: [1, 3, 5],
-      hint: "Bits 5, 2 and 6 are on the list now, so their savings are not allowed. Pick the best of the rest, then update the list.",
-      why: "The cheapest legal move is bit 4 (−1), because bits 2, 5 and 6 are tabu even though they would save more. Flipping bit 4 puts it on the list and pushes out the oldest entry, bit 5. The list is now bit 2, bit 6, bit 4.",
-    },
-    {
-      type: "pick",
-      q: "Two Monte Carlo runs each made 100 steps. In every step the run looked at one random neighbour, and the bars sort the outcomes. p is the chance of accepting a worse neighbour. Click the run that used the larger p.",
-      fig: outcomeFig(),
-      a: "B",
-      hint: "p only concerns worse neighbours. For each run: accepted worse ÷ (accepted worse + rejected).",
-      why: "Run A met 60 worse neighbours and accepted 24 of them (0.4). Run B met only 30 and accepted 15 (0.5). Run A accepted more worse moves in total, but that is just because it met more of them, so the raw count is misleading. p is the accepted share of the worse neighbours.",
-    },
-    {
-      type: "slider",
-      q: "A Monte Carlo search picks one random neighbour per step. A quarter of the neighbours are better; the other three quarters are worse and are accepted with p = 0.2. In about what percentage of steps does the cost go up?",
-      fig: treeProbFig(),
-      min: 0,
-      max: 50,
-      step: 1,
-      ans: 15,
-      tol: 5,
-      unit: "%",
-      hint: "Follow the lower branch: three quarters of the time, then one fifth of that.",
-      why: "The cost goes up only along the path 'worse' (0.75) then 'accept' (0.2): 0.75 × 0.2 = 0.15, so about 15% of steps. The other worse neighbours (0.75 × 0.8 = 0.6) are rejected and the search stays put, and the better ones (0.25) are always taken.",
-    },
-    {
-      type: "pick",
-      q: "Two tabu searches start from the same 8-bit solution and always move to the cheapest solution that is not on their list (cost is minimised). One list holds only the last 1 solution visited, the other the last 6. Click the run with the list of 1.",
-      fig: tenureFig(),
-      a: "Q",
-      hint: "A search that can only forbid one solution may soon wander back to where it was.",
-      why: "Run Q repeats 41, 39, 41, 48 over and over: with a list of 1 it only avoids going straight back, so it falls into a four-step loop and never improves on 39. Run P's longer memory forbids the places it has just been, so it keeps exploring and finds a cost of 27.",
-    },
-  ]);
-
-  /* ======================================================================
-     l3-population : pixel grid, lineage tree, scatter snapshots, lifespan Gantt
-     ====================================================================== */
-  const PIX = [
-    [1, 0, 1, 1, 0, 0, 1, 0, 1, 1],
-    [1, 1, 1, 0, 0, 1, 1, 0, 0, 1],
-    [1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-    [1, 0, 1, 1, 0, 1, 1, 0, 0, 1],
-    [1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
-  ];
-  const pixFig = () => {
-    const C = 28,
-      x0 = 54,
-      y0 = 40;
-    let s = "";
-    for (let c = 0; c < 10; c++) s += tx(x0 + c * C + C / 2, 32, c + 1, { f: "700 12px", c: "var(--text-faint)" });
-    PIX.forEach((row, r) => {
-      s += tx(x0 - 8, y0 + r * C + C / 2 + 5, "M" + (r + 1), { a: "end", f: "800 12px", c: "var(--text-dim)" });
-      row.forEach(
-        (v, c) =>
-          (s +=
-            rc(x0 + c * C + 1, y0 + r * C + 1, C - 2, C - 2, {
-              f: v ? "var(--blue)" : "var(--bg-2)",
-              o: v ? 0.7 : 1,
-              s: "var(--line)",
-              sw: 1,
-              r: 4,
-            }) + tx(x0 + c * C + C / 2, y0 + r * C + C / 2 + 5, v, { f: "800 13px" })),
-      );
+    s +=
+      swatch(44, bottom + 22, "var(--blue)", "starting population", { fo: 0.85 }) +
+      swatch(200, bottom + 22, "var(--teal)", "a child", { fo: 0.85 });
+    return svg(350, bottom + 34, s);
+  })();
+  // Composition strips (kept vs new)
+  const compFig = (() => {
+    const rows = [
+      ["P", 2],
+      ["Q", 19],
+      ["R", 0],
+      ["S", 5],
+    ];
+    let s =
+      swatch(46, 14, "var(--bg-2)", "copied from old population") +
+      swatch(220, 14, "var(--teal)", "new child", { fo: 0.85 });
+    rows.forEach(([id, kept], k) => {
+      const y = 28 + k * 36;
+      s += T(2, y + 17, "Row " + id, { a: "start", s: 11 });
+      for (let i = 0; i < 20; i++)
+        s += R(46 + i * 15 + Math.floor(i / 5) * 6, y, 12, 24, i < kept ? "var(--bg-2)" : "var(--teal)", {
+          fo: i < kept ? 1 : 0.85,
+          r: 3,
+        });
     });
-    for (let c = 0; c < 10; c++)
-      s += hit(
-        "c" + (c + 1),
-        rc(x0 + c * C - 1, y0 - 3, C + 2, 6 * C + 6, { f: "transparent", s: "transparent", sw: 2, r: 6 }),
-      );
-    s += tx(x0 + 5 * C, y0 + 6 * C + 32, "column number", { f: "700 12px", c: "var(--text-faint)" });
-    return svg(370, 262, s);
-  };
-
-  const LIN = { p1: [1, 1, 1, 3, 1], p2: [0, 1, 3, 0, 2], p3: [0, 0, 2, 3, 4] };
-  const lineageFig = () => {
-    const X = [60, 170, 280, 390],
-      Y = [50, 90, 130, 170, 210],
-      P = [LIN.p1, LIN.p2, LIN.p3];
-    let s = "";
-    P.forEach((par, g) => par.forEach((p, i) => (s += ln(X[g] + 8, Y[p], X[g + 1] - 8, Y[i], "var(--line-2)", 2.5))));
-    X.forEach((x, g) => {
-      s += tx(x, 22, g === 0 ? "start" : "gen " + g, { f: "700 12px", c: "var(--text-faint)" });
-      Y.forEach((y, i) => {
-        if (g) s += ci(x, y, 8, { s: "var(--line-2)", sw: 2 });
-      });
-    });
-    "ABCDE"
-      .split("")
-      .forEach(
-        (c, i) =>
-          (s += hit(
-            c,
-            `${ci(X[0], Y[i], 16, { s: "var(--blue)", sw: 3 })}${tx(X[0], Y[i] + 5, c, { f: "900 14px" })}`,
-          )),
-      );
-    s += tx(235, 246, "each dot has one parent: the line to its left", { f: "700 12px", c: "var(--text-faint)" });
-    return svg(470, 256, s);
-  };
-
-  const snapFig = () => {
-    const R = rng(5),
-      rnd = (a, b) => a + R() * (b - a),
-      P = { big: [95, 45], small: [38, 98] };
-    const dots = {
-      A: Array.from({ length: 14 }, () => [rnd(8, 132), rnd(8, 132)]),
-      B: [
-        ...Array.from({ length: 6 }, () => [P.big[0] + rnd(-9, 9), P.big[1] + rnd(-9, 9)]),
-        ...Array.from({ length: 6 }, () => [P.small[0] + rnd(-8, 8), P.small[1] + rnd(-8, 8)]),
-      ],
-      C: Array.from({ length: 12 }, () => [P.small[0] + rnd(-9, 9), P.small[1] + rnd(-9, 9)]),
-    };
-    let s = "";
+    return svg(370, 172, s);
+  })();
+  // Two state machines, side by side
+  const stateFig = (() => {
+    const id = "ar" + ++partScope.uid;
+    const bx = (x, y, a, b, fill) =>
+      R(x, y, 156, 44, fill || "var(--panel)", { r: 10 }) +
+      T(x + 78, y + 19, a, { s: 12 }) +
+      T(x + 78, y + 35, b, { s: 12, c: DIM });
+    let s =
+      arrowDef(id) +
+      T(8, 16, "Scheme 1", { a: "start", s: 13, c: "var(--blue-ink)" }) +
+      T(190, 16, "Scheme 2", { a: "start", s: 13, c: "var(--blue-ink)" });
     [
-      ["A", 14],
-      ["B", 164],
-      ["C", 314],
-    ].forEach(([k, px]) => {
-      s +=
-        rc(px, 26, 140, 140, { r: 10, s: "var(--line)", f: "var(--bg-2)" }) +
-        tx(px + 70, 18, "Panel " + k, { f: "900 14px" });
-      [10, 20, 30].forEach((r) => (s += ci(px + P.big[0], 26 + P.big[1], r, { f: "none", s: "var(--teal)", sw: 1.5 })));
-      [8, 16, 24].forEach(
-        (r) => (s += ci(px + P.small[0], 26 + P.small[1], r, { f: "none", s: "var(--violet)", sw: 1.5 })),
-      );
-      dots[k].forEach(
-        ([x, y]) => (s += ci(px + x, 26 + y, 4.5, { f: "var(--amber)", s: "var(--amber-ink)", sw: 1.5 })),
-      );
+      ["Child", "is born"],
+      ["Waits in a", "holding area"],
+      ["Whole batch", "swapped in"],
+      ["Can now be", "a parent"],
+    ].forEach(([a, b], i) => {
+      s += bx(4, 26 + i * 62, a, b, i === 1 ? "var(--bg-2)" : null);
+      if (i < 3) s += L(82, 72 + i * 62, 82, 86 + i * 62, { w: 3, mk: id, dash: i === 1 ? "4 3" : null });
     });
-    s += tx(235, 186, "rings: contour lines of two hills (tall green, lower purple). Dots: members", {
-      f: "700 11px",
-      c: "var(--text-faint)",
+    [
+      ["Child", "is born"],
+      ["Replaces one", "population member"],
+      ["Can now be", "a parent"],
+    ].forEach(([a, b], i) => {
+      s += bx(190, 26 + i * 62, a, b);
+      if (i < 2) s += L(268, 72 + i * 62, 268, 86 + i * 62, { w: 3, mk: id });
     });
-    return svg(470, 196, s);
-  };
-
-  const ganttFig = () => {
-    const X = (t) => 60 + t * 62,
-      rows = [
-        ["P1", 5, 0, 2],
-        ["P2", 8, 0, 3],
-        ["P3", 3, 0, 1],
-        ["P4", 6, 0, 4],
-        ["C1", 7, 1, 5],
-        ["C2", 9, 2, 6],
-        ["C3", 10, 3, 6],
-        ["C4", 8, 4, 6],
-        ["C5", 12, 5, 6],
-      ];
-    let s = "";
-    for (let t = 0; t <= 6; t++)
-      s += ln(X(t), 26, X(t), 238, "var(--line)", 1) + tx(X(t), 18, t, { f: "700 12px", c: "var(--text-faint)" });
-    rows.forEach(([id, f, b, d], i) => {
-      const y = 30 + i * 23,
-        key = id.toLowerCase();
-      s += tx(52, y + 15, id, { a: "end", f: "800 12px", c: "var(--text-dim)" });
-      s += hit(
-        key,
-        `${rc(X(b), y, X(d) - X(b), 19, { f: d === 6 ? "var(--teal)" : "var(--blue)", o: 0.25, s: d === 6 ? "var(--teal)" : "var(--blue)", sw: 2.5, r: 6 })}${tx((X(b) + X(d)) / 2, y + 14, f, { f: "900 13px" })}`,
-      );
-    });
-    s += tx(X(3), 256, "time step (one child is born at each step)", { f: "700 12px", c: "var(--text-faint)" });
-    return svg(470, 266, s);
-  };
-
-  B.add("l3-population", [
+    return svg(350, 262, s);
+  })();
+  const genTab = `<table class="t"><tr><th>Gen</th><th>Fitness of the 5 members</th><th class="num">Best</th></tr>
+    <tr><td>1</td><td>0.61 &nbsp;0.55 &nbsp;<b>0.83</b> &nbsp;0.40 &nbsp;0.72</td><td class="num">0.83</td></tr>
+    <tr class="bad"><td>2</td><td>0.66 &nbsp;0.70 &nbsp;0.52 &nbsp;0.79 &nbsp;0.58</td><td class="num">0.79</td></tr>
+    <tr><td>3</td><td>0.81 &nbsp;0.75 &nbsp;0.60 &nbsp;0.77 &nbsp;0.69</td><td class="num">0.81</td></tr></table>`;
+  B.add("l4-types", [
     {
       type: "pick",
-      q: "Six members of an EA population are drawn as rows of bits. Click every column where crossover alone can never again produce a different value.",
-      fig: pixFig(),
-      a: ["c1", "c3", "c5", "c10"],
-      hint: "Crossover only copies bits that parents already carry. Which columns have no variety left?",
-      why: "Crossover only shuffles values the parents already have. In columns 1, 3, 5 and 10 every member holds the same bit, so every child gets that bit too: only mutation could change it. Column 8 still has one member with a 1, so a child can inherit it, and the rest of the columns are mixed.",
-    },
-    {
-      type: "pick",
-      q: "Each dot is one member and has one parent: the line to its left. Starting individuals are A to E. Click every starting individual that has no descendants left in generation 3.",
-      fig: lineageFig(),
-      a: ["A", "C", "E"],
-      hint: "Follow lines rightwards from each start. Which ones never get a line out?",
-      why: "A, C and E were never chosen as a parent, so they have no line out at all. B's line branches into most of generation 1, and D's single child survives to generation 3. Only B and D contribute to generation 3, so the population has lost the genes of the other three. Selection alone shrinks diversity over time.",
+      q: "Each bar is one individual of a generational GA (population 3), from the generation it was born to the one it left. Tap every individual that was carried over untouched by elitism.",
+      fig: lifeFig,
+      a: ["I2", "C5"],
+      why: "In a generational GA every individual lasts exactly one generation, apart from the elites, which are copied across the boundary. Only I2 and C5 have bars that cross a dashed line, one elite per boundary, so the elitism setting was 1. C4 and C6 were born at a boundary but left at the next one, so they were ordinary children.",
     },
     {
       type: "match",
-      q: "Each panel is a snapshot of an EA population on a landscape with two hills. Match each panel to what it shows.",
-      fig: snapFig(),
+      q: "Each row is the population right after one round of a scheme (20 members). Match each row to its scheme.",
+      fig: compFig,
       pairs: [
-        ["Panel A", "Just started: members spread out everywhere"],
-        ["Panel B", "Searching both hills at once"],
-        ["Panel C", "Converged on the lower hill"],
+        ["Row P", "Generational, 2 elites"],
+        ["Row Q", "Steady-state, after one step"],
+        ["Row R", "Generational, no elitism"],
+        ["Row S", "Generational, 5 elites"],
       ],
-      why: "Panel A has members all over the space, as in a random start. Panel B has groups near both peaks, which is a population exploring two hills in parallel (a single hillclimber could only follow one). In panel C every member sits on the lower hill. Unless mutation throws some far away, the taller hill will never be found: premature convergence.",
+      hint: "Count the pale squares: that is how many members were copied across unchanged.",
+      why: "A generational round rebuilds the population: no elitism leaves 0 old members (row R), 2 elites leaves 2 (row P), 5 elites leaves 5 (row S). A steady-state step changes just one member, so 19 of the 20 stay (row Q).",
+    },
+    {
+      type: "mcq",
+      q: "Two GAs are drawn as state machines. Which one is steady-state, and what does that mean for a brand-new child?",
+      fig: stateFig,
+      o: [
+        "Scheme 1: the child can be picked as a parent straight away",
+        "Scheme 2: the child can be picked as a parent straight away",
+        "Scheme 1: the child must wait in a holding area until the generation ends",
+        "Scheme 2: the child must wait in a holding area until the generation ends",
+      ],
+      a: 1,
+      why: "In scheme 2 the child goes straight into the population, replacing one member, so it can breed on the very next step: that is steady-state. In scheme 1 children collect in a holding area and the whole batch is swapped in together, which is the generational scheme.",
+    },
+    {
+      type: "multi",
+      q: "A generational GA (maximising) lost its best individual between generations 1 and 2, shown in red. Which changes would have <b>guaranteed</b> the best fitness could not fall?",
+      fig: genTab,
+      o: [
+        "Copy the single best individual into every new population",
+        "Switch to steady-state and always replace the weakest member",
+        "Double the mutation rate so children are more varied",
+        "Use bigger tournaments so the best is chosen more often",
+      ],
+      a: [0, 1],
+      why: "Elitism of 1 and steady-state replace-weakest both protect the top individual by construction: it can never be overwritten. A higher mutation rate or bigger tournaments change the odds, but the best can still be missed by chance, so neither is a guarantee.",
+    },
+  ]);
+
+  /* ---------- l4-replacement ---------- */
+  const ringFig = (() => {
+    const v = [0.7, 0.3, 0.9, 0.6, 0.2, 0.8, 0.65, 0.55],
+      cx = 150,
+      cy = 130,
+      r = 100;
+    let s = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="3" stroke-dasharray="6 6"/>`;
+    s += v
+      .map((x, i) => {
+        const a = ((-90 + 45 * i) * Math.PI) / 180,
+          px = cx + r * Math.cos(a),
+          py = cy + r * Math.sin(a);
+        return pk(
+          "s" + (i + 1),
+          C(px, py, 26, "var(--panel)") +
+            T(px, py - 2, "S" + (i + 1), { s: 11, c: DIM }) +
+            T(px, py + 14, f2(x), { s: 12 }),
+        );
+      })
+      .join("");
+    s += T(cx, cy - 4, "Child: 0.50", { s: 14 }) + T(cx, cy + 16, "scan clockwise", { s: 11, c: DIM });
+    return svg(300, 262, s);
+  })();
+  const diffFig = (() => {
+    const before = [0.7, 0.3, 0.9, 0.6, 0.2, 0.8];
+    const rows = [
+      ["Before", before, -1, "var(--bg-2)"],
+      ["Row A", before.map((v, i) => (i === 1 ? 0.5 : v)), 1],
+      ["Row B", before.map((v, i) => (i === 4 ? 0.5 : v)), 4],
+      ["Row C", before.map((v, i) => (i === 2 ? 0.5 : v)), 2],
+      ["Row D", before, -1, null, "(unchanged)"],
+      ["Row E", before.map((v, i) => (i === 0 ? 0.5 : v)), 0],
+    ];
+    let s = T(4, 14, "Child fitness 0.50. Orange outline = slot that changed.", { a: "start", s: 11, c: DIM });
+    rows.forEach(([name, vals, ch, fill, note], k) => {
+      const y = 24 + k * 40;
+      s +=
+        T(4, y + (note ? 15 : 21), name, { a: "start", s: 12 }) +
+        (note ? T(4, y + 29, note, { a: "start", s: 10, c: DIM }) : "");
+      vals.forEach((v, i) => {
+        s +=
+          R(66 + i * 46, y, 43, 34, i === ch ? "var(--amber-dim)" : fill || "var(--panel)", {
+            r: 6,
+            s: i === ch ? "var(--amber)" : "var(--line-2)",
+            sw: i === ch ? 4 : 2,
+          }) + T(66 + i * 46 + 21.5, y + 22, f2(v), { s: 12, c: i === ch ? "var(--amber-ink)" : "var(--text)" });
+      });
+    });
+    return svg(350, 268, s);
+  })();
+  // Heat maps: same 12 children, replace-weakest vs replace-random
+  const initPop = [0.55, 0.7, 0.4, 0.95, 0.3, 0.6, 0.8, 0.5],
+    kids = [0.62, 0.35, 0.88, 0.45, 0.7, 0.9, 0.52, 0.66, 0.85, 0.4, 0.75, 0.58],
+    victims = [5, 1, 7, 3, 0, 2, 6, 4, 1, 5, 2, 7];
+  const evolve = (rule) => {
+    const p = initPop.slice(),
+      h = [p.slice()];
+    kids.forEach((c, k) => {
+      if (rule === "weakest") {
+        let w = 0;
+        p.forEach((v, i) => {
+          if (v < p[w]) w = i;
+        });
+        if (c > p[w]) p[w] = c;
+      } else p[victims[k]] = c;
+      h.push(p.slice());
+    });
+    return h;
+  };
+  const heat = (hist, x0, name, id) => {
+    let s = T(x0 + 71, 14, name, { s: 13 });
+    hist.forEach((col, t) =>
+      col.forEach((v, i) => {
+        s += R(x0 + t * 11, 22 + i * 14, 11, 14, "var(--teal)", {
+          fo: (0.08 + (0.92 * (v - 0.25)) / 0.7).toFixed(2),
+          r: 0,
+          s: "var(--panel)",
+          sw: 1,
+        });
+      }),
+    );
+    return pk(id, s);
+  };
+  const heatFig = svg(
+    340,
+    170,
+    heat(evolve("random"), 8, "Run A", "A") +
+      heat(evolve("weakest"), 190, "Run B", "B") +
+      swatch(8, 152, "var(--teal)", "weak", { fo: 0.1 }) +
+      swatch(64, 152, "var(--teal)", "strong") +
+      T(190, 152, "rows: 8 slots. columns: time →", { a: "start", s: 11, c: DIM }),
+  );
+  const queueFig = (() => {
+    const id = "ar" + ++partScope.uid;
+    let s = arrowDef(id) + T(4, 14, "Population", { a: "start", s: 12, c: DIM });
+    [0.7, 0.3, 0.9, 0.6, 0.2, 0.8].forEach((v, i) => {
+      s += R(4 + i * 56, 22, 52, 34, "var(--panel)", { r: 8 }) + T(30 + i * 56, 45, f2(v), { s: 13 });
+    });
+    s += T(4, 84, "Children waiting (first in line on the left)", { a: "start", s: 12, c: DIM });
+    [0.5, 0.45, 0.25, 0.65].forEach((v, i) => {
+      s +=
+        R(4 + i * 84, 92, 60, 34, "var(--teal)", { fo: 0.8, r: 8 }) + T(34 + i * 84, 115, f2(v), { s: 13, c: "#fff" });
+      if (i < 3) s += L(66 + i * 84, 109, 84 + i * 84, 109, { w: 3, mk: id });
+    });
+    return svg(340, 140, s);
+  })();
+  B.add("l4-replacement", [
+    {
+      type: "pick",
+      q: "Replace-first-weaker starts at a random slot, then scans clockwise and overwrites the first member weaker than the child. Tap every slot where the scan could START and end up overwriting S2.",
+      fig: ringFig,
+      a: ["s1", "s2", "s6", "s7", "s8"],
+      hint: "First find which members are weaker than 0.50. Then walk backwards from S2 until you hit another weaker member.",
+      why: "Only S2 (0.30) and S5 (0.20) are weaker than the child. A scan overwrites S2 if it reaches S2 before S5: starting at S6, S7, S8, S1 or S2 itself. Starting at S3, S4 or S5 meets S5 first, so S2 survives. The start slot decides which weaker member goes, which is why first-weaker is not the same as weakest.",
+    },
+    {
+      type: "cat",
+      q: "A child with fitness 0.50 meets the population in the top row of the figure. Rows A to E show what the population looked like afterwards. Sort each outcome.",
+      fig: diffFig,
+      buckets: ["Only replace-first-weaker can do this", "Either rule can do this", "Neither rule can do this"],
+      items: [
+        ["Row A", 0],
+        ["Row B", 1],
+        ["Row C", 2],
+        ["Row D", 2],
+        ["Row E", 2],
+      ],
+      why: "Row B overwrote 0.20, the weakest, which replace-weakest always does and replace-first-weaker does if the scan reaches it first. Row A overwrote 0.30: a weaker member, but not the weakest, so only first-weaker can produce it. Rows C and E overwrote members stronger than the child, and row D threw the child away even though weaker members existed, which neither rule allows.",
     },
     {
       type: "pick",
-      q: "A steady-state EA with a population of 4 should always replace the weakest member with the new child. Each bar is one individual's life (its fitness inside), and a child is born at each step. Exactly one replacement broke the rule. Click the bar that was replaced wrongly.",
-      fig: ganttFig(),
-      a: "p2",
-      hint: "At step 3, which of the individuals alive had the lowest fitness?",
-      why: "At step 3 the population was P2 (8), P4 (6), C1 (7) and C2 (9), so the weakest was P4 (6). But the child replaced P2 (8) and P4 stayed alive until step 4. The earlier replacements were right: the weakest died at steps 1, 2, 4 and 5 (3, 5, 6 and 7).",
+      q: "The same 12 children were fed to two copies of the same population (8 slots, one per row). One run used replace-weakest, the other replace-random. Tap the run that used replace-weakest.",
+      fig: heatFig,
+      a: "B",
+      why: "In run B the darkest cell never disappears and the palest cells are the ones that get overwritten, so the population only gets stronger (children worse than everyone are simply dropped, hence the repeated columns). In run A the darkest cell (the best, 0.95) is wiped out by a weak 0.45 child in column 5, which only a random victim can do.",
+    },
+    {
+      type: "order",
+      q: "Replace-weakest. The four children arrive one at a time, in the order shown. Put the members that get evicted in the order they leave.",
+      fig: queueFig,
+      items: ["The 0.20 member from the start", "The 0.30 member from the start", "The 0.45 child that arrived second"],
+      hint: "Each child only gets in if it beats the weakest member at that moment. Track the weakest after each arrival.",
+      why: "Child 0.50 beats the weakest (0.20), so 0.20 leaves. Child 0.45 beats the new weakest (0.30), so 0.30 leaves. Child 0.25 is worse than the weakest (now 0.45), so it is thrown away. Child 0.65 then beats the weakest, which is the 0.45 child that arrived second. Newcomers can be evicted too.",
     },
   ]);
+
+  /* ---------- l4-pressure ---------- */
+  const heatMini = (rows, x0, title, id) => {
+    let s = T(x0 + 55, 14, title, { s: 13 });
+    rows.split(" ").forEach((row, g) =>
+      [...row].forEach((d, i) => {
+        s += R(x0 + i * 11, 22 + g * 12, 11, 12, +d === 9 ? "var(--amber)" : "var(--teal)", {
+          fo: +d === 9 ? 1 : (0.08 + (0.85 * d) / 9).toFixed(2),
+          r: 0,
+          s: "var(--panel)",
+          sw: 1,
+        });
+      }),
+    );
+    return pk(id, s);
+  };
+  const takeFig = svg(
+    370,
+    170,
+    heatMini(
+      "5378204196 7459775737 7979775597 7999799777 7797999999 9999999799 9999999999 9999999999 9999999999",
+      6,
+      "Map A",
+      "A",
+    ) +
+      heatMini(
+        "3546870129 0161271881 1121868712 1867118161 8618161788 1878818168 7188117116 7176781186 1166667177",
+        130,
+        "Map B",
+        "B",
+      ) +
+      heatMini(
+        "7832159406 9999999999 9999999999 9999999999 9999999999 9999999999 9999999999 9999999999 9999999999",
+        254,
+        "Map C",
+        "C",
+      ) +
+      swatch(6, 150, "var(--teal)", "weak", { fo: 0.1 }) +
+      swatch(62, 150, "var(--teal)", "strong") +
+      swatch(128, 150, "var(--amber)", "the original best") +
+      T(185, 166, "10 individuals per row, one row per generation", { s: 10, c: FAINT }),
+  );
+  // scatter: roulette vs linear rank
+  const scatFig = (() => {
+    const fit = [8, 9, 10, 11, 12, 40],
+      tot = fit.reduce((a, b) => a + b),
+      x0 = 40,
+      Y = (p) => 224 - p * 400,
+      X = (i) => x0 + 28 + i * 50;
+    let s = [0, 10, 20, 30, 40]
+      .map(
+        (t) =>
+          L(x0, Y(t / 100), 340, Y(t / 100), { c: "var(--line)", w: 1 }) +
+          T(x0 - 5, Y(t / 100) + 4, t + "%", { a: "end", s: 10, c: FAINT }),
+      )
+      .join("");
+    s +=
+      L(x0, Y(1 / 6), 340, Y(1 / 6), { c: "var(--amber)", w: 3, dash: "7 5" }) +
+      T(340, Y(1 / 6) - 6, "equal chance (1 in 6)", { a: "end", s: 11, c: "var(--amber-ink)" });
+    fit.forEach((f, i) => {
+      s += T(X(i), 246, "#" + (i + 1), { s: 12 }) + T(X(i), 262, "fit. " + f, { s: 10, c: FAINT });
+      s +=
+        C(X(i) - 7, Y(f / tot), 7, "var(--blue)", { s: "var(--panel)", sw: 2 }) +
+        R(X(i) + 1, Y((i + 1) / 21) - 7, 13, 13, "var(--violet)", { r: 3, s: "var(--panel)", sw: 2 });
+    });
+    s +=
+      C(60, 12, 6, "var(--blue)", { s: "var(--panel)", sw: 2 }) +
+      T(72, 16, "roulette", { a: "start", s: 11 }) +
+      R(150, 6, 12, 12, "var(--violet)", { r: 3, s: "var(--panel)", sw: 2 }) +
+      T(168, 16, "linear rank", { a: "start", s: 11 });
+    return svg(350, 272, s);
+  })();
+  Object.assign(partScope, { C, L, R, T, arrowDef, pk, scatFig, svg, swatch, takeFig });
 })();

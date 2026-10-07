@@ -1,225 +1,378 @@
+/* ===== bank-x-nic-2.js ===== */
+/* Revision bank, third set of varied, visual questions (nic-2: l2-approx, l3-recipe, l3-tsp, l3-hc, l3-landscape,
+   l3-neighbourhood, l3-local, l3-population). Every number is checked with node (see the notes beside each figure). */
 (function () {
   const partScope = (NIC.shared.bankNic = NIC.shared.bankNic || {});
-  const { C, L, R, T, hit, svg } = partScope;
+
   const B = NIC.bank;
 
-  /* =====================================================================
-     l2-mst
-     ===================================================================== */
-  const mstPlans = (() => {
-    const pos = { A: [18, 70], B: [58, 24], C: [58, 116], D: [104, 70], E: [148, 24], F: [148, 116] };
-    const plans = [
-      [
-        "1",
-        [
-          ["C", "D", 1],
-          ["A", "B", 2],
-          ["E", "F", 2],
-          ["B", "C", 3],
-          ["D", "E", 3],
-        ],
-      ],
-      [
-        "2",
-        [
-          ["A", "B", 2],
-          ["B", "C", 3],
-          ["C", "D", 1],
-          ["D", "F", 6],
-          ["E", "F", 2],
-        ],
-      ],
-      [
-        "3",
-        [
-          ["A", "B", 2],
-          ["C", "D", 1],
-          ["E", "F", 2],
-          ["B", "C", 3],
-        ],
-      ],
-      [
-        "4",
-        [
-          ["A", "C", 4],
-          ["B", "C", 3],
-          ["C", "D", 1],
-          ["D", "E", 3],
-          ["E", "F", 2],
-        ],
-      ],
-    ];
-    const ox = [4, 176],
-      oy = [4, 160];
-    let g = "";
-    plans.forEach(([name, edges], i) => {
-      const x0 = ox[i % 2],
-        y0 = oy[Math.floor(i / 2)];
-      g += R(x0, y0, 170, 150, { r: 12 });
-      edges.forEach(([a, b, c]) => {
-        const [x1, y1] = pos[a],
-          [x2, y2] = pos[b];
-        g += L(x0 + x1, y0 + y1, x0 + x2, y0 + y2, { c: "var(--blue)", sw: 3.5 });
-      });
-      edges.forEach(([a, b, c]) => {
-        const [x1, y1] = pos[a],
-          [x2, y2] = pos[b],
-          dx = x2 - x1,
-          dy = y2 - y1,
-          Ln = Math.hypot(dx, dy),
-          lx = x0 + (x1 + x2) / 2 - (dy / Ln) * 10,
-          ly = y0 + (y1 + y2) / 2 + (dx / Ln) * 10;
-        g +=
-          R(lx - 8, ly - 9, 16, 18, { f: "var(--panel)", s: "none", r: 4, sw: 0 }) +
-          T(lx, ly + 5, c, { z: 14, c: "var(--rose-ink)" });
-      });
-      Object.entries(pos).forEach(([k, [x, y]]) => (g += C(x0 + x, y0 + y, 9, { s: "var(--text-dim)", sw: 3 })));
-      g += T(x0 + 85, y0 + 144, "Plan " + name, { z: 14 }) + hit("p" + name, x0, y0, 170, 150, 12);
+  /* ---------- small SVG helpers (CSS variables so both themes work) ---------- */
+  const svg = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px">${inner}</svg>`;
+  const tx = (x, y, s, { a = "middle", c = "var(--text)", f = "800 13px" } = {}) =>
+    `<text x="${x}" y="${y}" text-anchor="${a}" style="font:${f} var(--sans);fill:${c}">${s}</text>`;
+  const ln = (x1, y1, x2, y2, c = "var(--line-2)", w = 2, d = "") =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" ${d ? `stroke-dasharray="${d}"` : ""}/>`;
+  const rc = (x, y, w, h, { f = "var(--panel)", s = "var(--line-2)", sw = 2, r = 8, o = 1 } = {}) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" fill-opacity="${o}" stroke="${s}" stroke-width="${sw}"/>`;
+  const ci = (x, y, r, { f = "var(--panel)", s = "var(--line-2)", sw = 2.5 } = {}) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`;
+  const pl = (pts, c, w = 3, d = "") =>
+    `<polyline points="${pts.map((p) => p.map((v) => +v.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${d ? `stroke-dasharray="${d}"` : ""}/>`;
+  const hit = (id, inner) => `<g data-pick="${id}">${inner}</g>`;
+  const mark = (id) =>
+    `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker></defs>`;
+  const rng = (seed) => {
+    let s = seed >>> 0;
+    return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  };
+  const pow10 = (x, y, e, c = "var(--text-faint)") =>
+    `<text x="${x}" y="${y}" text-anchor="middle" style="font:700 12px var(--sans);fill:${c}">10<tspan dy="-6" style="font-size:10px">${e}</tspan></text>`;
+
+  /* ======================================================================
+     l2-approx : number line, dot strips, pixel grid, column chart
+     ====================================================================== */
+  // log10 positions: day of checking at 1e9/s = 8.64e13 (13.94). Dots at 11.5, 12.7, 13.5 are under it; 14.3 (2e14 = 2.3 days), 15.6, 17.8 are over.
+  const numLineFig = () => {
+    const X = (e) => 40 + (e - 10) * 50;
+    let s = ln(30, 120, 450, 120, "var(--text-faint)", 3);
+    for (let e = 10; e <= 18; e++) s += ln(X(e), 114, X(e), 126, "var(--text-faint)", 2) + pow10(X(e), 146, e);
+    [
+      ["A", 11.5],
+      ["B", 12.7],
+      ["C", 13.5],
+      ["D", 14.3],
+      ["E", 15.6],
+      ["F", 17.8],
+    ].forEach(([k, e]) => {
+      s +=
+        ln(X(e), 92, X(e), 120, "var(--line-2)", 2, "3 4") +
+        hit(k, `${ci(X(e), 76, 16, { s: "var(--blue)", sw: 3 })}${tx(X(e), 81, k, { f: "900 14px" })}`);
     });
-    return svg(350, 314, g);
-  })();
+    s += tx(245, 178, "designs in the problem (each tick is 10 times more)", { f: "700 12px", c: "var(--text-faint)" });
+    return svg(470, 190, s);
+  };
 
-  const mstTrace = (() => {
-    const nodes = { A: [30, 80], B: [105, 25], C: [105, 135], D: [220, 80], E: [330, 25], F: [330, 135] };
-    const edges = [
-      ["A", "B", 4],
-      ["A", "C", 2],
-      ["C", "B", 1],
-      ["B", "D", 5],
-      ["C", "D", 8],
-      ["D", "E", 3],
-      ["D", "F", 7],
-      ["E", "F", 6],
-    ];
-    const graph = NIC.qfig.graph(nodes, edges, { w: 360, h: 160, r: 16 });
-    const rows = [
-      ["1", "A – C", 2],
-      ["2", "C – B", 1],
-      ["3", "B – D", 5],
-      ["4", "D – F", 7],
-      ["5", "D – E", 3],
-    ];
-    const tbl = `<table style="border-collapse:separate;border-spacing:4px;margin:6px auto 0;font:800 14px var(--sans);color:var(--text)"><tr style="color:var(--text-dim);font-size:12px"><td>Step</td><td>Edge added</td><td>Cost</td></tr>${rows.map((r) => `<tr><td style="padding:5px 12px;background:var(--bg-2);border-radius:8px;text-align:center">${r[0]}</td><td style="padding:5px 14px;background:var(--blue-dim);border-radius:8px;text-align:center">${r[1]}</td><td style="padding:5px 12px;background:var(--bg-2);border-radius:8px;text-align:center">${r[2]}</td></tr>`).join("")}</table>`;
-    return `<div style="max-width:380px;margin:0 auto">${graph}${tbl}</div>`;
-  })();
-
-  const mstMatrix = (() => {
-    const names = "ABCDE",
-      M = { AB: 7, AC: 3, AE: 9, BC: 2, BD: 5, CD: 6, CE: 8, DE: 4 };
-    const x0 = 56,
-      y0 = 62,
-      cs = 52;
-    let g = T(180, 16, "Cost of each possible cable (– means none)", { z: 13, c: "var(--text-dim)" });
-    [...names].forEach(
-      (n, i) =>
-        (g +=
-          T(x0 + i * cs + cs / 2, y0 - 6, n, { z: 15, c: "var(--blue-ink)" }) +
-          T(x0 - 18, y0 + i * cs + cs / 2 + 5, n, { z: 15, c: "var(--blue-ink)" })),
+  const STRIPS = {
+    A: Array(10).fill(400),
+    B: [412, 407, 455, 431, 468, 420, 409, 444, 426, 438],
+    C: Array(10).fill(438),
+  };
+  const stripFig = () => {
+    const Y = (v) => 175 - (v - 390) * 1.55;
+    let s = "";
+    [400, 440, 480].forEach(
+      (v) =>
+        (s +=
+          tx(30, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) +
+          ln(34, Y(v), 36, Y(v), "var(--text-faint)", 1.5)),
     );
-    for (let r = 0; r < 5; r++)
-      for (let c = 0; c < 5; c++) {
-        const x = x0 + c * cs,
-          y = y0 + r * cs;
-        if (c <= r) {
-          g += R(x + 2, y + 2, cs - 4, cs - 4, { f: "var(--bg-2)", s: "none", r: 8, sw: 0, o: 0.6 });
-          continue;
-        }
-        const key = names[r] + names[c],
-          v = M[key];
-        if (v === undefined) {
-          g +=
-            R(x + 2, y + 2, cs - 4, cs - 4, { r: 8, sw: 1.5 }) +
-            T(x + cs / 2, y + cs / 2 + 5, "–", { z: 16, c: "var(--text-faint)" });
-          continue;
-        }
-        g +=
-          R(x + 2, y + 2, cs - 4, cs - 4, { r: 8, f: "var(--panel)", s: "var(--line-2)" }) +
-          T(x + cs / 2, y + cs / 2 + 6, v, { z: 17 }) +
-          hit(key, x + 2, y + 2, cs - 4, cs - 4, 8);
+    [
+      ["A", 36],
+      ["B", 176],
+      ["C", 316],
+    ].forEach(([k, px]) => {
+      s +=
+        rc(px, 26, 124, 164, { r: 10, s: "var(--line)", f: "var(--bg-2)" }) +
+        tx(px + 62, 18, "Method " + k, { f: "900 14px" });
+      s += ln(px + 4, Y(400), px + 120, Y(400), "var(--teal)", 2.5, "6 4");
+      STRIPS[k].forEach(
+        (v, i) => (s += ci(px + 12 + i * 11.2, Y(v), 4.5, { f: "var(--amber)", s: "var(--amber-ink)", sw: 1.5 })),
+      );
+    });
+    ["A", "B", "C"].forEach(
+      (k, i) => (s += hit(k, rc(34 + i * 140, 22, 128, 172, { f: "transparent", s: "transparent", sw: 2, r: 12 }))),
+    );
+    s += tx(235, 210, "each dot: route length (km) from one of 10 runs. Dashed green: the best possible, 400 km", {
+      f: "700 11px",
+      c: "var(--text-faint)",
+    });
+    return svg(470, 220, s);
+  };
+
+  const gridFig = () => {
+    const R = rng(11),
+      C = 26,
+      x0 = 8,
+      y0 = 8;
+    const cost = Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => 35 + Math.floor(R() * 58)));
+    cost[2][6] = 31;
+    let s = "";
+    for (let r = 0; r < 10; r++)
+      for (let c = 0; c < 10; c++) {
+        const x = x0 + c * C,
+          y = y0 + r * C;
+        if (r < 4)
+          s +=
+            rc(x, y, C - 2, C - 2, {
+              f: "var(--blue)",
+              o: 0.12 + ((93 - cost[r][c]) / 58) * 0.55,
+              s: r === 2 && c === 6 ? "var(--teal)" : "var(--line)",
+              sw: r === 2 && c === 6 ? 3.5 : 1,
+              r: 4,
+            }) + tx(x + C / 2 - 1, y + C / 2 + 4, cost[r][c], { f: "800 11px" });
+        else s += rc(x, y, C - 2, C - 2, { f: "var(--bg-2)", s: "var(--line)", sw: 1, r: 4 });
       }
-    return svg(330, y0 + 5 * cs + 8, g);
-  })();
+    s +=
+      rc(290, 22, 22, 22, { f: "var(--blue)", o: 0.45, s: "var(--line)", sw: 1, r: 4 }) +
+      tx(322, 38, "checked: 40 designs", { a: "start" });
+    s +=
+      rc(290, 58, 22, 22, { f: "var(--bg-2)", s: "var(--line)", sw: 1, r: 4 }) +
+      tx(322, 74, "not checked: 60", { a: "start" });
+    s +=
+      rc(290, 94, 22, 22, { f: "none", s: "var(--teal)", sw: 3.5, r: 4 }) +
+      tx(322, 110, "best so far: 31", { a: "start" });
+    s +=
+      tx(290, 150, "Number = cost of the design.", { a: "start", f: "700 12px", c: "var(--text-faint)" }) +
+      tx(290, 168, "Darker blue = cheaper.", { a: "start", f: "700 12px", c: "var(--text-faint)" });
+    return svg(470, 276, s);
+  };
 
-  const mstLoop = (() => {
-    const N = { A: [34, 150], B: [114, 150], C: [114, 50], D: [254, 50], E: [254, 150], F: [346, 150] };
-    const tree = [
-      ["A", "B", 9],
-      ["B", "C", 4],
-      ["C", "D", 6],
-      ["D", "E", 2],
-      ["E", "F", 5],
-    ];
-    let g =
-      L(N.B[0] + 18, N.B[1], N.E[0] - 18, N.E[1], { c: "var(--amber)", d: "7 6", sw: 4 }) +
-      T(184, 140, "new link: 3", { z: 13, c: "var(--amber-ink)" });
-    tree.forEach(([a, b, w]) => {
-      const [x1, y1] = N[a],
-        [x2, y2] = N[b],
-        dx = x2 - x1,
-        dy = y2 - y1,
-        Ln = Math.hypot(dx, dy),
-        sx = x1 + (dx / Ln) * 18,
-        sy = y1 + (dy / Ln) * 18,
-        ex = x2 - (dx / Ln) * 18,
-        ey = y2 - (dy / Ln) * 18;
-      const mx = (x1 + x2) / 2,
-        my = (y1 + y2) / 2,
-        vert = Math.abs(dx) < 1;
-      g +=
-        `<g data-pick="${a}${b}">${L(sx, sy, ex, ey, { c: "var(--blue)", sw: 4 })}<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="transparent" stroke-width="22"/></g>` +
-        T(vert ? mx + (x1 < 200 ? -15 : 15) : mx, vert ? my + 5 : my - 12, w, { z: 14, c: "var(--rose-ink)" });
-    });
-    Object.entries(N).forEach(
-      ([k, [x, y]]) => (g += C(x, y, 18, { s: "var(--text-dim)", sw: 3 }) + T(x, y + 5, k, { z: 15 })),
-    );
-    return svg(380, 190, g);
-  })();
+  const colFig = () => {
+    let s = ln(40, 190, 440, 190, "var(--text-faint)", 2.5);
+    for (let i = 0; i < 7; i++) {
+      const h = 2 ** i,
+        x = 56 + i * 54,
+        bh = h * 2.2;
+      s +=
+        rc(x, 190 - bh, 38, bh, { f: "var(--amber)", o: 0.35, s: "var(--amber)", sw: 2.5, r: 5 }) +
+        tx(x + 19, 190 - bh - 7, h + " h", { f: "900 13px" }) +
+        tx(x + 19, 210, 40 + i, { f: "800 13px", c: "var(--text-dim)" });
+    }
+    s += tx(245, 232, "number of in-or-out items, n", { f: "700 12px", c: "var(--text-faint)" });
+    s += `<text transform="translate(16,110) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">time to check every subset</text>`;
+    return svg(470, 242, s);
+  };
 
-  B.add("l2-mst", [
+  B.add("l2-approx", [
     {
       type: "pick",
-      q: "Six towns A to F must be joined by cable. Each plan shows the links it would lay, with the cost of each link in red. Tap the plan with the lowest total cost among those that really connect all six towns with no loops.",
-      fig: mstPlans,
-      a: "p1",
-      hint: "First check each plan reaches all six towns. Then add up the costs of the ones that do.",
-      why: "Plan 1 costs 1 + 2 + 2 + 3 + 3 = 11 and reaches every town. Plan 4 costs 13 and plan 2 costs 14, both valid trees, but dearer. Plan 3 is the cheapest at 8 but leaves two towns cut off from the rest, so it does not count. A spanning tree on 6 towns needs exactly 5 links.",
-    },
-    {
-      type: "mcq",
-      q: "A student runs Prim's algorithm from town A on the network below and records the steps in the table. Prim always adds the cheapest link that joins the tree to a new town. Which step first breaks that rule?",
-      fig: mstTrace,
-      o: ["Step 2", "Step 3", "Step 4", "Step 5"],
-      a: 2,
-      hint: "At each step, list the links that join the tree so far to a town outside it, and compare.",
-      why: "At step 4 the tree is A, B, C and D. The links leaving it are D–E (3) and D–F (7), so Prim must add D–E. The student added D–F (7). Steps 2 and 5 look suspicious because their costs go down, but Prim's costs need not rise: they just have to be the cheapest on offer at the time (at step 2, C–B at 1 was available once C was in the tree).",
+      q: "Each dot is the number of designs in a different problem. A computer checks one billion designs a second and you can wait one day. Click every problem you could solve by checking every design.",
+      fig: numLineFig(),
+      a: ["A", "B", "C"],
+      hint: "A day is about 100,000 seconds, so one billion a second gives about 10 to the power 14 checks in total.",
+      why: "A day has about 86,400 seconds, so a billion checks a second covers roughly 10¹⁴ designs. A, B and C sit to the left of that mark (C is about 3 × 10¹³, around nine hours of checking). D is about 2 × 10¹⁴, over two days. E needs about 46 days and F about 20 years, so those need an approximate method.",
     },
     {
       type: "pick",
-      q: "The table gives the cost of each possible cable between five towns (– means no cable can be laid). Run Prim's algorithm from town A and select the cell of every cable it adds.",
-      fig: mstMatrix,
-      a: ["AC", "BC", "BD", "DE"],
-      why: "From A the cheapest cable is A–C (3). The tree {A, C} can reach B for 2 (B–C, cheaper than A–B at 7). Then {A, B, C} reaches D by B–D (5, cheaper than C–D at 6). Finally {A, B, C, D} reaches E by D–E (4, cheaper than C–E at 8 or A–E at 9). Four cables for five towns, total 3 + 2 + 5 + 4 = 14.",
+      q: "Three methods each ran 10 times on the same routing problem. The dashed line is the proven best route, 400 km. Click the method for which running it again with a fresh random seed could give you a better answer.",
+      fig: stripFig(),
+      a: "B",
+      hint: "Ask: does a second run give anything different from the first?",
+      why: "Method A already lands on 400 km every time, so there is nothing to gain. Method C returns the same 438 km on every run, so a rerun just repeats it. Only B varies from run to run (407 to 468 km), so each extra run is a new chance to beat the last, and keeping the best of many runs pulls its answer towards the optimum.",
     },
     {
-      type: "pick",
-      q: "These cables (with their costs) form a cheapest spanning tree. A new link between B and E, costing 3, becomes available (dashed). Adding it makes a loop. To end with a spanning tree that is as cheap as possible, which existing cable should be removed? Tap it.",
-      fig: mstLoop,
-      a: "CD",
-      why: "The new link creates the loop B–C–D–E–B, with costs 4, 6, 2 and 3. Any one cable on the loop can go without disconnecting anyone, so the best swap removes the dearest one on it: C–D at 6. That cuts the total by 3. A–B costs more (9) but is not on the loop, and removing it would cut off town A.",
-    },
-    {
-      type: "cat",
-      q: "A network firm asks for the cheapest set of cables joining some sites. Which versions are plain minimum spanning tree problems, where greedy Prim is optimal, and which add a rule that makes the problem hard?",
-      buckets: ["Plain MST", "Constrained, hard"],
-      items: [
-        ["Join 9 offices with the least total cable; any office can host any number of cables", 0],
-        ["Join 9 offices, but no office may have more than 3 cables on its patch panel", 1],
-        ["Join 12 villages by the cheapest total length of pipe, any layout allowed", 0],
-        ["Join 12 villages by pipe, but the route between two named hospitals may use at most 4 pipes", 1],
-        ["Join 30 towns by the cheapest road network, with no other rules", 0],
-        ["Join 30 towns, but some pairs of towns need a minimum bandwidth between them", 1],
+      q: "A search checks every design in order, row by row, and is stopped after 40 of the 100. The cheapest design so far costs 31 (outlined). What can you say about the cheapest of all 100 designs?",
+      fig: gridFig(),
+      o: [
+        "It could be cheaper than 31, since 60 designs are unchecked",
+        "It is exactly 31, because the search keeps the cheapest it has seen",
+        "It is above 31, because the cheap rows are always checked first",
+        "It is within a few per cent of 31, since 40 designs is a fair sample",
       ],
-      why: "Without extra rules, Prim is greedy and provably optimal, however many sites there are. Adding a degree limit, a limit on route length or bandwidth needs between pairs makes many trees infeasible and greedy choices can trap you, and no fast exact method is known. Real networks are usually the constrained kind.",
+      a: 0,
+      why: "Checking 40% of the designs proves nothing about the other 60%: any of them might cost less than 31. 31 is the best so far, not the best overall. An exhaustive search that is stopped early has become an approximate method with no guarantee. Only a finished search proves the optimum.",
+    },
+    {
+      type: "slider",
+      q: "The chart shows how long a computer needs to check every in-or-out choice for n items. A new computer is 1,000 times faster. About how many items could it handle in the same 1 hour?",
+      fig: colFig(),
+      min: 40,
+      max: 70,
+      step: 1,
+      ans: 50,
+      tol: 2,
+      unit: "items",
+      hint: "Each extra item doubles the time. 1,000 is close to 1,024, which is ten doublings (2 × 2 × 2 … ten times).",
+      why: "Ten doublings multiply the time by 2¹⁰ = 1,024, about 1,000. A computer 1,000 times faster therefore buys only ten more items (40 to 50) in the same hour. For exponential problems, faster hardware helps very little, which is why we turn to approximate methods.",
     },
   ]);
+
+  /* ======================================================================
+     l3-recipe : flow diagram, 100% stacked bars, step line, small-multiple charts
+     ====================================================================== */
+  const recipeFlow = () => {
+    const bx = (x, y, a, b) =>
+      rc(x - 55, y - 23, 110, 46, { r: 12, s: "var(--blue)", sw: 2.5 }) +
+      (b
+        ? tx(x, y - 3, a, { f: "800 12px" }) + tx(x, y + 13, b, { f: "800 12px" })
+        : tx(x, y + 5, a, { f: "800 13px" }));
+    const arr = (id, x1, y1, x2, y2) =>
+      hit(
+        id,
+        `${ln(x1, y1, x2, y2, "var(--text-faint)", 3).replace("/>", ` marker-end="url(#rfa)"/>`)}${ln(x1, y1, x2, y2, "transparent", 26)}`,
+      );
+    let s = mark("rfa");
+    s +=
+      bx(72, 50, "Make random", "population") + bx(230, 50, "Score every", "member") + bx(388, 50, "Select", "parents");
+    s += bx(388, 170, "Crossover +", "mutation") + bx(230, 170, "Replace the", "weakest") + bx(72, 170, "Stop?");
+    s +=
+      arr("is", 127, 50, 170, 50) +
+      arr("ss", 285, 50, 328, 50) +
+      arr("sv", 388, 73, 388, 142) +
+      arr("vr", 333, 170, 290, 170) +
+      arr("rs", 175, 170, 132, 170);
+    s += hit(
+      "loop",
+      `<path d="M72 147 V112 H350 V76" fill="none" stroke="var(--text-faint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#rfa)"/><path d="M72 147 V112 H350 V76" fill="none" stroke="transparent" stroke-width="22"/>`,
+    );
+    s +=
+      tx(210, 104, "no: go round again", { f: "700 12px", c: "var(--text-faint)" }) +
+      tx(72, 208, "yes: return the best", { f: "700 12px", c: "var(--text-faint)" });
+    return svg(470, 220, s);
+  };
+
+  const shareFig = () => {
+    const rows = [
+      ["Population 1: fitness 50, 51, 52, 53", [50, 51, 52, 53]],
+      ["Population 2: fitness 0, 1, 2, 3", [0, 1, 2, 3]],
+    ];
+    const cols = [
+      ["blue-dim", "blue"],
+      ["teal-dim", "teal"],
+      ["amber-dim", "amber"],
+      ["violet-dim", "violet"],
+    ];
+    let s = "";
+    rows.forEach(([t, f], r) => {
+      const y = 36 + r * 88,
+        tot = f.reduce((a, b) => a + b, 0);
+      s += tx(30, y - 12, t, { a: "start", f: "800 13px" });
+      let x = 30;
+      f.forEach((v, i) => {
+        const w = (380 * v) / tot;
+        if (w > 0)
+          s +=
+            rc(x, y, w, 40, { f: `var(--${cols[i][0]})`, s: `var(--${cols[i][1]})`, sw: 2.5, r: 0 }) +
+            tx(x + w / 2, y + 26, v, { f: "900 14px" });
+        else s += tx(x - 6, y + 26, "0", { a: "end", f: "900 14px", c: "var(--text-faint)" });
+        x += w;
+      });
+    });
+    s += tx(30, 188, "bar length = each member's share of the parent picks", {
+      a: "start",
+      f: "700 12px",
+      c: "var(--text-faint)",
+    });
+    return svg(450, 198, s);
+  };
+
+  // best fitness so far: jumps at generations 5, 12, 25, 31, 58 (levels 20, 35, 50, 58, 63)
+  const stepFig = () => {
+    const X = (g) => 50 + g * 1.95,
+      Y = (f) => 200 - f * 2.3;
+    const jumps = [
+      [0, 12],
+      [5, 20],
+      [12, 35],
+      [25, 50],
+      [31, 58],
+      [58, 63],
+      [200, 63],
+    ];
+    const pts = [[X(0), Y(12)]];
+    for (let i = 1; i < jumps.length; i++)
+      pts.push([X(jumps[i][0]), Y(jumps[i - 1][1])], [X(jumps[i][0]), Y(jumps[i][1])]);
+    let s = ln(50, 200, 445, 200, "var(--text-faint)", 2.5) + ln(50, 30, 50, 200, "var(--text-faint)", 2.5);
+    [0, 50, 100, 150, 200].forEach(
+      (g) =>
+        (s +=
+          ln(X(g), 200, X(g), 206, "var(--text-faint)", 2) +
+          tx(X(g), 222, g, { f: "700 12px", c: "var(--text-faint)" })),
+    );
+    [0, 20, 40, 60].forEach((f) => (s += tx(44, Y(f) + 4, f, { a: "end", f: "700 11px", c: "var(--text-faint)" })));
+    s += pl(pts, "var(--teal)", 3.5);
+    [
+      [31, 58],
+      [51, 58],
+      [78, 63],
+      [100, 63],
+      [200, 63],
+    ].forEach(
+      ([g, f]) =>
+        (s +=
+          ln(X(g), Y(f) - 10, X(g), Y(f), "var(--blue)", 2, "3 3") +
+          hit(
+            "g" + g,
+            `${ci(X(g), Y(f) - 25, 14, { s: "var(--blue)", sw: 3 })}${tx(X(g), Y(f) - 21, g, { f: "900 11px" })}`,
+          )),
+    );
+    s += tx(250, 244, "generation", { f: "700 12px", c: "var(--text-faint)" });
+    s += `<text transform="translate(12,115) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">best fitness so far</text>`;
+    return svg(470, 254, s);
+  };
+
+  // real simulated runs (40-bit OneMax, population 20, seed 4): [best, average] by generation
+  const EA = {
+    A: {
+      b: [
+        28, 28, 28, 30, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+      ],
+      a: [
+        20.4, 24.7, 27.9, 28.1, 28.9, 31.6, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+      ],
+    },
+    B: {
+      b: [
+        28, 26, 25, 26, 24, 26, 25, 27, 28, 25, 25, 23, 29, 28, 26, 28, 27, 26, 26, 29, 23, 29, 25, 26, 28, 26, 28, 28,
+        23, 24, 29, 26, 26, 24, 28, 23, 25, 25, 25, 27, 24,
+      ],
+      a: [
+        20.4, 19.3, 19.6, 19.6, 19.3, 20.6, 20.1, 20.1, 20, 20.1, 20.1, 20.3, 20.6, 20.8, 19.9, 20.9, 20.9, 20.9, 20.6,
+        21.7, 20.4, 18.1, 20.6, 21.4, 20.3, 20.4, 20, 19.3, 19.6, 19.2, 20.1, 20, 21.3, 20.1, 20.4, 18.6, 20.7, 20.3,
+        19.6, 20.9, 19.7,
+      ],
+    },
+    C: {
+      b: [
+        28, 28, 29, 29, 31, 31, 30, 32, 33, 33, 33, 34, 35, 36, 35, 36, 36, 37, 37, 38, 37, 37, 36, 36, 37, 36, 36, 37,
+        36, 35, 35, 35, 36, 36, 37, 37, 37, 37, 38, 38, 38,
+      ],
+      a: [
+        20.4, 21.6, 24.4, 25.8, 26.9, 27.9, 28.1, 28.6, 28.6, 29.8, 30.3, 31.1, 31.6, 31.8, 32.1, 32.4, 32.5, 33.5, 34,
+        34, 34.1, 33.6, 33.7, 33.6, 34, 34.1, 34, 34.2, 34, 33.5, 33.1, 33, 33.2, 33.8, 34.3, 34.2, 34.6, 35, 35.6,
+        35.5, 35.8,
+      ],
+    },
+  };
+  const eaFig = () => {
+    const Y = (v) => 118 - (v - 18) * 3.6;
+    let s = "";
+    [
+      ["A", 24],
+      ["B", 178],
+      ["C", 332],
+    ].forEach(([k, px]) => {
+      const X = (g) => px + 6 + g * 3.2;
+      s += rc(px, 26, 134, 100, { r: 8, s: "var(--line)", f: "var(--bg-2)" });
+      [20, 30, 40].forEach(
+        (v) =>
+          (s +=
+            ln(px + 2, Y(v), px + 132, Y(v), "var(--line)", 1) +
+            (k === "A" ? tx(px - 4, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) : "")),
+      );
+      s +=
+        pl(
+          EA[k].a.map((v, g) => [X(g), Y(v)]),
+          "var(--amber)",
+          2.5,
+          "5 4",
+        ) +
+        pl(
+          EA[k].b.map((v, g) => [X(g), Y(v)]),
+          "var(--teal)",
+          3,
+        );
+      s +=
+        tx(px + 67, 146, "Run " + k, { f: "900 14px" }) +
+        tx(px + 67, 164, "generations 0 to 40", { f: "700 11px", c: "var(--text-faint)" });
+    });
+    s += tx(235, 14, "solid green: best member    dashed orange: average member", {
+      f: "700 12px",
+      c: "var(--text-dim)",
+    });
+    return svg(472, 174, s);
+  };
+  Object.assign(partScope, { ci, eaFig, hit, ln, mark, pl, rc, recipeFlow, rng, shareFig, stepFig, svg, tx });
 })();

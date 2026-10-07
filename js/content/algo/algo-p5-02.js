@@ -1,6 +1,6 @@
 (function () {
   const partScope = (NIC.shared.algoP5 = NIC.shared.algoP5 || {});
-  const { PTS, cross, svg, turn } = partScope;
+  const { PTS, cross, svg, turn, pseudo } = partScope;
   const N = NIC;
   const { el, qs, predict, takeaways, header } = N;
   const L = N.LESSONS;
@@ -197,12 +197,54 @@
     }
   }
 
+  /** Graham scan on the default PTS (pivot = lowest point): the stack after each point, for the lesson figures. */
+  function grahamStacks() {
+    const names = Object.keys(PTS);
+    const piv = names.reduce((m, n) =>
+      PTS[n][1] > PTS[m][1] || (PTS[n][1] === PTS[m][1] && PTS[n][0] < PTS[m][0]) ? n : m,
+    );
+    const ang = (n) => Math.atan2(-(PTS[n][1] - PTS[piv][1]), PTS[n][0] - PTS[piv][0]);
+    const order = names.filter((n) => n !== piv).sort((a, b) => ang(a) - ang(b));
+    const st = [piv, order[0]],
+      out = [{ p: order[0], st: st.slice(), pops: [] }];
+    for (let i = 1; i < order.length; i++) {
+      const p = order[i],
+        pops = [];
+      while (st.length >= 2 && turn(st[st.length - 2], st[st.length - 1], p) <= 0) pops.push(st.pop());
+      st.push(p);
+      out.push({ p, st: st.slice(), pops });
+    }
+    return { piv, order, out };
+  }
+  const GS = grahamStacks();
+
   L["a5-graham"] = {
     sum: "Graham scan sorts the points by angle around the lowest point, then walks them in order with a <b>stack</b>. Any point that makes a right turn gets popped. Sort once, scan once: <b>O(n log n)</b>.",
     steps: [
       {
+        t: "Why a second algorithm?",
+        b: `<p>In the late 1960s the best hull algorithm was <b>O(n²)</b>. Bell Labs needed hulls of about <b>10,000 points</b>, and that was too slow. In 1972 R. L. Graham published a scan that took <b>O(n log n)</b>, the first hull algorithm to do it in the worst case.</p><p>For 10,000 points: n² = 100,000,000 steps, but n log₂ n ≈ 133,000.</p>`,
+        v: F.bars(
+          [
+            ["O(n²)", 100000000, "rose", "100 million"],
+            ["O(n log n)", 132877, "teal", "about 133,000"],
+          ],
+          { max: 100000000, fmt: (v) => v.toLocaleString() },
+        ),
+        c: {
+          q: "Gift wrapping is O(n·h). For which inputs does it fall back to the slow O(n²) the Bell Labs engineers feared?",
+          o: [
+            "When almost every point is on the hull",
+            "When the points happen to be given in a random order",
+            "When there are fewer than a hundred points in the whole set",
+          ],
+          a: 0,
+          why: "n·h grows towards n² as h approaches n. Graham's sort-then-scan does not care how big the hull is.",
+        },
+      },
+      {
         t: "Sort by angle",
-        b: `<p>The lowest point is on the hull, so use it as the <b>anchor</b>. Sort the rest by the angle they make with the anchor, sweeping counter-clockwise. Hull corners will now come up in boundary order.</p>`,
+        b: `<p>The lowest point is on the hull, so use it as the <b>anchor</b>. Sort the rest by the angle they make with the anchor, sweeping counter-clockwise. Hull corners will now come up in boundary order.</p><p>The lecture takes the <i>leftmost</i> point instead (lowest if tied). Any point that is certainly on the hull works. The demo below uses the lowest.</p>`,
         v: `<svg class="fig" viewBox="0 0 420 200" role="img" aria-label="The lowest point is the anchor. The other points are numbered 1 to 6 in order of their angle round it, counter-clockwise." style="max-height:190px"><circle cx="150" cy="180" r="8" fill="var(--amber)"/><text x="150" y="198" class="fig-sub">anchor</text>${[
           [380, 150, 1],
           [360, 90, 2],
@@ -216,6 +258,33 @@
               `<line x1="150" y1="180" x2="${x}" y2="${y}" stroke="var(--line-2)" stroke-dasharray="3 4" class="fi"/><circle cx="${x}" cy="${y}" r="6" fill="var(--violet)" class="fi"/><text x="${x + 10}" y="${y - 8}" class="fig-sub" style="fill:var(--violet)">${k}</text>`,
           )
           .join("")}</svg>`,
+      },
+      {
+        t: "The lecture's pseudocode",
+        b: `<p>Thirteen lines. Lines 4 to 6 seed the stack with the anchor and the first two sorted points. Lines 7 to 12 are the scan: for each next point, <b>while</b> the top two stack points plus the new one turn clockwise, <b>pop</b>. Then push.</p><p>Two details in line 2: sort <b>counter-clockwise</b>, and if several points share an angle, <b>keep only the farthest</b>. The nearer ones lie on the segment to it, so they cannot be corners.</p>`,
+        v: pseudo(
+          [
+            "1: p0 ← point with minimum x (tie: lowest)",
+            "2: p1…pn ← the rest, sorted by polar angle (ccw) around p0;",
+            "    same angle: keep only the farthest from p0",
+            "3: S ← empty stack",
+            "4: PUSH(p0)    5: PUSH(p1)    6: PUSH(p2)",
+            "7: for i = 3 to n:",
+            "8:     while NEXT-TO-TOP(S), TOP(S), pi turn clockwise:",
+            "9:         POP(S)",
+            "10:    (end while)",
+            "11:    PUSH(pi)",
+            "12: (end for)",
+            "13: return S",
+          ],
+          [6, 7],
+        ),
+        c: {
+          q: "Task: which lines of the pseudocode reject a point as not being on the hull?",
+          o: ["Lines 8 and 9: the while test and POP", "Line 2: the sort by polar angle", "Line 11: PUSH(pi)"],
+          a: 0,
+          why: "A point is rejected when it is popped, and POP only runs while the turn is clockwise (lines 8 and 9). The sort orders the points and the push adds one, neither removes any.",
+        },
       },
       {
         t: "The stack pops dents",
@@ -249,8 +318,48 @@
         v: (box, life) => grahamRun(box, life),
       },
       {
+        t: "What the stack always holds",
+        b: `<p>Here is why it works. After each point is handled, the stack is <b>the convex hull of the anchor and every point seen so far</b>. A new point can only add itself at the end, and it pops whatever it makes into a dent.</p><p>So when the last point is done, the stack is the hull of everything.</p>`,
+        v: F.frames(
+          GS.out.map((o) => ({
+            t: `After <b>${o.p}</b>${o.pops.length ? `: popped ${o.pops.join(", ")}` : ""}`,
+            v: F.cells(
+              o.st.map((n, j) => (j === o.st.length - 1 ? { v: n, c: "teal" } : { v: n })),
+              { label: "stack" },
+            ),
+          })),
+        ),
+        c: {
+          q: "Halfway through a scan (anchor plus the first k points processed), what is on the stack?",
+          o: [
+            "The convex hull of the anchor and those k points",
+            "The k points nearest the anchor",
+            "The k points sorted by distance from the anchor",
+          ],
+          a: 0,
+          why: "That is the invariant. Each push or pop keeps the stack a hull of the points seen so far.",
+        },
+      },
+      {
         t: "Where the time goes",
-        b: `<p>Every point is pushed once and popped at most once, so the scan is O(n). The <b>sort</b> costs O(n log n), and that dominates.</p><p>Compared with gift wrapping at O(n·h): Graham wins when the hull is big, and wrapping wins when it's tiny.</p>`,
+        b: `<p>Every point is pushed once and popped at most once, so the scan is <b>O(n)</b>: at most 2n stack operations. The loop runs n − 2 times. The <b>sort</b> costs O(n log n), and that dominates.</p><p>$$O(n\\log n)+O(n)=O(n\\log n)$$</p><p>Compared with gift wrapping at O(n·h): Graham wins when the hull is big, and wrapping wins when it's tiny.</p>`,
+        v: F.cells([
+          { v: "sort", sub: "O(n log n)", c: "violet" },
+          "+",
+          { v: "scan", sub: "O(n)", c: "teal" },
+          "=",
+          { v: "total", sub: "O(n log n)", c: "amber" },
+        ]),
+        c: {
+          q: "The scan loop touches each point once but sometimes pops several. Why is its total still O(n)?",
+          o: [
+            "Each point is popped at most once, so pops total at most n",
+            "The stack never holds more than three points at the same time",
+            "Popping is free in practice, so it is simply never counted",
+          ],
+          a: 0,
+          why: "Pops are paid for by the pushes that came before: you cannot pop more points than were pushed.",
+        },
       },
     ],
     guide: [
@@ -264,8 +373,8 @@
     id: "a5-graham",
     subject: "algo",
     lecture: 5,
-    order: 3,
-    num: "5.3",
+    order: 4,
+    num: "5.4",
     title: "Graham scan stack",
     blurb: "Sort by angle, then let the stack pop every point that dents the hull inward.",
     render(root) {
@@ -332,6 +441,19 @@
           ],
           a: 0,
           why: "Every point is pushed once and popped at most once, so the whole stack scan is only O(n), even though points sometimes pop several others. The sort is O(n log n) and dominates: about 20 comparisons per point for a million points, against a few turn tests.",
+        }),
+      );
+      root.appendChild(
+        predict({
+          id: "a5-gr-2",
+          q: "Graham scan has finished on 1,000 points and the stack holds 12 points. How many of the 1,000 are hull corners?",
+          opts: [
+            "All 1,000, since they were all pushed at some point",
+            "Exactly 12: the stack is the hull",
+            "Fewer than 12, because the anchor does not count",
+          ],
+          a: 1,
+          why: "Everything that stayed on the stack is a hull corner. The other 988 were either popped or never made it, so they are inside the hull or on an edge.",
         }),
       );
       root.appendChild(

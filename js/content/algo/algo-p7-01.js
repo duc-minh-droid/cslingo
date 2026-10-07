@@ -27,8 +27,8 @@
   /* ============ 7.1 Surprise and entropy ============ */
   reg({
     id: "a7-entropy",
-    order: 1,
-    num: "7.1",
+    order: 2,
+    num: "7.2",
     title: "Surprise and entropy",
     blurb: "Information is surprise: I(x) = −log₂ p(x). Drag the symbol weights and watch the compression floor move.",
     render(root) {
@@ -134,8 +134,8 @@
   /* ============ 7.2 Huffman ============ */
   reg({
     id: "a7-huffman",
-    order: 2,
-    num: "7.2",
+    order: 6,
+    num: "7.6",
     title: "Building the Huffman tree",
     blurb:
       "Merge the two least-probable nodes, repeat, read codewords off the branches. A greedy algorithm that is provably optimal.",

@@ -52,7 +52,7 @@
   html :is(.pc-row, .guide-item, .gb-mod, .rv-sess) {
     transition:
       transform var(--dur-3) var(--ease-spring),
-      background-color var(--dur-2) ease,
+      background-color var(--dur-2) var(--ease-out),
       border-color var(--dur-2) ease;
   }
   html .pager a:hover {
@@ -61,7 +61,7 @@
   html .pager a {
     transition:
       transform var(--dur-3) var(--ease-spring),
-      background-color var(--dur-2) ease;
+      background-color var(--dur-2) var(--ease-out);
   }
 
   /* ---------- icon buttons: top bar, dock, player chrome ---------- */
@@ -107,7 +107,7 @@
 
 /* ---------- carets turn instead of snapping ---------- */
 .pl-look > summary {
-  transition: background-color var(--dur-2) ease;
+  transition: background-color var(--dur-2) var(--ease-out);
   border-radius: 14px;
 }
 .pl-look-car {

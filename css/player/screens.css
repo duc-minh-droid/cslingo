@@ -17,7 +17,7 @@
   width: 100%;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 18px 20px 10px;
+  padding: max(env(safe-area-inset-top), 18px) 20px 10px;
 }
 .pl-x {
   appearance: none;
@@ -74,7 +74,9 @@
 .pl-combo {
   position: absolute;
   left: 50%;
-  top: -22px;
+  top: calc(100% + 3px);
+  z-index: 3;
+  line-height: 1.2;
   transform: translate(-50%, 0);
   font-size: 12px;
   font-weight: 900;
@@ -251,15 +253,15 @@
   color: var(--text-dim);
 }
 .pl-kind {
-  padding: 5px 12px;
-  border: 2px solid var(--line);
+  padding: 3px 10px;
+  border: 0;
   border-radius: 99px;
-  background: var(--panel);
-  box-shadow: 0 2px 0 var(--line);
+  background: var(--blue-dim, var(--panel-2, var(--line)));
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.3;
+  pointer-events: none;
 }
 .pl-ref-card {
   text-align: left;
@@ -397,9 +399,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .pl-try-side {
-    position: sticky;
-    top: 0;
-    z-index: 6;
+    position: static;
     order: -1;
   }
   .pl-try-side .guide {
@@ -412,6 +412,8 @@
   }
   .pl-try-side .guide.open .guide-list {
     padding-bottom: 10px;
+    max-height: 28vh;
+    overflow: auto;
   }
   .pl-try-side .guide .card-head::after {
     content: "▾";
@@ -449,4 +451,38 @@
 .pl-tag-study span {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---------- recap video step (js/content/nic/videos.js) ---------- */
+.pl-video {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.pl-video video {
+  display: block;
+  width: min(100%, 520px, 52vh);
+  aspect-ratio: 1;
+  border: 3px solid var(--line-2);
+  border-radius: 22px;
+  background: var(--bg-2);
+  box-shadow: 0 6px 0 var(--line-2);
+}
+.pl-video figcaption {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 700;
+}
+.pl-video figcaption a {
+  color: var(--blue-ink);
+}
+.pl-chapters {
+  margin-top: 8px;
+  font-weight: 700;
+}
+.pl-chapters ol {
+  margin: 6px 0 0;
+  padding-left: 22px;
+  color: var(--text-dim);
 }

@@ -67,7 +67,7 @@
     let n = 0;
     list.forEach((m, k) => {
       out.push({ m });
-      if (!isBoss(m) && ++n % 3 === 0 && k < list.length - 1)
+      if (!isBoss(m) && !m.video && ++n % 3 === 0 && k < list.length - 1)
         out.push({ chest: `${subjOf(m)}-${lec}-${n}`, after: m.id });
     });
     return out;
@@ -216,7 +216,7 @@
     const p = store.get("nic.revPrefs", {});
     store.set("nic.revPrefs", { n: p.n || 10, subjects: [s] });
   }
-  const KIND_SUB = { boss: "Boss quiz", workshop: "Workshop", codelab: "Code lab" };
+  const KIND_SUB = { boss: "Boss quiz", workshop: "Workshop", codelab: "Code lab", video: "Recap video" };
 
   const NUDGE_KEY = "csl.nudge"; // when "Keep your streak safe" was dismissed; outside nic.*, so it is neither synced nor reset
   let nudgeSeen = false; // in case storage is blocked: still only ask once per visit
@@ -255,6 +255,22 @@
     });
   }
 
+  /** "Step N of M" for a lesson with saved player progress (its content may not be loaded yet). */
+  function stepSub(m) {
+    const L = NIC.LESSONS && NIC.LESSONS[m.id],
+      pos = store.get("nic.lessonPos", {})[m.id] || 0;
+    return L && L.steps
+      ? `Step ${Math.min(pos + 1, L.steps.length)} of ${L.steps.length}`
+      : "You stopped partway through";
+  }
+  /** The daily-goal hint that rides along in the Up next sub-text. */
+  function goalHint() {
+    const g = NIC.game;
+    if (!g || !g.goal || !g.todayXP) return "";
+    const left = g.goal() - g.todayXP();
+    return left > 0 ? `${left} XP to your daily goal` : "Goal done today";
+  }
+
   /** "What should I do now?" One primary action (continue > due reviews > next lesson) plus the others as chips.
       resume is the lesson the path marks as current; it is only "Continue" once the learner is past its first screen. */
   function todayCard(s, all, next, resume) {
@@ -266,7 +282,7 @@
         k: "cont",
         to: started.id,
         t: `Continue ${esc(started.title)}`,
-        sub: `You stopped partway through`,
+        sub: stepSub(started),
         icon: IC.play,
       });
     if (due >= 5)
@@ -283,14 +299,14 @@
         k: "next",
         to: next.id,
         t: `${status(next) === "new" && !Object.keys(store.get("nic.lessonDone", {})).length ? "Start" : "Next"}: ${esc(next.title)}`,
-        sub: KIND_SUB[kindOf(next)] || `Lesson ${next.num}`,
+        sub: KIND_SUB[kindOf(next)] || `<span class="td-lno">Lesson ${next.num}</span>`,
         icon: IC.star,
       });
     if (due > 0 && due < 5) acts.push({ k: "due", to: "practice/due", rev: 1, t: `Review ${due} due`, icon: IC.reset });
     if (!acts.length) return "";
     const [top, ...rest] = acts;
     const attr = (a) => `data-to="${a.to}"${a.rev ? " data-rev" : ""}`;
-    return `<div class="td-card"><button class="td-main" ${attr(top)}><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
+    return `<div class="td-card"><button class="td-main" ${attr(top)}><span class="td-ic">${top.icon}</span><span class="td-t"><small>Up next</small><b>${top.t}</b>${(top.sub || goalHint()) && top.k !== "due" ? `<em>${[top.sub, goalHint()].filter(Boolean).join(" · ").replace("</span> · ", " · </span>")}</em>` : top.sub ? `<em>${top.sub}</em>` : ""}</span><span class="td-go">${IC.play}</span></button>
       ${
         rest.length
           ? `<div class="td-more">${rest
@@ -324,14 +340,14 @@
       P = progress(all);
     const lastId = store.get("nic.last", {})[s],
       last = modules.find((m) => m.id === lastId);
-    const next = all.find((m) => status(m) !== "done");
-    const resume = last && status(last) === "started" ? last : next; // a lesson only taken a look at is not "where you were"
+    const next = all.find((m) => !m.video && status(m) !== "done"); // a recap video is a bonus: never "up next"
+    const resume = last && !last.video && status(last) === "started" ? last : next; // a lesson only taken a look at is not "where you were"
     const lecs = Object.entries(S.lectures).filter(([lec]) => inLec(s, lec).length);
     const weak = weakBoss(s),
       won = P.n > 0 && P.d === P.n;
     const page = el(`<div class="page path-page">
       <h1 class="sr-only">${S.name}</h1>
-      ${NIC.art ? NIC.art.banner(s, { title: S.name, sub: `${S.code} · ${P.d}/${P.n} lessons done` }) : ""}
+      ${NIC.art ? NIC.art.banner(s, { title: S.name, sub: `${S.code} · ${P.d}/${P.n} done` }) : ""}
       ${todayCard(s, all, next, resume)}
       ${nudgeCard()}
       <div class="unit-sticky"><div class="us-in"></div></div>
@@ -355,17 +371,20 @@
                   boss = isBoss(m),
                   cur = resume === m;
                 const topic = !boss && window.FLUENT_EMOJI && FLUENT_EMOJI.topics && FLUENT_EMOJI.topics[m.id];
-                const ic = topic
-                  ? NIC.emo(topic, "p-topic") + (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "")
-                  : st === "done"
-                    ? boss
-                      ? IC.trophy
-                      : IC.check
-                    : boss
-                      ? IC.trophy
-                      : cur
-                        ? IC.play
-                        : IC.star;
+                const ic = m.video
+                  ? `<span class="p-film">${IC.film}</span>` +
+                    (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "")
+                  : topic
+                    ? NIC.emo(topic, "p-topic") + (st === "done" ? `<span class="p-badge">${IC.check}</span>` : "")
+                    : st === "done"
+                      ? boss
+                        ? IC.trophy
+                        : IC.check
+                      : boss
+                        ? IC.trophy
+                        : cur
+                          ? IC.play
+                          : IC.star;
                 const L = NIC.LESSONS[m.id],
                   R = boss && NIC.bossResult ? NIC.bossResult(m.id) : null,
                   pos = store.get("nic.lessonPos", {})[m.id] || 0,

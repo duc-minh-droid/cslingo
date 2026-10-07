@@ -462,3 +462,19 @@ button:focus:not(:focus-visible) {
   color: var(--rose-on);
   background: var(--rose);
 }
+
+/* Phones: a wide figure, formula or code block scrolls inside its own box instead of pushing the whole screen sideways. */
+@media (max-width: 600px) {
+  .lesson-visual,
+  .lesson-body {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .lesson-visual pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .fb-v {
+    overflow-wrap: anywhere;
+  }
+}

@@ -16,8 +16,8 @@
   /* ============ 9.2 The halving trick ============ */
   reg({
     id: "a9-fft",
-    order: 2,
-    num: "9.2",
+    order: 6,
+    num: "9.6",
     title: "The halving trick",
     blurb:
       "The FFT isn't a new transform — it's the same DFT, computed by splitting evens from odds until only one-sample problems remain.",

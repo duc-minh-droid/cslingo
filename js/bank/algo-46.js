@@ -1,401 +1,387 @@
 (function () {
   const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});
-  const { arrow, circ, dot, forest, ln, orders, pk, rect, sgn, svg, txt, wl } = partScope;
+  const { arrow, circ, dot, ln, pk, plane, rect, svg, txt } = partScope;
   const B = NIC.bank;
 
-  // Prim key table with one wrong entry
-  const keyTable = (() => {
-    const cols = [110, 72, 72, 72, 72],
-      rows = [
-        ["Step", "key B", "key C", "key D", "key E"],
-        ["add A", 4, 2, "∞", "∞"],
-        ["add C", 1, "–", 8, 10],
-        ["add B", "–", "–", 8, 10],
-        ["add D", "–", "–", "–", 3],
-      ];
-    const x0 = 8,
-      y0 = 38,
-      rh = 38;
-    let g = txt(220, 20, "A–B 4, A–C 2, B–C 1, B–D 5, C–D 8, C–E 10, D–E 3", { s: 13, c: "var(--ink)" });
-    rows.forEach((row, r) => {
-      let x = x0;
-      row.forEach((cell, c) => {
-        const head = r === 0 || c === 0,
-          w = cols[c],
-          y = y0 + r * rh;
-        const inner =
-          rect(x, y, w, rh, head ? "var(--panel-2)" : "var(--panel)", "var(--line-2)", 1.5, 0) +
-          txt(x + w / 2, y + rh / 2 + 5, cell, { s: 14, c: head ? "var(--text-dim)" : "var(--ink)" });
-        g += r > 0 && c > 0 && cell !== "–" ? pk(`${r}${"BCDE"[c - 1]}`, inner) : inner;
-        x += w;
-      });
-    });
-    g += txt(220, y0 + 5 * rh + 18, "– means the town is already in the tree", { s: 12, w: 700, c: "var(--text-dim)" });
-    return svg(440, y0 + 5 * rh + 28, g);
-  })();
-
-  // grouped bars: estimated work for three algorithms on a sparse and a dense network
-  const costBars = (() => {
-    const P = [
-      ["Sparse: 1,000 towns, 4,000 cables", [1000, 40, 48], "s"],
-      ["Dense: 1,000 towns, 300,000 cables", [1000, 3000, 5470], "d"],
-    ];
-    const names = ["Prim, array", "Prim, heap", "Kruskal"],
-      ids = ["arr", "heap", "kr"],
-      cols = ["var(--violet)", "var(--blue)", "var(--amber)"];
+  /* =====================================================================
+     a5-wrap
+     ===================================================================== */
+  const wrapPanels = (() => {
+    const P = {
+      A: [
+        [0, 2],
+        [4, 0],
+        [9, 1],
+        [10, 6],
+        [6, 10],
+        [1, 9],
+        [3, 4],
+        [5, 3],
+        [6, 5],
+        [4, 6],
+        [7, 3],
+        [5, 5],
+      ],
+      B: [
+        [5, 0],
+        [8, 1],
+        [10, 4],
+        [9, 7],
+        [6, 9],
+        [3, 9],
+        [1, 7],
+        [0, 4],
+        [2, 1],
+        [7, 10],
+        [4, 0],
+        [10, 6],
+      ],
+      C: [
+        [0, 0],
+        [10, 0],
+        [10, 10],
+        [0, 10],
+        [3, 3],
+        [5, 2],
+        [7, 4],
+        [4, 5],
+        [6, 6],
+        [2, 7],
+        [8, 8],
+        [5, 8],
+      ],
+    };
     let g = "";
-    P.forEach(([title, vals, key], p) => {
-      const x0 = 6 + p * 228,
-        base = 190;
+    ["A", "B", "C"].forEach((k, p) => {
+      const x0 = 8 + p * 150,
+        X = (x) => x0 + 14 + x * 11.2,
+        Y = (y) => 168 - y * 12.4;
       g +=
-        rect(x0, 4, 220, 232, "var(--panel)", "var(--line-2)", 3, 12) +
-        txt(x0 + 110, 24, title, { s: 11, c: "var(--ink)" });
-      vals.forEach((v, i) => {
-        const h = Math.max(3, (v / 5470) * 130),
-          x = x0 + 22 + i * 62;
-        g +=
-          pk(
-            `${key}-${ids[i]}`,
-            `<rect x="${x}" y="${base - h}" width="44" height="${h}" rx="5" fill="${cols[i]}"/>` +
-              txt(x + 22, base - h - 6, v.toLocaleString("en-GB") + "k", { s: 11, c: "var(--ink)" }),
-          ) +
-          txt(x + 22, base + 16, names[i].split(", ")[0], { s: 11, w: 700, c: "var(--text-dim)" }) +
-          txt(x + 22, base + 30, names[i].split(", ")[1] || "", { s: 11, w: 700, c: "var(--text-dim)" });
-      });
-      g += ln(x0 + 12, base, x0 + 208, base, "var(--line-2)", 2);
+        rect(x0, 6, 140, 184, "var(--panel)", "var(--line-2)", 3, 12) +
+        txt(x0 + 70, 22, `Panel ${k}`, { s: 13, c: "var(--ink)" });
+      P[k].forEach(([x, y]) => (g += circ(X(x), Y(y), 5.5, "var(--blue)", "var(--panel)", 1.5)));
+      g += txt(x0 + 70, 184, "12 points", { s: 11, w: 700, c: "var(--text-dim)" });
     });
-    return svg(460, 242, g);
+    return svg(460, 196, g);
   })();
 
-  // regions: three groups of towns, no links between groups
-  const regions = (() => {
-    const R = [
-      [
-        8,
-        10,
-        205,
-        170,
-        "var(--blue)",
-        { A: [50, 50], B: [120, 40], C: [180, 70], D: [70, 130], E: [150, 135] },
-        [
-          ["A", "B"],
-          ["B", "C"],
-          ["A", "D"],
-          ["D", "E"],
-          ["C", "E"],
-          ["B", "E"],
-          ["A", "E"],
-        ],
-      ],
-      [
-        220,
-        10,
-        140,
-        170,
-        "var(--amber)",
-        { F: [20, 50], G: [100, 45], H: [30, 130], I: [105, 125] },
-        [
-          ["F", "G"],
-          ["F", "H"],
-          ["G", "I"],
-          ["H", "I"],
-          ["F", "I"],
-        ],
-      ],
-      [372, 10, 80, 170, "var(--violet)", { J: [22, 60], K: [55, 120] }, [["J", "K"]]],
+  // ten points, five arrows drawn by a learner (arrow 3 skips the corner (10, 6))
+  const wrapArrows = (() => {
+    const p = plane(10, 9, 40, 20, 400, 290, false);
+    const H = { 1: [1, 2], 2: [5, 0], 3: [9, 2], 4: [10, 6], 5: [6, 9], 6: [2, 8] };
+    const I = [
+      [5, 4],
+      [4, 6],
+      [7, 5],
+      [3, 3],
     ];
     let g = "";
-    R.forEach(([x, y, w, h, c, nd, ed]) => {
-      g += rect(x, y, w, h, "var(--panel-2)", c, 3, 14);
-      ed.forEach(([a, b]) => (g += ln(x + nd[a][0], y + nd[a][1], x + nd[b][0], y + nd[b][1], "var(--line-2)", 3)));
-      Object.entries(nd).forEach(([k, [px, py]]) => (g += dot(x + px, y + py, k, { r: 13, stroke: c })));
+    I.forEach(([x, y]) => (g += circ(p.X(x), p.Y(y), 7, "var(--panel)", "var(--line-2)", 3)));
+    Object.values(H).forEach(([x, y]) => (g += circ(p.X(x), p.Y(y), 7, "var(--panel)", "var(--line-2)", 3)));
+    const path = [
+      [1, 2, "s1"],
+      [2, 3, "s2"],
+      [3, 5, "s3"],
+      [5, 6, "s4"],
+      [6, 1, "s5"],
+    ];
+    path.forEach(([a, b, id], i) => {
+      const [x1, y1] = H[a],
+        [x2, y2] = H[b],
+        mx = (p.X(x1) + p.X(x2)) / 2,
+        my = (p.Y(y1) + p.Y(y2)) / 2;
+      const dx = p.X(x2) - p.X(x1),
+        dy = p.Y(y2) - p.Y(y1),
+        d = Math.hypot(dx, dy);
+      const ox = (dy / d) * 16,
+        oy = (-dx / d) * 16;
+      g += pk(
+        id,
+        arrow(
+          p.X(x1) + (dx / d) * 9,
+          p.Y(y1) + (dy / d) * 9,
+          p.X(x2) - (dx / d) * 9,
+          p.Y(y2) - (dy / d) * 9,
+          "var(--blue)",
+          4,
+        ) +
+          ln(p.X(x1), p.Y(y1), p.X(x2), p.Y(y2), "transparent", 22) +
+          circ(mx - ox, my - oy, 11, "var(--panel)", "var(--blue)", 2) +
+          txt(mx - ox, my - oy + 4, i + 1, { s: 12, c: "var(--ink)" }),
+      );
     });
-    return svg(460, 188, g);
+    return svg(420, 308, g);
   })();
 
-  B.add("a4-mst", [
+  // cost per input point against n (log scale ticks), hull stays at 8 points
+  const wrapPlot = (() => {
+    const ns = [16, 32, 64, 128, 256, 512, 1024],
+      x0 = 58,
+      x1 = 440,
+      y0 = 24,
+      y1 = 226;
+    const X = (i) => x0 + 18 + i * ((x1 - x0 - 36) / 6),
+      Y = (v) => y1 - (v / 12) * (y1 - y0);
+    let g = "";
+    [0, 4, 8, 12].forEach(
+      (v) =>
+        (g +=
+          ln(x0, Y(v), x1, Y(v), "var(--line)", 1) +
+          txt(x0 - 8, Y(v) + 4, v, { a: "end", s: 12, w: 700, c: "var(--text-dim)" })),
+    );
+    ns.forEach((n, i) => (g += txt(X(i), y1 + 18, n, { s: 11, w: 700, c: "var(--text-dim)" })));
+    g +=
+      ln(X(0), Y(8), X(6), Y(8), "var(--amber)", 3, 'stroke-dasharray="8 5"') +
+      txt(X(0) + 4, Y(8) - 10, "gift wrapping: h = 8", { a: "start", s: 12, c: "var(--amber-ink)" });
+    g += `<polyline points="${ns.map((n, i) => `${X(i)},${Y(Math.log2(n))}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3"/>`;
+    ns.forEach((n, i) => (g += dot(X(i), Y(Math.log2(n)), "", { r: 9, id: "n" + n, stroke: "var(--blue)" })));
+    g +=
+      txt(X(4), Y(12) + 4, "Graham scan: log₂ n", { s: 12, c: "var(--blue-ink)" }) +
+      txt((x0 + x1) / 2, y1 + 38, "number of points n", { s: 12, c: "var(--text-dim)" }) +
+      txt(6, 12, "work per point", { a: "start", s: 11, c: "var(--text-dim)" });
+    return svg(460, 268, g);
+  })();
+
+  // angle diagram: scan order of six candidate points seen from the current point
+  const wrapAngles = (() => {
+    const cx = 40,
+      cy = 232,
+      d2r = Math.PI / 180,
+      k = 1.2;
+    const C = [
+      [72, 150],
+      [55, 175],
+      [80, 118],
+      [31, 185],
+      [44, 150],
+      [18, 168],
+    ];
+    let g = ln(cx, cy, 410, cy, "var(--line)", 2) + txt(392, cy - 8, "east", { s: 11, w: 700, c: "var(--text-dim)" });
+    C.forEach(([a, d], i) => {
+      const x = cx + d * k * Math.cos(a * d2r),
+        y = cy - d * k * Math.sin(a * d2r);
+      g += ln(cx, cy, x, y, "var(--line-2)", 2, 'stroke-dasharray="3 5"') + dot(x, y, i + 1, { r: 12, s: 13 });
+    });
+    g +=
+      circ(cx, cy, 11, "var(--teal)", "var(--teal)") +
+      txt(cx + 8, cy + 22, "cur", { a: "start", s: 13, c: "var(--teal-ink)" });
+    return svg(420, 256, g);
+  })();
+
+  B.add("a5-wrap", [
     {
-      type: "cat",
-      q: "Kruskal keeps each group of connected towns in a union-find forest, drawn below. It now looks at these edges. For each one, does Kruskal accept it (the ends are in different groups) or reject it (the same group)?",
-      fig: forest,
-      buckets: ["Accepts it", "Rejects it"],
-      items: [
-        ["C–F", 0],
-        ["E–H", 0],
-        ["B–G", 0],
-        ["D–F", 1],
-        ["A–C", 1],
-        ["H–G", 1],
-      ],
-      hint: "Follow the arrows up to the root. Two towns are in the same group when their roots match.",
-      why: "The roots are A (towns A, B, C), D (D, E, F) and G (G, H). C–F joins roots A and D, E–H joins D and G, and B–G joins A and G, so those three are accepted. D–F, A–C and H–G have both ends under the same root, so adding them would close a loop. Neither end needs to be a root itself: only the roots matter.",
+      type: "order",
+      q: "Gift wrapping costs about n × h, where h is the number of points on the hull. Each panel has 12 points, placed differently. Put the panels in order of work, least first.",
+      fig: wrapPanels,
+      items: ["Panel C", "Panel A", "Panel B"],
+      hint: "Count the points on the outside boundary of each panel. Interior points add nothing to h.",
+      why: "Panel C has four corner points with eight inside (h = 4: about 12 × 4 = 48 checks). Panel A has six on its boundary (h = 6, about 72). Panel B has almost every point on the boundary (h = 10, about 120). Same n, so the cost follows the hull size alone. That is what 'output-sensitive' means.",
     },
     {
       type: "pick",
-      q: "Each panel lists the weights of the edges one run accepted, in the order they were added. Click every panel that could be a run of KRUSKAL's algorithm.",
-      fig: orders,
-      a: ["r1", "r3"],
-      hint: "What does Kruskal do to the edge list before it starts? Look for a panel where a lighter edge comes after a heavier one.",
-      why: "Kruskal sorts all edges by weight and walks through them once, so the accepted weights never go down. Runs 1 and 3 rise or stay level (equal weights are fine). Run 2 goes 3 then 1, which Kruskal can never do. It could be a Prim run: Prim grows one tree and may have to take a heavier edge now and a lighter one later.",
+      q: "A learner ran gift wrapping on ten points, counter-clockwise from the leftmost point, and drew five numbered arrows. One arrow is a mistake: gift wrapping would never draw it. Click that arrow.",
+      fig: wrapArrows,
+      a: "s3",
+      hint: "At each hull point, the next point must have every other point on its left. Is any point outside an arrow?",
+      why: "Arrow 3 goes from the bottom-right corner straight to the top, but the point at (10, 6) lies outside it, on its right. Gift wrapping would have picked that point: it is the one with all other points on its left. The other four arrows each have every point on their left, so they are real hull edges. Interior points are never reached.",
     },
     {
       type: "pick",
-      q: "Prim's algorithm started at A on the network listed above the table. key[v] is the cheapest link from town v to the tree built so far. A student filled in the table after each step, and one entry is wrong. Click it.",
-      fig: keyTable,
-      a: "3D",
-      hint: "After B joins, check every link from B to a town still outside the tree.",
-      why: "When B joins the tree, link B–D (5) becomes available, which beats the old key of 8 (C–D). So key D should drop to 5, not stay at 8. The other rows are right: after A, B is 4 and C is 2; after C, B falls to 1, D is 8 and E is 10; after D joins, key E drops to 3 through D–E.",
-    },
-    {
-      type: "pick",
-      q: "Which algorithm needs the fewest steps? The bars model the work (in thousands of steps): Prim with a plain array is about n², Prim with a heap is about m × log₂ n, and Kruskal is about m × log₂ m. Click the cheapest bar in EACH panel.",
-      fig: costBars,
-      a: ["s-heap", "d-arr"],
-      hint: "Sparse: m is only 4 times n. Dense: m is 300 times n, so n² is smaller than m log n.",
-      why: "On the sparse network, heap-Prim does about 4,000 × 10 = 40 thousand steps and Kruskal about 4,000 × 12 = 48 thousand, far under the array version's 1,000 × 1,000 = 1 million. On the dense network the picture flips: the heap versions pay for every one of 300,000 cables (3 million and about 5.5 million) while the array version still costs 1 million. The fancier algorithm is not always the cheapest.",
+      q: "The hull has 8 points however many points there are. Gift wrapping does about 8 checks per input point, and Graham scan about log₂ n (its sort). Click the first n at which gift wrapping does LESS work per point than Graham scan.",
+      fig: wrapPlot,
+      a: "n512",
+      hint: "log₂ 256 = 8. Is the blue line above or below the dashed line when gift wrapping wins?",
+      why: "Gift wrapping is flat at 8 per point; Graham's sorting cost per point grows as log₂ n: 4, 5, 6, 7, 8, 9, 10. At n = 256 they tie (8 against 8). Only from 512 (log₂ 512 = 9) is gift wrapping strictly cheaper. With a small, fixed hull, MORE points favours gift wrapping, because it never pays for sorting.",
     },
     {
       type: "slider",
       min: 0,
-      max: 12,
+      max: 6,
       step: 1,
-      start: 3,
-      ans: 8,
+      start: 1,
+      ans: 3,
       tol: 0,
-      unit: "links",
-      q: "Eleven towns are joined by the cables drawn, but the three coloured areas are not connected to each other. Kruskal runs through every cable. How many cables does it accept in total?",
-      fig: regions,
-      hint: "Each area ends as one tree. A tree on k towns has k − 1 edges.",
-      why: "The areas hold 5, 4 and 2 towns. Kruskal builds one tree per area with 4, 3 and 1 edges: 8 in all. That is 11 towns minus 3 groups. The graph is disconnected, so no spanning TREE exists, but Kruskal quietly returns a minimum spanning FOREST. The extra cables inside each area (7, 5 and 1 in all) change nothing: they only close loops.",
+      unit: "changes",
+      q: "Gift wrapping stands at the lowest point cur, and all six candidate points are above it. The inner loop sets nxt to point 1, then scans points 2 to 6 in order. nxt changes whenever the scanned point is to the RIGHT of the arrow cur → nxt. The angles (above east) are 72°, 55°, 80°, 31°, 44° and 18°. How many times does nxt change?",
+      fig: wrapAngles,
+      hint: "A point to the right of cur → nxt has a smaller angle than nxt. Track the smallest angle seen so far.",
+      why: "The loop keeps the smallest angle so far. Start: 72°. Point 2 (55°) is smaller: change 1. Point 3 (80°): no. Point 4 (31°): change 2. Point 5 (44°): no. Point 6 (18°): change 3. So nxt ends on point 6 after changing 3 times, and point 6 is the true next hull point: every other point is on its left.",
+    },
+    {
+      type: "match",
+      q: "A set of 100 points has a hull of 10 corners, so gift wrapping does about 100 × 10 = 1,000 checks. Match each change with what happens to the work.",
+      pairs: [
+        ["Add 100 more points, all inside the hull", "About twice the work"],
+        ["Pull the hull out to 40 corners (still 100 points)", "About four times the work"],
+        ["Move the interior points about, all still inside", "No change"],
+        ["Delete 50 interior points", "About half the work"],
+      ],
+      hint: "Work is n × h. Which of the two numbers does each change touch?",
+      why: "Work is about n × h. Adding 100 interior points doubles n and leaves h at 10: 2,000 checks. Pulling the hull out to 40 multiplies h by 4: 4,000. Moving interior points around changes neither. Deleting 50 interior points halves n: 500. Interior points only ever cost you a check per step; they never create more steps.",
     },
   ]);
 
   /* =====================================================================
-     a5-orient
+     a5-graham
      ===================================================================== */
-  const dial = (() => {
-    const cx = 210,
-      cy = 160,
-      R = 112,
-      d2r = Math.PI / 180;
-    const P = (a, r) => [cx + r * Math.cos(a * d2r), cy - r * Math.sin(a * d2r)];
-    let g = circ(cx, cy, R, "var(--panel)", "var(--line-2)", 3) + circ(cx, cy, 4, "var(--ink)", "var(--ink)", 1);
-    g += txt(cx + R + 4, cy + 20, "east", { a: "start", s: 11, w: 700, c: "var(--text-dim)" });
-    const [ux, uy] = P(30, 80);
-    g += arrow(cx, cy, ux, uy, "var(--blue)", 5) + txt(ux + 14, uy - 6, "u", { s: 17, c: "var(--blue-ink)" });
-    [
-      ["a", 0],
-      ["b", 60],
-      ["c", 150],
-      ["d", 180],
-      ["e", 210],
-      ["f", 300],
-    ].forEach(([id, a]) => {
-      const [x, y] = P(a, R),
-        [lx, ly] = P(a, R + 30);
-      g +=
-        ln(cx, cy, x, y, "var(--line-2)", 2, 'stroke-dasharray="3 5"') +
-        pk(id, circ(x, y, 13, "var(--panel)", "var(--amber)", 3) + txt(x, y + 5, id, { s: 13, c: "var(--ink)" })) +
-        txt(lx, ly + 4, a + "°", { s: 11, w: 700, c: "var(--text-dim)" });
-    });
-    return svg(420, 320, g);
-  })();
-
-  // cross product against t, P slides along y = 5
-  const crossPlot = (() => {
-    const x0 = 58,
+  const stackPlot = (() => {
+    const sizes = [1, 2, 3, 4, 4, 3, 4, 5, 5],
+      x0 = 52,
       x1 = 440,
       y0 = 22,
-      y1 = 226,
-      X = (t) => x0 + (t / 13) * (x1 - x0),
-      Y = (v) => y1 - ((v + 8) / 22) * (y1 - y0);
+      y1 = 214;
+    const X = (i) => x0 + 12 + i * ((x1 - x0 - 24) / 8),
+      Y = (v) => y1 - ((v - 0.5) / 5.5) * (y1 - y0);
     let g = "";
-    [-8, -4, 0, 4, 8, 12].forEach(
+    [1, 2, 3, 4, 5, 6].forEach(
       (v) =>
         (g +=
-          ln(x0, Y(v), x1, Y(v), v === 0 ? "var(--ink)" : "var(--line)", v === 0 ? 2.5 : 1) +
-          txt(x0 - 8, Y(v) + 4, v === 0 ? "0" : sgn(v), { a: "end", s: 12, w: 700, c: "var(--text-dim)" })),
+          ln(x0, Y(v), x1, Y(v), "var(--line)", 1) +
+          txt(x0 - 8, Y(v) + 4, v, { a: "end", s: 12, w: 700, c: "var(--text-dim)" })),
     );
-    for (let t = 0; t <= 12; t += 2) g += txt(X(t), y1 + 18, t, { s: 12, w: 700, c: "var(--text-dim)" });
-    g += `<polyline points="${[2, 13].map((t) => `${X(t)},${Y(18 - 2 * t)}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3"/>`;
-    [3, 6, 8, 9, 10, 12].forEach(
-      (t) =>
+    sizes.forEach((v, i) => (g += txt(X(i), y1 + 18, i === 0 ? "start" : i, { s: 11, w: 700, c: "var(--text-dim)" })));
+    g += `<polyline points="${sizes.map((v, i) => `${X(i)},${Y(v)}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>`;
+    sizes.forEach(
+      (v, i) =>
         (g +=
-          dot(X(t), Y(18 - 2 * t), "", { r: 10, id: "t" + t, stroke: "var(--blue)" }) +
-          txt(X(t) + (t === 12 ? -4 : t === 10 ? 4 : 6), Y(18 - 2 * t) + (t === 10 ? 26 : -15), "t=" + t, {
-            s: 11,
-            c: "var(--ink)",
-          })),
+          i === 0
+            ? circ(X(i), Y(v), 7, "var(--teal)", "var(--teal)", 2)
+            : dot(X(i), Y(v), "", { r: 9, id: "p" + i, stroke: "var(--blue)" })),
     );
     g +=
-      txt((x0 + x1) / 2, y1 + 38, "t, where P = (t, 5)", { s: 12, c: "var(--text-dim)" }) +
-      txt(6, 12, "(B−A) × (P−A)", { a: "start", s: 11, c: "var(--text-dim)" });
-    return svg(460, 268, g);
+      txt((x0 + x1) / 2, y1 + 38, "points processed so far", { s: 12, c: "var(--text-dim)" }) +
+      txt(6, 12, "stack height", { a: "start", s: 11, c: "var(--text-dim)" });
+    return svg(460, 258, g);
   })();
 
-  // triangle on a grid
-  const gridTri = (() => {
-    const u = 40,
-      x0 = 24,
-      y0 = 18,
-      X = (x) => x0 + x * u,
-      Y = (y) => y0 + (7 - y) * u * 0.8;
-    let g = "";
-    for (let i = 0; i <= 8; i++) g += ln(X(i), Y(0), X(i), Y(7), "var(--line)", 1);
-    for (let j = 0; j <= 7; j++) g += ln(X(0), Y(j), X(8), Y(j), "var(--line)", 1);
-    const A = [1, 1],
-      Bp = [7, 2],
-      C = [3, 6];
-    g += `<polygon points="${[A, Bp, C].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="var(--blue)" fill-opacity=".2" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>`;
-    [
-      ["A", A, -26, 28],
-      ["B", Bp, 26, 28],
-      ["C", C, 0, -22],
-    ].forEach(
-      ([n, [x, y], dx, dy]) =>
-        (g +=
-          dot(X(x), Y(y), n, { r: 11, stroke: "var(--blue)" }) +
-          wl(X(x) + dx, Y(y) + dy, `(${x},${y})`, "var(--text-dim)", 11)),
-    );
-    return svg(350, 246, g);
-  })();
-
-  // turn strips
-  const strips = (() => {
-    const row = (y, vals, labels, id, name) => {
-      let s = "";
-      vals.forEach((v, i) => {
-        const x = 52 + i * 62;
-        s +=
-          rect(x, y, 58, 44, "var(--panel)", "var(--line-2)", 2, 6) +
-          txt(x + 29, y + 15, labels[i], { s: 11, w: 700, c: "var(--text-dim)" }) +
-          txt(x + 29, y + 35, sgn(v), {
-            s: 15,
-            c: v > 0 ? "var(--teal-ink)" : v < 0 ? "var(--rose-ink)" : "var(--ink)",
-          });
-      });
-      s += txt(24, y + 28, name, { s: 14, c: "var(--ink)" });
-      return id ? pk(id, rect(2, y - 5, 428, 54, "transparent", "none", 0, 8) + s) : s;
-    };
-    const L = ["A", "B", "C", "D", "E", "F"],
-      V = [8, 5, -3, 6, 0, 7],
-      Rl = ["F", "E", "D", "C", "B", "A"];
-    let g =
-      txt(215, 16, "Cross product at each corner, walking A → B → C → D → E → F", { s: 12, c: "var(--ink)" }) +
-      row(26, V, L, null, "");
-    g += txt(215, 98, "Same polygon, walked F → E → D → C → B → A. Which strip?", { s: 12, c: "var(--ink)" });
-    const cands = [
-      ["s2", [-8, -5, 3, -6, 0, -7], L, "2"],
-      ["s4", [8, 5, -3, 6, 0, 7], L, "4"],
-      ["s3", [-7, 0, -6, 3, -5, -8], Rl, "3"],
-      ["s1", [7, 0, 6, -3, 5, 8], Rl, "1"],
-    ];
-    cands.forEach(([id, vals, labs, name], i) => (g += row(110 + i * 56, vals, labs, id, name)));
-    return svg(440, 110 + 4 * 56 + 4, g);
-  })();
-
-  // four panels, each walks A -> B -> C
-  const triPanels = (() => {
-    const T = [
-      [
-        "W",
-        [
-          [1, 1],
-          [3, 3],
-          [5, 5],
-        ],
-      ],
-      [
-        "X",
-        [
-          [1, 1],
-          [4, 1],
-          [2, 6],
-        ],
-      ],
-      [
-        "Y",
-        [
-          [2, 6],
-          [6, 6],
-          [6, 3],
-        ],
-      ],
-      [
-        "Z",
-        [
-          [1, 1],
-          [7, 1],
-          [7, 4],
-        ],
-      ],
+  // four stack snapshots
+  const snaps = (() => {
+    const S = [
+      ["1", "after pushing D", ["P0", "A", "C", "D"]],
+      ["2", "after pushing E", ["P0", "B", "D", "E"]],
+      ["3", "after pushing F", ["P0", "A", "C", "D"]],
+      ["4", "after pushing E", ["P0", "A", "E"]],
     ];
     let g = "";
-    T.forEach(([name, pts], k) => {
-      const ox = 8 + (k % 2) * 220,
-        oy = 6 + Math.floor(k / 2) * 178,
-        sx = 23,
-        sy = 18;
-      const X = (x) => ox + 14 + x * sx,
-        Y = (y) => oy + 154 - y * sy;
-      g += rect(ox, oy, 212, 170, "var(--panel)", "var(--line-2)", 3, 12);
-      for (let i = 0; i <= 8; i++) g += ln(X(i), Y(0), X(i), Y(7), "var(--line)", 1);
-      for (let j = 0; j <= 7; j++) g += ln(X(0), Y(j), X(8), Y(j), "var(--line)", 1);
+    S.forEach(([n, cap, st], i) => {
+      const x0 = 8 + i * 114,
+        base = 214;
       g +=
-        arrow(X(pts[0][0]), Y(pts[0][1]), X(pts[1][0]), Y(pts[1][1]), "var(--blue)", 3) +
-        arrow(X(pts[1][0]), Y(pts[1][1]), X(pts[2][0]), Y(pts[2][1]), "var(--blue)", 3);
-      pts.forEach(([x, y], i) => (g += dot(X(x), Y(y), "ABC"[i], { r: 10, s: 11 })));
-      g += txt(ox + 192, oy + 20, name, { s: 16, c: "var(--ink)" });
+        rect(x0, 6, 106, 226, "var(--panel)", "var(--line-2)", 3, 12) +
+        txt(x0 + 53, 26, `Snapshot ${n}`, { s: 13, c: "var(--ink)" }) +
+        txt(x0 + 53, 44, cap, { s: 11, w: 700, c: "var(--text-dim)" });
+      st.forEach((p, k) => {
+        const y = base - (k + 1) * 36,
+          bottom = k === 0;
+        g +=
+          rect(
+            x0 + 24,
+            y,
+            58,
+            32,
+            bottom ? "var(--teal)" : "var(--panel-2)",
+            bottom ? "var(--teal)" : "var(--line-2)",
+            2,
+            6,
+          ) + txt(x0 + 53, y + 21, p, { s: 14, c: bottom ? "#fff" : "var(--ink)" });
+      });
     });
-    return svg(440, 362, g);
+    return svg(470, 238, g);
   })();
 
-  B.add("a5-orient", [
-    {
-      type: "pick",
-      q: "A robot at the centre faces along u (30° above east, y pointing up). Each dot is a direction v it could turn to. The turn from u to v is a LEFT turn when v is anticlockwise from u by less than half a turn. Click every direction that is a left turn.",
-      fig: dial,
-      a: ["b", "c", "d"],
-      hint: "Left turns are the directions between 30° and 30° + 180° = 210°. What does a turn of exactly 180° count as?",
-      why: "The cross product u × v is positive for v at 60°, 150° and 180° (all within 180° anticlockwise of u). 0° and 300° are clockwise of u, so they are right turns. The direction at 210° points exactly opposite to u: the cross product is 0, so the points are collinear and it is NEITHER a left nor a right turn.",
-    },
-    {
-      type: "pick",
-      q: "A = (1, 1) and B = (5, 3). Point P slides along the line y = 5 and sits at (t, 5). The chart plots the cross product (B − A) × (P − A), which is positive when A → B → P is a left turn. Click every marked t for which the walk A → P → B (visiting P first) is a RIGHT turn.",
-      fig: crossPlot,
-      a: ["t3", "t6", "t8"],
-      hint: "Swapping the last two points of a walk flips the sign of the turn.",
-      why: "The chart value is the cross product for A → B → P. Visiting P first reverses the order of the last two points, which flips the sign. So A → P → B turns right wherever the chart is POSITIVE: t = 3, 6 and 8 (values 12, 6 and 2). At t = 9 the value is 0: the three points are in a straight line, which is not a right turn. At t = 10 and 12 the chart is negative, so A → P → B turns left.",
-    },
-    {
-      type: "slider",
-      min: 0,
-      max: 40,
-      step: 1,
-      start: 30,
-      ans: 14,
-      tol: 1,
-      unit: "squares",
-      q: "A triangle has corners A (1, 1), B (7, 2) and C (3, 6) on the grid. Slide to its area in grid squares. Remember: the cross product (B − A) × (C − A) is twice the signed area.",
-      fig: gridTri,
-      hint: "B − A = (6, 1) and C − A = (2, 5). Cross product = 6 × 5 − 1 × 2. The area is half of that.",
-      why: "The cross product is 6 × 5 − 1 × 2 = 28. It is positive, so A → B → C is a left turn, and the triangle's area is half of it: 14 squares. One cross product gives both the turn direction (its sign) and the area (half its size).",
-    },
-    {
-      type: "pick",
-      q: "The top strip lists the cross product at each corner of a polygon, walked A → B → C → D → E → F. The polygon is now walked in the opposite order, F → E → D → C → B → A. Click the strip that shows the cross products for the reversed walk.",
-      fig: strips,
-      a: "s3",
-      hint: "Reversing a walk swaps 'came from' and 'going to' at every corner. What does that do to the sign? And what happens to the order of the corners?",
-      why: "At each corner the turn goes the opposite way when you walk the polygon backwards, so every sign flips (zero stays zero), and the corners now come in the order F, E, D, C, B, A. Strip 3 does both: F −7, E 0, D −6, C +3, B −5, A −8. Strip 1 reverses the order but forgets to flip. Strip 2 flips but keeps the order. Strip 4 does neither.",
-    },
-    {
-      type: "order",
-      q: "Each panel walks A → B → C. Put the panels in order of their cross product (B − A) × (C − A), from the most positive to the most negative.",
-      fig: triPanels,
-      items: ["Panel Z", "Panel X", "Panel W", "Panel Y"],
-      hint: "For a flat first edge, the cross product is its length times how far C sits above it (or below it, for a right turn).",
-      why: "Z: (6, 0) × (6, 3) = 18. X: (3, 0) × (1, 5) = 15, a left turn but a slimmer triangle. W: the three points lie on one straight line, so the product is 0. Y: (4, 0) × (4, −3) = −12, a right turn (clockwise), so it is negative. The order is therefore Z (18), X (15), W (0), Y (−12).",
-    },
-  ]);
+  // 100% stacked bars: sort share against scan share
+  const shareBars = (() => {
+    const D = [
+      ["1,000", 16.7],
+      ["10,000", 13.1],
+      ["100,000", 10.7],
+      ["1,000,000", 9.1],
+    ];
+    let g = txt(230, 16, "share of the whole run: sort (blue) and scan (amber)", { s: 12, c: "var(--ink)" });
+    D.forEach(([n, sc], i) => {
+      const x = 40 + i * 104,
+        top = 30,
+        H = 170,
+        hs = (sc / 100) * H;
+      g += `<rect x="${x}" y="${top}" width="70" height="${H - hs}" rx="4" fill="var(--blue)"/><rect x="${x}" y="${top + H - hs}" width="70" height="${hs}" rx="4" fill="var(--amber)"/>`;
+      g +=
+        txt(x + 35, top + (H - hs) / 2 + 5, (100 - sc).toFixed(1) + "%", { s: 13, c: "#fff" }) +
+        txt(x + 35, top + H - hs / 2 + 4, sc + "%", { s: 11, c: "#fff" }) +
+        txt(x + 35, top + H + 18, "n = " + n, { s: 11, w: 700, c: "var(--text-dim)" });
+    });
+    return svg(460, 238, g);
+  })();
+
+  // scatter: which points end off the final stack
+  const hullScatter = (() => {
+    const p = plane(10, 9, 30, 20, 400, 290, true);
+    const P = { a: [6, 0], b: [10, 0], c: [10, 4], d: [10, 8], e: [7, 6], f: [4, 9], g: [0, 5], h: [5, 4], i: [3, 3] };
+    let g =
+      p.g +
+      circ(p.X(2), p.Y(0), 12, "var(--teal)", "var(--teal)") +
+      txt(p.X(2), p.Y(0) + 4, "P0", { s: 11, c: "#fff" });
+    Object.entries(P).forEach(([k, [x, y]]) => (g += dot(p.X(x), p.Y(y), k, { r: 11, id: k, s: 13 })));
+    return svg(420, 316, g);
+  })();
+
+  // stack before and after, plus the plane
+  const stackScene = (() => {
+    const px0 = 204,
+      px1 = 452,
+      py0 = 14,
+      py1 = 292,
+      X = (x) => px0 + (x / 12) * (px1 - px0),
+      Y = (y) => py1 - (y / 12) * (py1 - py0);
+    let g = "";
+    for (let i = 0; i <= 12; i += 2)
+      g += ln(X(i), Y(0), X(i), Y(12), "var(--line)", 1) + ln(X(0), Y(i), X(12), Y(i), "var(--line)", 1);
+    const P0 = [0, 0],
+      A = [8, 9],
+      Bp = [5, 10],
+      C = [3, 7];
+    g += `<polyline points="${[P0, A, Bp, C].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    g += circ(X(0), Y(0), 11, "var(--teal)", "var(--teal)") + txt(X(0) + 2, Y(0) + 4, "P0", { s: 10, c: "#fff" });
+    [
+      ["A", A],
+      ["B", Bp],
+      ["C", C],
+    ].forEach(([n, [x, y]]) => (g += dot(X(x), Y(y), n, { r: 11, stroke: "var(--teal)" })));
+    [
+      ["d1", [1, 3]],
+      ["d2", [0, 7]],
+      ["d3", [2, 11]],
+      ["d4", [3, 11]],
+      ["d5", [2, 5]],
+    ].forEach(
+      ([id, [x, y]], i) =>
+        (g += pk(
+          id,
+          circ(X(x), Y(y), 10, "var(--panel)", "var(--amber)", 3) +
+            txt(X(x), Y(y) + 4, i + 1, { s: 12, c: "var(--ink)" }),
+        )),
+    );
+    const col = (x, title, st, last) => {
+      let s = txt(x + 42, 22, title, { s: 12, c: "var(--ink)" });
+      st.forEach((p, k) => {
+        const y = 262 - k * 38,
+          bottom = k === 0,
+          top = last && k === st.length - 1;
+        s +=
+          rect(
+            x,
+            y,
+            84,
+            32,
+            bottom ? "var(--teal)" : top ? "var(--amber)" : "var(--panel-2)",
+            bottom ? "var(--teal)" : top ? "var(--amber)" : "var(--line-2)",
+            2,
+            6,
+          ) + txt(x + 42, y + 21, p, { s: 14, c: bottom || top ? "#fff" : "var(--ink)" });
+      });
+      return s;
+    };
+    g += col(4, "Before", ["P0", "A", "B", "C"], false) + col(96, "After", ["P0", "A", "D"], true);
+    return svg(460, 304, g);
+  })();
+  Object.assign(partScope, { hullScatter, shareBars, snaps, stackPlot, stackScene });
 })();

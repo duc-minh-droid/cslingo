@@ -222,10 +222,16 @@
     const who = sc.retry ? "berry" : pl.S.who;
     const fb = ok
       ? `<div class="pl-fb-row">${N.mascot({ who, size: 64, mood, poke: false })}<div class="pl-fb-t"><div class="pl-fb-h">${IC.ok}<b>${pickOne(PRAISE)}</b>${first ? `<span class="pl-xp">+${pl.S.kind === "boss" ? 2 : 1} XP</span>` : ""}</div>${why}</div></div>`
-      : `<div class="pl-fb-row">${N.mascot({ who, size: 64, mood, poke: false })}<div class="pl-fb-t"><div class="pl-fb-h">${IC.no}<b>Correct answer:</b></div><div class="pl-ans">${answer}</div>${why}</div></div>`;
+      : `<div class="pl-fb-row">${N.mascot({ who, size: 64, mood, poke: false })}<div class="pl-fb-t"><div class="pl-fb-h">${IC.no}<b>Not quite. Correct answer:</b></div><div class="pl-ans">${answer}</div>${why}</div></div>`;
     sound(ok ? "correct" : "wrong");
     foot(ok ? "ok" : "no", { fb, onGo: pl.next });
-    if (ok && fx() && first) fx().floatText(pl.S.go, `+${pl.S.kind === "boss" ? 2 : 1}`, "#ffc800");
+    // size the feedback sheet's clearance so the last option scrolls clear of it, and anchor toasts above it
+    const sheetH = pl.S.foot ? pl.S.foot.offsetHeight : 0;
+    document.documentElement.style.setProperty("--pl-sheet-h", sheetH + "px");
+    if (ok && fx() && first) {
+      // darker amber with a thin shadow, started from the XP chip rather than the CONTINUE corner
+      fx().floatText(qs(".pl-xp", pl.S.foot) || pl.S.go, `+${pl.S.kind === "boss" ? 2 : 1}`, "#b57600");
+    }
   }
 
   /** The lesson that teaches a revision question: its own module, or for a boss question the first lesson of that lecture. */
@@ -237,7 +243,11 @@
       N.modules
         .filter(
           (x) =>
-            x.num !== "Boss" && !x.workshop && (x.subject || "nic") === (m.subject || "nic") && x.lecture === m.lecture,
+            x.num !== "Boss" &&
+            !x.workshop &&
+            !x.video &&
+            (x.subject || "nic") === (m.subject || "nic") &&
+            x.lecture === m.lecture,
         )
         .sort((a, b) => (a.order || 0) - (b.order || 0))[0] || null
     );

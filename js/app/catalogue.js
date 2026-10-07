@@ -19,6 +19,8 @@
         2: "Lecture 2 — Why EAs: optimisation & hardness",
         3: "Lecture 3 — Local vs population search & landscapes",
         4: "Lecture 4 — Selection, operators & encodings",
+        5: "Lecture 5 — Encodings & applications",
+        6: "Lecture 6 — Genetic programming",
       },
     },
     ds: {

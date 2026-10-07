@@ -120,7 +120,7 @@ export async function shellChecks(page) {
       const rows = await page.$$eval(".us-opt", (r) => r.length);
       if (rows !== 11) bad(`the phase picker lists ${rows} phases, not 11`);
       await page.click('.us-opt[data-k="9"]');
-      await page.waitForTimeout(900);
+      await page.waitForTimeout(2500); // the path is long now: the smooth scroll takes longer
       const ph = await page.$eval(".us-t small", (e) => e.textContent);
       if (!/Phase 10/.test(ph)) bad(`picking Phase 10 left the banner on "${ph}"`);
     }
@@ -384,7 +384,7 @@ export async function shellChecks(page) {
     const nodes = await p.evaluate(() =>
       [...document.querySelectorAll(".p-node")].map((n) => n.getAttribute("aria-label")),
     );
-    if (nodes.some((l) => !/, (completed|in progress|not started|passed|\d+ of \d+)/.test(l)))
+    if (nodes.some((l) => !/, (completed|in progress|not started|passed|watched|not watched|\d+ of \d+)/.test(l)))
       bad(`a path node does not name its state: ${nodes.find((l) => !/, /.test(l))}`);
     if (!nodes.some((l) => /^Code lab /.test(l) || /^Workshop /.test(l) || /Workshop:/.test(l)))
       bad("workshops are not named on the path");
@@ -496,6 +496,51 @@ export async function shellChecks(page) {
       const ok = await p.waitForSelector(".p-node", { timeout: 15000 }).catch(() => null);
       if (!ok) bad("Try again did not bring the course back once the connection was fine");
     }
+    await ctx.close();
+  }
+
+  // 10. recap videos: a bonus node after each lecture's boss, never counted towards finishing, never "up next"
+  {
+    const { p, ctx, errors } = await fresh(page, { width: 390, height: 844 });
+    await boot(p, "home", base);
+    await p.evaluate(() => NIC.content.all());
+    const r = await p.evaluate(() => {
+      const A = NIC.shared.engineApp,
+        out = { lectures: [], wrong: [] };
+      for (const [lec] of Object.entries(A.SUBJECTS.nic.lectures)) {
+        const list = A.inLec("nic", lec),
+          boss = list.findIndex(A.isBoss),
+          vid = list.findIndex((m) => m.video);
+        out.lectures.push(`${lec}:${boss}/${vid}`);
+        if (vid < 0) out.wrong.push(`lecture ${lec} has no recap video`);
+        else if (boss < 0 || vid < boss) out.wrong.push(`lecture ${lec}: the video is not after the boss quiz`);
+        else if (A.progress(list).n !== list.filter((m) => !m.video).length)
+          out.wrong.push(`lecture ${lec}: the video is counted towards finishing`);
+        else if (A.kindOf(list[vid]) !== "video")
+          out.wrong.push(`lecture ${lec}: the video node has kind ${A.kindOf(list[vid])}`);
+      }
+      const row = document.querySelector('.p-row[data-id="l1-video"] .p-node');
+      out.label = row && row.getAttribute("aria-label");
+      out.next = A.inSubj("nic").find((m) => !m.video && A.status(m) !== "done").id;
+      out.card = (document.querySelector(".td-main") || {}).dataset
+        ? document.querySelector(".td-main").dataset.to
+        : "";
+      return out;
+    });
+    r.wrong.forEach(bad);
+    if (!/^Recap video Lecture 1 recap video, not watched$/.test(r.label || ""))
+      bad(`the video node is named "${r.label}"`);
+    if (r.card && /-video$/.test(r.card)) bad(`"Up next" offers a recap video (${r.card})`);
+    await p.evaluate(() => (location.hash = "l1-video"));
+    const step = await p.waitForSelector(".pl-video video", { timeout: 15000 }).catch(() => null);
+    if (!step) bad("the recap video did not open in the player");
+    else if (
+      !(await p.evaluate(() =>
+        document.querySelector(".pl-video video source").getAttribute("src").includes("videos/out/lecture-1.mp4"),
+      ))
+    )
+      bad("the recap video points at the wrong file");
+    if (errors.length) bad(`page errors in the recap video checks: ${errors.join("; ")}`);
     await ctx.close();
   }
 

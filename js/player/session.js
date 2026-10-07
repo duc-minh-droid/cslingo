@@ -85,7 +85,8 @@
     pl.S = base(boss ? "boss" : "lesson", opts);
     pl.S.mod = mod;
     pl.S.who = (N.cast && N.cast.who(opts.who)) || "sprout";
-    pl.S.review = !boss && !!store.get("nic.lessonDone", {})[mod.id];
+    // a recap video is never a new lesson: it keeps the streak alive and pays the review amount, but adds nothing to lesson counts or quests
+    pl.S.review = !boss && (!!store.get("nic.lessonDone", {})[mod.id] || !!mod.video);
     pl.mount(boss ? "Boss" : chipOf(mod));
     if (boss) bossSession(mod, boss);
     else {

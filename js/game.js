@@ -145,7 +145,11 @@
       if (!B || B.qs.filter((_, i) => typeof quiz[`${m.id}-${i}`] !== "object").length < 5) return false;
       const lessons = NIC.modules.filter(
         (x) =>
-          x.num !== "Boss" && !x.workshop && (x.subject || "nic") === (m.subject || "nic") && x.lecture === m.lecture,
+          x.num !== "Boss" &&
+          !x.workshop &&
+          !x.video &&
+          (x.subject || "nic") === (m.subject || "nic") &&
+          x.lecture === m.lecture,
       );
       return lessons.length > 0 && lessons.every((x) => done[x.id]);
     });

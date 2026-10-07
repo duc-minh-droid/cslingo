@@ -1,407 +1,410 @@
 (function () {
   const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});
-  const {
-    arrow,
-    blockHash,
-    circ,
-    cross,
-    f1,
-    figArrows,
-    figWeightPanels,
-    lines,
-    ln,
-    mineBlock,
-    pk,
-    rc,
-    scrambled,
-    svg,
-    tick,
-    tint,
-    tx,
-    zeros,
-  } = partScope;
+  const { arrow, circ, figMixerBoard, lines, ln, pk, rc, softmax, svg, tx } = partScope;
   const B = NIC.bank;
 
-  // A3: heatmap of attention received
-  function figHeat() {
-    const toks = ["the", "cat", "sat", "down"],
-      M = [
-        [0.1, 0.5, 0.3, 0.1],
-        [0.05, 0.15, 0.7, 0.1],
-        [0.1, 0.55, 0.25, 0.1],
-        [0.05, 0.55, 0.3, 0.1],
-      ];
-    const x0 = 78,
-      y0 = 62,
-      cw = 56,
+  // M2: grid of true frequency against sample rate
+  function figAliasGrid() {
+    const fs = [16, 32, 64],
+      fr = [5, 11, 19, 27],
+      x0 = 74,
+      y0 = 56,
+      cw = 80,
       ch = 38;
     let s =
-      tx(8, 16, "Rows: the token that is looking.", { a: "start", s: 11, c: "var(--text-dim)" }) +
-      tx(8, 32, "Columns: the token looked at. Each row adds to 1.", { a: "start", s: 11, c: "var(--text-dim)" });
-    toks.forEach(
-      (t, c) =>
-        (s += pk(
-          `c${c}`,
-          rc(x0 + c * cw + 2, y0 - 26, cw - 4, 22, "p", { r: 7 }) + tx(x0 + c * cw + cw / 2, y0 - 10, t, { s: 12 }),
-        )),
-    );
-    M.forEach((row, r) => {
-      s += tx(x0 - 8, y0 + r * ch + ch / 2 + 4, toks[r], { a: "end", s: 12, c: "var(--text-dim)" });
-      row.forEach(
+      tx(x0 + 120, 16, "samples per second", { s: 12, c: "var(--text-dim)" }) +
+      tx(8, 16, "tone", { a: "start", s: 12, c: "var(--text-dim)" });
+    fs.forEach((v, c) => (s += tx(x0 + c * cw + cw / 2, y0 - 10, `${v} /s`, { s: 13 })));
+    fr.forEach((f, r) => {
+      s += tx(x0 - 10, y0 + r * ch + ch / 2 + 5, `${f} Hz`, { a: "end", s: 13 });
+      fs.forEach(
         (v, c) =>
-          (s +=
-            `<rect x="${x0 + c * cw + 2}" y="${y0 + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" fill="${tint("var(--blue)", Math.round(v * 120))}" stroke="var(--line)" stroke-width="1"/>` +
-            tx(x0 + c * cw + cw / 2, y0 + r * ch + ch / 2 + 4, v.toFixed(2), { s: 12 })),
+          (s += pk(
+            `${f}-${v}`,
+            rc(x0 + c * cw + 3, y0 + r * ch + 3, cw - 6, ch - 6, "p", { r: 8 }) +
+              tx(x0 + c * cw + cw / 2, y0 + r * ch + ch / 2 + 5, "?", { s: 14, c: "var(--text-faint)" }),
+          )),
       );
     });
     return svg(
-      310,
-      y0 + 4 * ch + 4,
+      320,
+      y0 + 4 * ch + 6,
       s,
-      "Four by four heatmap of attention weights between the tokens the, cat, sat, down",
+      "A grid with four tone frequencies down the side and three sampling rates across the top",
     );
   }
 
-  B.add("a10-attn", [
-    {
-      type: "pick",
-      q: "One token has the query <b>q = (2, 2)</b> (blue). Its score for a key is the dot product q · k. Tap the key that gets the <b>highest score</b>.",
-      fig: figArrows(),
-      a: "B",
-      hint: "Dot product = (q across × k across) + (q up × k up).",
-      why: "q · B = 2×4 + 2×1 = 10, q · C = 6, q · A = 4 and q · D = 2. A points exactly the same way as q but is short, and B is longer and a little off-angle. The dot product rewards both alignment and size, so it is not the same as “whose tip is nearest” (A's is).",
-    },
-    {
-      type: "pick",
-      q: "A head with d_k = 4 gets raw dot-product scores [4, 2, 0] for three keys. It divides by √d_k before softmax. Tap the panel that shows the <b>final weights</b>.",
-      fig: figWeightPanels(),
-      a: "B",
-      hint: "√4 = 2, so the scores become 2, 1, 0 (and e ≈ 2.7).",
-      why: "Dividing by √4 = 2 turns [4, 2, 0] into [2, 1, 0], whose softmax is about 0.67, 0.24, 0.09 (panel B). Panel A skipped the scaling, so it is too sharp. Panel C divided by d_k = 4 instead of √d_k, a common slip, which over-flattens it.",
-    },
-    {
-      type: "pick",
-      q: "Four tokens attend to each other with no mask. The biggest single cell is cat → sat (0.70). Add up each column in your head. Which token receives the most attention <b>overall</b>? Tap its header.",
-      fig: figHeat(),
-      a: "c1",
-      hint: "Column “cat”: 0.50 + 0.15 + 0.55 + 0.55. Column “sat”: 0.30 + 0.70 + 0.25 + 0.30.",
-      why: "Reading down a column gives how much attention a token receives: cat gets 0.50 + 0.15 + 0.55 + 0.55 = 1.75, sat only 1.55 even though it holds the largest single cell. Reading along a row instead shows who one token listens to, and each row adds to 1. Column totals do not have to.",
-    },
-    {
-      type: "bug",
-      q: "Rows of <code>s</code> are queries, columns are keys. <code>softmax(s, axis=k)</code> makes the numbers along axis <i>k</i> add up to 1 (axis 0 runs down the rows, axis 1 runs along them). The code runs without error, but a token's weights no longer add up to 1. Click the faulty line.",
-      code: [
-        "def attend(Q, K, V, d_k):",
-        "    s = Q @ K.T / math.sqrt(d_k)",
-        "    w = softmax(s, axis=0)",
-        "    return w @ V",
-      ],
-      a: 2,
-      why: "Each query needs its shares across <b>all the keys</b>, which means normalising along each row, <code>axis=1</code> (or −1). With <code>axis=0</code> each column adds to 1 instead, so a token's weights over the keys can total anything.",
-    },
-  ]);
-
-  /* ================================================================== a8-chain (workshop) ================================================================== */
-
-  // C1: cards after a Verify
-  function figVerifiedChain() {
-    const cards = [
-      ["Genesis", "sealed", "g"],
-      ["Block 1", "sealed", "g"],
-      ["Block 2", "seal broken", "r"],
-      ["Block 3", "after a break", "n"],
+  // M3: a spectrum with a noise floor
+  function figFloor() {
+    const amps = [
+      0.002, 0.051, 0.032, 0.986, 0.04, 0.012, 0.035, 0.288, 0.013, 0.029, 0.018, 0.054, 0.176, 0.05, 0.007, 0.02, 0.0,
     ];
-    let s = "";
-    cards.forEach(([t, st, k], i) => {
-      const x = 6 + i * 84;
+    const X = (k) => 22 + k * 18,
+      Yb = 166,
+      sc = 130;
+    let s =
+      ln(14, Yb, 328, Yb, { c: "var(--text-faint)", w: 2 }) +
+      ln(14, Yb - 0.1 * sc, 328, Yb - 0.1 * sc, { c: "var(--rose)", w: 2, d: "5 4" }) +
+      tx(326, Yb - 0.1 * sc - 6, "noise floor", { a: "end", s: 11, c: "var(--rose-ink)" });
+    amps.forEach((a, k) => {
       s += pk(
-        `b${i}`,
-        rc(x, 12, 78, 62, k, { r: 10, d: i === 3 ? "5 4" : "", st: i === 3 ? "var(--rose)" : undefined }) +
-          tx(x + 39, 34, t, { s: 13 }) +
-          tx(x + 39, 58, st, { s: 11, c: k === "g" ? "var(--teal-ink)" : "var(--rose-ink)" }),
+        String(k),
+        `<rect x="${X(k) - 9}" y="20" width="18" height="${Yb - 20}" fill="transparent"/>` +
+          ln(X(k), Yb, X(k), Yb - Math.max(a * sc, 1.5), { c: "var(--blue)", w: 3 }) +
+          circ(X(k), Yb - Math.max(a * sc, 1.5), 4.5, "b", { f: "var(--blue)", st: "var(--blue-ink)", sw: 1 }),
       );
     });
-    const link = (x, ok, t) =>
-      (ok ? tick(x, 102) : cross(x, 100)) +
-      tx(x + 12, 106, t, { a: "start", s: 12, c: ok ? "var(--teal-ink)" : "var(--rose-ink)" });
+    for (let k = 0; k <= 16; k += 2) s += tx(X(k), Yb + 16, k, { s: 11, c: "var(--text-dim)" });
+    s += tx(170, Yb + 34, "frequency (Hz)", { s: 12, c: "var(--text-dim)" });
+    return svg(340, 206, s, "Spectrum of a mystery signal with a dashed noise floor and several bars rising above it");
+  }
+
+  // M4: before and after one even/odd split
+  function figSplitAreas() {
+    let s =
+      tx(58, 16, "One 16-point DFT", { s: 12, c: "var(--text-dim)" }) +
+      rc(10, 26, 96, 96, "b", { r: 6 }) +
+      tx(58, 79, "16 × 16", { s: 15, c: "var(--blue-ink)" });
+    s += lines(58, 142, ["every output reads", "all 16 samples"], { s: 11, c: "var(--text-faint)", lh: 14 });
+    s += tx(214, 16, "Split, then combine", { s: 12, c: "var(--text-dim)" });
     s +=
-      tx(8, 106, "Links:", { a: "start", s: 12, c: "var(--text-dim)" }) +
-      link(70, true, "0 to 1") +
-      link(142, true, "1 to 2") +
-      link(214, false, "2 to 3: prev ≠ hash");
-    return svg(
-      340,
-      118,
-      s,
-      "Four block cards after Verify: block 2 has a broken seal and the link from block 2 to block 3 is broken",
-    );
-  }
-
-  // C2: dot plot of tries
-  function figTriesDots() {
-    const need = 2,
-      tries = [];
-    for (let i = 0; i < 16; i++) {
-      let n = 1;
-      while (!scrambled(`${n}|blk ${i}`).startsWith("0".repeat(need))) n++;
-      tries.push(n);
-    }
-    const X = (v) => 22 + (v / 800) * 296,
-      cnt = {};
-    let s = ln(22, 150, 318, 150, { c: "var(--text-faint)", w: 2 });
-    [0, 200, 400, 600, 800].forEach(
-      (v) =>
-        (s +=
-          ln(X(v), 150, X(v), 155, { c: "var(--text-faint)", w: 2 }) +
-          tx(X(v), 170, v, { s: 11, c: "var(--text-dim)" })),
-    );
-    tries.forEach((t) => {
-      const b = Math.floor(t / 100);
-      cnt[b] = (cnt[b] || 0) + 1;
-      s += circ(X(b * 100 + 50), 150 - 9 - (cnt[b] - 1) * 17, 7, "b", {
-        f: "var(--blue)",
-        st: "var(--blue-ink)",
-        sw: 1.5,
-      });
-    });
+      rc(150, 26, 60, 60, "g", { r: 5 }) +
+      tx(180, 61, "8 × 8", { s: 13, c: "var(--teal-ink)" }) +
+      rc(218, 26, 60, 60, "g", { r: 5 }) +
+      tx(248, 61, "8 × 8", { s: 13, c: "var(--teal-ink)" });
     s +=
-      ln(X(256), 24, X(256), 150, { c: "var(--amber)", w: 2.5, d: "5 4" }) +
-      tx(X(256) + 5, 34, "16 × 16 = 256", { a: "start", s: 12, c: "var(--amber-ink)" });
-    s += tx(170, 190, "nonces tried before the hash started with 00", { s: 12, c: "var(--text-dim)" });
-    return svg(340, 200, s, "Dot plot of the number of nonces tried for 16 blocks at difficulty 2");
-  }
-
-  // C4: before and after Re-link, built by really mining a chain
-  function figRelink() {
-    const DATA = ["genesis", "alice pays bob 5", "bob pays carol 2", "carol pays dave 1"],
-      bl = DATA.map((d, i) => ({ i, data: d, nonce: 0, prev: "00000000" }));
-    mineBlock(bl[0], 2);
-    for (let i = 1; i < 4; i++) {
-      bl[i].prev = blockHash(bl[i - 1]);
-      mineBlock(bl[i], 2);
-    }
-    const stale = bl.map((b) => ({ ...b }));
-    stale[1].data = "alice pays mallory 50";
-    const linked = stale.map((b) => ({ ...b }));
-    for (let i = 1; i < 4; i++) linked[i].prev = blockHash(linked[i - 1]);
-    const mark = (x, y, ok) => (ok ? tick(x, y) : cross(x, y - 1));
-    const panel = (y0, title, ch) => {
-      let s =
-        tx(8, y0, title, { a: "start", s: 13 }) +
-        tx(86, y0 + 20, "prev", { s: 11, c: "var(--text-faint)" }) +
-        tx(182, y0 + 20, "own hash", { s: 11, c: "var(--text-faint)" }) +
-        tx(262, y0 + 20, "link", { s: 11, c: "var(--text-faint)" }) +
-        tx(306, y0 + 20, "seal", { s: 11, c: "var(--text-faint)" });
-      for (let i = 1; i < 4; i++) {
-        const b = ch[i],
-          h = blockHash(b),
-          y = y0 + 28 + (i - 1) * 26,
-          linkOk = b.prev === blockHash(ch[i - 1]),
-          sealOk = zeros(h) >= 2;
-        s +=
-          tx(8, y + 17, `block ${i}`, { a: "start", s: 12, c: "var(--text-dim)" }) +
-          tx(86, y + 17, b.prev, { m: 1, s: 12, c: linkOk ? "var(--ink)" : "var(--rose-ink)" }) +
-          tx(182, y + 17, h, { m: 1, s: 12, c: sealOk ? "var(--teal-ink)" : "var(--rose-ink)" }) +
-          mark(262, y + 13, linkOk) +
-          mark(306, y + 13, sealOk);
-      }
-      return s;
-    };
-    return svg(
-      330,
-      252,
-      panel(16, "After editing block 1", stale) +
-        ln(8, 128, 322, 128, { c: "var(--line)", w: 1.5 }) +
-        panel(148, "After pressing Re-link, no mining", linked),
-      "Two small tables of prev and hash values for blocks 1 to 3, before and after re-linking",
-    );
-  }
-
-  // C5: a timeline of the repair bill
-  function figRepairBar() {
-    let s = tx(8, 16, "After editing block 1", { a: "start", s: 12, c: "var(--text-dim)" });
-    ["Re-mine block 1", "Re-mine block 2", "Re-mine block 3"].forEach((t, i) => {
-      s +=
-        rc(8 + i * 98, 26, 94, 44, "a", { r: 8 }) +
-        lines(55 + i * 98, 46, [t.split(" ").slice(0, 2).join(" "), t.split(" ").slice(2).join(" ")], {
-          s: 12,
-          c: "var(--amber-ink)",
-          lh: 14,
-        });
-    });
-    s += rc(306, 26, 26, 44, "g", { r: 8 }) + tx(319, 52, "✓", { s: 15, c: "var(--teal-ink)" });
+      tx(180, 102, "evens", { s: 11, c: "var(--text-faint)" }) +
+      tx(248, 102, "odds", { s: 11, c: "var(--text-faint)" });
     s +=
-      arrow(8, 94, 330, 94, "var(--text-faint)") +
-      tx(8, 112, "time", { a: "start", s: 11, c: "var(--text-faint)" }) +
-      tx(319, 112, "check", { a: "end", s: 11, c: "var(--text-faint)" });
-    s += tx(170, 134, "each block needs a hash starting with 00", { s: 12, c: "var(--text-dim)" });
-    return svg(
-      340,
-      144,
-      s,
-      "Timeline: after the edit, three blocks are re-mined one after another, then a quick check at the end",
-    );
+      rc(150, 112, 128, 14, "a", { r: 5 }) +
+      lines(214, 142, ["combine: one product", "for each of 8 bin pairs"], { s: 11, c: "var(--amber-ink)", lh: 14 });
+    return svg(300, 164, s, "A single 16 by 16 square against two 8 by 8 squares plus a thin combine strip");
   }
 
-  // C6: the Verify walk as a flow chart
-  function figVerifyFlow() {
-    const S = [
-      ["l1", "1 · Block 1", ["link: prev is", "genesis hash?"]],
-      ["s1", "2 · Block 1", ["seal: hash", "starts 00?"]],
-      ["l2", "3 · Block 2", ["link: prev is", "block 1's hash?"]],
-      ["s2", "4 · Block 2", ["seal: hash", "starts 00?"]],
-      ["l3", "5 · Block 3", ["link: prev is", "block 2's hash?"]],
-      ["s3", "6 · Block 3", ["seal: hash", "starts 00?"]],
-    ];
-    let s = tx(172, 14, "Walk order 1 to 6. It stops at the first failure.", { s: 12, c: "var(--text-dim)" });
-    S.forEach(([id, b, t], i) => {
-      const col = i % 3,
-        row = i < 3 ? 0 : 1,
-        x = 6 + col * 114,
-        y = 26 + row * 82;
-      s += pk(
-        id,
-        rc(x, y, 100, 58, "p") +
-          tx(x + 50, y + 16, b, { s: 11.5, c: "var(--text-dim)" }) +
-          lines(x + 50, y + 33, t, { s: 11, lh: 13 }),
-      );
-      if (col < 2) s += arrow(x + 102, y + 29, x + 112, y + 29, "var(--text-faint)");
-    });
-    s += `<path d="M 290 86 L 290 98 L 56 98 L 56 104" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-linejoin="round"/><polygon points="56,108 51,100 61,100" fill="var(--text-faint)"/>`;
-    return svg(
-      332,
-      172,
-      s,
-      "Flow chart of six checks, a link check then a seal check for each of blocks 1, 2 and 3, in order",
-    );
-  }
-
-  B.add("a8-chain", [
+  B.add("a9-mix", [
     {
       type: "pick",
-      q: "Someone edited the data of exactly <b>one</b> block, then you pressed Verify. The chain now looks like this. Which block's data was edited? Tap it.",
-      fig: figVerifiedChain(),
-      a: "b2",
-      why: "Editing a block changes its own hash, so its seal breaks (block 2 shows ✗ seal broken) and the next block's stored prev no longer matches (the 2→3 link shows prev ≠ hash). Block 3 only looks bad because it points at a block whose hash changed. Block 3's own data is fine.",
+      q: "The mixer holds two waves: <b>Wave 1</b> at 3 Hz with strength 1 and <b>Wave 2</b> at 8 Hz with strength 0.5. Which spectrum will it show? Tap it.",
+      fig: figMixerBoard(),
+      a: "C",
+      why: "Each wave gets its own bar: frequency decides where the bar stands and strength decides how tall it is. So there is a full bar at 3 Hz and a half-height one at 8 Hz (C). A has the strengths swapped, and B has moved Wave 2 to 11 Hz (3 + 8), as if frequencies added up. They don't: waves add, frequencies stay.",
     },
     {
-      type: "mcq",
-      q: "Sixteen blocks were each mined with the same puzzle: a hash starting with <b>00</b>. The dots show how many nonces each block needed. What does the spread tell you?",
-      fig: figTriesDots(),
-      o: [
-        "Every guess is an independent 1-in-256 shot, so luck swings widely around about 256",
-        "The quick blocks used a smarter nonce order that the slow blocks could have copied too",
-        "The difficulty was lowered for the quick blocks and raised again for the slow ones",
-        "Mining gets steadily easier as the chain grows, so later blocks should always be quicker",
-      ],
-      a: 0,
-      why: "Each nonce is a fresh, unpredictable hash with a 1-in-256 chance of starting 00, so the count to the first win varies a lot (some blocks got lucky in 5 tries, one needed over 700), but averages near 256. There is no better strategy than guessing, and the difficulty here never changed.",
+      type: "pick",
+      q: "You sample tones of 5, 11, 19 and 27 Hz at 16, 32 and 64 samples per second. Tap <b>every</b> cell where the bar will show up at the <b>wrong</b> frequency.",
+      fig: figAliasGrid(),
+      a: ["11-16", "19-16", "27-16", "19-32", "27-32"],
+      hint: "A tone shows correctly only if it is below half the sampling rate: 8, 16 or 32 Hz.",
+      why: "The limit is half the sampling rate: 8 Hz at 16/s, 16 Hz at 32/s and 32 Hz at 64/s. At 16/s only 5 Hz is safe (11, 19 and 27 fold back to 5, 3 and 5). At 32/s, 19 and 27 fold to 13 and 5. At 64/s everything is below 32 Hz, so all four are right. Note 27 Hz at 16/s lands on 5 Hz: it impersonates the real 5 Hz tone.",
     },
     {
-      type: "cat",
-      q: "The target is two leading hex zeros, <b>00</b>. Sort each hash by whether it seals a block.",
-      buckets: ["Seals at 2 zeros", "Doesn't seal"],
-      items: [
-        ["<code>00a32139</code>", 0],
-        ["<code>0a22e6db</code>", 1],
-        ["<code>80378a61</code>", 1],
-        ["<code>000d98d4</code>", 0],
-        ["<code>0c257d45</code>", 1],
-        ["<code>00e9a037</code>", 0],
-      ],
-      why: "Only zeros at the very <b>start</b> count, and you need two of them in a row. <code>0a22e6db</code> and <code>0c257d45</code> have one, <code>80378a61</code> has a zero in the wrong place, and <code>000d98d4</code> has three, which is more than enough.",
-    },
-    {
-      type: "mcq",
-      q: "Block 1 was edited and the chain mined as in the workshop. After pressing <b>Re-link, no mining</b> every prev matches the block before it, yet blocks 2 and 3 now fail their seals. Why?",
-      fig: figRelink(),
-      o: [
-        "prev is part of what a block hashes, so fixing it changed the hash and the zeros vanished",
-        "Re-link wipes every nonce, so each block has to be mined again from nothing at all, in order",
-        "Only block 1 was ever edited, so the seals on later blocks switch themselves off with it too",
-        "Re-link copies the wrong hash into each prev, so the links are still broken in the picture",
-      ],
-      a: 0,
-      why: "A block's hash is computed from its nonce, data <b>and prev</b>. Block 2's prev changed, so its hash changed to <code>3b1fd712</code>, which no longer starts with 00 (the nonce was found for the old prev). The same ripples to block 3. Fixing pointers is free; the proof of work is not.",
+      type: "pick",
+      q: "A mystery signal is sampled for one second at 32 samples per second, and its spectrum is shown. Tap <b>every</b> frequency that is really in the signal, not just noise.",
+      fig: figFloor(),
+      a: ["3", "7", "12"],
+      why: "The dashed line is the noise floor: the wobble a few small random bars make by chance. Three bars clearly rise above it, at 3, 7 and 12 Hz. The 12 Hz one is short but it is far above the floor, so it counts. A short bar means a quiet wave, not a missing one.",
     },
     {
       type: "slider",
-      q: "After the edit you must re-mine blocks 1, 2 <b>and</b> 3 in turn, each needing a hash that starts <b>00</b>. About how many hashes will that take in total, on average?",
-      fig: figRepairBar(),
+      q: "A 16-point DFT costs about 16 × 16 multiplications. Split the samples into evens and odds, run <b>two</b> 8-point DFTs, then combine with one product for each of the 8 bin pairs. About how many multiplications is that in total?",
+      fig: figSplitAreas(),
       min: 0,
-      max: 1500,
-      step: 50,
-      ans: 750,
-      tol: 150,
-      unit: " hashes",
-      hint: "Two hex zeros means 16 × 16 tries for one block. Then ×3.",
-      why: "Each block needs about 16 × 16 = 256 guesses, so three blocks need about 3 × 256 = 768. Checking the finished chain costs only a hash or two per block. That gap, hundreds of guesses against one hash to verify, is what makes history expensive to rewrite and cheap to audit.",
+      max: 300,
+      step: 4,
+      ans: 136,
+      tol: 20,
+      unit: " products",
+      hint: "8 × 8 = 64, and there are two of them. Then add 8.",
+      why: "Two 8-point DFTs cost 2 × 64 = 128, and combining adds 8 more products: 136, roughly half of 256. Split again and again and the saving compounds, which is how the FFT reaches N log N.",
     },
     {
-      type: "pick",
-      q: "Block 1's data was edited and nothing has been re-mined. You press Verify, which walks the checks in order and stops at the first failure. Which check is the first to fail? Tap it.",
-      fig: figVerifyFlow(),
-      a: "s1",
-      why: "Block 1's link check still passes (its prev is the genesis hash, which did not change). Its own hash changed, so its seal fails and the walk stops there. Blocks 2 and 3 have broken links too, but Verify never gets that far, which is why it can report the break after just a couple of hashes.",
+      type: "bug",
+      q: "A wave of <code>f</code> Hz sampled <code>fs</code> times per second has its samples at times <code>t / fs</code>. This code should give one second of samples, but the wave comes out wildly wrong. Click the faulty line.",
+      code: [
+        "def sample(f, fs):",
+        "    out = []",
+        "    for t in range(fs):",
+        "        a = 2 * pi * f * t * fs",
+        "        out.append(sin(a))",
+        "    return out",
+      ],
+      a: 3,
+      why: "Sample number t is taken at time t / fs seconds, so the angle is 2π × f × t / fs. Multiplying by fs makes the wave race along, faster the more samples you take. It should divide.",
+    },
+    {
+      type: "match",
+      q: "In the mixer something changes on screen. Match each thing you see to what you did.",
+      pairs: [
+        ["A bar jumps to a lower frequency than the wave you set", "Sampled at less than twice its frequency"],
+        ["A bar gets taller but stays in place", "Raised that wave's strength"],
+        ["A bar slides sideways at the same height", "Changed that wave's frequency"],
+        ["A bar disappears from the spectrum", "Set that wave's strength to zero"],
+      ],
+      why: "Height tracks strength and position tracks frequency. A bar standing at the wrong place when you set nothing wrong is the alias warning: the wave is above half the sampling rate and has folded back.",
     },
   ]);
 
-  /* ================================================================== a9-mix (workshop) ================================================================== */
+  /* ================================================================== a10-code (workshop) ================================================================== */
 
-  // M1: faders and three candidate spectra
-  function figMixerBoard() {
-    const fader = (y, name, f, a) => {
-      const tr = (x0, v, vmax, lab) =>
-        ln(x0, y + 16, x0 + 100, y + 16, { c: "var(--line-2)", w: 4 }) +
-        circ(x0 + (v / vmax) * 100, y + 16, 8, "b", { f: "var(--blue)", st: "var(--blue-ink)", sw: 1.5 }) +
-        tx(x0 + 50, y + 40, lab, { s: 12, c: "var(--text-dim)" });
-      return (
-        tx(8, y + 21, name, { a: "start", s: 13 }) + tr(80, f, 12, `frequency ${f} Hz`) + tr(214, a, 1, `strength ${a}`)
+  // X1: printed scores and weights
+  function figScoreTable() {
+    const rows = [
+        [0, 0, 0],
+        [-2, 0, 0],
+        [1, 1, 0],
+        [2, 0, 0],
+      ],
+      shown = rows.map((r) => softmax(r).map((v) => v.toFixed(2)));
+    shown[2] = ["0.50", "0.50", "0.00"];
+    let s =
+      tx(16, 16, "scores", { a: "start", s: 11, c: "var(--text-faint)" }) +
+      tx(160, 16, "weights printed", { a: "start", s: 11, c: "var(--text-faint)" });
+    rows.forEach((r, i) => {
+      const y = 24 + i * 44;
+      s += pk(
+        `r${i}`,
+        rc(6, y, 328, 38, "p") +
+          tx(16, y + 24, `[${r.join(", ")}]`.replace(/-/g, "−"), { a: "start", s: 14, m: 1 }) +
+          tx(160, y + 24, `[${shown[i].join(", ")}]`, { a: "start", s: 14, m: 1 }),
       );
-    };
-    let s = fader(4, "Wave 1", 3, 1) + fader(56, "Wave 2", 8, 0.5);
-    const opts = [
-      [
-        "A",
-        [
-          [3, 0.5],
-          [8, 1],
-        ],
-      ],
-      [
-        "B",
-        [
-          [3, 1],
-          [11, 0.5],
-        ],
-      ],
-      [
-        "C",
-        [
-          [3, 1],
-          [8, 0.5],
-        ],
-      ],
-    ];
-    opts.forEach(([id, bars], p) => {
-      const x0 = 6 + p * 112;
-      let g = rc(x0, 116, 104, 100, "p", { r: 10 }) + tx(x0 + 52, 134, `Spectrum ${id}`, { s: 12 });
-      for (let k = 0; k <= 12; k++) {
-        const b = bars.find((q) => q[0] === k),
-          h = b ? b[1] * 56 : 0;
-        g += `<rect x="${x0 + 8 + k * 7.4}" y="${f1(200 - h)}" width="5" height="${f1(Math.max(h, 1.5))}" rx="1.5" fill="${b ? "var(--blue)" : "var(--line-2)"}"/>`;
-      }
-      g +=
-        tx(x0 + 8, 212, "0", { a: "start", s: 10, c: "var(--text-faint)" }) +
-        tx(x0 + 98, 212, "12 Hz", { a: "end", s: 10, c: "var(--text-faint)" });
-      s += pk(id, g);
     });
     return svg(
       340,
-      222,
+      204,
       s,
-      "A mixer with two waves (3 Hz at strength 1, 8 Hz at strength 0.5) and three candidate spectra",
+      "Four rows each showing three scores and the three softmax weights a student's code printed",
     );
   }
-  Object.assign(partScope, { figMixerBoard });
+
+  // X2: two pipelines for softmax
+  function figSoftmaxPipes() {
+    const box = (x, y, k, a, b, c) =>
+      rc(x, y, 96, 62, k) + lines(x + 48, y + 20, [a, b, c].filter(Boolean), { s: 11, lh: 14 });
+    let s = tx(8, 14, "Naive", { a: "start", s: 12, c: "var(--text-dim)" });
+    s +=
+      box(8, 22, "p", "scores", "1000, 1000,", "998") +
+      arrow(106, 53, 122, 53) +
+      box(124, 22, "r", "e^score", "overflow!", "") +
+      arrow(222, 53, 238, 53) +
+      box(240, 22, "n", "divide by", "the total", "(never reached)");
+    s += tx(8, 108, "Subtract the largest score first", { a: "start", s: 12, c: "var(--text-dim)" });
+    s +=
+      box(8, 116, "p", "minus the max", "0, 0, −2", "") +
+      arrow(106, 147, 122, 147) +
+      box(124, 116, "p", "e^score", "1, 1, 0.14", "") +
+      arrow(222, 147, 238, 147) +
+      box(240, 116, "g", "divide by", "the total", "0.47 0.47 0.06");
+    return svg(
+      344,
+      186,
+      s,
+      "Naive softmax fails at the exponential on scores near 1000; subtracting the largest score first gives weights 0.47, 0.47, 0.06",
+    );
+  }
+
+  // X3: where can a blended output land?
+  function figHull() {
+    const X = (x) => 40 + x * 62,
+      Y = (y) => 262 - y * 62;
+    let s =
+      ln(X(0), Y(0), X(4), Y(0), { c: "var(--line-2)", w: 1.5 }) +
+      ln(X(0), Y(0), X(0), Y(4), { c: "var(--line-2)", w: 1.5 });
+    for (let v = 1; v <= 4; v++)
+      s +=
+        tx(X(v), Y(0) + 15, v, { s: 11, c: "var(--text-faint)" }) +
+        tx(X(0) - 9, Y(v) + 4, v, { s: 11, c: "var(--text-faint)", a: "end" });
+    [
+      [3, 0, "v1 (3, 0)", 1],
+      [0, 3, "v2 (0, 3)", 1],
+      [3, 3, "v3 (3, 3)", 1],
+    ].forEach(([x, y, t]) => {
+      s += `<rect x="${X(x) - 6}" y="${Y(y) - 6}" width="12" height="12" rx="2" fill="var(--violet)" stroke="var(--violet-lip)" stroke-width="1.5"/>`;
+    });
+    s +=
+      tx(X(3) + 12, Y(0) - 2, "v1", { a: "start", s: 12, c: "var(--violet-ink)" }) +
+      tx(X(0) + 12, Y(3) - 4, "v2", { a: "start", s: 12, c: "var(--violet-ink)" }) +
+      tx(X(3), Y(3) - 12, "v3", { s: 12, c: "var(--violet-ink)" });
+    [
+      ["A", 2, 2],
+      ["B", 1, 1],
+      ["C", 3.55, 2.4],
+      ["D", 1, 2.2],
+      ["E", 2.4, 0.2],
+      ["F", 2.5, 2.5],
+    ].forEach(([id, x, y]) => (s += pk(id, circ(X(x), Y(y), 12, "p") + tx(X(x), Y(y) + 5, id, { s: 13 }))));
+    return svg(
+      336,
+      284,
+      s,
+      "Three value vectors v1 (3,0), v2 (0,3) and v3 (3,3) as purple squares and six candidate outputs A to F",
+    );
+  }
+
+  // X4: a scale from shared evenly to winner takes all
+  function figGauge() {
+    let s = ln(20, 40, 320, 40, { c: "var(--text-faint)", w: 3 });
+    [
+      [0.333, "⅓"],
+      [0.5, "½"],
+      [0.75, "¾"],
+      [1, "1"],
+    ].forEach(([v, t]) => {
+      const x = 20 + ((v - 0.333) / 0.667) * 300;
+      s +=
+        ln(x, 33, x, 47, { c: "var(--text-faint)", w: 2 }) +
+        tx(x, 64, t, { s: 13, c: "var(--text-dim)", a: v === 1 ? "end" : v < 0.4 ? "start" : "middle" });
+    });
+    s +=
+      tx(20, 18, "even shares", { a: "start", s: 12, c: "var(--blue-ink)" }) +
+      tx(320, 18, "winner takes (almost) all", { a: "end", s: 12, c: "var(--amber-ink)" }) +
+      tx(170, 84, "weight of the biggest share, 3 tokens", { s: 11, c: "var(--text-faint)" });
+    return svg(340, 94, s, "A scale for the biggest softmax weight, from one third to one");
+  }
+
+  // X6: matrix shapes in one attention head
+  function figShapes() {
+    const u = 20,
+      mat = (id, x, y, r, c, name, wrong) =>
+        pk(
+          id,
+          rc(x, y, c * u, r * u, wrong ? "p" : "p", { r: 5 }) +
+            tx(x + (c * u) / 2, y + (r * u) / 2 - 2, name, { s: 12 }) +
+            tx(x + (c * u) / 2, y + (r * u) / 2 + 13, `${r}×${c}`, { s: 12, c: "var(--text-dim)" }),
+        );
+    let s = tx(8, 14, "3 tokens, d_k = 4, values of 2 numbers. Shape = rows × columns.", {
+      a: "start",
+      s: 11,
+      c: "var(--text-dim)",
+    });
+    s +=
+      mat("Q", 10, 34, 3, 4, "Q") +
+      tx(104, 70, "×", { s: 18, c: "var(--text-faint)" }) +
+      mat("Kt", 122, 24, 4, 3, "Kᵀ") +
+      tx(196, 70, "→", { s: 18, c: "var(--text-faint)" }) +
+      mat("scores", 214, 34, 3, 3, "scores");
+    s += tx(244, 112, "↓ softmax", { s: 11, c: "var(--text-faint)" });
+    s +=
+      mat("weights", 10, 134, 3, 3, "weights") +
+      tx(88, 170, "×", { s: 18, c: "var(--text-faint)" }) +
+      mat("V", 104, 134, 3, 2, "V") +
+      tx(160, 170, "=", { s: 18, c: "var(--text-faint)" }) +
+      mat("out", 176, 134, 3, 3, "out");
+    return svg(300, 210, s, "Six matrices Q, K transposed, scores, weights, V and out with their shapes");
+  }
+
+  B.add("a10-code", [
+    {
+      type: "pick",
+      q: "A student prints three scores and the three softmax weights for four different tokens. One row <b>cannot</b> be the output of a correct softmax, whatever the code looks like. Tap it.",
+      fig: figScoreTable(),
+      a: "r2",
+      why: "Softmax turns every score into e^score, which is always positive, so no weight can be exactly 0 (a masked score of −∞ is the only way to get there). Scores [1, 1, 0] should give about 0.42, 0.42, 0.16. The printed 0.50, 0.50, 0.00 looks like each score divided by the total of the scores. Row 2's negative score is fine: it just earns a small share.",
+    },
+    {
+      type: "mcq",
+      q: "Scores of 1000 overflow <code>math.exp</code>, so the lab subtracts the biggest score first. Why can that never change the final weights?",
+      fig: figSoftmaxPipes(),
+      o: [
+        "Each term shrinks by the same factor, e to the max, so the final division cancels it",
+        "It removes the largest score from the sum, which the other weights never really needed",
+        "It rounds the scores so that they match exactly after the exponential step is taken",
+        "It forces the weights to add to 1, which the divide step cannot manage on its own",
+      ],
+      a: 0,
+      why: "e^(s − m) = e^s ÷ e^m. Every term gets divided by the same e^m, and so does the total, so the common factor cancels in the final division. The weights are identical, but the numbers stay small enough to compute. Without this step Python raises an OverflowError on <code>math.exp(1000)</code>.",
+    },
+    {
+      type: "pick",
+      q: "Three value vectors are fixed: v1 = (3, 0), v2 = (0, 3) and v3 = (3, 3). A token blends them with positive weights that add up to 1. Tap <b>every</b> candidate that no choice of weights could ever produce.",
+      fig: figHull(),
+      a: ["B", "C", "E"],
+      hint: "A blend with weights adding to 1 stays inside the triangle with corners v1, v2 and v3. Which side is x + y = 3?",
+      why: "A weighted average with positive weights summing to 1 always lands inside the triangle with corners v1, v2, v3 (x ≤ 3, y ≤ 3 and x + y ≥ 3). B (1, 1) and E (2.4, 0.2) have x + y below 3, and C sticks out past x = 3. A, D and F are inside. Attention can only mix its values, never invent something outside them.",
+    },
+    {
+      type: "order",
+      q: "A token's three keys give these score patterns (the other two scores are 0). Order them from the <b>most even</b> weights to the <b>sharpest</b>, judged by the biggest weight.",
+      fig: figGauge(),
+      hint: "e ≈ 2.7, e³ ≈ 20 and e⁶ ≈ 400. A score of −3 gives a tiny e⁻³ ≈ 0.05.",
+      items: ["scores [0, 0, 0]", "scores [−3, 0, 0]", "scores [1, 0, 0]", "scores [3, 0, 0]", "scores [6, 0, 0]"],
+      why: "Biggest weights: [0, 0, 0] gives ⅓ each; [−3, 0, 0] makes the first key almost invisible and the others share about 0.49 each; [1, 0, 0] gives 2.7 ÷ (2.7 + 2) ≈ 0.58; [3, 0, 0] gives about 0.91; [6, 0, 0] gives about 0.995. A lower score does not make the blend sharper, it just hands more to the rest.",
+    },
+    {
+      type: "bug",
+      q: "In the lab's blend step, <code>weights[j]</code> is token <code>j</code>'s share. This loop runs without any error but gives the wrong mix. Click the faulty line.",
+      code: [
+        "mix = [0] * len(V[0])",
+        "for j in range(len(V)):",
+        "    for d in range(len(V[0])):",
+        "        mix[d] += weights[d] * V[j][d]",
+      ],
+      a: 3,
+      why: "The share to use is token j's, <code>weights[j]</code>. The line indexes by <code>d</code>, the slot in the value vector, so it multiplies by the wrong weight (and fails with an IndexError whenever there are fewer tokens than slots). It should read <code>weights[j] * V[j][d]</code>.",
+    },
+    {
+      type: "pick",
+      q: "n = 3 tokens, d_k = 4 numbers per query and key, and each value vector has 2 numbers. Rows are tokens. One box in this attention head is drawn with the <b>wrong shape</b>. Tap it.",
+      fig: figShapes(),
+      a: "out",
+      why: "The scores and weights are token against token, 3×3, and V is 3×2. Multiplying 3×3 by 3×2 gives 3 rows (one per token) and 2 columns (the length of a value vector), so <b>out</b> should be 3×2. A blend of value vectors can't be wider than the values themselves.",
+    },
+  ]);
+
+  /* ================================================================== a11-picker (workshop) ================================================================== */
+
+  // P1: decision flow
+  function figToolFlow() {
+    const Q = [
+      ["Link every point as", "cheaply as possible?", "mst", ["MST", "Prim / Kruskal"]],
+      ["An outline round", "scattered points?", "hull", ["Convex hull"]],
+      ["Best mix under", "straight-line limits?", "lp", ["Linear", "programming"]],
+      ["One goal, plus an honest", "estimate of distance left?", "astar", ["A*"]],
+    ];
+    let s = "";
+    Q.forEach(([a, b, id, name], i) => {
+      const y = 8 + i * 66;
+      s +=
+        rc(8, y, 190, 44, "b") +
+        lines(103, y + 19, [a, b], { s: 12, lh: 15 }) +
+        arrow(200, y + 22, 238, y + 22, "var(--teal)", 2.5) +
+        tx(219, y + 14, "yes", { s: 11, c: "var(--teal-ink)" });
+      s += pk(
+        id,
+        rc(242, y + 1, 108, 42, "g") +
+          lines(296, y + (name.length > 1 ? 18 : 25), name, { s: 12, lh: 14, c: "var(--teal-ink)" }),
+      );
+      s += arrow(103, y + 46, 103, y + 64, "var(--rose)", 2.5) + tx(122, y + 59, "no", { s: 11, c: "var(--rose-ink)" });
+    });
+    s += pk("dijk", rc(8, 272, 190, 38, "g") + tx(103, 296, "Dijkstra", { s: 13, c: "var(--teal-ink)" }));
+    return svg(
+      356,
+      318,
+      s,
+      "A decision flow chart: four yes/no questions lead to MST, convex hull, linear programming, A* or finally Dijkstra",
+    );
+  }
+
+  // P2: the channel
+  function figChannel() {
+    const wire = (x1, x2) => ln(x1, 58, x2, 58, { c: "var(--text-faint)", w: 2 });
+    let s =
+      rc(6, 36, 62, 44, "n") +
+      lines(37, 55, ["Text", "in"], { s: 12, lh: 14 }) +
+      rc(272, 36, 62, 44, "n") +
+      lines(303, 55, ["Text", "out"], { s: 12, lh: 14 });
+    [84, 124, 220, 252].forEach((x) => (s += circ(x, 58, 15, "p") + tx(x, 63, "?", { s: 15, c: "var(--text-faint)" })));
+    s += wire(68, 69) + wire(99, 109) + wire(139, 160) + wire(204, 205) + wire(235, 237) + wire(267, 272);
+    s += `<polyline points="150,58 160,40 168,74 178,40 188,74 196,58" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linejoin="round"/>`;
+    s +=
+      tx(173, 100, "noisy link: one bit may flip", { s: 12, c: "var(--amber-ink)" }) +
+      tx(106, 28, "two steps before", { s: 11, c: "var(--text-dim)" }) +
+      tx(236, 28, "two steps after", { s: 11, c: "var(--text-dim)" });
+    return svg(
+      340,
+      112,
+      s,
+      "A channel: text goes through two steps, a noisy link where a bit may flip, then two more steps",
+    );
+  }
+  Object.assign(partScope, { figChannel, figToolFlow });
 })();

@@ -4,7 +4,7 @@
   border-top: 2px solid var(--line);
   background: var(--panel);
   transition:
-    background-color var(--dur-2) ease,
+    background-color var(--dur-2) var(--ease-out),
     border-color var(--dur-2) ease;
 }
 .pl-foot-in {
@@ -45,7 +45,7 @@
 .pl-fb-t {
   flex: 1;
   min-width: 0;
-  max-height: 34vh;
+  max-height: 38vh;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -53,6 +53,9 @@
 .pl-fb-t.more {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent);
+}
+.pl-body {
+  padding-bottom: calc(var(--pl-sheet-h, 0px) * 0.15);
 }
 .pl-fb-h {
   display: flex;

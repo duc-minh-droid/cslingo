@@ -316,7 +316,7 @@ async function reviseComplete() {
     await NIC.bank.load();
     const done = {};
     NIC.modules
-      .filter((m) => m.num !== "Boss" && !m.workshop)
+      .filter((m) => m.num !== "Boss" && !m.workshop && !m.video)
       .slice(0, 6)
       .forEach((m) => (done[m.id] = true));
     localStorage.setItem("nic.lessonDone", JSON.stringify(done));

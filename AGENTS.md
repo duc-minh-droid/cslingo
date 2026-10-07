@@ -47,6 +47,7 @@ CSLingo is a Duolingo-style study app for university CS modules: a lesson path, 
 | `vendor/` | Vendored libraries (see §3). Never load these from a CDN. |
 | `tools/` | In-page tests: `answer.js`, `smoke.js`, `boss-test.js`, `bank-test.js`; `bank-coverage.js` (`bankCoverage()`, `bankExisting(id)`) for planning revision questions; `answer-bias.js` (`answerBias()`) audits MCQs for position/length giveaways. Node scripts: `run-tests.js` (the whole suite in one command, §7) and `check-structure.js` (every file under `js/` is wired up, nothing points at a missing file, no stylesheet is over 500 lines or sets white text). |
 | `package.json`, `eslint.config.js`, `.prettierrc.json`, `.github/workflows/ci.yml` | Dev tooling only (the app itself needs none of it): `npm run lint` (ESLint, includes the 500-line file limit), `npm run format:check` / `npm run format` (Prettier), `npm test` (the full suite), `npm run check` (all three). CI runs them on every push and pull request. |
+| `videos/` + `js/content/nic/videos.js` | **Recap videos**: one silent, captioned 1080 x 1080 explainer per Nature-Inspired lecture (`videos/out/lecture-N.mp4`), built as deterministic scene scripts (`videos/engine.js`, `l1/`..`l6/`) and recorded with `tools/render-video.js`; see `videos/README.md`. `js/content/nic/videos.js` registers a bonus node after each lecture's boss quiz that plays the mp4 (see §6h). |
 | `trailer/` | Motion-graphics trailer page, recorded `.webm`/`.gif`, and `shots/` screenshots. |
 | `serve.py` | No-cache dev server: `python serve.py 8651`. |
 
@@ -327,6 +328,12 @@ N.workshop(root, life, {
 - Workshops are exempt from `bankTest`'s "every module has bank questions" rule (`m.workshop`); their concepts are covered by the lecture's own bank.
 - Styles: an Algorithms workshop gets its own `css/aw/awN-<name>.css` (classes prefixed `awN-`; add the file to `ALGO_LABS` in `js/content.js` so it loads with the course). Shared workshop and code-lab styles live in `css/workshop/` (listed in `WORKSHOPS`). Neither is linked from `index.html`.
 - Motion stays transform/opacity; put new animations in `css/workshop/` with a reduced-motion override. Add the path icon to `TOPICS` in `tools/emoji-build.py`.
+
+### 6h. Recap videos
+
+Each lecture's path ends with a **recap video** node after the boss quiz: `N.register({ id: "l1-video", lecture: 1, order: 100, num: "1.V", video: { src, poster, mins, chapters }, render() {} })` plus a one-step `NIC.LESSONS` entry whose figure builds a `<video>` (all six are in `js/content/nic/videos.js`).
+- A module with `video` is a bonus: `progress()` leaves it out of "x/y done" (so it never blocks a lecture or course), it is never "Up next", has no revision questions (`bankTest` skips it) and is exempt from the "lesson" counts in `game.js` and the lesson-before-boss checks. Watching it (finishing the step) keeps the streak alive and pays the review amount (5 XP) without counting as a new lesson.
+- To add or re-record a video: edit the scenes under `videos/lN/`, run `FFMPEG=... node tools/render-video.js lecture-N` (needs an ffmpeg with libx264), commit the new `videos/out/lecture-N.mp4` and poster, and update `chapters` in `js/content/nic/videos.js`. `sw.js` never caches `.mp4` files (Safari needs range requests).
 
 ### 6d. A boss quiz
 

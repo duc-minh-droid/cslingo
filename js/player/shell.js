@@ -16,8 +16,8 @@
     const root = el(`<div class="player" role="dialog" aria-modal="true" aria-label="${stripTags(pl.S.mod.title)}">
       <header class="pl-top"><button class="pl-x" aria-label="Quit lesson">${IC.x}</button><button class="pl-x pl-back" aria-label="Previous screen" title="Back" hidden>${IC.back}</button>
         <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="pl-fill"></span><span class="pl-combo"></span></div>
-        <span class="pl-retry" hidden title="Mistakes to fix">${IC.retry}<b>0</b><em>to fix</em></span>
-        <span class="pl-chip">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
+        <span class="pl-retry" hidden title="Questions to redo at the end" aria-label="Questions to redo at the end">${IC.retry}<b>0</b><em>redo</em></span>
+        <span class="pl-chip" title="Lesson ${stripTags(String(chip))}" aria-label="Lesson ${stripTags(String(chip))}">${chip}</span><button class="pl-ref" hidden title="Reference">${IC.book}</button></header>
       <div class="pl-stage"></div>
       <footer class="pl-foot"><div class="pl-foot-in"><div class="pl-fb" aria-live="polite"></div><div class="pl-actions"><button class="btn big primary pl-go">Continue</button></div></div></footer>
       <div class="pl-modal" hidden></div><div class="pl-drawer" hidden></div></div>`);
@@ -248,7 +248,7 @@
     if (sheet && fx() && fx().ok && !pl.S.kbd) {
       const F = fx();
       pl.S.sheetMs = F.DUR.m * 1000;
-      pl.S.lockUntil = performance.now() + pl.S.sheetMs + 250;
+      pl.S.lockUntil = performance.now() + pl.S.sheetMs + 80;
       F.clean(
         inner,
         F.animate(inner, reduce() ? { opacity: [0, 1] } : { transform: ["translateY(100%)", "translateY(0%)"] }, {
@@ -262,11 +262,11 @@
           from: 0.2,
           rot: mode === "ok" ? -45 : 45,
           bounce: 0.55,
-          dur: 0.5,
-          delay: 0.1,
+          dur: 0.35,
+          delay: 0.05,
         });
-        fx().enter(qs(".pl-fb-h b", fbEl), { x: -12, y: 0, delay: 0.14, dur: 0.24 });
-        fx().springIn(qs(".pl-xp", fbEl), { from: 0.4, bounce: 0.6, dur: 0.45, delay: 0.26 });
+        fx().enter(qs(".pl-fb-h b", fbEl), { x: -12, y: 0, delay: 0.08, dur: 0.2 });
+        fx().springIn(qs(".pl-xp", fbEl), { from: 0.4, bounce: 0.6, dur: 0.35, delay: 0.14 });
       }
       const m = qs(".mascot", fbEl);
       if (m) setTimeout(() => N.mascotReact(m, m.dataset.mood), 120);

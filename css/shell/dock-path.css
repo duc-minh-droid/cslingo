@@ -67,28 +67,28 @@ body.in-lesson {
   --u-lip: var(--teal-lip);
   --u-soft: var(--teal-dim);
   --u-ink: var(--teal-ink);
-  --u-on: var(--teal-on);
+  --u-on: #fff;
 }
 .u-blue {
   --u: var(--blue);
   --u-lip: var(--blue-lip);
   --u-soft: var(--blue-dim);
   --u-ink: var(--blue-ink);
-  --u-on: var(--blue-on);
+  --u-on: #fff;
 }
 .u-violet {
   --u: var(--violet);
   --u-lip: var(--violet-lip);
   --u-soft: var(--violet-dim);
   --u-ink: var(--violet-ink);
-  --u-on: var(--violet-on);
+  --u-on: #fff;
 }
 .u-orange {
   --u: var(--amber);
   --u-lip: var(--amber-lip);
   --u-soft: var(--amber-dim);
   --u-ink: var(--amber-ink);
-  --u-on: var(--amber-on);
+  --u-on: #fff;
 }
 .unit-sticky {
   position: sticky;
@@ -105,9 +105,7 @@ body.in-lesson {
   background: var(--u);
   box-shadow: 0 var(--lip) 0 var(--u-lip);
   color: var(--u-on);
-  transition:
-    background-color var(--dur-4) ease,
-    box-shadow var(--dur-4) ease;
+  transition: background-color var(--dur-3) var(--ease-out);
 }
 .unit-sticky .us-in {
   background: var(--u);
@@ -132,6 +130,9 @@ body.in-lesson {
 }
 .us-guide {
   appearance: none;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -165,8 +166,30 @@ body.in-lesson {
 }
 @media (max-width: 480px) {
   .us-guide span {
-    display: none;
+    font-size: 11px;
+    letter-spacing: 0.04em;
   }
+  .us-guide {
+    gap: 5px;
+    padding: 6px 10px;
+  }
+}
+@media (min-width: 1000px) {
+  .dock {
+    left: calc(50% - 150px);
+  }
+}
+.dock::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 200vw;
+  transform: translateX(-50%);
+  bottom: calc(-14px - env(safe-area-inset-bottom, 0px));
+  height: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+  z-index: -1;
 }
 
 .unit-divider {
@@ -367,6 +390,7 @@ body.in-lesson {
   color: var(--u-on);
   box-shadow: 0 5px 0 var(--u-lip);
   transform-origin: 50% 0;
+  scroll-margin-bottom: 96px;
 }
 .node-pop::before {
   content: "";
@@ -401,7 +425,7 @@ body.in-lesson {
 .node-pop .btn {
   width: 100%;
   background: #fff;
-  color: var(--u-on);
+  color: var(--u-ink);
   --b: #fff;
   --lipc: rgba(0, 0, 0, 0.12);
   text-transform: uppercase;

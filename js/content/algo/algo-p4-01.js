@@ -123,6 +123,25 @@
         },
       },
       {
+        t: "The lemma, stated precisely",
+        b: `<p><b>Lemma.</b> Let $G = (V, E, w)$ be a weighted graph, let $X$ be a <b>non-empty proper subset</b> of $V$, and let $e$ be the shortest edge joining a vertex in $X$ to a vertex in $V \\setminus X$. Then $e$ must be part of the minimum spanning tree.</p><p>“Non-empty proper” means $X$ is neither empty nor all of $V$: there has to be something on both sides of the cut. Any such $X$ will do, so one graph has many cuts and many forced edges.</p>`,
+        v:
+          F.graph({
+            nodes: nodes({}, (k) => (["A", "B"].includes(k) ? "violet" : null)),
+            edges: EDGES,
+            hl: { "B-D": "amber", "B-C": "amber", "A-C": "amber" },
+            w: 480,
+            h: 260,
+          }) +
+          `<div class="fig-cap">X = {A, B}. Crossing edges: A–C (3), B–C (2), B–D (5). The lightest, B–C, is forced into the MST.</div>`,
+        c: {
+          q: "Which choice of X is not allowed in the lemma?",
+          o: ["X = {A}, a single vertex", "X = every vertex of the graph", "X = {A, B, C}, a group of three"],
+          a: 1,
+          why: "If X is all of V, nothing is left on the other side and there are no crossing edges. X must be a proper subset (and non-empty).",
+        },
+      },
+      {
         t: "The flip side: the heaviest edge in a cycle",
         b: `<p>In any cycle, the <b>heaviest</b> edge is never needed. The rest of the cycle already connects its two ends.</p><p>A–B–C is a cycle (4, 2, 3), so A–B (4) can go.</p>`,
         v: F.graph({
@@ -154,8 +173,8 @@
     id: "a4-cut",
     subject: "algo",
     lecture: 4,
-    order: 1,
-    num: "4.1",
+    order: 2,
+    num: "4.2",
     title: "The cut property",
     blurb: "A dashed line splits the graph. Find the edge the MST is forced to use.",
     render(root, life) {

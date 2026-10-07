@@ -1,378 +1,405 @@
-/* ===== bank-x-nic-2.js ===== */
-/* Revision bank, third set of varied, visual questions (nic-2: l2-approx, l3-recipe, l3-tsp, l3-hc, l3-landscape,
-   l3-neighbourhood, l3-local, l3-population). Every number is checked with node (see the notes beside each figure). */
 (function () {
   const partScope = (NIC.shared.bankNic = NIC.shared.bankNic || {});
-
+  const { ci, eaFig, hit, ln, mark, pl, rc, recipeFlow, shareFig, stepFig, svg, tx } = partScope;
   const B = NIC.bank;
 
-  /* ---------- small SVG helpers (CSS variables so both themes work) ---------- */
-  const svg = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px">${inner}</svg>`;
-  const tx = (x, y, s, { a = "middle", c = "var(--text)", f = "800 13px" } = {}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" style="font:${f} var(--sans);fill:${c}">${s}</text>`;
-  const ln = (x1, y1, x2, y2, c = "var(--line-2)", w = 2, d = "") =>
-    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" ${d ? `stroke-dasharray="${d}"` : ""}/>`;
-  const rc = (x, y, w, h, { f = "var(--panel)", s = "var(--line-2)", sw = 2, r = 8, o = 1 } = {}) =>
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" fill-opacity="${o}" stroke="${s}" stroke-width="${sw}"/>`;
-  const ci = (x, y, r, { f = "var(--panel)", s = "var(--line-2)", sw = 2.5 } = {}) =>
-    `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`;
-  const pl = (pts, c, w = 3, d = "") =>
-    `<polyline points="${pts.map((p) => p.map((v) => +v.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${d ? `stroke-dasharray="${d}"` : ""}/>`;
-  const hit = (id, inner) => `<g data-pick="${id}">${inner}</g>`;
-  const mark = (id) =>
-    `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker></defs>`;
-  const rng = (seed) => {
-    let s = seed >>> 0;
-    return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
-  };
-  const pow10 = (x, y, e, c = "var(--text-faint)") =>
-    `<text x="${x}" y="${y}" text-anchor="middle" style="font:700 12px var(--sans);fill:${c}">10<tspan dy="-6" style="font-size:10px">${e}</tspan></text>`;
-
-  /* ======================================================================
-     l2-approx : number line, dot strips, pixel grid, column chart
-     ====================================================================== */
-  // log10 positions: day of checking at 1e9/s = 8.64e13 (13.94). Dots at 11.5, 12.7, 13.5 are under it; 14.3 (2e14 = 2.3 days), 15.6, 17.8 are over.
-  const numLineFig = () => {
-    const X = (e) => 40 + (e - 10) * 50;
-    let s = ln(30, 120, 450, 120, "var(--text-faint)", 3);
-    for (let e = 10; e <= 18; e++) s += ln(X(e), 114, X(e), 126, "var(--text-faint)", 2) + pow10(X(e), 146, e);
-    [
-      ["A", 11.5],
-      ["B", 12.7],
-      ["C", 13.5],
-      ["D", 14.3],
-      ["E", 15.6],
-      ["F", 17.8],
-    ].forEach(([k, e]) => {
-      s +=
-        ln(X(e), 92, X(e), 120, "var(--line-2)", 2, "3 4") +
-        hit(k, `${ci(X(e), 76, 16, { s: "var(--blue)", sw: 3 })}${tx(X(e), 81, k, { f: "900 14px" })}`);
-    });
-    s += tx(245, 178, "designs in the problem (each tick is 10 times more)", { f: "700 12px", c: "var(--text-faint)" });
-    return svg(470, 190, s);
-  };
-
-  const STRIPS = {
-    A: Array(10).fill(400),
-    B: [412, 407, 455, 431, 468, 420, 409, 444, 426, 438],
-    C: Array(10).fill(438),
-  };
-  const stripFig = () => {
-    const Y = (v) => 175 - (v - 390) * 1.55;
-    let s = "";
-    [400, 440, 480].forEach(
-      (v) =>
-        (s +=
-          tx(30, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) +
-          ln(34, Y(v), 36, Y(v), "var(--text-faint)", 1.5)),
-    );
-    [
-      ["A", 36],
-      ["B", 176],
-      ["C", 316],
-    ].forEach(([k, px]) => {
-      s +=
-        rc(px, 26, 124, 164, { r: 10, s: "var(--line)", f: "var(--bg-2)" }) +
-        tx(px + 62, 18, "Method " + k, { f: "900 14px" });
-      s += ln(px + 4, Y(400), px + 120, Y(400), "var(--teal)", 2.5, "6 4");
-      STRIPS[k].forEach(
-        (v, i) => (s += ci(px + 12 + i * 11.2, Y(v), 4.5, { f: "var(--amber)", s: "var(--amber-ink)", sw: 1.5 })),
-      );
-    });
-    ["A", "B", "C"].forEach(
-      (k, i) => (s += hit(k, rc(34 + i * 140, 22, 128, 172, { f: "transparent", s: "transparent", sw: 2, r: 12 }))),
-    );
-    s += tx(235, 210, "each dot: route length (km) from one of 10 runs. Dashed green: the best possible, 400 km", {
-      f: "700 11px",
-      c: "var(--text-faint)",
-    });
-    return svg(470, 220, s);
-  };
-
-  const gridFig = () => {
-    const R = rng(11),
-      C = 26,
-      x0 = 8,
-      y0 = 8;
-    const cost = Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => 35 + Math.floor(R() * 58)));
-    cost[2][6] = 31;
-    let s = "";
-    for (let r = 0; r < 10; r++)
-      for (let c = 0; c < 10; c++) {
-        const x = x0 + c * C,
-          y = y0 + r * C;
-        if (r < 4)
-          s +=
-            rc(x, y, C - 2, C - 2, {
-              f: "var(--blue)",
-              o: 0.12 + ((93 - cost[r][c]) / 58) * 0.55,
-              s: r === 2 && c === 6 ? "var(--teal)" : "var(--line)",
-              sw: r === 2 && c === 6 ? 3.5 : 1,
-              r: 4,
-            }) + tx(x + C / 2 - 1, y + C / 2 + 4, cost[r][c], { f: "800 11px" });
-        else s += rc(x, y, C - 2, C - 2, { f: "var(--bg-2)", s: "var(--line)", sw: 1, r: 4 });
-      }
-    s +=
-      rc(290, 22, 22, 22, { f: "var(--blue)", o: 0.45, s: "var(--line)", sw: 1, r: 4 }) +
-      tx(322, 38, "checked: 40 designs", { a: "start" });
-    s +=
-      rc(290, 58, 22, 22, { f: "var(--bg-2)", s: "var(--line)", sw: 1, r: 4 }) +
-      tx(322, 74, "not checked: 60", { a: "start" });
-    s +=
-      rc(290, 94, 22, 22, { f: "none", s: "var(--teal)", sw: 3.5, r: 4 }) +
-      tx(322, 110, "best so far: 31", { a: "start" });
-    s +=
-      tx(290, 150, "Number = cost of the design.", { a: "start", f: "700 12px", c: "var(--text-faint)" }) +
-      tx(290, 168, "Darker blue = cheaper.", { a: "start", f: "700 12px", c: "var(--text-faint)" });
-    return svg(470, 276, s);
-  };
-
-  const colFig = () => {
-    let s = ln(40, 190, 440, 190, "var(--text-faint)", 2.5);
-    for (let i = 0; i < 7; i++) {
-      const h = 2 ** i,
-        x = 56 + i * 54,
-        bh = h * 2.2;
-      s +=
-        rc(x, 190 - bh, 38, bh, { f: "var(--amber)", o: 0.35, s: "var(--amber)", sw: 2.5, r: 5 }) +
-        tx(x + 19, 190 - bh - 7, h + " h", { f: "900 13px" }) +
-        tx(x + 19, 210, 40 + i, { f: "800 13px", c: "var(--text-dim)" });
-    }
-    s += tx(245, 232, "number of in-or-out items, n", { f: "700 12px", c: "var(--text-faint)" });
-    s += `<text transform="translate(16,110) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">time to check every subset</text>`;
-    return svg(470, 242, s);
-  };
-
-  B.add("l2-approx", [
+  B.add("l3-recipe", [
     {
       type: "pick",
-      q: "Each dot is the number of designs in a different problem. A computer checks one billion designs a second and you can wait one day. Click every problem you could solve by checking every design.",
-      fig: numLineFig(),
-      a: ["A", "B", "C"],
-      hint: "A day is about 100,000 seconds, so one billion a second gives about 10 to the power 14 checks in total.",
-      why: "A day has about 86,400 seconds, so a billion checks a second covers roughly 10¹⁴ designs. A, B and C sit to the left of that mark (C is about 3 × 10¹³, around nine hours of checking). D is about 2 × 10¹⁴, over two days. E needs about 46 days and F about 20 years, so those need an approximate method.",
+      q: "Replacement compares fitness values, yet in this EA the children have never been scored when they reach the Replace step. Click the arrow where a box is missing.",
+      fig: recipeFlow(),
+      a: "vr",
+      hint: "Which step produces new members, and which step needs to compare them with the old ones?",
+      why: "Crossover and mutation make brand-new strings with no fitness yet. Replace-the-weakest has to compare a child's fitness with the population's, so a 'Score the children' box must sit on that arrow. The other arrows are fine: the starting population is scored before selection, and the loop-back repeats the cycle.",
     },
     {
-      type: "pick",
-      q: "Three methods each ran 10 times on the same routing problem. The dashed line is the proven best route, 400 km. Click the method for which running it again with a fresh random seed could give you a better answer.",
-      fig: stripFig(),
-      a: "B",
-      hint: "Ask: does a second run give anything different from the first?",
-      why: "Method A already lands on 400 km every time, so there is nothing to gain. Method C returns the same 438 km on every run, so a rerun just repeats it. Only B varies from run to run (407 to 468 km), so each extra run is a new chance to beat the last, and keeping the best of many runs pulls its answer towards the optimum.",
-    },
-    {
-      q: "A search checks every design in order, row by row, and is stopped after 40 of the 100. The cheapest design so far costs 31 (outlined). What can you say about the cheapest of all 100 designs?",
-      fig: gridFig(),
+      q: "Both lists rank the four members the same way. Under fitness-proportional selection (chance of being picked = fitness ÷ total), which statement is true?",
+      fig: shareFig(),
       o: [
-        "It could be cheaper than 31, since 60 designs are unchecked",
-        "It is exactly 31, because the search keeps the cheapest it has seen",
-        "It is above 31, because the cheap rows are always checked first",
-        "It is within a few per cent of 31, since 40 designs is a fair sample",
+        "Population 1 picks almost evenly, so selection there is weak",
+        "Both populations favour their best member by the same amount",
+        "Population 2 picks its best member about three times as often",
+        "Population 1 picks its best member far more often than its worst",
       ],
       a: 0,
-      why: "Checking 40% of the designs proves nothing about the other 60%: any of them might cost less than 31. 31 is the best so far, not the best overall. An exhaustive search that is stopped early has become an approximate method with no guarantee. Only a finished search proves the optimum.",
+      hint: "Population 1's total is 50 + 51 + 52 + 53 = 206. Is 53 out of 206 much more than 50 out of 206?",
+      why: "In population 1 the shares are 24%, 25%, 25% and 26%, nearly equal, so selection is almost random even though the ranking is the same. Population 2's shares are 0%, 17%, 33% and 50%. The selection pressure depends on the gaps between fitness values, not just their order, which is why rank-based or tournament selection is often preferred.",
     },
     {
-      type: "slider",
-      q: "The chart shows how long a computer needs to check every in-or-out choice for n items. A new computer is 1,000 times faster. About how many items could it handle in the same 1 hour?",
-      fig: colFig(),
-      min: 40,
-      max: 70,
-      step: 1,
-      ans: 50,
-      tol: 2,
-      unit: "items",
-      hint: "Each extra item doubles the time. 1,000 is close to 1,024, which is ten doublings (2 × 2 × 2 … ten times).",
-      why: "Ten doublings multiply the time by 2¹⁰ = 1,024, about 1,000. A computer 1,000 times faster therefore buys only ten more items (40 to 50) in the same hour. For exponential problems, faster hardware helps very little, which is why we turn to approximate methods.",
+      type: "pick",
+      q: "The line is the best fitness found so far in one EA run (higher is better). The rule is: stop as soon as 20 generations pass with no improvement. Click the generation where this run would stop.",
+      fig: stepFig(),
+      a: "g51",
+      hint: "Find the jump that comes before a long flat stretch. Count 20 generations along from there.",
+      why: "The last improvement before the long flat patch is at generation 31. Twenty generations later, at 51, nothing has improved, so the run stops. It never sees the improvement at generation 58 (58 up to 63). Waiting 20 generations is a gamble, not a guarantee, and the stalling patch here was 27 generations long.",
+    },
+    {
+      type: "match",
+      q: "Each chart tracks one EA on a 40-bit problem. Match each run to the settings that most likely produced it.",
+      fig: eaFig(),
+      pairs: [
+        ["Run A", "Very strong selection, no mutation"],
+        ["Run B", "Mutation so heavy that children are nearly random"],
+        ["Run C", "Moderate selection and light mutation"],
+      ],
+      why: "Run A: best and average meet at 33 and stay flat. Copies of one good member fill the population and, with no mutation, nothing new can appear. Run B: the average sits near 20, which is what a random 40-bit string scores, so heavy mutation scrambles every child and progress is lost. Run C: the best keeps rising (28 to 38) and the average follows it up.",
     },
   ]);
 
   /* ======================================================================
-     l3-recipe : flow diagram, 100% stacked bars, step line, small-multiple charts
+     l3-tsp : triangle heat table, decision tree, worked-example trace, stacked hop bars
      ====================================================================== */
-  const recipeFlow = () => {
-    const bx = (x, y, a, b) =>
-      rc(x - 55, y - 23, 110, 46, { r: 12, s: "var(--blue)", sw: 2.5 }) +
-      (b
-        ? tx(x, y - 3, a, { f: "800 12px" }) + tx(x, y + 13, b, { f: "800 12px" })
-        : tx(x, y + 5, a, { f: "800 13px" }));
-    const arr = (id, x1, y1, x2, y2) =>
-      hit(
-        id,
-        `${ln(x1, y1, x2, y2, "var(--text-faint)", 3).replace("/>", ` marker-end="url(#rfa)"/>`)}${ln(x1, y1, x2, y2, "transparent", 26)}`,
-      );
-    let s = mark("rfa");
-    s +=
-      bx(72, 50, "Make random", "population") + bx(230, 50, "Score every", "member") + bx(388, 50, "Select", "parents");
-    s += bx(388, 170, "Crossover +", "mutation") + bx(230, 170, "Replace the", "weakest") + bx(72, 170, "Stop?");
-    s +=
-      arr("is", 127, 50, 170, 50) +
-      arr("ss", 285, 50, 328, 50) +
-      arr("sv", 388, 73, 388, 142) +
-      arr("vr", 333, 170, 290, 170) +
-      arr("rs", 175, 170, 132, 170);
-    s += hit(
-      "loop",
-      `<path d="M72 147 V112 H350 V76" fill="none" stroke="var(--text-faint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#rfa)"/><path d="M72 147 V112 H350 V76" fill="none" stroke="transparent" stroke-width="22"/>`,
-    );
-    s +=
-      tx(210, 104, "no: go round again", { f: "700 12px", c: "var(--text-faint)" }) +
-      tx(72, 208, "yes: return the best", { f: "700 12px", c: "var(--text-faint)" });
-    return svg(470, 220, s);
-  };
-
-  const shareFig = () => {
-    const rows = [
-      ["Population 1: fitness 50, 51, 52, 53", [50, 51, 52, 53]],
-      ["Population 2: fitness 0, 1, 2, 3", [0, 1, 2, 3]],
-    ];
-    const cols = [
-      ["blue-dim", "blue"],
-      ["teal-dim", "teal"],
-      ["amber-dim", "amber"],
-      ["violet-dim", "violet"],
-    ];
+  const TRI = { AB: 4, AC: 7, AD: 5, AE: 6, BC: 3, BD: 8, BE: 2, CD: 4, CE: 9, DE: 3 };
+  const triFig = () => {
+    const rows = "ABCD".split(""),
+      cols = "BCDE".split(""),
+      x0 = 66,
+      y0 = 44,
+      W = 76,
+      H = 46;
     let s = "";
-    rows.forEach(([t, f], r) => {
-      const y = 36 + r * 88,
-        tot = f.reduce((a, b) => a + b, 0);
-      s += tx(30, y - 12, t, { a: "start", f: "800 13px" });
-      let x = 30;
-      f.forEach((v, i) => {
-        const w = (380 * v) / tot;
-        if (w > 0)
-          s +=
-            rc(x, y, w, 40, { f: `var(--${cols[i][0]})`, s: `var(--${cols[i][1]})`, sw: 2.5, r: 0 }) +
-            tx(x + w / 2, y + 26, v, { f: "900 14px" });
-        else s += tx(x - 6, y + 26, "0", { a: "end", f: "900 14px", c: "var(--text-faint)" });
-        x += w;
-      });
-    });
-    s += tx(30, 188, "bar length = each member's share of the parent picks", {
-      a: "start",
+    cols.forEach((c, j) => (s += tx(x0 + j * W + W / 2, 34, c, { f: "900 15px" })));
+    rows.forEach((r, i) => (s += tx(x0 - 12, y0 + i * H + H / 2 + 5, r, { f: "900 15px" })));
+    const ticked = ["AC", "BC", "BE", "DE"];
+    rows.forEach((r, i) =>
+      cols.forEach((c, j) => {
+        if (j + 1 <= i) return;
+        const k = r + c,
+          d = TRI[k],
+          x = x0 + j * W,
+          y = y0 + i * H,
+          t = ticked.includes(k);
+        s += hit(
+          k,
+          `${rc(x + 2, y + 2, W - 4, H - 4, { f: "var(--blue)", o: 0.1 + d * 0.06, s: t ? "var(--teal)" : "var(--line-2)", sw: t ? 3.5 : 2, r: 8 })}${tx(x + W / 2, y + H / 2 + 6, d, { f: "900 18px" })}${t ? `<path d="M${x + W - 22} ${y + 14} l5 5 l9 -10" fill="none" stroke="var(--teal-ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` : ""}`,
+        );
+      }),
+    );
+    s += tx(x0 + 2 * W, y0 + 4 * H + 24, "Ticked cells add up to 15. Darker blue = farther apart.", {
       f: "700 12px",
       c: "var(--text-faint)",
     });
-    return svg(450, 198, s);
+    return svg(400, 280, s);
   };
 
-  // best fitness so far: jumps at generations 5, 12, 25, 31, 58 (levels 20, 35, 50, 58, 63)
-  const stepFig = () => {
-    const X = (g) => 50 + g * 1.95,
-      Y = (f) => 200 - f * 2.3;
-    const jumps = [
-      [0, 12],
-      [5, 20],
-      [12, 35],
-      [25, 50],
-      [31, 58],
-      [58, 63],
-      [200, 63],
+  const treeFig = () => {
+    const lx = (i) => 48 + i * 72;
+    const L1 = [
+      [
+        "B",
+        [
+          ["C", "ABCD"],
+          ["D", "ABDC"],
+        ],
+      ],
+      [
+        "C",
+        [
+          ["B", "ACBD"],
+          ["D", "ACDB"],
+        ],
+      ],
+      [
+        "D",
+        [
+          ["B", "ADBC"],
+          ["C", "ADCB"],
+        ],
+      ],
     ];
-    const pts = [[X(0), Y(12)]];
-    for (let i = 1; i < jumps.length; i++)
-      pts.push([X(jumps[i][0]), Y(jumps[i - 1][1])], [X(jumps[i][0]), Y(jumps[i][1])]);
-    let s = ln(50, 200, 445, 200, "var(--text-faint)", 2.5) + ln(50, 30, 50, 200, "var(--text-faint)", 2.5);
-    [0, 50, 100, 150, 200].forEach(
-      (g) =>
-        (s +=
-          ln(X(g), 200, X(g), 206, "var(--text-faint)", 2) +
-          tx(X(g), 222, g, { f: "700 12px", c: "var(--text-faint)" })),
-    );
-    [0, 20, 40, 60].forEach((f) => (s += tx(44, Y(f) + 4, f, { a: "end", f: "700 11px", c: "var(--text-faint)" })));
-    s += pl(pts, "var(--teal)", 3.5);
-    [
-      [31, 58],
-      [51, 58],
-      [78, 63],
-      [100, 63],
-      [200, 63],
-    ].forEach(
-      ([g, f]) =>
-        (s +=
-          ln(X(g), Y(f) - 10, X(g), Y(f), "var(--blue)", 2, "3 3") +
+    let s = "",
+      leaf = 0;
+    const rootX = (lx(0) + lx(5)) / 2;
+    L1.forEach(([c1, kids], i) => {
+      const x1 = (lx(i * 2) + lx(i * 2 + 1)) / 2;
+      s += ln(rootX, 34, x1, 82, "var(--line-2)", 2.5);
+      kids.forEach(([c2, str]) => {
+        const x = lx(leaf++);
+        s += ln(x1, 82, x, 138, "var(--line-2)", 2.5) + ln(x, 138, x, 178, "var(--line-2)", 2.5);
+      });
+    });
+    leaf = 0;
+    s += ci(rootX, 26, 16, { s: "var(--teal)", sw: 3 }) + tx(rootX, 31, "A", { f: "900 14px" });
+    L1.forEach(([c1, kids], i) => {
+      const x1 = (lx(i * 2) + lx(i * 2 + 1)) / 2;
+      s += ci(x1, 82, 15) + tx(x1, 87, c1, { f: "900 14px" });
+      kids.forEach(([c2, str]) => {
+        const x = lx(leaf++);
+        s +=
+          ci(x, 138, 15) +
+          tx(x, 143, c2, { f: "900 14px" }) +
           hit(
-            "g" + g,
-            `${ci(X(g), Y(f) - 25, 14, { s: "var(--blue)", sw: 3 })}${tx(X(g), Y(f) - 21, g, { f: "900 11px" })}`,
-          )),
-    );
-    s += tx(250, 244, "generation", { f: "700 12px", c: "var(--text-faint)" });
-    s += `<text transform="translate(12,115) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">best fitness so far</text>`;
-    return svg(470, 254, s);
+            str,
+            `${rc(x - 31, 178, 62, 30, { r: 9, s: "var(--blue)", sw: 2.5 })}${tx(x, 199, str, { f: "900 14px" })}`,
+          );
+      });
+    });
+    s += tx(235, 232, "Each path from the top is one tour that starts at A. The last city is forced.", {
+      f: "700 12px",
+      c: "var(--text-faint)",
+    });
+    return svg(470, 242, s);
   };
 
-  // real simulated runs (40-bit OneMax, population 20, seed 4): [best, average] by generation
-  const EA = {
-    A: {
-      b: [
-        28, 28, 28, 30, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
-        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
-      ],
-      a: [
-        20.4, 24.7, 27.9, 28.1, 28.9, 31.6, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
-        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
-      ],
-    },
-    B: {
-      b: [
-        28, 26, 25, 26, 24, 26, 25, 27, 28, 25, 25, 23, 29, 28, 26, 28, 27, 26, 26, 29, 23, 29, 25, 26, 28, 26, 28, 28,
-        23, 24, 29, 26, 26, 24, 28, 23, 25, 25, 25, 27, 24,
-      ],
-      a: [
-        20.4, 19.3, 19.6, 19.6, 19.3, 20.6, 20.1, 20.1, 20, 20.1, 20.1, 20.3, 20.6, 20.8, 19.9, 20.9, 20.9, 20.9, 20.6,
-        21.7, 20.4, 18.1, 20.6, 21.4, 20.3, 20.4, 20, 19.3, 19.6, 19.2, 20.1, 20, 21.3, 20.1, 20.4, 18.6, 20.7, 20.3,
-        19.6, 20.9, 19.7,
-      ],
-    },
-    C: {
-      b: [
-        28, 28, 29, 29, 31, 31, 30, 32, 33, 33, 33, 34, 35, 36, 35, 36, 36, 37, 37, 38, 37, 37, 36, 36, 37, 36, 36, 37,
-        36, 35, 35, 35, 36, 36, 37, 37, 37, 37, 38, 38, 38,
-      ],
-      a: [
-        20.4, 21.6, 24.4, 25.8, 26.9, 27.9, 28.1, 28.6, 28.6, 29.8, 30.3, 31.1, 31.6, 31.8, 32.1, 32.4, 32.5, 33.5, 34,
-        34, 34.1, 33.6, 33.7, 33.6, 34, 34.1, 34, 34.2, 34, 33.5, 33.1, 33, 33.2, 33.8, 34.3, 34.2, 34.6, 35, 35.6,
-        35.5, 35.8,
-      ],
-    },
+  const workedFig = () => {
+    const st = [
+      "List the 7 cities in a row: 7! = 5,040 orders",
+      "Any city could start the same loop, so ÷ 6: 840",
+      "A loop and its reverse match, so ÷ 2: 420",
+      "So there are 420 distinct tours",
+    ];
+    let s = "";
+    st.forEach(
+      (t, i) =>
+        (s += hit(
+          "s" + (i + 1),
+          `${rc(10, 8 + i * 56, 440, 46, { r: 12, s: "var(--blue)", sw: 2.5 })}${ci(36, 31 + i * 56, 14, { f: "var(--blue-dim)", s: "var(--blue)", sw: 2 })}${tx(36, 36 + i * 56, i + 1, { f: "900 14px" })}${tx(60, 36 + i * 56, t, { a: "start", f: "800 14px" })}`,
+        )),
+    );
+    return svg(460, 236, s);
   };
-  const eaFig = () => {
-    const Y = (v) => 118 - (v - 18) * 3.6;
+
+  const hopFig = () => {
+    const G = [2, 2, 2, 4, 4, 11],
+      O = [3, 4, 2, 3, 3, 2],
+      U = 14;
+    const bar = (t, a, y) => {
+      let s = tx(30, y - 10, t, { a: "start", f: "800 13px" }),
+        x = 30;
+      a.forEach((v, i) => {
+        s +=
+          rc(x, y, v * U, 40, {
+            f: i % 2 ? "var(--teal-dim)" : "var(--blue-dim)",
+            s: i % 2 ? "var(--teal)" : "var(--blue)",
+            sw: 2.5,
+            r: 0,
+          }) + tx(x + (v * U) / 2, y + 26, v, { f: "900 14px" });
+        x += v * U;
+      });
+      return s;
+    };
+    return svg(
+      460,
+      150,
+      bar("Nearest-neighbour tour: the six hops in order", G, 30) + bar("Best tour: the six hops in order", O, 98),
+    );
+  };
+
+  B.add("l3-tsp", [
+    {
+      type: "pick",
+      q: "The table gives the distance for each pair of five cities. A student adds up the tour A → C → B → E → D → A using the ticked cells, and gets 15. One cell the tour needs is not ticked. Click it.",
+      fig: triFig(),
+      a: "AD",
+      hint: "List the five hops of the closed tour: A–C, C–B, B–E, E–D, and then the hop home.",
+      why: "The closed tour uses AC (7), BC (3), BE (2), DE (3) and the way home, D back to A (5). The student ticked only the first four, 15 in all, and forgot the return hop. The true length is 20. A tour is a loop, so the last city always has one more hop back to the start.",
+    },
+    {
+      type: "pick",
+      q: "The tree lists every ordered tour of four cities that starts at A. A student writes the loop A → C → D → B → A as ACDB. Click the other leaf that is the same loop travelled the opposite way round.",
+      fig: treeFig(),
+      a: "ABDC",
+      hint: "Read ACDB backwards starting from A: A, then B, then D, then C.",
+      why: "Going round the loop the other way from A visits B, D, C: that is ABDC. The six leaves pair up into three loops (ABCD with ADCB, ABDC with ACDB, ACBD with ADBC), so there are 3!/2 = 3 distinct tours, not 6.",
+    },
+    {
+      type: "pick",
+      q: "A student works out how many distinct round trips there are for 7 cities. Exactly one step is wrong. Click it.",
+      fig: workedFig(),
+      a: "s2",
+      hint: "Fixing the starting city means dividing by how many cities could have been the start.",
+      why: "There are 7 possible starting cities for the same loop, so step 2 should divide by 7, not 6: 5,040 ÷ 7 = 720. Halving for direction gives 360, which is (7 − 1)! ÷ 2. The student's 420 is too big. Step 1 and step 3 are correct.",
+    },
+    {
+      type: "slider",
+      q: "Each bar shows the six hop lengths of one tour of the same six cities, in order. About how many per cent longer is the nearest-neighbour tour than the best tour?",
+      fig: hopFig(),
+      min: 0,
+      max: 120,
+      step: 5,
+      ans: 45,
+      tol: 10,
+      unit: "%",
+      hint: "Add each bar's numbers. A tour 50% longer than 17 would be 25.5.",
+      why: "Nearest-neighbour: 2 + 2 + 2 + 4 + 4 + 11 = 25. Best: 3 + 4 + 2 + 3 + 3 + 2 = 17. 25 is about 47% more than 17. The greedy tour spent only 14 on its first five hops, but those cheap hops used up the nearby cities and left a 11-long hop home, longer than any hop of the best tour (its longest is 4).",
+    },
+  ]);
+
+  /* ======================================================================
+     l3-hc : small-multiple runs, restart flow chart, bit-string transitions, scatter
+     ====================================================================== */
+  const hcF = (x) => (x <= 8 ? x : x <= 24 ? 8 : x - 16); // slope to 8, plateau 8..24, then slope up (x = 30 gives 14)
+  const hcRun = (eq, seed, n = 80) => {
+    let s = seed;
+    const R = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+    let x = 0;
+    const tr = [hcF(x)];
+    for (let i = 0; i < n; i++) {
+      const y = x + (R() < 0.5 ? -1 : 1);
+      if (y >= 0 && y <= 30 && (hcF(y) > hcF(x) || (eq && hcF(y) === hcF(x)))) x = y;
+      tr.push(hcF(x));
+    }
+    return tr;
+  };
+  const hcPanels = () => {
+    const runs = { A: hcRun(false, 193), B: hcRun(true, 193) },
+      Y = (v) => 170 - v * 9;
     let s = "";
     [
-      ["A", 24],
-      ["B", 178],
-      ["C", 332],
+      ["A", 40],
+      ["B", 270],
     ].forEach(([k, px]) => {
-      const X = (g) => px + 6 + g * 3.2;
-      s += rc(px, 26, 134, 100, { r: 8, s: "var(--line)", f: "var(--bg-2)" });
-      [20, 30, 40].forEach(
+      const X = (e) => px + e * 2.2;
+      s +=
+        rc(px - 6, 26, 196, 150, { r: 8, s: "var(--line)", f: "var(--bg-2)" }) +
+        tx(px + 92, 18, "Run " + k, { f: "900 14px" });
+      [0, 7, 14].forEach(
         (v) =>
           (s +=
-            ln(px + 2, Y(v), px + 132, Y(v), "var(--line)", 1) +
-            (k === "A" ? tx(px - 4, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) : "")),
+            ln(px - 4, Y(v), px + 188, Y(v), "var(--line)", 1) +
+            (k === "A" ? tx(px - 10, Y(v) + 4, v, { a: "end", f: "700 11px", c: "var(--text-faint)" }) : "")),
       );
-      s +=
-        pl(
-          EA[k].a.map((v, g) => [X(g), Y(v)]),
-          "var(--amber)",
-          2.5,
-          "5 4",
-        ) +
-        pl(
-          EA[k].b.map((v, g) => [X(g), Y(v)]),
-          "var(--teal)",
-          3,
-        );
-      s +=
-        tx(px + 67, 146, "Run " + k, { f: "900 14px" }) +
-        tx(px + 67, 164, "generations 0 to 40", { f: "700 11px", c: "var(--text-faint)" });
+      s += pl(
+        runs[k].map((v, e) => [X(e), Y(v)]),
+        k === "A" ? "var(--blue)" : "var(--amber)",
+        3.5,
+      );
+      s += tx(px + 92, 196, "evaluations 0 to 80", { f: "700 11px", c: "var(--text-faint)" });
     });
-    s += tx(235, 14, "solid green: best member    dashed orange: average member", {
-      f: "700 12px",
-      c: "var(--text-dim)",
-    });
-    return svg(472, 174, s);
+    s += `<text transform="translate(12,100) rotate(-90)" text-anchor="middle" style="font:700 11px var(--sans);fill:var(--text-faint)">fitness</text>`;
+    s += ["A", "B"]
+      .map((k, i) =>
+        hit("run" + k, rc(34 + i * 230, 22, 208, 158, { f: "transparent", s: "transparent", sw: 2, r: 12 })),
+      )
+      .join("");
+    return svg(470, 206, s);
   };
-  Object.assign(partScope, { ci, eaFig, hit, ln, mark, pl, rc, recipeFlow, rng, shareFig, stepFig, svg, tx });
+
+  const restartFlow = () => {
+    const bx = (x, y, a, b) =>
+      rc(x - 58, y - 24, 116, 48, { r: 12, s: "var(--violet)", sw: 2.5 }) +
+      (b
+        ? tx(x, y - 3, a, { f: "800 12px" }) + tx(x, y + 13, b, { f: "800 12px" })
+        : tx(x, y + 5, a, { f: "800 13px" }));
+    const a1 = (x1, y1, x2, y2) =>
+      ln(x1, y1, x2, y2, "var(--text-faint)", 3).replace("/>", ` marker-end="url(#hfa)"/>`);
+    let s = mark("hfa");
+    const n = (id, x, y, a, b) => hit(id, bx(x, y, a, b));
+    s += a1(131, 50, 168, 50) + a1(289, 50, 326, 50) + a1(388, 76, 388, 140) + a1(326, 170, 289, 170);
+    s += `<path d="M388 196 V218 H72 V80" fill="none" stroke="var(--text-faint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#hfa)"/>`;
+    s +=
+      tx(300, 212, "yes: restart", { f: "700 12px", c: "var(--text-faint)" }) +
+      tx(308, 160, "no", { f: "700 12px", c: "var(--text-faint)" });
+    s +=
+      n("start", 72, 50, "Pick a", "random start") +
+      n("climb", 230, 50, "Climb until no", "better neighbour") +
+      n("save", 388, 50, "Save the final", "tour as the result") +
+      n("time", 388, 170, "Time left?") +
+      n("ret", 230, 170, "Return the", "result");
+    return svg(470, 232, s);
+  };
+
+  const bitsTable = () => {
+    const R = [
+      ["0100 1010", "0110 1010"],
+      ["1011 0001", "1011 0101"],
+      ["1110 0000", "1110 0000"],
+      ["0111 1100", "0101 1100"],
+      ["0001 0110", "1111 0110"],
+      ["1100 1111", "1101 1111"],
+    ];
+    return `<div style="max-width:360px"><table class="t"><tr><th>Row</th><th>Before</th><th>After one step</th></tr>${R.map((r, i) => `<tr><td>${i + 1}</td><td style="font-family:var(--mono);font-weight:800">${r[0]}</td><td style="font-family:var(--mono);font-weight:800">${r[1]}</td></tr>`).join("")}</table></div>`;
+  };
+
+  const SC = [
+    [5, 40],
+    [12, 65],
+    [8, 90],
+    [20, 40],
+    [18, 65],
+    [25, 90],
+    [30, 40],
+    [14, 65],
+    [22, 40],
+    [35, 65],
+    [10, 40],
+    [28, 90],
+    [33, 40],
+    [40, 65],
+    [15, 90],
+    [37, 40],
+    [26, 65],
+    [45, 90],
+    [9, 40],
+    [32, 90],
+  ];
+  const scatterFig = () => {
+    const X = (v) => 56 + v * 7.6,
+      Y = (v) => 190 - (v - 30) * 2.4;
+    let s = ln(56, 190, 440, 190, "var(--text-faint)", 2.5) + ln(56, 30, 56, 190, "var(--text-faint)", 2.5);
+    [0, 10, 20, 30, 40, 50].forEach(
+      (v) =>
+        (s +=
+          ln(X(v), 190, X(v), 196, "var(--text-faint)", 2) +
+          tx(X(v), 212, v, { f: "700 12px", c: "var(--text-faint)" })),
+    );
+    [40, 65, 90].forEach(
+      (v) =>
+        (s +=
+          tx(50, Y(v) + 4, v, { a: "end", f: "700 12px", c: "var(--text-faint)" }) +
+          ln(56, Y(v), 440, Y(v), "var(--line)", 1, "4 4")),
+    );
+    SC.forEach(([a, b]) => (s += ci(X(a), Y(b), 6.5, { f: "var(--blue)", s: "var(--blue-ink)", sw: 1.5 })));
+    s += tx(250, 232, "fitness at the start of the run", { f: "700 12px", c: "var(--text-faint)" });
+    s += `<text transform="translate(12,110) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">fitness where it stopped</text>`;
+    return svg(470, 242, s);
+  };
+
+  B.add("l3-hc", [
+    {
+      type: "pick",
+      q: "Two hillclimbers start from the same point on the same landscape. One accepts a mutant that is equal in fitness, the other accepts only strictly better ones. Click the run that accepts equal moves.",
+      fig: hcPanels(),
+      a: "runB",
+      hint: "Both runs are the same until they reach a flat stretch. What can each do there?",
+      why: "The runs are identical until evaluation 12, when both reach the flat plateau. Run A never moves again, because on a plateau every neighbour is merely equal and a strict climber rejects it. Run B keeps accepting equal moves, drifts across the plateau, and at about evaluation 50 steps off its far edge and climbs again to 14.",
+    },
+    {
+      type: "pick",
+      q: "This hillclimber with restarts returns poor answers even though some of its runs find excellent tours: it returns the tour the last run happened to end on. Click the box that should change.",
+      fig: restartFlow(),
+      a: "save",
+      hint: "Which box decides what is remembered between runs?",
+      why: "Saving every run's final tour as 'the result' overwrites an earlier, better one. The Save box should keep the new tour only if it is better than the best saved so far. Starting, climbing, the time check and returning are all fine.",
+    },
+    {
+      type: "cat",
+      q: "A hillclimber flips one random bit and keeps the mutant if its fitness is equal or better. Fitness is the number of 1s among the first four bits (the last four bits do not count). Sort each row: what is it?",
+      fig: bitsTable(),
+      buckets: ["An improvement", "Sideways or no move", "Impossible for this hillclimber"],
+      items: [
+        ["Row 1", 0],
+        ["Row 2", 1],
+        ["Row 3", 1],
+        ["Row 4", 2],
+        ["Row 5", 2],
+        ["Row 6", 0],
+      ],
+      hint: "Count how many bits changed, then count the 1s in the first four bits before and after.",
+      why: "Rows 1 and 6 flip a single bit among the first four from 0 to 1, a gain. Row 2 flips a bit in the right half (fitness unchanged), and row 3 is a mutant that was rejected, so nothing moves: both are fine because equal moves are accepted. Row 4 loses a 1 (3 to 2), which a hillclimber never keeps. Row 5 changes three bits at once, which one-bit mutation cannot do, even though fitness rose from 1 to 4.",
+    },
+    {
+      type: "slider",
+      q: "Each dot is one hillclimber run: across is the fitness it started at, up is the fitness where it stopped. The global optimum has fitness 90. About how many restarts would you expect to need before one reaches it?",
+      fig: scatterFig(),
+      min: 1,
+      max: 10,
+      step: 1,
+      ans: 3,
+      tol: 1,
+      unit: "restarts",
+      hint: "Count the dots on the top dashed line out of 20 dots. About one in three?",
+      why: "6 of the 20 runs end at 90, so each restart succeeds about 30% of the time and you expect about 20 ÷ 6 ≈ 3 restarts. Notice where a run ends depends on which hill it started on, not how high it started: some of the best starting points (fitness 33 and 37) get stuck at 40, while a start at 8 reaches 90.",
+    },
+  ]);
 })();

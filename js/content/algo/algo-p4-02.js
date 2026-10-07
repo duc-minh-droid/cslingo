@@ -163,8 +163,30 @@
         v: (box, life) => kruskalRun(box, life),
       },
       {
+        t: "Prim and Kruskal compared",
+        b: `<p>Both build the same minimum spanning tree when the weights are distinct. They differ in what they keep and what they cost.</p><table class="t"><tr><th></th><th>Prim</th><th>Kruskal</th></tr><tr><td>Grows</td><td>one tree</td><td>a forest that merges</td></tr><tr><td>Remembers</td><td>nearest(v) for each outside vertex</td><td>groups of connected vertices</td></tr><tr><td>Each step</td><td>cheapest edge leaving the tree</td><td>cheapest edge not closing a loop</td></tr><tr><td>Time (arrays)</td><td>$O(|V|^2)$</td><td>$O(|E| \\log |V|)$</td></tr></table>`,
+        v: F.compare(
+          { title: "Prim", c: "teal", body: "start anywhere; one blob grows; loops over <b>vertices</b>" },
+          { title: "Kruskal", c: "violet", body: "sort all edges; many small trees merge; loops over <b>edges</b>" },
+        ),
+        c: {
+          q: "Which statement about Prim and Kruskal on a graph with all-distinct weights is true?",
+          o: [
+            "They return different trees, but with equal totals",
+            "They return the same tree",
+            "Only Prim can return a spanning tree",
+          ],
+          a: 1,
+          why: "With distinct weights the MST is unique, and both algorithms are correct, so both find it.",
+        },
+      },
+      {
         t: "Edge cases worth knowing",
         b: `<p><b>Ties:</b> either choice is fine. Several different MSTs can have the same total.<br><b>Disconnected graph:</b> no spanning tree exists. Kruskal ends with a <i>spanning forest</i> of fewer than n − 1 edges.<br><b>Which is faster?</b> Prim with a heap suits dense graphs. Kruskal's sort dominates, O(m log m), which suits sparse graphs.</p>`,
+        v: F.compare(
+          { title: "Ties", c: "amber", body: "several MSTs can exist, all with the <b>same total</b>" },
+          { title: "Disconnected", c: "rose", body: "no spanning tree: Kruskal ends with a <b>forest</b>" },
+        ),
         c: {
           q: "The graph is disconnected. What does Kruskal do?",
           o: [
@@ -188,8 +210,8 @@
     id: "a4-mst",
     subject: "algo",
     lecture: 4,
-    order: 2,
-    num: "4.2",
+    order: 5,
+    num: "4.5",
     title: "Prim vs Kruskal, side by side",
     blurb:
       "Same graph, two greedy strategies. One grows a tree, the other merges a forest, and both land on the same MST.",

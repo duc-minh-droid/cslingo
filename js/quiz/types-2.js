@@ -345,7 +345,7 @@
                 .map((i) => String(i[0]).replace(/<[^>]+>/g, ""))
                 .join(", ")}`,
           )
-          .join(" · "),
+          .join("<br>"),
     },
     pick: {
       label: "Click on the diagram",

@@ -1,403 +1,407 @@
 (function () {
   const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});
-  const { TAU, arrow, circ, dftAmps, f1, figCertTree, figRings, figSignPipe, figVenn, ln, pk, rc, softmax, svg, tx } =
-    partScope;
+  const {
+    arrow,
+    blockHash,
+    circ,
+    cross,
+    f1,
+    figArrows,
+    figWeightPanels,
+    lines,
+    ln,
+    mineBlock,
+    pk,
+    rc,
+    scrambled,
+    svg,
+    tick,
+    tint,
+    tx,
+    zeros,
+  } = partScope;
   const B = NIC.bank;
 
-  B.add("a8-keys", [
-    {
-      type: "mcq",
-      q: "Diffie–Hellman with p = 17. Each ring shows which public values A = gᵃ mod 17 can ever appear (big green dots). Alice and Bob choose g = 4 instead of g = 3. What is the real problem?",
-      fig: figRings(),
-      o: [
-        "Eve only has to try a = 1, 2, 3, 4, because the powers of 4 repeat after four steps",
-        "Alice and Bob would calculate two different shared secrets, so the chat could not start",
-        "Eve could read a straight off the ring, since every dot is labelled with its exponent",
-        "The public value A would be too big to send, because g = 4 raises it to a higher power",
-      ],
-      a: 0,
-      hint: "Count the steps until the sequence 4, 16, 13, 1 starts again.",
-      why: "The secret exponent only matters up to where the powers start repeating. With g = 3 that is 16 steps, with g = 4 it is 4, so Eve can simply try every a up to 4 (or 8 for g = 2). A good base, called a generator, visits as many values as possible, which is what makes the search hard.",
-    },
-    {
-      type: "pick",
-      q: "Alice signs a contract and sends it with her signature. Eve has a copy of everything on the wire and Alice's <b>public</b> key. Tap <b>every</b> step Eve could carry out herself.",
-      fig: figSignPipe(),
-      a: ["s1", "s3", "s4", "s5"],
-      why: "Hashing needs no secret, and unlocking a signature uses the <b>public</b> key, so Eve can do steps 1, 3, 4 and 5. The only step that needs a secret is step 2, locking with Alice's private key. That asymmetry is the whole point: anyone can check a signature, only Alice can make one.",
-    },
-    {
-      type: "mcq",
-      q: "Each method is placed by what it does well. Nothing lands in the overlap. How does a real secure chat cope with that?",
-      fig: figVenn(),
-      o: [
-        "Public-key steps agree a fresh key, then fast symmetric encryption carries the chat",
-        "It uses RSA for every single message and accepts the extra waiting time on each reply",
-        "It sends the AES key in the clear first, because AES is quick enough to make up for that",
-        "It picks a much bigger RSA key until RSA becomes as fast as AES for the bulk data",
-      ],
-      a: 0,
-      why: "Public-key methods can start from nothing but are slow; symmetric ciphers are fast but need a shared key already. Combining them (a hybrid) gets both: use Diffie–Hellman or RSA once to agree a key, then AES for the bulk. A bigger RSA key makes it slower, not faster.",
-    },
-    {
-      type: "pick",
-      q: "Your browser trusts only the Root CA's key. Three servers each present a certificate claiming to be <b>shop.example</b>. Tap the certificate it should accept.",
-      fig: figCertTree(),
-      a: "A",
-      why: "A certificate is only as good as the chain of signatures leading back to a key you already hold. A is signed by the Intermediate, whose own certificate is signed by the Root, so the chain closes. FreeCert is unknown to the browser and a self-signed certificate vouches only for itself, so a man in the middle could use either.",
-    },
-  ]);
-
-  /* ================================================================== a9-dft ================================================================== */
-
-  // D1: tone order is not in the magnitude spectrum
-  function figTwoRecordings() {
-    const N = 64,
-      tone = (f, t) => Math.sin((TAU * f * t) / N);
-    const A = Array.from({ length: N }, (_, t) => (t < 32 ? tone(4, t) : tone(8, t)));
-    const Bs = Array.from({ length: N }, (_, t) => (t < 32 ? tone(8, t) : tone(4, t)));
-    const sa = dftAmps(A),
-      sb = dftAmps(Bs);
-    const wave = (arr, cy, first, second) => {
-      const X = (t) => 12 + (t * 316) / 63,
-        pts = (a, b) =>
-          arr
-            .slice(a, b + 1)
-            .map((v, i) => `${f1(X(a + i))},${f1(cy - v * 17)}`)
-            .join(" ");
-      return (
-        ln(12, cy, 328, cy, { c: "var(--line)", w: 1.5 }) +
-        `<polyline points="${pts(0, 32)}" fill="none" stroke="${first}" stroke-width="2.5" stroke-linejoin="round"/><polyline points="${pts(32, 63)}" fill="none" stroke="${second}" stroke-width="2.5" stroke-linejoin="round"/>`
-      );
-    };
-    const bars = (x0, amps, title) => {
-      let s = tx(x0 + 71, 134, title, { s: 12, c: "var(--text-dim)" });
-      for (let k = 0; k <= 12; k++) {
-        const h = amps[k] * 120,
-          c = k === 4 ? "var(--blue)" : k === 8 ? "var(--amber)" : "var(--line-2)";
-        s += `<rect x="${x0 + k * 11 + 1}" y="${f1(206 - h)}" width="8" height="${f1(Math.max(h, 1))}" rx="2" fill="${c}"/>`;
-      }
-      return (
-        s +
-        ln(x0, 207, x0 + 143, 207, { c: "var(--line-2)", w: 1.5 }) +
-        tx(x0, 222, "0", { s: 11, c: "var(--text-faint)", a: "start" }) +
-        tx(x0 + 143, 222, "12 Hz", { s: 11, c: "var(--text-faint)", a: "end" })
-      );
-    };
-    const s =
-      tx(8, 14, "Recording A: slow tone, then fast tone", { a: "start", s: 12, c: "var(--text-dim)" }) +
-      wave(A, 42, "var(--blue)", "var(--amber)") +
-      tx(8, 78, "Recording B: fast tone, then slow tone", { a: "start", s: 12, c: "var(--text-dim)" }) +
-      wave(Bs, 106, "var(--amber)", "var(--blue)") +
-      bars(10, sa, "Spectrum of A") +
-      bars(180, sb, "Spectrum of B");
-    return svg(
-      340,
-      230,
-      s,
-      "Two one-second recordings with the same two tones in opposite order, and their identical magnitude spectra",
-    );
-  }
-
-  // D2: the fold plot at fs = 40 Hz
-  function figFold() {
-    const X = (f) => 44 + f * 3.4,
-      Y = (a) => 168 - a * 6;
-    const fold = (f) => Math.abs(f - 40 * Math.round(f / 40));
-    let s =
-      ln(44, 168, 318, 168, { c: "var(--text-faint)", w: 2 }) + ln(44, 168, 44, 40, { c: "var(--text-faint)", w: 2 });
-    [0, 10, 20].forEach(
-      (a) =>
-        (s +=
-          ln(41, Y(a), 47, Y(a), { c: "var(--text-faint)", w: 2 }) +
-          tx(36, Y(a) + 4, a, { a: "end", s: 11, c: "var(--text-dim)" })),
-    );
-    s += tx(8, 24, "peak you see (Hz)", { a: "start", s: 12, c: "var(--text-dim)" });
-    s += `<polyline points="${[0, 20, 40, 60, 80].map((f) => `${f1(X(f))},${f1(Y(fold(f)))}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>`;
-    s += tx(181, 220, "true frequency of the tone (Hz). Tap marked tones.", { s: 12, c: "var(--text-dim)" });
-    [10, 20, 30, 50, 60, 70].forEach((f) => {
-      s += pk(
-        String(f),
-        `<rect x="${f1(X(f) - 14)}" y="176" width="28" height="26" rx="8" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>` +
-          tx(X(f), 194, f, { s: 13 }),
-      );
-    });
-    [0, 40, 80].forEach((f) => (s += ln(X(f), 168, X(f), 172, { c: "var(--text-faint)", w: 2 })));
-    return svg(330, 228, s, "Zig-zag plot: apparent frequency against true frequency when sampling at 40 Hz");
-  }
-
-  // D3: recording set-ups, sample rate across and length up
-  function figSetups() {
-    const X = (fs) => 48 + (fs / 1400) * 270,
-      Y = (T) => 232 - T * 170;
-    let s =
-      ln(48, 232, 322, 232, { c: "var(--text-faint)", w: 2 }) + ln(48, 232, 48, 36, { c: "var(--text-faint)", w: 2 });
-    [0, 400, 800, 1200].forEach(
-      (v) =>
-        (s +=
-          ln(X(v), 232, X(v), 236, { c: "var(--text-faint)", w: 2 }) +
-          tx(X(v), 250, v, { s: 11, c: "var(--text-dim)" })),
-    );
-    [0, 0.5, 1].forEach(
-      (v) =>
-        (s +=
-          ln(44, Y(v), 48, Y(v), { c: "var(--text-faint)", w: 2 }) +
-          tx(40, Y(v) + 4, v, { a: "end", s: 11, c: "var(--text-dim)" }) +
-          (v ? ln(48, Y(v), 322, Y(v), { c: "var(--line)", w: 1, d: "3 4" }) : "")),
-    );
-    s +=
-      tx(8, 22, "recording length (s)", { a: "start", s: 12, c: "var(--text-dim)" }) +
-      tx(185, 270, "samples per second (Hz)", { s: 12, c: "var(--text-dim)" });
-    [
-      ["A", 500, 1],
-      ["B", 800, 0.25],
-      ["C", 800, 1],
-      ["D", 650, 0.6],
-      ["E", 1000, 0.4],
-      ["F", 1200, 0.75],
-      ["G", 400, 0.3],
-    ].forEach(([id, fs, T]) => (s += pk(id, circ(X(fs), Y(T), 13, "p") + tx(X(fs), Y(T) + 5, id, { s: 13 }))));
-    return svg(335, 278, s, "Scatter of seven recording set-ups: sample rate across, recording length up");
-  }
-
-  B.add("a9-dft", [
-    {
-      type: "mcq",
-      q: "Recording A plays a 4 Hz tone for half a second then an 8 Hz tone for half a second. Recording B plays them the other way round. Both are analysed with one DFT over the whole second. Can the magnitude spectrum tell you which tone came first?",
-      fig: figTwoRecordings(),
-      o: [
-        "No: each bar adds up the whole second, so the order of the tones is not in the bar heights",
-        "Yes: the 4 Hz bar sits further left when that tone plays first, so you can simply read the order",
-        "Yes: the tone that plays first always leaves the taller bar of the two bars in the spectrum",
-        "No: the sample rate is too low to hold two different tones in the same recording",
-      ],
-      a: 0,
-      why: "Every DFT bin multiplies all the samples by one rotating wave and adds the lot, so a bin answers “how much of this frequency is in the window?”, not “when?”. Swapping the halves gives exactly the same magnitudes (here the two charts are numerically identical). To see timing you cut the signal into short windows, a spectrogram.",
-    },
-    {
-      type: "pick",
-      q: "A recorder samples at <b>40 Hz</b>. The zig-zag shows where a tone of each true frequency appears. A peak shows at 10 Hz. Tap <b>every</b> marked true frequency that could have produced it.",
-      fig: figFold(),
-      a: ["10", "30", "50", "70"],
-      why: "Everything folds back into 0 to 20 Hz (half of 40). Tones at 10, 30, 50 and 70 Hz all land on 10 Hz: they differ by multiples of the sampling rate (40 Hz) or are mirror images around it. 20 and 60 Hz both land on 20 Hz. After sampling, nothing can tell these impostors apart.",
-    },
-    {
-      type: "pick",
-      q: "The loudest tone to record is <b>300 Hz</b>, and two hums must show as separate peaks, which needs bins at most <b>2 Hz</b> apart. Each dot is a recording set-up. Tap <b>every</b> set-up that works.",
-      fig: figSetups(),
-      a: ["C", "D", "F"],
-      hint: "Two conditions: samples per second above 2 × 300, and bin spacing 1 ÷ length at most 2.",
-      why: "Condition 1: sample faster than twice the highest tone, so more than 600 Hz (rules out A and G). Condition 2: bin spacing is 1 ÷ length, so a length of at least 0.5 s gives 2 Hz bins (rules out B and E). C, D and F meet both.",
-    },
-    {
-      type: "bug",
-      q: "<code>mags</code> holds the DFT magnitudes for bins 0 to n/2, from n samples taken at <code>fs</code> Hz. The function should return the frequency of the loudest bin but gives silly answers. Click the faulty line.",
-      code: [
-        "def peak_hz(mags, fs):",
-        "    n = 2 * (len(mags) - 1)",
-        "    k = mags.index(max(mags))",
-        "    return k * n / fs",
-      ],
-      a: 3,
-      why: "Bin k sits at k × (bin spacing) and the spacing is fs ÷ n. The line multiplies by n and divides by fs, the wrong way up (the answer would shrink as you sample faster). It should be <code>k * fs / n</code>.",
-    },
-  ]);
-
-  /* ================================================================== a9-fft ================================================================== */
-
-  // F1: samples that are zero on the odd positions
-  function figEvenOnly() {
-    const xs = [3, 0, 1, 0, 4, 0, 2, 0],
-      cw = 38,
-      x0 = 16;
-    let s = tx(8, 16, "8 samples", { a: "start", s: 12, c: "var(--text-dim)" });
-    xs.forEach(
-      (v, i) =>
-        (s +=
-          rc(x0 + i * cw, 24, cw - 4, 34, i % 2 ? "n" : "b", { r: 6 }) +
-          tx(x0 + i * cw + (cw - 4) / 2, 47, v, { s: 15, c: i % 2 ? "var(--text-faint)" : "var(--blue-ink)" }) +
-          tx(x0 + i * cw + (cw - 4) / 2, 74, `x${i}`, { s: 11, c: "var(--text-faint)" })),
-    );
-    s += tx(8, 108, "Spectrum bars (heights depend on the samples)", { a: "start", s: 12, c: "var(--text-dim)" });
-    for (let k = 0; k < 8; k++) {
-      const x = x0 + k * cw;
-      if (k === 1)
-        s +=
-          rc(x, 120, cw - 4, 80, "g", { r: 6, sw: 1.5 }) +
-          `<rect x="${x + 5}" y="152" width="${cw - 14}" height="48" rx="3" fill="var(--teal)"/>` +
-          tx(x + (cw - 4) / 2, 140, "ref", { s: 11, c: "var(--teal-ink)" });
-      else
-        s += pk(
-          String(k),
-          rc(x, 120, cw - 4, 80, "p", { r: 6, d: "4 3" }) +
-            tx(x + (cw - 4) / 2, 166, "?", { s: 15, c: "var(--text-faint)" }),
-        );
-      s += tx(x + (cw - 4) / 2, 218, `bin ${k}`, { s: 11, c: "var(--text-faint)" });
-    }
-    return svg(
-      330,
-      228,
-      s,
-      "Eight samples with zeros at odd positions, and eight spectrum slots with bin 1 drawn as the reference",
-    );
-  }
-
-  // F2: an 8-point butterfly network
-  function figButterfly8() {
-    const order = [0, 4, 2, 6, 1, 5, 3, 7],
-      Y = (i) => 44 + i * 25,
-      bands = [
-        [84, 150],
-        [160, 226],
-        [236, 302],
+  // A3: heatmap of attention received
+  function figHeat() {
+    const toks = ["the", "cat", "sat", "down"],
+      M = [
+        [0.1, 0.5, 0.3, 0.1],
+        [0.05, 0.15, 0.7, 0.1],
+        [0.1, 0.55, 0.25, 0.1],
+        [0.05, 0.55, 0.3, 0.1],
       ];
-    let s = "";
-    bands.forEach(([a, b], si) => {
-      s += pk(
-        `s${si + 1}`,
-        rc(a - 4, 24, b - a + 8, 206, "p", { r: 10, d: "5 4" }) +
-          tx((a + b) / 2, 18, `Stage ${si + 1}`, { s: 12, c: "var(--text-dim)" }),
+    const x0 = 78,
+      y0 = 62,
+      cw = 56,
+      ch = 38;
+    let s =
+      tx(8, 16, "Rows: the token that is looking.", { a: "start", s: 11, c: "var(--text-dim)" }) +
+      tx(8, 32, "Columns: the token looked at. Each row adds to 1.", { a: "start", s: 11, c: "var(--text-dim)" });
+    toks.forEach(
+      (t, c) =>
+        (s += pk(
+          `c${c}`,
+          rc(x0 + c * cw + 2, y0 - 26, cw - 4, 22, "p", { r: 7 }) + tx(x0 + c * cw + cw / 2, y0 - 10, t, { s: 12 }),
+        )),
+    );
+    M.forEach((row, r) => {
+      s += tx(x0 - 8, y0 + r * ch + ch / 2 + 4, toks[r], { a: "end", s: 12, c: "var(--text-dim)" });
+      row.forEach(
+        (v, c) =>
+          (s +=
+            `<rect x="${x0 + c * cw + 2}" y="${y0 + r * ch + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" fill="${tint("var(--blue)", Math.round(v * 120))}" stroke="var(--line)" stroke-width="1"/>` +
+            tx(x0 + c * cw + cw / 2, y0 + r * ch + ch / 2 + 4, v.toFixed(2), { s: 12 })),
       );
     });
-    for (let i = 0; i < 8; i++) s += ln(46, Y(i), 306, Y(i), { c: "var(--line-2)", w: 1.5 });
-    bands.forEach(([a, b], si) => {
-      const d = 1 << si;
-      for (let i = 0; i < 8; i++)
-        if (!(i & d)) {
-          const j = i + d;
-          s += ln(a, Y(i), b, Y(j), { c: "var(--blue)", w: 2 }) + ln(a, Y(j), b, Y(i), { c: "var(--blue)", w: 2 });
-          s +=
-            circ(a, Y(i), 3.2, "p", { f: "var(--blue)", st: "var(--blue)", sw: 1 }) +
-            circ(a, Y(j), 3.2, "p", { f: "var(--blue)", st: "var(--blue)", sw: 1 });
-        }
-    });
-    order.forEach((v, i) => (s += tx(38, Y(i) + 4, `x${v}`, { a: "end", s: 12 })));
-    return svg(340, 242, s, "An eight-point butterfly network with inputs in bit-reversed order and three stages");
-  }
-
-  // F3: a log ruler for operation counts
-  function figRuler() {
-    let s = ln(20, 44, 320, 44, { c: "var(--text-faint)", w: 2.5 });
-    for (let e = 1; e <= 10; e++) {
-      const x = 20 + ((e - 1) * 300) / 9;
-      s += ln(x, 38, x, 50, { c: "var(--text-faint)", w: 2 });
-    }
-    [
-      [1, "10"],
-      [3, "1,000"],
-      [6, "1 million"],
-      [9, "1 billion"],
-    ].forEach(
-      ([e, t]) =>
-        (s += tx(20 + ((e - 1) * 300) / 9, 72, t, { s: 12, c: "var(--text-dim)", a: e === 1 ? "start" : "middle" })),
+    return svg(
+      310,
+      y0 + 4 * ch + 4,
+      s,
+      "Four by four heatmap of attention weights between the tokens the, cat, sat, down",
     );
-    s += tx(170, 18, "number of operations, each tick is 10× the last", { s: 12, c: "var(--text-dim)" });
-    return svg(340, 84, s, "A logarithmic ruler from 10 operations to 10 billion");
   }
 
-  B.add("a9-fft", [
+  B.add("a10-attn", [
     {
       type: "pick",
-      q: "An 8-sample recording has <b>zeros at every odd position</b>: x = [3, 0, 1, 0, 4, 0, 2, 0]. Bin 1's bar is drawn. Which other bins must be <b>exactly as tall</b>? Tap them all.",
-      fig: figEvenOnly(),
-      a: ["3", "5", "7"],
-      hint: "If the odd samples are all zero, what is left of X[k] = E[k] + W·O[k]?",
-      why: "The odd half O is all zeros, so X[k] = E[k] and X[k + 4] = E[k]: the spectrum repeats every 4 bins, so bin 5 equals bin 1. A real signal also mirrors (bin 8 − k has the same height), so bin 7 matches bin 1 and bin 3 matches bin 5. Bins 0, 2, 4 and 6 are different (10, 4, 10, 4 against 1.41).",
+      q: "One token has the query <b>q = (2, 2)</b> (blue). Its score for a key is the dot product q · k. Tap the key that gets the <b>highest score</b>.",
+      fig: figArrows(),
+      a: "B",
+      hint: "Dot product = (q across × k across) + (q up × k up).",
+      why: "q · B = 2×4 + 2×1 = 10, q · C = 6, q · A = 4 and q · D = 2. A points exactly the same way as q but is short, and B is longer and a little off-angle. The dot product rewards both alignment and size, so it is not the same as “whose tip is nearest” (A's is).",
     },
     {
       type: "pick",
-      q: "In this 8-point FFT the inputs are shuffled into bit-reversed order and then merged in three stages. The original samples <b>x0 and x1</b> (the first two in the recording) are first combined in which stage? Tap it.",
-      fig: figButterfly8(),
-      a: "s3",
-      hint: "Follow x0 and x1 along their wires: when do they first end up on the same butterfly?",
-      why: "Stage 1 merges neighbours in the shuffled order, so x0 meets x4. Stage 2 merges those pairs with {x2, x6}. Only stage 3 joins the even-indexed group {x0, x4, x2, x6} with the odd group {x1, x5, x3, x7}, so x0 and x1 first meet there. Neighbours in time are the last to meet, because the split starts with even against odd.",
+      q: "A head with d_k = 4 gets raw dot-product scores [4, 2, 0] for three keys. It divides by √d_k before softmax. Tap the panel that shows the <b>final weights</b>.",
+      fig: figWeightPanels(),
+      a: "B",
+      hint: "√4 = 2, so the scores become 2, 1, 0 (and e ≈ 2.7).",
+      why: "Dividing by √4 = 2 turns [4, 2, 0] into [2, 1, 0], whose softmax is about 0.67, 0.24, 0.09 (panel B). Panel A skipped the scaling, so it is too sharp. Panel C divided by d_k = 4 instead of √d_k, a common slip, which over-flattens it.",
     },
     {
-      type: "order",
-      q: "Each job counts as N² operations (direct DFT) or about N log₂ N (FFT). Order them from the <b>fewest</b> operations to the most.",
-      fig: figRuler(),
-      hint: "log₂ of 4,096 is 12, of 65,536 is 16 and of 1,048,576 is 20.",
-      items: [
-        "Direct DFT of 64 samples",
-        "FFT of 4,096 samples",
-        "Direct DFT of 512 samples",
-        "FFT of 65,536 samples",
-        "FFT of 1,048,576 samples",
-      ],
-      why: "64² = 4,096; 4,096 × 12 ≈ 49,000; 512² ≈ 262,000; 65,536 × 16 ≈ 1,050,000; 1,048,576 × 20 ≈ 21 million. A direct DFT of just 512 samples already costs more than an FFT of 4,096, but an FFT of a million samples is still only about 21 million steps, far less than the 10¹² a direct DFT would need.",
+      type: "pick",
+      q: "Four tokens attend to each other with no mask. The biggest single cell is cat → sat (0.70). Add up each column in your head. Which token receives the most attention <b>overall</b>? Tap its header.",
+      fig: figHeat(),
+      a: "c1",
+      hint: "Column “cat”: 0.50 + 0.15 + 0.55 + 0.55. Column “sat”: 0.30 + 0.70 + 0.25 + 0.30.",
+      why: "Reading down a column gives how much attention a token receives: cat gets 0.50 + 0.15 + 0.55 + 0.55 = 1.75, sat only 1.55 even though it holds the largest single cell. Reading along a row instead shows who one token listens to, and each row adds to 1. Column totals do not have to.",
     },
     {
       type: "bug",
-      q: "This should reverse the bits of <code>i</code> (with 3 bits, 6 = 110 becomes 011 = 3), the order an FFT's inputs are shuffled into. It returns 1 for 6. Click the faulty line.",
+      q: "Rows of <code>s</code> are queries, columns are keys. <code>softmax(s, axis=k)</code> makes the numbers along axis <i>k</i> add up to 1 (axis 0 runs down the rows, axis 1 runs along them). The code runs without error, but a token's weights no longer add up to 1. Click the faulty line.",
       code: [
-        "def bit_reverse(i, bits):",
-        "    r = 0",
-        "    for _ in range(bits):",
-        "        r = r | (i & 1)",
-        "        i >>= 1",
-        "    return r",
+        "def attend(Q, K, V, d_k):",
+        "    s = Q @ K.T / math.sqrt(d_k)",
+        "    w = softmax(s, axis=0)",
+        "    return w @ V",
       ],
-      a: 3,
-      why: "Each pass should push the bits already collected one place left and add the new one at the bottom: <code>r = (r &lt;&lt; 1) | (i &amp; 1)</code>. Without the shift every bit lands on the same place, so 6 (110) gives 0, 1, 1 → 1 instead of 3.",
+      a: 2,
+      why: "Each query needs its shares across <b>all the keys</b>, which means normalising along each row, <code>axis=1</code> (or −1). With <code>axis=0</code> each column adds to 1 instead, so a token's weights over the keys can total anything.",
     },
   ]);
 
-  /* ================================================================== a10-attn ================================================================== */
+  /* ================================================================== a8-chain (workshop) ================================================================== */
 
-  // A1: query and key arrows in 2-D
-  function figArrows() {
-    const X = (x) => 34 + (x + 2) * 40,
-      Y = (y) => 222 - (y + 1) * 42,
-      O = [X(0), Y(0)];
-    let s =
-      ln(X(-2), Y(0), X(5), Y(0), { c: "var(--line-2)", w: 1.5 }) +
-      ln(X(0), Y(-1), X(0), Y(4), { c: "var(--line-2)", w: 1.5 });
-    [
-      [1, 1, "A"],
-      [4, 1, "B"],
-      [0, 3, "C"],
-      [-1, 2, "D"],
-    ].forEach(([x, y, id]) => {
-      s += arrow(O[0], O[1], X(x), Y(y), "var(--text-faint)", 2.5);
-    });
-    s +=
-      arrow(O[0], O[1], X(2), Y(2), "var(--blue)", 4) +
-      tx(X(2) + 10, Y(2) - 14, "query (2, 2)", { a: "start", s: 12, c: "var(--blue-ink)" });
-    [
-      [1, 1, "A"],
-      [4, 1, "B"],
-      [0, 3, "C"],
-      [-1, 2, "D"],
-    ].forEach(([x, y, id]) => {
-      s += pk(id, circ(X(x), Y(y), 13, "p") + tx(X(x), Y(y) + 5, id, { s: 13 }));
-    });
-    s += tx(8, 16, "key arrows A to D, all from the origin", { a: "start", s: 12, c: "var(--text-dim)" });
-    return svg(330, 240, s, "A blue query arrow (2, 2) and four grey key arrows A (1,1), B (4,1), C (0,3), D (-1,2)");
-  }
-
-  // A2: three panels of softmax weights
-  function figWeightPanels() {
-    const sets = [
-      ["A", [4, 2, 0]],
-      ["B", [2, 1, 0]],
-      ["C", [1, 0.5, 0]],
+  // C1: cards after a Verify
+  function figVerifiedChain() {
+    const cards = [
+      ["Genesis", "sealed", "g"],
+      ["Block 1", "sealed", "g"],
+      ["Block 2", "seal broken", "r"],
+      ["Block 3", "after a break", "n"],
     ];
     let s = "";
-    sets.forEach(([id, sc], p) => {
-      const x0 = 6 + p * 112,
-        w = softmax(sc);
-      let g = rc(x0, 8, 104, 160, "p", { r: 10 }) + tx(x0 + 52, 28, `Panel ${id}`, { s: 13 });
-      w.forEach((v, i) => {
-        const h = v * 100,
-          bx = x0 + 12 + i * 29;
-        g +=
-          `<rect x="${bx}" y="${f1(138 - h)}" width="24" height="${f1(h)}" rx="3" fill="var(--blue)"/>` +
-          tx(bx + 12, 132 - h, v.toFixed(2), { s: 11 }) +
-          tx(bx + 12, 156, `k${i + 1}`, { s: 11, c: "var(--text-faint)" });
+    cards.forEach(([t, st, k], i) => {
+      const x = 6 + i * 84;
+      s += pk(
+        `b${i}`,
+        rc(x, 12, 78, 62, k, { r: 10, d: i === 3 ? "5 4" : "", st: i === 3 ? "var(--rose)" : undefined }) +
+          tx(x + 39, 34, t, { s: 13 }) +
+          tx(x + 39, 58, st, { s: 11, c: k === "g" ? "var(--teal-ink)" : "var(--rose-ink)" }),
+      );
+    });
+    const link = (x, ok, t) =>
+      (ok ? tick(x, 102) : cross(x, 100)) +
+      tx(x + 12, 106, t, { a: "start", s: 12, c: ok ? "var(--teal-ink)" : "var(--rose-ink)" });
+    s +=
+      tx(8, 106, "Links:", { a: "start", s: 12, c: "var(--text-dim)" }) +
+      link(70, true, "0 to 1") +
+      link(142, true, "1 to 2") +
+      link(214, false, "2 to 3: prev ≠ hash");
+    return svg(
+      340,
+      118,
+      s,
+      "Four block cards after Verify: block 2 has a broken seal and the link from block 2 to block 3 is broken",
+    );
+  }
+
+  // C2: dot plot of tries
+  function figTriesDots() {
+    const need = 2,
+      tries = [];
+    for (let i = 0; i < 16; i++) {
+      let n = 1;
+      while (!scrambled(`${n}|blk ${i}`).startsWith("0".repeat(need))) n++;
+      tries.push(n);
+    }
+    const X = (v) => 22 + (v / 800) * 296,
+      cnt = {};
+    let s = ln(22, 150, 318, 150, { c: "var(--text-faint)", w: 2 });
+    [0, 200, 400, 600, 800].forEach(
+      (v) =>
+        (s +=
+          ln(X(v), 150, X(v), 155, { c: "var(--text-faint)", w: 2 }) +
+          tx(X(v), 170, v, { s: 11, c: "var(--text-dim)" })),
+    );
+    tries.forEach((t) => {
+      const b = Math.floor(t / 100);
+      cnt[b] = (cnt[b] || 0) + 1;
+      s += circ(X(b * 100 + 50), 150 - 9 - (cnt[b] - 1) * 17, 7, "b", {
+        f: "var(--blue)",
+        st: "var(--blue-ink)",
+        sw: 1.5,
       });
+    });
+    s +=
+      ln(X(256), 24, X(256), 150, { c: "var(--amber)", w: 2.5, d: "5 4" }) +
+      tx(X(256) + 5, 34, "16 × 16 = 256", { a: "start", s: 12, c: "var(--amber-ink)" });
+    s += tx(170, 190, "nonces tried before the hash started with 00", { s: 12, c: "var(--text-dim)" });
+    return svg(340, 200, s, "Dot plot of the number of nonces tried for 16 blocks at difficulty 2");
+  }
+
+  // C4: before and after Re-link, built by really mining a chain
+  function figRelink() {
+    const DATA = ["genesis", "alice pays bob 5", "bob pays carol 2", "carol pays dave 1"],
+      bl = DATA.map((d, i) => ({ i, data: d, nonce: 0, prev: "00000000" }));
+    mineBlock(bl[0], 2);
+    for (let i = 1; i < 4; i++) {
+      bl[i].prev = blockHash(bl[i - 1]);
+      mineBlock(bl[i], 2);
+    }
+    const stale = bl.map((b) => ({ ...b }));
+    stale[1].data = "alice pays mallory 50";
+    const linked = stale.map((b) => ({ ...b }));
+    for (let i = 1; i < 4; i++) linked[i].prev = blockHash(linked[i - 1]);
+    const mark = (x, y, ok) => (ok ? tick(x, y) : cross(x, y - 1));
+    const panel = (y0, title, ch) => {
+      let s =
+        tx(8, y0, title, { a: "start", s: 13 }) +
+        tx(86, y0 + 20, "prev", { s: 11, c: "var(--text-faint)" }) +
+        tx(182, y0 + 20, "own hash", { s: 11, c: "var(--text-faint)" }) +
+        tx(262, y0 + 20, "link", { s: 11, c: "var(--text-faint)" }) +
+        tx(306, y0 + 20, "seal", { s: 11, c: "var(--text-faint)" });
+      for (let i = 1; i < 4; i++) {
+        const b = ch[i],
+          h = blockHash(b),
+          y = y0 + 28 + (i - 1) * 26,
+          linkOk = b.prev === blockHash(ch[i - 1]),
+          sealOk = zeros(h) >= 2;
+        s +=
+          tx(8, y + 17, `block ${i}`, { a: "start", s: 12, c: "var(--text-dim)" }) +
+          tx(86, y + 17, b.prev, { m: 1, s: 12, c: linkOk ? "var(--ink)" : "var(--rose-ink)" }) +
+          tx(182, y + 17, h, { m: 1, s: 12, c: sealOk ? "var(--teal-ink)" : "var(--rose-ink)" }) +
+          mark(262, y + 13, linkOk) +
+          mark(306, y + 13, sealOk);
+      }
+      return s;
+    };
+    return svg(
+      330,
+      252,
+      panel(16, "After editing block 1", stale) +
+        ln(8, 128, 322, 128, { c: "var(--line)", w: 1.5 }) +
+        panel(148, "After pressing Re-link, no mining", linked),
+      "Two small tables of prev and hash values for blocks 1 to 3, before and after re-linking",
+    );
+  }
+
+  // C5: a timeline of the repair bill
+  function figRepairBar() {
+    let s = tx(8, 16, "After editing block 1", { a: "start", s: 12, c: "var(--text-dim)" });
+    ["Re-mine block 1", "Re-mine block 2", "Re-mine block 3"].forEach((t, i) => {
+      s +=
+        rc(8 + i * 98, 26, 94, 44, "a", { r: 8 }) +
+        lines(55 + i * 98, 46, [t.split(" ").slice(0, 2).join(" "), t.split(" ").slice(2).join(" ")], {
+          s: 12,
+          c: "var(--amber-ink)",
+          lh: 14,
+        });
+    });
+    s += rc(306, 26, 26, 44, "g", { r: 8 }) + tx(319, 52, "✓", { s: 15, c: "var(--teal-ink)" });
+    s +=
+      arrow(8, 94, 330, 94, "var(--text-faint)") +
+      tx(8, 112, "time", { a: "start", s: 11, c: "var(--text-faint)" }) +
+      tx(319, 112, "check", { a: "end", s: 11, c: "var(--text-faint)" });
+    s += tx(170, 134, "each block needs a hash starting with 00", { s: 12, c: "var(--text-dim)" });
+    return svg(
+      340,
+      144,
+      s,
+      "Timeline: after the edit, three blocks are re-mined one after another, then a quick check at the end",
+    );
+  }
+
+  // C6: the Verify walk as a flow chart
+  function figVerifyFlow() {
+    const S = [
+      ["l1", "1 · Block 1", ["link: prev is", "genesis hash?"]],
+      ["s1", "2 · Block 1", ["seal: hash", "starts 00?"]],
+      ["l2", "3 · Block 2", ["link: prev is", "block 1's hash?"]],
+      ["s2", "4 · Block 2", ["seal: hash", "starts 00?"]],
+      ["l3", "5 · Block 3", ["link: prev is", "block 2's hash?"]],
+      ["s3", "6 · Block 3", ["seal: hash", "starts 00?"]],
+    ];
+    let s = tx(172, 14, "Walk order 1 to 6. It stops at the first failure.", { s: 12, c: "var(--text-dim)" });
+    S.forEach(([id, b, t], i) => {
+      const col = i % 3,
+        row = i < 3 ? 0 : 1,
+        x = 6 + col * 114,
+        y = 26 + row * 82;
+      s += pk(
+        id,
+        rc(x, y, 100, 58, "p") +
+          tx(x + 50, y + 16, b, { s: 11.5, c: "var(--text-dim)" }) +
+          lines(x + 50, y + 33, t, { s: 11, lh: 13 }),
+      );
+      if (col < 2) s += arrow(x + 102, y + 29, x + 112, y + 29, "var(--text-faint)");
+    });
+    s += `<path d="M 290 86 L 290 98 L 56 98 L 56 104" fill="none" stroke="var(--text-faint)" stroke-width="2" stroke-linejoin="round"/><polygon points="56,108 51,100 61,100" fill="var(--text-faint)"/>`;
+    return svg(
+      332,
+      172,
+      s,
+      "Flow chart of six checks, a link check then a seal check for each of blocks 1, 2 and 3, in order",
+    );
+  }
+
+  B.add("a8-chain", [
+    {
+      type: "pick",
+      q: "Someone edited the data of exactly <b>one</b> block, then you pressed Verify. The chain now looks like this. Which block's data was edited? Tap it.",
+      fig: figVerifiedChain(),
+      a: "b2",
+      why: "Editing a block changes its own hash, so its seal breaks (block 2 shows ✗ seal broken) and the next block's stored prev no longer matches (the 2→3 link shows prev ≠ hash). Block 3 only looks bad because it points at a block whose hash changed. Block 3's own data is fine.",
+    },
+    {
+      type: "mcq",
+      q: "Sixteen blocks were each mined with the same puzzle: a hash starting with <b>00</b>. The dots show how many nonces each block needed. What does the spread tell you?",
+      fig: figTriesDots(),
+      o: [
+        "Every guess is an independent 1-in-256 shot, so luck swings widely around about 256",
+        "The quick blocks used a smarter nonce order that the slow blocks could have copied too",
+        "The difficulty was lowered for the quick blocks and raised again for the slow ones",
+        "Mining gets steadily easier as the chain grows, so later blocks should always be quicker",
+      ],
+      a: 0,
+      why: "Each nonce is a fresh, unpredictable hash with a 1-in-256 chance of starting 00, so the count to the first win varies a lot (some blocks got lucky in 5 tries, one needed over 700), but averages near 256. There is no better strategy than guessing, and the difficulty here never changed.",
+    },
+    {
+      type: "cat",
+      q: "The target is two leading hex zeros, <b>00</b>. Sort each hash by whether it seals a block.",
+      buckets: ["Seals at 2 zeros", "Doesn't seal"],
+      items: [
+        ["<code>00a32139</code>", 0],
+        ["<code>0a22e6db</code>", 1],
+        ["<code>80378a61</code>", 1],
+        ["<code>000d98d4</code>", 0],
+        ["<code>0c257d45</code>", 1],
+        ["<code>00e9a037</code>", 0],
+      ],
+      why: "Only zeros at the very <b>start</b> count, and you need two of them in a row. <code>0a22e6db</code> and <code>0c257d45</code> have one, <code>80378a61</code> has a zero in the wrong place, and <code>000d98d4</code> has three, which is more than enough.",
+    },
+    {
+      type: "mcq",
+      q: "Block 1 was edited and the chain mined as in the workshop. After pressing <b>Re-link, no mining</b> every prev matches the block before it, yet blocks 2 and 3 now fail their seals. Why?",
+      fig: figRelink(),
+      o: [
+        "prev is part of what a block hashes, so fixing it changed the hash and the zeros vanished",
+        "Re-link wipes every nonce, so each block has to be mined again from nothing at all, in order",
+        "Only block 1 was ever edited, so the seals on later blocks switch themselves off with it too",
+        "Re-link copies the wrong hash into each prev, so the links are still broken in the picture",
+      ],
+      a: 0,
+      why: "A block's hash is computed from its nonce, data <b>and prev</b>. Block 2's prev changed, so its hash changed to <code>3b1fd712</code>, which no longer starts with 00 (the nonce was found for the old prev). The same ripples to block 3. Fixing pointers is free; the proof of work is not.",
+    },
+    {
+      type: "slider",
+      q: "After the edit you must re-mine blocks 1, 2 <b>and</b> 3 in turn, each needing a hash that starts <b>00</b>. About how many hashes will that take in total, on average?",
+      fig: figRepairBar(),
+      min: 0,
+      max: 1500,
+      step: 50,
+      ans: 750,
+      tol: 150,
+      unit: " hashes",
+      hint: "Two hex zeros means 16 × 16 tries for one block. Then ×3.",
+      why: "Each block needs about 16 × 16 = 256 guesses, so three blocks need about 3 × 256 = 768. Checking the finished chain costs only a hash or two per block. That gap, hundreds of guesses against one hash to verify, is what makes history expensive to rewrite and cheap to audit.",
+    },
+    {
+      type: "pick",
+      q: "Block 1's data was edited and nothing has been re-mined. You press Verify, which walks the checks in order and stops at the first failure. Which check is the first to fail? Tap it.",
+      fig: figVerifyFlow(),
+      a: "s1",
+      why: "Block 1's link check still passes (its prev is the genesis hash, which did not change). Its own hash changed, so its seal fails and the walk stops there. Blocks 2 and 3 have broken links too, but Verify never gets that far, which is why it can report the break after just a couple of hashes.",
+    },
+  ]);
+
+  /* ================================================================== a9-mix (workshop) ================================================================== */
+
+  // M1: faders and three candidate spectra
+  function figMixerBoard() {
+    const fader = (y, name, f, a) => {
+      const tr = (x0, v, vmax, lab) =>
+        ln(x0, y + 16, x0 + 100, y + 16, { c: "var(--line-2)", w: 4 }) +
+        circ(x0 + (v / vmax) * 100, y + 16, 8, "b", { f: "var(--blue)", st: "var(--blue-ink)", sw: 1.5 }) +
+        tx(x0 + 50, y + 40, lab, { s: 12, c: "var(--text-dim)" });
+      return (
+        tx(8, y + 21, name, { a: "start", s: 13 }) + tr(80, f, 12, `frequency ${f} Hz`) + tr(214, a, 1, `strength ${a}`)
+      );
+    };
+    let s = fader(4, "Wave 1", 3, 1) + fader(56, "Wave 2", 8, 0.5);
+    const opts = [
+      [
+        "A",
+        [
+          [3, 0.5],
+          [8, 1],
+        ],
+      ],
+      [
+        "B",
+        [
+          [3, 1],
+          [11, 0.5],
+        ],
+      ],
+      [
+        "C",
+        [
+          [3, 1],
+          [8, 0.5],
+        ],
+      ],
+    ];
+    opts.forEach(([id, bars], p) => {
+      const x0 = 6 + p * 112;
+      let g = rc(x0, 116, 104, 100, "p", { r: 10 }) + tx(x0 + 52, 134, `Spectrum ${id}`, { s: 12 });
+      for (let k = 0; k <= 12; k++) {
+        const b = bars.find((q) => q[0] === k),
+          h = b ? b[1] * 56 : 0;
+        g += `<rect x="${x0 + 8 + k * 7.4}" y="${f1(200 - h)}" width="5" height="${f1(Math.max(h, 1.5))}" rx="1.5" fill="${b ? "var(--blue)" : "var(--line-2)"}"/>`;
+      }
+      g +=
+        tx(x0 + 8, 212, "0", { a: "start", s: 10, c: "var(--text-faint)" }) +
+        tx(x0 + 98, 212, "12 Hz", { a: "end", s: 10, c: "var(--text-faint)" });
       s += pk(id, g);
     });
-    return svg(340, 176, s, "Three bar panels of attention weights over three keys");
+    return svg(
+      340,
+      222,
+      s,
+      "A mixer with two waves (3 Hz at strength 1, 8 Hz at strength 0.5) and three candidate spectra",
+    );
   }
-  Object.assign(partScope, { figArrows, figRuler, figWeightPanels });
+  Object.assign(partScope, { figMixerBoard });
 })();

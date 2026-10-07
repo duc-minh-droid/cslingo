@@ -35,7 +35,7 @@
   };
 
   /** Staggered entrance: fade + small rise (or slide, with x). Used for page assembly and freshly inserted content. */
-  function enter(targets, { y = 8, x = 0, delay = 0, stagger = 0.045, dur = DUR.l } = {}) {
+  function enter(targets, { y = 8, x = 0, delay = 0, stagger = 0.045, dur = DUR.m } = {}) {
     const els = list(targets).filter(Boolean);
     if (!ok || !els.length) return;
     const kf = reduce()
@@ -65,7 +65,7 @@
         run(
           p,
           { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
-          { duration: DUR.l, delay: 0.04 + i * 0.05, ease: EASE },
+          { duration: DUR.m, delay: 0.04 + i * 0.05, ease: EASE },
         ),
       ),
     );
@@ -85,7 +85,7 @@
       run(
         el,
         { transform: ["scale(1)", "scale(1.05)", "scale(0.985)", "scale(1)"] },
-        { duration: DUR.bar, ease: EASE, times: [0, 0.3, 0.65, 1] },
+        { duration: DUR.m, ease: EASE, times: [0, 0.3, 0.65, 1] },
       ),
       ["transform"],
     );
@@ -106,7 +106,7 @@
             "translateY(0px) scale(1)",
           ],
         },
-        { duration: DUR.bar, ease: EASE, times: [0, 0.35, 0.7, 1] },
+        { duration: DUR.m, ease: EASE, times: [0, 0.35, 0.7, 1] },
       ),
       ["transform"],
     );
@@ -366,6 +366,7 @@
     t.className = "float-xp";
     t.textContent = text;
     t.style.color = color || "var(--teal)";
+    t.style.textShadow = "0 1px 0 rgba(0, 0, 0, 0.18)";
     t.style.left = r.right - 24 + "px";
     t.style.top = r.top + 4 + "px";
     document.body.appendChild(t);

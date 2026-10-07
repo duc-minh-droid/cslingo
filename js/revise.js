@@ -117,9 +117,19 @@
     const EXPLAIN =
       "A shuffled mix from every lesson you've finished. Get one right and it comes back later; miss it and it comes back soon.";
     if (!pool.length) {
+      const A = N.shared.engineApp || {},
+        list = here && A.inSubj ? A.inSubj(A.course) : [],
+        next =
+          list.find((m) => !A.isBoss(m) && !m.video && A.status(m) !== "done") ||
+          list.find((m) => !A.isBoss(m) && !m.video),
+        boss = list.find((m) => A.isBoss(m) && A.status(m) === "new" && next && m.lecture < next.lecture);
+      const practice = location.hash === "#practice";
+      const title = practice ? "Practice unlocks after your first lesson" : "Finish a lesson first";
+      const cta = next ? `Start lesson ${esc(next.num)}` : `Go to ${here ? esc(here.name) + " " : ""}lessons`;
+      const to = next ? next.id : here ? here.home : "home";
       main.appendChild(
         el(
-          `<div class="page side-page">${hero("Nothing to revise yet", EXPLAIN)}<div class="card rv-empty"><b>Finish a lesson first</b><p class="faint">Its questions join your deck here.</p><a class="btn big primary" href="#${esc(here ? here.home : "home")}">Go to ${here ? esc(here.name) + " " : ""}lessons</a></div></div>`,
+          `<div class="page side-page">${hero(practice ? "Nothing to practise yet" : "Nothing to revise yet", EXPLAIN)}<div class="card rv-empty"><b>${title}</b><p class="faint">Its questions join your deck here.</p><a class="btn big primary" href="#${esc(to)}">${cta}</a>${boss ? `<a class="btn" href="#${esc(boss.id)}">Try a boss quiz</a>` : ""}</div></div>`,
         ),
       );
       return;

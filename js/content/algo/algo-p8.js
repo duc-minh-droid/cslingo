@@ -5,9 +5,15 @@
   const L = N.LESSONS;
   const F = N.fig;
 
+  // a toy 32-bit mixing hash (FNV-1a plus a finaliser): good avalanche, NOT secure
   const djb2 = (s) => {
-    let h = 5381;
-    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0;
+    h = (h ^ (h >>> 16)) >>> 0;
+    h = Math.imul(h, 0x85ebca6b) >>> 0;
+    h = (h ^ (h >>> 13)) >>> 0;
+    h = Math.imul(h, 0xc2b2ae35) >>> 0;
+    h = (h ^ (h >>> 16)) >>> 0;
     return h.toString(16).padStart(8, "0");
   };
   const modpow = (b, e, m) => {
@@ -32,12 +38,12 @@
           box.innerHTML =
             F.cells([{ v: '"cat"' }, "→", { v: djb2("cat"), c: "teal" }]) +
             F.cells([{ v: '"cot"' }, "→", { v: djb2("cot"), c: "rose" }]) +
-            `<div class="fig-cap">One letter changed and the fingerprint is unrecognisable. (This demo uses djb2, a <b>toy</b> hash. Real systems use SHA-256.)</div>`;
+            `<div class="fig-cap">One letter changed and the fingerprint is unrecognisable. (This demo uses a <b>toy</b> 32-bit hash. Real systems use SHA-256.)</div>`;
         },
       },
       {
         t: "Chain the fingerprints",
-        b: `<p>Each block stores the <b>previous block's hash</b> inside it. So block 2's fingerprint depends on block 1's, which depends on block 0's, and so on.</p>`,
+        b: `<p>A <b>hash chain</b> uses a hash such as SHA-256, so nobody can find two inputs with the same digest. Each block stores the <b>previous block's hash</b> inside it: record N holds a <b>commitment</b> to record N-1, which holds one to N-2, and so on.</p>`,
         v: F.flow([
           { t: "Block 0", s: "hash → a1f…" },
           { t: "Block 1", s: "prev = a1f…" },
@@ -47,12 +53,12 @@
       },
       {
         t: "Tampering shows downstream",
-        b: `<p>Change the data in block 1 and its hash changes. Now block 2's stored "prev" no longer matches, and the chain visibly breaks from that point on.</p>`,
+        b: `<p>Change the data in block 1 and its hash changes. Now block 2's stored "prev" no longer matches, so the chain visibly breaks there. Patching block 2 changes <i>its</i> hash, which breaks block 3, and so on: a change in one record <b>propagates forward</b> to every later hash.</p>`,
         v: F.flow([
           { t: "Block 0", s: "✓", c: "teal" },
           { t: "Block 1", s: "data edited", c: "rose" },
           { t: "Block 2", s: "prev ≠ hash ✗", c: "rose" },
-          { t: "Block 3", s: "✗", c: "rose" },
+          { t: "Block 3", s: "breaks if 2 is fixed", c: "amber" },
         ]),
         c: {
           q: "An attacker edits block 1 and then recomputes every later hash. What does validation say?",
@@ -96,6 +102,7 @@
       "Press <b>Tamper</b>, then <b>Verify chain</b>. Where does it turn red?",
       "Press <b>Rewrite chain</b>. It's valid again. What does that tell you about hashes alone?",
       "Press <b>Mine</b> at difficulty 1, then 2. Compare the attempt counts (roughly 16× more).",
+      "Edit one character in the avalanche check and count the differing bits.",
     ],
   };
 
@@ -103,8 +110,8 @@
     id: "a8-hash",
     subject: "algo",
     lecture: 8,
-    order: 1,
-    num: "8.1",
+    order: 5,
+    num: "8.5",
     title: "Hash chains & proof of work",
     blurb:
       "Tamper with a block and watch the chain light up downstream — then mine nonces and feel the difficulty curve.",
@@ -125,6 +132,24 @@
           <div class="stat-row"><div class="stat"><small>Attempts</small><b id="at">0</b></div><div class="stat amber"><small>Winning nonce</small><b id="wn">—</b></div><div class="stat teal"><small>Verify cost</small><b>1 hash</b></div></div></div>
         <div class="callout" id="msg" style="display:none"></div></div>`);
       root.appendChild(card);
+      const av =
+        el(`<div class="card" style="margin-top:14px"><div class="card-head"><h3>Avalanche check</h3><span class="faint">two inputs, one character apart</span></div>
+        <div class="controls"><input class="field" id="av1" value="pay Ben 10" style="max-width:200px"><input class="field" id="av2" value="pay Ben 11" style="max-width:200px"></div>
+        <div id="avo" class="mono" style="font-size:13px;line-height:1.7;min-height:64px"></div></div>`);
+      root.appendChild(av);
+      const bin = (h) => parseInt(h, 16).toString(2).padStart(32, "0");
+      const avDraw = () => {
+        const a = djb2(qs("#av1", av).value),
+          b = djb2(qs("#av2", av).value),
+          x = bin(a),
+          y = bin(b);
+        const nd = [...x].filter((c, i) => c !== y[i]).length;
+        qs("#avo", av).innerHTML =
+          `${a} &nbsp;${x}<br>${b} &nbsp;${[...y].map((c, i) => (c !== x[i] ? `<b style="color:var(--rose)">${c}</b>` : c)).join("")}<br><b>${nd} of 32 bits differ</b> <span class="faint">(a good hash flips about half)</span>`;
+      };
+      qs("#av1", av).oninput = avDraw;
+      qs("#av2", av).oninput = avDraw;
+      avDraw();
       blocks.slice(1).forEach((b, i) => (b.prev = bh(blocks[i])));
       const sl = N.slider("difficulty (leading hex zeros)", 1, 4, 1, 1, (v) => v);
       sl.onInput((v) => (diff = v));
@@ -211,6 +236,15 @@
         }),
       );
       root.appendChild(
+        predict({
+          id: "a8-hash-2",
+          q: "In the avalanche check, the two inputs differ by one character. About how many of the 32 output bits differ?",
+          opts: ["just one or two", "about half, around 16", "all 32 every time"],
+          a: 1,
+          why: "A good hash behaves like a random function: every output bit has a 50% chance of flipping when any input bit changes, so about 16 of 32. Neighbouring inputs give unrelated digests.",
+        }),
+      );
+      root.appendChild(
         takeaways(
           [
             "Hash chains make edits <b>evident</b>: change history and every later link breaks.",
@@ -293,6 +327,10 @@
       {
         t: "Why this is only a toy",
         b: `<p>n = 55 can be factored in your head. Real n has 2048+ bits. Raw RSA is also <b>deterministic</b> (same message, same ciphertext), which leaks information.</p><span class="key">Real systems use padding (OAEP), secure randomness and vetted libraries. Never hand-roll crypto.</span>`,
+        v: F.compare(
+          { title: "Toy RSA", c: "rose", body: "n = 55<br>factored in your head<br>same M, same C" },
+          { title: "Real RSA", c: "teal", body: "n has 2048+ bits<br>random padding (OAEP)<br>vetted library" },
+        ),
       },
     ],
     guide: [
@@ -306,8 +344,8 @@
     id: "a8-keys",
     subject: "algo",
     lecture: 8,
-    order: 2,
-    num: "8.2",
+    order: 3,
+    num: "8.3",
     title: "Shared secrets & toy RSA",
     blurb: "Two strangers agree on a secret in public — then encrypt and decrypt a message with a miniature RSA.",
     render(root) {
@@ -387,6 +425,19 @@
           ],
           a: 1,
           why: "DH is key <b>agreement</b>, not authentication. Certificates/signatures bind public values to identities. (The shared secret then keys a fast symmetric cipher for the messages.)",
+        }),
+      );
+      root.appendChild(
+        predict({
+          id: "a8-key-2",
+          q: "Tick <b>Attacker-in-the-middle</b>. How many different shared secrets exist now?",
+          opts: [
+            "One, shared by all three of them",
+            "Two: Alice-Mallory and Mallory-Bob",
+            "None: the exchange simply fails",
+          ],
+          a: 1,
+          why: "Mallory runs one exchange with each side, so Alice and Bob each believe they share a key with the other but actually share it with Mallory. Mallory can decrypt, read and re-encrypt everything.",
         }),
       );
       root.appendChild(
