@@ -201,7 +201,10 @@
           else setFrame(r, "violet", frameK, null);
           const nVal = L3.count(0, F[i], t >= t0 ? clamp((nLit - 0.001) / Math.max(1, ones.length)) : 0);
           r.pill.set({ text: `f = ${t >= t0 ? Math.max(nLit, 0) : nVal}`, ...pop(pk) });
-          V.place(r.g, { x: -(1 - k) * 40 + slide * 170, o: Math.min(clamp(k * 3), 1 - slide) * (1 - 0.65 * dim) * (1 - 0.55 * pass) });
+          V.place(r.g, {
+            x: -(1 - k) * 40 + slide * 170,
+            o: Math.min(clamp(k * 3), 1 - slide) * (1 - 0.65 * dim) * (1 - 0.55 * pass),
+          });
         });
 
         // ---- selection: copies fly down to the work block
