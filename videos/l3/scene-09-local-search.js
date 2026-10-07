@@ -7,7 +7,7 @@
   const V = window.VID;
   const L3 = V.l3;
   const L5 = V.l5;
-  const { ramp, ease: E, clamp } = V;
+  const { ramp, ease: E } = V;
   const f1 = (n) => (+n).toFixed(1);
 
   // ---------- the real runs, checked against the lecture ----------
@@ -19,8 +19,16 @@
     if (JSON.stringify(a) !== JSON.stringify(b))
       throw new Error(`scene 09: ${what}: got ${JSON.stringify(a)}, expected ${JSON.stringify(b)}`);
   };
-  want(MC.slice(0, 10).map((e) => e.m), [10, 8, 5, 9, 4, 6, 9, 5, 10, 4], "Monte Carlo proposals 1-10");
-  want(MC.slice(0, 10).map((e) => e.acc), Array(10).fill(false), "tries 1-10 rejected");
+  want(
+    MC.slice(0, 10).map((e) => e.m),
+    [10, 8, 5, 9, 4, 6, 9, 5, 10, 4],
+    "Monte Carlo proposals 1-10",
+  );
+  want(
+    MC.slice(0, 10).map((e) => e.acc),
+    Array(10).fill(false),
+    "tries 1-10 rejected",
+  );
   want(
     MC.slice(10).map((e) => `${e.m}${e.acc ? (e.down ? "d" : "u") : "r"}`),
     ["10d", "13r", "13d", "11r", "16u", "13r", "19u", "17u", "19d", "16r", "22d", "23r", "25u", "23r", "27u", "29u"],
@@ -33,8 +41,16 @@
     "Monte Carlo best-so-far moves",
   );
   want([START, ...TB.map((s) => s.pick)], [7, 8, 6, 9, 10, 13, 16, 18, 17, 19, 20, 21, 22, 25, 28, 29], "Tabu path");
-  want(TB[0].cands.map((c) => c.i), [8, 6, 9, 5, 10, 4], "Tabu step 1 candidates");
-  want(TB[1].cands.map((c) => `${c.i}${c.tabu ? "t" : ""}`), ["7t", "6", "9", "5", "10", "11"], "Tabu step 2 candidates");
+  want(
+    TB[0].cands.map((c) => c.i),
+    [8, 6, 9, 5, 10, 4],
+    "Tabu step 1 candidates",
+  );
+  want(
+    TB[1].cands.map((c) => `${c.i}${c.tabu ? "t" : ""}`),
+    ["7t", "6", "9", "5", "10", "11"],
+    "Tabu step 2 candidates",
+  );
   want(
     TB.filter((s, k) => s.best !== (k ? TB[k - 1].best : START)).map((s) => `${s.k}:${s.best}`),
     ["6:16", "7:18", "14:28", "15:29"],
@@ -126,14 +142,22 @@
 
       // ----- tags and their icons -----
       const mcTag = tagBox(top.tag("Monte Carlo", { at: "tl", tone: "purple" }), 244, 68);
-      const pTag = top.tag("worse step: 1 in 10", { at: { x: 24 + 244 + 14, y: rowY(top) }, anchor: "l", tone: "grey" });
+      const pTag = top.tag("worse step: 1 in 10", {
+        at: { x: 24 + 244 + 14, y: rowY(top) },
+        anchor: "l",
+        tone: "grey",
+      });
       tagBox(pTag, 0, 20);
       const tbTag = tagBox(bot.tag("Tabu", { at: "tl", tone: "grey" }), 170, 96);
       const legend = tagBox(top.tag("best so far", { at: "tr", tone: "orange" }), 250, 56);
       const tryTag = top.tag("try 0", { at: { x: 936 - 24, y: top.box.y + 150 }, anchor: "r", tone: "grey" });
       // icons sit in an SVG above the tags (the tags are HTML and would cover anything in P.over)
       const iconLayer = (P) => {
-        const svg = V.s("svg", { width: 936, height: 640, style: { position: "absolute", left: "0px", top: "0px", overflow: "visible" } });
+        const svg = V.s("svg", {
+          width: 936,
+          height: 640,
+          style: { position: "absolute", left: "0px", top: "0px", overflow: "visible" },
+        });
         P.html.append(svg);
         return svg;
       };
@@ -190,7 +214,12 @@
         const sk = pops(t, 1.0, 0.4);
         m.star.set({ i: P.best, s: sk, o: sk > 0 ? 1 : 0 });
         const hk = pops(t, 0.9, 0.4);
-        m.hiker.set({ i: hik.i, dy: hik.dy, s: hk * (1 + 0.18 * V.flash(t, 7.4, 7.9) * (P === top)), o: hk > 0 ? 1 : 0 });
+        m.hiker.set({
+          i: hik.i,
+          dy: hik.dy,
+          s: hk * (1 + 0.18 * V.flash(t, 7.4, 7.9) * (P === top)),
+          o: hk > 0 ? 1 : 0,
+        });
         const dk = pops(t, 1.0, 0.4);
         m.dia.set({ i: dia.i, dy: dia.dy, s: dk, o: dk > 0 ? 1 : 0 });
         const stk = pops(t, 1.2, 0.4) * (1 - ramp(t, leave, leave + 0.25, E.lin));
@@ -212,7 +241,14 @@
         M.prop.set({ i: e ? e.m : 0, tone: e && !e.acc ? "red" : "purple", s: 0.8 + 0.2 * pr, o: pr });
         // short outcome badge: cross for a rejected step, tick for an uphill one
         const qk = live && e && !e.down ? pops(lt, 0.04, 0.2) * (1 - ramp(lt, 0.2, 0.3, E.lin)) : 0;
-        M.quick.set({ i: e ? e.m : 0, dy: e && e.acc ? -12 : 26, icon: e && e.acc ? "tick" : "cross", k: qk, s: 0.7, o: qk > 0.001 ? 1 : 0 });
+        M.quick.set({
+          i: e ? e.m : 0,
+          dy: e && e.acc ? -12 : 26,
+          icon: e && e.acc ? "tick" : "cross",
+          k: qk,
+          s: 0.7,
+          o: qk > 0.001 ? 1 : 0,
+        });
         // a lucky downhill step lingers a little longer
         const dwn = MC.find((x) => x.down && t >= mcT(x.k) && t < mcT(x.k) + 0.8);
         const dk = dwn ? pops(t - mcT(dwn.k), 0.1, 0.3) * (1 - ramp(t - mcT(dwn.k), 0.6, 0.8, E.lin)) : 0;
@@ -228,7 +264,13 @@
         const dk0 = fadeIn(t, 1.3, 0.3);
         faces.forEach((g, n) => V.show(g, +(n + 1 === face)));
         const shake = rolling ? Math.sin(lt * 120) * 14 : 0;
-        V.place(dieG, { x: DIE_X, y: DIE_Y, s: 0.8 + 0.2 * pops(t, 1.3, 0.4), r: shake, o: Math.min(dk0, e && !e.worse ? 0.45 : 1) });
+        V.place(dieG, {
+          x: DIE_X,
+          y: DIE_Y,
+          s: 0.8 + 0.2 * pops(t, 1.3, 0.4),
+          r: shake,
+          o: Math.min(dk0, e && !e.worse ? 0.45 : 1),
+        });
         dieG.style.transform = `translate(${DIE_X}px, ${DIE_Y}px) rotate(${f1(shake)}deg)`;
         dieG.style.transformOrigin = "0 0";
         dieG.style.transformBox = "view-box";
@@ -262,18 +304,19 @@
           const chosen = TB[si].cands.findIndex((c) => !c.tabu);
           TB[si].cands.forEach((c, j) => {
             const kk = pops(t, s0 + 0.06 * j, 0.3);
-            const lit = t >= s0 + (si ? 0.95 : 0.9);
-            const isTabu = c.tabu && t >= s0 + 0.55;
+            const litT = s0 + (si ? 0.7 : 0.5);
+            const lit = t >= litT;
+            const isTabu = c.tabu && t >= s0 + 0.4;
             B.cands[j].set({
               i: c.i,
               tone: j === chosen && lit ? "orange" : isTabu ? "red" : "grey",
               ring: j === chosen && lit ? "orange" : null,
-              ringK: ramp(t, s0 + 0.9, s0 + 1.1, E.lin),
+              ringK: ramp(t, litT, litT + 0.15, E.lin),
               s: (0.8 + 0.2 * kk) * (j === chosen && lit ? 1.15 : 1),
               o: Math.min(1, kk * 3) * gone,
             });
             if (c.tabu) {
-              const xk = pops(t, s0 + 0.55, 0.3) * gone;
+              const xk = pops(t, s0 + 0.4, 0.3) * gone;
               B.xs[0].set({ i: c.i, dy: 49, icon: "cross", k: xk, s: 0.55, o: xk > 0.001 ? 1 : 0 });
             }
           });
@@ -281,7 +324,9 @@
         // the down arrow after a downhill step (also on the quick steps)
         const dstep = TB.find((s, k) => s.down && t >= TB_STEP[k].b - 0.05 && t < TB_STEP[k].b + 0.55);
         const dsi = dstep ? dstep.k - 1 : 0;
-        const dtk = dstep ? pops(t - TB_STEP[dsi].b, 0.05, 0.25) * (1 - ramp(t - TB_STEP[dsi].b, 0.35, 0.55, E.lin)) : 0;
+        const dtk = dstep
+          ? pops(t - TB_STEP[dsi].b, 0.05, 0.25) * (1 - ramp(t - TB_STEP[dsi].b, 0.35, 0.55, E.lin))
+          : 0;
         B.down.set({ i: dstep ? dstep.pick : 0, dy: -12, icon: "down", k: dtk, s: 0.85, o: dtk > 0.001 ? 1 : 0 });
         // crumbs: path position j is on the floor from the moment the hiker leaves it until it drops out of the list
         B.crumbs.forEach((m, j) => {

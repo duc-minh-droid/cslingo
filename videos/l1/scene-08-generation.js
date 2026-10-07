@@ -77,7 +77,6 @@
     ],
     build(stage) {
       const ls = L1.landscape(stage, { x: 0, w: 936, base: BASE, peak: PEAK, star: 44 });
-      const N = POPS[0].length;
       const px = (i) => ls.px(i);
       const cen = (i) => [px(i)[0], px(i)[1] - 16]; // centre of a dot standing on the curve
 
@@ -121,7 +120,7 @@
           const hi = Math.min(a[1], b[1]) - 46 - 9 * k;
           const d =
             POPS[0][p] === c.mid
-              ? `M ${f1(a[0])} ${f1(a[1])} C ${f1(a[0] - 46 + side * 92)} ${f1(a[1] - 74 - 8 * k)} ${f1(a[0] + 46 - side * 92)} ${f1(a[1] - 74 - 8 * k)} ${f1(a[0])} ${f1(a[1])}`
+              ? `M ${f1(a[0])} ${f1(a[1])} C ${f1(a[0] - 46 + side * 92)} ${f1(a[1] - 46 - 6 * k)} ${f1(a[0] + 46 - side * 92)} ${f1(a[1] - 46 - 6 * k)} ${f1(a[0])} ${f1(a[1])}`
               : `M ${f1(a[0])} ${f1(a[1])} Q ${f1((a[0] + b[0]) / 2)} ${f1(hi)} ${f1(b[0])} ${f1(b[1])}`;
           const path = V.s("path", {
             d,
@@ -266,7 +265,7 @@
           // select
           const c = cen(idx);
           const rk = Math.max(0, E.pop(clamp((t - (3 + 0.2 * j)) / 0.35)));
-          const so = clamp((t - (3 + 0.2 * j)) * 8) * fade;
+          const so = clamp((t - (3 + 0.2 * j)) * 8) * fade * (1 - ramp(t, 7.0, 7.4, E.lin));
           rings[j].setAttribute("cx", f1(c[0]));
           rings[j].setAttribute("cy", f1(c[1] + 2));
           V.place(rings[j], { s: rk, o: so });

@@ -144,7 +144,7 @@
       const kid = makeRow(stage, CHILD, WORK_Y[2], "blue");
       const best = L3.tag(stage, { x: PILL_X, y: POP_Y[WEAK] + 1, text: "best f = 4", tone: "orange", solid: true });
       const tickSvg = L5.svg(stage);
-      const tick = L5.tick(PILL_X + 138, POP_Y[WEAK] + 28, 34, "green", { w: 7 });
+      const tick = L5.tick(PILL_X + 138, POP_Y[WEAK] + 28, 40, "green", { w: 7 });
       tickSvg.append(tick);
 
       const pop = (k) => ({ s: 0.8 + 0.2 * E.pop(k), o: clamp(k * 4) });
@@ -188,7 +188,9 @@
           const isLoser = i === 1 || i === 3;
           const tour = i < 2 ? T.tourA : T.tourB;
           const dim = isLoser ? ramp(t, tour + 0.35, tour + 0.65, E.lin) * (1 - ramp(t, 6.1, 6.4, E.lin)) : 0;
-          const pass = i >= 2 ? ramp(t, 4.7, 4.9, E.lin) * (1 - ramp(t, 5.15, 5.35, E.lin)) : 0;
+          const pass =
+            (i >= 2 ? ramp(t, 4.7, 4.9, E.lin) * (1 - ramp(t, 5.15, 5.35, E.lin)) : 0) +
+            (i !== WEAK ? ramp(t, 9.95, 10.1, E.lin) * (1 - ramp(t, 10.8, 10.95, E.lin)) : 0);
           const winner = i === 0 || i === 2;
           const winK = winner ? ramp(t, tour + 0.35, tour + 0.5, E.lin) * (1 - ramp(t, 6.2, 6.5, E.lin)) : 0;
           const frameK = ramp(t, tour, tour + 0.2, E.lin) * (1 - ramp(t, 6.2, 6.5, E.lin));

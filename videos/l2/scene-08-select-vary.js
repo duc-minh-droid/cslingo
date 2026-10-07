@@ -36,7 +36,7 @@
       const a2 = mk(sx(P2), top(P2) - 48, J.x - 6, J.y + 34, "purple", { bow: 40, w: 8, head: 24 });
       // from the dice down to the two children
       const c1 = mk(J.x - 10, J.y + 30, sx(K1), pop.valueY(K1) - 6, "purple", { w: 8, head: 20 });
-      const c2 = mk(J.x + 22, J.y + 26, sx(K2), pop.valueY(K2) - 6, "purple", { w: 8, head: 20 });
+      const c2 = mk(J.x + 32, J.y + 12, sx(K2), pop.valueY(K2) - 6, "purple", { w: 8, head: 20 });
       const up = mk(sx(K1), 626, sx(K1), 600, "green", { w: 6, head: 16 });
       const down = mk(sx(K2), 600, sx(K2), 626, "red", { w: 6, head: 16 });
       const diceG = V.s("g", {});

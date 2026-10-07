@@ -80,7 +80,7 @@
             top: `${y}px`,
             width: `${w}px`,
             height: `${RH}px`,
-            padding: "0",
+            padding: name === "throw" ? "0 0 0 44px" : "0",
             textAlign: "center",
             fontSize: "30px",
             lineHeight: `${RH - 6}px`,
