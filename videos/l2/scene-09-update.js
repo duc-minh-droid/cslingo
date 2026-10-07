@@ -138,16 +138,37 @@
 
       // average row (rule 3): label, 0.39, arrow, 0.49
       const AVG = { x: 560, y: 190 };
-      const avgLabel = L2.tag(stage, { text: "average", tone: "grey", x: AVG.x - 190, y: AVG.y, anchor: "l", size: 28 });
-      const avgFrom = L2.tag(stage, { text: MEAN[0].toFixed(2), tone: "grey", x: AVG.x - 66, y: AVG.y, anchor: "c", size: 28 });
-      const avgTo = L2.tag(stage, { text: MEAN[1].toFixed(2), tone: "green", solid: true, x: AVG.x + 96, y: AVG.y, anchor: "c", size: 28 });
+      const avgLabel = L2.tag(stage, {
+        text: "average",
+        tone: "grey",
+        x: AVG.x - 190,
+        y: AVG.y,
+        anchor: "l",
+        size: 28,
+      });
+      const avgFrom = L2.tag(stage, {
+        text: MEAN[0].toFixed(2),
+        tone: "grey",
+        x: AVG.x - 66,
+        y: AVG.y,
+        anchor: "c",
+        size: 28,
+      });
+      const avgTo = L2.tag(stage, {
+        text: MEAN[1].toFixed(2),
+        tone: "green",
+        solid: true,
+        x: AVG.x + 96,
+        y: AVG.y,
+        anchor: "c",
+        size: 28,
+      });
       const arrowG = L5.arrow(AVG.x - 20, AVG.y, AVG.x + 44, AVG.y, "grey", 1, { w: 6, head: 18 });
       svg.append(arrowG);
       void avgArrow;
 
       // ---- bar states per phase (lt = seconds on the phase's own clock, a = the cross-fade opacity)
-      const base = (id) =>
-        OLD.includes(id) ? { tone: "grey" } : { tone: "purple", solid: true };
+      const base = (id) => (OLD.includes(id) ? { tone: "grey" } : { tone: "purple", solid: true });
       const setAll = (fn, a) => IDS.forEach((id) => pop12.set(id, { ...base(id), ...fn(id), o: (fn(id).o ?? 1) * a }));
 
       // rule 1 (t in seconds from the scene start)
@@ -173,7 +194,14 @@
           const st = { slot: lerp(IDS.indexOf(id), MERGE_SLOT[id], e) };
           if (RULES.merge.dropped.includes(id)) {
             const k = lin(t, 6.0, 6.8);
-            if (k > 0) Object.assign(st, { tone: "red", dy: 60 * k, s: 1 - 0.3 * k, o: 1 - k, value: k > 0.8 ? false : undefined });
+            if (k > 0)
+              Object.assign(st, {
+                tone: "red",
+                dy: 60 * k,
+                s: 1 - 0.3 * k,
+                o: 1 - k,
+                value: k > 0.8 ? false : undefined,
+              });
           } else {
             const r = ramp(t, 6.9, 7.5);
             Object.assign(st, { ring: r, ringTone: "green" });
@@ -188,7 +216,13 @@
           if (GONE.includes(id)) {
             const pulse = flash(t, 8.6, 9.0);
             const k = lin(t, 9.0, 9.9);
-            return { tone: "red", s: (1 + 0.14 * pulse) * (1 - 0.4 * k), grow: 1 - k, o: 1 - k, value: k > 0.2 ? false : undefined };
+            return {
+              tone: "red",
+              s: (1 + 0.14 * pulse) * (1 - 0.4 * k),
+              grow: 1 - k,
+              o: 1 - k,
+              value: k > 0.2 ? false : undefined,
+            };
           }
           if (!OLD.includes(id)) {
             const e = ramp(t, 9.0, 9.9, E.inOut);

@@ -113,19 +113,47 @@
         { class: "v-card c-orange", style: { left: "680px", top: "0", width: "244px", height: "110px" } },
         V.h("div", {
           text: "at most 2",
-          style: { position: "absolute", left: "0", right: "0", top: "14px", textAlign: "center", fontSize: "30px", lineHeight: "40px", fontWeight: "900" },
+          style: {
+            position: "absolute",
+            left: "0",
+            right: "0",
+            top: "14px",
+            textAlign: "center",
+            fontSize: "30px",
+            lineHeight: "40px",
+            fontWeight: "900",
+          },
         }),
         V.h("div", {
           text: "cables per town",
-          style: { position: "absolute", left: "0", right: "0", top: "52px", textAlign: "center", fontSize: "30px", lineHeight: "40px", fontWeight: "900" },
+          style: {
+            position: "absolute",
+            left: "0",
+            right: "0",
+            top: "52px",
+            textAlign: "center",
+            fontSize: "30px",
+            lineHeight: "40px",
+            fontWeight: "900",
+          },
         }),
       );
       stage.append(ruleCard);
       const cost = L2.costCard(stage, { x: 680, y: 130, w: 244, h: 150, label: "cost" });
       const greedyTag = L2.tag(stage, { text: `greedy ${GREEDY}`, tone: "red", solid: true, x: 680, y: 310, size: 30 });
       const bestTag = L2.tag(stage, { text: `best ${BEST}`, tone: "green", solid: true, x: 680, y: 372, size: 30 });
-      const hardTag = L2.tag(stage, { text: "hard: no fast exact method", tone: "red", solid: true, x: 468, y: 590, size: 34, anchor: "c" });
-      const flyers = STEPS.map((s) => L2.tag(stage, { text: String(s.w), tone: "orange", solid: true, x: 0, y: 0, size: 30, anchor: "c" }));
+      const hardTag = L2.tag(stage, {
+        text: "hard: no fast exact method",
+        tone: "red",
+        solid: true,
+        x: 468,
+        y: 590,
+        size: 34,
+        anchor: "c",
+      });
+      const flyers = STEPS.map((s) =>
+        L2.tag(stage, { text: String(s.w), tone: "orange", solid: true, x: 0, y: 0, size: 30, anchor: "c" }),
+      );
       const nodesOrder = [...L2.TOWNS];
 
       return (t) => {
@@ -150,7 +178,8 @@
           if (t >= REVEAL + 0.4) return 0;
           let k = 0;
           STEPS.forEach((s, i) => {
-            if (s.deg[n] >= 2 && (i === 0 || STEPS[i - 1].deg[n] < 2) && t >= PICK[i]) k = ramp(t, PICK[i], PICK[i] + 0.3, E.out);
+            if (s.deg[n] >= 2 && (i === 0 || STEPS[i - 1].deg[n] < 2) && t >= PICK[i])
+              k = ramp(t, PICK[i], PICK[i] + 0.3, E.out);
           });
           return k * (1 - ramp(t, REVEAL, REVEAL + 0.4, E.lin));
         };

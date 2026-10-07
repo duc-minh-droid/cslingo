@@ -74,6 +74,8 @@
     r: "translate(-100%, -50%)",
     tc: "translate(-50%, 0)",
     bc: "translate(-50%, -100%)",
+    br: "translate(-100%, -100%)",
+    bl: "translate(0, -100%)",
   };
   function tag(parent, opt = {}) {
     const { text, kids, tone = "grey", solid = false, x = 0, y = 0, size = 28, anchor = "tl", lip = solid, pad } = opt;
