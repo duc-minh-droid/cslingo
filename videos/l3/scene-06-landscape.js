@@ -16,7 +16,7 @@
   need(f[4].toFixed(2) === "0.34" && f[8] < f[7] && f[6] < f[7], "heights");
 
   const T_STEP = 4.8; // first move starts
-  const T_REJ = [6.6, 7.1]; // two rejected tries
+  const T_REJ = [6.6, 7.1];
   const sh = (t, a, b) =>
     V.clamp(Math.sin(Math.PI * 6 * V.clamp((t - a) / (b - a))) * (1 - V.clamp((t - a) / (b - a))));
 
@@ -66,6 +66,7 @@
       const bx = P.px(29) - 200;
       const by = P.py(29) - 54;
       return (t) => {
+        const sk = ramp(t, 7.8, 8.4, E.lin);
         const barsK = (i) => ramp(t, 0.3 + 0.05 * i, 0.65 + 0.05 * i) * (1 - ramp(t, 2.8, 3.8));
         P.update({ curve: ramp(t, 2.8, 3.8, E.lin), fill: ramp(t, 3.2, 4.0, E.lin), bars: t < 3.9 ? barsK : 0 });
         const intro = ramp(t, 0.2, 0.7);
@@ -102,9 +103,8 @@
         ghost1.set({ i: 8, o: g1o > 0 ? 1 : 0, s: 0.8 + 0.2 * E.pop(g1) * (g1o > 0 ? 1 : 0), ring: "red", ringK: 0 });
         bad1.set({ icon: "cross", i: 8, o: g1o > 0.5 ? 1 : 0, k: ramp(t, T_REJ[0] + 0.1, T_REJ[0] + 0.4) });
         ghost2.set({ i: 6, o: g2 > 0 ? 1 : 0, s: 0.8 + 0.2 * E.pop(g2), ring: "red", ringK: 0 });
-        bad2.set({ icon: "cross", i: 6, o: g2 > 0 ? 1 : 0, k: ramp(t, T_REJ[1] + 0.1, T_REJ[1] + 0.4) });
+        bad2.set({ icon: "cross", i: 6, o: g2 > 0 ? 1 - sk : 0, k: ramp(t, T_REJ[1] + 0.1, T_REJ[1] + 0.4) });
         // verdicts
-        const sk = ramp(t, 7.8, 8.4, E.lin);
         stuck.set({ k: sk, o: sk > 0 ? 1 : 0, dx: sx, dy: sy });
         const sc = ramp(t, 8.4, 9.0, E.lin);
         star.set({ i: 29, s: E.pop(sc), o: sc > 0 ? 1 : 0 });

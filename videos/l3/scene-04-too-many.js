@@ -27,7 +27,7 @@
     TH = 84,
     GAP = 20,
     GY = 70;
-  const tileXY = (i) => ({ x: (i % 4) * (TW + GAP), y: GY + Math.floor(i / 4) * (TH + GAP) });
+  const tileXY = (i) => ({ x: (i % 4) * (TW + 32), y: GY + Math.floor(i / 4) * (TH + GAP) });
   const PITCH = 72,
     ROW0 = 20,
     BH = 60,
@@ -153,18 +153,20 @@
           y1 = rowY(i + 1) + BH / 2 - 4;
         const arr = L5.arrow(x, y0, x, y1, "orange", 1, { w: 6, head: 18 });
         sv.append(arr);
+        const html = `${times("var(--amber-ink)")} ${m}`;
         const el = L3.tag(stage, {
           x: x + 28,
           y: rowY(i) + BH + (PITCH - BH) / 2 - 24,
-          html: `${times("var(--amber-ink)")} ${m}`,
+          html,
           tone: "orange",
         });
         return { arr, el, html };
       });
+      const bigHtml = `<span style="display:inline-flex;align-items:center;gap:12px"><svg width="34" height="34" viewBox="0 0 24 24"><path d="${CROSS}" fill="none" stroke="var(--rose-on)" stroke-width="3.6" stroke-linecap="round"/></svg><span>about 6 ${times("var(--rose-on)")} 10<sup style="font-size:22px;line-height:0">16</sup> tours</span></span>`;
       const big = L3.tag(stage, {
         x: 468,
         y: 500,
-        html: `<span style="display:inline-flex;align-items:center;gap:12px"><svg width="34" height="34" viewBox="0 0 24 24"><path d="${CROSS}" fill="none" stroke="var(--rose-on)" stroke-width="3.6" stroke-linecap="round"/></svg><span>about 6 ${times("var(--rose-on)")} 10<sup style="font-size:22px;line-height:0">16</sup> tours</span></span>`,
+        html: bigHtml,
         tone: "red",
         solid: true,
         fs: 34,
@@ -217,7 +219,7 @@
           c.el.set({ html: c.html, s: 0.7 + 0.3 * E.pop(k), o: k * 4 });
         });
         const tk = clamp((t - T.tag[0]) / (T.tag[1] - T.tag[0]));
-        big.set({ s: 0.7 + 0.3 * E.pop(tk), o: tk * 4 });
+        big.set({ html: bigHtml, s: 0.7 + 0.3 * E.pop(tk), o: tk * 4 });
       };
     },
   });

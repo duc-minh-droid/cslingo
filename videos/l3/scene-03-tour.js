@@ -49,7 +49,7 @@
       const x0 = ROW.x + 4 * pitch + ROW.size / 2;
       const x1 = ROW.x + ROW.size / 2;
       const home = svg.appendChild(L5.arrow(x0, homeY, x1, homeY, "purple", 1, { bow: 44 }));
-      const homeTag = L3.tag(stage, { x: (x0 + x1) / 2, y: homeY + 50, anchor: "m", text: "way home", tone: "purple" });
+      const homeTag = L3.tag(stage, { x: (x0 + x1) / 2, y: homeY + 36, anchor: "m", text: "way home", tone: "purple" });
 
       // total pill: small label over a big number
       const total = V.h("div", {
@@ -66,9 +66,9 @@
       const fit = L3.sticker(stage, { x: 596, y: 392, w: 330, h: 64, text: "fitness = length", tone: "blue" });
 
       // after the swap: the old 32 stays beside the new total, with a green arrow and tick
-      const old = L3.tag(stage, { x: 775, y: 470, anchor: "c", text: "32", tone: "red", fs: 44 });
-      const down = svg.appendChild(L5.arrow(775, 540, 775, 600, "green", 1, { w: 8, head: 26 }));
-      const tick = svg.appendChild(L5.tick(850, 570, 56, "green"));
+      const old = L3.tag(stage, { x: 820, y: 470, anchor: "c", text: "32", tone: "red", fs: 44 });
+      const down = svg.appendChild(L5.arrow(820, 540, 820, 600, "green", 1, { w: 8, head: 26 }));
+      const tick = svg.appendChild(L5.tick(885, 575, 52, "green"));
 
       return (t) => {
         const second = t >= A2(0);
@@ -77,10 +77,7 @@
         const running = (hops, cum, start, dur, k0) =>
           hops.reduce((v, h, i) => v + h * ramp(t, start(i), start(i) + dur, E.lin), 0) + k0;
         const val = second ? Math.round(running(H2, C2, A2, D2, 0)) : Math.round(running(H1, C1, A1, D1, 0));
-        const oldDone = second ? 28 : 32;
-        const shown = second ? val : val;
-        num.textContent = String(t < 1.4 ? 0 : shown);
-        void oldDone;
+        num.textContent = String(t < 1.4 ? 0 : val);
 
         // map: cities pop in, tour 1 draws one edge at a time, then tour 2 cross-fades in
         const draw1 = H1.reduce((s, _, i) => s + ramp(t, A1(i), A1(i) + D1, E.lin), 0) / H1.length;

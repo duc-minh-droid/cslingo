@@ -107,8 +107,6 @@
       return (t) => {
         // pops of the start rows with their tags
         const pk = (i) => ramp(t, 0.3 + i * 0.1, 0.6 + i * 0.1, E.back);
-        tagL.set({ s: 0.8 + 0.2 * ramp(t, 0.3, 0.7, E.back), o: ramp(t, 0.3, 0.55) * 1 });
-        tagR.set({ s: 0.8 + 0.2 * ramp(t, 0.3, 0.7, E.back), o: ramp(t, 0.3, 0.55) * 1 });
         // pulses (scene end): left, then right
         const pl = flash(t, 7.4, 8.4);
         const pr = flash(t, 8.4, 9.4);
@@ -132,7 +130,6 @@
 
         // step progress per neighbour
         let count = 0;
-        const fL = [];
         let fR = 0;
         let arcK = 0;
         let fPair = [];
