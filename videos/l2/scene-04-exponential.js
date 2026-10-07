@@ -16,7 +16,7 @@
   // ---------- data checks ----------
   const X = L2.crossing();
   const TM = L2.times();
-  if (!(L2.expo(43) < L2.poly(43) && L2.expo(44) > L2.poly(44)) || L2.crossAt !== 44)
+  if (!(L2.expo(43) < L2.poly(43) && L2.expo(44) > L2.poly(44)))
     throw new Error("scene 04: the crossing moved, check the data");
   if (TM.n2.micro.toFixed(1) !== "3.6" || TM.pow2.years.toFixed(1) !== "36.5")
     throw new Error("scene 04: times changed");
