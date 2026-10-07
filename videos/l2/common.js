@@ -126,7 +126,7 @@
       pow2: { steps: s60, seconds: s60 / 1e9, years: s60 / 1e9 / YEAR },
     };
   };
-  const supStyle = { fontSize: "0.62em", lineHeight: "0", position: "relative", top: "-0.62em", marginLeft: "0.06em" };
+  const supStyle = { fontSize: "0.8em", lineHeight: "0", position: "relative", top: "-0.5em", marginLeft: "0.04em" };
   const sup = (base, exp) => V.h("span", {}, String(base), V.h("sup", { text: String(exp), style: supStyle }));
   const sci = (mant, exp) => V.h("span", {}, `${mant} × 10`, V.h("sup", { text: String(exp), style: supStyle }));
 

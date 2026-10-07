@@ -34,8 +34,20 @@
       const tEvals = L4.tag(stage, { x: 468, y: 250, text: "evals 30", tone: "grey", anchor: "c" });
 
       const panels = [
-        { cx: 180, x: 48, name: "algorithm 1", recipe: ["steady-state", "tournament t = 3", "replace worst", "mutation"], tickX: 324 },
-        { cx: 756, x: 624, name: "algorithm 2", recipe: ["generational", "1 elite", "rank", "crossover + mutation"], tickX: 612 },
+        {
+          cx: 180,
+          x: 48,
+          name: "algorithm 1",
+          recipe: ["steady-state", "tournament t = 3", "replace worst", "mutation"],
+          tickX: 324,
+        },
+        {
+          cx: 756,
+          x: 624,
+          name: "algorithm 2",
+          recipe: ["generational", "1 elite", "rank", "crossover + mutation"],
+          tickX: 612,
+        },
       ].map((p, i) => {
         const head = L4.tag(stage, { x: p.cx, y: 12, text: p.name, tone: "blue", anchor: "c" });
         const pic = L4.pixels(stage, { x: p.x, y: 66, cell: 22 });

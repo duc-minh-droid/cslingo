@@ -38,7 +38,7 @@
     caps: [
       [1.0, 3.4, "Each row is a generation. Orange = copies of the best."],
       [3.6, 6.8, "Only selection acts: no mutation, no crossover."],
-      [7.2, 10.8, "Too weak: no progress. Too strong: one copy takes over."],
+      [7.2, 10.8, "Too weak: no progress. Too strong: one copy wins."],
     ],
     build(stage) {
       const parts = PANELS.map((p) => ({

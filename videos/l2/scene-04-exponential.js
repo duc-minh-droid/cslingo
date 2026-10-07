@@ -94,6 +94,7 @@
       c.setAttribute("cy", y.toFixed(1));
     };
     at(xDot, cx, cy);
+    layer.append(gDot); // the green dot stays visible on top of the red one at the crossing
 
     // name tags with a short stub of their curve colour
     const [lx, ly] = plot.toPx(0, 300);
@@ -143,11 +144,8 @@
     // ===================== phase 2 =====================
     const p2 = h("div", { style: { position: "absolute", left: "0", top: "0", width: "936px", height: "640px" } });
     stage.append(p2);
-    const head = L2.tag(p2, {
-      kids: ["n = 60 · 10", h("sup", { text: "9", style: supStyle() }), " steps a second"],
-      x: 12,
-      y: 0,
-    });
+    const head = L2.tag(p2, { text: "n = 60", x: 12, y: 0 });
+    const head2 = L2.tag(p2, { kids: ["10", h("sup", { text: "9", style: supStyle() }), " steps a second"], x: 160, y: 0 });
     const bar = (x0, w, tone) =>
       h("div", {
         class: `c-${tone}`,
@@ -220,7 +218,7 @@
       anchor: "c",
     });
     const tYears = L2.tag(p2, {
-      text: `${Math.floor(TM.pow2.years)} years`,
+      text: `${TM.pow2.years.toFixed(1)} years`,
       tone: "red",
       solid: true,
       x: 635,
@@ -261,7 +259,7 @@
       const rk = flash(t, T_CROSS, T_CROSS + 0.8);
       place(ring, { s: 0.4 + 1.1 * ramp(t, T_CROSS, T_CROSS + 0.8, E.out), o: seen ? rk : 0 });
       const wk = pop(t, T_CROSS + 0.25, 0.5);
-      winTag.set({ s: wk, o: t >= T_CROSS + 0.2 ? 1 : 0 });
+      winTag.set({ s: wk, o: wk > 0.05 ? 1 : 0 });
       place(leader, { o: fade(t, T_CROSS + 0.45, 0.2) });
       L5.drawOn(leader, ramp(t, T_CROSS + 0.45, T_CROSS + 0.8, E.lin));
       // readout (the real values at floor(n))
@@ -277,6 +275,7 @@
       // ---- phase 2 ----
       V.show(p2, t >= T2 ? 1 : 0);
       head.set({ s: pop(t, T2 + 0.05), o: t > T2 ? 1 : 0 });
+      head2.set({ s: pop(t, T2 + 0.2), o: t > T2 + 0.15 ? 1 : 0 });
       const grow = ramp(t, GROW[0], GROW[1], E.in);
       const bIn = ramp(t, T2 + 0.3, T2 + 0.8);
       V.show(base, bIn);
@@ -310,12 +309,12 @@
       tYears.set({ s: pop(t, GROW[1]), o: t >= GROW[1] ? 1 : 0 });
       tEasy.set({ s: pop(t, 9.6), o: t >= 9.6 ? 1 : 0 });
       tHard.set({ s: pop(t, 9.6), o: t >= 9.6 ? 1 : 0 });
-      tScale.set({ s: pop(t, 9.8), o: t >= 9.8 ? 1 : 0 });
+      tScale.set({ s: pop(t, T2 + 0.5), o: t >= T2 + 0.5 ? 1 : 0 });
     };
   }
 
   function supStyle() {
-    return { fontSize: "0.62em", lineHeight: "0", position: "relative", top: "-0.62em", marginLeft: "0.06em" };
+    return { fontSize: "0.8em", lineHeight: "0", position: "relative", top: "-0.5em", marginLeft: "0.04em" };
   }
 
   V.scene({
@@ -325,7 +324,8 @@
     caps: [
       [0.4, 3.0, "A tiny exponential against a polynomial."],
       [3.2, 6.2, "At n = 44 the exponential overtakes."],
-      [7.2, 10.5, "At n = 60: microseconds, or 36 years."],
+      [6.6, 8.2, "Now a real run, with a bigger exponential."],
+      [8.4, 10.7, "A polynomial takes microseconds, the exponential 36.5 years."],
     ],
     build,
   });

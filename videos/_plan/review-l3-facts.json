@@ -1,0 +1,88 @@
+{
+  "findings": [
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "should",
+      "problem": "The Monte Carlo panel says 'worse step: 1 in 10' but the probability is shown with a six-sided die (face 1 = lucky, faces 2-6 = rejected). A six-sided die implies 1 in 6, which contradicts the 1 in 10 (p = 0.1) the lecture states. The face-to-outcome rule is never explained on screen, so a first-time learner cannot tell what the die means. The die also keeps showing a stale face (5) with 'try 26' for the rest of the scene after Monte Carlo has finished, and shows a dimmed face on uphill tries where no die is rolled.",
+      "fix": "Make the die honest: either show a 10-sided/'1 of 10 slots' pictogram (nine grey slots and one purple, the rolled slot lit) or replace the die with a small 'draw u' bar where u < 0.1 is the lucky zone. Hide the die when the try is not a worse step and after try 26.",
+      "evidence": "s9@4.1 (die shows 5 on try 12; tag reads 'worse step: 1 in 10'); s9@9.5, s9@13.7 (stale die and 'try 26' while Tabu runs). Source: L3.dieFace uses 1 + 5 faces for p = 0.1."
+    },
+    {
+      "scene": "scene-06-landscape.js / scene-03-tour.js",
+      "severity": "should",
+      "problem": "Fitness direction flips without warning. Scene 3 teaches 'fitness = length, shorter is better, we minimise' and scene 5 treats a shorter or equal tour as better. Scene 6 then draws fitness as height with the tag 'taller = fitter' and calls the peak 'best', so a learner who just learnt that a lower tour length is fitter sees the opposite convention. The lecture does say landscapes plot higher = fitter, but the video never bridges the two.",
+      "fix": "In scene 6 add a one-line bridge, for example caption or tag 'height = fitness (here higher is better)', or in scene 3's last caption say 'Shorter is fitter'. A short 'flip it: fewer miles = taller' note on the first bars would also work.",
+      "evidence": "s3@6.2 ('fitness = length', 'we minimise') versus s6@5.5 ('taller = fitter', hill-climbing upward)."
+    },
+    {
+      "scene": "scene-08-neighbours.js",
+      "severity": "should",
+      "problem": "The left tag reads 'swap two neighbours', but this scene defines 'neighbour' as a solution one mutation away. Using the same word for two adjacent cities is confusing, and the wrap-around pair (E and C) are not obviously 'neighbours'. The lecture's operator is 'swap two adjacent cities (last and first count as adjacent)'.",
+      "fix": "Change the tag to 'swap two adjacent' (22 characters or fewer) or 'swap adjacent pair'. Keep 'neighbours' only for the resulting rows and the counters.",
+      "evidence": "s8@3.0 and s8@9.3 (tag 'swap two neighbours' above the start tour EABDC)."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "nit",
+      "problem": "Row 3 ('Step downhill, or send a whole team') shows one dotted arc carrying the token from the left hill straight to the star, which reads as a single leap. Monte Carlo and Tabu escape by small downhill steps (scene 9), and the lecture says a team spreads out over many hills; neither is a one-jump hop over the valley.",
+      "fix": "Draw the arc as a short hop down into the valley, or a few small dotted hops that climb the next hill, and keep the three-team-dots beat for the 'whole team' half.",
+      "evidence": "s11@4 (arc from left hill to the star, token still on left hill)."
+    },
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "nit",
+      "problem": "The video shows both Monte Carlo and Tabu reaching the global best and the last caption says 'Both escape the small hill', but the lecture fact is that both get stuck less than hillclimbing and can still get stuck. A learner could conclude they always find the top.",
+      "fix": "Soften the last caption, for example 'Both can escape the small hill' or 'Both escape this time, but not always.'",
+      "evidence": "s9@12.6 caption 'Both escape the small hill.'; s9@13.7 both hikers on the star."
+    },
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "nit",
+      "problem": "In the Tabu panel the orange downhill badge sometimes shows as a plain orange disc with no arrow, floating well away from the hiker (a fade frame). It reads as an unexplained orange blob.",
+      "fix": "Keep the arrow glyph visible for the whole badge life, anchor it to the hiker's landing index, or fade the whole badge in under 0.15 s.",
+      "evidence": "s9@11 (empty orange disc left of the hiker) and s9@12.6 (large pale orange disc mid-air)."
+    },
+    {
+      "scene": "scene-05-hillclimb.js",
+      "severity": "nit",
+      "problem": "The mutant length pill counts up through values that are not real tour lengths (for example 31, 30, 29 on the way from 32 to 28), so a freeze or a still can show a wrong total (29 for BADEC).",
+      "fix": "Pop the final value straight in (no count), or count only where the hops are shown. The same applies to scene 3's length counter (27 mid-count on ABCED).",
+      "evidence": "s5@7.6 (BADEC pill shows 29, true length 28); s3@8.5 (ABCED total shows 27)."
+    },
+    {
+      "scene": "scene-10-population.js",
+      "severity": "nit",
+      "problem": "Storyboard-vs-video: step 1 should show purple rings on the two randomly picked members (33 and 4) before the fitter one gets the orange ring, so the tournament of two is visible. In the render only the orange parent ring and the red replaced ring appear, so selection looks like 'pick the best' rather than 'pick two, keep the fitter'.",
+      "fix": "Add the purple rings on both picked members for the first 0.3 s of step 1 (and step 2), then the orange ring on the winner.",
+      "evidence": "s10@4.9 (orange ring on i=33, red ring on i=25, no purple rings on the picked pair)."
+    },
+    {
+      "scene": "scene-07-shapes.js",
+      "severity": "nit",
+      "problem": "The video says 'Four shapes of landscape', but the lesson (l3-03.js) lists five (unimodal, multimodal, plateau, deceptive and random). The lecture text names four feature types, so the video is defensible, but the random landscape is silently dropped.",
+      "fix": "Keep four (it matches the lesson's 'Feature types' line) or add a tiny grey fifth note 'random: no pattern'. No change is needed if the omission is deliberate.",
+      "evidence": "js/content/nic/l3-03.js line 198 and the DESC object; s7@1.9 shows four panels."
+    },
+    {
+      "scene": "scene-08-neighbours.js",
+      "severity": "nit",
+      "problem": "The green counters lag the rows: they only tick up when a neighbour row has finished sliding (t - (1.4 + j) >= 0.95), so a new row is on screen while the counter still says the previous number ('1 neighbour' with two rows showing, '4 neighbours' with five rows).",
+      "fix": "Tick the counter when the row starts to appear, or at about 0.4 s into each step.",
+      "evidence": "s8@3.0 (two rows, '1 neighbour'); s8@6.0 (five rows, '4 neighbours')."
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "The page title string repeats the lecture label: 'Lecture 3 · Lecture 3 · Local vs population search · CSLingo video'.",
+      "fix": "Generate the title as 'Lecture 3 · Local vs population search · CSLingo video' (as lecture-5.html does).",
+      "evidence": "videos/lecture-3.html line 7."
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Plan data disagreement (not a video bug): _plan/lecture-3.json scene 10 says step 8 is '15 vs 30'. Re-running the seeded EA independently shows the two picked values are 29 and 30 (parent slot 3 = 30, child 29), so the spec text is wrong although the video follows the code and matches the outcome (child 29 replaces 15).",
+      "fix": "Correct the spec text to '29 vs 30' if the plan is reused.",
+      "evidence": "Independent node re-implementation: s8 pair 29,30 parent value 30 child 29 old 15. Everything else matched: TSP lengths (ABDEC 32, ABCED 28, ABCDE 34, ACBDE 38, ABEDC 33, CBDEA 38, BADEC 28, BADCE 28), the 12 tours and lengths, tour counts 12/60/360/2,520/181,440/60,822,550,204,416,000, landscape values and peaks (7, 18, 29), Tabu path, Monte Carlo log (u values 0.003, 0.039, 0.080, 0.081, best-so-far 7, 16, 19, 17, 29), EA steps, hills counts (3, 3, 2, 2, 2, 2, 2, 2, 2, 1) and final population 28, 29, 29, 30, 30, 31."
+    }
+  ]
+}

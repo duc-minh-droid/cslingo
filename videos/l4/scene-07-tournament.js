@@ -28,7 +28,7 @@
   });
   const [TX, TY, TS, GAP] = [174, 110, 120, 36];
   const BASE = 520;
-  const LEN = 190;
+  const LEN = 160;
   const PCT = 0.7; // bar length LEN stands for 70%
   const STOPS = [
     [5.8, 6.4],
@@ -71,7 +71,7 @@
         L4.tag(stage, { x: row.mid(WIN).x, y: 290, text: "parent", tone: "blue", solid: true, anchor: "c" }),
         L4.tag(stage, { x: row.mid(BEST).x, y: 346, text: "not drawn", tone: "grey", solid: true, anchor: "c" }),
       ];
-      const chance = L4.tag(stage, { x: 468, y: 262, text: "chance to be picked", tone: "green", anchor: "c" });
+      const chance = L4.tag(stage, { x: 468, y: 284, text: "chance to be picked", tone: "green", anchor: "c" });
       const knob = L4.knob(stage, { x: 250, y: 580, w: 440, stops: [1, 2, 3, 4], pillX: 100, tone: "green" });
       const svg = L5.svg(stage);
       const crossG = L5.cross(0, 0, 64, "red");

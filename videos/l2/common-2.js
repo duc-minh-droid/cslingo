@@ -83,6 +83,7 @@
     const style = { left: "0", top: "0", fontSize: `${size}px`, transform: ANCHORS[anchor] };
     if (lip) style.boxShadow = "0 4px 0 var(--c-lip)";
     if (pad) style.padding = pad;
+    if (tone === "grey" && !solid) style.color = "var(--ink)"; // dark ink reads better than dim grey on the pale fill
     const el = V.h("div", { class: `v-tag${solid ? " solid" : ""} c-${tone}`, style }, ...(kids || [text]));
     const wrap = V.h(
       "div",
