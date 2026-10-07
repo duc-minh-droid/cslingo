@@ -1,8 +1,8 @@
 /* Record an explainer video frame by frame:  node tools/render-video.js <lecture-5|lecture-6> [outFile] [--fps 30] [--workers 4]
    Each frame is drawn by VID.seek(t) in headless Chromium (1080 x 1080) and saved as a PNG, then ffmpeg joins them into an
    H.264 mp4. Needs ffmpeg with libx264: set FFMPEG=/path/to/ffmpeg (the Playwright copy cannot encode H.264;
-   `pip install imageio-ffmpeg` ships one). No audio. */
-import { mkdirSync, rmSync, mkdtempSync } from "node:fs";
+   `pip install imageio-ffmpeg` ships one). If videos/audio/<name>.json exists (tools/narrate.js) the voice-over is mixed in. */
+import { mkdirSync, rmSync, mkdtempSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -42,6 +42,25 @@ try {
       if (errors.length) throw new Error(errors.join("\n"));
     }),
   );
+  // voice-over: every clip delayed to its start (scene start + sentence start), mixed, levelled to about -16 LUFS
+  const track = join(root, "videos", "audio", `${name}.json`);
+  const vo = existsSync(track) ? JSON.parse(readFileSync(track, "utf8")) : null;
+  const inputs = [],
+    delays = [];
+  if (vo) {
+    let at = 0;
+    vo.scenes.forEach((sc) => {
+      sc.clips.forEach((c) => {
+        inputs.push("-i", join(root, c.file));
+        delays.push(Math.round((at + c.at) * 1000));
+      });
+      at += sc.dur;
+    });
+  }
+  const n0 = 1; // input 0 is the picture sequence
+  const graph = delays.length
+    ? `${delays.map((d, i) => `[${i + n0}:a]adelay=${d}|${d}[a${i}]`).join(";")};${delays.map((_, i) => `[a${i}]`).join("")}amix=inputs=${delays.length}:normalize=0:dropout_transition=0,loudnorm=I=-16:TP=-1.5:LRA=11,apad[aud]`
+    : null;
   const ff = spawnSync(
     process.env.FFMPEG || "ffmpeg",
     [
@@ -52,6 +71,10 @@ try {
       String(fps),
       "-i",
       join(dir, "%05d.png"),
+      ...inputs,
+      ...(graph
+        ? ["-filter_complex", graph, "-map", "0:v", "-map", "[aud]", "-c:a", "aac", "-b:a", "160k", "-shortest"]
+        : []),
       "-c:v",
       "libx264",
       "-preset",

@@ -156,7 +156,7 @@
         V.place(l, { y: (1 - p) * 22, o: p });
       });
     }
-    def.__update(lt);
+    def.__update(lt * (def.k || 1)); // k < 1 slows a scene that needs more time for its voice-over (never speeds one up)
     // caption: one plain-English sentence at a time, fading in and out
     const cap = (def.caps || []).find(([a, b]) => lt >= a && lt < b);
     if (cap) {
@@ -237,6 +237,20 @@
     root.style.transform = document.body.classList.contains("rec") ? "none" : `scale(${Math.min(k, 1.5)})`;
   }
 
+  /** Voice-over timing (videos/audio/lecture-N.js, made by tools/narrate.js): each scene may last longer than it was
+      written for (`dur`), its animation is slowed to fit (`k`), and its captions follow the spoken sentences. */
+  function applyNarration() {
+    const N = V.narration;
+    if (!N) return;
+    V.scenes.forEach((d, i) => {
+      const n = N.scenes[i];
+      if (!n) return;
+      d.k = d.dur / n.dur;
+      d.dur = n.dur;
+      d.caps = n.caps;
+    });
+  }
+
   /** Called once by a lecture page after every scene file has loaded. ?rec=1 hides the controls; ?t=12.5 seeks and pauses. */
   V.start = (opts = {}) => {
     const q = new URLSearchParams(location.search);
@@ -249,6 +263,7 @@
     capEl = V.h("div", { class: "v-caption" });
     root.append(track, capEl);
     document.body.prepend(root);
+    applyNarration();
     V.scenes.forEach(buildScene);
     root.append(track, capEl); // above the scenes
     V.total = V.scenes.reduce((a, d) => a + d.dur, 0);

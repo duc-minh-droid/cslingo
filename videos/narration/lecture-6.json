@@ -1,0 +1,81 @@
+{
+ "voice": "alice",
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture six. Genetic programming. Evolving programs themselves."
+   ]
+  },
+  {
+   "lines": [
+    "Normally, you write the program.",
+    "In genetic programming, you give examples of what it should do,",
+    "and evolution finds a program that matches."
+   ]
+  },
+  {
+   "lines": [
+    "A program can be drawn as a tree.",
+    "It runs from the leaves up to the root.",
+    "Change the input, and a different branch is used."
+   ]
+  },
+  {
+   "lines": [
+    "We build programs from two sets: functions, and terminals.",
+    "We grow downwards, picking parts at random.",
+    "At the depth limit, only terminals are allowed."
+   ]
+  },
+  {
+   "lines": [
+    "Run the program on many inputs.",
+    "The error is the area between its curve and the target.",
+    "Lower error means a fitter program."
+   ]
+  },
+  {
+   "lines": [
+    "Mutation: pick a node at random.",
+    "Cut off its subtree.",
+    "Grow a new random subtree in its place."
+   ]
+  },
+  {
+   "lines": [
+    "Crossover: pick a point in each parent.",
+    "Swap the two subtrees.",
+    "The same nodes, but the children have new sizes."
+   ]
+  },
+  {
+   "lines": [
+    "Here are four random programs. Lower error is better.",
+    "Next generation: a copy, a mutant, and two children.",
+    "A few generations later, we find x squared plus x plus one."
+   ]
+  },
+  {
+   "lines": [
+    "Five things to choose before a run.",
+    "Only plus and minus? You can only draw straight lines.",
+    "Add multiply, and the curve fits."
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    3.4,
+    5.9
+   ],
+   "lines": [
+    "Remember: tell the computer what to do, not how.",
+    "A program is a tree, so we mutate and cross subtrees.",
+    "Fitness is the error on your examples."
+   ]
+  }
+ ]
+}

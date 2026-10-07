@@ -1,0 +1,92 @@
+{
+ "voice": "alice",
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture two. Why do we need evolutionary algorithms? Optimisation, and hardness."
+   ]
+  },
+  {
+   "lines": [
+    "Take three items, and aim for a total of one hundred kilograms.",
+    "Each item is a bit. A one takes the item, and a zero leaves it.",
+    "The fitness, f of s, is how far we are from one hundred. Smaller is better.",
+    "Exhaustive search means trying every subset.",
+    "We try all eight. A hundred and ten is the best, with f equal to five."
+   ]
+  },
+  {
+   "lines": [
+    "Three items make eight possible solutions.",
+    "Each extra item doubles the count.",
+    "A real water network has twenty-one pipes, with sixteen sizes each.",
+    "Trying every design would take six hundred million years."
+   ]
+  },
+  {
+   "lines": [
+    "Here is a tiny exponential, next to a polynomial.",
+    "At n equals forty-four, the exponential overtakes.",
+    "Now a real run, with a bigger exponential.",
+    "Microseconds for the polynomial. Years for the exponential."
+   ]
+  },
+  {
+   "lines": [
+    "Connect all five towns as cheaply as possible.",
+    "Prim's method: take the cheapest cable to a new town.",
+    "Keep adding the cheapest cable, with no loops.",
+    "It is fast, and always optimal. This is an easy problem."
+   ]
+  },
+  {
+   "lines": [
+    "Now add a new rule: at most two cables per town.",
+    "But the best tree has three cables at C.",
+    "Run the same greedy method again.",
+    "An early cheap choice blocks cheaper ones later.",
+    "Greedy gets twenty, but a tree costing nineteen exists."
+   ]
+  },
+  {
+   "lines": [
+    "Nearest neighbour gives an instant, decent tour.",
+    "The evolutionary algorithm starts from random tangles.",
+    "It keeps improving its best tour.",
+    "Given time, it overtakes the quick method.",
+    "This is approximate: good answers, but no guarantee."
+   ]
+  },
+  {
+   "lines": [
+    "Here is a population of ten solutions, each with a fitness.",
+    "Select: the fitter ones are more likely, not only the best.",
+    "Vary: the children can be better, or worse.",
+    "So next: who stays?"
+   ]
+  },
+  {
+   "lines": [
+    "Replace everyone, and the old best can be lost.",
+    "Merge, and keep the best ten, so the best survives.",
+    "Or replace the weakest, and the best survives too.",
+    "Then we repeat the loop."
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    3.4,
+    5.9
+   ],
+   "lines": [
+    "Remember: trying every solution is too slow, because the work grows exponentially.",
+    "Greedy methods are fast, but they can get stuck.",
+    "An evolutionary algorithm gives good answers in reasonable time."
+   ]
+  }
+ ]
+}

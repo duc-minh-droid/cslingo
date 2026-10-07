@@ -1,0 +1,100 @@
+{
+ "voice": "alice",
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture three. Local search against population search, and how searches get stuck on hills."
+   ]
+  },
+  {
+   "lines": [
+    "Every evolutionary algorithm repeats the same loop.",
+    "Score everyone, then pick the fitter parents.",
+    "Mix two parents, then change one gene.",
+    "The child replaces the weakest. Then we repeat."
+   ]
+  },
+  {
+   "lines": [
+    "Visit every city once, then return.",
+    "A tour is a string. Add up the hops to get its length.",
+    "Shorter is better, so we minimise.",
+    "A B C E D is shorter. Twenty-eight beats thirty-two."
+   ]
+  },
+  {
+   "lines": [
+    "Five cities have only twelve tours.",
+    "Each extra city multiplies the count.",
+    "Twenty cities? We cannot check them all."
+   ]
+  },
+  {
+   "lines": [
+    "Start with one tour, and change it a little.",
+    "If it is worse, throw the change away.",
+    "If it is no worse, keep it, and carry on.",
+    "Repeat until time runs out."
+   ]
+  },
+  {
+   "lines": [
+    "Neighbouring solutions sit side by side.",
+    "Nearby solutions have similar fitness.",
+    "Hillclimbing climbs the hill it starts on.",
+    "It stops at a local peak, which may not be the best."
+   ]
+  },
+  {
+   "lines": [
+    "Here are four landscape shapes, with one climber on each.",
+    "Hillclimbing only ever walks uphill.",
+    "Only the one-peak shape always works."
+   ]
+  },
+  {
+   "lines": [
+    "Start from one solution.",
+    "Every solution one mutation away is a neighbour.",
+    "A different operator gives different neighbours."
+   ]
+  },
+  {
+   "lines": [
+    "Hillclimbing is stuck on this hill.",
+    "A worse step is usually rejected.",
+    "Let's fast-forward: every one is rejected.",
+    "Then, one lucky roll: it steps downhill!",
+    "Then it climbs on, and keeps the best.",
+    "Tabu search always moves to its best neighbour.",
+    "But it cannot step back onto a crumb it just dropped.",
+    "So it walks on, over the valley.",
+    "Both methods can escape the small hill."
+   ]
+  },
+  {
+   "lines": [
+    "One hiker is stuck on one hill.",
+    "A team starts on many hills.",
+    "Even a low score can climb the tallest hill.",
+    "The team gathers on the best hill.",
+    "And a team can select and recombine."
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    3.4,
+    5.9
+   ],
+   "lines": [
+    "Remember: one loop, score, pick, change, and replace.",
+    "Hillclimbing stops on the nearest hill.",
+    "A team of searchers, or a lucky downhill step, helps you escape."
+   ]
+  }
+ ]
+}
