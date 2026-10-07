@@ -1,0 +1,331 @@
+{
+  "slug": "lecture-3",
+  "dir": "l3",
+  "title": "Lecture 3 · Local vs population search",
+  "outline": "Lecture 3 video (Nature-Inspired Computation, ECM3412): 'Local vs population search & landscapes'. 11 scenes, 115 s: title (4), the EA loop (13), the TSP tour as a string (11), too many tours (9), hillclimbing on the TSP (13), a fitness landscape (10), four landscape shapes (10), neighbourhoods (10), local search: Monte Carlo and Tabu (14), population search (12), recap (9). Story: every EA is one loop (fitness, selection, recombination, mutation, replacement); the example problem is a 5-city TSP whose solutions are strings (permutations) and whose fitness is the tour length; there are too many tours to check, so we search; hillclimbing keeps a change if it is no worse; drawing all solutions on a line (neighbours side by side) gives a fitness landscape where HC climbs the hill it starts on and stops on a local optimum; only one-peak landscapes always work; a neighbourhood is every mutant one move away and depends on the operator; local search escapes by sometimes going downhill (Monte Carlo: accept a worse neighbour with probability p, e.g. 0.1; Tabu: always move to the best neighbour that is not recently visited) and remembers the best so far; a population explores many hills at once, which makes selection and recombination possible, and converges over time.\n\nCOLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLECTURE FACTS THE SCENES RELY ON (all verified with node):\n(1) EA loop order: Population -> Fitness -> Selection -> Recombination -> Mutation -> Replacement -> back to Population. OneMax: a solution is a bitstring, fitness = number of 1s (best = all 1s). Selection example: tournament of 2 (grab two at random, keep the better). Recombination: 1-point crossover (first genes from parent 1, the rest from parent 2). Mutation: flip one random bit (the only step that creates material neither parent had). Replacement: the child replaces the weakest member if it is at least as good. Selection and replacement use fitness; mutation and crossover are blind to it.\n(2) TSP: cities A-E, symmetric distances AB 5, AC 7, AD 4, AE 15, BC 3, BD 4, BE 10, CD 2, CE 7, DE 9. A tour is a permutation (every city once), length = sum of the 5 hops including the way home; we minimise. ABDEC = 5+4+9+7+7 = 32. ABCED = 5+3+7+9+4 = 28 (the shortest possible). ABCDE = 34, ACBDE = 38. Number of distinct tours = (k-1)!/2: k=5 -> 12, 6 -> 60, 7 -> 360, 8 -> 2,520, 10 -> 181,440, 20 -> 60,822,550,204,416,000 (about 6 x 10^16). The 12 distinct tours of the 5-city map with lengths: ABCED 28, ABECD 28, ABDEC 32, ACEBD 32, ABDCE 33, ABEDC 33, ACBED 33, ADBCE 33, ABCDE 34, ADCBE 34, ACBDE 38, ACDBE 38.\n(3) Hillclimbing (HC) = an EA with a population of one: make a random solution c; copy and mutate it to get m; if f(m) is no worse than f(c), c becomes m, otherwise discard m; repeat. TSP mutation = swap two ADJACENT cities, last and first count as adjacent (the tour is a loop). The lecture trace from c = ABDEC (32): swap D,E gives ABEDC 33 (worse, reject); swap C,A (wrap) gives CBDEA 38 (reject); swap A,B gives BADEC 28 (better, accept); then from BADEC swap E,C gives BADCE 28 (equal, accept: no worse). On this tiny map every dead end has length 28.\n(4) Fitness landscape: all solutions along the x-axis with neighbours (one mutation apart) side by side, fitness as height (higher = fitter in landscapes). Locally smooth: nearby solutions have similar fitness, which is why small steps work. HC only ever walks up (or sideways) so it stops on the top of the hill it starts on: a local optimum (no neighbour is better) even if a taller mountain exists. Shapes: unimodal (one peak: HC always wins), multimodal (many peaks: HC gets stuck), plateau (big flat area: no hint where to go), deceptive (the slope leads away from the best). Big random mutations are bad because the landscape is only locally smooth.\n(5) Neighbourhood of s = all mutants of s, every solution one mutation away; it depends on the operator. Permutation EABDC with adjacent swap (wrap-around) has 5 neighbours: AEBDC, EBADC, EADBC, EABCD, CABDE. Bitstring 00110 with bit flip has 5 neighbours: 10110, 01110, 00010, 00100, 00111. n cities in a loop have n neighbours, L bits have L. A solution is a local optimum if none of its neighbours is better, so changing the operator changes which solutions are local optima.\n(6) Local search = HC that sometimes goes downhill, plus a remembered best-so-far (what it returns). Monte Carlo: pick a random neighbour; better -> move; worse -> move anyway with probability p (e.g. 0.1, 1 time in 10); p = 0 is HC, p = 1 a random walk. Tabu: look at ALL neighbours, move to the best one even if it is worse, unless it is tabu (visited recently), then take the next best; without the tabu list it would step down and straight back up forever. Both get stuck less than HC but can still get stuck.\n(7) Population search keeps many current solutions. New questions: which one do we mutate (selection) and can we mix two (recombination)? These two make an EA more than local search. A low-scoring member can sit at the foot of the tallest mountain, so poor ones are worth keeping. Over time the population converges (copies of good solutions fill it).\n\nSHARED LANDSCAPE: scenes 6-10 use the same 40-point grid (index i = 0..39, x = i/39) and the lecture's 'multimodal' curve f(x) = 0.1 + 0.55 exp(-(x-0.18)^2/(2*0.06^2)) + 0.7 exp(-(x-0.45)^2/(2*0.07^2)) + 1.0 exp(-(x-0.75)^2/(2*0.06^2)). Its three peaks are at i = 7 (f 0.65, 'left hill'), i = 18 (f 0.79, 'middle hill') and i = 29 (f 1.094, the global best, drawn with an orange star). Valleys bottom out near i = 12 (0.25) and i = 23-24 (0.22). All seeded runs use mulberry32 (see helpers) so every frame is the same on every render.\n\nDESIGN RULES FOR EVERY SCENE: the picture teaches, the caption is one short sentence; let each state sit about a second; at most about 5 things on stage at once; every number, string and path comes from running the real algorithm in code at build time (assert it against the values written in the spec and throw if they differ, like videos/l5 does); update(t) only looks things up by time. Symbols (tick, cross, arrows, star, diamond, dice) are SVG pictograms, never glyphs. Labels are at least 28 px. UK spelling.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 3",
+    "title": "Local vs population",
+    "sub": "How searches get stuck on hills, and how to escape",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-loop.js",
+      "kicker": "THE RECIPE",
+      "title": [
+        "Every EA runs",
+        "the same loop"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          2.6,
+          "Every EA repeats the same loop."
+        ],
+        [
+          2.8,
+          6,
+          "Score everyone, then pick the fitter parents."
+        ],
+        [
+          6.2,
+          9.2,
+          "Mix two parents, then change one gene."
+        ],
+        [
+          9.4,
+          12.5,
+          "The child replaces the weakest. Then repeat."
+        ]
+      ],
+      "spec": "IDEA: every evolutionary algorithm is the same six-station loop. Show it as a racetrack of six chips and ONE worked lap on real OneMax bitstrings (fitness = number of 1s). COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT (stage px, suggested; keep >= 12 px margins): six sticker chips (pills 262 x 56, 28 px / 900 text). Grey (c-grey) until the lap reaches them, solid in their tone while active, soft tint afterwards. Top row y = 0: Population (x 0, blue), Fitness (x 337, green), Selection (x 674, orange). Bottom row y = 584: Recombination (x 674, purple), Mutation (x 337, purple), Replacement (x 0, green). Five grey L5.arrow pictograms join them in loop order: Population > Fitness > Selection, down the right side (x 805, y 64 to 576) to Recombination, left to Mutation, left to Replacement, up the left side (x 131) back to Population. The arrow into a chip turns the colour of that chip when the lap reaches it.\nInside the loop there are two zones. POPULATION block: 4 rows of 5 gene tiles (L5.chromosome, size 54, gap 8, left x about 240) at y = 84, 146, 208, 270, each with an 'f = n' pill (28 px) on its right (about x 570). WORK block below it: three rows at y = 360, 424, 488 with 28 px grey labels 'parent 1', 'parent 2', 'child' on their left and the same tile size; a dashed purple vertical cut line after gene 2 across the three rows.\n\nDATA (compute with L3.ones / L5.cross1; assert and throw if different): population rows 10110 (f 3), 00100 (f 1), 01011 (f 3), 10001 (f 2). Tournament 1 = rows 1 and 2 (3 vs 1) -> row 1 wins. Tournament 2 = rows 3 and 4 (3 vs 2) -> row 3 wins. Parent 1 = 10110, parent 2 = 01011. 1-point crossover, cut after gene 2: child = '10' + '011' = 10011 (f 3); genes 1-2 blue (from parent 1), genes 3-5 purple (from parent 2). Mutation flips gene 2 of the child: 10011 -> 11011 (f 4). Replacement: weakest = row 2 (00100, f 1); child f 4 >= 1, so it replaces it. New population: 10110 (3), 11011 (4), 01011 (3), 10001 (2). Best f rises from 3 to 4.\n\nTIMELINE (local seconds):\n0.2-1.9 the loop draws itself: the six chips pop in 0.25 s apart with the arrow into each drawn on (L5.drawOn); all grey.\n1.9-2.7 POPULATION chip turns solid blue; the four rows slide in (0.1 s stagger). f pills still hidden.\n2.8-4.2 FITNESS chip solid green (Population goes soft blue). In each row the 1-tiles light up green one after another (0.12 s each) and the pill pops in counting up to f = 3, 1, 3, 2; the tiles then settle back to grey.\n4.3-6.0 SELECTION chip solid orange. Rows 1 and 2 get purple frames ('two picked at random'), the loser (row 2) dims, the winner (row 1) gets an orange glow and a blue copy of it flies down to the 'parent 1' row. Then the same for rows 3 and 4 (row 4 dims, a purple copy of row 3 flies to 'parent 2').\n6.1-7.9 RECOMBINATION chip solid purple. The dashed cut line draws after gene 2; the first two genes of parent 1 drop into the child row (blue), then the last three genes of parent 2 (purple). The child's f pill reads 3.\n8.0-9.2 MUTATION chip solid purple. Gene 2 of the child flips from 0 to 1 (use chromosome.flip) and turns orange; the child's pill counts 3 -> 4.\n9.3-11.0 REPLACEMENT chip solid green. Row 2 gets a red frame (weakest, f = 1) and slides out sideways; the child row slides up into its place with a small green tick; pills now read 3, 4, 3, 2. The work block fades out.\n11.1-12.5 the Replacement > Population arrow pulses green (the loop closes), all six chips are soft-tinted, the 11011 row gets an orange outline and an orange tag 'best f = 4' appears beside it (keep it left of the right-hand arrow). Hold still.\n\nEND STATE: closed loop, all chips tinted, new population with best f = 4. Do not add text beyond the chips, labels, pills and the one tag. CAPTIONS: [[0.4,2.6,\"Every EA repeats the same loop.\"],[2.8,6,\"Score everyone, then pick the fitter parents.\"],[6.2,9.2,\"Mix two parents, then change one gene.\"],[9.4,12.5,\"The child replaces the weakest. Then repeat.\"]]"
+    },
+    {
+      "n": 3,
+      "file": "scene-03-tour.js",
+      "kicker": "THE PROBLEM",
+      "title": [
+        "A tour is a string,",
+        "its length is the score"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          2,
+          "Visit every city once, then return."
+        ],
+        [
+          2.2,
+          5.6,
+          "A tour is a string. Add up the hops."
+        ],
+        [
+          5.8,
+          8.2,
+          "Shorter is better, so we minimise."
+        ],
+        [
+          8.4,
+          10.5,
+          "ABCED is shorter: 28 beats 32."
+        ]
+      ],
+      "spec": "IDEA: the example problem. A tour on the 5-city map is a string of cities (a permutation) and its fitness is the total distance, which we want small. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: LEFT the map, drawn with L3.map at stage (x 30, y 30): five round city tiles (68 px circles, 36 px letters A-E) at the LECTURE layout (L3.POS, scaled so E ends at about x 515). Tour edges are directed L5.arrow shapes (blue) with a weight pill (28 px, 'c-blue' soft) on each; put each pill at a fraction along its edge so pills never overlap (for ABDEC the edges A-C and B-D cross at the middle of A-C: put the A-C pill at 0.72 from A and the B-D pill at 0.3 from B). RIGHT the distance table, L3.matrix at (x 596, y 30), 6 x 6 cells of 54 px (headers A-E, 28 px numbers, the diagonal shows a short dash drawn as a small grey bar), cells for a used hop light up blue (both triangles). BOTTOM LEFT the tour string as L5.chromosome tiles (size 80, gap 10, x 40, y 470, tone blue). BOTTOM RIGHT a total pill (v-tag solid blue, 'length' small label above a 56 px number) at about x 560, y 470.\n\nDATA (L3.len / L3.hops, assert): distances AB 5, AC 7, AD 4, AE 15, BC 3, BD 4, BE 10, CD 2, CE 7, DE 9. Tour 1 = ABDEC: hops A>B 5, B>D 4, D>E 9, E>C 7, C>A 7 (the way home); running total 5, 9, 18, 25, 32. Tour 2 = ABCED: hops A>B 5, B>C 3, C>E 7, E>D 9, D>A 4; running total 5, 8, 15, 24, 28.\n\nTIMELINE:\n0.3-1.3 the five city tiles pop in at their places and the table slides in from the right.\n1.4-5.4 tour ABDEC is built one edge per 0.8 s (A>B at 1.4, B>D at 2.2, D>E at 3.0, E>C at 3.8, C>A at 4.6): the arrow draws on (0.5 s) in blue, its weight pill pops, the two matching table cells light blue, the next gene tile joins the string (A is already there at 1.4, so the tiles appear A, B, D, E, C as they are visited) and the total pill counts up by the hop (5, 9, 18, 25, 32). The last edge (C>A, 'the way home') also draws a small curved purple arrow from the last tile back to the first tile of the string.\n5.6-6.6 the total pill settles on 32 and bounces; a blue sticker 'fitness = length' (28 px) pops next to it.\n6.8-9.6 tour 2: the old edges fade, ABCED's five edges draw in quickly (0.35 s each, green this time) with their weights, the table lights its five cells green, the string tiles morph (tiles at positions 3 and 5 swap letters D<>C via chromosome.flip, tone green) and the total counts 5, 8, 15, 24, 28. At 8.8 a green down arrow (L5.arrow) from the old 32 to the new 28 and a green tick pop.\n9.6-10.5 hold: green 28, tick, string ABCED.\n\nEND STATE: green tour ABCED (28) on the map, string ABCED, table cells green. Scene 4 starts with this tour among the 12 tour tiles. CAPTIONS: [[0.4,2,\"Visit every city once, then return.\"],[2.2,5.6,\"A tour is a string. Add up the hops.\"],[5.8,8.2,\"Shorter is better, so we minimise.\"],[8.4,10.5,\"ABCED is shorter: 28 beats 32.\"]]"
+    },
+    {
+      "n": 4,
+      "file": "scene-04-too-many.js",
+      "kicker": "THE CHALLENGE",
+      "title": [
+        "Too many tours",
+        "to check them all"
+      ],
+      "dur": 9,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Five cities have only 12 tours."
+        ],
+        [
+          3.8,
+          6,
+          "Each extra city multiplies the count."
+        ],
+        [
+          6.2,
+          8.4,
+          "Twenty cities? We cannot check them all."
+        ]
+      ],
+      "spec": "IDEA: with 5 cities you can check every tour; with 20 you cannot, so we need a search method. Two beats: a wall of the 12 tours, then a ladder whose numbers explode. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nBEAT 1 (0.3-3.4): a blue tag 'five cities: 12 tours' (28 px) at the top left (x 0, y 0). Twelve tour tiles in a 4 x 3 grid (tile 210 x 84, gap 20, grid starts y 70). Each tile is a sticker (c-grey soft) holding the tour string (36 px, bold mono, letters) and a length pill on its right. The 12 tiles come from L3.TOURS12, in this order (row by row): ABCED 28, ABECD 28, ABDEC 32, ACEBD 32, ABDCE 33, ABEDC 33, ACBED 33, ADBCE 33, ABCDE 34, ADCBE 34, ACBDE 38, ACDBE 38 (assert: 12 tours, those lengths). They pop in 0.12 s apart from 0.3 s. At 2.0 the two length-28 tiles turn green with a tick ('the best') while the others stay grey. At 2.8-3.5 the whole grid shrinks and slides up-left into the first bar of beat 2 and fades.\nBEAT 2 (3.4-8.2): a ladder of six rows, pitch 72, from y 20: a 28 px grey label at x 0 ('5 cities', '6 cities', '7 cities', '8 cities', '10 cities', '20 cities') and a rounded sticker bar from x 200 whose width = 36 + 40 x (number of digits of the count) px, with the count in 40 px bold inside it (thousands commas). Counts from L3.nTours(k) (assert): 5 -> 12, 6 -> 60, 7 -> 360, 8 -> 2,520, 10 -> 181,440, 20 -> 60,822,550,204,416,000 (17 digits, bar about 716 px wide). Bar tones: first four blue, the 10-city bar orange, the 20-city bar red. Row 1 (12) is already there from beat 1. Rows appear at 3.9 (6 cities), 4.5 (7), 5.1 (8), 5.8 (10), 6.5 (20); between consecutive rows 5-6, 6-7, 7-8 a small orange chip 'x5', 'x6', 'x7' (28 px; multiplication sign drawn as a tiny SVG cross, not a glyph) with a short down arrow at x 150. The 20-city number types in left to right over 0.9 s (V.type). Each new bar grows from the left (scaleX) with a small pop.\n7.2-8.4 a red solid tag 'about 6 x 10^16 tours' (superscript via html, 34 px) pops centred at y 500 with a red cross pictogram (L5.cross) on its left, and the 20-city bar does one small shake.\n\nEND STATE: the full ladder with the red tag; nothing animates after 8.4. The idea 'so we need to search, starting with one tour' leads into scene 5. CAPTIONS: [[0.4,3,\"Five cities have only 12 tours.\"],[3.8,6,\"Each extra city multiplies the count.\"],[6.2,8.4,\"Twenty cities? We cannot check them all.\"]]"
+    },
+    {
+      "n": 5,
+      "file": "scene-05-hillclimb.js",
+      "kicker": "HILLCLIMBING",
+      "title": [
+        "Keep a small change",
+        "if it is no worse"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          2.2,
+          "Start with one tour. Change it a little."
+        ],
+        [
+          2.4,
+          6.2,
+          "Worse? Throw the change away."
+        ],
+        [
+          6.4,
+          10.8,
+          "No worse? Keep it and carry on."
+        ],
+        [
+          11.1,
+          12.5,
+          "Repeat until time runs out."
+        ]
+      ],
+      "spec": "IDEA: hillclimbing on the TSP, replaying the lecture's exact trace of four mutants. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: top row 'current' (L5.chromosome, size 84, gap 10, tone blue, left x 130, y 30) with a blue tag 'current' (28 px) at x 0 and a length pill (v-tag solid blue, 44 px number) at x 640; second row 'mutant' at y 250 with a purple tag 'mutant' at x 0 and its own length pill at x 640 (it appears only when the mutant is made); the verdict sticker is centred under the mutant row at y 370: a rounded sticker (width about 330) with a tick or cross SVG and 28 px text. BOTTOM log: four small stickers (about 190 x 64, 36 px number + tick/cross SVG) in a row at y 500, x 0 / 214 / 428 / 642, filled one by one. A purple curved arrow (L5.arrow with bow) shows the swap above the mutant row while tiles move.\n\nDATA (L3.len / L3.swapAdj, assert): start c = ABDEC (32). Step 1: swap positions 3,4 (D,E) -> ABEDC (33): worse, rejected. Step 2: swap positions 5,1 (C,A: the last and first are neighbours, draw the wrap-around swap as a long arc over the row) -> CBDEA (38): worse, rejected. Step 3 (c is still ABDEC): swap positions 1,2 (A,B) -> BADEC (28): better, accepted. Step 4: from BADEC swap positions 4,5 (E,C) -> BADCE (28): equal, accepted (no worse). Rule: accept when len(m) <= len(c).\n\nTIMELINE: 0.2-1.2 the current row pops in tile by tile with its '32' pill. Four steps start at s = 1.4, 3.8, 6.2, 8.6 (2.4 s each), same choreography: s+0.0-0.5 a copy of the current row slides down to become the mutant row (purple tag pops); s+0.5-1.1 the two chosen tiles turn orange and swap places along an arc (tiles slide past each other, purple arrow shown); s+1.1-1.5 the mutant's length pill pops counting up (red if longer than current, green if shorter or equal); s+1.5-2.1 verdict sticker: red cross 'worse: throw it away' (the mutant row shakes and fades out) or green tick 'better: keep it' (step 3) / 'same: keep it' (step 4) and the mutant row slides up to replace the current row (its pill becomes the new current length, 28 in green flash); s+2.1-2.4 the log sticker for that step pops in (33 + cross, 38 + cross, 28 + tick, 28 + tick).\n11.0-12.5 hold. END STATE: current row BADCE (28), the four log stickers, nothing else moving. Scene 6 moves to a more general picture of the same idea. CAPTIONS: [[0.4,2.2,\"Start with one tour. Change it a little.\"],[2.4,6.2,\"Worse? Throw the change away.\"],[6.4,10.8,\"No worse? Keep it and carry on.\"],[11.1,12.5,\"Repeat until time runs out.\"]]"
+    },
+    {
+      "n": 6,
+      "file": "scene-06-landscape.js",
+      "kicker": "LANDSCAPES",
+      "title": [
+        "Draw every solution",
+        "as a landscape"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "Neighbouring solutions sit side by side."
+        ],
+        [
+          3,
+          4.8,
+          "Nearby solutions have similar fitness."
+        ],
+        [
+          5,
+          7.6,
+          "Hillclimbing climbs the hill it starts on."
+        ],
+        [
+          7.8,
+          9.5,
+          "It stops at a local peak, not the best."
+        ]
+      ],
+      "spec": "IDEA: put all solutions on a line with neighbours side by side and plot fitness as height: a landscape. Hillclimbing is a hiker who only walks uphill, so it ends on the nearest peak. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: one big landscape panel from L3.land (kind 'multi', frame true) at stage (0, 10, 936, 450): the shared multimodal curve on the 40-point grid. Under it a grey tag at y 490: 'all solutions, neighbours side by side' (28 px) with a small grey right arrow, and a small grey tag top-left inside the panel 'taller = fitter'.\n\nTIMELINE: 0.3-2.8 forty thin grey bars grow up from the baseline left to right (0.05 s stagger, 0.35 s each; one bar per solution, heights f(i)). 2.8-3.8 the bars fade out while the smooth curve draws on left to right (stroke 6) and the flat grey area under it fades in: the landscape. 4.0-4.8 a blue hiker token pops on the curve at i = 4 (f 0.34). 4.8-6.6 HC with +-1 steps (assert via L3.hc with these exact proposals): tries +1 (i=5, f 0.48, accepted), +1 (i=6, 0.60, accepted), +1 (i=7, 0.65, accepted); the token hops along the curve (arc hop 0.3 s) with a green tick flashing above after each accepted move, 0.6 s per move. 6.6-7.8 at i = 7 two more tries are made and both rejected: a dashed red ghost ring appears at i = 8 (f 0.61, lower) with a red cross, then at i = 6 (0.60, lower) with a red cross (0.5 s each); the token does a small shake. 7.8-8.8 a red sticker 'local optimum' (28 px) with a red cross pops above the token. 8.4-9.2 the orange star pops at the tallest peak (i = 29, f 1.094) with an orange sticker 'best' (28 px) above it.\n\nEND STATE: landscape with the blue token stuck on the left hill (i = 7) under the red 'local optimum' sticker, orange star on the tallest peak. Scenes 9 and 10 reuse exactly this picture as their starting point. CAPTIONS: [[0.4,2.8,\"Neighbouring solutions sit side by side.\"],[3,4.8,\"Nearby solutions have similar fitness.\"],[5,7.6,\"Hillclimbing climbs the hill it starts on.\"],[7.8,9.5,\"It stops at a local peak, not the best.\"]]"
+    },
+    {
+      "n": 7,
+      "file": "scene-07-shapes.js",
+      "kicker": "LANDSCAPES",
+      "title": [
+        "Four shapes of landscape",
+        "only one is easy"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.4,
+          2.2,
+          "Four landscape shapes. One climber on each."
+        ],
+        [
+          2.4,
+          6.4,
+          "Hillclimbing only ever walks uphill."
+        ],
+        [
+          6.6,
+          9.4,
+          "Only the one-peak shape always works."
+        ]
+      ],
+      "spec": "IDEA: the four landscape shapes, each with a hillclimber dropped on it. HC finds the best only on the one-peak shape. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: 2 x 2 grid of L3.land panels (frame true), each 450 x 290: top row y 0, bottom row y 350, left x 0, right x 486. Each panel has a grey tag top-left (28 px, <= 22 chars): 'Unimodal: one peak', 'Multimodal: many peaks', 'Plateau: flat area', 'Deceptive: wrong way' and, in its bottom-right corner, room for an outcome badge (a 44 px circle with an L5 tick or cross). An orange star marks the global best of each panel from 1.4 s on. Climber tokens are blue, smaller (size 22).\n\nDATA (L3.fvals + L3.hc with r = 2, tries 26; assert the paths): shapes on the 40-point grid: uni f = exp(-(x-0.55)^2/(2*0.2^2)) (best at i = 21); multi = the shared multimodal curve (best i = 29); plateau f = 0.3 for x < 0.6 else 0.3 + 0.7 exp(-(x-0.8)^2/(2*0.06^2)) (best i = 31); deceptive f = 0.8(1 - x/0.85) + 0.05 for x < 0.85 else 0.05 + (x-0.85)/0.15 (so it falls from 0.85 at i = 0 to 0.05 at i = 33 then rises to 1.05 at i = 39, the best). HC accepts a mutant when f(m) >= f(c) and m differs from c. Climber paths (accepted positions): Unimodal start 3, seed 2: 3,4,6,7,8,9,10,11,12,13,15,16,17,19,20,21 (reaches the star). Multimodal start 13, seed 6: 13,14,15,16,17,18 (stuck on the middle hill, f 0.79). Plateau start 9, seed 3, first 15 positions: 9,10,9,10,9,7,6,7,9,7,5,7,8,9,11 (wanders, every move accepted because f is equal everywhere on the flat; it never gets near the bump). Deceptive start 20, seed 1: 20,18,17,16,15,14,12,11,10,9,7,6,5,3,2,0 (walks left to the end, f 0.85, away from the star at the right end).\n\nTIMELINE: 0.3-1.3 the four panels pop in (0.2 s stagger) and their curves draw on. 1.4 stars pop. 1.8 tokens pop at their start positions. 2.0-6.5 all four climbers advance one position every 0.3 s (arc hop 0.25 s) along their paths; each finished climber stays put (Multimodal finishes at 3.5 s, Plateau at 6.2 s, the other two at 6.5 s). 6.8-7.6 outcome badges pop with the panel's sticker edge tinted: Unimodal green tick; Multimodal, Plateau, Deceptive red cross. 8.0-9.4 the three red panels dim to 45 % while the Unimodal panel stays bright and does one soft pulse.\n\nEND STATE: three dimmed red panels, one bright green panel. CAPTIONS: [[0.4,2.2,\"Four landscape shapes. One climber on each.\"],[2.4,6.4,\"Hillclimbing only ever walks uphill.\"],[6.6,9.4,\"Only the one-peak shape always works.\"]]"
+    },
+    {
+      "n": 8,
+      "file": "scene-08-neighbours.js",
+      "kicker": "NEIGHBOURHOODS",
+      "title": [
+        "Neighbours are",
+        "one move away"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.4,
+          2,
+          "Start from one solution."
+        ],
+        [
+          2.2,
+          6.6,
+          "Every solution one mutation away is a neighbour."
+        ],
+        [
+          6.8,
+          9.4,
+          "A different operator gives different neighbours."
+        ]
+      ],
+      "spec": "IDEA: the neighbourhood of a solution is every mutant one move away. Show it for a tour (adjacent swap) and for a bitstring (bit flip) side by side; the count equals the number of places the operator can act. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: two columns. LEFT (x 0-436): purple tag 'swap two neighbours' (28 px) at y 0; the start tour EABDC as L5.chromosome (size 64, gap 10, blue, left x 38) at y 70; five neighbour rows (same tile size) at y = 170, 248, 326, 404, 482. RIGHT (x 500-936): purple tag 'flip one bit' at y 0; the start bitstring 00110 (blue, left x 538) at y 70, rows at the same y values. Bottom (y 580) a green tag per column ('5 neighbours', 28 px) that counts 0..5 as the rows appear. In each neighbour row the changed tiles are orange.\n\nDATA (L3.swapAdj / L3.flip, assert): EABDC swapped at positions (1,2), (2,3), (3,4), (4,5), (5,1 wrap) gives AEBDC, EBADC, EADBC, EABCD, CABDE. 00110 with bit 1..5 flipped gives 10110, 01110, 00010, 00100, 00111.\n\nTIMELINE: 0.3-1.3 both start rows pop in tile by tile with their purple tag. Five neighbours in lock-step, one per second starting at 1.4 (1.4, 2.4, 3.4, 4.4, 5.4): the operator is highlighted on the start row (a purple frame around the pair of tiles to swap, or the single tile to flip; for the fifth permutation neighbour the first and last tiles are framed and a long purple arc joins them to show the wrap-around), a copy of the start row slides down to its row, the changed tiles turn orange (the swapped pair slides past each other, the flipped bit flips), the counter ticks up. 6.4-7.4 both counters settle on 5 and a thin green bracket draws around the five rows in each column. 7.4-9.4 both purple tags pulse once, one after the other, to stress that the operator decides who the neighbours are.\n\nEND STATE: two columns, ten neighbour rows, two '5 neighbours' tags. CAPTIONS: [[0.4,2,\"Start from one solution.\"],[2.2,6.6,\"Every solution one mutation away is a neighbour.\"],[6.8,9.4,\"A different operator gives different neighbours.\"]]"
+    },
+    {
+      "n": 9,
+      "file": "scene-09-local-search.js",
+      "kicker": "LOCAL SEARCH",
+      "title": [
+        "Escape by sometimes",
+        "stepping downhill"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          1.7,
+          "Hillclimbing is stuck on this hill."
+        ],
+        [
+          1.8,
+          5.4,
+          "Monte Carlo sometimes accepts a worse step."
+        ],
+        [
+          5.6,
+          7.5,
+          "It keeps the best so far."
+        ],
+        [
+          8,
+          12,
+          "Tabu always moves on, avoiding its crumbs."
+        ],
+        [
+          12.1,
+          13.5,
+          "Both escape the small hill."
+        ]
+      ],
+      "spec": "IDEA: two ways to allow downhill moves. Monte Carlo (top panel) accepts a worse neighbour now and then; Tabu (bottom panel) always takes the best neighbour that is not on its breadcrumb list. Both remember a best-so-far. Both runs are time-lapses of the REAL algorithms on the shared landscape, started on the left hill where scene 6 ended. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: two stacked L3.land panels (kind 'multi', frame true), each 936 x 290: top (Monte Carlo) at y 0, bottom (Tabu) at y 345. Panel tags top-left (28 px): 'Monte Carlo' with a small L5.dice icon (purple) and 'worse step: 1 in 10'; 'Tabu' with three small grey crumb dots. Each panel has an orange star on the global peak (i = 29), a blue hiker token and an orange best-so-far diamond marker above the best position reached (with a legend tag 'best so far' at the top-right, 28 px). The Monte Carlo panel also has a die (L5.dice, size 56) and a 28 px 'try N' counter at its top-right (the curve is low there).\n\nDATA (assert in code). Grid and curve as in the outline. MONTE CARLO: L3.mc with start 7, r 3, p 0.1, seed 435858, 26 tries (mulberry32; per try draw dir = rnd() < 0.5 ? -1 : 1, then mag = 1 + floor(rnd() * 3), m = clamp(c + dir*mag, 0, 39); if f[m] < f[c] ('worse') draw u = rnd() and accept only when u < 0.1; if not worse accept). Expected: tries 1-10 all rejected (proposals 10, 8, 5, 9, 4, 6, 9, 5, 10, 4); try 11 accepted DOWN (to 10, u 0.003), 12 rejected (12), 13 accepted DOWN (13, u 0.039), 14 rejected (11), 15 up to 16, 16 rejected (13), 17 up to 19, 18 up to 17, 19 accepted DOWN (19, u 0.080), 20 rejected (16), 21 accepted DOWN (22, u 0.081), 22 rejected (23), 23 up to 25, 24 rejected (23), 25 up to 27, 26 up to 29. The hiker ends on i = 29; best-so-far moves 7 -> 16 (try 15, f 0.70) -> 19 (try 17, f 0.71) -> 17 (try 18, f 0.79) -> 29 (try 26, f 1.094). Die face per worse proposal: 1 when accepted, otherwise 2 + floor((u - 0.1) / 0.9 * 5). TABU: L3.tabu with start 7, r 3, tenure 5, 15 steps. Rule: look at all neighbours i+-1..3 (inside 0..39), sort by f descending (ties: lower index first), take the first one not in the list of the last 5 visited positions (the list includes the current position and is trimmed to 5). Expected path: 7, 8, 6, 9, 10, 13, 16, 18, 17, 19, 20, 21, 22, 25, 28, 29. Step 1 candidates (best first) 8, 6, 9, 5, 10, 4 -> 8 (f 0.61, DOWN from 0.65). Step 2 at 8: candidates 7 (best, but TABU), 6, 9, 5, 10, 11 -> 6. Best-so-far moves 7 -> 16 (step 6, f 0.70) -> 18 (step 7, f 0.79) -> 28 (step 14, f 0.97) -> 29 (step 15, f 1.094).\n\nTIMELINE: 0.3-1.2 both panels pop in and draw their curves, stars pop at 1.0; both hikers sit on i = 7 with a red cross badge ('stuck') and the diamond on them. 1.6-7.32 MONTE CARLO, one try every 0.22 s (try k at 1.6 + 0.22 (k - 1)): the die shakes and shows its face; a ghost ring appears at the proposed index for 0.2 s: red with a small cross if rejected; if accepted the hiker hops there (arc 0.2 s), with a green tick for an uphill move or an orange down arrow plus the die showing 1 for a lucky downhill move. The red 'stuck' cross disappears when the hiker first leaves i = 7 (try 11). The diamond hops to each new best. 7.4-7.7 the top panel settles with hiker and diamond on the star. 7.8-12.96 TABU: step 1 (7.8-8.9): six grey candidate rings pop around the hiker, the best (i = 8) turns orange, the hiker hops DOWN to 8 (orange down arrow) and a grey crumb dot drops on 7. Step 2 (8.9-10.1): six rings again; the best one (i = 7) shows a red cross because a crumb is there, the next best (i = 6) turns orange, the hiker hops there, a crumb drops on 8. Steps 3-15 (10.1-12.96, 0.22 s each): quick hops, crumbs drop on every visited index and vanish when they fall out of the 5-long list (fade 0.15 s); the diamond hops to each new best. 13.0-13.5 both panels hold with hiker and diamond on the star.\n\nEND STATE: both hikers and diamonds on the orange star. CAPTIONS: [[0.4,1.7,\"Hillclimbing is stuck on this hill.\"],[1.8,5.4,\"Monte Carlo sometimes accepts a worse step.\"],[5.6,7.5,\"It keeps the best so far.\"],[8,12,\"Tabu always moves on, avoiding its crumbs.\"],[12.1,13.5,\"Both escape the small hill.\"]]"
+    },
+    {
+      "n": 10,
+      "file": "scene-10-population.js",
+      "kicker": "POPULATIONS",
+      "title": [
+        "Send a whole team",
+        "up the hills"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          2.4,
+          "One hiker is stuck on one hill."
+        ],
+        [
+          2.6,
+          4.3,
+          "A team starts on many hills."
+        ],
+        [
+          4.5,
+          6.4,
+          "A low score can still climb the tallest hill."
+        ],
+        [
+          6.6,
+          9.2,
+          "The team gathers on the best hill."
+        ],
+        [
+          9.4,
+          11.5,
+          "A team makes selection and recombination possible."
+        ]
+      ],
+      "spec": "IDEA: a population explores many hills at once and, unlike one hiker, can use selection and recombination. A steady-state EA (tournament of 2, mutate, replace the worst) is run for real on the shared landscape. COLOUR ROLES (whole video): blue = the solution we are looking at (current tour, the hiker, population members, parent 1); green = better / accepted / kept / valid; red = worse / rejected / stuck / blocked / weakest; orange = attention and chosen (global best star, best-so-far diamond, a picked parent, a gene that has just changed); purple = the operator (swap, flip, crossover arrows, the dice) and parent 2; grey = neutral (terrain, breadcrumbs, unlit chips).\n\nLAYOUT: one L3.land panel (kind 'multi', frame true) at stage (0, 70, 936, 400). A hills counter pill top-right above the panel (v-tag, 28 px, 'hills: 3', blue when many, green at 1; at y 10). Bottom strip y 520-600 (final beat only): two chips identical to scene 2's chips: 'Selection' (orange) at x 150 and 'Recombination' (purple) at x 520 (262 x 56), each with a tiny pictogram on its left: for Selection two small blue dots, the right one ringed orange; for Recombination two 5-tile mini rows swapping their tails (tiles 18 px, drawn as SVG rects; this is the only place smaller than 28 px, it carries no text).\nMarker styles: the lone hiker is a GREY token (the old way); the team members are BLUE tokens (size 24); the child of a mutation is a purple-outlined ghost token that becomes a blue token; the picked parent gets an orange ring; the member being replaced gets a red ring and shrinks away; an orange star sits on i = 29.\n\nDATA (L3.ea, assert): start population (grid indices) [4, 10, 15, 21, 25, 33] (f 0.34, 0.36, 0.55, 0.42, 0.31, 0.38; they sit on 3 hills: 7, 7, 18, 18, 29, 29). Steady-state step with mulberry32 seed 44: pick two random members (a = floor(rnd()*6), b = floor(rnd()*6)), the fitter one (strictly greater, else a) is the parent; child = clamp(parent + dir*(1 + floor(rnd()*3))) with dir = rnd() < 0.5 ? -1 : 1; the worst member is the first one with the lowest f; the child replaces it when f(child) >= f(worst). Expected steps (parent at i -> child, replaced member, hills occupied afterwards): s1: members at 33 vs 4 -> parent 33 (low f 0.38 but at the foot of the tallest hill) -> child 30 (f 1.05) replaces the member at 25, hills 3. s2: 21 vs 15 -> parent 15 -> child 17 replaces 4, hills 3. s3: 21 vs 30 -> parent 30 -> child 29 (f 1.094) replaces 10, hills 2. s4: 33 vs 33 -> child 34 discarded (worse than the worst, 33). s5: 15 vs 21 -> parent 15 -> child 17 replaces 33, hills 2. s6: 15 vs 29 -> parent 29 -> child 30 replaces 21. s7: 15 vs 17 -> parent 17 -> child 14 discarded. s8: 15 vs 30 -> parent 30 -> child 29 replaces 15. s9: 29 vs 29 -> child 28 replaces 17. s10: 30 vs 29 -> parent 29 -> child 31 replaces 17, hills 1. Population after s10: 28, 29, 29, 30, 30, 31, all on the tallest hill. Hills occupied = number of distinct hilltops reached by walking uphill from each member (L3.hillOf). The lone hiker: grey token from i = 4 with +1 steps 5, 6, 7 (HC), stuck at 7 (f 0.65).\n\nTIMELINE: 0.3-1.0 panel pops in, curve draws, 1.0 orange star. 1.2-2.3 the grey hiker pops at i = 4 and climbs 5, 6, 7 (0.35 s each) then a red cross pops ('stuck'). 2.4-3.6 the six blue team members pop in at their places, 0.1 s apart, bouncing; the hills pill pops 'hills: 3'. 4.4-5.6 STEP 1 slow (1.2 s): the two picked members (33 and 4) get purple rings, the fitter (33) gets an orange ring, a ghost child arcs from 33 to 30 on the tall hill and becomes blue, the worst (25) gets a red ring and shrinks away. 5.8-6.6 STEP 2 (0.8 s) the same: 21 vs 15, child 17 replaces 4. 6.6-9.3 steps 3-10, one per 0.34 s (simplified: orange ring on the parent, child arcs out and becomes blue, replaced member shrinks; discarded children (s4, s7) fade out in place with a tiny red cross); the hills pill counts 3 -> 2 (after s3) -> 1 (after s10) and turns green. 9.4-11.4 the bottom strip: the Selection chip pops (the two-dot pictogram plays its orange ring), then 0.4 s later the Recombination chip pops (the tails swap once).\n\nEND STATE: six blue members clustered at the top of the tallest hill with the star, the grey hiker still stuck on the left hill, hills pill green '1', the two chips at the bottom. CAPTIONS: [[0.4,2.4,\"One hiker is stuck on one hill.\"],[2.6,4.3,\"A team starts on many hills.\"],[4.5,6.4,\"A low score can still climb the tallest hill.\"],[6.6,9.2,\"The team gathers on the best hill.\"],[9.4,11.5,\"A team makes selection and recombination possible.\"]]"
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "One loop: score, pick,\nchange, replace",
+        "tone": "blue",
+        "pictogram": "A ring of six small dots coloured like scene 2's chips (blue, green, orange, purple, purple, green) joined by arrowheads; a blue token runs round the ring (period 2.4 s) and each dot lights as it passes."
+      },
+      {
+        "head": "Hillclimbing stops on\nthe nearest hill",
+        "tone": "red",
+        "pictogram": "A mini multimodal landscape (L3.land, 340 x 140, no frame, no tag): a blue token climbs the left hill, stops on top and a red cross pops; the orange star sits on the tallest hill."
+      },
+      {
+        "head": "Step downhill, or\nsend a whole team",
+        "tone": "green",
+        "pictogram": "The same mini landscape: first a dotted purple arc carries the token from the left hill over the valley to the tall hill (the star flashes and a green tick pops); then the arc fades and three blue team dots pop, one on each hill, and bounce."
+      }
+    ],
+    "cta": "Beat the Lecture 3 boss quiz",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js: kicker 'RECAP' and the headline 'Remember' (76 px) at the top left, Sprout (mood 'love', size 168) bobbing at the top right (x 840, y 38), three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648, tone-coloured edge via c-blue / c-red / c-green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440) on the right. At the bottom, centred at y 904, one solid blue tag (34 px) with the call to action 'Beat the Lecture 3 boss quiz'.\nROWS: (1, blue) label 'One loop: score, pick,\\nchange, replace'. Pictogram: a ring of six small dots coloured like scene 2's chips (blue, green, orange, purple, purple, green) joined by arrowheads; a blue token runs round the ring (period 2.4 s, starting when the row has slid in) and each dot lights up as it passes. (2, red) label 'Hillclimbing stops on\\nthe nearest hill'. Pictogram: a mini multimodal landscape (L3.land, 340 x 140, no frame, no tag): a blue token climbs the left hill (i 4 > 5 > 6 > 7), stops on top and a red cross pops; the orange star sits on the tallest hill. (3, green) label 'Step downhill, or\\nsend a whole team'. Pictogram: the same mini landscape: first a dotted purple arc carries the token from the left hill, over the valley, to the tall hill (the star flashes and a green tick pops); then the arc fades and three blue team dots pop, one on each hill, and bounce. Loop the pictograms with a period of about 4 s so they keep moving.\nTIMELINE: 0.1 kicker, headline and Sprout; rows slide in at 0.8, 1.9, 3.0 (0.5 s each, label 0.15 s later); pictograms start 0.4 s after their row; 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else happens in the last 2 s except the looping pictograms and Sprout's bob. Use the same green/red/blue/purple/orange roles as the rest of the video. No captions."
+  },
+  "helpers": "FILES: videos/l3/common.js (pure data and algorithms, no DOM), videos/l3/common-2.js (landscape drawing), videos/l3/common-3.js (map, matrix, markers, chips); split further if a file nears 500 code lines. Everything hangs off window.VID.l3 (short name L3). videos/lecture-3.html loads, after engine.js and cards.js, ../videos/l5/common.js (for L5), then l3/common.js, common-2.js, common-3.js, then scene-01 ... scene-11. It does NOT need l6. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames. Stage coordinates (936 x 640).\n\nREUSE FROM videos/l5/common.js (V.l5): L5.chromosome(parent, {x, y, genes, size, gap, tone}) for EVERY row of tiles (tour strings and bitstrings; set / flip / mid / pos), L5.tone(name), L5.tick, L5.cross, L5.arrow (with bow), L5.dice(x, y, size, {face, tone}), L5.drawOn, L5.svg(parent) (a full-stage SVG for pictograms), L5.cross1(a, b, cut) (one-point crossover, works on any strings), L5.swapAt, L5.setAt, L5.badge. Do NOT use L5.tourMap (it has a different pentagon layout and no distances). Nothing is needed from videos/l6.\n\nA. PURE DATA AND ALGORITHMS (common.js; every function below is deterministic):\nL3.CITIES = 'ABCDE'; L3.D = distance table {A:{B:5,C:7,D:4,E:15}, B:{A:5,C:3,D:4,E:10}, C:{A:7,B:3,D:2,E:7}, D:{A:4,B:4,C:2,E:9}, E:{A:15,B:10,C:7,D:9}}; L3.POS = the lecture's city layout {A:[90,190], B:[215,70], C:[345,150], D:[220,250], E:[470,270]} (560 x 320 reference).\nL3.len(t) = tour length including the way home; L3.hops(t) = the five hop lengths (hops('ABDEC') = [5,4,9,7,7]); L3.swapAdj(t, i) swaps positions i and (i+1) mod n (0-based, so i = 4 is the wrap-around swap of last and first); L3.neighbours(t) = the n swapAdj results for i = 0..n-1; L3.TOURS12 = [{tour, len}] the 12 distinct tours of the map (starting at A, each loop once) sorted by length then alphabetically (ABCED 28, ABECD 28, ABDEC 32, ACEBD 32, ABDCE 33, ABEDC 33, ACBED 33, ADBCE 33, ABCDE 34, ADCBE 34, ACBDE 38, ACDBE 38); L3.nTours(k) = (k-1)!/2 as a string with thousands commas, computed with BigInt (5 -> '12', 20 -> '60,822,550,204,416,000'); L3.ones(s) = number of '1' characters; L3.flip(s, i) flips bit i; L3.cut(a, b, k) = a.slice(0,k) + b.slice(k).\nL3.rng(seed) = mulberry32: function mulberry32(a){return function(){a|=0;a=(a+0x6d2b79f5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}\nLANDSCAPES: L3.N = 40; L3.FN = {multi, uni, plateau, deceptive} as functions of x in [0,1] (formulas in scene 6/7 specs, bump(x,c,s,a) = a*exp(-((x-c)^2)/(2 s^2))); L3.fvals(kind) -> array of 40 numbers f(i/39); L3.hillOf(f, i) = the index of the hilltop reached by walking uphill from i (take the higher neighbour first, stop when no neighbour is higher).\nALGORITHMS (each returns a log so scenes only look things up; each must be asserted against the numbers in the scene specs): L3.hc(f, {start, seed, tries, r}) -> {path: [accepted positions starting with start], tries: [{m, ok}]}: per try dir = rng()<0.5 ? -1 : 1, mag = 1 + floor(rng()*r), m = clamp(c + dir*mag, 0, 39), accept when f[m] >= f[c] and m != c. L3.hcSteps(f, start, offsets) does the same with an explicit list of offsets (scene 6 uses start 4, offsets +1,+1,+1,+1,-1, giving the path 4,5,6,7 and two rejected tries). L3.mc(f, {start, seed, tries, r, p}) -> [{k, m, worse, u (null if not worse), acc, c, best}] with the draw order dir, mag, then u only when worse. L3.tabu(f, {start, r, tenure, steps}) -> [{from, cands: [{i, tabu}] (best first), pick, list, best}]. L3.ea(f, {pop, seed, steps, t, r}) -> [{a, b, parentSlot, parentAt, child, worstSlot, replaced (bool), old, pop: [...], hills}] (the draw order is a, b, dir, mag).\n\nB. DRAWING (common-2.js and common-3.js):\nL3.land(parent, {x, y, w, h, kind, frame = true}) -> P. Draws a sticker panel (frame: rounded card, 3 px grey edge, 6 px lip, var(--panel) fill) and inside it the landscape: flat grey area under the curve (no gradient), a 6 px grey-ink curve on top, a faint baseline. Padding 24 px left/right, about 36 px top, 24 bottom; vertical scale so the curve peaks at 88 % of the plot height. P.f = the 40 values, P.best = index of the global best, P.px(i) and P.py(i) = stage coordinates of grid index i (i may be fractional: it follows the curve), where px(i) = x + pad + (i + 0.5) * (w - 2 pad) / 40. P.update({curve: 0..1 (outline draws on left to right), fill: 0..1 (area fades in), bars: number 0..1 or a function i -> 0..1 (40 thin grey rounded bars of height f(i) growing from the baseline; use for scene 6), o: opacity of the whole panel}). P.marker(type, opts) -> m with m.set({i, dx, dy, s, o, ring, tone}) which places the marker on the curve (the marker's centre sits r px above the curve): type 'token' (a round sticker, tone default blue, size default 30, solid fill with a darker lip, a small inner dot), 'ghost' (a dashed ring in a tone, for a proposed move), 'star' (orange five-point SVG star, size 30), 'diamond' (orange best-so-far diamond, 22 px, floats 20 px above the curve), 'crumb' (a small grey dot, 14 px, on the curve), 'badge' (a 40 px circle holding an L5 tick or cross, for outcomes). Marker tones use L5.tone. L3.hop(i0, i1, k, height) -> {i, dy} gives the fractional index and a -height*sin(pi*k) lift for a hop animation.\nL3.map(parent, {x, y, scale = 1}) -> m. Five round city tiles (68 px circles with 36 px letters, grey sticker) at L3.POS scaled so the map is about 520 x 300 at scale 1 (E ends at about x 515). m.update({order, draw, tone, weights, pillAt, lit, order2, mix, o}): order = the tour string to show (edges are L5.arrow shapes, direction = visiting order, the last edge returns to the first city); draw 0..1 = how much of the route is drawn, each of the n edges gets an equal share (edge i is complete at (i+1)/n); tone = edge colour name; weights 0..1 = pop-in of the distance pills (28 px bold numbers from L3.D, each pill sits on its edge at fraction pillAt[pair] along it, default 0.5, pair key like 'AC' = edge between A and C in either direction) which appear as their own edge completes; lit = 'auto' (a city lights up in the route tone once the route has reached it) | false | ['A','D']; order2 + mix 0..1 cross-fade to a second tour (edges in both stay). m.pt(c) = stage centre of a city; m.r = city radius.\nL3.matrix(parent, {x, y, cell = 54}) -> mx. The 5 x 5 distance table as a sticker grid with a header row and column of letters (28 px) and the numbers from L3.D (28 px bold), a dash on the diagonal. mx.update({lit: [['A','B'], ...] (cells, both triangles, to highlight), tone: 'blue', k: 0..1 pop-in, o}). mx.cell(a, b) = stage position of a cell.\nL3.chip(parent, {x, y, w = 262, h = 56, text, tone}) -> c with c.set({state: 'grey' | 'active' | 'done', pop: 0..1}) : a station chip (v-tag sticker pill, 28 px 900 text; grey, solid tone, or soft tone) used by scene 2, scene 10 and the recap. L3.star(x, y, size, tone = 'orange') and L3.diamond(x, y, size) return SVG groups drawn at absolute coordinates (V.place-able) for use outside a landscape (recap, legends). L3.tag(parent, {x, y, text, tone, solid}) is a thin wrapper for the .v-tag pill.\n\nC. RULES FOR THE HELPERS: no white colours (use var(--panel) / var(--bg)); pictograms are SVG; Math.random, Date and timers are forbidden (use L3.rng); every algorithm result must be asserted at build time against the values in the scene specs (throw an Error with a clear message); keep each file under 500 code lines; run prettier and eslint on every new file."
+}
