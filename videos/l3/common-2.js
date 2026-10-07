@@ -33,10 +33,10 @@
          "token"    round sticker (default blue, size 30): the hiker / a population member. Centre sits size/2 above the curve
          "ghost"    dashed ring of a tone (default purple, size 30): a proposed move; ring works too
          "star"     orange five-point star (size 30) on the global best
-         "diamond"  orange best-so-far diamond (22), floats 20 px above the curve
+         "diamond"  orange best-so-far diamond (22), floats above the curve (centre 46 px up, so it clears a token or star on the same index)
          "crumb"    small grey dot (14) on the curve (Tabu list)
          "badge"    40 px circle with an icon: icon "tick" (green) | "cross" (red) | "down" (orange arrow) | "up" (green arrow).
-                    Floats 54 px above the curve by default; set dy to move it (e.g. dy: -20 above a token)
+                    Floats 64 px above the curve by default; set dy to move it (e.g. dy: -20 above a token)
        m.el is the <g> (hidden until you call set).
      L3.hop(i0, i1, k, height = 40) -> { i, dy }   a hop between two grid indices: eased fractional index and a -height*sin(pi k) lift:
          const h = L3.hop(7, 8, V.ramp(t, 4, 4.3, V.ease.lin), 30); token.set({ i: h.i, dy: h.dy })
@@ -114,7 +114,7 @@
       const { i = 0, dx = 0, dy = 0, s = 1, o = 1, r: rot = 0, ring = null, ringK = 1, k = 1 } = st;
       const icon = st.icon || (m.type === "badge" ? "tick" : "");
       const tn = L5.tone(st.tone || (m.type === "badge" ? ICONS[icon] || "green" : m.baseTone));
-      const float = m.type === "diamond" ? 20 + m.r : m.type === "badge" ? 54 : LIFT[m.type] ? m.r + (m.type === "token" ? 3 : 0) : 0;
+      const float = m.type === "diamond" ? 46 : m.type === "badge" ? 64 : LIFT[m.type] ? m.r + (m.type === "token" ? 3 : 0) : 0;
       const [x, y] = [P.px(i) + dx, P.py(i) - float + dy];
       const pop = m.type === "badge" ? E.pop(clamp(k)) : 1;
       m.g.setAttribute("transform", `translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)}) scale(${(s * pop).toFixed(3)})`);

@@ -105,13 +105,12 @@
             const last = i === stop ? p.red : startAt(i) + STEP;
             return t >= startAt(i) && t < last ? "orange" : "grey";
           };
-          row.all((i) => {
+          slots.forEach((_, i) => {
             const pp = pop(t, 0.5 + 0.08 * i + 0.1 * n);
             const base = { s: Math.max(pp, 0.001), o: Math.min(1, pp * 2), tone: tone(i) };
-            if (i !== stop) return base;
+            if (i !== stop) return row.set(i, base);
             const f = ramp(t, p.flip[0], p.flip[1], ease.lin);
-            row.flip(i, f, { ...base, from: fmt(slots[i]), to: fmt(CHILD), toTone: "purple" });
-            return null;
+            return row.flip(i, f, { ...base, from: fmt(slots[i]), to: fmt(CHILD), toTone: "purple" });
           });
           // the child slides above the stop slot, then drops in and disappears into the flip
           const sl = ramp(t, p.slide[0], p.slide[1], ease.inOut);

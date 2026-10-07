@@ -304,7 +304,7 @@
 
   // ---------- ingredient bar ----------
   function ingredientBar(parent, opt = {}) {
-    const { y = 588, labels = ["Population", "Selection + mutation", "Recombination"], widths = [250, 380, 290], gap = 14 } = opt;
+    const { y = 588, labels = ["Population", "Selection + mutation", "Recombination"], widths = [225, 350, 285], gap = 14 } = opt;
     const total = widths.reduce((a, b) => a + b, 0) + gap * 2;
     const el = V.h("div", { style: abs(0, y, 936, 56) });
     let left = (936 - total) / 2;
