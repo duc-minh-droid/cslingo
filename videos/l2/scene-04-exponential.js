@@ -314,7 +314,7 @@
   }
 
   function supStyle() {
-    return { fontSize: "0.8em", lineHeight: "0", position: "relative", top: "-0.5em", marginLeft: "0.04em" };
+    return { fontSize: "0.8em", lineHeight: "0", position: "relative", top: "-0.4em", marginLeft: "0.04em" };
   }
 
   V.scene({
@@ -325,7 +325,7 @@
       [0.4, 3.0, "A tiny exponential against a polynomial."],
       [3.2, 6.2, "At n = 44 the exponential overtakes."],
       [6.6, 8.2, "Now a real run, with a bigger exponential."],
-      [8.4, 10.7, "A polynomial takes microseconds, the exponential 36.5 years."],
+      [8.4, 10.7, "Microseconds for a polynomial, years for an exponential."],
     ],
     build,
   });

@@ -62,13 +62,14 @@
       [0.4, 2.6, "Same target. Same number of tries."],
       [2.8, 6, "The monkey starts from scratch every time."],
       [6.2, 9.3, "Keep-if-better locks in each correct letter."],
-      [9.5, 10.6, "The monkey is still on 6 of 28."],
-      [10.8, 14.4, "Monkey: a 41-digit number of tries. Keeper: 3,037."],
+      [9.5, 10.6, "The monkey's best is still 6 of 28."],
+      [10.8, 12.5, "27 choices for each of 28 places: 27 × 27 × … × 27."],
+      [12.6, 14.6, "Monkey: 1.2 × 10⁴⁰ tries on average. Keeper: 3,037."],
     ],
     build(stage) {
       // target chip
       const tChip = V.h("div", {
-        style: { position: "absolute", left: "0", top: "0", width: "936px", height: "56px" },
+        style: { position: "absolute", left: "0", top: "16px", width: "936px", height: "56px" },
       });
       tChip.append(
         V.h("div", { class: "v-card plain c-green", style: { left: "0", top: "0", width: "936px", height: "56px" } }),
@@ -81,8 +82,8 @@
       );
       stage.append(tChip);
 
-      const A = panel(stage, 72, "red", "monkey", "l1-a");
-      const B = panel(stage, 290, "green", "keep if better", "l1-b");
+      const A = panel(stage, 90, "red", "monkey", "l1-a");
+      const B = panel(stage, 302, "green", "keep if better", "l1-b");
       // tick disc at the keeper's header
       const disc = V.h("div", {
         style: {
@@ -110,7 +111,7 @@
 
       // bottom strip
       const strip = V.h("div", {
-        style: { position: "absolute", left: "0", top: "514px", width: "936px", height: "122px" },
+        style: { position: "absolute", left: "0", top: "520px", width: "936px", height: "116px" },
       });
       stage.append(strip);
       const mTag = L1.chip(strip, "monkey", "red", { x: 0, y: 0, solid: true });
@@ -119,6 +120,7 @@
       const kTag = L1.chip(strip, "keeper", "green", { x: 0, y: 64, solid: true });
       const kDig = L1.digits(strip, { n: String(TRIES).length, tone: "green", x: 180, y: 79, w: 10, h: 22, pitch: 13 });
       const kNum = L1.chip(strip, L1.fmt(TRIES), "green", { x: 250, y: 64 });
+      const scale = L1.chip(strip, "not to scale", "grey", { x: 400, y: 64 });
 
       return (t) => {
         // pop-ins
@@ -169,6 +171,7 @@
         kDig(kk);
         const kn = V.ramp(t, 13.2, 13.6, E.pop);
         V.place(kNum, { s: Math.max(0, kn), o: clamp(kn * 5) });
+        V.place(scale, { s: 0.85 + 0.15 * E.pop(V.ramp(t, 13.4, 13.8)), o: V.ramp(t, 13.4, 13.7) });
       };
     },
   });

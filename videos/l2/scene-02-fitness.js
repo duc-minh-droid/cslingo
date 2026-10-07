@@ -12,7 +12,8 @@
   const T0 = 2.8;
   const STEP = 0.85;
   const FINAL_AT = 9.8;
-  const CARD = { w: 98, gap: 12, x: 34, y: 352, h: 268, k: 1.5 };
+  const SY = 16; // the shelf starts this far below the stage top, so it clears the headline
+  const CARD = { w: 98, gap: 12, x: 34, y: 396, h: 236, k: 1.3 };
   const BEST = SUBS.findIndex((s) => s.bits === L2.BEST);
   // trial list: 8 in binary order, then the best one re-formed
   const TRIALS = [
@@ -34,7 +35,7 @@
       [2.6, 4.8, "Bits: 1 takes an item, 0 leaves it."],
       [5.0, 7.8, "Fitness f(s): how far from 100 kg. Smaller is better."],
       [8.0, 9.7, "Exhaustive search: try every subset."],
-      [9.9, 11.5, "Try all 8: 110 is the best."],
+      [9.9, 11.9, "Try all 8: 110 is the best, with f = 5."],
     ],
     build(stage) {
       const abs = (x, y, w, h) => ({
@@ -46,7 +47,7 @@
       });
       // target line (behind everything)
       const line = V.h("div", {
-        style: { ...abs(LINE_X - 2, 136, 0, 0), borderLeft: `5px dashed ${tone("green").c}`, boxSizing: "border-box" },
+        style: { ...abs(LINE_X - 2, 136 + SY, 0, 0), borderLeft: `5px dashed ${tone("green").c}`, boxSizing: "border-box" },
       });
       stage.append(line);
       // placeholders and blocks
@@ -54,7 +55,7 @@
         V.h("div", {
           class: "v-card c-blue",
           style: {
-            ...abs(b.x, 0, b.width, 64),
+            ...abs(b.x, SY, b.width, 64),
             background: "transparent",
             borderStyle: "dashed",
             boxShadow: "none",
@@ -67,7 +68,7 @@
           class: "v-card c-blue",
           text: `${b.kg} kg`,
           style: {
-            ...abs(b.x, 0, b.width, 64),
+            ...abs(b.x, SY, b.width, 64),
             borderRadius: "16px",
             boxShadow: "0 4px 0 var(--c-edge)",
             fontSize: "28px",
@@ -77,22 +78,23 @@
           },
         }),
       );
-      stage.append(...holders, ...blocks);
+      stage.append(...holders);
       // gap bar and its tag
       const gapBar = V.h("div", {
-        style: { ...abs(60, 226, 0, 12), borderRadius: "6px", background: tone("red").c },
+        style: { ...abs(60, 226 + SY, 0, 12), borderRadius: "6px", background: tone("red").c },
       });
       stage.append(gapBar);
-      const gapTag = L2.tag(stage, { text: "f = 0", tone: "red", x: 0, y: 244, anchor: "tc" });
-      const tgtTag = L2.tag(stage, { text: "100 kg", tone: "green", solid: true, x: LINE_X, y: 112, anchor: "c" });
-      const formula = L2.tag(stage, { text: "f(s) = |weight − 100|", tone: "purple", x: 468, y: 318, anchor: "c" });
+      const gapTag = L2.tag(stage, { text: "f = 0", tone: "red", x: 0, y: 244 + SY, anchor: "tc" });
+      const tgtTag = L2.tag(stage, { text: "100 kg", tone: "green", solid: true, x: LINE_X, y: 112 + SY, anchor: "c" });
+      const formula = L2.tag(stage, { text: "f(s) = |weight − 100|", tone: "purple", x: 468, y: 360, anchor: "c" });
       // bit tiles, one per item, centred under its shelf block
       const rows = SHELF.map((b) => {
-        const row = L5.chromosome(stage, { x: b.x + b.width / 2 - 26, y: 72, genes: "0", size: 52, tone: "grey" });
+        const row = L5.chromosome(stage, { x: b.x + b.width / 2 - 26, y: 72 + SY, genes: "0", size: 52, tone: "grey" });
         row.tiles[0].style.borderRadius = "14px";
         row.tiles[0].style.boxShadow = "0 4px 0 var(--c-edge)";
         return row;
       });
+      stage.append(...blocks); // above the bit tiles, so a block in flight never hides behind one
       // the 8 cards
       const cards = SUBS.map((s, i) => {
         const bitsEl = V.h("div", {
@@ -136,7 +138,7 @@
         return { card, bitsEl, bar, val };
       });
       const svg = L5.svg(stage);
-      const star = L2.star(CARD.x + BEST * (CARD.w + CARD.gap) + CARD.w / 2, 336, 46, "orange");
+      const star = L2.star(CARD.x + BEST * (CARD.w + CARD.gap) + CARD.w / 2, 376, 46, "orange");
       svg.append(star);
 
       const tile = (i, from, to, k, o, s) => {

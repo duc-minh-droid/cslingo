@@ -18,7 +18,7 @@
     height: `${f1(h)}px`,
   });
 
-  const CARD = { x: 72, w: 936, h: 180, tops: [240, 444, 648] };
+  const CARD = { x: 72, w: 936, h: 192, tops: [236, 448, 660] };
   const APPEAR = [0.8, 1.8, 2.8];
   const PIC = { x: 16, y: 10, w: 376, h: 140, zoom: 1.1 };
 
@@ -121,8 +121,8 @@
     const score = [...BITS].filter((b) => b === "1").length;
     if (score !== 5) throw new Error("recap: 110111 should score 5 of 6");
     const frac = score / BITS.length;
-    const SIZE = 28;
-    const GAP = 3;
+    const SIZE = 40;
+    const GAP = 4;
     const row = L5.chromosome(pic, {
       x: 6,
       y: 22,
@@ -131,16 +131,16 @@
       gap: GAP,
       tones: [...BITS].map((b) => (b === "1" ? "blue" : "grey")),
     });
-    row.tiles.forEach((tile) => Object.assign(tile.style, { fontSize: "20px", borderRadius: "9px" }));
+    row.tiles.forEach((tile) => Object.assign(tile.style, { fontSize: "26px", borderRadius: "12px" }));
     const rowW = row.width;
     const svg = L5.svg(pic, PIC.w, PIC.h);
-    const arrow = svg.appendChild(L5.arrow(rowW + 14, 36, rowW + 48, 36, "grey", 1, { w: 6, head: 16 }));
-    const gg = L1.gauge(pic, { x: rowW + 56, y: 4, w: 104, on: false });
+    const arrow = svg.appendChild(L5.arrow(rowW + 10, 42, rowW + 38, 42, "grey", 1, { w: 6, head: 16 }));
+    const gg = L1.gauge(pic, { x: rowW + 42, y: 4, w: 76, on: false });
     const packet = pic.appendChild(
       V.h("div", {
         class: "v-gene c-blue",
         text: "1",
-        style: { ...box(rowW + 10, 22, 28, 28), fontSize: "20px", borderRadius: "9px" },
+        style: { ...box(rowW + 6, 22, 40, 40), fontSize: "26px", borderRadius: "12px" },
       }),
     );
     const TRACK = { x: 6, y: 96, w: 340, h: 26 };
@@ -172,7 +172,7 @@
       const d = clamp((t - T.go) / 0.7);
       const e = E.inOut(d);
       V.place(packet, {
-        x: lerp(0, 66, e),
+        x: lerp(0, 52, e),
         y: 0,
         s: (1 - 0.5 * ramp(d, 0.8, 1, E.lin)) * (t < T.go ? 0 : 1),
         o: t < T.go ? 0 : Math.min(ramp(t, T.go, T.go + 0.1, E.lin), 1 - ramp(d, 0.9, 1, E.lin)),
@@ -200,7 +200,7 @@
 
       const rows = [
         ["green", "Copy nature:\nkeep what works", keepWhatWorks],
-        ["blue", "Population, weak\nselection, mutation", populationClimbs],
+        ["blue", "Population, selection,\nmutation, recombination", populationClimbs],
         ["orange", "Can you score it?\nThen you can evolve it", scoreIt],
       ].map(([tone, text, make], i) => {
         const card = V.h("div", {
@@ -216,7 +216,7 @@
           style: {
             left: "440px",
             top: "0",
-            height: "174px",
+            height: "186px",
             display: "flex",
             alignItems: "center",
             whiteSpace: "pre",
