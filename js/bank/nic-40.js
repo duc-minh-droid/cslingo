@@ -1,454 +1,347 @@
 (function () {
   const B = NIC.bank;
+  const svg = (w, h, body) =>
+    `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;max-height:${h}px">${body}</svg>`;
+  const tx = (x, y, s, { c = "var(--text)", z = 13 } = {}) =>
+    `<text x="${x}" y="${y}" text-anchor="middle" style="font:800 ${z}px var(--sans);fill:${c}">${s}</text>`;
+  const card = (id, x, y, w, h, lines) =>
+    `<g data-pick="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${lines.map((s, i) => tx(x + w / 2, y + 22 + i * 20, s, { z: i ? 12 : 14, c: i ? "var(--text-dim)" : "var(--text)" })).join("")}</g>`;
 
-  /* ---------- figures ---------- */
-  const hbar = (v, y, id, name) =>
-    `<g data-pick="${id}"><rect x="40" y="${y}" width="${Math.max(6, v * 1.3)}" height="30" rx="8" fill="var(--blue)" stroke="var(--blue-lip)" stroke-width="3"/><text x="10" y="${y + 20}" font-size="14" font-weight="900" fill="var(--text)">${name}</text><text x="${50 + v * 1.3}" y="${y + 20}" font-size="14" font-weight="800" fill="var(--text)">${v}</text></g>`;
-  const children = `<svg viewBox="0 0 330 190" width="330" height="190" role="img" aria-label="Four bars of children made over ten rounds">
-    <text x="10" y="18" font-size="13" font-weight="800" fill="var(--text)">Children made over 10 rounds (population 20)</text>
-    ${hbar(200, 30, "a", "A")}${hbar(10, 70, "b", "B")}${hbar(180, 110, "c", "C")}${hbar(20, 150, "d", "D")}
-  </svg>`;
-
-  const best = [5, 7, 8, 8.5, 8.8, 8.8, 8.8, 8.8, 8.8];
-  const mean = [2, 4, 6, 7.8, 8.5, 8.8, 8.8, 8.8, 8.8];
-  const xy = (vals) => vals.map((v, i) => `${40 + i * 40},${150 - v * 13}`).join(" ");
-  const cols = best
-    .map(
-      (_, i) =>
-        `<g data-pick="g${i}"><rect x="${22 + i * 40}" y="20" width="36" height="150" fill="transparent"/><text x="${40 + i * 40}" y="168" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">${i}</text></g>`,
-    )
-    .join("");
-  const converge = `<svg viewBox="0 0 380 180" width="380" height="180" role="img" aria-label="Best and mean fitness over nine generations">
-    <line x1="22" y1="150" x2="360" y2="150" stroke="var(--line-2)" stroke-width="2"/>
-    <polyline points="${xy(best)}" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linejoin="round"/>
-    <polyline points="${xy(mean)}" fill="none" stroke="var(--violet)" stroke-width="4" stroke-dasharray="8 5" stroke-linejoin="round"/>
-    <text x="30" y="16" font-size="12" font-weight="800" fill="var(--text)">Best (solid green), mean (dashed purple), by generation</text>
-    ${cols}
-  </svg>`;
-
-  const wbar = (v, i, id, name) =>
-    `<g data-pick="${id}"><rect x="${30 + i * 65}" y="${150 - v * 8}" width="46" height="${v * 8}" rx="6" fill="var(--amber)" stroke="var(--amber-lip)" stroke-width="3"/><text x="${53 + i * 65}" y="${142 - v * 8}" text-anchor="middle" font-size="13" font-weight="900" fill="var(--text)">${v}</text><text x="${53 + i * 65}" y="168" text-anchor="middle" font-size="14" font-weight="900" fill="var(--text)">${name}</text></g>`;
-  const wheelBars = `<svg viewBox="0 0 300 175" width="300" height="175" role="img" aria-label="Fitness of four individuals, A to D">
-    <line x1="20" y1="150" x2="290" y2="150" stroke="var(--line-2)" stroke-width="2"/>
-    ${wbar(8, 0, "a", "A")}${wbar(4, 1, "b", "B")}${wbar(16, 2, "c", "C")}${wbar(2, 3, "d", "D")}
-  </svg>`;
-
-  const rankP = (b) => {
-    const w = [1, 2, 3, 4, 5].map((r) => r ** b);
-    const s = w.reduce((a, c) => a + c, 0);
-    return w.map((x) => x / s);
-  };
-  const curve = (b) =>
-    rankP(b)
-      .map((p, i) => `${50 + i * 60},${160 - p * 300}`)
-      .join(" ");
-  const rankCurves = `<svg viewBox="0 0 330 185" width="330" height="185" role="img" aria-label="Chance of being picked for ranks 1 to 5, three lines">
-    <line x1="30" y1="160" x2="310" y2="160" stroke="var(--line-2)" stroke-width="2"/>
-    <polyline points="${curve(0.5)}" fill="none" stroke="var(--violet)" stroke-width="4"/>
-    <polyline points="${curve(1)}" fill="none" stroke="var(--blue)" stroke-width="4"/>
-    <polyline points="${curve(2)}" fill="none" stroke="var(--amber)" stroke-width="4"/>
-    <text x="30" y="14" font-size="12" font-weight="800" fill="var(--text)">Chance by rank: A purple, B blue, C orange</text>
-    <g data-pick="a"><polyline points="${curve(0.5)}" fill="none" stroke="transparent" stroke-width="10"/></g>
-    <g data-pick="b"><polyline points="${curve(1)}" fill="none" stroke="transparent" stroke-width="10"/></g>
-    <g data-pick="c"><polyline points="${curve(2)}" fill="none" stroke="transparent" stroke-width="10"/></g>
-  </svg>`;
-
-  /* ---------- 4.1 generational vs steady-state ---------- */
-  B.add("l4-types", [
+  B.add("l4-tournament", [
     {
-      type: "pick",
-      q: "Four GAs share a population of 20. Each bar counts the children one GA made over 10 rounds. They are: steady-state with 1 child per step, steady-state with 2 per step, generational with no elites, and generational with 2 elites. Click the bar for the generational GA with 2 elites.",
-      fig: children,
-      a: "c",
-      hint: "With 2 elites, only 18 members are rebuilt each round. Then multiply by 10 rounds.",
-      why: "A generational GA with 2 elites makes 20 - 2 = 18 children per round, so 180 over 10 rounds. Without elites it makes all 20 each round, giving 200. A steady-state GA makes only 1 or 2 children per step, so 10 or 20 in total.",
-    },
-    {
-      type: "match",
-      q: "Match each GA (population 40) to the number of new children it makes in one round.",
-      pairs: [
-        ["Generational, no elites", "40 children"],
-        ["Generational, 5 elites", "35 children"],
-        ["Steady-state, N = 2", "2 children"],
-        ["Steady-state, N = 1", "1 child"],
+      type: "order",
+      q: "Put the steps of ONE tournament selection (size t) in order.",
+      items: [
+        "Draw t individuals from the population at random",
+        "Read the fitness of each entrant",
+        "Keep the entrant with the highest fitness",
+        "Hand that winner on as a parent",
       ],
-      hint: "A generational round rebuilds everyone except the elites. A steady-state step makes N children.",
-      why: "A generational round must rebuild all 40 members, minus any elites copied across unchanged (40 - 5 = 35). A steady-state step only applies the operators N times, so it makes 2 or 1 children and everyone else stays.",
-    },
-    {
-      type: "multi",
-      q: "A steady-state GA keeps a population of 20 and maximises fitness. Each child replaces the weakest member, but only if the child is at least as good. Select every statement that is true.",
-      o: [
-        "The best member can never be the one that is replaced",
-        "The population still holds exactly 20 members after every step",
-        "Each step makes about 20 children, one for every member",
-        "Every child enters the population, however poor it is",
-        "The fitness of the weakest member can never fall",
-      ],
-      a: [0, 1, 4],
-      hint: "Ask what happens to the weakest member when a child replaces it.",
-      why: "A child takes the place of the weakest member, so the size stays at 20 and the best is safe (it is never the weakest). The child must be at least as good as the member it replaces, so the new weakest member is never worse than the old one. A step makes only 1 or 2 children, and poor children are discarded.",
-    },
-    {
-      type: "bug",
-      q: "This generational GA maximises fitness and should keep its k best members, yet its best fitness keeps falling. Click the faulty line.",
-      code: [
-        "def next_generation(pop, fit, k):",
-        "    ranked = sorted(pop, key=fit, reverse=True)",
-        "    elites = ranked[-k:]",
-        "    kids = make_children(pop, len(pop) - k)",
-        "    return elites + kids",
-      ],
-      a: 2,
-      hint: "The list is sorted best first. Which end of it does the slice take?",
-      why: "With reverse=True the best members come first, so the elites are ranked[:k]. The slice ranked[-k:] copies the k worst members across unchanged, so the real best can be lost.",
+      hint: "You cannot compare entrants until you have drawn them.",
+      why: "Tournament selection only compares a handful of entrants, so there is no sorting and no total fitness to compute. Draw, compare, keep the best, and use it as a parent. Repeat the whole thing for each parent you need.",
     },
     {
       type: "cat",
-      q: "Sort each feature by the scheme it belongs to. Use an elitist generational GA and a steady-state GA that replaces the weakest member.",
-      buckets: ["Elitist generational", "Steady-state, replace weakest", "Both"],
+      q: "Each change is made to a tournament selector (entrants drawn with replacement). Sort it by its effect on selection pressure.",
+      buckets: ["Pressure goes up", "Pressure goes down"],
       items: [
-        ["Copies the n best across unchanged on purpose", 0],
-        ["Keeps the best only as a side effect of who gets replaced", 1],
-        ["Protects the best individual from being lost", 2],
-        ["A new child can become a parent in the very next step", 1],
-        ["Everyone except the elites is discarded each round", 0],
-        ["Can choose parents by tournament selection", 2],
+        ["Raise t from 2 to 6", 0],
+        ["Lower t from 5 to 2", 1],
+        ["Switch from t = 3 to t = 1", 1],
+        ["Enter 8 contestants per tournament instead of 3", 0],
       ],
-      hint: "Ask whether the best is protected deliberately, by accident, or both.",
-      why: "Elitism is a deliberate copy of the n best. In steady-state, the best survives only because it is never the weakest. Both protect the best and both can use any selection method. Steady-state children join the population at once, whereas generational children wait for the next round.",
-    },
-    {
-      type: "mcq",
-      q: "Two GAs have the same population size and make the same total number of children. One is generational with no elitism. The other is steady-state with replace-weakest. Which statement about their search is most accurate?",
-      o: [
-        "The steady-state run is greedier and may settle early",
-        "The generational run is greedier, since everyone is replaced",
-        "Neither differs, because the number of children is the same",
-      ],
-      a: 0,
-      hint: "Which one uses each good child straight away and never drops the best?",
-      why: "Steady-state with replace-weakest is greedy: good children are used at once and the weak are removed, which raises selection pressure and can converge early. Generational replacement changes more at once, which explores more but, without elitism, can lose good solutions.",
-    },
-  ]);
-
-  /* ---------- 4.2 replacement ---------- */
-  B.add("l4-replacement", [
-    {
-      type: "cat",
-      q: "A child arrives and the population is scanned from slot 1. For each case, sort by whether replace-weakest and replace-first-weaker pick the same slot.",
-      buckets: ["Same slot under both", "Different slots"],
-      items: [
-        ["Population 0.2, 0.5, 0.9 and child 0.4", 0],
-        ["Population 0.5, 0.2, 0.1 and child 0.4", 1],
-        ["Population 0.9, 0.6, 0.1 and child 0.8", 1],
-        ["Population 0.3, 0.7, 0.8 and child 0.6", 0],
-        ["Population 0.7, 0.1, 0.4 and child 0.5", 0],
-      ],
-      hint: "Find the lowest member, then find the first member lower than the child.",
-      why: "They agree only when the first member weaker than the child is also the weakest one. In 0.5, 0.2, 0.1 the scan stops at 0.2 but the weakest is 0.1. In 0.9, 0.6, 0.1 it stops at 0.6 but the weakest is 0.1. In the other three cases the first weaker member is the weakest.",
+      hint: "More entrants means the champion of the group is more likely to be a really good one.",
+      why: "The more entrants, the more likely at least one of them is near the top, and the winner is always the best of the group, so pressure rises. With t = 1 there is no comparison at all, so the pick is purely random.",
     },
     {
       type: "slider",
-      q: "A population of ten sits in slot order with fitness 0.9, 0.8, 0.7, 0.6, 0.9, 0.8, 0.3, 0.7, 0.9, 0.2. A child scoring 0.5 arrives. Replace-first-weaker scans from slot 1 and stops at the first weaker member. How many members does it look at, counting the one it overwrites?",
-      min: 1,
-      max: 10,
-      step: 1,
-      start: 4,
-      ans: 7,
-      tol: 0,
-      unit: "members",
-      hint: "Move along the list until you meet a value below 0.5.",
-      why: "Slots 1 to 6 all score above 0.5, so they are skipped. Slot 7 (0.3) is the first weaker member, so the scan stops there after 7 looks. Replace-weakest would have looked at all ten and overwritten slot 10 (0.2) instead.",
-    },
-    {
-      type: "multi",
-      q: "A steady-state GA switches from replace-weakest to replace-first-weaker. Select every statement that is true.",
-      o: [
-        "A middling member can be evicted while a much weaker one survives",
-        "Weak members tend to survive for longer, which keeps more variety",
-        "Each child always removes the weakest member in the population",
-        "Where a member sits in the list can change whether it is evicted",
-        "Every member must be examined for every child",
-      ],
-      a: [0, 1, 3],
-      hint: "The scan stops at the first weaker member it meets.",
-      why: "Because the scan stops early, the evicted member depends on list order, and a very weak member further down may be missed. That lowers selection pressure and keeps more variety. The victim is only the first member weaker than the child, not always the weakest, and the scan can stop early without looking at everyone.",
-    },
-    {
-      type: "bug",
-      q: "Replace-weakest should overwrite the weakest member whenever the child is at least as good. But when a child ties exactly with the weakest member, it is thrown away. Click the faulty line.",
-      code: [
-        "def insert(pop, fits, child, f):",
-        "    w = fits.index(min(fits))",
-        "    if f > fits[w]:",
-        "        pop[w] = child",
-        "        fits[w] = f",
-      ],
-      a: 2,
-      hint: "The rule says at least as good, which includes a tie.",
-      why: "f > fits[w] is false when the two are equal. At least as good needs f >= fits[w]. Using >= lets a tie replace the weakest member, so equal children are no longer thrown away.",
-    },
-    {
-      type: "order",
-      q: "Replace-first-weaker scans from slot 1 for a child scoring 0.5. The population in slot order is 0.8, 0.6, 0.3, 0.9. Put the events in the order they happen.",
-      items: [
-        "Compare slot 1 (0.8) with 0.5: not weaker, move on",
-        "Compare slot 2 (0.6) with 0.5: not weaker, move on",
-        "Compare slot 3 (0.3) with 0.5: weaker, so overwrite it",
-        "Stop: slot 4 (0.9) is never looked at",
-      ],
-      hint: "The scan goes slot by slot and stops at the first member below 0.5.",
-      why: "Slots 1 and 2 both beat the child, so the scan moves on. Slot 3 (0.3) is the first weaker member, so it is overwritten and the scan ends. Slot 4 is never examined.",
-    },
-    {
-      type: "mcq",
-      q: "Replace-first-weaker scans from slot 1 and equal fitness counts as weaker. The population in slot order is 0.7, 0.3, 0.7, 0.2 and the child scores 0.7. Which slot is overwritten?",
-      o: ["Slot 1 (0.7)", "Slot 2 (0.3)", "Slot 4 (0.2)", "None, the child is discarded"],
-      a: 0,
-      hint: "Check slot 1 first. Is 0.7 weaker than a child of 0.7 when ties count?",
-      why: "Slot 1 ties with the child and ties count as weaker, so the scan stops there and overwrites it. The 0.3 and 0.2 members survive, even though they are far weaker.",
-    },
-  ]);
-
-  /* ---------- 4.3 selection pressure ---------- */
-  B.add("l4-pressure", [
-    {
-      type: "order",
-      q: "Put the stages of premature convergence in order.",
-      items: [
-        "The population starts out varied, with good and poor members",
-        "Selection picks the fittest far more often than the rest",
-        "Copies of one or two individuals fill more and more slots",
-        "The population becomes nearly identical, with no variety left",
-        "Progress stops, usually on a local optimum",
-      ],
-      hint: "Takeover has to happen before diversity can run out.",
-      why: "Strong pressure copies the fittest again and again. Their copies take over, diversity vanishes, and a population with nothing left to choose between can only sit on whichever hill it reached.",
-    },
-    {
-      type: "slider",
-      q: "A population of 40 different individuals always picks the single best individual as every parent. There is no mutation or crossover, so children are plain copies. After one generation, how many different individuals are in the population?",
+      q: "A GA has 10 individuals, all with different fitnesses. It picks 20 parents, each by its own size-2 tournament (entrants drawn with replacement). About how many of those 20 parents are the single fittest individual?",
       min: 0,
-      max: 40,
+      max: 20,
       step: 1,
-      start: 20,
-      ans: 1,
-      tol: 0,
-      unit: "individuals",
-      hint: "If every parent is the same individual, what do the children look like?",
-      why: "Every child is a copy of the one best parent, so one generation is enough to wipe out all variety. This is the extreme end of selection pressure.",
+      start: 10,
+      ans: 4,
+      tol: 2,
+      unit: "parents",
+      hint: "The best loses a tournament only if neither entrant is the best: 0.9 × 0.9 = 0.81, so it wins about 0.2 of the time. Then 0.2 × 20.",
+      why: "In one tournament the best wins with chance 1 − 0.9² = 0.19, about 0.2. Over 20 parents that is about 20 × 0.19 ≈ 4. A purely random pick would give only 2, so size 2 has a gentle push towards the best.",
     },
     {
       type: "multi",
-      q: "An EA is converging prematurely. Select every change that would lower its selection pressure.",
+      q: "A GA picks parents by tournament selection. Which statements are true?",
       o: [
-        "Reduce the tournament size from 7 to 3",
-        "Lower the rank exponent b from 3 to 1",
-        "Raise the tournament size from 3 to 7",
-        "Pick parents by rank instead of always picking the best",
-        "Raise the rank exponent b from 1 to 3",
+        "A larger t makes a weak winner less likely",
+        "With t = 1 the fittest individual is picked no more often than anyone else",
+        "A tournament always returns the fittest individual in the whole population",
+        "The same individual can be the winner of several different tournaments",
+        "With replacement and t equal to the population size, the best is always among the entrants",
       ],
       a: [0, 1, 3],
-      hint: "Pressure falls when weaker individuals get a fairer chance of being picked.",
-      why: "Smaller tournaments, a smaller rank exponent and a rank-based chance all give weaker individuals more chances to breed. Larger tournaments and a larger exponent do the opposite and favour the leaders even more.",
+      hint: "Each tournament is a fresh random draw, so luck is always involved.",
+      why: "More entrants means a weak individual needs to be lucky enough to avoid every strong rival. With t = 1 there is no contest, so every individual is equally likely. Each tournament is separate, so a strong individual can win many of them. A tournament only sees its own entrants, so the global best can be missed, even with t equal to the population size: drawing with replacement misses it about 37% of the time.",
     },
     {
       type: "bug",
-      q: "This tournament should enter exactly t random individuals, so t = 1 should behave like random selection. Instead, t = 1 already favours fitter individuals. Click the faulty line.",
+      q: "This should return the fittest of t random entrants, but every tournament returns the same individual for the whole call (it keeps picking one random slot). Tap the faulty line.",
       code: [
-        "def tournament(pop, fit, t):",
-        "    best = random.choice(pop)",
+        "def tournament(pop, t):",
+        "    i = random.randrange(len(pop))",
+        "    best = pop[i]",
         "    for _ in range(t):",
-        "        rival = random.choice(pop)",
-        "        if fit(rival) > fit(best):",
-        "            best = rival",
+        "        c = pop[i]",
+        "        if fitness(c) > fitness(best):",
+        "            best = c",
         "    return best",
       ],
-      a: 2,
-      hint: "The first entrant is picked before the loop. Count the entrants when t = 1.",
-      why: "The first entrant is chosen before the loop, so the loop should add only t - 1 rivals. With range(t) the tournament has t + 1 entrants, so t = 1 is really a two-entrant tournament and the pressure is higher than intended.",
-    },
-    {
-      type: "pick",
-      q: "An EA with no mutation ran for nine generations. Click the first generation at which every member has the same fitness (mean equals best).",
-      fig: converge,
-      a: "g5",
-      hint: "When does the dashed line meet the solid line and stay with it?",
-      why: "The mean and the best first meet at generation 5, so everyone now has the same fitness and selection has nothing left to choose between. The best never improves afterwards, which is the sign of premature convergence.",
+      a: 4,
+      why: "The index i is drawn once, outside the loop, so every entrant is the same individual and nothing is compared. The loop body should draw a new index each time: c = pop[random.randrange(len(pop))].",
     },
     {
       type: "mcq",
-      q: "Two teams run the same EA on a population of 30. Team A selects with tournaments of size 2 and team B with tournaments of size 20. Which team is more likely to stall early and need extra mutation to keep exploring?",
+      q: "Late in a run the top ten fitnesses in a population all lie between 0.9990 and 1.0000. A size-2 tournament now picks parents. What happens?",
       o: [
-        "Team B, because large tournaments favour the leaders",
-        "Team A, because small tournaments let weak parents breed too often",
-        "Neither, because both teams compare the same population members",
+        "It still returns the fitter entrant each time",
+        "It picks either entrant with equal chance",
+        "It returns the entrant closest to the average",
+        "It fails because the gaps are too small to compare",
       ],
       a: 0,
-      hint: "A size 20 tournament from 30 members almost always contains a top individual.",
-      why: "Large tournaments pick the fittest almost every time, so a few individuals take over fast and variety disappears. Extra mutation puts exploration back. Size 2 tournaments leave plenty of chances for weaker members.",
+      hint: "Does the tournament care how big the gap is, or only who is ahead?",
+      why: "Tournaments use ranks, not gaps, so a 0.001 edge wins as surely as a huge one. That is why pressure stays steady, while roulette selection would become almost uniform once the fitnesses bunch together.",
     },
   ]);
 
-  /* ---------- 4.4 roulette ---------- */
-  B.add("l4-roulette", [
-    {
-      type: "slider",
-      q: "A roulette wheel has fitnesses 1, 1, 1 and 7. You add 3 to every fitness. Roughly what percentage chance does the best individual have now?",
-      min: 0,
-      max: 100,
-      step: 5,
-      start: 70,
-      ans: 45,
-      tol: 5,
-      unit: "%",
-      hint: "The new fitnesses are 4, 4, 4 and 10, so the total is 22. Is 10 out of 22 more or less than half?",
-      why: "The best had 7/10 = 70% before. After adding 3 the fitnesses are 4, 4, 4 and 10, a total of 22, so it has 10/22, about 45%. Roulette depends on the actual fitness values, so shifting them all changes the odds even though the ranking is the same.",
-    },
+  B.add("l4-mutation", [
     {
       type: "order",
-      q: "Three tours cost 5, 2 and 10, and shorter is better. Each tour's fitness is set to 1 ÷ cost before it goes on the roulette wheel. Order the tours from MOST likely to be picked to LEAST likely.",
-      items: ["The tour costing 2", "The tour costing 5", "The tour costing 10"],
-      hint: "1 ÷ cost gives 0.5, 0.2 and 0.1. Bigger fitness means a bigger slice.",
-      why: "The fitnesses 0.5, 0.2 and 0.1 total 0.8, so the chances are about 62%, 25% and 12%. Turning a cost into 1 ÷ cost makes the cheapest tour the fittest, which fixes roulette's problem with minimisation.",
+      q: "Put the steps of swap mutation on a tour in order.",
+      items: [
+        "Copy the parent tour",
+        "Choose two different positions at random",
+        "Exchange the two cities at those positions",
+        "Return the child, leaving the parent as it was",
+      ],
+      hint: "Mutation should return a changed copy, so the copy comes before the change.",
+      why: "Copy first so the parent survives, choose two positions, then exchange their cities. Because the same cities are only moved around, each city still appears exactly once.",
     },
     {
       type: "cat",
-      q: "Sort each fitness list by whether it can go straight onto a roulette wheel, where a bigger fitness means a better individual.",
-      buckets: ["Works as it is", "Needs a fix first"],
+      q: "An EA's mutation rate has been set badly. Sort each symptom by what the rate probably is.",
+      buckets: ["Rate too high", "Rate too low"],
       items: [
-        ["Profits of 4, 9, 2 and 7", 0],
-        ["Costs of 4, 9, 2 and 7, where lower is better", 1],
-        ["Scores of -3, 5 and 8", 1],
-        ["Scores of 0.2, 0.9 and 0.5", 0],
-        ["Distances in km, where shorter is better", 1],
-        ["Win counts of 0, 3 and 6", 0],
+        ["Children look nothing like their parents and the best fitness keeps bouncing about", 0],
+        ["The population fills with near-identical copies and the best stops improving", 1],
+        ["A good solution is wrecked in most of its children", 0],
+        ["A gene value missing from every member never comes back", 1],
       ],
-      hint: "Roulette needs no negative values and a bigger number must mean a better individual.",
-      why: "Slices cannot be negative, and a bigger slice must mean better. Costs and distances would favour the worst individuals, and the negative score would need shifting. A fitness of 0 is allowed: it just gets no slice.",
+      hint: "Too much mutation turns the search random. Too little leaves nothing new to try.",
+      why: "A very high rate scrambles good solutions, so the search becomes close to random and progress bounces about. A very low rate creates almost no new variation, so the population stagnates and lost values stay lost.",
     },
-    {
-      type: "multi",
-      q: "A roulette wheel holds four individuals with fitness 3, 3, 3 and 1. Select every statement that is true.",
-      o: [
-        "Each fitness-3 individual has a 30% chance per spin",
-        "The fitness-1 individual has a 10% chance per spin",
-        "The fitness-1 individual can never be picked",
-        "In any 10 spins, exactly one pick must be the fitness-1 individual",
-        "Over a very large number of spins, about 90% of picks go to the fitness-3 individuals",
-      ],
-      a: [0, 1, 4],
-      hint: "The total is 10, so each fitness is also its percentage chance.",
-      why: "The total fitness is 10, so each 3 gets 30% and the 1 gets 10%. Weak individuals still get picked sometimes, which is what keeps selection from being greedy. Spins are random, so 10 spins give about one pick, not exactly one.",
-    },
-    {
-      type: "bug",
-      q: "A roulette wheel has fitnesses 4, 9 and 12. This spin returns individual 0 every time. Click the faulty line.",
-      code: [
-        "def spin(fits):",
-        "    r = random.random()",
-        "    running = 0",
-        "    for i, f in enumerate(fits):",
-        "        running += f",
-        "        if r <= running:",
-        "            return i",
-        "    return len(fits) - 1",
-      ],
-      a: 1,
-      hint: "random.random() gives a value between 0 and 1. How big is the whole wheel?",
-      why: "The pointer must land anywhere on the whole wheel, so r should be random.random() * sum(fits). A value below 1 always falls inside the first slice (size 4), so individual 0 wins every time.",
-    },
-    {
-      type: "pick",
-      q: "The bars show the fitness of four individuals. Click the individual whose chance of being picked by roulette is one quarter of C's chance.",
-      fig: wheelBars,
-      a: "b",
-      hint: "C has 16. What is a quarter of 16?",
-      why: "Roulette chances are proportional to fitness. A quarter of C's 16 is 4, which is individual B. D (2) has only an eighth of C's chance and A (8) has half.",
-    },
-  ]);
-
-  /* ---------- 4.5 rank selection ---------- */
-  B.add("l4-rank", [
     {
       type: "slider",
-      q: "A population of 3 uses rank selection with the weight rank squared (b = 2). Roughly what percentage chance does the best individual have?",
+      q: "A string has 10 genes, each a digit 0 to 9. Single-gene mutation picks one gene at random and gives it a new random value. About what percentage of mutations pick gene number 4 to change?",
       min: 0,
       max: 100,
       step: 5,
       start: 50,
-      ans: 64,
-      tol: 6,
+      ans: 10,
+      tol: 5,
       unit: "%",
-      hint: "The weights are 1, 4 and 9, which total 14. 9 out of 14 is a little under two thirds.",
-      why: "The ranks 1, 2 and 3 become the weights 1, 4 and 9, which total 14. The best gets 9/14, about 64%. With plain linear rank (b = 1) it would only get 3/6 = 50%, so the larger exponent raises the pressure.",
-    },
-    {
-      type: "order",
-      q: "Put the steps of linear rank selection in order.",
-      items: [
-        "Sort the individuals by fitness",
-        "Give the worst rank 1 and the best rank P",
-        "Add up all the ranks to get the total",
-        "Divide each rank by the total to get its chance",
-        "Pick a parent using those chances",
-      ],
-      hint: "You need the ranks before you can add them up.",
-      why: "Ranking comes from the sorted order. The total of the ranks is P(P+1)/2, and each chance is its rank over that total. Only then can a parent be sampled.",
-    },
-    {
-      type: "cat",
-      q: "Rank selection gives each individual a weight of rank to the power b, with b = 1 to start. Sort each event by whether it changes the selection probabilities.",
-      buckets: ["Changes the probabilities", "No effect"],
-      items: [
-        ["Multiply every fitness by 1000", 1],
-        ["Two neighbours in the ranking swap places", 0],
-        ["Raise the exponent b from 1 to 2", 0],
-        ["Raise the best individual's fitness from 50 to 5000", 1],
-        ["Add 7 to every fitness", 1],
-        ["The population grows from 5 to 6 members", 0],
-      ],
-      hint: "Rank selection only looks at the order and the population size.",
-      why: "Scaling, shifting, or making the best even better leaves the order alone, so nothing changes. Swapping places changes who holds which rank. A new exponent changes the weights, and a bigger population changes the total they are divided by.",
+      hint: "One gene is chosen out of ten, evenly.",
+      why: "Each of the 10 genes is equally likely to be chosen, so gene 4 is the one changed in 1 out of 10 mutations, 10%. Single-gene mutation always changes exactly one gene, so the child stays very close to its parent.",
     },
     {
       type: "multi",
-      q: "Rank selection gives each individual a weight of rank to the power b. Select every statement that is true.",
+      q: "Which statements about mutation are true?",
       o: [
-        "With b = 0 every individual is equally likely to be picked",
-        "With b = 1 the worst of 5 individuals has a 1 in 15 chance",
-        "Using b = 2 gives the best individual a bigger share than b = 1",
-        "The size of the gaps between fitness values changes the chances",
-        "With b = 1 the worst individual can never be picked",
+        "A larger Gaussian σ gives bigger jumps and more exploration",
+        "It can bring back a gene value that has vanished from the population",
+        "Insertion mutation on a tour can leave a city visited twice",
+        "Raising the rate is always better because it explores more",
       ],
-      a: [0, 1, 2],
-      hint: "For 5 individuals and b = 1 the weights are 1, 2, 3, 4 and 5.",
-      why: "With b = 0 every weight is 1. With b = 1 the weights total 15 and the worst has weight 1. A larger b stretches the weights, so the best gains. Only the order matters, not the gaps, and even the worst keeps a small chance.",
+      a: [0, 1],
+      hint: "Think about what noise size and rate do to exploitation and exploration.",
+      why: "σ is the step size, so bigger σ means bolder jumps. Mutation is the only operator that can recreate a lost value. Moving a city to a new place keeps every city present exactly once, and a very high rate wrecks good solutions, turning the search into a random one.",
     },
     {
       type: "bug",
-      q: "This should turn fitnesses into linear rank probabilities, but the probabilities end up attached to the wrong individuals. Click the faulty line.",
+      q: "This swap mutation should exchange two cities of a tour, but its children contain a repeated city. Tap the faulty line.",
       code: [
-        "def rank_probs(fits):",
-        "    order = sorted(range(len(fits)), key=lambda i: fits[i])",
-        "    ranks = [0] * len(fits)",
-        "    for r, i in enumerate(order, start=1):",
-        "        ranks[r] = i",
-        "    total = sum(ranks)",
-        "    return [r / total for r in ranks]",
+        "def swap_mutate(tour):",
+        "    child = tour[:]",
+        "    i, j = random.sample(range(len(child)), 2)",
+        "    child[i], child[j] = child[j], child[j]",
+        "    return child",
+      ],
+      a: 3,
+      why: "The right-hand side reads child[j] twice, so city j is copied into position i and the city that was at i is lost. It should be child[i], child[j] = child[j], child[i].",
+    },
+    {
+      type: "match",
+      q: "Match each mutation setting to its effect.",
+      pairs: [
+        ["Larger Gaussian σ", "Longer jumps and more exploration"],
+        ["Smaller Gaussian σ", "Fine adjustments close to the parent"],
+        ["Higher per-gene rate", "More genes change in each child"],
+        ["Rate of zero, with no crossover either", "No new gene values ever appear"],
+      ],
+      why: "σ sets the step size, so a bigger one jumps further and a smaller one fine-tunes. The rate sets how many genes change. With no mutation and no crossover, nothing can create a new value.",
+    },
+  ]);
+
+  const bits = (id, y, s, pick) => {
+    const body = `<rect x="52" y="${y - 20}" width="${s.length * 28 + 8}" height="30" rx="6" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${[...s].map((ch, i) => tx(70 + i * 28, y, ch, { z: 15, c: ch === "1" ? "var(--blue-ink)" : "var(--amber-ink)" })).join("")}`;
+    return `${pick ? `<g data-pick="${id}">${body}</g>` : `<g>${body}</g>`}${tx(26, y + 3, id, { z: 12, c: "var(--text-dim)" })}`;
+  };
+  B.add("l4-crossover", [
+    {
+      type: "pick",
+      q: "Parent 1 is 11001011 and parent 2 is 10011101. Uniform crossover (no mutation) builds a child by taking each gene from one parent or the other. Exactly one child below is impossible. Tap it.",
+      fig: svg(
+        320,
+        200,
+        [
+          bits("P1", 24, "11001011", false),
+          bits("P2", 54, "10011101", false),
+          bits("K", 100, "10001101", true),
+          bits("L", 130, "11011011", true),
+          bits("M", 160, "10101011", true),
+          bits("N", 190, "11001111", true),
+        ].join(""),
+      ),
+      a: "M",
+      why: "Gene 3 is 0 in both parents, so every child must have 0 there. Child M has 1 at gene 3, which neither parent has. In K, L and N every gene matches one of the parents at its position, so some mask makes each of them.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of uniform crossover (two children) in order.",
+      items: [
+        "Copy both parents into two children",
+        "Flip a coin for every gene to build a mask",
+        "Swap the two children's genes wherever the mask says so",
+        "Return both children",
+      ],
+      hint: "The mask must exist before it can be applied.",
+      why: "Start with copies, build one random mask, swap the marked genes between the children, then return both. Each gene is decided independently, which is what makes it uniform.",
+    },
+    {
+      type: "slider",
+      q: "1-point crossover is applied to strings of 11 genes. The cut is placed uniformly in one of the 10 gaps between neighbours. About what percentage of the time are genes 4 and 7 split between the two parents?",
+      min: 0,
+      max: 100,
+      step: 5,
+      start: 50,
+      ans: 30,
+      tol: 8,
+      unit: "%",
+      hint: "Count the gaps between gene 4 and gene 7: after 4, after 5 and after 6.",
+      why: "The two genes end up on different parents only if the cut falls in one of the 3 gaps between them, out of 10 gaps: 3/10 = 30%. Genes further apart are split more often, which is the positional bias of 1-point crossover.",
+    },
+    {
+      type: "slider",
+      q: "Two parents of 20 genes differ at exactly 8 positions. Uniform crossover makes child 1 with a fair coin per gene. On average, at about how many positions does child 1 differ from parent 1?",
+      min: 0,
+      max: 20,
+      step: 1,
+      start: 10,
+      ans: 4,
+      tol: 1,
+      unit: "genes",
+      hint: "Where the parents agree, nothing can change. Each of the other 8 genes switches half the time.",
+      why: "At the 12 positions where the parents agree, child 1 matches parent 1 whatever the coin says. Each of the 8 differing positions comes from parent 2 half the time, so about 8 × 0.5 = 4 genes differ.",
+    },
+    {
+      type: "multi",
+      q: "Which statements about crossover are true?",
+      o: [
+        "Uniform crossover separates two neighbouring genes about half the time",
+        "If both parents have 1 at gene 7, every child made by crossover alone has 1 there",
+        "1-point crossover can create a gene value neither parent has",
+        "With an even number of cuts, a child's first and last genes come from the same parent",
+        "A crossover rate of 1 means children are exact copies",
+      ],
+      a: [0, 1, 3],
+      hint: "Crossover only shuffles existing genes.",
+      why: "A fair coin per gene splits neighbours half the time. Crossover only moves existing values around, so a value both parents share cannot change. An even number of cuts returns to the first parent for the final segment. A crossover rate of 1 means every pair is crossed, not copied.",
+    },
+    {
+      type: "bug",
+      q: "This 1-point crossover should return two children with as many genes as the parents, but the first child comes out the wrong length. Tap the faulty line.",
+      code: [
+        "def one_point(p1, p2):",
+        "    cut = random.randint(1, len(p1) - 1)",
+        "    c1 = p1[:cut] + p2[:cut]",
+        "    c2 = p2[:cut] + p1[cut:]",
+        "    return c1, c2",
+      ],
+      a: 2,
+      why: "The first child should be p1 before the cut plus p2 after it: p1[:cut] + p2[cut:]. Using p2[:cut] gives 2 × cut genes instead of the full length.",
+    },
+  ]);
+
+  B.add("l4-lab", [
+    {
+      type: "slider",
+      q: "In the lab's algorithm 2 (generational, elitist) the population is 30. Each generation builds 29 children and keeps the single best old member, which is already scored. About how many new pictures are scored over 20 generations?",
+      min: 0,
+      max: 1000,
+      step: 50,
+      start: 500,
+      ans: 600,
+      tol: 60,
+      unit: "pictures",
+      hint: "29 is about 30, and 30 × 20 = 600.",
+      why: "Each generation scores 29 new children, so 20 generations score 29 × 20 = 580, about 600. Algorithm 1 scores one child per step, so it would need about 580 steps to do the same amount of scoring.",
+    },
+    {
+      type: "order",
+      q: "Put one generation of lab algorithm 2 (generational, elitist, crossover and mutation) in order.",
+      items: [
+        "Rank-select 2 × (P − 1) parents",
+        "Pair the parents up",
+        "Cross over each pair, with probability cross_rate",
+        "Mutate the children",
+        "Keep the best old member and add all the children",
+      ],
+      hint: "Parents must be chosen and paired before they can be crossed, and children must exist before they are mutated.",
+      why: "Selection comes first, then pairing, crossover and mutation produce P − 1 children. Finally the single best old member joins them, which is the elitism that stops the best fitness from falling.",
+    },
+    {
+      type: "cat",
+      q: "Sort each dashboard reading by whether it points to a healthy search or to trouble.",
+      buckets: ["Healthy", "Trouble"],
+      items: [
+        ["Best and mean both climb while diversity drifts down slowly", 0],
+        ["Diversity is 0 while best fitness is only 0.82", 1],
+        ["Mean ends close to the best as best nears 1.0", 0],
+        ["Best falls from 0.9 to 0.7 in a run that keeps its best member each generation", 1],
+      ],
+      hint: "Falling diversity is fine near the end but not early. Which reading breaks a rule of the algorithm?",
+      why: "Diversity drops naturally once the population closes in on the target. Zero diversity at 0.82 means everyone is the same and stuck, and a best that falls despite keeping the best member each generation points to a bug, because that member should never be lost.",
+    },
+    {
+      type: "multi",
+      q: "Which statements about the lab are true?",
+      o: [
+        "Keeping the best member each generation means best fitness never falls",
+        "Mutation-only algorithm 1 can still reach a perfect 1.0",
+        "Crossing identical members creates new pixel patterns",
+        "Dropping tournament size from 5 to 2 slows the loss of diversity",
+      ],
+      a: [0, 1, 3],
+      hint: "Crossover can only mix what the parents already contain.",
+      why: "Elitism protects the best, and mutation alone can still fix pixels one at a time. A smaller tournament means lower pressure, so diversity is lost more slowly. Crossing identical members just returns copies.",
+    },
+    {
+      type: "bug",
+      q: "This is one step of lab algorithm 1. The child should replace the WORST member when it is not worse, but the rest of the population never changes and only the top slot keeps moving. Tap the faulty line.",
+      code: [
+        "def step(pop, fit):",
+        "    parent = tournament(pop, fit, 3)",
+        "    child = mutate(parent, 0.01)",
+        "    f = score(child)",
+        "    w = fit.index(max(fit))",
+        "    if f >= fit[w]:",
+        "        pop[w], fit[w] = child, f",
       ],
       a: 4,
-      hint: "Which should be the position in the list: the individual or its rank?",
-      why: "The list ranks is indexed by individual, so it should be ranks[i] = r. Writing ranks[r] = i stores the individual where the rank belongs, which scrambles the probabilities and can even run past the end of the list.",
+      why: "max(fit) finds the best member, not the worst, so the child can only ever overwrite the best slot. Every other member is untouched. It should use min(fit) to find the worst.",
     },
     {
       type: "pick",
-      q: "Each line shows the chance of being picked at ranks 1 (worst) to 5 (best) for one setting of rank selection: weights of rank to the power 0.5, 1 or 2. Click the line for b = 2.",
-      fig: rankCurves,
-      a: "c",
-      hint: "A larger b gives the lowest ranks even less and the top rank even more.",
-      why: "With b = 2 the weights are 1, 4, 9, 16 and 25 out of 55, so rank 1 gets about 2% and rank 5 about 45%. That is the steepest line. Linear (b = 1) is the middle line, and b = 0.5 is the flattest.",
+      q: "Four lab runs ended with these dashboard readings. Tap the run that would benefit most from raising the mutation rate.",
+      fig: svg(
+        340,
+        150,
+        [
+          card("A", 6, 6, 160, 64, ["Run A", "best 0.99, div 0.1"]),
+          card("B", 174, 6, 160, 64, ["Run B", "best 0.80, div 0"]),
+          card("C", 6, 80, 160, 64, ["Run C", "best 0.97, div 0.05"]),
+          card("D", 174, 80, 160, 64, ["Run D", "best 0.74, div 0.8"]),
+        ].join(""),
+      ),
+      a: "B",
+      why: "Run B has zero diversity, so every member is the same and crossover cannot help. Only mutation can add new variation. A and C are close to done, and D still has plenty of diversity to work with.",
     },
   ]);
 })();

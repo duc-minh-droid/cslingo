@@ -3,6 +3,10 @@
   const { el, qs, predict, takeaways, header } = N;
   const L = N.LESSONS;
   const F = N.fig;
+  const table = (head, rows, mw = 660) =>
+    `<table class="t" style="max-width:${mw}px"><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${rows
+      .map((r) => `<tr class="${r.hl ? "hl" : ""}">${(r.c || r).map((c) => `<td>${c}</td>`).join("")}</tr>`)
+      .join("")}</table>`;
 
   /* ============ 2.2 A* vs Dijkstra ============ */
   /** Step-through A* on a small grid: one frame per expansion. Tap a cell to toggle a wall. */
@@ -223,8 +227,52 @@
         },
       },
       {
+        t: "Open and closed sets",
+        b: `<p>A* keeps two collections:</p><p><b>Open</b> (the frontier): nodes seen but not yet expanded, ordered by f.<br><b>Closed</b>: nodes already expanded. They are not expanded again.</p><p>The loop moves one node from open to closed per turn and adds its fresh neighbours to open.</p>`,
+        v: F.flow([
+          { t: "Unseen", c: "dim" },
+          { t: "Open (waiting)", c: "violet" },
+          { t: "Closed (done)", c: "teal" },
+        ]),
+        c: {
+          q: "A* expands the lowest-f node. Which set is it taken from, and where does it go?",
+          o: ["From open to closed", "From closed to open", "From unseen straight to closed"],
+          a: 0,
+          why: "Expanding takes a node off the open list and files it as closed.",
+        },
+      },
+      {
+        t: "Where A* is used",
+        b: `<p>A* is the standard answer wherever a good estimate of "how far is the goal" exists: <b>robot path planning</b>, <b>game AI</b> (units crossing a map), <b>map apps</b>, and planners for autonomous vehicles, which the lecture illustrates with the DARPA competition.</p><p>The same idea is behind faster variants for very large maps or changing worlds (see the weighted A* lesson).</p>`,
+        v: table(
+          ["Use", "State", "Heuristic often used"],
+          [
+            ["Game map", "a tile", "grid or straight-line distance"],
+            ["Robot in a room", "a cell", "straight-line distance"],
+            ["Road map app", "a junction", "straight-line distance to the destination"],
+          ],
+        ),
+        c: {
+          q: "Which setting suits A*?",
+          o: [
+            "Finding a route given a distance-to-goal estimate",
+            "Sorting a long list of numbers into ascending order",
+            "Counting how many words appear in a text file",
+          ],
+          a: 0,
+          why: "A* is a search for a cheapest route, guided by a distance estimate.",
+        },
+      },
+      {
         t: "How to read the grid below",
         b: `<p>Dark cells are walls. <b style="color:var(--amber-ink)">Orange</b> is the start and <b style="color:var(--rose-ink)">red</b> is the goal. Faint purple cells were <i>expanded</i> (looked at), and the <b style="color:var(--teal-ink)">green</b> line is the final path.</p><p>Compare the <b>Cells expanded</b> counter between the two algorithms. That number is the work done.</p>`,
+        v: F.cells([
+          { v: "S", sub: "start", c: "amber" },
+          { v: "G", sub: "goal", c: "rose" },
+          { v: "■", sub: "wall" },
+          { v: "·", sub: "expanded", c: "violet" },
+          { v: "·", sub: "path", c: "teal" },
+        ]),
       },
     ],
     guide: [
@@ -239,8 +287,8 @@
     id: "a2-astar",
     subject: "algo",
     lecture: 2,
-    order: 2,
-    num: "2.2",
+    order: 3,
+    num: "2.3",
     title: "A* vs Dijkstra on a grid",
     blurb:
       "Same grid, same goal — count how many cells each algorithm expands. Tune the heuristic and watch the guarantee bend.",

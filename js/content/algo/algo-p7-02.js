@@ -8,8 +8,8 @@
   /* ============ 7.3 LZW ============ */
   reg({
     id: "a7-lzw",
-    order: 3,
-    num: "7.3",
+    order: 9,
+    num: "7.9",
     title: "LZW's growing dictionary",
     blurb:
       "No frequency table, no tree: encoder and decoder grow the same dictionary from the data itself. Step BANANABANDANA, then try AAA.",

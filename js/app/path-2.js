@@ -176,7 +176,7 @@
   /** What a lesson holds, for the path tooltip and the node popover. Workshops and the boss are not counted in "Lesson x of y". */
   function lessonInfo(m) {
     const list = inSubj(subjOf(m)).filter((x) => x.lecture === m.lecture),
-      plain = list.filter((x) => !isBoss(x) && !x.workshop),
+      plain = list.filter((x) => !isBoss(x) && !x.workshop && !x.video),
       idx = plain.indexOf(m) + 1;
     if (isBoss(m)) {
       const B = NIC.bossDef(m.id) || { qs: [] },
@@ -191,6 +191,19 @@
         R: NIC.bossResult ? NIC.bossResult(m.id) : null, // null until the quiz's questions have loaded
       };
     }
+    if (m.video)
+      return {
+        kind: "video",
+        idx,
+        of: plain.length,
+        sum: m.blurb || "",
+        steps: m.video.chapters || [],
+        qs: 0,
+        demo: false,
+        runner: false,
+        mins: m.video.mins || 2,
+        video: true,
+      };
     const L = NIC.LESSONS[m.id] || { steps: [] },
       steps = L.steps || [];
     const qs = steps.filter((s) => s.c).length,
@@ -247,7 +260,7 @@
     const side = parseFloat(row.style.getPropertyValue("--k")) > 0.2 ? "left" : "right";
     tipEl = el(`<div class="pt-tip pt-${side}" role="tooltip">
       <small>${I.boss ? `Boss quiz · ${I.topics.length} lessons` : whereLine(m, I)}</small>
-      <b>${m.title}</b>${I.boss ? `<p>${m.blurb || ""}</p><div class="pt-h">Covers</div>` : `<p>${I.sum}</p><div class="pt-h">Inside</div>`}
+      <b>${m.title}</b>${I.boss ? `<p>${m.blurb || ""}</p><div class="pt-h">Covers</div>` : `<p>${I.sum}</p><div class="pt-h">${I.video ? "Chapters" : "Inside"}</div>`}
       ${infoList(I)}${infoChips(I)}</div>`);
     row.appendChild(tipEl);
     {
@@ -324,11 +337,15 @@
           : R && R.attempted
             ? "Continue quiz"
             : "Start quiz +20 XP"
-      : st === "done"
-        ? "Review +5 XP"
-        : st === "started"
-          ? "Continue"
-          : "Start +10 XP";
+      : m.video
+        ? st === "done"
+          ? "Watch again"
+          : "Watch +5 XP"
+        : st === "done"
+          ? "Review +5 XP"
+          : st === "started"
+            ? "Continue"
+            : "Start +10 XP";
     const score =
       R && R.attempted
         ? `<p class="np-score"><span class="np-n">${R.right}/${R.n}</span> right${R.passed ? ", passed" : failed ? `, not yet. You need ${R.need}.` : ` so far, ${R.answered} of ${R.n} answered`}</p>`
@@ -341,7 +358,7 @@
           : "";
     nodePopEl =
       el(`<div class="node-pop" id="np-${m.id}" role="group" aria-label="${esc(m.title)}"><b>${m.title}</b><small>${whereLine(m, I)}</small>${score}<p>${m.blurb || ""}</p>
-      <details class="np-more"><summary>${boss ? "What it covers" : "What's inside"}</summary>${infoList(I)}</details>${infoChips(I)}<button class="btn big np-go">${btn}</button>${second}</div>`);
+      <details class="np-more"><summary>${boss ? "What it covers" : m.video ? "Chapters" : "What's inside"}</summary>${infoList(I)}</details>${infoChips(I)}<button class="btn big np-go">${btn}</button>${second}</div>`);
     const trigger = qs(".p-node", row);
     if (trigger) {
       trigger.setAttribute("aria-expanded", "true");
@@ -415,9 +432,7 @@
     setTimeout(() => {
       if (nodePopEl) qs(".np-go", nodePopEl).focus({ preventScroll: true });
     }, 30);
-    const r = nodePopEl.getBoundingClientRect();
-    if (r.bottom > innerHeight - 90)
-      window.scrollBy({ top: r.bottom - innerHeight + 110, behavior: fx.reduce() ? "auto" : "smooth" });
+    nodePopEl.scrollIntoView({ block: "nearest", behavior: fx.reduce() ? "auto" : "smooth" });
   };
   Object.assign(app, { hideTip });
 })();

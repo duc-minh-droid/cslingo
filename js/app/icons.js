@@ -13,6 +13,7 @@
     check: `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     trophy: `<svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 13v4M8 21h8l-1-4H9z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
     play: `<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
+    film: `<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor"/></svg>`,
     flame: `<svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3-1-3 0-7 1-9.5z" fill="currentColor"/><path d="M12 12c.6 2 2.5 3 2.5 5a2.5 2.5 0 0 1-5 0c0-1.2.8-2 1.3-2.6.2 1 .7 1.4 1.2 1.4-.4-1.4-.3-2.6 0-3.8z" fill="#ffc800"/></svg>`,
     chest: `<svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="11" rx="2.5" fill="#cd7900"/><path d="M3 11a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v1H3z" fill="#ff9600"/><rect x="10" y="10" width="4" height="5" rx="1" fill="#ffc800"/></svg>`,
     home: `<svg viewBox="0 0 24 24"><path d="M3.5 11L12 3.5l8.5 7.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z" fill="currentColor"/></svg>`,

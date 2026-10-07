@@ -125,8 +125,8 @@
     id: "a10-attn",
     subject: "algo",
     lecture: 10,
-    order: 1,
-    num: "10.1",
+    order: 3,
+    num: "10.3",
     title: "Attention: who matters to whom?",
     blurb:
       'A tiny real computation — scores, softmax, weighted values — on a sentence where "it" needs to find "robot".',

@@ -1,303 +1,390 @@
 (function () {
   const B = NIC.bank;
 
-  B.add("a6-wire", [
-    {
-      type: "mcq",
-      q: "A Hamming(7,4) receiver reads its three checks, written p4 p2 p1, as 1 0 1. Assuming exactly one bit flipped, which position should it flip back?",
-      o: ["1", "3", "5", "6"],
-      a: 2,
-      hint: "Read 101 as a binary number: 4 + 0 + 1.",
-      why: "The syndrome p4 p2 p1 = 101 is binary for 5, so the flipped bit is at position 5. Checks p4 and p1 failed because position 5 is guarded by both, and p2 passed because 5 is not in its group.",
-    },
+  const tx = (x, y, s, o = {}) =>
+    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${o.sz || 14}px ${o.f || "var(--sans)"};fill:${o.c || "var(--text)"}">${s}</text>`;
+  const svg = (w, h, body) => `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-height:${h}px">${body}</svg>`;
+  const box = (id, x, y, w, h, inner) =>
+    `<g data-pick="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${inner}</g>`;
+
+  /* ============================== a1-anatomy ============================== */
+  const cellsFig = svg(
+    420,
+    96,
+    [4, 9, 2, 6, 7]
+      .map((v, i) => box("c" + i, 10 + i * 80, 30, 70, 50, tx(45 + i * 80, 63, v, { sz: 20, f: "var(--mono)" })))
+      .join("") +
+      `<path d="M12 22 H228 M12 22 V28 M228 22 V28" stroke="var(--blue)" stroke-width="3" fill="none"/>` +
+      tx(120, 14, "checked so far (k = 3)", { sz: 12, c: "var(--text-dim)" }),
+  );
+
+  B.add("a1-anatomy", [
     {
       type: "cat",
-      q: "Exactly one bit of a frame is flipped on the wire. Sort each scheme by what the receiver can do about it.",
-      buckets: ["Detects the error only", "Detects it and repairs it"],
+      q: "A manager gives a programmer four instructions for sorting a support queue. Sort each as a wish or a real algorithm step.",
+      buckets: ["A wish: too vague to run", "An algorithm step: nothing left to guess"],
       items: [
-        ["Even parity bit", 0],
-        ["Hamming(7,4)", 1],
-        ["CRC", 0],
-        ["Sending every bit three times and taking a majority vote", 1],
+        ["Put the more important tickets first", 0],
+        ["Swap two neighbours if the left ticket has a lower priority number than the right", 1],
+        ["Sort the queue in a sensible way", 0],
+        ["Set best to the first ticket in the queue", 1],
       ],
-      hint: "To repair a bit you must know WHICH bit it is, not just that something is wrong.",
-      why: "Parity and CRC say 'something broke' but give no position. Hamming's three checks form a number that names the bit. The triple-repeat scheme also repairs, as two copies out-vote the flipped one, but it costs three times the bits.",
+      hint: "Could a computer follow the line with no human judgement?",
+      why: "A step is an algorithm step when every question is answered in advance: which two tickets, what comparison, what happens next. 'More important' and 'sensible' leave the meaning to the reader, so they are wishes until someone defines them with numbers and rules.",
     },
     {
-      type: "slider",
-      q: "Hamming(7,4) sends 4 data bits inside a 7-bit block. The 3 extra bits are overhead. What percentage extra is sent compared with the data alone?",
-      min: 0,
-      max: 100,
-      step: 5,
-      start: 50,
-      ans: 75,
-      tol: 5,
-      unit: "%",
-      hint: "3 extra for every 4 data bits: that is three quarters.",
-      why: "3 / 4 = 0.75, which is 75% extra. That is a lot more than a single parity bit costs, but it buys the power to repair any single flipped bit instead of just noticing it.",
-    },
-    {
-      type: "multi",
-      q: "Even parity is used on an 8-bit frame. Select every noise pattern that the receiver is sure to notice.",
-      o: [
-        "Exactly one bit flipped",
-        "Exactly two bits flipped",
-        "Exactly three bits flipped",
-        "Exactly four bits flipped",
-        "All eight bits flipped",
-      ],
-      a: [0, 2],
-      hint: "Each flip changes the count of 1s from even to odd, or back again. What does an even number of flips do?",
-      why: "One flip makes the count of 1s odd, and so does three flips. Two flips put it back to even, as do four, and flipping all eight is an even number of flips, so those all look clean. Parity catches an odd number of flipped bits and misses an even number.",
-    },
-  ]);
-
-  B.add("a7-build", [
-    {
-      type: "mcq",
-      q: "A queue holds nodes with counts 2, 3, 5, 7 and 11. Huffman merges the two smallest nodes each time, and every merge costs the sum of the two counts. What is the total cost of all the merges?",
-      o: ["40", "52", "60", "75"],
-      a: 2,
-      hint: "Merges: 2 + 3 = 5, then 5 + 5 = 10, then 7 + 10 = 17, then 11 + 17 = 28. Add the four results.",
-      why: "The merges cost 5, 10, 17 and 28, and 5 + 10 + 17 + 28 = 60. That equals the bits of the whole message: 11 × 1 + 7 × 2 + 5 × 3 + 2 × 4 + 3 × 4 = 60. Each merge adds one bit to every symbol below it.",
-    },
-    {
-      type: "cat",
-      q: "Each list is a set of binary codes for different symbols. Sort each set by whether a receiver reading a bit stream can decode it without ambiguity.",
-      buckets: ["Prefix-free (decodable)", "Ambiguous"],
-      items: [
-        ["0, 10, 11", 0],
-        ["0, 01, 11", 1],
-        ["00, 01, 10, 11", 0],
-        ["1, 10, 100", 1],
-        ["0, 10, 110, 111", 0],
-      ],
-      hint: "Is any code the beginning of another code in the same set?",
-      why: "A set works when no code is the start of another, as every symbol then ends at a leaf of the tree. 0 begins 01, and 1 begins 10 and 100, so those sets are ambiguous: after reading 0 you cannot tell if the symbol has ended. The other three sets have no code that is the start of another.",
-    },
-    {
-      type: "order",
-      q: "Put the steps of building a Huffman tree in order.",
-      items: [
-        "List every symbol with its count",
-        "Take the two smallest nodes",
-        "Join them under a new node whose count is their sum, and put it back",
-        "Repeat until one node is left, then read the 0s and 1s down each branch",
-      ],
-      hint: "Merging is repeated; reading the codes is only possible once the tree is done.",
-      why: "The counts are the starting nodes. Each round takes the two smallest and returns their parent to the queue, so the queue shrinks by one node. When one node (the root) remains, every symbol sits on a leaf and its code is the path from the root.",
-    },
-    {
-      type: "slider",
-      q: "A report uses 8 symbols that all appear equally often, and 40 reports are sent. Huffman gives them a tree of equal depth. How many bits does the whole stream take?",
-      min: 0,
-      max: 200,
-      step: 10,
-      start: 80,
-      ans: 120,
-      tol: 10,
-      unit: "bits",
-      hint: "8 equal symbols need codes of the same length: 2 × 2 × 2 = 8, so how many bits?",
-      why: "With equal counts nothing can be shortened, so Huffman builds a balanced tree where every code has 3 bits (2³ = 8). Forty reports cost 40 × 3 = 120 bits. Huffman only saves bits when some symbols are more common than others.",
-    },
-  ]);
-
-  B.add("a8-chain", [
-    {
-      type: "mcq",
-      q: "A chain's puzzle is a hash that starts with two hex zeros (00). The rules are changed to need three hex zeros (000). Each hex digit is one of 16 values, so each extra leading zero cuts the chance of success. How much more work does one block now need, on average?",
-      o: ["About 2 times", "About 3 times", "About 16 times", "About 256 times"],
-      a: 2,
-      hint: "One extra hex digit has to be 0, and there are 16 possible digits.",
-      why: "The chance of a hash starting 00 is 1 in 16 × 16 = 256. For 000 it is 1 in 16 × 16 × 16 = 4,096. That is 16 times harder, so it needs about 16 times as many guesses. Each extra zero multiplies the work by 16, not by a fixed amount.",
-    },
-    {
-      type: "cat",
-      q: "A chain of five correctly mined blocks is checked by Verify. Sort each action by what Verify then reports.",
-      buckets: ["Every check still passes", "Some check fails"],
-      items: [
-        ["Change the data in block 2 and leave the nonce alone", 1],
-        ["Add a correctly mined block 6 on the end", 0],
-        ["Press Verify twice with no edits", 0],
-        ["Change the data in block 2 and re-mine only block 2", 1],
-      ],
-      hint: "Changing a block changes its hash. Which block stores that hash?",
-      why: "Changing block 2's data breaks its own seal. Re-mining only block 2 fixes the seal, but its hash is new, so block 3's prev link no longer matches. Adding a properly mined block on the end and just re-running Verify change nothing in the blocks already there.",
-    },
-    {
-      type: "order",
-      q: "Block 1 of a chain has been edited. Put the repair in order.",
-      items: [
-        "Edit the data in block 1",
-        "Re-mine block 1 until its hash starts with 00",
-        "Copy block 1's new hash into block 2's prev, then re-mine block 2",
-        "Do the same for block 3, and for every block after it",
-      ],
-      hint: "Each block depends on the hash of the block before it.",
-      why: "The edit makes block 1's seal fail, so it is mined again and gets a new hash. Block 2's prev must be updated to that hash, so block 2 must be mined again, and the same knock-on effect continues down the chain. This is why changing old history is so costly.",
-    },
-    {
-      type: "multi",
-      q: "Select every reason why rewriting an old block in a mined chain is hard.",
-      o: [
-        "Each block's hash covers the hash of the block before it",
-        "Re-mining an early block forces re-mining every later block",
-        "Mining is guess and check, with no shortcut to a valid nonce",
-        "Hashes can be reversed to find the nonce that gives 00",
-        "A longer chain makes early blocks easier to change",
-      ],
-      a: [0, 1, 2],
-      hint: "Which two facts link the blocks, and what does the mining step force you to do?",
-      why: "The prev hash links every block to the one before it, so one edit breaks all later seals. Each repair needs fresh mining, and mining can only be done by trying nonces. A hash cannot be reversed, and more blocks on top make an old block harder to alter, not easier.",
-    },
-  ]);
-
-  B.add("a9-mix", [
-    {
-      type: "mcq",
-      q: "A recording takes 20 samples per second, so it can only show frequencies below 10 Hz correctly. A pure 14 Hz tone is sampled. At which frequency does its bar appear in the spectrum?",
-      o: ["4 Hz", "6 Hz", "14 Hz", "34 Hz"],
+      type: "bug",
+      q: "This should return the product of all the numbers in a list. The invariant is: after k items, <code>total</code> = the product of those k items. It returns 0 for every list. Click the faulty line.",
+      code: ["def product(xs):", "    total = 0", "    for x in xs:", "        total = total * x", "    return total"],
       a: 1,
-      hint: "A tone above half the sampling rate folds back: look at its distance from 20.",
-      why: "The tone is too fast for 20 samples per second, so its samples look like a slower wave. 14 Hz folds to 20 − 14 = 6 Hz, which is below the 10 Hz limit. This is aliasing: the spectrum shows a tone that was never in the signal.",
-    },
-    {
-      type: "cat",
-      q: "A signal is sampled 40 times per second, so the limit is 20 Hz. Sort each pure tone by how it appears in the spectrum.",
-      buckets: ["Shown at its true frequency", "Aliased to a wrong frequency"],
-      items: [
-        ["5 Hz", 0],
-        ["19 Hz", 0],
-        ["25 Hz", 1],
-        ["35 Hz", 1],
-        ["15 Hz", 0],
-      ],
-      hint: "Which tones are below 20 Hz, half of the 40 samples per second?",
-      why: "Tones below 20 Hz are seen correctly: 5, 15 and 19. 25 Hz folds to 40 − 25 = 15 Hz and 35 Hz folds to 5 Hz, so they hide as tones that are not there. To see a tone you must sample at more than twice its frequency.",
+      hint: "What should the product of zero items be, so that the first multiplication works?",
+      why: "The invariant must be true before the loop starts, when 0 items have been checked. The product of nothing is 1, not 0. Starting at 0 makes every later multiplication give 0, so the invariant is false from the very first pass. The loop line itself is right.",
     },
     {
       type: "slider",
-      q: "A 12 Hz wave is sampled 48 times per second. How many samples fall in each cycle of the wave?",
+      q: "The loop sets <code>best</code> to the first item, then for each later item x does: if x > best, set best to x. It runs on [3, 8, 8, 5, 11, 11, 2]. How many times is <code>best</code> reassigned inside the loop?",
       min: 0,
-      max: 20,
+      max: 6,
       step: 1,
-      start: 8,
-      ans: 4,
-      tol: 0,
-      hint: "48 samples in one second, and the wave repeats 12 times in that second.",
-      why: "48 / 12 = 4 samples per cycle. That is comfortably more than the 2 per cycle that are the least needed to catch the tone. Fewer than 2 samples per cycle makes the wave alias.",
-    },
-    {
-      type: "order",
-      q: "Put the idea of the FFT in order, from first move to last.",
-      items: [
-        "Split the samples into even-indexed and odd-indexed ones",
-        "Keep splitting each half until each piece is one sample",
-        "A single sample is its own tiny spectrum",
-        "Combine pairs of pieces back up, one product for each pair of bins",
-      ],
-      hint: "It splits all the way down and then builds back up.",
-      why: "The FFT divides first, repeatedly, until the pieces are trivial: a single sample's spectrum is itself. It then combines neighbouring spectra into bigger ones, sharing one product between each pair of output bins. Halving at every level is what turns about n × n work into about n log n.",
-    },
-  ]);
-
-  B.add("a10-code", [
-    {
-      type: "mcq",
-      q: "A query and a key have 16 numbers each (d_k = 16). Their dot product q · k is 12. What score goes into the softmax after the scaling by √d_k?",
-      o: ["0.75", "3", "6", "192"],
-      a: 1,
-      hint: "√16 = 4. Divide 12 by 4.",
-      why: "The scaled score is 12 / √16 = 12 / 4 = 3. Dividing by √d_k stops large vectors from producing huge scores, which would make the softmax almost all-or-nothing. Multiplying by 16 or dividing by 16 would give 192 or 0.75, which is the wrong scaling.",
-    },
-    {
-      type: "cat",
-      q: "A token has scores 2, 1 and 0 for its three keys. Sort each change by what it does to the softmax weights.",
-      buckets: ["Weights get sharper", "Weights get flatter"],
-      items: [
-        ["Multiply every score by 2", 0],
-        ["Divide every score by 2", 1],
-        ["Make all three scores equal", 1],
-        ["Raise one score far above the others", 0],
-      ],
-      hint: "Softmax weights depend on the GAPS between scores.",
-      why: "Bigger gaps make the biggest score dominate, so doubling the scores or lifting one far above the rest sharpens the weights. Halving the scores shrinks the gaps, and equal scores give equal weights (1/3 each). Adding the same amount to every score changes nothing at all.",
-    },
-    {
-      type: "order",
-      q: "Put the steps of attention for one token in order.",
-      items: [
-        "Score each key: q · k divided by √d_k",
-        "Subtract the biggest score from every score",
-        "Take exp of each score and divide by their sum to get the weights",
-        "Add up the value vectors, each multiplied by its weight",
-      ],
-      hint: "The weights must exist before values can be blended by them.",
-      why: "The scores come first. Subtracting the biggest avoids overflow and does not change the weights. Softmax turns the scores into weights that add up to 1, and the last move is the blend of the value vectors using those weights.",
-    },
-    {
-      type: "slider",
-      q: "A token gives weights 0.75 to token 1 and 0.25 to token 2. Their value vectors are v1 = (8, 0) and v2 = (0, 8). What is the FIRST number of the blended output vector?",
-      min: 0,
-      max: 8,
-      step: 1,
-      start: 4,
-      ans: 6,
-      tol: 0,
-      hint: "First number: 0.75 × 8 + 0.25 × 0.",
-      why: "The output is 0.75 × (8, 0) + 0.25 × (0, 8) = (6, 2). Its first number is 6, since v1 carries most of the weight and only v1 has a first number above 0. The blend always lies between the value vectors.",
-    },
-  ]);
-
-  B.add("a11-picker", [
-    {
-      type: "mcq",
-      q: "A deep-space probe sends data it cannot resend. At most one bit in each block is flipped by noise, and the ground station must repair it without asking again. Which tool fits?",
-      o: ["Hamming code", "A single even parity bit", "A CRC check", "Huffman coding"],
-      a: 0,
-      hint: "Which of these can say WHICH bit is wrong?",
-      why: "Only Hamming's check bits form a syndrome that names the flipped position, so the receiver can repair it. A parity bit and a CRC only notice that something broke, which would need a resend. Huffman coding compresses data and does nothing against noise.",
+      start: 0,
+      ans: 2,
+      tol: 0.5,
+      unit: " times",
+      hint: "The test is strictly greater, so an equal value does not count. Track best: 3, then 8, then 8 again, and so on.",
+      why: "best starts at 3. The 8 beats it (change 1). The second 8 is equal, not greater, so no change. 5 is smaller. 11 beats 8 (change 2). The second 11 is equal, so no change. 2 is smaller. That is 2 reassignments, and the invariant still holds at every step.",
     },
     {
       type: "match",
-      q: "Match each brief to the tool that fits it.",
+      q: "A find-the-biggest loop has these parts. Match each part to the job it does in the correctness argument.",
       pairs: [
-        ["Join twelve offices with the least cable overall", "Kruskal's minimum spanning tree"],
-        ["Quickest route for a van on roads that are never negative", "Dijkstra"],
-        ["Rank web pages by who links to them", "PageRank"],
-        ["Find which pitches are in a recording", "FFT"],
-        ["Shrink a text file with short codes for common letters", "Huffman coding"],
+        ["best ← first item", "Initialisation: makes the invariant true before the loop"],
+        ["if x > best: best ← x", "Maintenance: keeps the invariant true after each item"],
+        ["return best", "Termination: the invariant now answers the question"],
+        ["if the list is empty, report an error", "Edge case: settled before the invariant can start"],
       ],
-      hint: "Find the decisive phrase in each brief: total, route, links, pitches, common.",
-      why: "A cheapest network that touches every site is a spanning tree. A route from one start with non-negative roads is Dijkstra. Rank from links is PageRank, pitches in a recording mean frequencies and so the FFT, and short codes for common letters is Huffman.",
+      why: "A loop proof has three checks and one safety net. The start makes the promise true, each pass keeps it true, and at the end the promise is the answer. The empty-list rule exists because 'first item' does not exist there, so the promise could not even begin.",
+    },
+    {
+      type: "pick",
+      q: "A loop finds the biggest number. The invariant is: <code>best</code> = the biggest of the items checked so far. The first 3 items (in the blue bracket) have been checked. Tap the cell that <code>best</code> was copied from.",
+      fig: cellsFig,
+      a: "c1",
+      hint: "Look only inside the bracket. Which of those three is biggest?",
+      why: "The checked items are 4, 9 and 2, so best is 9, copied from the second cell. The 6 and the 7 are outside the bracket: the invariant says nothing about them yet, and neither one has been looked at.",
+    },
+    {
+      type: "mcq",
+      q: "The documentation for <code>average(xs)</code> says: 'xs must hold at least one number.' What kind of statement is this?",
+      o: [
+        "A precondition on the input",
+        "A loop invariant for the sum",
+        "A promise about the output",
+        "A proof that the loop stops",
+      ],
+      a: 0,
+      hint: "Who has to make this sentence true: the caller before the call, or the code during the loop?",
+      why: "A precondition is what the caller must supply for the algorithm to be allowed to work. Dividing by the length of an empty list would fail, so the contract rules that input out. An invariant describes the state during the loop, and a postcondition is about the result.",
+    },
+  ]);
+
+  /* ============================== a1-bigo ============================== */
+  const rowsFig = svg(
+    420,
+    190,
+    [
+      ["A", "100 → 400 steps"],
+      ["B", "7 → 8 steps"],
+      ["C", "300 → 600 steps"],
+      ["D", "50 → 50 steps"],
+    ]
+      .map((r, i) =>
+        box(
+          r[0],
+          10,
+          8 + i * 44,
+          400,
+          36,
+          tx(32, 32 + i * 44, r[0], { sz: 18 }) + tx(130, 32 + i * 44, r[1], { sz: 16, f: "var(--mono)", a: "start" }),
+        ),
+      )
+      .join(""),
+  );
+
+  B.add("a1-bigo", [
+    {
+      type: "slider",
+      q: "This code runs with n = 40. About how many times does <code>work()</code> run?<br><code>for i in range(n):</code><br><code>&nbsp;&nbsp;for j in range(5):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;work()</code>",
+      min: 0,
+      max: 400,
+      step: 10,
+      start: 100,
+      ans: 200,
+      tol: 20,
+      unit: " calls",
+      hint: "The inner loop always runs 5 times, whatever n is. So it is 5 per pass of the outer loop.",
+      why: "The outer loop runs 40 times and each pass makes 5 calls: 5 × 40 = 200. The inner loop's size never grows with n, so this is still O(n): the 5 is a constant factor that Big-O throws away.",
     },
     {
       type: "cat",
-      q: "Dijkstra and Kruskal both grow a result greedily. Sort each description by the tool it belongs to.",
-      buckets: ["Dijkstra", "Kruskal"],
+      q: "Sort each piece of code by how its work grows with n, the length of the list <code>xs</code>.",
+      buckets: ["O(1)", "O(log n)", "O(n)", "O(n²)"],
       items: [
-        ["Measures distances from a chosen start node", 0],
-        ["Sorts the cables from cheapest to dearest", 1],
-        ["Keeps a waiting room of tentative distances", 0],
-        ["Ends with exactly n − 1 cables for n towns", 1],
-        ["Skips a cable whose two ends are already connected", 1],
+        ["Return the middle item, xs[len(xs) // 2]", 0],
+        ["i = n; while i > 1: i = i // 3", 1],
+        ["Run two separate loops over xs, one after the other", 2],
+        ["For every x in xs, compare it with every y in xs", 3],
+        ["Add up the first 10 items of xs", 0],
       ],
-      hint: "One answers 'how far from here?', the other 'what is the cheapest network?'.",
-      why: "Dijkstra works outwards from a start node, with tentative distances waiting to be settled. Kruskal sorts the cables, skips any that would close a loop and finishes with a tree of n − 1 cables. They look alike, but one minimises a journey and the other the total wiring.",
+      hint: "Ask what grows with n. Dividing by 3 each time is still repeated shrinking.",
+      why: "Reading the middle item and adding a fixed 10 items cost the same however long the list is. Dividing by 3 each pass is repeated shrinking, so it is logarithmic (a different base only changes a constant). Two loops in a row add up to 2n, which is O(n). A loop inside a loop over the same list is n × n.",
+    },
+    {
+      type: "bug",
+      q: "<code>steps(n)</code> is meant to count how many times you can double <code>i</code> before it reaches n, which takes about log₂ n steps. For n = 1,000,000 it takes a million steps. Click the faulty line.",
+      code: [
+        "def steps(n):",
+        "    count = 0",
+        "    i = 1",
+        "    while i < n:",
+        "        i = i + 1",
+        "        count += 1",
+        "    return count",
+      ],
+      a: 4,
+      hint: "Adding 1 each time moves very slowly. What would make the gap close faster and faster?",
+      why: "Adding 1 climbs from 1 to n one step at a time, which is n steps. Doubling (i = i * 2) covers the distance in about log₂ n steps, since 2 to the power 20 is about a million. The shape of the update, not the loop test, decides the big-O.",
     },
     {
       type: "multi",
-      q: "Select every brief that points to a linear programme (a linear goal with linear limits).",
+      q: "Which of these step counts have n² as their dominant term, so they are O(n²)? Select all.",
+      o: ["3n² + 7", "n(n − 1) / 2", "n² + 50n", "40n + 1000", "n³ / 10", "0.01n²"],
+      a: [0, 1, 2, 5],
+      hint: "Find the biggest power of n in each one. Constants and smaller terms do not change the class.",
+      why: "3n² + 7, n(n − 1)/2 (which is n²/2 − n/2), n² + 50n and 0.01n² all have n² as the biggest term; the multipliers 3, ½ and 0.01 are constants that Big-O ignores. 40n + 1000 grows only linearly and n³/10 grows faster, so neither is O(n²) as a tight description.",
+    },
+    {
+      type: "pick",
+      q: "Four programs were timed by counting steps at n = 100 and then n = 200. Each row shows the two counts. Tap the program that is <b>quadratic</b>.",
+      fig: rowsFig,
+      a: "A",
+      hint: "Doubling n should make a quadratic program do 2 × 2 = 4 times the work.",
+      why: "Going from 100 to 200 doubles n. Row A goes from 100 to 400, which is four times as much, the signature of n². Row C doubles (linear), row B adds one step (logarithmic) and row D does not change (constant).",
+    },
+    {
+      type: "mcq",
+      q: "Why do we count <code>work()</code> calls as a function of n, instead of timing the program in seconds?",
       o: [
-        "Maximise profit when two products compete for machine hours",
-        "Find the quickest route between two stations",
-        "Minimise cost while meeting minimum amounts of protein and fibre",
-        "Join every town with the least cable",
-        "Find the pitches in a noisy recording",
+        "Counts ignore the machine and language",
+        "Seconds can never be measured on a real computer",
+        "Counts are always smaller than the seconds",
+        "Counts include the time the operating system uses",
       ],
-      a: [0, 2],
-      hint: "Look for one goal to maximise or minimise and several fixed limits.",
-      why: "Profit under machine limits and cost under minimum nutrient levels both have a linear goal and linear rules, so simplex applies. Quickest route is Dijkstra, joining towns is a spanning tree, and pitches in a recording is the FFT.",
+      a: 0,
+      hint: "Run the same algorithm on a phone and on a supercomputer. What stays the same?",
+      why: "Seconds change with the hardware, the language and even what else is running. The number of steps depends only on the algorithm and the input size, so it lets us compare two algorithms fairly. The other options are not true: seconds can be timed, and counts do not include operating-system time.",
+    },
+  ]);
+
+  /* ============================== a1-surfer ============================== */
+  const dilute = svg(
+    420,
+    140,
+    [
+      ["F", "rank 0.6", "3 links out"],
+      ["G", "rank 0.4", "1 link out"],
+      ["H", "rank 0.3", "2 links out"],
+    ]
+      .map((r, i) => {
+        const x = 10 + i * 135;
+        return box(
+          r[0],
+          x,
+          10,
+          125,
+          100,
+          tx(x + 62, 40, r[0], { sz: 22 }) +
+            tx(x + 62, 66, r[1], { sz: 15, f: "var(--mono)" }) +
+            tx(x + 62, 90, r[2], { sz: 15, f: "var(--mono)" }),
+        );
+      })
+      .join("") +
+      tx(210, 132, "Each page has exactly one of its links pointing at Z", { sz: 12, c: "var(--text-dim)" }),
+  );
+
+  B.add("a1-surfer", [
+    {
+      type: "order",
+      q: "Put the parts of one move of the random surfer in order.",
+      items: [
+        "Pick a random number between 0 and 1",
+        "Compare it with the damping value d",
+        "Follow a random link, or teleport to a random page",
+        "Add one to the visit count of the page you landed on",
+      ],
+      hint: "The surfer must decide first, then move, then record.",
+      why: "The random number is the coin toss. Comparing it with d tells the surfer whether to click or teleport. Only then can it move, and the visit is counted after landing. Over many moves, the visit shares settle towards each page's PageRank.",
+    },
+    {
+      type: "slider",
+      q: "A tiny web has three pages. P links only to Q. Q links to P and R. R has no links out. Each page holds 30 tokens. Each page pours its tokens out equally; a page with no links shares its tokens equally between all 3 pages. After one step, how many tokens does Q hold?",
+      min: 0,
+      max: 90,
+      step: 5,
+      start: 30,
+      ans: 40,
+      tol: 5,
+      unit: " tokens",
+      hint: "Q gets all 30 of P's tokens, nothing from itself, and a third of R's 30.",
+      why: "P sends all 30 to Q. Q sends its own 30 to P and R, so it gives none to itself. R shares its 30 three ways, 10 each, so Q gets 10 more. Q holds 30 + 10 = 40. Check the total: P gets 15 + 10 = 25, R gets 15 + 10 = 25, and 25 + 40 + 25 = 90, so nothing leaked.",
+    },
+    {
+      type: "cat",
+      q: "Each situation describes a part of a web. Sort it by what goes wrong for rank if the surfer never teleports.",
+      buckets: ["Rank leaks away", "Rank gets trapped", "Neither"],
+      items: [
+        ["A page with no links out", 0],
+        ["Two pages that link only to each other, with other pages linking into them", 1],
+        ["A page that links to 12 others, some of which link back", 2],
+        ["A page whose only link points back to itself", 1],
+        ["A page that nobody links to but which links to two others", 2],
+      ],
+      hint: "A leak means rank has nowhere to go. A trap means it can go, but only round and round.",
+      why: "A page with no links out cannot pass its rank on, so it leaks. A closed loop (or a self-link) lets rank in and never out, which traps it. Pages with a mix of in and out links are fine. A page with no incoming links just has a low rank, which is not a fault.",
+    },
+    {
+      type: "pick",
+      q: "F, G and H each have exactly one link that points at page Z. The cards show each page's rank and how many links it has out (rank is shared equally between them). Tap the page that passes the <b>most</b> rank to Z.",
+      fig: dilute,
+      a: "G",
+      hint: "Each link carries rank ÷ links out. F: 0.6 ÷ 3. G: 0.4 ÷ 1. H: 0.3 ÷ 2.",
+      why: "F passes 0.6 ÷ 3 = 0.2, G passes 0.4 ÷ 1 = 0.4 and H passes 0.3 ÷ 2 = 0.15. F has the biggest rank but splits it three ways. A link is worth the page's rank divided by its out-links, so a quiet page with one link can beat a busy page with many.",
+    },
+    {
+      type: "bug",
+      q: "This step pours rank out. A page with no links should share its rank equally between all pages, but the total rank grows every step. Click the faulty line.",
+      code: [
+        "def pour(rank, links, pages):",
+        "    new = {p: 0 for p in pages}",
+        "    for p in pages:",
+        "        if not links[p]:",
+        "            for q in pages: new[q] += rank[p]",
+        "        else:",
+        "            for q in links[p]: new[q] += rank[p] / len(links[p])",
+        "    return new",
+      ],
+      a: 4,
+      hint: "Add up what the dead-end page hands out in total. Is it more or less than its rank?",
+      why: "With 4 pages, this line gives each page the full rank of the dead-end page, so 4 × its rank leaves it: three extra copies appear from nowhere. Each page should receive rank[p] / len(pages). The linked case already divides by the number of links, which is why that line is fine.",
+    },
+    {
+      type: "multi",
+      q: "Page T has a PageRank. Which changes would push T's rank <b>up</b>? Select all.",
+      o: [
+        "A highly ranked page adds a link to T",
+        "A page that already links to T removes its other links, so only T is left",
+        "Ten obscure pages with no incoming links of their own each link to T",
+        "A page that links to T adds 50 new links to other pages",
+        "The only page that linked to T deletes its link to T",
+      ],
+      a: [0, 1, 2],
+      hint: "Rank comes in along incoming links. What happens to each link's share when its source adds or removes links?",
+      why: "A link from an important page carries a lot. A page that drops its other links no longer splits its rank, so T gets all of it. Ten small links still add up. But when a linking page adds 50 more links, its share for T shrinks to a fiftieth, and if the only page linking to T removes that link, T loses its main source of rank.",
+    },
+  ]);
+
+  /* ============================== a1-pagerank ============================== */
+  const errFig = svg(
+    420,
+    170,
+    [0.3, 0.12, 0.05, 0.02, 0.008, 0.003, 0.001]
+      .map((e, i) => {
+        const x = 12 + i * 57,
+          h = Math.max(6, Math.round(e * 360));
+        return box(
+          "it" + (i + 1),
+          x,
+          12,
+          50,
+          148,
+          `<rect x="${x + 10}" y="${130 - h + 20}" width="30" height="${h}" rx="4" fill="var(--blue)"/>` +
+            tx(x + 25, 30, e, { sz: 12, f: "var(--mono)" }) +
+            tx(x + 25, 154, "it " + (i + 1), { sz: 11, c: "var(--text-dim)" }),
+        );
+      })
+      .join(""),
+  );
+
+  B.add("a1-pagerank", [
+    {
+      type: "slider",
+      q: "A web has N = 4 pages and damping d = 0.8. Page J links to exactly 2 pages, one of which is K. In the Google matrix G = d·A + (1 − d)·B, what percentage of J's rank goes to K in one step? Remember the teleport share added to every entry.",
+      min: 0,
+      max: 100,
+      step: 5,
+      start: 20,
+      ans: 45,
+      tol: 5,
+      unit: "%",
+      hint: "Link part: 0.8 × ½ = 0.4. Teleport part: 0.2 ÷ 4 = 0.05. Add them.",
+      why: "G = d × A + (1 − d) × B. J's link to K gives 0.8 × ½ = 0.4, and teleporting adds (1 − 0.8) ÷ 4 = 0.05 to every entry. So K gets 0.4 + 0.05 = 0.45, which is 45%. A page J does not link to still gets 0.05, 5%.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of the whole PageRank method in order.",
+      items: [
+        "Count each page's out-links and fill the link matrix H",
+        "Replace each no-link column with 1/N in every entry",
+        "Mix in the teleport share to make the Google matrix G",
+        "Start with p = 1/N for every page and multiply by G again and again",
+        "Stop when p stops changing",
+      ],
+      hint: "Build the matrix completely before you start multiplying.",
+      why: "The matrix has to be finished before you iterate: links first (H), then the dead-end repair, then the teleport mix (G). Power iteration then starts from an equal guess and multiplies by G until the vector settles. Changing the matrix mid-way would mean it never settles on one answer.",
+    },
+    {
+      type: "cat",
+      q: "During PageRank, which of these are fixed before iterating and which change on every iteration?",
+      buckets: ["Fixed before iterating", "Changes on every iteration"],
+      items: [
+        ["The link matrix H", 0],
+        ["The Google matrix G", 0],
+        ["The rank vector p", 1],
+        ["The damping value d", 0],
+        ["The gap between the new p and the old p", 1],
+      ],
+      hint: "Only the quantity being improved changes. The rules used to improve it are set up first.",
+      why: "H, G and d describe the web and the rules, so they stay put. Each iteration produces a new p, and the gap between consecutive vectors changes as p settles. That shrinking gap is what the stopping rule watches.",
+    },
+    {
+      type: "bug",
+      q: "This builds the link matrix H, where column j holds page j's out-links. The result has columns that add up to more than 1. Click the faulty line.",
+      code: [
+        "def build_h(links, n):",
+        "    H = [[0] * n for _ in range(n)]",
+        "    for j in range(n):",
+        "        for i in links[j]:",
+        "            H[i][j] = 1",
+        "    return H",
+      ],
+      a: 4,
+      hint: "A page with 4 links should hand each link a quarter of its rank, not all of it.",
+      why: "Setting each entry to 1 means a page with 4 links hands out 4 times its rank. Each entry should be 1 / len(links[j]) so every column adds up to 1. The loops are right: j picks the source column and i the target row.",
+    },
+    {
+      type: "pick",
+      q: "The bars show how far the rank vector moved at each iteration. You stop at the <b>first</b> iteration where the change is below 0.01. Tap that iteration.",
+      fig: errFig,
+      a: "it5",
+      hint: "Read the numbers above the bars from left to right. 0.02 is still above 0.01.",
+      why: "The changes are 0.3, 0.12, 0.05, 0.02, 0.008, 0.003 and 0.001. Iteration 4 (0.02) is still above the line, so iteration 5 (0.008) is the first below 0.01. Iterations 6 and 7 are smaller still, but you have already stopped. Stopping on a small change is enough because each step shrinks the remaining error by a roughly fixed factor.",
+    },
+    {
+      type: "mcq",
+      q: "Suppose every iteration halves the remaining error. After 10 iterations, how much of the starting error is left?",
+      o: ["About 0.1% is left", "About 3% is left", "About 10% is left", "About 50% is left"],
+      a: 0,
+      hint: "Halving 10 times: 2 × 2 × 2 × 2 × 2 = 32, and 32 × 32 is about 1,000.",
+      why: "Halving ten times divides the error by 2 to the power 10 = 1,024, about a thousand. So roughly a thousandth (0.1%) is left, and the nearest other option, 3%, would need only about 5 halvings. This geometric shrinking is why PageRank on billions of pages needs only a few dozen iterations, not millions.",
     },
   ]);
 })();

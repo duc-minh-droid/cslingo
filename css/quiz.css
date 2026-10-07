@@ -154,7 +154,7 @@
   background: var(--bg-2);
   transition:
     border-color var(--dur-2) ease,
-    background-color var(--dur-2) ease;
+    background-color var(--dur-2) var(--ease-out);
 }
 .qo-slot.filled {
   border-style: solid;
@@ -254,7 +254,7 @@
   transition:
     transform var(--dur-1) ease-out,
     box-shadow var(--dur-1) ease-out,
-    background-color var(--dur-2) ease,
+    background-color var(--dur-2) var(--ease-out),
     border-color var(--dur-2) ease;
 }
 .qm-t:active:not(:disabled) {
@@ -301,6 +301,21 @@
   flex: 1 1 260px;
   font-weight: 700;
 }
+@media (max-width: 640px) {
+  .qc-row {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .qc-seg {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    border: 0;
+    padding: 0;
+    background: none;
+    gap: 6px;
+  }
+}
 .qc-seg button.right {
   background: var(--teal);
   color: var(--teal-on);
@@ -336,7 +351,7 @@
   background: transparent;
   padding: 6px 12px;
   cursor: pointer;
-  transition: background-color var(--dur-1) ease;
+  transition: background-color var(--dur-1) var(--ease-out);
 }
 .qc-line:last-child {
   border-bottom: 0;

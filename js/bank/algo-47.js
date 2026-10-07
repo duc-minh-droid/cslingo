@@ -1,387 +1,285 @@
 (function () {
   const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});
-  const { arrow, circ, dot, ln, pk, plane, rect, svg, txt } = partScope;
+  const { circ, dot, hullScatter, ln, pk, plane, rect, shareBars, snaps, stackPlot, stackScene, svg, txt, wl } =
+    partScope;
   const B = NIC.bank;
 
-  /* =====================================================================
-     a5-wrap
-     ===================================================================== */
-  const wrapPanels = (() => {
-    const P = {
-      A: [
-        [0, 2],
-        [4, 0],
-        [9, 1],
-        [10, 6],
-        [6, 10],
-        [1, 9],
-        [3, 4],
-        [5, 3],
-        [6, 5],
-        [4, 6],
-        [7, 3],
-        [5, 5],
-      ],
-      B: [
-        [5, 0],
-        [8, 1],
-        [10, 4],
-        [9, 7],
-        [6, 9],
-        [3, 9],
-        [1, 7],
-        [0, 4],
-        [2, 1],
-        [7, 10],
-        [4, 0],
-        [10, 6],
-      ],
-      C: [
-        [0, 0],
-        [10, 0],
-        [10, 10],
-        [0, 10],
-        [3, 3],
-        [5, 2],
-        [7, 4],
-        [4, 5],
-        [6, 6],
-        [2, 7],
-        [8, 8],
-        [5, 8],
-      ],
-    };
-    let g = "";
-    ["A", "B", "C"].forEach((k, p) => {
-      const x0 = 8 + p * 150,
-        X = (x) => x0 + 14 + x * 11.2,
-        Y = (y) => 168 - y * 12.4;
-      g +=
-        rect(x0, 6, 140, 184, "var(--panel)", "var(--line-2)", 3, 12) +
-        txt(x0 + 70, 22, `Panel ${k}`, { s: 13, c: "var(--ink)" });
-      P[k].forEach(([x, y]) => (g += circ(X(x), Y(y), 5.5, "var(--blue)", "var(--panel)", 1.5)));
-      g += txt(x0 + 70, 184, "12 points", { s: 11, w: 700, c: "var(--text-dim)" });
-    });
-    return svg(460, 196, g);
-  })();
-
-  // ten points, five arrows drawn by a learner (arrow 3 skips the corner (10, 6))
-  const wrapArrows = (() => {
-    const p = plane(10, 9, 40, 20, 400, 290, false);
-    const H = { 1: [1, 2], 2: [5, 0], 3: [9, 2], 4: [10, 6], 5: [6, 9], 6: [2, 8] };
-    const I = [
-      [5, 4],
-      [4, 6],
-      [7, 5],
-      [3, 3],
-    ];
-    let g = "";
-    I.forEach(([x, y]) => (g += circ(p.X(x), p.Y(y), 7, "var(--panel)", "var(--line-2)", 3)));
-    Object.values(H).forEach(([x, y]) => (g += circ(p.X(x), p.Y(y), 7, "var(--panel)", "var(--line-2)", 3)));
-    const path = [
-      [1, 2, "s1"],
-      [2, 3, "s2"],
-      [3, 5, "s3"],
-      [5, 6, "s4"],
-      [6, 1, "s5"],
-    ];
-    path.forEach(([a, b, id], i) => {
-      const [x1, y1] = H[a],
-        [x2, y2] = H[b],
-        mx = (p.X(x1) + p.X(x2)) / 2,
-        my = (p.Y(y1) + p.Y(y2)) / 2;
-      const dx = p.X(x2) - p.X(x1),
-        dy = p.Y(y2) - p.Y(y1),
-        d = Math.hypot(dx, dy);
-      const ox = (dy / d) * 16,
-        oy = (-dx / d) * 16;
-      g += pk(
-        id,
-        arrow(
-          p.X(x1) + (dx / d) * 9,
-          p.Y(y1) + (dy / d) * 9,
-          p.X(x2) - (dx / d) * 9,
-          p.Y(y2) - (dy / d) * 9,
-          "var(--blue)",
-          4,
-        ) +
-          ln(p.X(x1), p.Y(y1), p.X(x2), p.Y(y2), "transparent", 22) +
-          circ(mx - ox, my - oy, 11, "var(--panel)", "var(--blue)", 2) +
-          txt(mx - ox, my - oy + 4, i + 1, { s: 12, c: "var(--ink)" }),
-      );
-    });
-    return svg(420, 308, g);
-  })();
-
-  // cost per input point against n (log scale ticks), hull stays at 8 points
-  const wrapPlot = (() => {
-    const ns = [16, 32, 64, 128, 256, 512, 1024],
-      x0 = 58,
-      x1 = 440,
-      y0 = 24,
-      y1 = 226;
-    const X = (i) => x0 + 18 + i * ((x1 - x0 - 36) / 6),
-      Y = (v) => y1 - (v / 12) * (y1 - y0);
-    let g = "";
-    [0, 4, 8, 12].forEach(
-      (v) =>
-        (g +=
-          ln(x0, Y(v), x1, Y(v), "var(--line)", 1) +
-          txt(x0 - 8, Y(v) + 4, v, { a: "end", s: 12, w: 700, c: "var(--text-dim)" })),
-    );
-    ns.forEach((n, i) => (g += txt(X(i), y1 + 18, n, { s: 11, w: 700, c: "var(--text-dim)" })));
-    g +=
-      ln(X(0), Y(8), X(6), Y(8), "var(--amber)", 3, 'stroke-dasharray="8 5"') +
-      txt(X(0) + 4, Y(8) - 10, "gift wrapping: h = 8", { a: "start", s: 12, c: "var(--amber-ink)" });
-    g += `<polyline points="${ns.map((n, i) => `${X(i)},${Y(Math.log2(n))}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3"/>`;
-    ns.forEach((n, i) => (g += dot(X(i), Y(Math.log2(n)), "", { r: 9, id: "n" + n, stroke: "var(--blue)" })));
-    g +=
-      txt(X(4), Y(12) + 4, "Graham scan: log₂ n", { s: 12, c: "var(--blue-ink)" }) +
-      txt((x0 + x1) / 2, y1 + 38, "number of points n", { s: 12, c: "var(--text-dim)" }) +
-      txt(6, 12, "work per point", { a: "start", s: 11, c: "var(--text-dim)" });
-    return svg(460, 268, g);
-  })();
-
-  // angle diagram: scan order of six candidate points seen from the current point
-  const wrapAngles = (() => {
-    const cx = 40,
-      cy = 232,
-      d2r = Math.PI / 180,
-      k = 1.2;
-    const C = [
-      [72, 150],
-      [55, 175],
-      [80, 118],
-      [31, 185],
-      [44, 150],
-      [18, 168],
-    ];
-    let g = ln(cx, cy, 410, cy, "var(--line)", 2) + txt(392, cy - 8, "east", { s: 11, w: 700, c: "var(--text-dim)" });
-    C.forEach(([a, d], i) => {
-      const x = cx + d * k * Math.cos(a * d2r),
-        y = cy - d * k * Math.sin(a * d2r);
-      g += ln(cx, cy, x, y, "var(--line-2)", 2, 'stroke-dasharray="3 5"') + dot(x, y, i + 1, { r: 12, s: 13 });
-    });
-    g +=
-      circ(cx, cy, 11, "var(--teal)", "var(--teal)") +
-      txt(cx + 8, cy + 22, "cur", { a: "start", s: 13, c: "var(--teal-ink)" });
-    return svg(420, 256, g);
-  })();
-
-  B.add("a5-wrap", [
-    {
-      type: "order",
-      q: "Gift wrapping costs about n × h, where h is the number of points on the hull. Each panel has 12 points, placed differently. Put the panels in order of work, least first.",
-      fig: wrapPanels,
-      items: ["Panel C", "Panel A", "Panel B"],
-      hint: "Count the points on the outside boundary of each panel. Interior points add nothing to h.",
-      why: "Panel C has four corner points with eight inside (h = 4: about 12 × 4 = 48 checks). Panel A has six on its boundary (h = 6, about 72). Panel B has almost every point on the boundary (h = 10, about 120). Same n, so the cost follows the hull size alone. That is what 'output-sensitive' means.",
-    },
+  B.add("a5-graham", [
     {
       type: "pick",
-      q: "A learner ran gift wrapping on ten points, counter-clockwise from the leftmost point, and drew five numbered arrows. One arrow is a mistake: gift wrapping would never draw it. Click that arrow.",
-      fig: wrapArrows,
-      a: "s3",
-      hint: "At each hull point, the next point must have every other point on its left. Is any point outside an arrow?",
-      why: "Arrow 3 goes from the bottom-right corner straight to the top, but the point at (10, 6) lies outside it, on its right. Gift wrapping would have picked that point: it is the one with all other points on its left. The other four arrows each have every point on their left, so they are real hull edges. Interior points are never reached.",
+      q: "A Graham scan starts with the anchor on the stack. The chart shows the stack height after each point of the sorted list has been processed. Every step pushes the new point, and may pop some points first. Click the step in which the MOST points were popped.",
+      fig: stackPlot,
+      a: "p5",
+      hint: "Pops at a step = 1 + (old height) − (new height). A step that only rises by 1 popped nothing.",
+      why: "Step 4 stays at 4: it pushed one point and popped one (1 + 4 − 4 = 1). Step 5 drops from 4 to 3: it pushed one and popped TWO (1 + 4 − 3 = 2), the most of any step. Step 8 stays at 5, with one pop. Steps 1, 2, 3, 6 and 7 rise by exactly 1, so nothing was popped there. The final height is 5, so five points are on the hull.",
     },
     {
-      type: "pick",
-      q: "The hull has 8 points however many points there are. Gift wrapping does about 8 checks per input point, and Graham scan about log₂ n (its sort). Click the first n at which gift wrapping does LESS work per point than Graham scan.",
-      fig: wrapPlot,
-      a: "n512",
-      hint: "log₂ 256 = 8. Is the blue line above or below the dashed line when gift wrapping wins?",
-      why: "Gift wrapping is flat at 8 per point; Graham's sorting cost per point grows as log₂ n: 4, 5, 6, 7, 8, 9, 10. At n = 256 they tie (8 against 8). Only from 512 (log₂ 512 = 9) is gift wrapping strictly cheaper. With a small, fixed hull, MORE points favours gift wrapping, because it never pays for sorting.",
+      type: "cat",
+      q: "Graham scan pushes the points one by one in angle order A, B, C, D, E, F (the anchor P0 is pushed first). Each snapshot shows the stack, with the bottom at the bottom, right after the named point has been pushed. Which snapshots are possible?",
+      fig: snaps,
+      buckets: ["Possible", "Impossible"],
+      items: [
+        ["Snapshot 1", 0],
+        ["Snapshot 2", 1],
+        ["Snapshot 3", 1],
+        ["Snapshot 4", 0],
+      ],
+      hint: "A stack only removes from the top. And where is the point that was just pushed?",
+      why: "Snapshot 1 is possible: B was popped when C arrived, and D was pushed on top. Snapshot 4 is possible: D and C were popped when E arrived. Snapshot 2 is impossible: A is gone but B, which sits above A, is still there, and a stack cannot remove from the middle. Snapshot 3 is impossible: the point just pushed (F) must be on top, but F is missing.",
     },
     {
       type: "slider",
       min: 0,
-      max: 6,
-      step: 1,
-      start: 1,
-      ans: 3,
-      tol: 0,
-      unit: "changes",
-      q: "Gift wrapping stands at the lowest point cur, and all six candidate points are above it. The inner loop sets nxt to point 1, then scans points 2 to 6 in order. nxt changes whenever the scanned point is to the RIGHT of the arrow cur → nxt. The angles (above east) are 72°, 55°, 80°, 31°, 44° and 18°. How many times does nxt change?",
-      fig: wrapAngles,
-      hint: "A point to the right of cur → nxt has a smaller angle than nxt. Track the smallest angle seen so far.",
-      why: "The loop keeps the smallest angle so far. Start: 72°. Point 2 (55°) is smaller: change 1. Point 3 (80°): no. Point 4 (31°): change 2. Point 5 (44°): no. Point 6 (18°): change 3. So nxt ends on point 6 after changing 3 times, and point 6 is the true next hull point: every other point is on its left.",
+      max: 40,
+      step: 0.5,
+      start: 20,
+      ans: 4.5,
+      tol: 2,
+      unit: "% shorter",
+      q: "Graham scan on 1,000,000 points spends its time sorting (about n log₂ n steps) and scanning (at most 2n steps). The bars show the shares. A clever trick makes the scan twice as fast and leaves the sort alone. By about what percentage does the WHOLE run get shorter?",
+      fig: shareBars,
+      hint: "Out of 22 parts of time, 20 are the sort and 2 are the scan. Halving the scan saves 1 part.",
+      why: "At n = 1,000,000 the scan is only about 9% of the total (sort 20 parts, scan 2 parts, out of 22). Halving it saves half of 9%, so the whole run is only about 4.5% shorter. That is why the algorithm is O(n log n): the sort dominates, and polishing the scan can never matter much.",
     },
     {
-      type: "match",
-      q: "A set of 100 points has a hull of 10 corners, so gift wrapping does about 100 × 10 = 1,000 checks. Match each change with what happens to the work.",
-      pairs: [
-        ["Add 100 more points, all inside the hull", "About twice the work"],
-        ["Pull the hull out to 40 corners (still 100 points)", "About four times the work"],
-        ["Move the interior points about, all still inside", "No change"],
-        ["Delete 50 interior points", "About half the work"],
-      ],
-      hint: "Work is n × h. Which of the two numbers does each change touch?",
-      why: "Work is about n × h. Adding 100 interior points doubles n and leaves h at 10: 2,000 checks. Pulling the hull out to 40 multiplies h by 4: 4,000. Moving interior points around changes neither. Deleting 50 interior points halves n: 500. Interior points only ever cost you a check per step; they never create more steps.",
+      type: "pick",
+      q: "Graham scan pops a point whenever the turn is not a strict left turn, so points that are straight on the boundary are popped too. The anchor P0 is always on the hull. Click every point that is NOT on the final stack.",
+      fig: hullScatter,
+      a: ["a", "c", "e", "h", "i"],
+      hint: "Find the corner points first. Then check for points lying exactly on a side between two corners.",
+      why: "The hull corners are P0, b, d, f and g. Points e, h and i are inside. Points a and c are different: a lies exactly on the straight bottom side from P0 to b, and c lies exactly on the right side from b to d. They make a straight line (turn 0) with their neighbours, so the scan pops them. A scan that popped only on right turns would keep a and c as flat hull points.",
+    },
+    {
+      type: "pick",
+      q: "The stack before and after one step of Graham scan is shown (the new point D is amber). D comes later in angle order than C. Click every numbered position that D could be in.",
+      fig: stackScene,
+      a: ["d3", "d4"],
+      hint: "Two points were popped, B and C. Each pop means that point is not a left turn. Where must D be to be right of B → C and right of A → B?",
+      why: "C is popped when B → C → D is not a left turn, and then B is popped when A → B → D is not a left turn. D sits high and close in, beyond the outside edge of the chain: positions 3 and 4. Position 2 pops only C (B survives), so the stack would end P0, A, B, D. Positions 1 and 5 turn left at C, so nothing is popped and D is pushed on top of C.",
     },
   ]);
 
   /* =====================================================================
-     a5-graham
+     l2-mst
      ===================================================================== */
-  const stackPlot = (() => {
-    const sizes = [1, 2, 3, 4, 4, 3, 4, 5, 5],
-      x0 = 52,
-      x1 = 440,
-      y0 = 22,
-      y1 = 214;
-    const X = (i) => x0 + 12 + i * ((x1 - x0 - 24) / 8),
-      Y = (v) => y1 - ((v - 0.5) / 5.5) * (y1 - y0);
+  const mapLinks = (() => {
+    const T = { A: [2, 1], B: [4, 2], C: [7, 6], D: [5, 2], E: [7, 8], F: [1, 2], G: [10, 3] };
+    const p = plane(11, 9, 24, 16, 416, 276, true);
+    let g = p.g;
+    [
+      ["A", "F", "1.4", -17, 12],
+      ["B", "D", "1.0", 0, -17],
+      ["C", "E", "2.0", 14, 0],
+      ["C", "G", "4.2", 6, -10],
+      ["A", "B", "2.2", 4, 17],
+      ["C", "D", "4.5", -14, -6],
+      ["F", "B", "3.0", -8, -14],
+      ["D", "G", "5.1", 0, 16],
+    ].forEach(([a, b, w, dx, dy]) => {
+      const [x1, y1] = [p.X(T[a][0]), p.Y(T[a][1])],
+        [x2, y2] = [p.X(T[b][0]), p.Y(T[b][1])];
+      g += pk(
+        a + b,
+        ln(x1, y1, x2, y2, "var(--blue)", 4) +
+          ln(x1, y1, x2, y2, "transparent", 22) +
+          wl((x1 + x2) / 2 + dx, (y1 + y2) / 2 + dy + 4, w, "var(--ink)", 12),
+      );
+    });
+    Object.entries(T).forEach(([k, [x, y]]) => (g += dot(p.X(x), p.Y(y), k, { r: 10, s: 12 })));
+    return svg(440, 292, g);
+  })();
+
+  const planLine = (() => {
+    const P = [
+      ["P1", 14, "var(--rose)", "loop, and town E is cut off"],
+      ["P2", 17, "var(--rose)", "tree, but town C has 3 links"],
+      ["P3", 19, "var(--teal)", "tree, no town has more than 2 links"],
+      ["P4", 20, "var(--teal)", "tree, no town has more than 2 links"],
+      ["P5", 23, "var(--teal)", "tree, no town has more than 2 links"],
+    ];
+    const X = (c) => 30 + ((c - 12) / 13) * 400;
+    let g = ln(X(12), 54, X(25), 54, "var(--line-2)", 3);
+    for (let c = 12; c <= 24; c += 2)
+      g += ln(X(c), 48, X(c), 60, "var(--line-2)", 2) + txt(X(c), 84, c, { s: 12, w: 700, c: "var(--text-dim)" });
+    P.forEach(
+      ([n, c, col]) => (g += circ(X(c), 54, 12, col, col, 2) + txt(X(c), 59, n.slice(1), { s: 13, c: "#fff" })),
+    );
+    g += txt(220, 22, "total cost of each plan", { s: 12, c: "var(--ink)" });
+    P.forEach(([n, c, col, note], i) => {
+      const y = 98 + i * 34;
+      g += pk(
+        n,
+        rect(8, y, 424, 28, "var(--panel)", "var(--line-2)", 2, 8) +
+          circ(28, y + 14, 11, col, col, 2) +
+          txt(28, y + 19, n.slice(1), { s: 12, c: "#fff" }) +
+          txt(46, y + 19, `cost ${c}: ${note}`, { a: "start", s: 12, c: "var(--ink)" }),
+      );
+    });
+    return svg(440, 98 + 5 * 34 + 4, g);
+  })();
+
+  const ring = (() => {
+    const cx = 160,
+      cy = 96,
+      R = 70,
+      d2r = Math.PI / 180,
+      ang = [-90, -30, 30, 90, 150, 210],
+      cost = [4, 6, 3, 7, 5, 2];
+    const P = ang.map((a) => [cx + R * Math.cos(a * d2r), cy + R * Math.sin(a * d2r)]);
     let g = "";
-    [1, 2, 3, 4, 5, 6].forEach(
-      (v) =>
-        (g +=
-          ln(x0, Y(v), x1, Y(v), "var(--line)", 1) +
-          txt(x0 - 8, Y(v) + 4, v, { a: "end", s: 12, w: 700, c: "var(--text-dim)" })),
-    );
-    sizes.forEach((v, i) => (g += txt(X(i), y1 + 18, i === 0 ? "start" : i, { s: 11, w: 700, c: "var(--text-dim)" })));
-    g += `<polyline points="${sizes.map((v, i) => `${X(i)},${Y(v)}`).join(" ")}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>`;
-    sizes.forEach(
-      (v, i) =>
-        (g +=
-          i === 0
-            ? circ(X(i), Y(v), 7, "var(--teal)", "var(--teal)", 2)
-            : dot(X(i), Y(v), "", { r: 9, id: "p" + i, stroke: "var(--blue)" })),
-    );
+    P.forEach((p, i) => {
+      const q = P[(i + 1) % 6],
+        mx = (p[0] + q[0]) / 2,
+        my = (p[1] + q[1]) / 2,
+        dx = mx - cx,
+        dy = my - cy,
+        d = Math.hypot(dx, dy);
+      g +=
+        ln(p[0], p[1], q[0], q[1], "var(--blue)", 4) +
+        wl(mx + (dx / d) * 16, my + (dy / d) * 16 + 4, cost[i], "var(--ink)");
+    });
+    P.forEach((p, i) => (g += dot(p[0], p[1], "ABCDEF"[i], { r: 14, s: 13 })));
     g +=
-      txt((x0 + x1) / 2, y1 + 38, "points processed so far", { s: 12, c: "var(--text-dim)" }) +
-      txt(6, 12, "stack height", { a: "start", s: 11, c: "var(--text-dim)" });
-    return svg(460, 258, g);
+      txt(300, 82, "tour cost:", { a: "start", s: 13, c: "var(--ink)" }) +
+      txt(300, 102, "4 + 6 + 3 + 7", { a: "start", s: 13, c: "var(--ink)" }) +
+      txt(300, 122, "+ 5 + 2 = 27", { a: "start", s: 13, c: "var(--ink)" });
+    return svg(460, 196, g);
   })();
 
-  // four stack snapshots
-  const snaps = (() => {
-    const S = [
-      ["1", "after pushing D", ["P0", "A", "C", "D"]],
-      ["2", "after pushing E", ["P0", "B", "D", "E"]],
-      ["3", "after pushing F", ["P0", "A", "C", "D"]],
-      ["4", "after pushing E", ["P0", "A", "E"]],
+  const tiedPlans = (() => {
+    const names = ["A", "B", "C", "D", "E"],
+      ang = [-90, -18, 54, 126, 198],
+      d2r = Math.PI / 180;
+    const E = [
+      ["A", "B", 2],
+      ["B", "C", 2],
+      ["C", "D", 3],
+      ["D", "E", 3],
+      ["E", "A", 3],
+      ["B", "D", 5],
+    ];
+    const plans = [
+      [
+        ["A", "B"],
+        ["B", "C"],
+        ["C", "D"],
+        ["D", "E"],
+      ],
+      [
+        ["A", "B"],
+        ["B", "C"],
+        ["D", "E"],
+        ["E", "A"],
+      ],
+      [
+        ["A", "B"],
+        ["B", "C"],
+        ["B", "D"],
+        ["D", "E"],
+      ],
     ];
     let g = "";
-    S.forEach(([n, cap, st], i) => {
-      const x0 = 8 + i * 114,
-        base = 214;
-      g +=
-        rect(x0, 6, 106, 226, "var(--panel)", "var(--line-2)", 3, 12) +
-        txt(x0 + 53, 26, `Snapshot ${n}`, { s: 13, c: "var(--ink)" }) +
-        txt(x0 + 53, 44, cap, { s: 11, w: 700, c: "var(--text-dim)" });
-      st.forEach((p, k) => {
-        const y = base - (k + 1) * 36,
-          bottom = k === 0;
-        g +=
-          rect(
-            x0 + 24,
-            y,
-            58,
-            32,
-            bottom ? "var(--teal)" : "var(--panel-2)",
-            bottom ? "var(--teal)" : "var(--line-2)",
-            2,
-            6,
-          ) + txt(x0 + 53, y + 21, p, { s: 14, c: bottom ? "#fff" : "var(--ink)" });
+    plans.forEach((pl, p) => {
+      const x0 = 8 + p * 150,
+        cx = x0 + 70,
+        cy = 108,
+        R = 46;
+      const P = Object.fromEntries(
+        names.map((n, i) => [n, [cx + R * Math.cos(ang[i] * d2r), cy + R * Math.sin(ang[i] * d2r)]]),
+      );
+      let inner =
+        rect(x0, 6, 140, 196, "var(--panel)", "var(--line-2)", 3, 12) +
+        txt(x0 + 70, 26, `Plan ${p + 1}`, { s: 13, c: "var(--ink)" });
+      E.forEach(([a, b]) => {
+        const on = pl.some(([u, v]) => (u === a && v === b) || (u === b && v === a)),
+          [x1, y1] = P[a],
+          [x2, y2] = P[b];
+        inner += ln(
+          x1,
+          y1,
+          x2,
+          y2,
+          on ? "var(--teal)" : "var(--line-2)",
+          on ? 5 : 2,
+          on ? "" : 'stroke-dasharray="2 5"',
+        );
       });
-    });
-    return svg(470, 238, g);
-  })();
-
-  // 100% stacked bars: sort share against scan share
-  const shareBars = (() => {
-    const D = [
-      ["1,000", 16.7],
-      ["10,000", 13.1],
-      ["100,000", 10.7],
-      ["1,000,000", 9.1],
-    ];
-    let g = txt(230, 16, "share of the whole run: sort (blue) and scan (amber)", { s: 12, c: "var(--ink)" });
-    D.forEach(([n, sc], i) => {
-      const x = 40 + i * 104,
-        top = 30,
-        H = 170,
-        hs = (sc / 100) * H;
-      g += `<rect x="${x}" y="${top}" width="70" height="${H - hs}" rx="4" fill="var(--blue)"/><rect x="${x}" y="${top + H - hs}" width="70" height="${hs}" rx="4" fill="var(--amber)"/>`;
-      g +=
-        txt(x + 35, top + (H - hs) / 2 + 5, (100 - sc).toFixed(1) + "%", { s: 13, c: "#fff" }) +
-        txt(x + 35, top + H - hs / 2 + 4, sc + "%", { s: 11, c: "#fff" }) +
-        txt(x + 35, top + H + 18, "n = " + n, { s: 11, w: 700, c: "var(--text-dim)" });
-    });
-    return svg(460, 238, g);
-  })();
-
-  // scatter: which points end off the final stack
-  const hullScatter = (() => {
-    const p = plane(10, 9, 30, 20, 400, 290, true);
-    const P = { a: [6, 0], b: [10, 0], c: [10, 4], d: [10, 8], e: [7, 6], f: [4, 9], g: [0, 5], h: [5, 4], i: [3, 3] };
-    let g =
-      p.g +
-      circ(p.X(2), p.Y(0), 12, "var(--teal)", "var(--teal)") +
-      txt(p.X(2), p.Y(0) + 4, "P0", { s: 11, c: "#fff" });
-    Object.entries(P).forEach(([k, [x, y]]) => (g += dot(p.X(x), p.Y(y), k, { r: 11, id: k, s: 13 })));
-    return svg(420, 316, g);
-  })();
-
-  // stack before and after, plus the plane
-  const stackScene = (() => {
-    const px0 = 204,
-      px1 = 452,
-      py0 = 14,
-      py1 = 292,
-      X = (x) => px0 + (x / 12) * (px1 - px0),
-      Y = (y) => py1 - (y / 12) * (py1 - py0);
-    let g = "";
-    for (let i = 0; i <= 12; i += 2)
-      g += ln(X(i), Y(0), X(i), Y(12), "var(--line)", 1) + ln(X(0), Y(i), X(12), Y(i), "var(--line)", 1);
-    const P0 = [0, 0],
-      A = [8, 9],
-      Bp = [5, 10],
-      C = [3, 7];
-    g += `<polyline points="${[P0, A, Bp, C].map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
-    g += circ(X(0), Y(0), 11, "var(--teal)", "var(--teal)") + txt(X(0) + 2, Y(0) + 4, "P0", { s: 10, c: "#fff" });
-    [
-      ["A", A],
-      ["B", Bp],
-      ["C", C],
-    ].forEach(([n, [x, y]]) => (g += dot(X(x), Y(y), n, { r: 11, stroke: "var(--teal)" })));
-    [
-      ["d1", [1, 3]],
-      ["d2", [0, 7]],
-      ["d3", [2, 11]],
-      ["d4", [3, 11]],
-      ["d5", [2, 5]],
-    ].forEach(
-      ([id, [x, y]], i) =>
-        (g += pk(
-          id,
-          circ(X(x), Y(y), 10, "var(--panel)", "var(--amber)", 3) +
-            txt(X(x), Y(y) + 4, i + 1, { s: 12, c: "var(--ink)" }),
-        )),
-    );
-    const col = (x, title, st, last) => {
-      let s = txt(x + 42, 22, title, { s: 12, c: "var(--ink)" });
-      st.forEach((p, k) => {
-        const y = 262 - k * 38,
-          bottom = k === 0,
-          top = last && k === st.length - 1;
-        s +=
-          rect(
-            x,
-            y,
-            84,
-            32,
-            bottom ? "var(--teal)" : top ? "var(--amber)" : "var(--panel-2)",
-            bottom ? "var(--teal)" : top ? "var(--amber)" : "var(--line-2)",
-            2,
-            6,
-          ) + txt(x + 42, y + 21, p, { s: 14, c: bottom || top ? "#fff" : "var(--ink)" });
+      E.forEach(([a, b, w]) => {
+        const [x1, y1] = P[a],
+          [x2, y2] = P[b],
+          mx = (x1 + x2) / 2,
+          my = (y1 + y2) / 2,
+          dx = mx - cx,
+          dy = my - cy,
+          d = Math.hypot(dx, dy) || 1,
+          diag = a === "B" && b === "D";
+        inner += wl(diag ? mx + 12 : mx + (dx / d) * 11, diag ? my - 4 : my + (dy / d) * 11 + 4, w, "var(--ink)", 11);
       });
-      return s;
-    };
-    g += col(4, "Before", ["P0", "A", "B", "C"], false) + col(96, "After", ["P0", "A", "D"], true);
-    return svg(460, 304, g);
+      names.forEach((n) => (inner += dot(P[n][0], P[n][1], n, { r: 11, s: 11 })));
+      inner += txt(x0 + 70, 190, "green links used", { s: 10, w: 700, c: "var(--text-dim)" });
+      g += pk("pl" + (p + 1), inner);
+    });
+    return svg(460, 210, g);
   })();
-  Object.assign(partScope, { hullScatter, shareBars, snaps, stackPlot, stackScene });
+
+  B.add("l2-mst", [
+    {
+      type: "pick",
+      q: "Seven towns lie on a map and a cable costs its straight-line length. Eight possible cables are drawn with their costs. A cable is a SURE PICK if it is the shortest cable leaving some single town (that town versus all the others is a cut). Click every drawn cable that is a sure pick.",
+      fig: mapLinks,
+      a: ["AF", "BD", "CE", "CG"],
+      hint: "For each town, find its shortest cable among the drawn ones. A cable is a sure pick if it is the shortest at either of its ends.",
+      why: "A's shortest is A–F (1.4), B's is B–D (1.0), C's is C–E (2.0), D's is B–D, E's is C–E, F's is A–F, and G's is C–G (4.2). So A–F, B–D, C–E and C–G are sure picks by the cut property. A–B (2.2), C–D (4.5), F–B (3.0) and D–G (5.1) are never the shortest at either end. C–D happens to be in the cheapest network, but it needs a bigger cut to prove it.",
+    },
+    {
+      type: "pick",
+      q: "A firm may build only a plan that connects every town, has no loops and gives no town more than 2 links. The five plans are placed by total cost. Click the plan the firm should build.",
+      fig: planLine,
+      a: "P3",
+      hint: "Cross out any plan that breaks a rule. Then take the cheapest of what is left.",
+      why: "Plan 1 (14) is the cheapest overall, but a town is cut off, so it does not connect everything. Plan 2 (17) is a proper spanning tree, probably the plain MST, but town C has 3 links, which the rule forbids. Plans 3, 4 and 5 are all legal and Plan 3 is the cheapest at 19. The unconstrained MST is only a lower bound: no tree can cost less, and the rule pushes the best legal tree above it.",
+    },
+    {
+      type: "bug",
+      q: "This greedy code takes the cables cheapest first and tries to build a tree where no town has more than 2 links. For a star (one hub with four cheap cables) it returns a hub with 4 links. Click the faulty line.",
+      code: [
+        "def greedy(edges, n):",
+        "    deg = [0] * n",
+        "    group = list(range(n))",
+        "    tree = []",
+        "    for w, u, v in sorted(edges):",
+        "        if group[u] == group[v]:",
+        "            continue",
+        "        if deg[u] > 1 and deg[v] > 1:",
+        "            continue",
+        "        old, new = group[v], group[u]",
+        "        for i in range(n):",
+        "            if group[i] == old:",
+        "                group[i] = new",
+        "        deg[u] += 1",
+        "        deg[v] += 1",
+        "        tree.append((u, v))",
+        "    return tree",
+      ],
+      a: 7,
+      why: "The code skips a cable only when BOTH ends are already full ('and'). A cable should be skipped when EITHER end is full ('or'), because adding it would give that town a third link. With 'and', the hub keeps accepting spokes while the other end has room, so it ends with 4 links. Everything else is right: the group relabelling stops loops, and the degree counts are updated.",
+    },
+    {
+      type: "mcq",
+      q: "These six towns are joined by a round tour of cables that costs 27 in total, as drawn. You delete the dearest cable (7). What is certain about the cost of the CHEAPEST spanning tree of the six towns, using the cables available?",
+      fig: ring,
+      o: ["At most 20", "Exactly 20", "At least 27", "At least 20"],
+      a: 0,
+      hint: "What is left after deleting one cable from a ring: is it a spanning tree? What does it cost?",
+      why: "Deleting one cable from a ring leaves a path through all six towns: connected, no loop, so it is a spanning tree. It costs 27 − 7 = 20. The cheapest spanning tree can cost no more than this one, so it is AT MOST 20. It could be less if other cables exist, so 'exactly 20' is not certain, and 'at least' is the wrong way round.",
+    },
+    {
+      type: "pick",
+      q: "Five towns can be linked by the cables shown (costs on each). Three plans are drawn, each in green; every plan is a spanning tree. Click every plan that is a minimum spanning tree.",
+      fig: tiedPlans,
+      a: ["pl1", "pl2"],
+      hint: "Add up the green costs of each plan. Then ask: does every minimum tree have to look the same?",
+      why: "Plan 1 costs 2 + 2 + 3 + 3 = 10 and plan 2 costs 2 + 2 + 3 + 3 = 10. Plan 3 uses the dear diagonal B–D (5): 2 + 2 + 5 + 3 = 12. The three cables of cost 3 (C–D, D–E, E–A) are such that any two of them finish the tree, so there are three different cheapest trees. Ties do not change the minimum cost, but they mean the cheapest network may not be unique.",
+    },
+  ]);
 })();

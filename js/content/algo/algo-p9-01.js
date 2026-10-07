@@ -42,8 +42,8 @@
   /* ============ 9.1 Which waves are inside? ============ */
   reg({
     id: "a9-dft",
-    order: 1,
-    num: "9.1",
+    order: 3,
+    num: "9.3",
     title: "Which waves are inside?",
     blurb:
       "Mix sine waves, then let a small DFT read the recipe back — including the 60 Hz tone that lies about its frequency.",

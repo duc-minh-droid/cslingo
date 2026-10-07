@@ -1,368 +1,380 @@
+/* ===== bank-w-nic-3.js ===== */
+/* NIC revision bank, second set of visual and varied questions, part 3.
+   Lecture 4 (selection, replacement, pressure, mutation, crossover, the lab). Every figure is needed to answer. */
 (function () {
   const partScope = (NIC.shared.bankNic = NIC.shared.bankNic || {});
-  const { ln, path, rng, svg, tx } = partScope;
+
   const B = NIC.bank;
+  const txt = (x, y, s, o = {}) =>
+    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${o.s || 13}px var(--sans);fill:${o.c || "var(--text)"}">${s}</text>`;
 
-  /* ======================================================================
-     l3-landscape
-     ====================================================================== */
-  const miniFig = () => {
-    const fn = {
-      A: (t) => 1 - Math.pow(2 * t - 1, 2),
-      B: (t) => 0.5 + 0.35 * Math.sin(t * 6.5 * Math.PI) * (0.6 + 0.4 * t),
-      C: (t) => 0.25 + 0.6 * Math.max(0, 1 - Math.abs(t - 0.7) / 0.12),
-      D: (t) => 0.15 + 0.5 * t + 0.7 * Math.exp(-Math.pow((t - 0.1) / 0.03, 2)),
-    };
-    return svg(
-      460,
-      150,
-      Object.keys(fn)
-        .map((k, i) => {
-          const x0 = 12 + i * 112,
-            pts = [];
-          for (let j = 0; j <= 60; j++) {
-            const t = j / 60;
-            pts.push([x0 + t * 92, 104 - fn[k](t) * 76]);
-          }
-          return `<rect x="${x0 - 6}" y="8" width="104" height="104" rx="10" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>${path(pts, "var(--blue)", 3)}${tx(x0 + 46, 134, "Curve " + k, { f: "900 13px" })}`;
-        })
-        .join(""),
-    );
-  };
-  const scatterFig = () => {
-    const r = rng(7),
-      pts = (smooth) =>
-        Array.from({ length: 34 }, () => {
-          const x = r();
-          return [x, smooth ? Math.min(1, Math.max(0, x + (r() - 0.5) * 0.18)) : r()];
-        });
-    const panel = (k, x0, P) =>
-      `<g data-pick="${k}"><rect x="${x0}" y="14" width="196" height="196" rx="12" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${P.map(([x, y]) => `<circle cx="${(x0 + 12 + x * 172).toFixed(1)}" cy="${(198 - y * 172).toFixed(1)}" r="4" fill="var(--blue)"/>`).join("")}${tx(x0 + 98, 236, "Landscape " + k, { f: "900 13px" })}</g>`;
-    return svg(460, 246, `${panel("A", 10, pts(true))}${panel("B", 254, pts(false))}`);
-  };
-  const intFig = () => {
-    const F = [3, 7, 2, 6, 4, 8, 1, 5];
-    return `<table class="t"><tr><th>x</th><th>bits</th><th>fitness</th></tr>${F.map((v, i) => `<tr><td>${i}</td><td>${i.toString(2).padStart(3, "0")}</td><td>${v}</td></tr>`).join("")}</table>`;
-  };
-
-  B.add("l3-landscape", [
+  /* Bar chart. vals: numbers; ids: data-pick ids (optional); labels under bars; line: {y, label} horizontal marker. */
+  function bars(
+    vals,
     {
-      type: "match",
-      q: "Each panel plots fitness (height) against position. Match each curve to its landscape type.",
-      fig: miniFig(),
-      pairs: [
-        ["Curve A", "Unimodal: one smooth peak"],
-        ["Curve B", "Multimodal: many peaks"],
-        ["Curve C", "Plateau: mostly flat, no hints"],
-        ["Curve D", "Deceptive: slopes lead away from the best"],
-      ],
-      why: "A has one peak. B has several, so a climber gets stuck on whichever it meets. C is flat almost everywhere with one small hill. D rises steadily to the right, but the tallest point is the narrow spike on the left.",
-    },
+      ids = null,
+      labels = null,
+      max = null,
+      w = 520,
+      h = 210,
+      line = null,
+      colors = null,
+      show = true,
+      inside = false,
+      fmt = (v) => v,
+    } = {},
+  ) {
+    const m = max || Math.max(...vals) * 1.1,
+      n = vals.length,
+      bw = Math.min(54, (w - 40) / n - 12),
+      gap = (w - 40) / n;
+    const Y = (v) => h - 34 - (v / m) * (h - 66);
+    const body = vals
+      .map((v, i) => {
+        const x = 20 + gap * i + (gap - bw) / 2;
+        const r = `<rect x="${x}" y="${Y(v)}" width="${bw}" height="${h - 34 - Y(v)}" rx="6" fill="${colors ? colors[i] : "var(--blue)"}" stroke="var(--line-2)" stroke-width="2" fill-opacity=".85"/>`;
+        const val = show
+          ? inside
+            ? txt(x + bw / 2, h - 44, fmt(v), { s: 12, c: "#fff" })
+            : txt(x + bw / 2, Y(v) - 6, fmt(v), { s: 12 })
+          : "";
+        const lab = labels ? txt(x + bw / 2, h - 14, labels[i]) : "";
+        return ids ? `<g data-pick="${ids[i]}">${r}${val}${lab}</g>` : `<g>${r}${val}${lab}</g>`;
+      })
+      .join("");
+    const ln = line
+      ? `<line x1="14" x2="${w - 10}" y1="${Y(line.y)}" y2="${Y(line.y)}" stroke="var(--rose)" stroke-width="3" stroke-dasharray="7 5"/>${txt(w - 12, Y(line.y) - 6, line.label, { a: "end", c: "var(--rose-ink)" })}`
+      : "";
+    return `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px"><line x1="14" x2="${w - 10}" y1="${h - 34}" y2="${h - 34}" stroke="var(--line-2)" stroke-width="2"/>${body}${ln}</svg>`;
+  }
+
+  /* A row of genes. cells: [text, colour]. */
+  function strip(cells, x, y, { cw = 34, ch = 34 } = {}) {
+    return cells
+      .map(
+        (c, i) =>
+          `<rect x="${x + i * cw}" y="${y}" width="${cw - 3}" height="${ch}" rx="6" fill="${c[1] || "var(--panel)"}" stroke="var(--line-2)" stroke-width="2"/>${txt(x + i * cw + (cw - 3) / 2, y + ch / 2 + 5, c[0], { c: c[2] || "var(--text)" })}`,
+      )
+      .join("");
+  }
+
+  /* Pie wheel. vals, labels; ids optional (pick). */
+  function pie(vals, labels, cx, cy, r, ids, cols) {
+    const tot = vals.reduce((a, b) => a + b, 0);
+    let a0 = -Math.PI / 2;
+    return vals
+      .map((v, i) => {
+        const a1 = a0 + (v / tot) * Math.PI * 2,
+          big = a1 - a0 > Math.PI ? 1 : 0;
+        const p = `M${cx} ${cy} L${(cx + r * Math.cos(a0)).toFixed(1)} ${(cy + r * Math.sin(a0)).toFixed(1)} A${r} ${r} 0 ${big} 1 ${(cx + r * Math.cos(a1)).toFixed(1)} ${(cy + r * Math.sin(a1)).toFixed(1)} Z`;
+        const mid = (a0 + a1) / 2,
+          lx = cx + r * 0.66 * Math.cos(mid),
+          ly = cy + r * 0.66 * Math.sin(mid);
+        a0 = a1;
+        const g = `<path d="${p}" fill="${cols[i]}" fill-opacity=".75" stroke="var(--panel)" stroke-width="3"/>${txt(lx, ly + 5, labels[i], { s: 13 })}`;
+        return ids ? `<g data-pick="${ids[i]}">${g}</g>` : `<g>${g}</g>`;
+      })
+      .join("");
+  }
+
+  const addSvg = (svg, extra) => svg.replace(/<\/svg>$/, extra + "</svg>");
+  const tbl = (head, rows, pick) =>
+    `<table class="t"><tr>${head.map((h, i) => `<th${i ? ' class="num"' : ""}>${h}</th>`).join("")}</tr>${rows.map((r, k) => `<tr${pick ? ` data-pick="${pick[k]}"` : ""}>${r.map((c, i) => `<${i ? 'td class="num"' : "td"}>${c}</${i ? "td" : "td"}>`).join("")}</tr>`).join("")}</table>`;
+
+  /* ---------- l4-types ---------- */
+  B.add("l4-types", [
     {
       type: "pick",
-      q: "Each dot is one solution: across is its fitness, up is the fitness of one of its neighbours. Click the landscape where hillclimbing should clearly beat random search.",
-      fig: scatterFig(),
-      a: "A",
-      hint: "Hillclimbing works when a neighbour of a good solution is usually good too.",
-      why: "In A, neighbours have nearly the same fitness as each other (dots hug the diagonal), so small steps from a good solution give good solutions. In B, a neighbour's fitness says nothing about yours, so hillclimbing has no slope to follow.",
-    },
-    {
-      type: "slider",
-      q: "A needle-in-a-haystack problem has 20 bits and exactly one good string, with every other string equally bad. Random search tries 1,000 strings a second. About how long does it take on average to hit the needle?",
-      min: 0,
-      max: 30,
-      step: 1,
-      ans: 9,
-      tol: 3,
-      unit: "minutes",
-      hint: "2²⁰ is about a million strings. On average you search half of them: 500,000 tries ÷ 1,000 per second = 500 seconds.",
-      why: "About 524,000 tries at 1,000 per second is roughly 520 seconds, nearly 9 minutes. With no slope to follow, nothing beats random search here, and each extra bit doubles the wait.",
-    },
-    {
-      type: "order",
-      q: "A hillclimber starts from a random solution on each landscape. Order the landscapes from the one where it is most likely to find the best solution to the one where it is least likely.",
-      items: [
-        "One smooth peak",
-        "Three peaks of similar height",
-        "A hundred small ridges",
-        "Fitness picked at random for every solution",
-      ],
-      why: "On one smooth peak it always succeeds. With a few peaks it may land on the wrong one, but restarts help. A hundred ridges trap it almost every time. In a random landscape every move is a coin toss, so it does no better than random search.",
-    },
-    {
-      type: "multi",
-      q: "Integers 0 to 7 are stored as 3 bits. Fitness is in the table. Operator A moves x up or down by one (staying in 0 to 7). Operator B flips one bit. Select all statements that are true.",
-      fig: intFig(),
-      o: [
-        "Under A there are four local optima: x = 1, 3, 5 and 7",
-        "Under B, x = 5 is the only local optimum",
-        "Under B, x = 1 is a local optimum",
-        "The landscape is the same under A and B, since the fitness values are the same",
-        "A climber at x = 7 using A cannot move, but using B it can reach x = 5",
-      ],
-      a: [0, 1, 4],
-      hint: "Neighbours of 1 (001) under B are 0 (000), 3 (011) and 5 (101).",
-      why: "Under A, x = 1, 3, 5 and 7 all beat both neighbours. Under B, x = 1 has a better neighbour (x = 5, fitness 8), and likewise the rest, leaving only x = 5. The operator defines the neighbours, so the same fitness values form a different landscape.",
-    },
-  ]);
-
-  /* ======================================================================
-     l3-neighbourhood
-     ====================================================================== */
-  const nbRowsFig = () => {
-    const R = [
-      ["n1", "swap places 1, 2", "BADEFC", 25],
-      ["n2", "swap places 2, 3", "ADBEFC", 35],
-      ["n3", "swap places 3, 4", "ABEDFC", 36],
-      ["n4", "swap places 4, 5", "ABDFEC", 40],
-      ["n5", "swap places 5, 6", "ABDECF", 36],
-      ["n6", "swap places 6, 1", "CBDEFA", 34],
-    ];
-    return svg(
-      460,
-      292,
-      `${tx(12, 20, "current tour ABDEFC has length 34 km. Its six neighbours:", { a: "start", f: "800 13px" })}${R.map(([k, op, t, l], i) => `<g data-pick="${k}"><rect x="12" y="${32 + i * 42}" width="436" height="36" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${tx(26, 55 + i * 42, op, { a: "start", f: "700 13px", c: "var(--text-dim)" })}${tx(210, 56 + i * 42, t, { a: "start", f: "900 15px" })}${tx(340, 56 + i * 42, l + " km", { a: "start", f: "800 15px" })}</g>`).join("")}`,
-    );
-  };
-
-  B.add("l3-neighbourhood", [
-    {
-      type: "slider",
-      q: "Solutions are 8-bit strings. A mutation flips either one bit or two different bits. How many neighbours does each string have?",
-      min: 0,
-      max: 60,
-      step: 1,
-      ans: 36,
-      tol: 6,
-      unit: "neighbours",
-      hint: "One flip: 8 ways. Two flips: 8 × 7 ÷ 2 = 28 pairs. Add them.",
-      why: "8 single flips plus 28 pairs of flips gives 36. Allowing bigger moves widens the neighbourhood: fewer local optima, but each step has more to check.",
-    },
-    {
-      type: "match",
-      q: "Match each mutation operator to the number of neighbours it gives a solution.",
-      pairs: [
-        ["Flip one bit of a 7-bit string", "7"],
-        ["Swap any two of 6 cities", "15"],
-        ["Swap adjacent cities in a 6-city path (no wrap-around)", "5"],
-        ["Flip exactly two bits of a 5-bit string", "10"],
-      ],
-      hint: "Choosing 2 positions from n gives n × (n − 1) ÷ 2.",
-      why: "7 bits give 7 flips. Pairs of 6 cities: 6 × 5 ÷ 2 = 15. A 6-city path has 5 adjacent pairs. Pairs of 5 bits: 5 × 4 ÷ 2 = 10.",
-    },
-    {
-      type: "pick",
-      q: "Cost is minimised and a hillclimber accepts a neighbour that is no longer than the current tour. Click every neighbour it would accept.",
-      fig: nbRowsFig(),
-      a: ["n1", "n6"],
-      hint: "Accept means 34 km or less. Remember the last row is a wrap-around swap of the last and first places.",
-      why: "BADEFC (25 km) is better, and CBDEFA (34 km) ties with the current tour, so a hillclimber that accepts equal moves takes it. The others are longer and are rejected.",
+      q: "A generational GA keeps 2 elites. Here is the current population (fitness, higher is better). Tap every member that is certain to be in the next generation.",
+      fig: bars([0.42, 0.9, 0.55, 0.8, 0.3, 0.65, 0.7, 0.5], {
+        ids: ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8"],
+        labels: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"],
+        max: 1.05,
+        fmt: (v) => v.toFixed(2),
+      }),
+      a: ["m2", "m4"],
+      why: "Elitism copies the best 2 members unchanged: 0.90 (M2) and 0.80 (M4). Everyone else, even a decent 0.70, has to be picked as a parent and survive crossover and mutation to leave any trace, and the new population has no room for the old members.",
     },
     {
       type: "bug",
-      q: "This function should list each neighbour (swap of two cities) once, but it returns n × n tours, including unchanged copies and duplicates. Click the faulty line.",
+      q: "A generational GA with 2 elites should end each generation with a population of the same size. Tap the faulty line.",
       code: [
-        "def neighbours(t):",
-        "    out = []",
-        "    for i in range(len(t)):",
-        "        for j in range(len(t)):",
-        "            m = t[:]",
-        "            m[i], m[j] = m[j], m[i]",
-        "            out.append(m)",
-        "    return out",
+        "pop.sort(key=fitness, reverse=True)",
+        "new = pop[:2]",
+        "while len(new) < len(pop):",
+        "    new.append(make_child(pop))",
+        "pop = pop + new",
       ],
-      a: 3,
-      why: "When j equals i nothing changes, and the pair (i, j) is repeated as (j, i). Starting the inner loop at i + 1 gives each of the n(n − 1)/2 swaps exactly once.",
-    },
-    {
-      type: "order",
-      q: "A tour or string has 10 positions. Order these mutation operators from the smallest neighbourhood to the largest.",
-      items: [
-        "Swap adjacent cities, 10 cities, wrapping around",
-        "Swap any two cities, 10 cities",
-        "Flip one or two bits of a 10-bit string",
-        "Take one city out and put it back at any other place, 10 cities",
-      ],
-      hint: "10, then 10 × 9 ÷ 2, then 10 plus that, then 9 × 9 (each city has 9 new places, but moving a city one place right equals moving the next one a place left).",
-      why: "Adjacent swaps give 10. Any two cities give 45. One or two bit flips give 10 + 45 = 55. Moving one city gives (10 − 1)² = 81 distinct tours, the biggest here.",
-    },
-  ]);
-
-  /* ======================================================================
-     l3-local
-     ====================================================================== */
-  const runFig = () => {
-    const C = [20, 17, 19, 14, 16, 12, 15, 13],
-      X = (i) => 70 + i * 50,
-      Y = (c) => 214 - (c - 8) * 12;
-    const dots = C.map(
-      (c, i) =>
-        `<g data-pick="s${i + 1}"><circle cx="${X(i)}" cy="${Y(c)}" r="13" fill="var(--panel)" stroke="var(--blue)" stroke-width="3"/>${tx(X(i), Y(c) + 5, c, { f: "900 12px" })}${tx(X(i), 236, "step " + (i + 1), { f: "700 11px", c: "var(--text-faint)" })}</g>`,
-    ).join("");
-    return svg(
-      460,
-      250,
-      `${ln(40, 222, 450, 222)}${ln(40, 20, 40, 222)}${path(
-        C.map((c, i) => [X(i), Y(c)]),
-        "var(--blue)",
-        3,
-      )}${dots}
-      <text transform="translate(14,125) rotate(-90)" text-anchor="middle" style="font:700 12px var(--sans);fill:var(--text-faint)">cost of current solution</text>`,
-    );
-  };
-
-  B.add("l3-local", [
-    {
-      type: "pick",
-      q: "A Monte Carlo search minimises cost. Each dot is the cost of its current solution after that step, and the run stops after step 8. Click the step whose solution the search should return.",
-      fig: runFig(),
-      a: "s6",
-      why: "The search should return its best-so-far, the lowest cost seen anywhere in the run: 12 at step 6. The final current solution (13) is not the best, because accepting worse moves lets the current solution drift back up.",
-    },
-    {
-      type: "slider",
-      q: "A Monte Carlo search accepts a worse neighbour with probability 0.1. To cross a dip it needs two worse neighbours in a row to be accepted. On average, how many times must it set out into the dip before it gets across?",
-      min: 0,
-      max: 300,
-      step: 10,
-      ans: 100,
-      tol: 30,
-      unit: "attempts",
-      hint: "0.1 × 0.1 = 0.01, which is 1 chance in 100.",
-      why: "Each attempt succeeds with chance 0.1 × 0.1 = 0.01, so about 100 attempts are needed. Deeper dips get much worse: three worse steps in a row would take about 1,000. Small p crosses only shallow valleys.",
-    },
-    {
-      type: "slider",
-      q: "A tabu search looks at all 12 neighbours of its current solution on every step, and a Monte Carlo search looks at one. Both have a budget of 600 evaluations. How many steps does the tabu search make?",
-      min: 0,
-      max: 100,
-      step: 2,
-      ans: 50,
-      tol: 8,
-      unit: "steps",
-      hint: "600 ÷ 12: think 60 ÷ 12 = 5, so 600 ÷ 12 = 50.",
-      why: "Tabu pays for 12 evaluations per step, so 600 ÷ 12 = 50 steps, while Monte Carlo makes 600. Tabu's steps are better chosen, but there are far fewer of them.",
+      a: 4,
+      why: "pop + new glues the old population and the new one together, so the population doubles every generation and nothing is ever replaced. It should be pop = new. The elites are already inside new.",
     },
     {
       type: "match",
-      q: "Match each symptom in a local-search run to its most likely cause.",
+      q: "Match each design choice to its main consequence.",
       pairs: [
-        ["It keeps stepping between the same two solutions", "The tabu list is too short, or missing"],
-        ["At one step every neighbour is banned", "The tabu list is longer than the neighbourhood can bear"],
-        [
-          "The answer returned is worse than one seen halfway",
-          "The code returned the current solution, not the best-so-far",
-        ],
-        [
-          "Only one neighbour is looked at per step, and some worse moves are taken",
-          "It is a Monte Carlo search, not tabu",
-        ],
+        ["Generational", "Children wait a whole generation before they can breed"],
+        ["Steady-state", "A new child can be picked as a parent straight away"],
+        ["No elitism", "The best fitness can fall from one generation to the next"],
+        ["Elitism of 2", "The two best survive untouched into the next generation"],
       ],
-      why: "A tabu list that is too short lets the search walk straight back. One that is too long can ban the whole neighbourhood. Returning the current solution loses good solutions once worse moves are allowed.",
-    },
-    {
-      type: "multi",
-      q: "Select all statements about tabu search that are true.",
-      o: [
-        "It may move to a worse solution when every allowed neighbour is worse",
-        "Solutions leave the tabu list after a while and can be visited again",
-        "A solution that has been visited once is banned for the rest of the run",
-        "A very short tabu list can still let it circle round a loop of several solutions",
-        "It needs a population of solutions to work",
-      ],
-      a: [0, 1, 3],
-      why: "Tabu search always takes the best allowed neighbour, even if worse. Entries expire, so nothing is banned for ever, and a list of only the last 2 solutions cannot stop a cycle of 4. It works with a single current solution.",
-    },
-  ]);
-
-  /* ======================================================================
-     l3-population
-     ====================================================================== */
-  const mtnFig = () => {
-    const f = (x) => 0.55 * Math.exp(-Math.pow((x - 0.22) / 0.1, 2)) + 1.0 * Math.exp(-Math.pow((x - 0.78) / 0.13, 2));
-    const X = (x) => 20 + x * 420,
-      Y = (v) => 200 - v * 150,
-      pts = [];
-    for (let i = 0; i <= 100; i++) pts.push([X(i / 100), Y(f(i / 100))]);
-    const P = { P1: 0.22, P2: 0.3, P3: 0.6 };
-    return svg(
-      460,
-      236,
-      `${ln(14, 200, 446, 200)}${path(pts, "var(--teal)", 4)}${Object.entries(P)
-        .map(
-          ([k, x]) =>
-            `<g data-pick="${k}"><circle cx="${X(x)}" cy="${Y(f(x))}" r="14" fill="var(--panel)" stroke="var(--violet)" stroke-width="3"/>${tx(X(x), Y(f(x)) + 5, k.slice(1), { f: "900 14px" })}</g>`,
-        )
-        .join("")}${tx(230, 226, "position in the search space", { f: "700 12px", c: "var(--text-faint)" })}`,
-    );
-  };
-  const barsFig = () => {
-    const pop = [28, 30, 32, 33, 35],
-      mu = [36, 29, 34];
-    const cell = (id, x, y, v, c) =>
-      `<g data-pick="${id}"><rect x="${x}" y="${y}" width="72" height="40" rx="10" fill="var(--panel)" stroke="${c}" stroke-width="2.5"/>${tx(x + 36, y + 26, v, { f: "900 16px" })}</g>`;
-    return svg(
-      460,
-      188,
-      `${tx(12, 20, "population (km)", { a: "start", c: "var(--text-faint)", f: "700 12px" })}${pop.map((v, i) => cell("p" + (i + 1), 12 + i * 88, 30, v, "var(--blue)")).join("")}
-      ${tx(12, 112, "mutants, arriving in this order (km)", { a: "start", c: "var(--text-faint)", f: "700 12px" })}${mu.map((v, i) => cell("m" + (i + 1), 12 + i * 88, 122, v, "var(--amber)")).join("")}${["1st", "2nd", "3rd"].map((s, i) => tx(48 + i * 88, 178, s, { f: "700 12px", c: "var(--text-faint)" })).join("")}`,
-    );
-  };
-
-  B.add("l3-population", [
-    {
-      type: "pick",
-      q: "Fitness is height, and the dots are three members of a population. A greedy rule would replace the lowest member next. Click the member that is most valuable to keep if the aim is to reach the tallest peak.",
-      fig: mtnFig(),
-      a: "P3",
-      why: "Members 1 and 2 are both on the smaller hill. Member 3 is low, but it sits at the foot of the much taller mountain, so small mutations can carry it up to the global best. Keeping poor-looking solutions preserves other regions of the search space.",
-    },
-    {
-      type: "cat",
-      q: "Which of these steps need a population, and which work with a single current solution?",
-      buckets: ["Needs a population", "Works on one solution"],
-      items: [
-        ["Selecting parents, favouring the fitter", 0],
-        ["Crossover of two parents", 0],
-        ["Replacing the weakest member", 0],
-        ["Mutating a copy", 1],
-        ["Accepting a neighbour that is no worse", 1],
-        ["Keeping a tabu list", 1],
-      ],
-      why: "Selecting, mixing and replacing 'the weakest' all compare members, so they need several. Mutation, the accept test and a tabu list act on one current solution, which is why hillclimbing and tabu search manage with one.",
-    },
-    {
-      type: "pick",
-      q: "A steady-state EA minimises tour length. Each mutant replaces the longest tour in the population only if it is shorter. The mutants arrive in the order shown. Click every tour that is in the population at the end.",
-      fig: barsFig(),
-      a: ["p1", "p2", "p3", "p4", "m2"],
-      hint: "36 is not shorter than the longest (35). Then 29 replaces 35. Then 34 meets the new longest, 33.",
-      why: "The 36 is rejected, the 29 replaces the 35, and the 34 is not shorter than the new longest (33), so it is rejected too. The population ends as 28, 29, 30, 32 and 33.",
+      why: "Generational schemes build a full new population from the old one, so children cannot be parents until the next round. Steady-state inserts one child at a time into the live population. Elitism is what protects the best; without it, a bad round of crossover and mutation can lose it.",
     },
     {
       type: "slider",
-      q: "Two parents have 20 bits and differ in exactly 6 places. A child copies each bit from either parent, chosen at random. How many different children are possible?",
+      q: "A steady-state GA has a population of 100 and makes one child per step, replacing one member each time. After 50 steps, at most what percentage of the population can be new children?",
       min: 0,
-      max: 200,
-      step: 4,
-      ans: 64,
-      tol: 16,
-      unit: "children",
-      hint: "Where the parents agree, the bit is fixed. Each of the 6 places that differ has 2 choices: 2, 4, 8, 16, 32, 64.",
-      why: "The 14 shared bits are fixed, and the 6 differing places give 2⁶ = 64 combinations. Crossover can only recombine what the parents carry. A bit value that neither has needs mutation. If the parents are identical, there is exactly one child.",
+      max: 100,
+      step: 5,
+      ans: 50,
+      tol: 5,
+      unit: "%",
+      hint: "Each step replaces at most 1 member out of 100. 50 steps replace at most 50 members, which is half.",
+      why: "One replacement per step means 50 steps touch at most 50 of the 100 slots. It is 'at most' because a slot can be overwritten twice, and a child may be rejected. This slow, gentle turnover is why steady-state GAs change the population smoothly rather than in big jumps.",
+    },
+    {
+      type: "multi",
+      q: "A generational GA has a population of 20 and 2 elites. Which statements are true?",
+      o: [
+        "18 new children are made and evaluated each generation",
+        "The elites can still be picked as parents for the children",
+        "The best fitness in the population can never fall",
+        "The elites skip the breeding stage entirely, so they are never parents",
+        "With 20 elites the GA would stand still, because no children are made",
+      ],
+      a: [0, 1, 2, 4],
+      why: "Elites are copied into the new population (2 slots), leaving 18 slots for children. They still sit in the old population, so selection can pick them as parents. Because the best is copied, best fitness cannot fall. Setting elites equal to the population size leaves no room for children, so nothing ever changes.",
+    },
+  ]);
+
+  /* ---------- l4-replacement ---------- */
+  B.add("l4-replacement", [
+    {
+      type: "pick",
+      q: "Replace-first-weaker, scanning right from slot 3 and wrapping round. The child has fitness 0.65 (dashed line). Tap the slot that gets overwritten.",
+      fig: addSvg(
+        bars([0.8, 0.4, 0.9, 0.7, 0.6, 0.5], {
+          ids: ["s1", "s2", "s3", "s4", "s5", "s6"],
+          labels: ["Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6"],
+          max: 1.15,
+          line: { y: 0.65, label: "child 0.65" },
+          fmt: (v) => v.toFixed(2),
+        }),
+        txt(220, 20, "scan starts here ▼", { s: 12, c: "var(--amber-ink)" }),
+      ),
+      a: "s5",
+      why: "Slot 3 (0.90) and slot 4 (0.70) are both stronger than the child, so the scan carries on. Slot 5 (0.60) is the first one weaker than 0.65, so it is overwritten and the scan stops. Slot 6 (0.50) is weaker still and would be the victim under replace-weakest, but this strategy never gets that far.",
     },
     {
       type: "mcq",
-      q: "Three EA runs on a problem scored out of 100. Which diagnosis fits the table?",
-      fig: `<table class="t"><tr><th></th><th>Tournament size</th><th>Bits flipped per child</th><th>Generation when all members matched</th><th>Best fitness</th></tr><tr><th>Run 1</th><td>2</td><td>1</td><td>90</td><td>96</td></tr><tr><th>Run 2</th><td>10</td><td>1</td><td>8</td><td>70</td></tr><tr><th>Run 3</th><td>2</td><td>15 of 100</td><td>never</td><td>58</td></tr></table>`,
+      q: "Two runs each used one replacement rule on the same problem. Which statement fits the evidence best?",
+      fig: tbl(
+        ["Run", "After 3,000 steps", "Mean fitness", "Distinct genomes of 50"],
+        [
+          ["P", "best 0.94", "0.93", "3"],
+          ["Q", "best 0.86", "0.71", "28"],
+        ],
+      ),
       o: [
-        "Run 2: a tournament of 10 made the members alike before good regions were found",
-        "Run 1: it took longest to become alike, so it converged too early",
-        "Run 3: heavy mutation made every member alike, which stalled progress",
-        "No run: becoming alike quickly means that the search is efficient",
+        "P is replace-weakest: it keeps culling the lowest, so the mean climbs and variety drains",
+        "Q is replace-weakest: it shields weak members, so many different genomes stay alive",
+        "P is replace-first-weaker: random victims keep the mean high but variety low",
+        "Neither can be told apart, because replacement rules never change variety",
       ],
       a: 0,
-      why: "Run 2 lost its diversity by generation 8 and got stuck at 70, premature convergence driven by strong selection. Run 1 converged slowly and scored best. Run 3 never converged, so heavy mutation kept it exploring but nothing was kept.",
+      why: "Replace-weakest always removes the lowest member, which is strong selection pressure: the mean rises right up to the best and the population fills with near-copies (3 genomes). Replace-first-weaker picks a victim by scan position, so weaker members linger: lower mean, more variety (28), and a slower best.",
+    },
+    {
+      type: "multi",
+      q: "Which statements about the two replacement rules are true?",
+      o: [
+        "Replace-first-weaker can overwrite the current best, if the child is better still",
+        "Replace-weakest can never overwrite the current best (population of 2 or more)",
+        "Under replace-first-weaker the best fitness in the population still never falls",
+        "Replace-weakest picks its victim at random, so it needs no comparisons",
+        "Replace-first-weaker can insert a child that is weaker than every member",
+      ],
+      a: [0, 1, 2],
+      why: "If the child beats the best, the best is 'weaker than the child' and may be the first the scan meets, but the child is better still, so best fitness only goes up. Replace-weakest removes the lowest, never the best. It needs a full pass to find the weakest, not a random pick. And a child weaker than everyone has no weaker member to replace, so it is rejected.",
+    },
+    {
+      type: "slider",
+      q: "A population of 1,000 uses replace-weakest, which looks at every member to find the weakest. About how many members are looked at in total over 5,000 steps?",
+      min: 0,
+      max: 10,
+      step: 1,
+      ans: 5,
+      tol: 1,
+      unit: " million",
+      hint: "1,000 looks per step × 5,000 steps = 5,000,000.",
+      why: "1,000 × 5,000 = 5 million. That is the price of strong pressure: replace-first-weaker usually stops after a couple of looks, so on big populations it is far cheaper per step (a heap or a tracked 'weakest' pointer can reduce the cost, but the plain scan is linear).",
+    },
+    {
+      type: "bug",
+      q: "Replace-first-weaker should scan the slots and overwrite the first member weaker than the child, then stop. Tap the faulty line.",
+      code: [
+        "for i in range(P):",
+        "    if fit[i] < child_fit:",
+        "        pop[i] = child",
+        "        fit[i] = child_fit",
+        "    break",
+      ],
+      a: 4,
+      why: "The break is indented under the for loop, not under the if, so the loop always stops after slot 1 whether or not it was replaced. Most children would never be inserted. The break belongs inside the if, after the two assignments.",
     },
   ]);
+
+  /* ---------- l4-pressure ---------- */
+  const takeFig = (() => {
+    const w = 520,
+      h = 230,
+      X = (g) => 50 + g * 60,
+      Y = (p) => 190 - p * 150;
+    const curves = [
+      ["A", [0.02, 0.078, 0.276, 0.726, 0.994, 1, 1, 1], "var(--teal)"],
+      ["B", [0.02, 0.149, 0.726, 1, 1, 1, 1, 1], "var(--blue)"],
+      ["C", [0.02, 0.04, 0.078, 0.149, 0.276, 0.476, 0.726, 0.925], "var(--amber)"],
+    ];
+    const paths = curves
+      .map(([id, v, c]) => {
+        const d = v.map((p, g) => `${g ? "L" : "M"}${X(g)} ${Y(p)}`).join(" ");
+        return `<g data-pick="${id}"><path d="${d}" fill="none" stroke="transparent" stroke-width="22" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round"/></g>`;
+      })
+      .join("");
+    const leg = curves
+      .map(
+        ([id, , c], i) =>
+          `<circle cx="${300 + i * 70}" cy="14" r="7" fill="${c}"/>${txt(312 + i * 70, 19, id, { a: "start" })}`,
+      )
+      .join("");
+    const ticks = [0, 1, 2, 3, 4, 5, 6, 7].map((g) => txt(X(g), 212, g, { s: 11, c: "var(--text-dim)" })).join("");
+    return `<svg viewBox="0 0 ${w} ${h}" style="max-height:${h}px"><line x1="40" x2="${w - 20}" y1="190" y2="190" stroke="var(--line-2)" stroke-width="2"/>${txt(10, 14, "Share of population that copies the best", { a: "start", c: "var(--text-dim)", s: 12 })}${leg}${paths}${ticks}${txt(490, 226, "generation", { a: "end", s: 11, c: "var(--text-faint)" })}${txt(36, 44, "100%", { a: "end", s: 11, c: "var(--text-dim)" })}</svg>`;
+  })();
+  B.add("l4-pressure", [
+    {
+      type: "pick",
+      q: "Three runs start with 2% of the population as copies of the best individual (no mutation, no crossover). They use tournament sizes 2, 4 and 8. Tap the curve of the size 8 run.",
+      fig: takeFig,
+      a: "B",
+      why: "A bigger tournament means each pick is more likely to include a good entrant, so copies of the best spread faster. Size 8 takes over in about 3 generations (B), size 4 needs about 5 (A) and size 2 is still not complete after 7 (C). Fast takeover is exactly what high selection pressure means.",
+    },
+    {
+      type: "order",
+      q: "Put these selection rules from the LOWEST to the HIGHEST selection pressure.",
+      items: [
+        "Random selection (tournament of 1)",
+        "Binary tournament (size 2)",
+        "Tournament of size 5",
+        "Always pick the single best member",
+      ],
+      why: "Size 1 ignores fitness altogether. Each extra entrant raises the chance that a strong individual is in the draw. Always taking the best is the extreme end: the rest of the population never breeds at all.",
+    },
+    {
+      type: "match",
+      q: "Match each symptom to the most sensible fix.",
+      pairs: [
+        ["Everyone is a copy of one genome by generation 15", "Lower the tournament size or raise the mutation rate"],
+        ["Best and mean both crawl, with plenty of variety left", "Raise the tournament size"],
+        ["The roulette wheel is almost flat late in the run", "Switch to rank selection"],
+        ["Best fitness dips between generations", "Add elitism"],
+      ],
+      why: "Too much pressure kills variety, so soften it. Too little pressure wastes variety, so tighten it. Roulette flattens as fitnesses converge, and rank selection keeps its spread. A dipping best is a loss of the champion, and elitism copies it forward.",
+    },
+    {
+      type: "bug",
+      q: "A self-adjusting EA should loosen selection when the population has almost converged. Tap the faulty line.",
+      code: [
+        "div = len(set(pop)) / len(pop)",
+        "if div < 0.1:          # almost everyone identical",
+        "    t = t + 1",
+        "return tournament(pop, t)",
+      ],
+      a: 2,
+      why: "When diversity is below 10%, selection is already too strong, and a bigger t makes it stronger. It should reduce t (for example t = max(2, t - 1)). The comparison is right; the direction of the change is wrong.",
+    },
+    {
+      type: "slider",
+      q: "Entrants for a size 3 tournament are drawn with replacement from a large population. About what percentage of the time does the winner come from the better half?",
+      min: 50,
+      max: 100,
+      step: 5,
+      ans: 87.5,
+      tol: 5,
+      unit: "%",
+      hint: "The winner is from the worse half only if all 3 entrants are. (1/2) × (1/2) × (1/2) = 1/8.",
+      why: "All three entrants must be from the worse half for the winner to be from it: 1/8 = 12.5%. So the better half supplies 87.5% of winners. Even a modest tournament size is a strong filter.",
+    },
+  ]);
+
+  /* ---------- l4-roulette ---------- */
+  const stripFig = (() => {
+    const x0 = 40,
+      u = 44,
+      segs = [
+        ["A", 3, "var(--teal)"],
+        ["B", 1, "var(--blue)"],
+        ["C", 4, "var(--amber)"],
+        ["D", 2, "var(--violet)"],
+      ];
+    let c = 0;
+    const body = segs
+      .map(([id, v, col]) => {
+        const x = x0 + c * u,
+          s = `<g data-pick="${id}"><rect x="${x}" y="50" width="${v * u}" height="56" fill="${col}" fill-opacity=".8" stroke="var(--line-2)" stroke-width="2"/>${txt(x + (v * u) / 2, 84, id + " " + v, { s: 14, c: "#fff" })}</g>`;
+        c += v;
+        return s;
+      })
+      .join("");
+    const ticks = [0, 3, 4, 8, 10].map((t) => txt(x0 + t * u, 128, t, { s: 12, c: "var(--text-dim)" })).join("");
+    const mx = x0 + 3.4 * u;
+    return `<svg viewBox="0 0 520 150" style="max-height:150px">${txt(x0, 16, "The wheel laid flat: slice size = fitness", { a: "start", c: "var(--text-dim)", s: 12 })}${body}${ticks}<path d="M${mx} 46 l-7 -12 h14 z" fill="var(--rose)"/>${txt(mx, 30, "random point 3.4", { a: "start", c: "var(--rose-ink)", s: 12 }).replace(`x="${mx}"`, `x="${mx + 12}"`)}</svg>`;
+  })();
+  const wheelsFig = (() => {
+    const cols = ["var(--teal)", "var(--blue)", "var(--amber)", "var(--violet)"];
+    const lab = (a) => a.map((v, i) => "F" + (i + 1) + " " + v);
+    return `<svg viewBox="0 0 520 250" style="max-height:250px">${txt(130, 18, "Generation 2", { s: 15 })}<g data-pick="early">${pie([1, 2, 5, 8], lab([1, 2, 5, 8]), 130, 135, 95, null, cols)}</g>${txt(390, 18, "Generation 80", { s: 15 })}<g data-pick="late">${pie([91, 92, 95, 98], lab([91, 92, 95, 98]), 390, 135, 95, null, cols)}</g></svg>`;
+  })();
+  B.add("l4-roulette", [
+    {
+      type: "pick",
+      q: "Individuals A to D sit on the wheel in that order, laid out flat below (slice size = fitness). The random point lands at 3.4. Tap the individual that is selected.",
+      fig: stripFig,
+      a: "B",
+      why: "The running totals are A 0 to 3, B 3 to 4, C 4 to 8 and D 8 to 10. The point 3.4 sits in the narrow B slice, even though B has the smallest fitness. A small slice is picked rarely (1 in 10 spins), not never.",
+    },
+    {
+      type: "pick",
+      q: "The same roulette selection is used throughout one run. Tap the wheel where selection pressure has all but vanished.",
+      fig: wheelsFig,
+      a: "late",
+      why: "In generation 80 every slice is about a quarter, so each individual is picked about equally often: selection is nearly random. In generation 2 the best owns about half the wheel. As a population converges, fitness ratios shrink towards 1, which is why roulette stalls late in a run and rank selection helps.",
+    },
+    {
+      type: "match",
+      q: "Match each change to what it does to roulette selection probabilities.",
+      pairs: [
+        ["Multiply every fitness by 10", "Nothing changes"],
+        ["Add 100 to every fitness", "The wheel gets flatter"],
+        ["Square every fitness (all positive)", "The best gets a bigger share"],
+        ["Use 1 divided by tour length for a TSP", "Shorter tours get bigger slices"],
+      ],
+      why: "Probabilities are shares of the total, so scaling cancels out. Adding a constant pushes every share towards equal. Squaring exaggerates differences (3 versus 2 becomes 9 versus 4). For minimisation you need a transform that rewards small values, such as 1 divided by the length.",
+    },
+    {
+      type: "bug",
+      q: "This builds the running totals (the wheel edges) for roulette selection. Tap the faulty line.",
+      code: ["cum = []", "running = 0", "for ind in pop:", "    running = ind.fit", "    cum.append(running)"],
+      a: 3,
+      why: "running = ind.fit overwrites the total each time, so cum just repeats the fitnesses and is not increasing. It must add: running += ind.fit. Only then do the entries mark the right edges of the slices.",
+    },
+    {
+      type: "mcq",
+      q: "In 1,000 roulette spins on four individuals A, B, C, D the picks were as shown. Which fitness values for A, B, C, D could have produced them?",
+      fig: bars([405, 297, 208, 90], { labels: ["A", "B", "C", "D"], max: 480, h: 200 }),
+      o: ["4, 3, 2, 1", "10, 5, 3, 2", "4, 4, 1, 1", "1, 2, 3, 4"],
+      a: 0,
+      hint: "Shares of about 40, 30, 20 and 10 per cent are in the ratio 4 : 3 : 2 : 1.",
+      why: "The picks are about 41%, 30%, 21% and 9%, the ratio 4 : 3 : 2 : 1. Fitnesses 10, 5, 3, 2 would give A half the picks, 4, 4, 1, 1 would make A and B equal, and 1, 2, 3, 4 would put D on top.",
+    },
+  ]);
+  Object.assign(partScope, { bars, strip, tbl, txt });
 })();

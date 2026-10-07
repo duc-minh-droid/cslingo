@@ -10,10 +10,83 @@
   display: grid;
   gap: 12px;
 }
+.ov-row {
+  display: grid;
+  gap: 6px;
+}
 .ov-c {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 6px;
+  margin: -6px;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+.ov-c:hover {
+  transform: translateY(-2px);
+  background: var(--line);
+}
+.ov-c:focus-visible,
+.ov-lec:focus-visible,
+.ov-det summary:focus-visible {
+  outline: 3px solid var(--u, var(--ink));
+  outline-offset: 2px;
+}
+.ov-det {
+  margin-left: 56px;
+}
+.ov-det summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 8px;
+}
+.ov-lecs {
+  display: grid;
+  gap: 4px;
+  padding-top: 6px;
+}
+.ov-lec {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.ov-lec:hover {
+  background: var(--line);
+}
+.ov-lb {
+  display: block;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ov-lb > i {
+  display: block;
+  height: 100%;
+  background: var(--u);
+  transform-origin: 0 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ov-c {
+    transition: none;
+  }
+  .ov-c:hover {
+    transform: none;
+  }
 }
 .ov-ct {
   flex: 1;
@@ -159,4 +232,23 @@
   font-size: 12px;
   font-style: normal;
   font-weight: 900;
+}
+
+/* Profile: daily goal chip near the top, smaller mascot shelf */
+.pf-goal {
+  display: inline-block;
+  margin: 10px 0 12px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: var(--line);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+button.pf-goal {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
 }

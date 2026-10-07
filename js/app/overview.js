@@ -25,10 +25,23 @@
           mastered ? `${mastered} question${mastered === 1 ? "" : "s"} mastered` : "",
         ].filter(Boolean)
       : ["Loading…"];
-    return `<div class="ov-c u-${UNIT_COLOR[k] || "green"}">${NIC.mascot({ who: S.who, size: 44, poke: false, mood: P.n && P.d === P.n ? "love" : "idle" })}
+    return `<div class="ov-row u-${UNIT_COLOR[k] || "green"}"><a class="ov-c" href="#${esc(S.home)}" aria-label="Open ${esc(S.name)}">${NIC.mascot({ who: S.who, size: 44, poke: false, mood: P.n && P.d === P.n ? "love" : "idle" })}
       <div class="ov-ct"><b>${esc(S.name)}</b><span>${bits.join(" · ")}</span>
         <span class="ov-bar" role="progressbar" aria-label="${esc(S.name)} lessons done" aria-valuemin="0" aria-valuemax="${P.n}" aria-valuenow="${P.d}"><span style="transform:scaleX(${P.f})"></span></span></div>
-      <b class="ov-pc" aria-hidden="true">${loaded ? Math.round(P.f * 100) + "%" : ""}</b></div>`;
+      <b class="ov-pc" aria-hidden="true">${loaded ? Math.round(P.f * 100) + "%" : ""}</b></a>${lectures(k, list)}</div>`;
+  }
+
+  /** Collapsed "Lectures" list under a course row: "L3 · 2/5" with a thin bar, linking to the first unfinished lesson. */
+  function lectures(k, list) {
+    const by = new Map();
+    list.forEach((m) => by.set(m.lecture, [...(by.get(m.lecture) || []), m]));
+    if (by.size < 2) return "";
+    const rows = [...by.entries()].map(([lec, ms]) => {
+      const P = progress(ms),
+        next = ms.find((m) => !m.video && status(m) !== "done") || ms[0];
+      return `<a class="ov-lec" href="#${esc(next.id)}" aria-label="Lecture ${esc(lec)}, ${P.d} of ${P.n} done${P.d === P.n ? "" : ", continue"}"><span>L${esc(lec)} · ${P.d}/${P.n}</span><i class="ov-lb"><i style="transform:scaleX(${P.f})"></i></i></a>`;
+    });
+    return `<details class="ov-det"><summary>Lectures</summary><div class="ov-lecs">${rows.join("")}</div></details>`;
   }
 
   /** Monday to Sunday of this week with the XP earned on each day (the same week the streak pop-up shows). */

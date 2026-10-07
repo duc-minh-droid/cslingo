@@ -64,7 +64,7 @@
   /* The question lists are big (about 1.4 MB), so they are not loaded at startup: the Revise page and revision rounds call
      NIC.bank.load() first. Everything that needs only the review log (the due badge, recording an answer) works without them. */
   // one numbered file per slice of questions: js/bank/<course>-01.js ... (tools/check-structure.js checks these counts)
-  const PARTS = { nic: 41, ds: 31, algo: 57 };
+  const PARTS = { nic: 43, ds: 31, algo: 87 };
   const FILES = Object.entries(PARTS).flatMap(([c, n]) =>
     Array.from({ length: n }, (_, i) => `js/bank/${c}-${String(i + 1).padStart(2, "0")}.js`),
   );

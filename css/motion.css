@@ -292,6 +292,10 @@ html[data-vt="back"]::view-transition-new(root) {
     animation: none;
     opacity: 0.6;
   }
+  :is(.p-node, .us-in, .dk-ind) {
+    animation-duration: 1ms;
+    transition-duration: 0ms;
+  }
   html :is(.pl-body .opt.sel, .predict .opt.multi.sel, .qm-t.sel, .qc-line.sel, .ob-c.on) {
     animation: none;
   }

@@ -82,7 +82,7 @@
               .sort((a, b) => b.f - a.f)
               .slice(0, 10);
             note =
-              "Old and new are pooled (12 solutions) and the best 10 survive. S11 gets in, S12 (0.2) doesn't, and the worst old ones drop out.";
+              "Old and new are pooled (12 solutions) and the best 10 survive. S11 and S12 both get in, and the worst old ones (S1 and S10, 0.1) drop out.";
           }
           qs("#res", card).innerHTML =
             `<h3 style="margin-top:12px">Next population</h3><div class="pop">${out.map((p) => `<div class="chip ${p.nw ? "new" : ""}"><small>${p.n}</small><b>${p.f.toFixed(1)}</b></div>`).join("")}</div><p class="dim" style="margin-top:10px">${note}</p>`;

@@ -1,0 +1,157 @@
+/* Lecture 5 workshops: styles (classes prefixed nw5-). Used by 5.W, 5.W2 and 5.C. */
+.nw5-tabs {
+  margin-bottom: 2px;
+}
+.nw5-genes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 10px 0;
+}
+.nw5-gs {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.nw5-gs small,
+.nw5-bit small,
+.nw5-cn small {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+.nw5-gr {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.nw5-st {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 2px 0 var(--line);
+  color: var(--text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .nw5-st {
+    position: relative;
+  }
+  .nw5-st::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+}
+.nw5-st:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.nw5-st:focus-visible,
+.nw5-bit .gene:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+.nw5-grid {
+  max-width: 440px;
+  text-align: center;
+  margin: 8px 0;
+}
+.nw5-grid td.nw5-pick {
+  background: var(--blue-dim);
+  color: var(--blue-ink);
+  font-weight: 900;
+}
+.nw5-bad {
+  color: var(--rose-ink);
+}
+.nw5-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.nw5-two h4 {
+  margin: 4px 0;
+}
+.nw5-noz {
+  width: 100%;
+  max-width: 380px;
+  display: block;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  margin: 6px 0;
+}
+.nw5-coords {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px 0;
+}
+.nw5-coord {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+.nw5-cn {
+  min-width: 130px;
+  font-size: 15px;
+}
+.nw5-val {
+  font-size: 20px;
+  color: var(--ink);
+}
+.nw5-bits {
+  display: flex;
+  gap: 6px;
+}
+.nw5-bit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 44px;
+}
+.nw5-bit .gene {
+  min-width: 40px;
+  height: 36px;
+  font: inherit;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.nw5-mv {
+  min-height: 14px;
+}
+.nw5-scene .genome-row .lbl {
+  width: 70px;
+}
+@media (max-width: 640px) {
+  .nw5-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .nw5-cn {
+    min-width: 0;
+    width: 100%;
+  }
+  .nw5-bits {
+    gap: 3px;
+  }
+  .nw5-bit {
+    min-width: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nw5-st:active {
+    transform: none;
+  }
+}

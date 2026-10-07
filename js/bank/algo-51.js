@@ -1,390 +1,411 @@
 (function () {
   const B = NIC.bank;
 
+  /* ---------- small SVG helpers ---------- */
   const tx = (x, y, s, o = {}) =>
-    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${o.sz || 14}px ${o.f || "var(--sans)"};fill:${o.c || "var(--text)"}">${s}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="middle" style="font:800 ${o.sz || 13}px var(--sans);fill:${o.c || "var(--text)"}">${s}</text>`;
   const svg = (w, h, body) => `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-height:${h}px">${body}</svg>`;
-  const box = (id, x, y, w, h, inner) =>
-    `<g data-pick="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${inner}</g>`;
+  const box = (x, y, w, h, pid, lines, c) =>
+    `<g data-pick="${pid}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--panel)" stroke="${c || "var(--line-2)"}" stroke-width="2"/>${lines
+      .map((l, i) => tx(x + w / 2, y + h / 2 + 5 - (lines.length - 1) * 9 + i * 18, l))
+      .join("")}</g>`;
 
-  /* ============================== a1-anatomy ============================== */
-  const cellsFig = svg(
-    420,
-    96,
-    [4, 9, 2, 6, 7]
-      .map((v, i) => box("c" + i, 10 + i * 80, 30, 70, 50, tx(45 + i * 80, 63, v, { sz: 20, f: "var(--mono)" })))
-      .join("") +
-      `<path d="M12 22 H228 M12 22 V28 M228 22 V28" stroke="var(--blue)" stroke-width="3" fill="none"/>` +
-      tx(120, 14, "checked so far (k = 3)", { sz: 12, c: "var(--text-dim)" }),
-  );
+  /* a road map: nodes {id: [x, y]}, edges [a, b, weight] */
+  const mapFig = () => {
+    const P = { S: [40, 72], A: [120, 26], B: [200, 26], C: [280, 26], D: [360, 72] };
+    const E = [
+      ["S", "A", 2, 0, -8],
+      ["A", "B", 1, 0, -8],
+      ["B", "C", 1, 0, -8],
+      ["C", "D", 1, 8, -8],
+      ["S", "D", 9, 0, 16],
+      ["S", "B", 5, -6, 6],
+    ];
+    let s = "";
+    E.forEach(([a, b, w, dx, dy]) => {
+      const [x1, y1] = P[a],
+        [x2, y2] = P[b];
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--line-2)" stroke-width="3"/>${tx((x1 + x2) / 2 + dx, (y1 + y2) / 2 + dy + 4, w, { c: "var(--text-dim)" })}`;
+    });
+    Object.entries(P).forEach(([k, [x, y]]) => {
+      s += `<g data-pick="${k}"><circle cx="${x}" cy="${y}" r="17" fill="var(--panel)" stroke="var(--blue)" stroke-width="3"/>${tx(x, y + 5, k)}</g>`;
+    });
+    return svg(400, 100, s);
+  };
 
-  B.add("a1-anatomy", [
+  /* open list for A*: three waiting nodes with g and h */
+  const openFig = () =>
+    svg(
+      380,
+      70,
+      box(10, 8, 110, 54, "A", ["A", "g = 1, h = 8"]) +
+        box(135, 8, 110, 54, "B", ["B", "g = 6, h = 2"]) +
+        box(260, 8, 110, 54, "C", ["C", "g = 3, h = 4"]),
+    );
+
+  /* naive count-to-infinity costs, one box per exchange */
+  const roundsFig = () => {
+    let s = "";
+    for (let i = 1; i <= 10; i++) {
+      const x = 8 + (i - 1) * 49;
+      s += box(x, 6, 44, 44, "r" + i, [2 * i + 1]) + tx(x + 22, 66, "#" + i, { sz: 11, c: "var(--text-dim)" });
+    }
+    return svg(500, 74, s);
+  };
+
+  /* corner table for the LP question */
+  const cornerFig = () => {
+    const rows = [
+      ["00", "(0, 0)", 0],
+      ["60", "(6, 0)", 24],
+      ["61", "(6, 1)", 22],
+      ["25", "(2, 5)", 26],
+      ["05", "(0, 5)", 20],
+    ];
+    return svg(
+      360,
+      rows.length * 36 + 4,
+      rows.map(([id, p, z], i) => box(10, 2 + i * 36, 340, 32, id, [`${p}:  z = ${z}`])).join(""),
+    );
+  };
+
+  /* =====================================================================
+     a2-dijkstra
+     ===================================================================== */
+  B.add("a2-dijkstra", [
     {
-      type: "cat",
-      q: "A manager gives a programmer four instructions for sorting a support queue. Sort each as a wish or a real algorithm step.",
-      buckets: ["A wish: too vague to run", "An algorithm step: nothing left to guess"],
-      items: [
-        ["Put the more important tickets first", 0],
-        ["Swap two neighbours if the left ticket has a lower priority number than the right", 1],
-        ["Sort the queue in a sensible way", 0],
-        ["Set best to the first ticket in the queue", 1],
-      ],
-      hint: "Could a computer follow the line with no human judgement?",
-      why: "A step is an algorithm step when every question is answered in advance: which two tickets, what comparison, what happens next. 'More important' and 'sensible' leave the meaning to the reader, so they are wishes until someone defines them with numbers and rules.",
-    },
-    {
-      type: "bug",
-      q: "This should return the product of all the numbers in a list. The invariant is: after k items, <code>total</code> = the product of those k items. It returns 0 for every list. Click the faulty line.",
-      code: ["def product(xs):", "    total = 0", "    for x in xs:", "        total = total * x", "    return total"],
-      a: 1,
-      hint: "What should the product of zero items be, so that the first multiplication works?",
-      why: "The invariant must be true before the loop starts, when 0 items have been checked. The product of nothing is 1, not 0. Starting at 0 makes every later multiplication give 0, so the invariant is false from the very first pass. The loop line itself is right.",
+      type: "pick",
+      q: "Dijkstra runs from S on this map (road costs shown). Click the node whose <b>shortest</b> route from S uses the <b>most roads</b>.",
+      fig: mapFig(),
+      a: "D",
+      hint: "Add up S–A–B–C–D: 2 + 1 + 1 + 1. Compare with the direct road S–D.",
+      why: "The cheapest route to D is S–A–B–C–D at 2 + 1 + 1 + 1 = 5, which is four roads, and beats the direct road at 9. B is reached in 3 by S–A–B (two roads), not by the direct road at 5. Fewest roads and lowest cost are different questions, and Dijkstra answers the second.",
     },
     {
       type: "slider",
-      q: "The loop sets <code>best</code> to the first item, then for each later item x does: if x > best, set best to x. It runs on [3, 8, 8, 5, 11, 11, 2]. How many times is <code>best</code> reassigned inside the loop?",
+      q: "Roads: S–A costs 4, S–B costs 7, A–B costs 2, B–T costs 3. Dijkstra has just settled S and then A. What is B's tentative distance now?",
       min: 0,
-      max: 6,
+      max: 12,
       step: 1,
-      start: 0,
-      ans: 2,
-      tol: 0.5,
-      unit: " times",
-      hint: "The test is strictly greater, so an equal value does not count. Track best: 3, then 8, then 8 again, and so on.",
-      why: "best starts at 3. The 8 beats it (change 1). The second 8 is equal, not greater, so no change. 5 is smaller. 11 beats 8 (change 2). The second 11 is equal, so no change. 2 is smaller. That is 2 reassignments, and the invariant still holds at every step.",
+      start: 3,
+      ans: 6,
+      tol: 0,
+      unit: "",
+      hint: "After S, B holds 7. Going through A costs 4 + 2. Keep the smaller.",
+      why: "Relaxing A–B gives 4 + 2 = 6, which is less than the 7 set from S, so B drops to 6. The 3 of the road B–T is not added yet: that matters only once B is settled.",
+    },
+    {
+      type: "order",
+      q: "Put Dijkstra's steps in order, from the start of a run.",
+      items: [
+        "Set the start's distance to 0 and every other distance to infinity",
+        "Take the unsettled node u with the smallest distance",
+        "For each road u to v, compare dist[u] + cost with dist[v] and keep the smaller",
+        "Repeat until every reachable node is settled",
+      ],
+      hint: "You cannot pick a smallest distance before distances exist.",
+      why: "Set up the distances first, then pick the closest unsettled node, use it to look for shortcuts to its neighbours, and repeat the pick-and-relax round until nothing reachable is left.",
+    },
+    {
+      type: "multi",
+      q: "A map's roads all have positive costs. Every road's cost is now <b>doubled</b>, and Dijkstra runs again from the same start. Select every statement that is true.",
+      o: [
+        "Each node's shortest distance is doubled",
+        "The shortest route to each node is unchanged",
+        "The nodes are settled in the same order",
+        "Each node's shortest distance stays the same",
+        "Dijkstra now needs negative edges to cope",
+      ],
+      a: [0, 1, 2],
+      hint: "Every route's total is doubled, so which route is smallest does not change.",
+      why: "Doubling multiplies every route's total by 2, so the ranking of routes is the same: the same routes win, the same order of settling, with distances twice as big. Nothing negative appears, so Dijkstra is still safe. (Adding a constant to each road is different: it penalises routes with more roads.)",
     },
     {
       type: "match",
-      q: "A find-the-biggest loop has these parts. Match each part to the job it does in the correctness argument.",
+      q: "Match each situation on a map with what Dijkstra does about it.",
       pairs: [
-        ["best ← first item", "Initialisation: makes the invariant true before the loop"],
-        ["if x > best: best ← x", "Maintenance: keeps the invariant true after each item"],
-        ["return best", "Termination: the invariant now answers the question"],
-        ["if the list is empty, report an error", "Edge case: settled before the invariant can start"],
+        ["A node that no road leads to from S", "Its distance stays at infinity"],
+        ["Two different routes tie for the shortest", "Either may be reported, with the same distance"],
+        ["A road with cost 0", "Fine: it adds nothing, and the guarantee still holds"],
+        ["A road that leads back into S", "It can never lower S, which is already 0"],
       ],
-      why: "A loop proof has three checks and one safety net. The start makes the promise true, each pass keeps it true, and at the end the promise is the answer. The empty-list rule exists because 'first item' does not exist there, so the promise could not even begin.",
-    },
-    {
-      type: "pick",
-      q: "A loop finds the biggest number. The invariant is: <code>best</code> = the biggest of the items checked so far. The first 3 items (in the blue bracket) have been checked. Tap the cell that <code>best</code> was copied from.",
-      fig: cellsFig,
-      a: "c1",
-      hint: "Look only inside the bracket. Which of those three is biggest?",
-      why: "The checked items are 4, 9 and 2, so best is 9, copied from the second cell. The 6 and the 7 are outside the bracket: the invariant says nothing about them yet, and neither one has been looked at.",
-    },
-    {
-      type: "mcq",
-      q: "The documentation for <code>average(xs)</code> says: 'xs must hold at least one number.' What kind of statement is this?",
-      o: [
-        "A precondition on the input",
-        "A loop invariant for the sum",
-        "A promise about the output",
-        "A proof that the loop stops",
-      ],
-      a: 0,
-      hint: "Who has to make this sentence true: the caller before the call, or the code during the loop?",
-      why: "A precondition is what the caller must supply for the algorithm to be allowed to work. Dividing by the length of an empty list would fail, so the contract rules that input out. An invariant describes the state during the loop, and a postcondition is about the result.",
-    },
-  ]);
-
-  /* ============================== a1-bigo ============================== */
-  const rowsFig = svg(
-    420,
-    190,
-    [
-      ["A", "100 → 400 steps"],
-      ["B", "7 → 8 steps"],
-      ["C", "300 → 600 steps"],
-      ["D", "50 → 50 steps"],
-    ]
-      .map((r, i) =>
-        box(
-          r[0],
-          10,
-          8 + i * 44,
-          400,
-          36,
-          tx(32, 32 + i * 44, r[0], { sz: 18 }) + tx(130, 32 + i * 44, r[1], { sz: 16, f: "var(--mono)", a: "start" }),
-        ),
-      )
-      .join(""),
-  );
-
-  B.add("a1-bigo", [
-    {
-      type: "slider",
-      q: "This code runs with n = 40. About how many times does <code>work()</code> run?<br><code>for i in range(n):</code><br><code>&nbsp;&nbsp;for j in range(5):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;work()</code>",
-      min: 0,
-      max: 400,
-      step: 10,
-      start: 100,
-      ans: 200,
-      tol: 20,
-      unit: " calls",
-      hint: "The inner loop always runs 5 times, whatever n is. So it is 5 per pass of the outer loop.",
-      why: "The outer loop runs 40 times and each pass makes 5 calls: 5 × 40 = 200. The inner loop's size never grows with n, so this is still O(n): the 5 is a constant factor that Big-O throws away.",
-    },
-    {
-      type: "cat",
-      q: "Sort each piece of code by how its work grows with n, the length of the list <code>xs</code>.",
-      buckets: ["O(1)", "O(log n)", "O(n)", "O(n²)"],
-      items: [
-        ["Return the middle item, xs[len(xs) // 2]", 0],
-        ["i = n; while i > 1: i = i // 3", 1],
-        ["Run two separate loops over xs, one after the other", 2],
-        ["For every x in xs, compare it with every y in xs", 3],
-        ["Add up the first 10 items of xs", 0],
-      ],
-      hint: "Ask what grows with n. Dividing by 3 each time is still repeated shrinking.",
-      why: "Reading the middle item and adding a fixed 10 items cost the same however long the list is. Dividing by 3 each pass is repeated shrinking, so it is logarithmic (a different base only changes a constant). Two loops in a row add up to 2n, which is O(n). A loop inside a loop over the same list is n × n.",
+      hint: "Ask whether the situation could ever lower a distance that is already settled.",
+      why: "Unreachable nodes are never relaxed, so they keep infinity. Ties give two valid answers with one distance. A zero road never makes a detour cheaper than its start, and nothing positive can beat S's 0, so none of these break the argument that the smallest tentative node is safe.",
     },
     {
       type: "bug",
-      q: "<code>steps(n)</code> is meant to count how many times you can double <code>i</code> before it reaches n, which takes about log₂ n steps. For n = 1,000,000 it takes a million steps. Click the faulty line.",
+      q: "This Dijkstra returns distances that are too small. Click the faulty line.",
       code: [
-        "def steps(n):",
-        "    count = 0",
-        "    i = 1",
-        "    while i < n:",
-        "        i = i + 1",
-        "        count += 1",
-        "    return count",
+        "def dijkstra(graph, s):",
+        "    dist = {v: INF for v in graph}",
+        "    dist[s] = 0",
+        "    heap = [(0, s)]",
+        "    while heap:",
+        "        d, u = heappop(heap)",
+        "        for v, w in graph[u]:",
+        "            if dist[u] + w < dist[v]:",
+        "                dist[v] = w",
+        "                heappush(heap, (dist[v], v))",
+        "    return dist",
       ],
-      a: 4,
-      hint: "Adding 1 each time moves very slowly. What would make the gap close faster and faster?",
-      why: "Adding 1 climbs from 1 to n one step at a time, which is n steps. Doubling (i = i * 2) covers the distance in about log₂ n steps, since 2 to the power 20 is about a million. The shape of the update, not the loop test, decides the big-O.",
-    },
-    {
-      type: "multi",
-      q: "Which of these step counts have n² as their dominant term, so they are O(n²)? Select all.",
-      o: ["3n² + 7", "n(n − 1) / 2", "n² + 50n", "40n + 1000", "n³ / 10", "0.01n²"],
-      a: [0, 1, 2, 5],
-      hint: "Find the biggest power of n in each one. Constants and smaller terms do not change the class.",
-      why: "3n² + 7, n(n − 1)/2 (which is n²/2 − n/2), n² + 50n and 0.01n² all have n² as the biggest term; the multipliers 3, ½ and 0.01 are constants that Big-O ignores. 40n + 1000 grows only linearly and n³/10 grows faster, so neither is O(n²) as a tight description.",
-    },
-    {
-      type: "pick",
-      q: "Four programs were timed by counting steps at n = 100 and then n = 200. Each row shows the two counts. Tap the program that is <b>quadratic</b>.",
-      fig: rowsFig,
-      a: "A",
-      hint: "Doubling n should make a quadratic program do 2 × 2 = 4 times the work.",
-      why: "Going from 100 to 200 doubles n. Row A goes from 100 to 400, which is four times as much, the signature of n². Row C doubles (linear), row B adds one step (logarithmic) and row D does not change (constant).",
-    },
-    {
-      type: "mcq",
-      q: "Why do we count <code>work()</code> calls as a function of n, instead of timing the program in seconds?",
-      o: [
-        "Counts ignore the machine and language",
-        "Seconds can never be measured on a real computer",
-        "Counts are always smaller than the seconds",
-        "Counts include the time the operating system uses",
-      ],
-      a: 0,
-      hint: "Run the same algorithm on a phone and on a supercomputer. What stays the same?",
-      why: "Seconds change with the hardware, the language and even what else is running. The number of steps depends only on the algorithm and the input size, so it lets us compare two algorithms fairly. The other options are not true: seconds can be timed, and counts do not include operating-system time.",
+      a: 8,
+      hint: "The test compares dist[u] + w. What does the update store?",
+      why: "The check says the route through u costs dist[u] + w, but the update stores only w, forgetting the distance already travelled to u. It should be dist[v] = dist[u] + w.",
     },
   ]);
 
-  /* ============================== a1-surfer ============================== */
-  const dilute = svg(
-    420,
-    140,
-    [
-      ["F", "rank 0.6", "3 links out"],
-      ["G", "rank 0.4", "1 link out"],
-      ["H", "rank 0.3", "2 links out"],
-    ]
-      .map((r, i) => {
-        const x = 10 + i * 135;
-        return box(
-          r[0],
-          x,
-          10,
-          125,
-          100,
-          tx(x + 62, 40, r[0], { sz: 22 }) +
-            tx(x + 62, 66, r[1], { sz: 15, f: "var(--mono)" }) +
-            tx(x + 62, 90, r[2], { sz: 15, f: "var(--mono)" }),
-        );
-      })
-      .join("") +
-      tx(210, 132, "Each page has exactly one of its links pointing at Z", { sz: 12, c: "var(--text-dim)" }),
-  );
-
-  B.add("a1-surfer", [
+  /* =====================================================================
+     a2-astar
+     ===================================================================== */
+  B.add("a2-astar", [
+    {
+      type: "pick",
+      q: "Greedy best-first search would take the waiting node with the smallest h, which is B. A* picks by g + h instead. Click the node A* takes next.",
+      fig: openFig(),
+      a: "C",
+      hint: "Work out g + h for each: 1 + 8, 6 + 2 and 3 + 4.",
+      why: "The f values are 9 for A, 8 for B and 7 for C, so A* takes C. B only looks close to the goal because it has already cost 6 to reach. Counting what has been spent as well as what is left is what makes A* correct where greedy is not.",
+    },
+    {
+      type: "slider",
+      q: "A* on a grid with 4-way moves, each step costing 1. A waiting cell was reached after 5 steps (g = 5). The goal is 2 columns right and 3 rows down from it. What is f = g + h with the Manhattan heuristic?",
+      min: 0,
+      max: 20,
+      step: 1,
+      start: 5,
+      ans: 10,
+      tol: 1,
+      unit: "",
+      hint: "h is the columns plus the rows: 2 + 3. Then add the 5 already spent.",
+      why: "h = 2 + 3 = 5 and g = 5, so f = 10. f is A*'s estimate of the whole trip through this cell: the cost so far plus the guess for the rest.",
+    },
     {
       type: "order",
-      q: "Put the parts of one move of the random surfer in order.",
+      q: "Put one round of A* in order.",
       items: [
-        "Pick a random number between 0 and 1",
-        "Compare it with the damping value d",
-        "Follow a random link, or teleport to a random page",
-        "Add one to the visit count of the page you landed on",
+        "Take the open cell with the smallest g + h",
+        "If it is the goal, stop and read the path back",
+        "Otherwise close it, so it is not expanded again",
+        "Offer each neighbour a cost through it and keep any improvement",
       ],
-      hint: "The surfer must decide first, then move, then record.",
-      why: "The random number is the coin toss. Comparing it with d tells the surfer whether to click or teleport. Only then can it move, and the visit is counted after landing. Over many moves, the visit shares settle towards each page's PageRank.",
-    },
-    {
-      type: "slider",
-      q: "A tiny web has three pages. P links only to Q. Q links to P and R. R has no links out. Each page holds 30 tokens. Each page pours its tokens out equally; a page with no links shares its tokens equally between all 3 pages. After one step, how many tokens does Q hold?",
-      min: 0,
-      max: 90,
-      step: 5,
-      start: 30,
-      ans: 40,
-      tol: 5,
-      unit: " tokens",
-      hint: "Q gets all 30 of P's tokens, nothing from itself, and a third of R's 30.",
-      why: "P sends all 30 to Q. Q sends its own 30 to P and R, so it gives none to itself. R shares its 30 three ways, 10 each, so Q gets 10 more. Q holds 30 + 10 = 40. Check the total: P gets 15 + 10 = 25, R gets 15 + 10 = 25, and 25 + 40 + 25 = 90, so nothing leaked.",
+      hint: "You can only test whether it is the goal after you have taken it from the open list.",
+      why: "Choose by f, test for the goal at the moment it is taken (not earlier), close the cell, then update neighbours. Stopping only when the goal is taken is what lets an admissible heuristic guarantee the shortest path.",
     },
     {
       type: "cat",
-      q: "Each situation describes a part of a web. Sort it by what goes wrong for rank if the surfer never teleports.",
-      buckets: ["Rank leaks away", "Rank gets trapped", "Neither"],
+      q: "Sort each heuristic by whether A* is then guaranteed to return a shortest path. All moves cost 1.",
+      buckets: ["Always a shortest path", "May return a longer path"],
       items: [
-        ["A page with no links out", 0],
-        ["Two pages that link only to each other, with other pages linking into them", 1],
-        ["A page that links to 12 others, some of which link back", 2],
-        ["A page whose only link points back to itself", 1],
-        ["A page that nobody links to but which links to two others", 2],
+        ["h = 0 for every cell", 0],
+        ["h = exactly the true remaining cost", 0],
+        ["Manhattan distance on a grid with 4-way moves", 0],
+        ["h = 1.5 times the true remaining cost", 1],
+        ["Manhattan distance on a grid that also allows diagonal steps", 1],
+        ["h = half the true remaining cost", 0],
       ],
-      hint: "A leak means rank has nowhere to go. A trap means it can go, but only round and round.",
-      why: "A page with no links out cannot pass its rank on, so it leaks. A closed loop (or a self-link) lets rank in and never out, which traps it. Pages with a mix of in and out links are fine. A page with no incoming links just has a low rank, which is not a fault.",
-    },
-    {
-      type: "pick",
-      q: "F, G and H each have exactly one link that points at page Z. The cards show each page's rank and how many links it has out (rank is shared equally between them). Tap the page that passes the <b>most</b> rank to Z.",
-      fig: dilute,
-      a: "G",
-      hint: "Each link carries rank ÷ links out. F: 0.6 ÷ 3. G: 0.4 ÷ 1. H: 0.3 ÷ 2.",
-      why: "F passes 0.6 ÷ 3 = 0.2, G passes 0.4 ÷ 1 = 0.4 and H passes 0.3 ÷ 2 = 0.15. F has the biggest rank but splits it three ways. A link is worth the page's rank divided by its out-links, so a quiet page with one link can beat a busy page with many.",
-    },
-    {
-      type: "bug",
-      q: "This step pours rank out. A page with no links should share its rank equally between all pages, but the total rank grows every step. Click the faulty line.",
-      code: [
-        "def pour(rank, links, pages):",
-        "    new = {p: 0 for p in pages}",
-        "    for p in pages:",
-        "        if not links[p]:",
-        "            for q in pages: new[q] += rank[p]",
-        "        else:",
-        "            for q in links[p]: new[q] += rank[p] / len(links[p])",
-        "    return new",
-      ],
-      a: 4,
-      hint: "Add up what the dead-end page hands out in total. Is it more or less than its rank?",
-      why: "With 4 pages, this line gives each page the full rank of the dead-end page, so 4 × its rank leaves it: three extra copies appear from nowhere. Each page should receive rank[p] / len(pages). The linked case already divides by the number of links, which is why that line is fine.",
+      hint: "Is each guess never above the real remaining cost?",
+      why: "Guarantees need an h that never overestimates. Zero, the exact cost, half the cost and Manhattan with 4-way moves all stay at or below the truth. 1.5 times the truth is too big. Diagonal steps make Manhattan too big: (0, 0) to (3, 4) says 7, but the real cost is 4.",
     },
     {
       type: "multi",
-      q: "Page T has a PageRank. Which changes would push T's rank <b>up</b>? Select all.",
+      q: "A* has just taken the goal G from the open list, with an admissible heuristic. Select every statement that is true.",
       o: [
-        "A highly ranked page adds a link to T",
-        "A page that already links to T removes its other links, so only T is left",
-        "Ten obscure pages with no incoming links of their own each link to T",
-        "A page that links to T adds 50 new links to other pages",
-        "The only page that linked to T deletes its link to T",
+        "The path it found to G is a shortest path",
+        "Every cell with f below G's cost has been expanded",
+        "Every cell on the grid has been expanded",
+        "A cheaper path to G may still turn up later",
+        "G's h value was 0",
       ],
-      a: [0, 1, 2],
-      hint: "Rank comes in along incoming links. What happens to each link's share when its source adds or removes links?",
-      why: "A link from an important page carries a lot. A page that drops its other links no longer splits its rank, so T gets all of it. Ten small links still add up. But when a linking page adds 50 more links, its share for T shrinks to a fiftieth, and if the only page linking to T removes that link, T loses its main source of rank.",
+      a: [0, 1, 4],
+      hint: "G was the smallest f on the open list. What does that say about everything else?",
+      why: "G had the smallest f, and with an admissible h no waiting cell can lead to a cheaper path, so the path is shortest. Everything with a smaller f must already have been taken. At the goal there is nothing left to travel, so h = 0. A* usually skips many cells, so it has not expanded them all.",
+    },
+    {
+      type: "bug",
+      q: "This A* sometimes returns a path that is not the shortest. Click the faulty line.",
+      code: [
+        "def astar(start, goal):",
+        "    open = [(h(start), start)]",
+        "    g = {start: 0}",
+        "    while open:",
+        "        f, n = pop_min(open)",
+        "        for m, w in neighbours(n):",
+        "            if g[n] + w < g.get(m, INF):",
+        "                g[m] = g[n] + w",
+        "                push(open, (g[m] + h(m), m))",
+        "                if m == goal:",
+        "                    return g[m]",
+        "    return None",
+      ],
+      a: 9,
+      hint: "When does a cell count as finally chosen: when it is first seen, or when it is taken from the list?",
+      why: "Seeing the goal for the first time only means a route has been found, not that it is the best one. A cheaper route could still be waiting in the list. The test must happen after the pop, as in <code>if n == goal: return g[n]</code>.",
     },
   ]);
 
-  /* ============================== a1-pagerank ============================== */
-  const errFig = svg(
-    420,
-    170,
-    [0.3, 0.12, 0.05, 0.02, 0.008, 0.003, 0.001]
-      .map((e, i) => {
-        const x = 12 + i * 57,
-          h = Math.max(6, Math.round(e * 360));
-        return box(
-          "it" + (i + 1),
-          x,
-          12,
-          50,
-          148,
-          `<rect x="${x + 10}" y="${130 - h + 20}" width="30" height="${h}" rx="4" fill="var(--blue)"/>` +
-            tx(x + 25, 30, e, { sz: 12, f: "var(--mono)" }) +
-            tx(x + 25, 154, "it " + (i + 1), { sz: 11, c: "var(--text-dim)" }),
-        );
-      })
-      .join(""),
-  );
-
-  B.add("a1-pagerank", [
+  /* =====================================================================
+     a2-routing
+     ===================================================================== */
+  B.add("a2-routing", [
     {
       type: "slider",
-      q: "A web has N = 4 pages and damping d = 0.8. Page J links to exactly 2 pages, one of which is K. In the Google matrix G = d·A + (1 − d)·B, what percentage of J's rank goes to K in one step? Remember the teleport share added to every entry.",
+      q: "A network has 100 routers in 4 areas of 25. With hierarchical routing, a router keeps one entry for each other router in its own area and one entry for each other area. About how many entries does it hold?",
       min: 0,
       max: 100,
-      step: 5,
-      start: 20,
-      ans: 45,
-      tol: 5,
-      unit: "%",
-      hint: "Link part: 0.8 × ½ = 0.4. Teleport part: 0.2 ÷ 4 = 0.05. Add them.",
-      why: "G = d × A + (1 − d) × B. J's link to K gives 0.8 × ½ = 0.4, and teleporting adds (1 − 0.8) ÷ 4 = 0.05 to every entry. So K gets 0.4 + 0.05 = 0.45, which is 45%. A page J does not link to still gets 0.05, 5%.",
+      step: 1,
+      start: 50,
+      ans: 27,
+      tol: 3,
+      unit: "",
+      hint: "24 routers in its own area, plus 3 other areas.",
+      why: "24 + 3 = 27 entries, instead of 99 if every router had to be listed. Far-away routers are summed up as one area, which is why the table stays small as the internet grows.",
     },
     {
       type: "order",
-      q: "Put the steps of the whole PageRank method in order.",
+      q: "A distance-vector router receives a neighbour's table. Put its steps in order.",
       items: [
-        "Count each page's out-links and fill the link matrix H",
-        "Replace each no-link column with 1/N in every entry",
-        "Mix in the teleport share to make the Google matrix G",
-        "Start with p = 1/N for every page and multiply by G again and again",
-        "Stop when p stops changing",
+        "Read the cost the neighbour advertises for a destination",
+        "Add the cost of the link to that neighbour",
+        "Compare the total with the cost already in its own table",
+        "If it is lower, switch to this neighbour and re-advertise the change",
       ],
-      hint: "Build the matrix completely before you start multiplying.",
-      why: "The matrix has to be finished before you iterate: links first (H), then the dead-end repair, then the teleport mix (G). Power iteration then starts from an equal guess and multiplies by G until the vector settles. Changing the matrix mid-way would mean it never settles on one answer.",
+      hint: "The advertised number is the neighbour's distance, not yours.",
+      why: "The neighbour's figure measures from the neighbour, so the router must add its own link cost before comparing. Only a better total changes the table, and a change is then passed on to the router's own neighbours.",
     },
     {
       type: "cat",
-      q: "During PageRank, which of these are fixed before iterating and which change on every iteration?",
-      buckets: ["Fixed before iterating", "Changes on every iteration"],
+      q: "Sort each statement by the routing approach it describes.",
+      buckets: ["Link-state only", "Distance-vector only", "Both"],
       items: [
-        ["The link matrix H", 0],
-        ["The Google matrix G", 0],
-        ["The rank vector p", 1],
-        ["The damping value d", 0],
-        ["The gap between the new p and the old p", 1],
+        ["Every router holds a map of the whole network", 0],
+        ["Routers send tables to their neighbours only", 1],
+        ["A router runs Dijkstra on what it knows", 0],
+        ["Slow news of a failure can make costs creep up", 1],
+        ["A router needs the cost of each of its own links", 2],
+        ["When stable, routes are the cheapest paths", 2],
       ],
-      hint: "Only the quantity being improved changes. The rules used to improve it are set up first.",
-      why: "H, G and d describe the web and the rules, so they stay put. Each iteration produces a new p, and the gap between consecutive vectors changes as p settles. That shrinking gap is what the stopping rule watches.",
+      hint: "Link-state shares the map to everyone. Distance-vector shares answers with neighbours.",
+      why: "Link-state routers flood their links so everyone has the whole map and runs Dijkstra. Distance-vector routers only swap distances with neighbours, so stale gossip can bounce around and count upwards. Both begin from their own link costs, and both end on the cheapest paths once things settle.",
     },
     {
-      type: "bug",
-      q: "This builds the link matrix H, where column j holds page j's out-links. The result has columns that add up to more than 1. Click the faulty line.",
-      code: [
-        "def build_h(links, n):",
-        "    H = [[0] * n for _ in range(n)]",
-        "    for j in range(n):",
-        "        for i in links[j]:",
-        "            H[i][j] = 1",
-        "    return H",
+      type: "multi",
+      q: "RIP is a distance-vector protocol that counts hops and treats 16 as unreachable. Select every statement that is true.",
+      o: [
+        "Its cost is the number of routers a packet crosses",
+        "A route that reaches 16 is treated as unreachable",
+        "It prefers a fast link over a slow link with the same hops",
+        "Every RIP router learns the full map",
+        "A destination 15 hops away can still be used",
       ],
-      a: 4,
-      hint: "A page with 4 links should hand each link a quarter of its rank, not all of it.",
-      why: "Setting each entry to 1 means a page with 4 links hands out 4 times its rank. Each entry should be 1 / len(links[j]) so every column adds up to 1. The loops are right: j picks the source column and i the target row.",
+      a: [0, 1, 4],
+      hint: "The cap is what stops count-to-infinity running for ever.",
+      why: "RIP's cost is just hop count, with 16 playing the part of infinity so that a count-to-infinity loop ends. 15 hops is still reachable. It does not weigh link speed, and it never builds a map, as it only hears neighbours' tables.",
     },
     {
       type: "pick",
-      q: "The bars show how far the rank vector moved at each iteration. You stop at the <b>first</b> iteration where the change is below 0.01. Tap that iteration.",
-      fig: errFig,
-      a: "it5",
-      hint: "Read the numbers above the bars from left to right. 0.02 is still above 0.01.",
-      why: "The changes are 0.3, 0.12, 0.05, 0.02, 0.008, 0.003 and 0.001. Iteration 4 (0.02) is still above the line, so iteration 5 (0.008) is the first below 0.01. Iterations 6 and 7 are smaller still, but you have already stopped. Stopping on a small change is enough because each step shrinks the remaining error by a roughly fixed factor.",
+      q: "After a link fails, A and B keep swapping stale news and B's cost to X rises by 2 each exchange, starting at 3 (the boxes show the cost). RIP treats 16 as unreachable. Click the first exchange where B's cost reaches 16 or more, so RIP gives up.",
+      fig: roundsFig(),
+      a: "r8",
+      hint: "Look for the first box showing 16 or above.",
+      why: "The costs go 3, 5, 7, 9, 11, 13, 15 and then 17 on exchange 8, the first at or past 16. Exchange 7 shows 15, which still counts as reachable. The cap stops the creeping at a known point instead of for ever.",
     },
     {
-      type: "mcq",
-      q: "Suppose every iteration halves the remaining error. After 10 iterations, how much of the starting error is left?",
-      o: ["About 0.1% is left", "About 3% is left", "About 10% is left", "About 50% is left"],
-      a: 0,
-      hint: "Halving 10 times: 2 × 2 × 2 × 2 × 2 = 32, and 32 × 32 is about 1,000.",
-      why: "Halving ten times divides the error by 2 to the power 10 = 1,024, about a thousand. So roughly a thousandth (0.1%) is left, and the nearest other option, 3%, would need only about 5 halvings. This geometric shrinking is why PageRank on billions of pages needs only a few dozen iterations, not millions.",
+      type: "bug",
+      q: "This router should use poisoned reverse: tell a neighbour that destinations it reaches <i>through that neighbour</i> are unreachable. Click the faulty line.",
+      code: [
+        "def message_for(n):",
+        "    msg = {}",
+        "    for d in cost:",
+        "        if nexthop[d] != n:",
+        "            msg[d] = INF",
+        "        else:",
+        "            msg[d] = cost[d]",
+        "    return msg",
+      ],
+      a: 3,
+      hint: "Which destinations does this router reach via n?",
+      why: "The test is the wrong way round. As written, it poisons every destination not reached via n and tells the truth about the ones that are. It should say <code>nexthop[d] == n</code>, so routes that go through n are poisoned.",
+    },
+  ]);
+
+  /* =====================================================================
+     a3-lp
+     ===================================================================== */
+  B.add("a3-lp", [
+    {
+      type: "slider",
+      q: "A café minimises cost z = 2x + 3y. The rules are x + y ≥ 4 with x, y ≥ 0. The corners are (4, 0) and (0, 4), and the region goes on upwards without end. What is the lowest cost?",
+      min: 0,
+      max: 20,
+      step: 1,
+      start: 10,
+      ans: 8,
+      tol: 1,
+      unit: "",
+      hint: "Work out z at the two corners: 2 × 4 and 3 × 4.",
+      why: "At (4, 0) the cost is 8, and at (0, 4) it is 12. Costs only rise as you move away, so the lowest is 8. A region with no upper edge is fine for minimising a cost that grows with x and y: it would only be unbounded if the cost could keep falling.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of turning a word problem into a linear program in order.",
+      items: [
+        "Name the quantities you choose, such as x and y",
+        "Write the score to maximise or minimise as a formula",
+        "Write each limit as a constraint, including x, y ≥ 0",
+        "Find the corner of the feasible region with the best score",
+      ],
+      hint: "You cannot write a formula until you have named the things in it.",
+      why: "First choose the variables, then the objective in terms of them, then the constraints that limit them, and only then solve. Solving earlier would have nothing to solve.",
+    },
+    {
+      type: "cat",
+      q: "The feasible region is x + y ≤ 4, x ≤ 3, x, y ≥ 0, and we maximise. Sort each objective by what the best plans look like.",
+      buckets: ["One best corner", "A whole edge of equally good plans"],
+      items: [
+        ["z = 2x + y", 0],
+        ["z = x + y", 1],
+        ["z = x + 2y", 0],
+        ["z = 3x + 3y", 1],
+        ["z = x − y", 0],
+        ["z = 5x + 5y", 1],
+      ],
+      hint: "Which objectives slide parallel to the edge x + y = 4?",
+      why: "When the objective is a multiple of x + y, its lines are parallel to the edge x + y = 4, so the whole edge from (0, 4) to (3, 1) ties. For 2x + y the best corner is (3, 1) with 7. For x + 2y it is (0, 4) with 8, and for x − y it is (3, 0) with 3.",
+    },
+    {
+      type: "multi",
+      q: "Maximise 3x + 2y with x + y ≤ 8, x ≤ 5 and y ≤ 6. The best plan is (5, 3), earning 21. Select every statement that is true.",
+      o: [
+        "Loosening y ≤ 6 would not change the best plan",
+        "Tightening y ≤ 6 to y ≤ 4 would not change the best plan",
+        "Raising x ≤ 5 to x ≤ 6 would raise the best profit",
+        "Only the constraint x + y ≤ 8 is binding",
+        "Loosening y ≤ 6 is the best way to earn more",
+      ],
+      a: [0, 1, 2],
+      hint: "Which limits are met exactly at (5, 3)? The others have slack.",
+      why: "At (5, 3), x + y = 8 and x = 5 are met exactly, so both are binding, while y = 3 is well under 6, which leaves slack. A slack limit can be loosened or tightened (down to 3) without effect. Raising x ≤ 6 gives the plan (6, 2) worth 22, which is more than 21.",
+    },
+    {
+      type: "pick",
+      q: "Maximise z = 3x + 4y over the region x ≤ 6, x + y ≤ 7, y ≤ 5, x, y ≥ 0. A student tabulated z at all five corners, but <b>one value is wrong</b>. Click it.",
+      fig: cornerFig(),
+      a: "60",
+      hint: "Redo 3x + 4y at each corner, one at a time.",
+      why: "At (6, 0) the score is 3 × 6 = 18, not 24. The others are right: 22 at (6, 1), 26 at (2, 5) and 20 at (0, 5). The best corner is (2, 5), so the wrong 24 would not have changed the answer here, but a wrong value on the best corner would.",
+    },
+    {
+      type: "bug",
+      q: "This should say whether a plan obeys <b>every</b> rule: x + y ≤ 8 and x ≤ 5, with x, y ≥ 0. It lets illegal plans through. Click the faulty line.",
+      code: [
+        "def feasible(x, y):",
+        "    if x < 0 or y < 0:",
+        "        return False",
+        "    return x + y <= 8 or x <= 5",
+      ],
+      a: 3,
+      hint: "Try the plan (5, 9). Which rule does it break?",
+      why: "A plan must satisfy all the rules at once, so they are joined with <code>and</code>. With <code>or</code>, the plan (5, 9) passes because x ≤ 5, even though x + y = 14 breaks the first rule.",
     },
   ]);
 })();

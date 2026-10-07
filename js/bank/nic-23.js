@@ -1,398 +1,405 @@
-/* ===== bank-x-nic-1.js ===== */
-/* Revision bank, third set of varied, visual questions (nic-1).
-   Modules: l1-what, l1-monkey, l1-ingredients, l1-apps, l2-generic, l2-optim, l2-complexity, l2-mst (5 each).
-   Each figure carries the information its question needs. Data for the charts is computed by small
-   seeded simulations of the real algorithms below, so every number on screen is genuine. */
 (function () {
   const partScope = (NIC.shared.bankNic = NIC.shared.bankNic || {});
-
+  const { C, L, R, T, arrowDef, hit, monkeyGrid, monkeyRuns, monkeyTrace, rng, svg } = partScope;
   const B = NIC.bank;
 
-  /* ---------- tiny SVG toolkit ---------- */
-  const svg = (w, h, body) =>
-    `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;max-height:${h}px">${body}</svg>`;
-  const T = (x, y, s, o = {}) =>
-    `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="font:${o.w || 800} ${(o.z || 13) <= 12 ? (o.z || 13) + 1 : o.z || 13}px var(--sans);fill:${o.c || "var(--text)"};pointer-events:none">${s}</text>`;
-  const R = (x, y, w, h, o = {}) =>
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${o.r === undefined ? 6 : o.r}" fill="${o.f || "var(--panel)"}" stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw === undefined ? 2 : o.sw}"${o.d ? ` stroke-dasharray="${o.d}"` : ""}${o.o ? ` fill-opacity="${o.o}"` : ""}/>`;
-  const L = (x1, y1, x2, y2, o = {}) =>
-    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${o.c || "var(--line-2)"}" stroke-width="${o.sw || 2}" stroke-linecap="round"${o.d ? ` stroke-dasharray="${o.d}"` : ""}/>`;
-  const C = (x, y, r, o = {}) =>
-    `<circle cx="${x}" cy="${y}" r="${r}" fill="${o.f || "var(--panel)"}" stroke="${o.s || "var(--line-2)"}" stroke-width="${o.sw === undefined ? 2 : o.sw}"${o.o ? ` fill-opacity="${o.o}"` : ""}/>`;
-  /* a pick target drawn on top of the picture: only the transparent frame takes the highlight */
-  const hit = (id, x, y, w, h, r = 10) =>
-    `<g data-pick="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="transparent" stroke="var(--line)" stroke-width="2"/></g>`;
-  const poly = (pts, c, sw = 3) =>
-    `<polyline points="${pts.map((p) => p.map((v) => +v.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
-  let mkn = 0;
-  const arrowDef = (c = "var(--text-dim)") => {
-    const id = "xm" + ++mkn;
-    return [
-      id,
-      `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker></defs>`,
-    ];
-  };
-  const rng = (s) => () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-
-  /* =====================================================================
-     l1-what
-     ===================================================================== */
-  const whatMini = (() => {
-    const dead = (x, y) =>
-      `${C(x, y, 11, { f: "var(--rose-dim)", s: "var(--rose)", sw: 3 })}${T(x, y + 5, "×", { c: "var(--rose-ink)", z: 16 })}`;
-    const node = (x, y) => C(x, y, 9, { s: "var(--text-dim)", sw: 3 });
-    const panel = (ox, nodes, edges, deadIdx, cap) => {
-      const lines = edges
-        .map(([a, b]) =>
-          L(
-            ox + nodes[a][0],
-            nodes[a][1],
-            ox + nodes[b][0],
-            nodes[b][1],
-            deadIdx.includes(a) || deadIdx.includes(b)
-              ? { c: "var(--rose-edge)", d: "4 4", sw: 2 }
-              : { c: "var(--blue)", sw: 3 },
-          ),
-        )
-        .join("");
-      const dots = nodes.map(([x, y], i) => (deadIdx.includes(i) ? dead(ox + x, y) : node(ox + x, y))).join("");
-      return `${R(ox, 4, 138, 168, { r: 14 })}${lines}${dots}${T(ox + 69, 142, cap[0], { z: 12, c: "var(--text-dim)" })}${T(ox + 69, 158, cap[1], { z: 12, c: "var(--text-dim)" })}`;
-    };
-    const star = [
-      [69, 66],
-      ...[-90, -18, 54, 126, 198].map((a) => [
-        69 + 48 * Math.cos((a * Math.PI) / 180),
-        66 + 48 * Math.sin((a * Math.PI) / 180),
-      ]),
-    ];
-    const ring = [0, 60, 120, 180, 240, 300].map((a) => [
-      69 + 46 * Math.cos((a * Math.PI) / 180),
-      66 + 46 * Math.sin((a * Math.PI) / 180),
-    ]);
-    const chain = [0, 1, 2, 3, 4].map((i) => [20 + i * 25, 66]);
-    return svg(
-      440,
-      178,
-      `
-      ${panel(
-        0,
-        star,
-        [
-          [0, 1],
-          [0, 2],
-          [0, 3],
-          [0, 4],
-          [0, 5],
-        ],
-        [0],
-        ["One hub gives", "all the orders"],
-      )}
-      ${panel(
-        151,
-        ring,
-        [
-          [0, 1],
-          [1, 2],
-          [2, 3],
-          [3, 4],
-          [4, 5],
-          [5, 0],
-          [1, 4],
-          [2, 5],
-        ],
-        [0],
-        ["Peers talk to", "their neighbours"],
-      )}
-      ${panel(
-        302,
-        chain,
-        [
-          [0, 1],
-          [1, 2],
-          [2, 3],
-          [3, 4],
-        ],
-        [2],
-        ["A chain of", "hand-offs"],
-      )}
-      ${hit("a", 0, 4, 138, 168, 14)}${hit("b", 151, 4, 138, 168, 14)}${hit("c", 302, 4, 138, 168, 14)}`,
-    );
-  })();
-
-  const whatColonies = (() => {
-    const vals = [92, 8, 95, 87, 11],
-      x0 = 62,
-      bw = 40,
-      gap = 20,
-      base = 190,
-      top = 30,
-      H = base - top;
-    const bars = vals
-      .map((v, i) => {
-        const x = x0 + i * (bw + gap),
-          h = (v / 100) * H;
-        return `${R(x, base - h, bw, h, { f: "var(--blue)", s: "var(--blue-ink)", r: 5 })}${T(x + bw / 2, base - h - 6, v + "%", { z: 14 })}${T(x + bw / 2, base + 18, "Colony " + (i + 1), { z: 12, c: "var(--text-dim)" })}`;
-      })
-      .join("");
-    const y50 = base - H / 2;
-    return svg(
-      420,
-      220,
-      `
-      ${L(x0 - 8, base, 410, base)}${L(x0 - 8, top, x0 - 8, base)}
-      ${L(x0 - 8, y50, 410, y50, { c: "var(--amber)", d: "6 5" })}${T(24, y50 + 5, "50%", { z: 12, c: "var(--amber-ink)" })}
-      ${T(24, top + 5, "100%", { z: 12, c: "var(--text-dim)" })}${T(24, base + 4, "0%", { z: 12, c: "var(--text-dim)" })}
-      ${bars}${T(236, 16, "Share of ants on route A after one hour", { z: 13, c: "var(--text-dim)" })}`,
-    );
-  })();
-
-  const whatTable = (() => {
-    const rows = [
-      [["Sort a million", "names"], "Yes", "Yes", "No"],
-      [["Plan a 300-stop", "courier round"], "Yes", "No", "Yes"],
-      [["Pick the", "funniest joke"], "No", "No", "Yes"],
-      [["Solve", "3x + 2 = 11"], "Yes", "Yes", "No"],
-    ];
-    const ids = ["a", "b", "c", "d"],
-      cols = [128, 208, 288],
-      y0 = 56,
-      rh = 54;
-    let g =
-      ["Can we", "Fast exact", "Good enough"]
-        .map((s, i) => T(cols[i] + 40, 16, s, { z: 12, c: "var(--text-dim)" }))
-        .join("") +
-      ["score it?", "method?", "is fine?"]
-        .map((s, i) => T(cols[i] + 40, 33, s, { z: 12, c: "var(--text-dim)" }))
-        .join("");
-    rows.forEach((r, i) => {
-      const y = y0 + i * rh;
-      g += T(10, y + 22, r[0][0], { a: "start", z: 13 }) + T(10, y + 40, r[0][1], { a: "start", z: 13 });
-      for (let k = 1; k <= 3; k++) {
-        const yes = r[k] === "Yes";
-        g +=
-          R(cols[k - 1] + 6, y + 10, 68, 32, {
-            f: yes ? "var(--blue-dim)" : "var(--bg-2)",
-            s: yes ? "var(--blue-edge)" : "var(--line-2)",
-            r: 16,
-          }) + T(cols[k - 1] + 40, y + 31, r[k], { z: 14, c: yes ? "var(--blue-ink)" : "var(--text-dim)" });
-      }
-    });
-    rows.forEach((_, i) => (g += hit(ids[i], 3, y0 + i * rh + 2, 374, rh - 4, 12)));
-    return svg(380, y0 + rows.length * rh + 4, g);
-  })();
-
-  const whatGroups = (() => {
-    const data = [
-        ["10", 100, 98, 40],
-        ["20", 100, 97, 28],
-        ["50", 0, 95, 15],
-        ["200", 0, 93, 6],
+  const monkeyCycle = (() => {
+    const [id, defs] = arrowDef();
+    const bx = [
+        [10, 40],
+        [250, 40],
+        [250, 170],
+        [10, 170],
       ],
-      x0 = 54,
-      gw = 90,
-      base = 200,
-      top = 34,
-      H = base - top;
-    const col = ["var(--blue)", "var(--teal)", "var(--amber)"],
-      ink = ["var(--blue-ink)", "var(--teal-ink)", "var(--amber-ink)"];
-    let g = L(x0 - 6, base, 432, base) + L(x0 - 6, top, x0 - 6, base);
-    [0, 50, 100].forEach((v) => {
-      const y = base - (v / 100) * H;
-      g +=
-        T(x0 - 12, y + 4, v, { a: "end", z: 12, c: "var(--text-dim)" }) +
-        (v ? L(x0 - 6, y, 432, y, { c: "var(--line)", sw: 1 }) : "");
+      names = [
+        ["Make a child:", "change one letter"],
+        ["Count how many", "letters match"],
+        ["Keep the child unless", "it matches fewer"],
+        ["The kept string", "becomes the parent"],
+      ];
+    const w = 180,
+      h = 64;
+    let g = defs;
+    g += `<path d="M${bx[0][0] + w} ${bx[0][1] + h / 2} L${bx[1][0] - 4} ${bx[1][1] + h / 2}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
+    g += `<path d="M${bx[1][0] + w / 2} ${bx[1][1] + h + 2} L${bx[2][0] + w / 2} ${bx[2][1] - 6}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
+    g += `<path d="M${bx[2][0] - 2} ${bx[2][1] + h / 2} L${bx[3][0] + w + 6} ${bx[3][1] + h / 2}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
+    g += `<path d="M${bx[3][0] + w / 2} ${bx[3][1] - 2} L${bx[0][0] + w / 2} ${bx[0][1] + h + 6}" stroke="var(--text-dim)" stroke-width="3" fill="none" marker-end="url(#${id})"/>`;
+    bx.forEach(([x, y], i) => {
+      g += `<g data-pick="b${i + 1}">${R(x, y, w, h, { r: 14, s: "var(--blue-edge)", f: "var(--blue-dim)", sw: 3 })}</g>${T(x + w / 2, y + 27, names[i][0], { z: 15, c: "var(--ink)" })}${T(x + w / 2, y + 48, names[i][1], { z: 15, c: "var(--ink)" })}`;
     });
-    data.forEach((d, gi) => {
-      const gx = x0 + gi * gw;
-      for (let k = 0; k < 3; k++) {
-        const v = d[k + 1],
-          x = gx + 6 + k * 26,
-          h = (v / 100) * H;
-        if (v === 0) g += T(x + 12, base - 8, "✗", { z: 15, c: "var(--rose-ink)" });
-        else g += R(x, base - h, 24, h, { f: col[k], s: ink[k], r: 4, sw: 1.5 });
-      }
-      g += T(gx + 45, base + 18, d[0] + " stops", { z: 13 });
-    });
-    g += [
-      ["Exact search", 0],
-      ["Evolutionary algorithm", 1],
-      ["Random guessing", 2],
-    ]
-      .map(
-        ([s, k], i) =>
-          R(10 + [0, 98, 292][i], 6, 12, 12, { f: col[k], s: ink[k], r: 3, sw: 1.5 }) +
-          T(26 + [0, 98, 292][i], 16, s, { a: "start", z: 12 }),
-      )
-      .join("");
-    g +=
-      T(22, base + 38, "Score = % of the best plan known.", { a: "start", z: 12, c: "var(--text-dim)" }) +
-      T(22, base + 56, "✗ = no answer within the time limit.", { a: "start", z: 12, c: "var(--text-dim)" });
-    return svg(440, 262, g);
+    return svg(440, 250, g);
   })();
 
-  B.add("l1-what", [
+  B.add("l1-monkey", [
     {
       type: "pick",
-      q: "Each design below loses the member marked with a red cross. Which design carries on working as a whole, the way an ant colony does when ants disappear?",
-      fig: whatMini,
-      a: "b",
-      why: "In the hub design the hub gives every order, so losing it leaves five workers with nobody to listen to. In the chain, losing a middle link cuts the group in two. In the peer design each member only needs its neighbours, and the remaining members are still joined up. A colony is built like that: no member is essential, so the group keeps going.",
+      q: "A keep-if-better run changes exactly ONE letter per step and keeps the child if its match count does not drop. Each row shows which of 8 letters match the target after that step. (A wrong letter swapped for another wrong letter does not show.) One row cannot have come from the row above it under these rules. Tap it.",
+      fig: monkeyGrid,
+      a: "r5",
+      why: "From step 4 to step 5 the count stays at 5, which is allowed on its own, but look at which letters moved: letter 7 went from right to wrong while letter 8 went from wrong to right. That is two letters changed in one step. Steps 1 to 2 look identical because a wrong letter became another wrong letter, which is a legal, unseen change.",
     },
     {
       type: "mcq",
-      q: "Five colonies each had two routes to food, and the two routes were exactly the same length. The bars show the share of each colony's ants using route A after an hour. What best explains the pattern?",
-      fig: whatColonies,
-      o: [
-        "A few early ants happen to favour one route, and trail feedback then locks the whole colony onto it",
-        "The ants cannot tell equal routes apart, so every colony spreads its ants evenly between the two routes",
-        "Route A is a little shorter in some trials, and the colonies that chose B missed that difference",
-        "The scent fades far too quickly for a route to build up, so each colony picks a fresh route every minute",
-      ],
+      q: "Keep-if-better changes one letter and keeps the child if its match count is not lower than its parent's. Starting from PIANO (target PLANT), the four proposals below are tried in order. What is the current string after proposal 4?",
+      fig: monkeyTrace,
+      o: ["PLANS", "PLANO", "BLANS", "PLAES"],
       a: 0,
-      why: "With equal routes there is nothing to prefer at first. Chance gives one route a few extra ants, they lay extra scent, and the scent draws more ants. Each colony ends up committed to a single route, but which one is down to luck, so some pick A and some pick B. An even split is the unstable middle, not the usual result.",
+      hint: "Count matches after each proposal. Only the proposals that do not lower the count are kept.",
+      why: "Proposal 1 gives PLANO (4 matches, up from 3): kept. Proposal 2 gives PLANS (still 4 matches): not worse, so it is kept. Proposal 3 would give PLAES (3 matches) and proposal 4 would give BLANS (3 matches): both worse, so both are thrown away. The string stays PLANS. Accepting equal scores is what lets the search drift across flat patches.",
     },
     {
       type: "bug",
-      q: "This colony simulation should use local rules only: every ant reacts to the scent next to it, and nobody gives orders. Click the line that breaks that.",
+      q: "This keep-if-better search is meant to build on its improvements, but it never gets further than one lucky letter beyond where it started. Click the faulty line.",
       code: [
-        "for ant in colony:",
-        "    scent = trail.near(ant.pos)",
-        "    ant.move(boss.route_for(ant))",
-        "    trail.add(ant.pos)",
+        "start = random_text()",
+        "best = start",
+        "for step in range(5000):",
+        "    kid = mutate(start)",
+        "    if score(kid) >= score(best):",
+        "        best = kid",
       ],
-      a: 2,
-      why: "boss.route_for(ant) is a central controller handing out routes. The point of the ant model is that simple local actions (sniff the nearby trail, move, leave scent) add up to a good colony route with no leader. The move should depend only on the scent the ant has just sniffed.",
+      a: 3,
+      why: "Every child is made from the original start string, not from the current best. Improvements are recorded in best but never built on, so the search can only ever beat start by a single change. The child must be made from the current best: mutate(best).",
+    },
+    {
+      type: "mcq",
+      q: "Three runs of one search try to match a 28-letter sentence. Each step they re-roll some random letters and keep the child if its match count is not lower. The runs differ only in how many letters they re-roll per step. The middle run shot ahead early but then crawled at about 19. Why?",
+      fig: monkeyRuns,
+      o: [
+        "Near the end, re-rolling four at once nearly always spoils a right letter, so few children are kept",
+        "Once about 19 of the 28 letters are right, there are no different letters left for it to try out",
+        "Keep-if-better only lets a child be kept while the match count is below about 20, then it switches off",
+        "Re-rolling four letters costs four times as much, so its curve is simply the same one stretched sideways",
+      ],
+      a: 0,
+      why: "Early on almost any change helps, so big steps are fast. Near the end most letters are right, and four random changes almost surely break a right letter without fixing a wrong one, so the child scores lower and is rejected. The one-letter run is slower at first but keeps finding the odd improvement. Re-rolling all 28 letters is little better than random typing.",
     },
     {
       type: "pick",
-      q: "A team wants to try a nature-inspired method on one of these jobs. Tap the job where it is the sensible choice.",
-      fig: whatTable,
-      a: "b",
-      why: "The courier round can be scored (total distance) but has no fast exact method, and a good plan in minutes is all that is needed: exactly the niche for nature-inspired methods. Sorting and the equation already have fast exact methods. The joke cannot be scored automatically, and without a score there is nothing for selection to act on.",
-    },
-    {
-      type: "multi",
-      q: "A firm compared three ways of planning delivery rounds of different sizes. Select every statement the chart supports.",
-      fig: whatGroups,
-      o: [
-        "On the 10-stop round the exact search did slightly better than the evolutionary algorithm",
-        "The evolutionary algorithm reached at least 90% of the best known plan at every size tested",
-        "The evolutionary algorithm found the very best plan for the 50-stop round",
-        "Random guessing stayed within 10 points of the evolutionary algorithm at every size",
-        "At 200 stops only the evolutionary and random methods gave plans, and the evolutionary one was far better",
-      ],
-      a: [0, 1, 4],
-      why: "Exact search wins while the problem is small (100 against 98) but gives no answer in time at 50 and 200 stops. The evolutionary plans stay between 93 and 98, which is at least 90 everywhere. Its 50-stop plan scores 95, so it is close to the best known, but nothing shows it is the best possible. Random guessing falls from 40 to 6, far below the evolutionary plans.",
+      q: "In nature the environment “scores” each offspring by how well it survives. Which box of this keep-if-better loop does that job?",
+      fig: monkeyCycle,
+      a: "b2",
+      why: "Counting the matching letters is the fitness function: it is the judge of how well a child does, like the environment. Box 1 is variation (mutation), box 3 is selection (acting on the score) and box 4 is the next generation.",
     },
   ]);
 
   /* =====================================================================
-     l1-monkey
+     l1-ingredients
      ===================================================================== */
-  const monkeyGrid = (() => {
-    const rows = ["01001000", "01001010", "01001010", "11001010", "11101010", "11101001", "11101011"];
-    const x0 = 78,
-      cw = 30,
-      y0 = 34,
-      rh = 28;
-    let g =
-      T(8, 18, "Green = letter matches the target", { a: "start", z: 12, c: "var(--text-dim)" }) +
-      T(x0 + 8 * cw + 36, 18, "matches", { z: 12, c: "var(--text-dim)" });
-    rows.forEach((r, i) => {
-      const y = y0 + i * rh;
-      g += T(10, y + 19, "step " + i, { a: "start", z: 13 });
-      [...r].forEach(
-        (b, k) =>
-          (g += R(
-            x0 + k * cw + 1,
-            y + 2,
-            cw - 4,
-            rh - 6,
-            b === "1"
-              ? { f: "var(--teal)", s: "var(--teal-ink)", r: 5 }
-              : { f: "var(--bg-2)", s: "var(--line-2)", r: 5 },
-          )),
-      );
-      g += T(x0 + 8 * cw + 36, y + 19, r.split("1").length - 1 + " / 8", { z: 13 });
-    });
-    rows.forEach((_, i) => (g += hit("r" + i, 4, y0 + i * rh, 8 * cw + x0 + 62, rh, 8)));
-    return svg(400, y0 + rows.length * rh + 6, g);
-  })();
-
-  const monkeyTrace = (() => {
-    const cell = (x, y, ch, ok) =>
-      R(x, y, 30, 30, ok ? { f: "var(--teal-dim)", s: "var(--teal)", r: 6 } : { f: "var(--bg-2)", r: 6 }) +
-      T(x + 15, y + 21, ch, { z: 16 });
-    const target = "PLANT",
-      start = "PIANO";
-    let g = T(8, 40, "Target", { a: "start" }) + T(8, 82, "Start", { a: "start" });
-    [...target].forEach((ch, i) => (g += cell(78 + i * 34, 20, ch, true)));
-    [...start].forEach((ch, i) => (g += cell(78 + i * 34, 62, ch, ch === target[i])));
-    g += T(268, 82, "3 letters match", { a: "start", z: 12, c: "var(--text-dim)" });
-    const props = ["change letter 2 to L", "change letter 5 to S", "change letter 4 to E", "change letter 1 to B"];
-    props.forEach(
-      (p, i) =>
-        (g +=
-          R(8, 112 + i * 34, 384, 28, { r: 8 }) +
-          T(24, 131 + i * 34, "Proposal " + (i + 1), { a: "start", c: "var(--blue-ink)" }) +
-          T(138, 131 + i * 34, p, { a: "start" })),
-    );
-    return svg(400, 252, g);
-  })();
-
-  const monkeyRuns = (() => {
-    const target = "METHINKS IT IS LIKE A WEASEL",
-      AL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-    const run = (k, seed, steps) => {
-      const r = rng(seed);
-      const cur = [...target].map(() => AL[Math.floor(r() * 27)]);
-      const sc = (a) => a.reduce((s, c, i) => s + (c === target[i]), 0);
-      let cs = sc(cur);
-      const out = [cs];
-      for (let t = 0; t < steps; t++) {
-        const kid = cur.slice();
-        for (let j = 0; j < k; j++) kid[Math.floor(r() * 28)] = AL[Math.floor(r() * 27)];
-        const ks = sc(kid);
-        if (ks >= cs) {
-          for (let i = 0; i < 28; i++) cur[i] = kid[i];
-          cs = ks;
-        }
-        out.push(cs);
+  const ingGrids = (() => {
+    const r = rng(20),
+      Ln = 10,
+      P = 6;
+    let pop = Array.from({ length: P }, () => Array.from({ length: Ln }, () => (r() < 0.5 ? 1 : 0)));
+    const fit = (a) => a.reduce((s, b) => s + b, 0);
+    const snaps = { 0: pop.map((a) => a.slice()) };
+    for (let gI = 1; gI <= 30; gI++) {
+      const np = [];
+      for (let i = 0; i < P; i++) {
+        const a = pop[Math.floor(r() * P)],
+          b = pop[Math.floor(r() * P)];
+        np.push((fit(a) >= fit(b) ? a : b).slice());
       }
-      return out;
-    };
-    const N = 2000,
-      panels = [
-        [1, "1 letter per step"],
-        [4, "4 letters per step"],
-        [28, "all 28 per step"],
-      ];
+      pop = np;
+      if (gI === 4 || gI === 30) snaps[gI] = pop.map((a) => a.slice());
+    }
+    const names = [
+      ["a", 0, "generation 0"],
+      ["b", 4, "generation 4"],
+      ["c", 30, "generation 30"],
+    ];
     let g = "";
-    panels.forEach(([k, name], i) => {
-      const ox = i * 148 + 4,
-        w = 136,
-        h = 118,
-        x0 = ox + 26,
-        y0 = 20,
-        y1 = y0 + h;
-      const data = run(k, 11, N),
-        X = (t) => x0 + (t / N) * (w - 32),
-        Y = (v) => y1 - (v / 28) * h;
-      const pts = [];
-      for (let t = 0; t <= N; t += 20) pts.push([X(t), Y(data[t])]);
-      g += R(ox, 2, w, 176, { r: 12 }) + L(x0, y1, ox + w - 6, y1) + L(x0, y0, x0, y1);
-      g += L(x0, Y(28), ox + w - 6, Y(28), { c: "var(--teal)", d: "4 4", sw: 1.5 }) + poly(pts, "var(--blue)", 3);
-      g +=
-        T(ox + 20, Y(28) + 4, "28", { a: "end", z: 11, c: "var(--text-dim)" }) +
-        T(ox + 20, y1 + 4, "0", { a: "end", z: 11, c: "var(--text-dim)" });
-      g +=
-        T(ox + w / 2, y1 + 18, name, { z: 12 }) +
-        T(ox + w / 2, y1 + 33, "steps 0 to 2000 →", { z: 11, c: "var(--text-dim)" });
+    names.forEach(([id, gen, label], pi) => {
+      const ox = 6 + pi * 148,
+        cell = 11;
+      g += R(ox, 2, 136, 128, { r: 12 });
+      snaps[gen].forEach((row, i) =>
+        row.forEach(
+          (b, k) =>
+            (g += R(
+              ox + 13 + k * cell,
+              12 + i * cell + i * 3,
+              cell - 1,
+              cell + 1,
+              b
+                ? { f: "var(--blue)", s: "var(--blue-ink)", r: 2, sw: 1 }
+                : { f: "var(--bg-2)", s: "var(--line-2)", r: 2, sw: 1 },
+            )),
+        ),
+      );
+      g += T(ox + 68, 120, label, { z: 13 });
+      g += hit(id, ox, 2, 136, 128, 12);
     });
-    return svg(450, 184, g);
+    return svg(450, 136, g);
   })();
-  Object.assign(partScope, { C, L, R, T, arrowDef, hit, monkeyGrid, monkeyRuns, monkeyTrace, poly, rng, svg });
+
+  const ingBars = (() => {
+    const schemes = [
+      ["s1", "A: always take the single fittest", [100, 0, 0, 0]],
+      ["s2", "B: anyone, with equal chance", [25, 25, 25, 25]],
+      ["s3", "C: chance proportional to fitness", [50, 31.25, 12.5, 6.25]],
+      ["s4", "D: pick from the fittest two only", [50, 50, 0, 0]],
+      ["s5", "E: chance by rank (4, 3, 2, 1 shares)", [40, 30, 20, 10]],
+    ];
+    const col = ["var(--teal)", "var(--blue)", "var(--amber)", "var(--violet)"],
+      ink = ["var(--teal-ink)", "var(--blue-ink)", "var(--amber-ink)", "var(--violet-ink)"];
+    const x0 = 16,
+      W = 400,
+      y0 = 36,
+      rh = 46;
+    let g = ["Fittest", "2nd", "3rd", "4th"]
+      .map(
+        (s, i) =>
+          R(x0 + i * 100, 8, 12, 12, { f: col[i], s: ink[i], r: 3, sw: 1.5 }) +
+          T(x0 + 18 + i * 100, 18, s, { a: "start", z: 12 }),
+      )
+      .join("");
+    schemes.forEach(([id, name, ps], i) => {
+      const y = y0 + i * rh;
+      g += T(x0, y + 12, name, { a: "start", z: 13 });
+      let x = x0;
+      ps.forEach((p, k) => {
+        const w = (p / 100) * W;
+        if (!w) return;
+        g +=
+          R(x, y + 18, w, 20, { f: col[k], s: ink[k], r: 0, sw: 1.5 }) +
+          (w > 30 ? T(x + w / 2, y + 33, (p % 1 ? p.toFixed(1) : p) + "%", { z: 12, c: "#fff" }) : "");
+        x += w;
+      });
+      g += hit(id, x0 - 8, y - 2, W + 16, 44, 8);
+    });
+    return svg(440, y0 + schemes.length * rh, g);
+  })();
+
+  const ingDots = (() => {
+    const f = (x) => 0.6 * Math.exp(-(((x - 0.2) / 0.08) ** 2)) + 1.0 * Math.exp(-(((x - 0.72) / 0.1) ** 2));
+    const r = rng(2 * 131);
+    const climb = (x) => {
+      for (let t = 0; t < 200; t++) {
+        const y = Math.min(1, Math.max(0, x + (r() < 0.5 ? -0.02 : 0.02)));
+        if (f(y) >= f(x)) x = y;
+      }
+      return x;
+    };
+    const sizes = [1, 2, 4, 8],
+      res = {};
+    sizes.forEach((N) => {
+      res[N] = [];
+      for (let k = 0; k < 12; k++) {
+        let best = 0;
+        for (let j = 0; j < N; j++) best = Math.max(best, f(climb(r())));
+        res[N].push(best);
+      }
+    });
+    const x0 = 56,
+      cw = 88,
+      y1 = 196,
+      y0 = 24,
+      Y = (v) => y1 - ((v - 0.5) / 0.55) * (y1 - y0);
+    let g = L(x0 - 10, y1, 430, y1) + L(x0 - 10, y0 - 6, x0 - 10, y1);
+    g +=
+      L(x0 - 10, Y(1), 430, Y(1), { c: "var(--teal)", d: "5 5", sw: 1.5 }) +
+      T(x0 - 14, Y(1) + 4, "big", { a: "end", z: 12, c: "var(--teal-ink)" });
+    g +=
+      L(x0 - 10, Y(0.6), 430, Y(0.6), { c: "var(--amber)", d: "5 5", sw: 1.5 }) +
+      T(x0 - 14, Y(0.6) + 4, "small", { a: "end", z: 12, c: "var(--amber-ink)" });
+    sizes.forEach((N, i) => {
+      const cx = x0 + 10 + i * cw + cw / 2 - 4;
+      res[N].forEach(
+        (v, k) =>
+          (g += C(cx + ((k % 6) - 2.5) * 11.5, Y(Math.min(v, 1.02)) + (k < 6 ? -6 : 6), 5, {
+            f: v > 0.9 ? "var(--teal)" : "var(--amber)",
+            s: "var(--panel)",
+            sw: 1,
+          })),
+      );
+      g += T(cx, y1 + 20, N === 1 ? "1 climber" : N + " climbers", { z: 13 });
+      g += hit("n" + N, cx - cw / 2 + 2, y0 - 8, cw - 4, y1 - y0 + 34, 10);
+    });
+    return svg(440, 232, g);
+  })();
+
+  const ingCut = (() => {
+    const P1 = "1110100011",
+      P2 = "0101111100",
+      x0 = 58,
+      cw = 34;
+    let g = T(26, 62, "P1", { z: 14 }) + T(26, 104, "P2", { z: 14 });
+    [
+      [P1, 44],
+      [P2, 86],
+    ].forEach(([s, y]) =>
+      [...s].forEach(
+        (b, k) =>
+          (g +=
+            R(
+              x0 + k * cw + 1,
+              y,
+              cw - 2,
+              30,
+              b === "1" ? { f: "var(--teal-dim)", s: "var(--teal)", r: 6 } : { f: "var(--bg-2)", r: 6 },
+            ) + T(x0 + k * cw + cw / 2, y + 21, b, { z: 15 })),
+      ),
+    );
+    for (let k = 1; k <= 9; k++) {
+      const x = x0 + k * cw;
+      g += `<g data-pick="c${k}">${L(x, 36, x, 126, { c: "var(--blue)", d: "4 4", sw: 3 })}<rect x="${x - 8}" y="36" width="16" height="90" rx="6" fill="transparent" stroke="none"/></g>${T(x, 148, "cut " + k, { z: 11, c: "var(--blue-ink)" })}`;
+    }
+    g += T(220, 18, "Cut after position…", { z: 13, c: "var(--text-dim)" });
+    return svg(410, 160, g);
+  })();
+
+  const ingStrip = (() => {
+    const bits = "0110100111010010100110101100100101101010".split("");
+    let g = T(8, 16, "Parent: 40 bits", { a: "start", z: 13 });
+    bits.forEach((b, i) => {
+      const x = 8 + (i % 20) * 20,
+        y = 26 + Math.floor(i / 20) * 24;
+      g +=
+        R(
+          x,
+          y,
+          18,
+          20,
+          b === "1"
+            ? { f: "var(--blue-dim)", s: "var(--blue-edge)", r: 4, sw: 1.5 }
+            : { f: "var(--bg-2)", s: "var(--line-2)", r: 4, sw: 1.5 },
+        ) + T(x + 9, y + 15, b, { z: 12, c: "var(--text-dim)" });
+    });
+    g += T(8, 92, "Each bit flips on its own, with chance 1 in 20.", { a: "start", z: 13, c: "var(--amber-ink)" });
+    return svg(416, 104, g);
+  })();
+
+  B.add("l1-ingredients", [
+    {
+      type: "pick",
+      q: "A population of six 10-bit candidates is bred by selection and copying only: no mutation and no crossover. Each panel shows the six rows (one per candidate) at a different generation. Tap the panel after which recombination (crossover) on its own can no longer make anything new.",
+      fig: ingGrids,
+      a: "c",
+      why: "By generation 30 all six rows are identical. Crossing two identical parents gives a child identical to both, so recombination has nothing to mix. At generation 4 there are still three different rows, so crossover could still build new combinations. Selection alone shrinks variety; mutation is what puts new variety back in.",
+    },
+    {
+      type: "pick",
+      q: "Selection should have a weak bias towards the fittest: fitter parents are likelier, but nobody is ruled out. Each bar shows how a scheme shares parent slots among four candidates with fitness 8, 5, 2 and 1. Select every scheme that matches that description.",
+      fig: ingBars,
+      a: ["s3", "s5"],
+      hint: "C splits 16 total fitness: 8, 5, 2 and 1 sixteenths.",
+      why: "C gives shares of 8/16, 5/16, 2/16 and 1/16: the fittest is favoured, yet the weakest still has a 6% chance. E does the same by rank. A gives everyone else no chance at all, B has no bias, and D rules out the bottom two. Zero chances throw away variety; no bias throws away progress.",
+    },
+    {
+      type: "pick",
+      q: "Each dot is one run of a hill-climbing search on a landscape with a small hill (height 0.6) and a big mountain (height 1.0). In a run, a population of climbers starts at random places and each only walks uphill. The dot is the best height any climber reached. Tap the smallest population size for which all 12 runs reached the big mountain.",
+      fig: ingDots,
+      a: "n4",
+      why: "With one climber, a start near the small hill ends up on it, so about half the runs are stuck at 0.6. With two climbers, both must be unlucky, which still happens now and then. With four climbers, at least one almost always starts in the mountain's catchment area, and every run reaches 1.0. A population is insurance against a bad start.",
+    },
+    {
+      type: "pick",
+      q: "One-point crossover: a child takes everything before the cut from Parent 1 and everything after it from Parent 2. Fitness is the number of 1s in the child. Tap the cut that gives the fittest child.",
+      fig: ingCut,
+      a: "c3",
+      hint: "Count the 1s in the left part of P1 and the right part of P2 for each cut.",
+      why: "Cutting after position 3 gives 111 from P1 and 1111100 from P2: 1111111100, which has eight 1s. Every other cut gives 7 or fewer (cut 1 or 2 gives 7, cut 4 or 5 gives 7, cut 6 gives 6, cut 7 or 9 gives 5, cut 8 gives 4). Crossover works when each parent has a good piece the other lacks.",
+    },
+    {
+      type: "slider",
+      q: "A parent has 40 bits. Mutation flips each bit independently with chance 1 in 20. On average, how many bits differ between a child and its parent?",
+      fig: ingStrip,
+      min: 0,
+      max: 10,
+      step: 1,
+      ans: 2,
+      tol: 1,
+      unit: " bits",
+      hint: "40 bits, each with a 1 in 20 chance: 40 ÷ 20.",
+      why: "Expected flips = number of bits × chance per bit = 40 × 1/20 = 2. A rate of about one flip per child makes mutation a small tweak, which is what an EA wants: small changes mostly stay near a good parent, and the odd child still lands somewhere new.",
+    },
+  ]);
+
+  /* =====================================================================
+     l1-apps
+     ===================================================================== */
+  const appsScatter = (() => {
+    const P = { A: [1, 4], B: [2, 8], C: [3, 9], D: [4, 12], E: [5, 13], F: [2, 5], G: [6, 14], H: [3, 12] };
+    const x0 = 50,
+      y1 = 250,
+      W = 350,
+      H = 220,
+      X = (s) => x0 + (s / 6.5) * W,
+      Y = (g) => y1 - (g / 15) * H;
+    let g = "";
+    for (let i = 0; i <= 6; i++)
+      g += L(X(i), y1, X(i), Y(15), { c: "var(--line)", sw: 1 }) + T(X(i), y1 + 18, i, { z: 12, c: "var(--text-dim)" });
+    for (let v = 0; v <= 15; v += 5)
+      g +=
+        L(x0, Y(v), X(6.5), Y(v), { c: "var(--line)", sw: 1 }) +
+        T(x0 - 10, Y(v) + 4, v, { a: "end", z: 12, c: "var(--text-dim)" });
+    g += L(x0, y1, X(6.5), y1) + L(x0, y1, x0, Y(15));
+    g +=
+      T(235, y1 + 38, "Size (cm)", { z: 13, c: "var(--text-dim)" }) +
+      T(12, 130, "Gain (dB)", { z: 13, c: "var(--text-dim)" }).replace(
+        "<text ",
+        `<text transform="rotate(-90 12 130)" `,
+      );
+    Object.entries(P).forEach(
+      ([k, [s, ga]]) =>
+        (g += `<g data-pick="${k}">${C(X(s), Y(ga), 13, { s: "var(--blue)", sw: 3 })}${T(X(s), Y(ga) + 5, k, { z: 13, c: "var(--ink)" })}</g>`),
+    );
+    return svg(420, 288, g);
+  })();
+
+  const appsGantt = (() => {
+    const x0 = 44,
+      W = 380,
+      top = 24,
+      rh = 19;
+    let g = "";
+    for (let k = 0; k <= 5; k++) {
+      const x = x0 + (k / 5) * W;
+      g +=
+        L(x, top - 4, x, top + 10 * rh, { c: "var(--line)", sw: 1 }) +
+        T(x, top + 10 * rh + 16, k * 30, { z: 12, c: "var(--text-dim)" });
+    }
+    for (let m = 0; m < 10; m++) {
+      g += T(x0 - 8, top + m * rh + 13, "M" + (m + 1), { a: "end", z: 11, c: "var(--text-dim)" });
+      for (let b = 0; b < 5; b++)
+        g += R(x0 + (b / 5) * W + 1.5, top + m * rh + 1, W / 5 - 3, rh - 3, {
+          f: b % 2 ? "var(--blue)" : "var(--teal)",
+          s: b % 2 ? "var(--blue-ink)" : "var(--teal-ink)",
+          r: 4,
+          sw: 1.5,
+        });
+    }
+    g += T(x0 + W / 2, top + 10 * rh + 36, "seconds into one generation (each block = one 30-second simulation)", {
+      z: 12,
+      c: "var(--text-dim)",
+    });
+    return svg(440, top + 10 * rh + 46, g);
+  })();
+
+  const appsHeat = (() => {
+    const px = 5,
+      py = 2,
+      v = (c, r) => Math.max(0, 8 - (Math.abs(c - px) + Math.abs(r - py)));
+    const rules = [
+      ["P", (c, r) => v(c, r) / 8],
+      ["Q", (c, r) => (c === px && r === py ? 1 : 0)],
+      ["R", (c, r) => Math.floor(v(c, r) / 3) / 2],
+    ];
+    const cs = 19;
+    let g = "";
+    rules.forEach(([name, fn], pi) => {
+      const ox = 4 + pi * 150;
+      for (let r = 0; r < 7; r++)
+        for (let c = 0; c < 7; c++) {
+          const val = fn(c, r);
+          g += `<rect x="${ox + 8 + c * cs}" y="${8 + r * cs}" width="${cs}" height="${cs}" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/><rect x="${ox + 8 + c * cs}" y="${8 + r * cs}" width="${cs}" height="${cs}" fill="var(--teal)" fill-opacity="${val}" stroke="var(--line)" stroke-width="1"/>`;
+        }
+      g +=
+        T(ox + 8 + px * cs + cs / 2, 8 + py * cs + 13, "★", { z: 13, c: "var(--ink)" }) +
+        T(ox + 8 + 3.5 * cs, 8 + 7 * cs + 20, "Score " + name, { z: 14 });
+    });
+    return svg(450, 176, g);
+  })();
+  Object.assign(partScope, { appsGantt, appsHeat, appsScatter });
 })();

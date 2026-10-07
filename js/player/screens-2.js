@@ -37,7 +37,7 @@
       const s = sc.s,
         L = N.LESSONS[pl.S.mod.id];
       node.innerHTML = `<div class="pl-in pl-read">
-        <div class="lesson-step-n">Step ${sc.k + 1} of ${L.steps.length}</div>
+        <div class="lesson-step-n">${pl.S.mod.video ? "Recap video" : `Step ${sc.k + 1} of ${L.steps.length}`}</div>
         <h1 class="lesson-title">${s.t}</h1>
         <div class="lesson-body">${s.b}</div>
         <div class="lesson-visual"></div>
@@ -134,7 +134,7 @@
       }
       foot("continue", {
         onGo: pl.next,
-        fb: sc.guide ? `<span class="faint">Tick the list as you go, then continue.</span>` : "",
+        fb: sc.guide ? `<span class="faint">Try the demo, then continue (skip any time)</span>` : "",
       });
     },
     recap(node) {

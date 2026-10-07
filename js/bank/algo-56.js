@@ -1,329 +1,372 @@
 (function () {
   const B = NIC.bank;
+  const svg = (w, h, body, label) =>
+    `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}" style="width:100%;height:auto;display:block;max-width:${Math.min(Math.round(w * 1.45), 560)}px;margin:0 auto">${body}</svg>`;
+  const tx = (x, y, s, c = "var(--text)", sz = 12) =>
+    `<text x="${x}" y="${y}" text-anchor="middle" font-size="${sz}" font-weight="800" fill="${c}">${s}</text>`;
+  const box = (x, y, w, h, label, fill = "var(--panel)", c = "var(--text)") =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="var(--line-2)" stroke-width="2"/>${tx(x + w / 2, y + h / 2 + 4, label, c)}`;
+  const pk = (id, inner) => `<g data-pick="${id}" style="cursor:pointer">${inner}</g>`;
 
-  B.add("a7-entropy", [
-    {
-      type: "match",
-      q: "An event happens with the chance shown. Match each chance to the surprise it carries when it happens.",
-      pairs: [
-        ["1 in 2", "1 bit"],
-        ["1 in 4", "2 bits"],
-        ["1 in 16", "4 bits"],
-        ["1 in 64", "6 bits"],
-      ],
-      hint: "Count how many times you halve 1 to reach the chance: 1/2 is one halving, 1/4 is two.",
-      why: "Surprise is −log₂ p, which counts the halvings. 1/2 is one halving, 1/4 is two, 1/16 is four (2⁴ = 16) and 1/64 is six (2⁶ = 64). Each halving of the chance adds exactly one bit.",
-    },
-    {
-      type: "slider",
-      q: "A source sends one of five symbols. Symbol A has chance 1/2 and each of the other four has chance 1/8. Surprise: A carries 1 bit, each other symbol carries 3 bits. What is its entropy in bits per symbol?",
-      min: 0,
-      max: 3,
-      step: 0.25,
-      start: 1,
-      ans: 2,
-      tol: 0.25,
-      unit: " bits",
-      hint: "A adds 1/2 × 1 = 0.5. The four rare symbols add 4 × (1/8 × 3) = 1.5.",
-      why: "Entropy averages the surprise, weighted by chance: 0.5 × 1 + 4 × (0.125 × 3) = 0.5 + 1.5 = 2 bits. That is below the 2.32 bits (log₂ 5) of five equally likely symbols, because the skew towards A makes the source more predictable.",
-    },
-    {
-      type: "cat",
-      q: "Each event is a fair draw. Sort them by how much surprise they carry when they happen. Three bits of surprise means a 1 in 8 chance.",
-      buckets: ["At most 3 bits", "More than 3 bits"],
-      items: [
-        ["Heads on a fair coin", 0],
-        ["A six on a fair six-sided die", 0],
-        ["A named suit from a shuffled pack", 0],
-        ["One named card from a shuffled pack of 52", 1],
-        ["One named day of a 365-day year", 1],
-        ["A named number picked from 1 to 100", 1],
-      ],
-      hint: "Rarer than 1 in 8 means more than 3 bits. A die gives 1 in 6, which is likelier than 1 in 8.",
-      why: "Heads is 1 bit, a six is 1 in 6 (about 2.6 bits) and a suit is 1 in 4 (2 bits), all at most 3. A single card is 1 in 52, a day is 1 in 365 and a number from 100 is 1 in 100, so each is rarer than 1 in 8 and carries more than 3 bits.",
-    },
-    {
-      type: "order",
-      q: "Put the steps of working out a source's entropy in order.",
-      items: [
-        "List each symbol's chance of appearing",
-        "Turn each chance into a surprise, −log₂ p",
-        "Multiply each surprise by that symbol's own chance",
-        "Add the results to get bits per symbol",
-      ],
-      hint: "You need the chances before you can find any surprise, and you weight before you add.",
-      why: "Entropy is the average surprise. Each symbol's surprise is found from its chance, weighted by how often it occurs, and then the weighted values are summed. Adding unweighted surprises would treat a rare symbol as if it turned up as often as a common one.",
-    },
+  // a8-keys: six possible exponents, nothing else shown
+  function figExponents() {
+    let s = "";
+    for (let a = 1; a <= 6; a++) s += pk(String(a), box(8 + (a - 1) * 52, 22, 46, 38, `a = ${a}`));
+    return svg(320, 72, s, "Six boxes, one for each private exponent a from 1 to 6");
+  }
+
+  // a9-dft: a spectrum and four one-second recordings
+  function wave(x0, y0, w, h, freqs) {
+    let d = "";
+    for (let i = 0; i <= w; i += 2) {
+      const y = freqs.reduce((s, f) => s + Math.sin((2 * Math.PI * f * i) / w), 0) / freqs.length;
+      d += `${i ? "L" : "M"}${(x0 + i).toFixed(1)} ${(y0 + h / 2 - y * (h / 2 - 6)).toFixed(1)}`;
+    }
+    return `<path d="${d}" fill="none" stroke="var(--blue)" stroke-width="2"/>`;
+  }
+  function figRecordings() {
+    let s = tx(160, 14, "Spectrum: two equal bars, at 3 Hz and 9 Hz", "var(--text-dim)");
+    [3, 9].forEach((f) => {
+      s += `<rect x="${40 + f * 20 - 6}" y="26" width="12" height="40" fill="var(--teal)"/>`;
+    });
+    s += `<line x1="30" y1="66" x2="290" y2="66" stroke="var(--line-2)" stroke-width="2"/>`;
+    const P = [
+      ["A", [3]],
+      ["B", [9]],
+      ["C", [3, 9]],
+      ["D", [3, 6]],
+    ];
+    P.forEach(([id, f], i) => {
+      const x = 8 + (i % 2) * 156,
+        y = 80 + Math.floor(i / 2) * 76;
+      s += pk(
+        id,
+        `<rect x="${x}" y="${y}" width="148" height="68" rx="8" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2"/>${wave(x + 4, y, 140, 68, f)}${tx(x + 14, y + 14, id, "var(--text-dim)")}`,
+      );
+    });
+    return svg(320, 236, s, "A spectrum with bars at 3 and 9 Hz, above four waveform panels A to D");
+  }
+
+  // a10-attn: a sentence of nine words
+  function figSentence() {
+    const W = ["The", "robot", "dropped", "the", "cup", "because", "it", "was", "clumsy"];
+    let s = "";
+    W.forEach((w, i) => {
+      const row = i < 5 ? 0 : 1,
+        x = 6 + (row ? i - 5 : i) * 62,
+        y = 8 + row * 46;
+      const hot = w === "it";
+      const inner = box(
+        x,
+        y,
+        58,
+        36,
+        w,
+        hot ? "var(--amber)" : "var(--panel)",
+        hot ? "var(--amber-on)" : "var(--text)",
+      );
+      s += hot ? inner : pk(w, inner);
+    });
+    return svg(
+      320,
+      100,
+      s,
+      "The sentence: The robot dropped the cup because it was clumsy, with the word it highlighted",
+    );
+  }
+
+  B.add("a8-keys", [
     {
       type: "multi",
-      q: "Select every statement about entropy that is true.",
+      q: "A toy RSA key uses n = 55 (5 × 11), e = 3 and d = 27. Select every true statement.",
       o: [
-        "Adding a symbol that never occurs leaves the entropy unchanged",
-        "Renaming the symbols without changing their chances leaves it unchanged",
-        "Three equally likely symbols have an entropy below 2 bits",
-        "A more predictable source has a higher entropy",
-        "Two sources with five symbols each always have equal entropy",
+        "Encrypting the message m = 2 gives the ciphertext 8",
+        "Decrypting needs the exponent 27, not 3",
+        "Eve could rebuild d from the public key by factoring 55 and finding φ = 40",
+        "The pair (55, 27) is the public key",
+        "Switching to e = 4 would also work, as 4 is less than 55",
       ],
       a: [0, 1, 2],
-      hint: "Entropy depends on the chances only. Which numbers does a symbol that never occurs add to the sum?",
-      why: "Only the chances matter, so renaming changes nothing and a symbol with chance 0 adds nothing. Three equal symbols give log₂ 3 ≈ 1.58 bits, below 2. Predictable sources have lower entropy, and equal alphabet size says nothing about equal chances.",
-    },
-    {
-      type: "bug",
-      q: "This function should return the entropy in bits of a list of chances. For a fair four-sided die it returns about 1.39 instead of 2. Click the faulty line.",
-      code: ["def entropy(probs):", "    h = 0", "    for p in probs:", "        h -= p * math.log(p)", "    return h"],
-      a: 3,
-      hint: "math.log is the natural logarithm. Which logarithm gives bits?",
-      why: "math.log uses base e, so the answer is in nats: 4 × 0.25 × ln 4 ≈ 1.39. Bits need base 2, so the line should call math.log2(p). The weighting and the sign are already right.",
-    },
-  ]);
-
-  B.add("a7-huffman", [
-    {
-      type: "slider",
-      q: "A message of 16 symbols has counts A 8, B 4, C 2, D 1 and E 1. Huffman gives A a 1-bit code, B 2 bits, C 3 bits, and D and E 4 bits each. How many bits does the whole message take?",
-      min: 16,
-      max: 48,
-      step: 2,
-      start: 24,
-      ans: 30,
-      tol: 2,
-      unit: " bits",
-      hint: "8 × 1 = 8, 4 × 2 = 8, 2 × 3 = 6, then 1 × 4 twice = 8. Add the four numbers.",
-      why: "Each symbol costs its count times its codeword length: 8 + 8 + 6 + 4 + 4 = 30 bits. Plain 3-bit codes for five symbols would cost 48 bits, so the skew in the counts is what Huffman exploits.",
-    },
-    {
-      type: "cat",
-      q: "Huffman builds a code for each set of chances. Sort the sets by whether every symbol ends up with a codeword of the same length.",
-      buckets: ["All the same length", "Different lengths"],
-      items: [
-        ["Four symbols at 1/4 each", 0],
-        ["Eight symbols at 1/8 each", 0],
-        ["Two symbols at 1/2 each", 0],
-        ["Chances 1/2, 1/4, 1/8 and 1/8", 1],
-        ["Chances 0.4, 0.3, 0.2 and 0.1", 1],
-        ["Chances 0.7, 0.1, 0.1 and 0.1", 1],
-      ],
-      hint: "When every chance is equal, every merge pairs equals, so the tree comes out perfectly balanced.",
-      why: "Equal chances give a balanced tree, so 4 symbols get 2 bits, 8 get 3 and 2 get 1. A skewed set always leaves some symbols rarer than others, and Huffman pushes the rare ones deeper, so the lengths differ.",
-    },
-    {
-      type: "match",
-      q: "Match each idea from Huffman coding to what it means.",
-      pairs: [
-        ["Prefix-free", "No codeword is the start of another, so no separators are needed"],
-        ["Greedy choice", "Merge the two rarest nodes, which pushes them deepest"],
-        ["The queue", "Holds leaves and merged nodes, sorted by weight"],
-        ["L ≥ H", "Average length never beats the entropy"],
-      ],
-      hint: "Think about what each term does in the algorithm.",
-      why: "A prefix-free code can be read left to right without separators. The greedy step merges the two lowest weights, since the deepest places should cost the rarest symbols. Merged nodes rejoin the queue as if they were symbols. Entropy is a floor that whole-bit codewords can approach but not undercut.",
-    },
-    {
-      type: "multi",
-      q: "A Huffman code is built for some symbol counts. Select every statement that must be true.",
-      o: [
-        "The two rarest symbols get codewords of the same length",
-        "The most frequent symbol always gets a 1-bit codeword",
-        "Swapping every 0 and 1 in all codewords gives a code with the same average length",
-        "A rarer symbol can get a shorter codeword than a commoner one",
-        "The average codeword length is never below the entropy",
-      ],
-      a: [0, 2, 4],
-      hint: "Test the second statement on four equally likely symbols.",
-      why: "The two rarest are merged first, so they sit together at the bottom of the tree with equal lengths. Swapping 0 and 1 only relabels branches, so the lengths stay put. No code can beat entropy on average. With four equal symbols the commonest gets 2 bits, not 1, and swapping a rare symbol above a common one would only raise the cost.",
-    },
-    {
-      type: "bug",
-      q: "This function should return the average codeword length for a code, where code maps each symbol to its bit string and probs maps each symbol to its chance. For chances 1/2, 1/4, 1/4 and lengths 1, 2, 2 it should return 1.5 but it returns 5. Click the faulty line.",
-      code: [
-        "def avg_length(code, probs):",
-        "    total = 0",
-        "    for sym in code:",
-        "        total += len(code[sym])",
-        "    return total",
-      ],
-      a: 3,
-      hint: "An average must weight each length by how often the symbol occurs.",
-      why: "The line adds up the raw lengths, 1 + 2 + 2 = 5, so a rare symbol counts as much as a common one. It should add probs[sym] * len(code[sym]), giving 0.5 + 0.5 + 0.5 = 1.5.",
-    },
-    {
-      type: "mcq",
-      q: "Symbols A, B, C and D have counts 1, 1, 2 and 2. After merging the two 1s into a 2, three nodes of weight 2 are tied. Whichever tied pair merges next, two different valid Huffman trees can result What does this tell you about the two trees?",
-      o: [
-        "Both are optimal, same total",
-        "The wider tree is always the cheaper one",
-        "The taller tree is always the cheaper one",
-      ],
-      a: 0,
-      hint: "Try each: the first tree has all lengths 2, the second has lengths 1, 2, 3 and 3.",
-      why: "Ties give different shapes but the same cost. All lengths 2 costs 2 × (1 + 1 + 2 + 2) = 12 bits. Lengths 1, 2, 3 and 3 for the counts 2, 2, 1 and 1 cost 2 + 4 + 3 + 3 = 12. Huffman guarantees the minimum total, not one unique tree.",
-    },
-  ]);
-
-  B.add("a7-lzw", [
-    {
-      type: "match",
-      q: "The decoder starts with A = 0 and B = 1 and rebuilds the table as it reads. Match each stream of codes to the text it decodes to.",
-      pairs: [
-        ["0, 1, 2, 0", "ABABA"],
-        ["1, 0, 2, 4", "BABABAB"],
-        ["0, 2, 3", "AAAAAA"],
-        ["0, 1, 3, 2", "ABBBAB"],
-      ],
-      hint: "Add a new entry after each code: the previous output plus the first letter of the current one. A code one past the table is previous output plus its own first letter.",
-      why: "For 0, 1, 2, 0: A, B (add AB = 2), AB (add BA = 3), A, giving A B AB A. For 1, 0, 2, 4: B, A (BA = 2), BA (AB = 3), then 4 is missing so it is BA + B = BAB. For 0, 2, 3: A, then 2 is missing so it is A + A = AA, then 3 is missing so it is AA + A = AAA, giving A AA AAA. For 0, 1, 3, 2: A, B (AB = 2), 3 is missing so B + B = BB, then AB.",
-    },
-    {
-      type: "cat",
-      q: "A decoder started with A = 0 and B = 1 and has built entries up to code 4, so its table holds codes 0 to 4. A new code arrives. Sort each one by what the decoder finds.",
-      buckets: ["Already in the table", "Missing-entry case", "Corrupt stream"],
-      items: [
-        ["Code 1", 0],
-        ["Code 4", 0],
-        ["Code 5", 1],
-        ["Code 6", 2],
-        ["Code 9", 2],
-      ],
-      hint: "The decoder can handle exactly one code past its table: the one it is about to create.",
-      why: "Codes 0 to 4 are already known. Code 5 is the next free slot, which is the case where the encoder used an entry the instant it made it, so the decoder rebuilds it as the previous output plus its own first letter. Anything beyond that could never have been made, so the stream is corrupt.",
+      hint: "2³ = 8, which is smaller than 55. For the last one, e must share no factor with 40.",
+      why: "2³ = 8, and 8 is below 55 so the remainder is 8. Decrypting uses the private exponent d = 27. With a tiny n, Eve factors 55 in her head, gets φ = 4 × 10 = 40, and solves 3d ≡ 1 (mod 40). The public key is (n, e) = (55, 3), and e = 4 shares the factor 4 with 40, so no d exists.",
     },
     {
       type: "slider",
-      q: "An encoder starts with 4 single letters in its dictionary (codes 0 to 3). It adds one new entry each time it sends a code, except for the very last code. A message produces 9 codes. How many entries does the dictionary hold at the end?",
-      min: 4,
-      max: 20,
-      step: 1,
-      start: 8,
-      ans: 12,
-      tol: 0,
-      unit: " entries",
-      hint: "9 codes sent, but the last one adds nothing. So 8 new entries on top of the 4 letters.",
-      why: "Every emit except the final one adds a new entry, so 9 codes add 8 entries: 4 + 8 = 12. The final emit has no next letter to extend the phrase, so it creates nothing.",
+      q: "Ten colleagues each want a private chat with every one of the other nine. They agree one separate Diffie–Hellman secret for each pair of people. About how many secrets are agreed in total?",
+      min: 0,
+      max: 100,
+      step: 5,
+      start: 20,
+      ans: 45,
+      tol: 5,
+      unit: "secrets",
+      hint: "Each person has 9 partners, so 10 × 9 = 90 chats, but each pair was counted twice.",
+      why: "10 × 9 = 90 counts every pair twice (Ana with Ben, then Ben with Ana), so there are 45 pairs. The count grows with the square of the group, which is one reason public-key systems let each person publish a single key instead.",
     },
     {
       type: "order",
-      q: "Put one round of the LZW encoder in order.",
+      q: "Put the steps of one Diffie–Hellman exchange in order.",
       items: [
-        "Find the longest phrase w that is already in the dictionary",
-        "Send the dictionary code for w",
-        "Add w plus the next letter as a new entry",
-        "Start the next phrase from that next letter",
+        "Alice and Bob agree a public prime p and base g",
+        "Each picks a private number that nobody else sees",
+        "Each sends g raised to their private number, mod p",
+        "Each raises the value they received to their own private number, mod p",
       ],
-      hint: "You can only add the next letter's phrase once you know where w stops.",
-      why: "The encoder grows w until w plus one more letter is unknown. It sends w's code, records the new phrase so it can be reused later, and carries on from the letter that did not fit. The decoder can follow the same steps because each new entry depends only on text it has already seen.",
+      hint: "Nothing can be sent until the private numbers exist, and the final step needs the other side's value.",
+      why: "The public numbers come first, then the private ones. Only after swapping g^a and g^b can each side raise what it got to its own secret. Both then reach g^(ab) mod p, a value that was never sent over the wire.",
     },
     {
       type: "bug",
-      q: "This LZW encoder should send the code of the longest known phrase w whenever w plus the next letter is new. Instead it crashes with a KeyError at the first new phrase. Click the faulty line.",
-      code: [
-        "def lzw(text, alphabet):",
-        "    d = {ch: i for i, ch in enumerate(alphabet)}",
-        '    w, out = "", []',
-        "    for c in text:",
-        "        if w + c in d:",
-        "            w = w + c",
-        "        else:",
-        "            out.append(d[w + c])",
-        "            d[w + c] = len(d)",
-        "            w = c",
-        "    out.append(d[w])",
-        "    return out",
-      ],
-      a: 7,
-      hint: "At that point w + c is new, so it is not in the dictionary yet. Which phrase is known?",
-      why: "In the else branch w + c is the new phrase, which is not in the dictionary yet, so looking it up fails. The encoder must send the code of the known phrase w, out.append(d[w]), and only then add w + c.",
+      q: "A toy RSA program with n = 55, e = 3 and d = 27 should print True for any message m from 1 to 54. It runs, but prints False for most messages. Click the faulty line.",
+      code: ["n, e, d = 55, 3, 27", "c = pow(m, e, n)", "back = pow(c, e, n)", "print(back == m)"],
+      a: 2,
+      why: "Encrypting uses the public exponent e, but decrypting must use the private exponent d. Raising to e a second time gives m to the power 9, not m. It should read pow(c, d, n).",
     },
     {
-      type: "mcq",
-      q: "A decoder reads codes with the alphabet A = 0, B = 1 and C = 2 and gets 0, 1, 2, 3, 5. What text does it produce?",
-      o: ["ABCABCA", "ABCABCB", "ABCCABA"],
-      a: 0,
-      hint: "After each code add previous output plus the first letter of the current one.",
-      why: "0 gives A, 1 gives B (add AB = 3), 2 gives C (add BC = 4), 3 gives AB (add CA = 5), and 5 gives CA (add ABC = 6). Joined, that is A B C AB CA = ABCABCA.",
+      type: "cat",
+      q: "Alice and Bob run plain Diffie–Hellman with huge numbers and no certificates or signatures. Sort each attack by whether the exchange alone stops it.",
+      buckets: ["Stopped by the exchange alone", "Not stopped by the exchange alone"],
+      items: [
+        ["Eve silently records every value sent on the wire", 0],
+        ["Mallory swaps both public values in transit and runs two exchanges", 1],
+        ["Eve tries to work out the secret from p, g, A and B", 0],
+        ["Mallory pretends to be Bob and runs her own exchange with Alice", 1],
+      ],
+      hint: "Ask whether the attacker only watches, or also takes part.",
+      why: "Watching is useless to Eve, because getting the secret from A and B means solving a discrete logarithm. But the exchange never proves who is on the other end, so an active attacker who joins in, or stands in the middle, ends up sharing a secret with each side. Certificates and signatures fix that.",
+    },
+    {
+      type: "pick",
+      q: "Toy Diffie–Hellman with p = 7 and g = 3. Alice sent A = 3<sup>a</sup> mod 7 = 6, and Eve tries each exponent. Tap the private exponent a that Alice used.",
+      fig: figExponents(),
+      a: "3",
+      hint: "Powers of 3 mod 7: 3, then 9 → 2, then 6.",
+      why: "3¹ = 3, 3² = 9 → 2, and 3³ = 27 = 3 × 7 + 6 → 6, so a = 3. With p this small Eve just tries all six exponents. With a prime of 600 digits there is no list short enough to try, which is why the discrete log is the hard problem.",
     },
   ]);
 
-  B.add("a8-hash", [
+  B.add("a9-dft", [
     {
-      type: "cat",
-      q: "A hash chain stores in each block the hash of the one before it. Sort each action by whether a checker that only follows those links would notice it.",
-      buckets: ["Noticed by the links", "Not noticed by the links"],
-      items: [
-        ["Block 1's data is edited and nothing else is touched", 0],
-        ["Block 2's stored prev value is changed to a made-up one", 0],
-        ["A middle block is deleted and the gap is left as it is", 0],
-        ["Block 1 is edited, then every later hash and prev is recomputed", 1],
-        ["The newest block is edited and its own hash is recomputed", 1],
-        ["Someone with full write access rebuilds the whole chain", 1],
-      ],
-      hint: "A link only breaks if something is left pointing at a value that no longer exists.",
-      why: "Editing alone, forging a prev or deleting a block leaves some later block pointing at a hash that no longer exists, so a link breaks. If the attacker fixes every later hash, or edits the newest block that nothing points back to, everything is consistent again. Chains make edits evident but cannot stop a careful rewrite.",
+      type: "pick",
+      q: "A one-second recording has a spectrum with two equal bars, at 3 Hz and 9 Hz. Which recording shows it? Tap it.",
+      fig: figRecordings(),
+      a: "C",
+      hint: "Count the wiggles in one second: slow is 3, fast is 9. The spectrum has both.",
+      why: "C is a 3-cycle wave added to a 9-cycle wave, so its spectrum has one bar for each. A has only the slow wave and B only the fast one. D mixes 3 cycles with 6, so its second bar would stand at 6 Hz, not 9.",
     },
     {
-      type: "match",
-      q: "Match each fact about hashing and mining to the reason behind it.",
-      pairs: [
-        ["Changing one letter of a block", "Gives a completely different hash"],
-        ["Finding a winning nonce", "Only trial and error works, one hash per try"],
-        ["Checking a winning nonce", "One hash, whatever the difficulty"],
-        ["Rebuilding a chain after an edit", "Looks consistent, so links alone cannot prevent it"],
+      type: "cat",
+      q: "A spectrum shows a false peak. Sort each remedy by which problem it fixes: aliasing (a tone above fs / 2 folds down) or leakage (energy smears across neighbouring bins).",
+      buckets: ["Fixes aliasing", "Reduces leakage"],
+      items: [
+        ["Sample at more than twice the highest frequency", 0],
+        ["Taper the window edges with a Hann window", 1],
+        ["Filter out tones above fs / 2 before sampling", 0],
+        ["Record a whole number of cycles in the window", 1],
       ],
-      hint: "Think about which side of proof of work is hard and which is cheap.",
-      why: "A tiny change gives a totally different digest. Mining has no shortcut, so miners keep trying nonces, while anyone can verify an answer with a single hash. A rebuilt chain is self-consistent, so link checks cannot tell it from the original: detecting tampering is not the same as preventing it.",
+      hint: "Aliasing is about the sampling rate. Leakage is about the window edges.",
+      why: "Aliasing happens when sampling is too slow, so the fix is to sample faster or to remove the fast tones before sampling. Leakage happens when the window cuts a wave mid-cycle, so the fixes work on the window: fit whole cycles, or taper the edges. A window reduces leakage but never removes it, and it cannot undo aliasing.",
     },
     {
       type: "slider",
-      q: "On a miner's laptop, finding a hash that starts with 2 hex zeros takes about 2 seconds. Each extra zero multiplies the work by 16. About how many minutes would 4 hex zeros take?",
+      q: "A recorder samples at 200 Hz and takes 100 samples. Two tones sound at 30 Hz and 50 Hz. About how many bins apart are their peaks?",
       min: 0,
       max: 30,
       step: 1,
-      start: 2,
-      ans: 8.5,
-      tol: 1.5,
-      unit: " min",
-      hint: "Two more zeros is 16 × 16 = 256 times the work. 2 seconds × 256 is about 500 seconds.",
-      why: "Two more zeros means 16 × 16 = 256 times the tries, so 2 × 256 = 512 seconds, which is about 8.5 minutes. Difficulty grows exponentially with the number of required zeros.",
+      start: 5,
+      ans: 10,
+      tol: 2,
+      unit: "bins",
+      hint: "Bin spacing is 200 ÷ 100 = 2 Hz. The tones are 20 Hz apart.",
+      why: "Bin spacing is fs / N = 200 / 100 = 2 Hz. The tones are 50 − 30 = 20 Hz apart, and 20 / 2 = 10 bins. Bin k stands at k × 2 Hz, so the peaks are at bins 15 and 25.",
     },
     {
       type: "order",
-      q: "Put what a checker sees after someone edits block 1 in order.",
+      q: "Put the steps of finding the loudest frequency in a recording in order.",
       items: [
-        "The attacker changes the data inside block 1",
-        "Recomputing block 1's hash now gives a different value",
-        "Block 2's stored prev no longer matches that value",
-        "The checker flags the chain as broken from block 2 on",
+        "Record N samples at a fixed sampling rate",
+        "Taper the edges with a window to cut leakage",
+        "Run the transform to get one value per bin",
+        "Find the tallest bin k and convert it with k × fs / N",
       ],
-      hint: "Each step follows from the one before it, and the checker needs the hash to differ before it can see the mismatch.",
-      why: "The edit changes block 1's hash, and block 2 still holds the old hash as its prev. The checker compares the two, sees the mismatch and rejects the chain from that point. The attacker would then have to redo block 2 and every block after it.",
-    },
-    {
-      type: "multi",
-      q: "Select every statement about proof of work that is true.",
-      o: [
-        "Checking a winning nonce takes one hash, however hard the puzzle",
-        "One extra required hex zero multiplies the expected tries by 16",
-        "A nonce that wins for one block also wins for the next block",
-        "Higher difficulty makes checking 16 times slower per zero",
-        "A lucky miner can find a winning nonce on the first try",
-      ],
-      a: [0, 1, 4],
-      hint: "Each block has different contents, so it has a different hash for every nonce.",
-      why: "Verification is one hash at any difficulty, and each extra zero cuts the chance of success per try 16-fold. Mining is a lottery, so a lucky try can win at once. A nonce only suits the exact block it was found for, since changing any block data changes its hash.",
+      hint: "You can only read bins after the transform, and you convert to hertz last.",
+      why: "The samples come first, and the window is applied to them before the transform because it reshapes the samples, not the bins. Only once you hold the magnitudes can you pick the tallest, and the bin number then becomes hertz by multiplying by the bin spacing fs / N.",
     },
     {
       type: "bug",
-      q: "This miner should keep trying nonces until the block's hash starts with the required number of zeros. Asked for 4 zeros, it stops after about 16 tries with a hash that often has just one. Click the faulty line.",
+      q: "This should return the size (magnitude) of DFT bin k. It runs, but the answer is wrong for every signal that has a sine part. Click the faulty line.",
       code: [
-        "def mine(block, zeros):",
-        "    block.nonce = 0",
-        '    while not hash_of(block).startswith("0"):',
-        "        block.nonce += 1",
-        "    return block.nonce",
+        "def dft_bin(x, k):",
+        "    n = len(x)",
+        "    re = im = 0",
+        "    for t in range(n):",
+        "        angle = 2 * pi * k * t / n",
+        "        re += x[t] * cos(angle)",
+        "        im -= x[t] * sin(angle)",
+        "    return sqrt(re ** 2 + im)",
       ],
-      a: 2,
-      hint: "Which line should use the zeros value, and does it?",
-      why: 'The test only asks for one leading zero, whatever zeros says, and one hex zero turns up about once in 16 tries. The loop should test startswith("0" * zeros), so that 4 zeros need about 65,536 tries on average.',
+      a: 7,
+      why: "The size of a complex number is sqrt(re² + im²). The code squares re but not im, so the sine part is counted wrongly, and any signal with a sine part gets the wrong size. It should read sqrt(re ** 2 + im ** 2).",
+    },
+    {
+      type: "multi",
+      q: "A one-second recording at 64 samples per second is a 5 Hz sine plus a 12 Hz sine, both with whole cycles in the window. Select every true statement about bins 0 to 32 of its spectrum.",
+      o: [
+        "Bins 5 and 12 stand out",
+        "Doubling the loudness of the 12 Hz wave doubles bin 12 only",
+        "Bin 17, which is 5 + 12, also stands out",
+        "Removing the 5 Hz wave leaves bin 12 exactly as it was",
+        "The two waves must be equally loud for the DFT to separate them",
+      ],
+      a: [0, 1, 3],
+      why: "The DFT is additive: each wave contributes its own bar, at its own bin, and the bars do not interact. Frequencies do not add, so bin 17 stays empty, and the waves can have any loudness because each bin only asks how much of its own frequency is present.",
+    },
+  ]);
+
+  B.add("a9-fft", [
+    {
+      type: "mcq",
+      q: "A 4-point FFT is run on the impulse [1, 0, 0, 0]. The even samples (1, 0) give half-size results E = [1, 1], and the odd samples (0, 0) give O = [0, 0]. The butterflies compute X[k] = E[k] + W·O[k] and X[k + 2] = E[k] − W·O[k]. What are X[0] to X[3]?",
+      o: ["[1, 1, 1, 1]", "[4, 0, 0, 0]", "[1, 0, 0, 0] unchanged", "[1, 1, −1, −1]"],
+      a: 0,
+      hint: "O is all zeros, so W·O is zero whatever W is.",
+      why: "With O all zero, every butterfly gives E[k] + 0 and E[k] − 0, so each output is just E[k]. That gives 1, 1, 1, 1: an impulse contains every frequency equally, as in the lesson's table.",
+    },
+    {
+      type: "slider",
+      q: "An FFT of 1,000 samples takes about 1 millisecond. Its work grows like N log₂ N. About how long would 1,000,000 samples take?",
+      min: 0,
+      max: 10,
+      step: 0.5,
+      start: 5,
+      ans: 2,
+      tol: 0.5,
+      unit: "s",
+      hint: "There are 1,000 times as many samples, and log₂ goes from about 10 to about 20, so double that.",
+      why: "The samples grow 1,000 times and the number of levels doubles (about 10 to about 20), so the work grows about 2,000 times: 1 ms × 2,000 = 2 s. A direct DFT grows with N², so the same jump would make it about a million times slower.",
+    },
+    {
+      type: "cat",
+      q: "Sort each part of a radix-2 FFT by whether it happens while splitting the problem down or while combining the answers back up.",
+      buckets: ["Going down (splitting)", "Coming back up (combining)"],
+      items: [
+        ["Pick out the even-position samples", 0],
+        ["Multiply by a twiddle factor", 1],
+        ["Reach size-1 problems, whose DFT is the sample itself", 0],
+        ["Add and subtract a pair of values", 1],
+      ],
+      hint: "All the arithmetic happens on the way back up.",
+      why: "Splitting only sorts samples into even and odd positions, so there is no arithmetic until the size-1 leaves. Every multiplication and addition belongs to the butterflies that combine two smaller answers into a bigger one.",
+    },
+    {
+      type: "match",
+      q: "Match each piece of the radix-2 FFT to its job.",
+      pairs: [
+        ["Even/odd split", "Turns one big DFT into two half-size ones"],
+        ["Twiddle factor W", "Rotates the odd half's value before combining"],
+        ["Butterfly", "Makes a sum and a difference from one pair"],
+        ["Bit-reversed order", "Where the samples sit when they reach the size-1 leaves"],
+      ],
+      why: "Splitting by even and odd position shrinks the problem. W rotates the odd half so the pieces line up, and the butterfly uses one product to give two outputs, a + W·b and a − W·b. Splitting again and again shuffles the samples into bit-reversed order at the leaves.",
+    },
+    {
+      type: "bug",
+      q: "This recursive FFT should split the samples into even-position and odd-position ones. It runs, but the spectrum is wrong. Click the faulty line.",
+      code: [
+        "def fft(x):",
+        "    n = len(x)",
+        "    if n == 1:",
+        "        return x",
+        "    a, b = x[:n // 2], x[n // 2:]",
+        "    ea, eb = fft(a), fft(b)",
+        "    return combine(ea, eb)",
+      ],
+      a: 4,
+      why: "Splitting into first half and second half gives two problems of the right size, but they are the wrong problems. The twiddle factors in the butterflies only work when the halves are the even samples and the odd samples, x[0::2] and x[1::2].",
+    },
+    {
+      type: "multi",
+      q: "A radix-2 FFT runs on 32 samples. Select every true statement.",
+      o: [
+        "It has 5 levels of butterflies",
+        "Each level has 16 butterflies",
+        "It performs 80 butterflies in total",
+        "Going to 64 samples exactly doubles the butterflies",
+        "A direct DFT of the same 32 samples needs only about 80 products too",
+      ],
+      a: [0, 1, 2],
+      hint: "32 = 2 × 2 × 2 × 2 × 2. Levels × butterflies per level gives the total.",
+      why: "32 halves to 1 in 5 steps, each level pairs up 32 values into 16 butterflies, and 5 × 16 = 80. At 64 samples it is 6 × 32 = 192, which is more than double. The direct DFT needs about 32 × 32 = 1,024 products.",
+    },
+  ]);
+
+  B.add("a10-attn", [
+    {
+      type: "slider",
+      q: "A layer has 8 attention heads. For a text of 1,000 tokens, each head scores every token against every token. About how many millions of scores does the layer compute?",
+      min: 0,
+      max: 20,
+      step: 1,
+      start: 4,
+      ans: 8,
+      tol: 1,
+      unit: "million",
+      hint: "1,000 × 1,000 = 1,000,000 scores per head.",
+      why: "Each head scores 1,000 × 1,000 = 1,000,000 pairs, and 8 heads make 8 million. This n² table per head is what makes long texts expensive.",
+    },
+    {
+      type: "multi",
+      q: "Select every true statement about queries, keys and values in one attention head.",
+      o: [
+        "Token 3's query is scored against the key of every token, itself included",
+        "The weights in one token's row add up to 1",
+        "Token 3's key changes depending on which other token is asking",
+        "Values are blended using the weights only after softmax",
+        "A token's query is what the other tokens use to score it",
+      ],
+      a: [0, 1, 3],
+      why: "A query is the asker, so token 3's query is scored against every key, giving a row of weights that softmax makes add up to 1. The values are then blended with those weights. A key is just the token's advert and is the same whoever asks. Other tokens score it with their queries against its key, not with its query.",
+    },
+    {
+      type: "order",
+      q: "Each row is a set of attention scores for three tokens, before softmax. Order the rows from the flattest weights to the most sharply peaked weights.",
+      items: ["[5, 5, 5]", "[11, 10, 10]", "[13, 10, 10]", "[18, 10, 10]"],
+      hint: "Only the gap between the top score and the others matters, not the size of the numbers.",
+      why: "Softmax ignores adding the same number to every score, so only the gaps count. A gap of 0 is flat, and gaps of 1, 3 and 8 give more and more weight to the first token: about 0.58, 0.91 and nearly 1.",
+    },
+    {
+      type: "cat",
+      q: "An attention layer has no mask and no position vectors, so it only sees which word vectors are present. For each pair of inputs, does the layer see them as the same or as different?",
+      buckets: ["Look identical to the layer", "Look different to the layer"],
+      items: [
+        ["'dog bites man' and 'man bites dog'", 0],
+        ["'she ate fish' and 'fish ate she'", 0],
+        ["'she ate fish' and 'she ate rice'", 1],
+        ["'big red ball' and 'big blue ball'", 1],
+      ],
+      hint: "Do the two inputs use exactly the same words?",
+      why: "Without position vectors, attention scores depend only on the word vectors, so shuffling the same words just shuffles the outputs. Changing a word changes its vector and so changes the result. This is why a position vector is added to each embedding.",
+    },
+    {
+      type: "pick",
+      q: 'In "The robot dropped the cup because it was clumsy", the query for the word <b>it</b> should match the key of the right earlier word. Tap that word.',
+      fig: figSentence(),
+      a: "robot",
+      hint: "Which thing can be clumsy?",
+      why: "A cup cannot be clumsy, so a good head puts most of its weight on the key of robot, and its output for it then carries robot's value. The model has to learn this from data, since nothing in the word it points at robot.",
+    },
+    {
+      type: "mcq",
+      q: "One token's four raw scores are [10, 0, 0, 0]. What does softmax produce?",
+      o: [
+        "Token 1 gets nearly all the weight",
+        "All four weights stay near one quarter each",
+        "Tokens 2 to 4 get negative weights as they score zero",
+        "Token 1 gets exactly all the weight, the others none",
+      ],
+      a: 0,
+      hint: "e¹⁰ is about 22,000, and each of the others is e⁰ = 1.",
+      why: "e¹⁰ is about 22,000 against 1 for each of the others, so token 1 gets almost 100% of the weight. It is never exactly 1, since the others stay a little above 0, and softmax weights are never negative. The output is then nearly just token 1's value.",
     },
   ]);
 })();

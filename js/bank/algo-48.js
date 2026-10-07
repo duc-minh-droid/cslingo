@@ -1,285 +1,302 @@
 (function () {
-  const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});
-  const { circ, dot, hullScatter, ln, pk, plane, rect, shareBars, snaps, stackPlot, stackScene, svg, txt, wl } =
-    partScope;
   const B = NIC.bank;
 
-  B.add("a5-graham", [
+  B.add("a3-lab", [
     {
-      type: "pick",
-      q: "A Graham scan starts with the anchor on the stack. The chart shows the stack height after each point of the sorted list has been processed. Every step pushes the new point, and may pop some points first. Click the step in which the MOST points were popped.",
-      fig: stackPlot,
-      a: "p5",
-      hint: "Pops at a step = 1 + (old height) − (new height). A step that only rises by 1 popped nothing.",
-      why: "Step 4 stays at 4: it pushed one point and popped one (1 + 4 − 4 = 1). Step 5 drops from 4 to 3: it pushed one and popped TWO (1 + 4 − 3 = 2), the most of any step. Step 8 stays at 5, with one pop. Steps 1, 2, 3, 6 and 7 rise by exactly 1, so nothing was popped there. The final height is 5, so five points are on the hull.",
+      type: "mcq",
+      q: "A bakery maximises profit z = 4x + y. Its legal plans satisfy x + y ≤ 6, x ≤ 4 and x, y ≥ 0, so the corners are (0, 0), (4, 0), (4, 2) and (0, 6). Which corner is the best plan?",
+      o: ["(0, 6)", "(4, 2)", "(4, 0)", "(0, 0)"],
+      a: 1,
+      hint: "Work out 4x + y at each corner: 0, 16, 18 and 6. Pick the biggest.",
+      why: "The profits are 0 at (0, 0), 16 at (4, 0), 18 at (4, 2) and 6 at (0, 6). Every X earns 4 but every Y only 1, so the best plan pushes X to its limit of 4 and then fills the leftover capacity (x + y ≤ 6) with Y. The best plan is always found at a corner.",
     },
     {
       type: "cat",
-      q: "Graham scan pushes the points one by one in angle order A, B, C, D, E, F (the anchor P0 is pushed first). Each snapshot shows the stack, with the bottom at the bottom, right after the named point has been pushed. Which snapshots are possible?",
-      fig: snaps,
-      buckets: ["Possible", "Impossible"],
+      q: "Each set of rules is for a plan (x, y) with x, y ≥ 0 as well. Sort each set by whether any legal plan exists.",
+      buckets: ["Some legal plan exists", "No legal plan at all"],
       items: [
-        ["Snapshot 1", 0],
-        ["Snapshot 2", 1],
-        ["Snapshot 3", 1],
-        ["Snapshot 4", 0],
+        ["x + y ≤ 5", 0],
+        ["x ≤ 2 and x ≥ 4", 1],
+        ["x + y ≤ 1 and x ≥ 2", 1],
+        ["x + y ≥ 3, x ≤ 10 and y ≤ 10", 0],
       ],
-      hint: "A stack only removes from the top. And where is the point that was just pushed?",
-      why: "Snapshot 1 is possible: B was popped when C arrived, and D was pushed on top. Snapshot 4 is possible: D and C were popped when E arrived. Snapshot 2 is impossible: A is gone but B, which sits above A, is still there, and a stack cannot remove from the middle. Snapshot 3 is impossible: the point just pushed (F) must be on top, but F is missing.",
+      hint: "Try to find one plan. Can a number be at most 2 and at least 4 together?",
+      why: "x + y ≤ 5 allows (0, 0). The rules x ≤ 2 and x ≥ 4 contradict each other. With x ≥ 2 and y ≥ 0 we get x + y ≥ 2, which breaks x + y ≤ 1, so that set is empty too. x + y ≥ 3 with both numbers capped at 10 still allows (3, 0). An empty feasible region means the solver reports 'infeasible'.",
+    },
+    {
+      type: "order",
+      q: "Put the steps of the simplex method in order.",
+      items: [
+        "Start at a legal corner, such as the origin",
+        "Look at the profit at each neighbouring corner",
+        "Walk along an edge to a neighbour that earns more",
+        "Repeat until every neighbour earns less, then stop",
+      ],
+      hint: "You can only compare corners once you are standing on one.",
+      why: "Simplex needs a starting corner, then it checks the neighbours and moves uphill. It stops when no neighbour is better, and for a linear objective that corner is a best plan overall, so there is no need to visit every corner.",
     },
     {
       type: "slider",
+      q: "A workshop earns £5 per X and £3 per Y. Its best corner is where 2x + y = 12 meets x + y = 8, which gives x = 4 and y = 4. What profit does that corner earn?",
       min: 0,
-      max: 40,
-      step: 0.5,
-      start: 20,
-      ans: 4.5,
-      tol: 2,
-      unit: "% shorter",
-      q: "Graham scan on 1,000,000 points spends its time sorting (about n log₂ n steps) and scanning (at most 2n steps). The bars show the shares. A clever trick makes the scan twice as fast and leaves the sort alone. By about what percentage does the WHOLE run get shorter?",
-      fig: shareBars,
-      hint: "Out of 22 parts of time, 20 are the sort and 2 are the scan. Halving the scan saves 1 part.",
-      why: "At n = 1,000,000 the scan is only about 9% of the total (sort 20 parts, scan 2 parts, out of 22). Halving it saves half of 9%, so the whole run is only about 4.5% shorter. That is why the algorithm is O(n log n): the sort dominates, and polishing the scan can never matter much.",
-    },
-    {
-      type: "pick",
-      q: "Graham scan pops a point whenever the turn is not a strict left turn, so points that are straight on the boundary are popped too. The anchor P0 is always on the hull. Click every point that is NOT on the final stack.",
-      fig: hullScatter,
-      a: ["a", "c", "e", "h", "i"],
-      hint: "Find the corner points first. Then check for points lying exactly on a side between two corners.",
-      why: "The hull corners are P0, b, d, f and g. Points e, h and i are inside. Points a and c are different: a lies exactly on the straight bottom side from P0 to b, and c lies exactly on the right side from b to d. They make a straight line (turn 0) with their neighbours, so the scan pops them. A scan that popped only on right turns would keep a and c as flat hull points.",
-    },
-    {
-      type: "pick",
-      q: "The stack before and after one step of Graham scan is shown (the new point D is amber). D comes later in angle order than C. Click every numbered position that D could be in.",
-      fig: stackScene,
-      a: ["d3", "d4"],
-      hint: "Two points were popped, B and C. Each pop means that point is not a left turn. Where must D be to be right of B → C and right of A → B?",
-      why: "C is popped when B → C → D is not a left turn, and then B is popped when A → B → D is not a left turn. D sits high and close in, beyond the outside edge of the chain: positions 3 and 4. Position 2 pops only C (B survives), so the stack would end P0, A, B, D. Positions 1 and 5 turn left at C, so nothing is popped and D is pushed on top of C.",
+      max: 50,
+      step: 2,
+      start: 10,
+      ans: 32,
+      tol: 4,
+      unit: "£",
+      hint: "5 × 4 = 20 and 3 × 4 = 12. Add them.",
+      why: "Profit = 5 × 4 + 3 × 4 = 20 + 12 = 32. Check the corner first: 2 × 4 + 4 = 12 and 4 + 4 = 8, so both rules are tight there. A corner is where two rules are met exactly.",
     },
   ]);
 
-  /* =====================================================================
-     l2-mst
-     ===================================================================== */
-  const mapLinks = (() => {
-    const T = { A: [2, 1], B: [4, 2], C: [7, 6], D: [5, 2], E: [7, 8], F: [1, 2], G: [10, 3] };
-    const p = plane(11, 9, 24, 16, 416, 276, true);
-    let g = p.g;
-    [
-      ["A", "F", "1.4", -17, 12],
-      ["B", "D", "1.0", 0, -17],
-      ["C", "E", "2.0", 14, 0],
-      ["C", "G", "4.2", 6, -10],
-      ["A", "B", "2.2", 4, 17],
-      ["C", "D", "4.5", -14, -6],
-      ["F", "B", "3.0", -8, -14],
-      ["D", "G", "5.1", 0, 16],
-    ].forEach(([a, b, w, dx, dy]) => {
-      const [x1, y1] = [p.X(T[a][0]), p.Y(T[a][1])],
-        [x2, y2] = [p.X(T[b][0]), p.Y(T[b][1])];
-      g += pk(
-        a + b,
-        ln(x1, y1, x2, y2, "var(--blue)", 4) +
-          ln(x1, y1, x2, y2, "transparent", 22) +
-          wl((x1 + x2) / 2 + dx, (y1 + y2) / 2 + dy + 4, w, "var(--ink)", 12),
-      );
-    });
-    Object.entries(T).forEach(([k, [x, y]]) => (g += dot(p.X(x), p.Y(y), k, { r: 10, s: 12 })));
-    return svg(440, 292, g);
-  })();
-
-  const planLine = (() => {
-    const P = [
-      ["P1", 14, "var(--rose)", "loop, and town E is cut off"],
-      ["P2", 17, "var(--rose)", "tree, but town C has 3 links"],
-      ["P3", 19, "var(--teal)", "tree, no town has more than 2 links"],
-      ["P4", 20, "var(--teal)", "tree, no town has more than 2 links"],
-      ["P5", 23, "var(--teal)", "tree, no town has more than 2 links"],
-    ];
-    const X = (c) => 30 + ((c - 12) / 13) * 400;
-    let g = ln(X(12), 54, X(25), 54, "var(--line-2)", 3);
-    for (let c = 12; c <= 24; c += 2)
-      g += ln(X(c), 48, X(c), 60, "var(--line-2)", 2) + txt(X(c), 84, c, { s: 12, w: 700, c: "var(--text-dim)" });
-    P.forEach(
-      ([n, c, col]) => (g += circ(X(c), 54, 12, col, col, 2) + txt(X(c), 59, n.slice(1), { s: 13, c: "#fff" })),
-    );
-    g += txt(220, 22, "total cost of each plan", { s: 12, c: "var(--ink)" });
-    P.forEach(([n, c, col, note], i) => {
-      const y = 98 + i * 34;
-      g += pk(
-        n,
-        rect(8, y, 424, 28, "var(--panel)", "var(--line-2)", 2, 8) +
-          circ(28, y + 14, 11, col, col, 2) +
-          txt(28, y + 19, n.slice(1), { s: 12, c: "#fff" }) +
-          txt(46, y + 19, `cost ${c}: ${note}`, { a: "start", s: 12, c: "var(--ink)" }),
-      );
-    });
-    return svg(440, 98 + 5 * 34 + 4, g);
-  })();
-
-  const ring = (() => {
-    const cx = 160,
-      cy = 96,
-      R = 70,
-      d2r = Math.PI / 180,
-      ang = [-90, -30, 30, 90, 150, 210],
-      cost = [4, 6, 3, 7, 5, 2];
-    const P = ang.map((a) => [cx + R * Math.cos(a * d2r), cy + R * Math.sin(a * d2r)]);
-    let g = "";
-    P.forEach((p, i) => {
-      const q = P[(i + 1) % 6],
-        mx = (p[0] + q[0]) / 2,
-        my = (p[1] + q[1]) / 2,
-        dx = mx - cx,
-        dy = my - cy,
-        d = Math.hypot(dx, dy);
-      g +=
-        ln(p[0], p[1], q[0], q[1], "var(--blue)", 4) +
-        wl(mx + (dx / d) * 16, my + (dy / d) * 16 + 4, cost[i], "var(--ink)");
-    });
-    P.forEach((p, i) => (g += dot(p[0], p[1], "ABCDEF"[i], { r: 14, s: 13 })));
-    g +=
-      txt(300, 82, "tour cost:", { a: "start", s: 13, c: "var(--ink)" }) +
-      txt(300, 102, "4 + 6 + 3 + 7", { a: "start", s: 13, c: "var(--ink)" }) +
-      txt(300, 122, "+ 5 + 2 = 27", { a: "start", s: 13, c: "var(--ink)" });
-    return svg(460, 196, g);
-  })();
-
-  const tiedPlans = (() => {
-    const names = ["A", "B", "C", "D", "E"],
-      ang = [-90, -18, 54, 126, 198],
-      d2r = Math.PI / 180;
-    const E = [
-      ["A", "B", 2],
-      ["B", "C", 2],
-      ["C", "D", 3],
-      ["D", "E", 3],
-      ["E", "A", 3],
-      ["B", "D", 5],
-    ];
-    const plans = [
-      [
-        ["A", "B"],
-        ["B", "C"],
-        ["C", "D"],
-        ["D", "E"],
-      ],
-      [
-        ["A", "B"],
-        ["B", "C"],
-        ["D", "E"],
-        ["E", "A"],
-      ],
-      [
-        ["A", "B"],
-        ["B", "C"],
-        ["B", "D"],
-        ["D", "E"],
-      ],
-    ];
-    let g = "";
-    plans.forEach((pl, p) => {
-      const x0 = 8 + p * 150,
-        cx = x0 + 70,
-        cy = 108,
-        R = 46;
-      const P = Object.fromEntries(
-        names.map((n, i) => [n, [cx + R * Math.cos(ang[i] * d2r), cy + R * Math.sin(ang[i] * d2r)]]),
-      );
-      let inner =
-        rect(x0, 6, 140, 196, "var(--panel)", "var(--line-2)", 3, 12) +
-        txt(x0 + 70, 26, `Plan ${p + 1}`, { s: 13, c: "var(--ink)" });
-      E.forEach(([a, b]) => {
-        const on = pl.some(([u, v]) => (u === a && v === b) || (u === b && v === a)),
-          [x1, y1] = P[a],
-          [x2, y2] = P[b];
-        inner += ln(
-          x1,
-          y1,
-          x2,
-          y2,
-          on ? "var(--teal)" : "var(--line-2)",
-          on ? 5 : 2,
-          on ? "" : 'stroke-dasharray="2 5"',
-        );
-      });
-      E.forEach(([a, b, w]) => {
-        const [x1, y1] = P[a],
-          [x2, y2] = P[b],
-          mx = (x1 + x2) / 2,
-          my = (y1 + y2) / 2,
-          dx = mx - cx,
-          dy = my - cy,
-          d = Math.hypot(dx, dy) || 1,
-          diag = a === "B" && b === "D";
-        inner += wl(diag ? mx + 12 : mx + (dx / d) * 11, diag ? my - 4 : my + (dy / d) * 11 + 4, w, "var(--ink)", 11);
-      });
-      names.forEach((n) => (inner += dot(P[n][0], P[n][1], n, { r: 11, s: 11 })));
-      inner += txt(x0 + 70, 190, "green links used", { s: 10, w: 700, c: "var(--text-dim)" });
-      g += pk("pl" + (p + 1), inner);
-    });
-    return svg(460, 210, g);
-  })();
-
-  B.add("l2-mst", [
-    {
-      type: "pick",
-      q: "Seven towns lie on a map and a cable costs its straight-line length. Eight possible cables are drawn with their costs. A cable is a SURE PICK if it is the shortest cable leaving some single town (that town versus all the others is a cut). Click every drawn cable that is a sure pick.",
-      fig: mapLinks,
-      a: ["AF", "BD", "CE", "CG"],
-      hint: "For each town, find its shortest cable among the drawn ones. A cable is a sure pick if it is the shortest at either of its ends.",
-      why: "A's shortest is A–F (1.4), B's is B–D (1.0), C's is C–E (2.0), D's is B–D, E's is C–E, F's is A–F, and G's is C–G (4.2). So A–F, B–D, C–E and C–G are sure picks by the cut property. A–B (2.2), C–D (4.5), F–B (3.0) and D–G (5.1) are never the shortest at either end. C–D happens to be in the cheapest network, but it needs a bigger cut to prove it.",
-    },
-    {
-      type: "pick",
-      q: "A firm may build only a plan that connects every town, has no loops and gives no town more than 2 links. The five plans are placed by total cost. Click the plan the firm should build.",
-      fig: planLine,
-      a: "P3",
-      hint: "Cross out any plan that breaks a rule. Then take the cheapest of what is left.",
-      why: "Plan 1 (14) is the cheapest overall, but a town is cut off, so it does not connect everything. Plan 2 (17) is a proper spanning tree, probably the plain MST, but town C has 3 links, which the rule forbids. Plans 3, 4 and 5 are all legal and Plan 3 is the cheapest at 19. The unconstrained MST is only a lower bound: no tree can cost less, and the rule pushes the best legal tree above it.",
-    },
-    {
-      type: "bug",
-      q: "This greedy code takes the cables cheapest first and tries to build a tree where no town has more than 2 links. For a star (one hub with four cheap cables) it returns a hub with 4 links. Click the faulty line.",
-      code: [
-        "def greedy(edges, n):",
-        "    deg = [0] * n",
-        "    group = list(range(n))",
-        "    tree = []",
-        "    for w, u, v in sorted(edges):",
-        "        if group[u] == group[v]:",
-        "            continue",
-        "        if deg[u] > 1 and deg[v] > 1:",
-        "            continue",
-        "        old, new = group[v], group[u]",
-        "        for i in range(n):",
-        "            if group[i] == old:",
-        "                group[i] = new",
-        "        deg[u] += 1",
-        "        deg[v] += 1",
-        "        tree.append((u, v))",
-        "    return tree",
-      ],
-      a: 7,
-      why: "The code skips a cable only when BOTH ends are already full ('and'). A cable should be skipped when EITHER end is full ('or'), because adding it would give that town a third link. With 'and', the hub keeps accepting spokes while the other end has room, so it ends with 4 links. Everything else is right: the group relabelling stops loops, and the degree counts are updated.",
-    },
+  B.add("a4-build", [
     {
       type: "mcq",
-      q: "These six towns are joined by a round tour of cables that costs 27 in total, as drawn. You delete the dearest cable (7). What is certain about the cost of the CHEAPEST spanning tree of the six towns, using the cables available?",
-      fig: ring,
-      o: ["At most 20", "Exactly 20", "At least 27", "At least 20"],
-      a: 0,
-      hint: "What is left after deleting one cable from a ring: is it a spanning tree? What does it cost?",
-      why: "Deleting one cable from a ring leaves a path through all six towns: connected, no loop, so it is a spanning tree. It costs 27 − 7 = 20. The cheapest spanning tree can cost no more than this one, so it is AT MOST 20. It could be less if other cables exist, so 'exactly 20' is not certain, and 'at least' is the wrong way round.",
+      q: "Six towns A to F can use these cables (cost in brackets): A–B (1), B–C (2), A–C (3), C–D (4), D–E (5), C–E (6), E–F (7), D–F (8). Kruskal lays the cheapest cables that make no loop. What does the finished network cost?",
+      o: ["15", "19", "23", "27"],
+      a: 1,
+      hint: "Skip any cable whose ends are already joined. A–C is skipped. So is C–E. Add up what is laid.",
+      why: "Kruskal lays A–B (1), B–C (2), C–D (4), D–E (5) and E–F (7). A–C (3) would close a loop with A–B–C, and C–E (6) would loop through C–D–E, so both are skipped, and D–F (8) is never reached. The total is 1 + 2 + 4 + 5 + 7 = 19 using 5 cables for 6 towns.",
     },
     {
-      type: "pick",
-      q: "Five towns can be linked by the cables shown (costs on each). Three plans are drawn, each in green; every plan is a spanning tree. Click every plan that is a minimum spanning tree.",
-      fig: tiedPlans,
-      a: ["pl1", "pl2"],
-      hint: "Add up the green costs of each plan. Then ask: does every minimum tree have to look the same?",
-      why: "Plan 1 costs 2 + 2 + 3 + 3 = 10 and plan 2 costs 2 + 2 + 3 + 3 = 10. Plan 3 uses the dear diagonal B–D (5): 2 + 2 + 5 + 3 = 12. The three cables of cost 3 (C–D, D–E, E–A) are such that any two of them finish the tree, so there are three different cheapest trees. Ties do not change the minimum cost, but they mean the cheapest network may not be unique.",
+      type: "multi",
+      q: "A spanning tree joins 9 towns. Select every statement that is true.",
+      o: [
+        "It has exactly 8 cables",
+        "Adding any extra cable closes exactly one loop",
+        "Removing any one of its cables cuts some town off",
+        "It always avoids the dearest cable in the whole graph",
+        "It has 9 cables, one for each town",
+      ],
+      a: [0, 1, 2],
+      hint: "A tree has no spare cable and no loop. What does that say about adding or removing one?",
+      why: "A tree on n towns has n − 1 cables, so 8. Adding one more joins two already-connected towns, closing exactly one loop. Removing any cable splits the tree, as there is no spare route. The dearest cable can be in the tree if it is the only link to a remote town, and 9 cables would contain a loop.",
+    },
+    {
+      type: "order",
+      q: "Put Kruskal's algorithm in order.",
+      items: [
+        "Sort all the cables from cheapest to dearest",
+        "Take the next cheapest cable",
+        "Skip it if its two ends are already connected; otherwise lay it",
+        "Stop once the network holds one fewer cable than there are towns",
+      ],
+      hint: "You can only take the cheapest cable once the list is sorted.",
+      why: "Sorting comes first so that the cheapest cable is always next. Each cable is then tested for a loop and laid or skipped. The network is finished with n − 1 cables, and any cables left over would only close loops.",
+    },
+    {
+      type: "slider",
+      q: "Ten offices must be joined by cables, and every possible cable costs exactly £4. What does the cheapest connected network cost, in £?",
+      min: 0,
+      max: 60,
+      step: 2,
+      start: 20,
+      ans: 36,
+      tol: 2,
+      unit: "£",
+      hint: "Ten offices need one fewer cable than offices. Then multiply by 4.",
+      why: "A cheapest network has no loops, so it uses 10 − 1 = 9 cables. Each costs 4, so the total is 36. Using more cables would cost more without connecting anything new.",
+    },
+  ]);
+
+  B.add("a5-code", [
+    {
+      type: "mcq",
+      q: "The scan pops the top point while the turn is not a left turn (cross ≤ 0). The stack ends ... (0, 0), (4, 1) and the next point is (2, 3). With the pivot (0, 0) as the origin, cross((4, 1), (2, 3)) = 4 × 3 − 1 × 2. What does the scan do?",
+      o: [
+        "Pushes (2, 3) and keeps (4, 1)",
+        "Pops (4, 1) and then pushes (2, 3)",
+        "Pops (4, 1) and (0, 0), then pushes (2, 3)",
+        "Throws away (2, 3) and keeps the stack",
+      ],
+      a: 0,
+      hint: "4 × 3 = 12, 1 × 2 = 2, so the cross product is 10. Is that above or below 0?",
+      why: "The cross product is 12 − 2 = 10, which is positive, so the path (0, 0) → (4, 1) → (2, 3) turns left. A left turn means (4, 1) is still a hull candidate. Nothing is popped and (2, 3) goes on top. The scan only ever pops on a right turn or a straight line.",
+    },
+    {
+      type: "cat",
+      q: "Each row is the stack's top two points a and b with the origin o = (0, 0) as the previous point, as in cross(a, b). Sort each case by what the scan does with the middle point a.",
+      buckets: ["Keeps a", "Pops a"],
+      items: [
+        ["a = (2, 0), b = (2, 2): cross = 4", 0],
+        ["a = (2, 2), b = (4, 4): cross = 0", 1],
+        ["a = (3, 1), b = (3, −1): cross = −6", 1],
+        ["a = (1, 2), b = (−1, 3): cross = 5", 0],
+      ],
+      hint: "The rule pops unless the cross product is strictly positive.",
+      why: "A positive cross product is a left turn, so a stays. The row with cross 0 is a straight line, so a is popped: it lies on an edge and is not a corner. The row with −6 is a right turn, so a is popped as well. The row with 5 is a left turn, so a stays.",
+    },
+    {
+      type: "order",
+      q: "Put the Graham scan in order.",
+      items: [
+        "Pick the lowest point as the pivot",
+        "Sort the other points by angle around the pivot",
+        "Push the points one by one, popping while the turn is not a left turn",
+        "Read the stack: it holds the hull corners",
+      ],
+      hint: "The angle order depends on knowing the pivot, and the stack is only final at the end.",
+      why: "The pivot comes first because the angles are measured around it. The sorted order lets one pass work, and each push may pop. When the last point is processed, whatever is left on the stack is the hull.",
+    },
+    {
+      type: "slider",
+      q: "A Graham scan has 10 points to push, including the pivot. Every point is pushed exactly once, and the scan finishes with 6 points on the stack. How many pops happened altogether?",
+      min: 0,
+      max: 10,
+      step: 1,
+      start: 2,
+      ans: 4,
+      tol: 0,
+      hint: "Points pushed − points left on the stack = points that were popped.",
+      why: "Every point that goes on the stack either stays or is popped later, so pops = pushes − final size = 10 − 6 = 4. This is why the scan does only about n steps of stack work: nothing can be pushed more than once, so nothing can be popped more than once.",
+    },
+  ]);
+
+  B.add("a1-code", [
+    {
+      type: "mcq",
+      q: "A web has 2 pages and damping d = 0.5, so the teleport floor is (1 − d) / 2 = 0.25 for each page. Page Y has rank 0.8 and links to two pages, one of which is X. After one round, how much rank does X get from Y plus its floor?",
+      o: ["0.2", "0.45", "0.65", "0.9"],
+      a: 1,
+      hint: "Y shares 0.8 over 2 links: 0.4 each. Multiply by d = 0.5, then add the floor of 0.25.",
+      why: "X's share of Y's rank is 0.8 / 2 = 0.4. Damping scales it to 0.5 × 0.4 = 0.2, and the teleport floor adds 0.25, giving 0.45. 0.2 forgets the floor, and 0.65 adds the floor to an undamped share (0.4 + 0.25).",
+    },
+    {
+      type: "cat",
+      q: "Each code change is made to one round of the lab's PageRank code on a web that has a dead end. Sort by what happens to the total rank (which should stay at 1).",
+      buckets: ["Total stays at 1", "Total drifts away from 1"],
+      items: [
+        ["Share a dead end's rank equally with every page", 0],
+        ["Throw away a dead end's rank", 1],
+        ["Compute d × arrived + (1 − d) / N for every page", 0],
+        ["Add (1 − d) / N to every page but do not multiply arrivals by d", 1],
+      ],
+      hint: "Ask where the rank goes: is any lost, or is any made from nothing?",
+      why: "Sharing a dead end's rank with everyone keeps all of it in play, and d × arrived + (1 − d) / N hands out exactly 1 in total. Throwing away a dead end loses rank every round. Adding the floor without scaling arrivals by d gives out the whole rank plus the teleport share, so the total creeps above 1.",
+    },
+    {
+      type: "match",
+      q: "Match each odd result from the lab's PageRank code to its most likely cause.",
+      pairs: [
+        ["Every page ends at exactly 1/N", "Damping set to 0, so every move is a teleport"],
+        ["The total rank shrinks a little each round", "A dead end's rank is thrown away"],
+        ["A page nothing links to still has rank above 0", "The teleport floor reaches every page"],
+      ],
+      hint: "Think about which part of the formula each symptom comes from.",
+      why: "With d = 0 the formula is just (1 − 0) / N for every page, so all are equal. A shrinking total means rank is leaving the system, which is what an ignored dead end does. A page with no in-links gets nothing from links but still receives the teleport floor (1 − d) / N.",
+    },
+    {
+      type: "slider",
+      q: "A page has 60% of the total rank and links to three pages. Damping is d = 0.5. What percentage of the total rank arrives at each of the three pages through this page's links?",
+      min: 0,
+      max: 40,
+      step: 1,
+      start: 20,
+      ans: 10,
+      tol: 2,
+      unit: "%",
+      hint: "60% split three ways is 20% each. Damping then halves it.",
+      why: "The page shares 60% / 3 = 20% with each link. Damping multiplies by d = 0.5, so each target receives 10% through the link. The rest of its rank comes from the teleport floor, which is added separately.",
+    },
+  ]);
+
+  B.add("a2-watch", [
+    {
+      type: "mcq",
+      q: "Roads: S–A 4, S–B 1, B–A 2, A–T 1, B–T 6. Dijkstra starts at S. What is the shortest distance from S to T?",
+      o: ["4", "5", "7", "10"],
+      a: 0,
+      hint: "Try S → B → A → T and add: 1, then 2, then 1.",
+      why: "S to B costs 1, B to A costs 2, so A has distance 3 (better than 4 direct). A to T costs 1, so T has distance 4. The other routes cost S–A–T = 5 and S–B–T = 7. The shortest route avoids the direct road S–A.",
+    },
+    {
+      type: "order",
+      q: "Roads: S–P 5, S–Q 2, Q–R 2, P–R 2, R–T 3. Dijkstra starts at S. Put the nodes in the order they are settled.",
+      items: ["S", "Q", "R", "P", "T"],
+      hint: "Q = 2, then R = 4 (through Q). P is 5 directly (6 through R). T = 7.",
+      why: "S is settled at 0. Q is then the smallest in the waiting room at 2. Settling Q gives R = 4, which is smaller than P = 5, so R comes next. P is settled at 5 (the route through R would be 6). T is last at 4 + 3 = 7.",
+    },
+    {
+      type: "cat",
+      q: "Dijkstra is run on a map. Sort each feature by whether Dijkstra still gives the right distances.",
+      buckets: ["Dijkstra stays correct", "Dijkstra can go wrong"],
+      items: [
+        ["A road of length 0", 0],
+        ["A one-way road", 0],
+        ["A road of length −2 (a refund)", 1],
+        ["Two routes of equal length to one node", 0],
+        ["A negative toll on a single road", 1],
+      ],
+      hint: "Dijkstra's promise 'a settled node can never get closer' depends on one thing about road lengths.",
+      why: "Dijkstra needs every road to be at least 0, so that going further never gets you closer. Zero-length roads, one-way roads and ties are all fine. A negative road could make a settled node cheaper to reach later, which breaks the settle-and-forget idea.",
+    },
+    {
+      type: "multi",
+      q: "Dijkstra has just settled node X. Select every statement that must be true. All road lengths are positive.",
+      o: [
+        "X's distance will never change again",
+        "X had the smallest distance in the waiting room when it was chosen",
+        "X is the node with the fewest roads from the start",
+        "All of X's neighbours are already settled",
+        "Every node nearer to the start than X was settled before it",
+      ],
+      a: [0, 1, 4],
+      hint: "Settled means 'final'. Does 'nearest' mean 'fewest roads'?",
+      why: "The node with the smallest waiting-room distance is chosen, and its distance is final because no unsettled route can be shorter. Anything strictly nearer must have been settled first. Distance is not the same as the number of roads, and X's neighbours are not settled yet: they are the ones that get checked next.",
+    },
+  ]);
+
+  B.add("a2-code", [
+    {
+      type: "mcq",
+      q: "A student picks the next node with u = min(dist, key=dist.get), but the dict still holds the settled nodes, and S starts with distance 0. What happens?",
+      o: [
+        "It keeps picking S, so nothing new is settled",
+        "It picks the node with the largest distance each time",
+        "It crashes because some distances are infinite",
+        "It works the same but a little more slowly",
+      ],
+      a: 0,
+      hint: "S has distance 0. Nothing is smaller than 0 (roads are never negative).",
+      why: "The minimum over all nodes always includes S at 0, so S wins every time. The loop must choose the minimum over the unsettled nodes only. min() copes with infinity (it is just a big number) and it picks the smallest, not the largest.",
+    },
+    {
+      type: "cat",
+      q: "Here is the test inside the relax step, where u is the node just settled, w the road length and v the neighbour. Sort each version by whether it gives correct shortest distances.",
+      buckets: ["Correct distances", "Wrong distances"],
+      items: [
+        ["if dist[u] + w < dist[v]", 0],
+        ["if dist[u] + w <= dist[v]", 0],
+        ["if w < dist[v]", 1],
+        ["if dist[u] + w > dist[v]", 1],
+      ],
+      hint: "A new route's length is the distance to u PLUS the road. It should replace dist[v] only when it is shorter.",
+      why: "The first version is the standard rule. The second also overwrites ties, which changes nothing about the distances. 'w < dist[v]' ignores how far u is from the start, and 'dist[u] + w > dist[v]' keeps the longer route, so both give wrong answers.",
+    },
+    {
+      type: "order",
+      q: "Put one round of the lab's Dijkstra loop in order.",
+      items: [
+        "Pick the unsettled node u with the smallest distance",
+        "Mark u as settled",
+        "For each road from u, work out dist[u] + w",
+        "Store it if it beats the neighbour's current distance",
+      ],
+      hint: "You cannot relax the roads out of u until you know which node u is.",
+      why: "The choice comes first, then marking it settled stops it being chosen again. Then each road out of u is tried, and the new distance only replaces the old one when it is smaller. The whole round repeats until every node is settled.",
+    },
+    {
+      type: "slider",
+      q: "Roads (two-way): S–A 3, A–B 4, S–B 9. Dijkstra starts at S and has just settled A. After relaxing the roads out of A, what distance does the code hold for B?",
+      min: 0,
+      max: 12,
+      step: 1,
+      start: 9,
+      ans: 7,
+      tol: 0,
+      hint: "Before A: B = 9. The route through A is 3 + 4.",
+      why: "Settling S gave A = 3 and B = 9. Relaxing A's road to B tries 3 + 4 = 7, which beats 9, so B becomes 7. Dijkstra only keeps a better route, so the distance can drop but never rise.",
     },
   ]);
 })();

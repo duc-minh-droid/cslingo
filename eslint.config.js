@@ -71,11 +71,33 @@ export default [
     rules: { "no-unused-vars": "off", "no-redeclare": "off" }, // each tool defines a global function that the others (and the runner) call
   },
   {
-    files: ["eslint.config.js", "tools/run-tests.js", "tools/check-structure.js", "tools/keyboard-test.js"],
+    /* explainer videos (videos/): browser scripts sharing one VID object */
+    files: ["videos/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "script",
+      globals: { ...globals.browser, ...libs, VID: "readonly" },
+    },
+    rules: {
+      "no-unused-vars": ["error", { args: "none", caughtErrors: "none" }],
+      "no-empty": ["error", { allowEmptyCatch: false }],
+      "max-lines": maxLines,
+    },
+  },
+  {
+    files: [
+      "eslint.config.js",
+      "tools/run-tests.js",
+      "tools/check-structure.js",
+      "tools/keyboard-test.js",
+      "tools/video-lib.js",
+      "tools/video-still.js",
+      "tools/render-video.js",
+    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
-      globals: { ...globals.node, ...globals.browser, ...libs, ...toolGlobals },
+      globals: { ...globals.node, ...globals.browser, ...libs, ...toolGlobals, VID: "readonly" },
     }, // run-tests.js passes functions into the page
     rules: { "max-lines": maxLines },
   },

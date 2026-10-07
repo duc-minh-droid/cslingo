@@ -20,8 +20,9 @@
     return (store.get("nic.lessonPos", {})[m.id] || 0) > 0 ? "started" : "new";
   }
   /** "boss" | "workshop" | "codelab" | "lesson". Workshops are numbered 3.W and code labs 3.C: show them as tags, not as numbers. */
-  const kindOf = (m) => (isBoss(m) ? "boss" : m.workshop ? (/\.C$/.test(m.num) ? "codelab" : "workshop") : "lesson");
-  const numLabel = (m) => ({ workshop: "Workshop", codelab: "Code lab" })[kindOf(m)] || m.num;
+  const kindOf = (m) =>
+    isBoss(m) ? "boss" : m.video ? "video" : m.workshop ? (/\.C$/.test(m.num) ? "codelab" : "workshop") : "lesson";
+  const numLabel = (m) => ({ workshop: "Workshop", codelab: "Code lab", video: "Recap video" })[kindOf(m)] || m.num;
   /** What a screen reader hears for a path node: its number or kind, the title and where the learner stands. */
   const nodeLabel = (m, st) => {
     const k = kindOf(m),
@@ -35,14 +36,18 @@
               ? `in progress, ${R.answered} of ${R.n} answered`
               : `${R.right} of ${R.n} right, not yet passed`
             : "not started"
-        : { done: "completed", started: "in progress", new: "not started" }[st];
+        : k === "video"
+          ? { done: "watched", started: "in progress", new: "not watched" }[st]
+          : { done: "completed", started: "in progress", new: "not started" }[st];
     const head =
       k === "lesson" ? m.num : k === "boss" ? "Boss quiz" : /^(workshop|code lab)/i.test(m.title) ? "" : numLabel(m);
     return `${head} ${m.title}, ${state}`.trim();
   };
+  /** Done and total for a list of modules. A recap video (m.video) is a bonus, so it never counts towards finishing a lecture or a course. */
   const progress = (list) => {
-    const d = list.filter((m) => status(m) === "done").length;
-    return { d, n: list.length, f: list.length ? d / list.length : 0 };
+    const counted = list.filter((m) => !m.video);
+    const d = counted.filter((m) => status(m) === "done").length;
+    return { d, n: counted.length, f: counted.length ? d / counted.length : 0 };
   };
   app.course = store.get("nic.course", "nic");
   const setCourse = (s) => {
