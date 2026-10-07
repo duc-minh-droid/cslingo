@@ -79,7 +79,8 @@ page.on("response", (r) => {
   if (r.url().startsWith(url) && r.status() >= 400) badRequests.push(`${r.status()} ${r.url().slice(url.length)}`);
 });
 page.on("requestfailed", (r) => {
-  if (r.url().startsWith(url)) badRequests.push(`failed ${r.url().slice(url.length)}`);
+  // headless Chromium has no H.264 decoder, so it aborts the recap videos; that is not a bug
+  if (r.url().startsWith(url) && !r.url().includes(".mp4")) badRequests.push(`failed ${r.url().slice(url.length)}`);
 });
 await page.addInitScript(() => localStorage.setItem("nic.onboarded", "true"));
 await page.goto(url);
