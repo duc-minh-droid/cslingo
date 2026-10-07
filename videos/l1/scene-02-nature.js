@@ -13,7 +13,7 @@
   const ROWS = [
     { name: "Evolution", tag: "improves designs", a: 0.4, done: 3.95, make: L1.miniEvo, t0: 1.0 },
     { name: "Brains", tag: "learns patterns", a: 3.3, done: 6.9, make: L1.miniBrain, t0: 4.0 },
-    { name: "Collective behaviour", tag: "finds short paths", a: 6.2, done: 9.7, make: L1.miniAnts, t0: 6.8 },
+    { name: "Ant colonies", tag: "finds short paths", a: 6.2, done: 9.7, make: L1.miniAnts, t0: 6.8 },
   ];
   const H = 184;
   const GAP = 20;
@@ -35,16 +35,28 @@
           style: { left: "0px", top: `${i * (H + GAP)}px`, width: "936px", height: `${H}px` },
         });
         stage.append(card);
-        const upd = r.make(card, { x: 20, y: 17, t0: r.t0 });
+        const wrap = V.h("div", {
+          style: {
+            position: "absolute",
+            left: "16px",
+            top: "8px",
+            width: "330px",
+            height: "150px",
+            transformOrigin: "0 0",
+            transform: "scale(1.15)",
+          },
+        });
+        card.append(wrap);
+        const upd = r.make(wrap, { x: 0, y: 0, t0: r.t0 });
         const name = V.h("div", {
           class: "v-text big",
           text: r.name,
-          style: { left: "380px", top: "30px", fontSize: "40px" },
+          style: { left: "430px", top: "30px", fontSize: "40px" },
         });
         const tag = V.h("div", {
           class: "v-tag c-blue",
           text: r.tag,
-          style: { left: "380px", top: "104px", paddingLeft: "64px", fontSize: "28px" },
+          style: { left: "430px", top: "104px", paddingLeft: "64px", fontSize: "28px" },
         });
         const svg = L5.svg(tag, 60, 40);
         svg.style.left = "0px";

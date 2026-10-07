@@ -4,7 +4,7 @@
   const L2 = V.l2;
   const L5 = V.l5;
   const { ramp, flash, ease: E } = V;
-  const J = { x: 816, y: 128 }; // the dice: where the two parents meet
+  const J = { x: 540, y: 150 }; // the dice: where the two parents meet
   const LIFT = 20;
   const [P1, P2] = L2.PARENTS; // S5, S9
   const [K1, K2] = L2.KIDS.map((q) => q.id);
@@ -21,7 +21,7 @@
     ],
     build(stage) {
       const items = L2.POP.concat(L2.KIDS);
-      const strip = L2.loopStrip(stage, { x: 48, y: 0, w: 840 });
+      const strip = L2.loopStrip(stage, { x: 48, y: 14, w: 840 });
       const pop = L2.bars(stage, { items, x: 24, base: 548, pitch: 72, w: 60, scale: 320 });
       const svg = L5.svg(stage);
       const mk = (x1, y1, x2, y2, tone, opt) => {
@@ -35,19 +35,21 @@
       const a1 = mk(sx(P1), top(P1) - 48, J.x - 34, J.y + 4, "purple", { bow: 70, w: 8, head: 24 });
       const a2 = mk(sx(P2), top(P2) - 48, J.x - 6, J.y + 34, "purple", { bow: 40, w: 8, head: 24 });
       // from the dice down to the two children
-      const c1 = mk(J.x - 10, J.y + 30, sx(K1), pop.valueY(K1) - 6, "purple", { w: 8, head: 20 });
-      const c2 = mk(J.x + 32, J.y + 12, sx(K2), pop.valueY(K2) - 6, "purple", { w: 8, head: 20 });
+      const c1 = mk(J.x - 10, J.y + 30, sx(K1), pop.valueY(K1) - 6, "purple", { w: 8, head: 20, bow: 36 });
+      const c2 = mk(J.x + 30, J.y + 22, sx(K2), pop.valueY(K2) - 6, "purple", { w: 8, head: 20, bow: -40 });
       const up = mk(sx(K1), 626, sx(K1), 600, "green", { w: 6, head: 16 });
       const down = mk(sx(K2), 600, sx(K2), 626, "red", { w: 6, head: 16 });
       const diceG = V.s("g", {});
+      const varyTag = L2.tag(stage, { text: "mutate + recombine", tone: "purple", x: 612, y: J.y, anchor: "l" });
+      const chance = L2.tag(stage, { text: "taller bar, bigger chance", tone: "orange", x: 924, y: 190, anchor: "tr" });
       svg.append(diceG);
       let lastFace = 0;
 
       return (t) => {
         strip.update({
           k: ramp(t, 0.2, 1.2, E.lin),
-          active: t < 1.9 ? -1 : t < 4.6 ? 0 : t < 8.6 ? 1 : 2,
-          pulse: Math.max(flash(t, 1.9, 2.5), flash(t, 4.6, 5.2), flash(t, 8.6, 9.2)),
+          active: t < 1.9 ? -1 : t < 4.6 ? 0 : 1,
+          pulse: Math.max(flash(t, 1.9, 2.5), flash(t, 4.6, 5.2)),
           loop: 0,
           ghost: 1,
         });
@@ -107,6 +109,10 @@
           const k = ramp(t, a, a + 0.8, E.pop);
           V.place(g, { s: 0.4 + 0.6 * k, o: Math.min(1, k * 3) });
         });
+        const kc = ramp(t, 2.5, 2.9, E.lin) * (1 - ramp(t, 4.4, 4.6, E.lin));
+        chance.set({ o: kc, s: 0.8 + 0.2 * E.pop(kc) });
+        const kv = ramp(t, 6.2, 6.6, E.lin);
+        varyTag.set({ o: kv, s: 0.8 + 0.2 * E.pop(kv) });
         // the dice rolls, then rests on 5
         const k = ramp(t, 5.5, 5.9, E.back);
         const face = t < 6.2 ? 1 + (((Math.floor((t - 5.6) * 6) % 6) + 6) % 6) : 5;

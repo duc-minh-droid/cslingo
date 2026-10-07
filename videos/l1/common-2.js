@@ -421,7 +421,7 @@
             : st === "done"
               ? ["var(--teal)", "var(--teal-on)"]
               : ["var(--line-2)", "var(--text-dim)"];
-        Object.assign(q.num.style, { background: bg, color: fg, fontSize: "24px", fontWeight: "900" });
+        Object.assign(q.num.style, { background: bg, color: fg, fontSize: "28px", fontWeight: "900" });
         q.tick.style.display = st === "done" ? "block" : "none";
         q.num.firstChild.nodeType === 3 && (q.num.firstChild.textContent = st === "done" ? "" : String(i + 1));
         V.place(q.tag, { s: 0.7 + 0.3 * Math.max(0, E.pop(clamp(k * 1.5 - 0.15 * i))), o: clamp(k * 5 - 0.3 * i) });
