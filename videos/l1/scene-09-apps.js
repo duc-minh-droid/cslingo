@@ -190,7 +190,6 @@
         stage.append(t);
         return t;
       });
-      void s;
 
       return (t) => {
         // beat 1 in / out
@@ -235,7 +234,7 @@
         const kp = ramp(t, KEEP_AT, KEEP_AT + 0.4, E.pop);
         place(ring, { s: 0.9 + 0.1 * kp, o: kp > 0.001 ? Math.min(1, kp * 2) : 0 });
         place(keep, { s: kp, o: kp > 0.001 ? 1 : 0 });
-        L5.drawOn(tk.firstChild, ramp(t, KEEP_AT + 0.25, KEEP_AT + 0.6, E.lin));
+        L5.drawOn(tk.firstChild, ramp(t, KEEP_AT + 0.1, KEEP_AT + 0.35, E.lin));
         // beat 2
         tiles.forEach((el, i) => {
           const p = ramp(t, TILE_AT(i), TILE_AT(i) + 0.5, E.pop);

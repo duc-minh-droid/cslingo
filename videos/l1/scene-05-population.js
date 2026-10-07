@@ -61,12 +61,12 @@
       const stuck = L1.chip(stage, "stuck", "red", { solid: true, width: 124 });
       const gen = L1.chip(stage, "generation 0", "grey", { x: 0, y: 340, width: 250 });
       const hill = L1.chip(stage, "", "orange", { x: 280, y: 340, width: 400 });
-      const wafL = L1.waffle(stage, { flags: T1, x: 30, y: 350 });
-      const wafR = L1.waffle(stage, { flags: T20, x: 500, y: 350 });
-      const labL = L1.chip(stage, `1 climber: ${sum(T1)} of 200`, "red", { x: 30, y: 538, width: wafL.width });
+      const wafL = L1.waffle(stage, { flags: T1, x: 30, y: 330 });
+      const wafR = L1.waffle(stage, { flags: T20, x: 500, y: 330 });
+      const labL = L1.chip(stage, `1 climber: ${sum(T1)} of 200`, "red", { x: 30, y: 518, width: wafL.width });
       const labR = L1.chip(stage, `20 climbers: ${sum(T20)} of 200`, "green", {
         x: 500,
-        y: 538,
+        y: 518,
         width: wafR.width,
         solid: true,
       });
@@ -81,13 +81,13 @@
       const rings = CL.slice(1).map(() => ls.dot({ tone: "blue", r: 12, hollow: true }));
       const xs = CL.slice(1).map((c) => {
         const [x, y] = ls.px(c.cand);
-        const g = L5.cross(0, 0, 40, "red", { w: 6 });
+        const g = L5.cross(0, 0, 30, "red", { w: 5 });
         ls.over.append(g);
-        return { g, x, y: y - 26 };
+        return { g, x, y: y - 14 };
       });
       // the population: two pools of 20 dots, generation k lives in pool k % 2
       const pools = [0, 1].map(() => PR[0].pop.map((_, k) => ls.dot({ tone: "blue", r: 13, id: k })));
-      const slot = (k) => ({ dx: ((k % 5) - 2) * 6, lift: (k % 2) * 7 });
+      const slot = (k) => ({ dx: ((k % 5) - 2) * 3, lift: 0 });
       const drawGen = (pool, pops, o, extra) =>
         pool.forEach((d, k) => d.set({ i: pops[k], o: o(k), ...slot(k), ...extra(k) }));
       const hidePool = (pool) => pool.forEach((d) => d.set({ o: 0 }));
@@ -106,18 +106,28 @@
 
       return (t) => {
         // landscape and star
-        ls.set({ k: ramp(t, CURVE[0], CURVE[1], ease.inOut), star: ramp(t, STAR_AT, STAR_AT + 0.6, lin), starPulse: flash(t, STUCK, STUCK + 0.6) });
+        ls.set({
+          k: ramp(t, CURVE[0], CURVE[1], ease.inOut),
+          star: ramp(t, STAR_AT, STAR_AT + 0.6, lin),
+          starPulse: flash(t, STUCK, STUCK + 0.6),
+        });
 
         // top tag
         const two = t >= SWITCH;
         const tagTxt = two ? "20 climbers" : "1 climber";
         if (top.textContent !== tagTxt) top.textContent = tagTxt;
         top.className = `v-tag c-blue${two ? "" : ""}`;
-        place(top, { o: fade(t, DOT1, 0.3) * (1 - fade(t, WAF1 - 0.4, 0.3)), s: two ? 1 + 0.12 * flash(t, SWITCH + 0.3, SWITCH + 0.7) : pop(t, DOT1, 0.4) });
+        place(top, {
+          o: fade(t, DOT1, 0.3) * (1 - fade(t, WAF1 - 0.4, 0.3)),
+          s: two ? 1 + 0.12 * flash(t, SWITCH + 0.3, SWITCH + 0.7) : pop(t, DOT1, 0.4),
+        });
 
         // ---- the one climber
         const { g, i } = climberAt(t);
-        const jig = (k) => 3 * Math.sin(((t - G1 - GSTEP * k) / 0.15) * Math.PI * 2) * (1 - ramp(t, G1 + GSTEP * k, G1 + GSTEP * k + 0.3, lin));
+        const jig = (k) =>
+          3 *
+          Math.sin(((t - G1 - GSTEP * k) / 0.15) * Math.PI * 2) *
+          (1 - ramp(t, G1 + GSTEP * k, G1 + GSTEP * k + 0.3, lin));
         let jx = 0;
         for (let k = 1; k <= 16; k++) {
           const t0 = G1 + GSTEP * k;
@@ -133,7 +143,13 @@
           const u = (t - t0) / GSTEP; // 0..1 in the step
           const appear = pop(u, 0, 0.3);
           if (c.ok) {
-            r.set({ i: c.cand, tone: "blue", hollow: true, o: appear * (1 - ramp(u, 1.0, 1.9, lin)), s: appear * (1 + 0.1 * flash(u, 0.3, 0.9)) });
+            r.set({
+              i: c.cand,
+              tone: "blue",
+              hollow: true,
+              o: appear * (1 - ramp(u, 1.0, 1.9, lin)),
+              s: appear * (1 + 0.1 * flash(u, 0.3, 0.9)),
+            });
             V.show(xg.g, 0);
           } else {
             const o = (u < 0.3 ? 1 : 1 - ramp(u, 0.9, 2.4, lin)) * clamp(appear * 3);
@@ -170,16 +186,28 @@
           hidePool(pools[0]);
           hidePool(pools[1]);
         } else if (t < P0) {
-          drawGen(pools[0], PR[0].pop, (k) => (startO(k) > 0.001 ? 1 : 0), (k) => ({ s: Math.max(0.01, startO(k)) }));
+          drawGen(
+            pools[0],
+            PR[0].pop,
+            (k) => (startO(k) > 0.001 ? 1 : 0),
+            (k) => ({ s: Math.max(0.01, startO(k)) }),
+          );
           hidePool(pools[1]);
         } else {
           const oldPool = pools[gi % 2];
           const newPool = pools[(gi + 1) % 2];
           const oldIdx = PR[gi].pop;
           const newIdx = PR[gi + 1].pop;
-          const sp = L1.sprout(oldIdx, newIdx, PR[gi + 1].info.map((c) => c.p1), u);
+          const sp = L1.sprout(
+            oldIdx,
+            newIdx,
+            PR[gi + 1].info.map((c) => c.p1),
+            u,
+          );
           sp.kids.forEach((kd, k) => newPool[k].set({ i: kd.i, o: 1, ...slot(k) }));
-          sp.olds.forEach((od, k) => oldPool[k].set({ i: od.i, o: od.o > 0.001 ? 1 : 0, s: Math.max(0.01, od.o) * 1, ...slot(k) }));
+          sp.olds.forEach((od, k) =>
+            oldPool[k].set({ i: od.i, o: od.o > 0.001 ? 1 : 0, s: Math.max(0.01, od.o) * 1, ...slot(k) }),
+          );
           if (finished) hidePool(pools[1]);
         }
         // how many dots stand on the star hill

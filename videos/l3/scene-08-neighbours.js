@@ -96,11 +96,10 @@
       const frameAt = (j) => {
         // [left, width] of the frames on the start tour for permutation neighbour j
         const a = j;
-        const b = (j + 1) % 5;
         if (j < 4) return [{ x: LEFT.x + a * PITCH - 8, w: 2 * SIZE + GAP + 16 }];
         return [
           { x: LEFT.x - 8, w: SIZE + 16 },
-          { x: LEFT.x + b * 0 + 4 * PITCH - 8, w: SIZE + 16 },
+          { x: LEFT.x + 4 * PITCH - 8, w: SIZE + 16 },
         ];
       };
 
@@ -157,7 +156,7 @@
             let st = { y: lift, o };
             if (i === a || i === b) {
               const dir = i === a ? 1 : -1;
-              const dist = (b - a) * PITCH * (i === a ? 1 : 1);
+              const dist = (b - a) * PITCH;
               st = {
                 y: lift + dir * -14 * Math.sin(Math.PI * sl),
                 x: (i === a ? dist : -dist) * sl,
@@ -206,13 +205,13 @@
         if (arcK === 0) arc.style.visibility = "hidden";
 
         // counters and brackets
-        const ck = (c) => ramp(t, 0.9, 1.1) * 1 + 0 * c;
+        const ck = ramp(t, 0.9, 1.1);
         const txt = `${count} neighbour${count === 1 ? "" : "s"}`;
         const tail = ramp(t, 6.4, 7.4, E.inOut);
         const cntSt = (pulse) => ({
           text: txt,
-          o: ck(0),
-          s: (0.85 + 0.15 * ck(0)) * (1 + 0.08 * pulse),
+          o: ck,
+          s: (0.85 + 0.15 * ck) * (1 + 0.08 * pulse),
           solid: tail >= 1,
         });
         cntL.set(cntSt(flash(t, T0 + 0.95 + 4, T0 + 0.95 + 4.4) * 0));

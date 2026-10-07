@@ -67,18 +67,18 @@
       const svg = L5.svg(stage);
       const arrows = [
         L5.arrow(CX, 86, CX, 134, "grey", 1, { w: 6, head: 18 }),
-        L5.arrow(CX, 206, CX, 262, "grey", 1, { w: 6, head: 18 }),
-        L5.arrow(662, 206, 674, 356, "grey", 1, { w: 6, head: 18, bow: -16 }),
+        L5.arrow(811, 206, 811, 262, "grey", 1, { w: 6, head: 18 }),
+        L5.arrow(662, 206, 684, 392, "grey", 1, { w: 6, head: 18, bow: -22 }),
       ];
       svg.append(...arrows);
-      const stk = (name, text, y, tone) => {
+      const stk = (name, text, y, tone, x = RX, w = RW) => {
         const e = V.h("div", {
           class: `v-tag solid c-${tone}`,
           text,
           style: {
-            left: `${RX}px`,
+            left: `${x}px`,
             top: `${y}px`,
-            width: `${RW}px`,
+            width: `${w}px`,
             height: `${RH}px`,
             padding: "0",
             textAlign: "center",
@@ -92,8 +92,8 @@
       const S = [
         stk("change", "random change", 20, "purple"),
         stk("worse", "not worse?", 140, "orange"),
-        stk("keep", "keep", 270, "green"),
-        stk("throw", "throw away", 360, "red"),
+        stk("keep", "keep", 270, "green", 686, 250),
+        stk("throw", "throw away", 360, "red", 686, 250),
       ];
       const icoTick = L5.tick(0, 0, 34, "green", { on: true, w: 6 });
       const icoCross = L5.cross(0, 0, 34, "red", { on: true, w: 6 });
@@ -219,8 +219,8 @@
         arrows.forEach((a, i) => V.place(a, { o: ramp(t, 2.0 + 0.1 * i, 2.4 + 0.1 * i) * 0.7 }));
         const kk = popK(2);
         const tk = popK(3);
-        V.place(icoK, { x: CX - 62, y: 300, s: Math.max(0.001, kk), o: Math.min(1, kk * 3) * (0.7 + 0.3 * lit("keep", t)) });
-        V.place(icoX, { x: CX - 104, y: 390, s: Math.max(0.001, tk), o: Math.min(1, tk * 3) * (0.7 + 0.3 * lit("throw", t)) });
+        V.place(icoK, { x: 811 - 62, y: 300, s: Math.max(0.001, kk), o: Math.min(1, kk * 3) * (0.7 + 0.3 * lit("keep", t)) });
+        V.place(icoX, { x: 811 - 104, y: 390, s: Math.max(0.001, tk), o: Math.min(1, tk * 3) * (0.7 + 0.3 * lit("throw", t)) });
         L5.drawOn(icoTick, 1);
         L5.drawOn(icoCross, 1);
 

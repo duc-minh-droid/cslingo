@@ -56,7 +56,10 @@
         class: "v-tag solid c-blue",
         style: { left: "560px", top: "470px", width: "170px", height: "104px", padding: "0", textAlign: "center" },
       });
-      const label = V.h("div", { text: "length", style: { position: "relative", fontSize: "28px", lineHeight: "36px" } });
+      const label = V.h("div", {
+        text: "length",
+        style: { position: "relative", fontSize: "28px", lineHeight: "36px" },
+      });
       const num = V.h("div", {
         text: "0",
         style: { position: "relative", fontSize: "56px", lineHeight: "60px", fontWeight: "900" },

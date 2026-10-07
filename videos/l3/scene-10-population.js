@@ -57,11 +57,11 @@
   const CHIP1 = 9.4;
   const CHIP2 = 9.8;
   const SWAP = [10.5, 11.1];
-  const STACK = 20; // px between duplicates standing on the same index
+  const STACK = 16; // px between duplicates standing on the same index
 
   function build(stage) {
     const P = L3.land(stage, { x: 0, y: 70, w: 936, h: 400, kind: "multi", frame: true });
-    const star = P.marker("star", { size: 32 });
+    const star = P.marker("star", { size: 30 });
     const hiker = P.marker("token", { size: 30, tone: "grey" });
     const stuck = P.marker("badge", { icon: "cross" });
     const members = START.map(() => P.marker("token", { size: 24 }));
@@ -73,13 +73,24 @@
     const chipS = L3.chip(stage, { x: 170, y: 520, text: "Selection", tone: "orange" });
     const chipR = L3.chip(stage, { x: 560, y: 520, text: "Recombination", tone: "purple" });
     const CY = 548;
-    const svg = V.s("svg", { width: 936, height: 640, style: { position: "absolute", left: "0px", top: "0px", overflow: "visible" } });
+    const svg = V.s("svg", {
+      width: 936,
+      height: 640,
+      style: { position: "absolute", left: "0px", top: "0px", overflow: "visible" },
+    });
     stage.append(svg);
     const tn = (n) => L5.tone(n);
     const dot = (x, c) =>
       V.s("circle", { cx: x, cy: CY, r: 11, "stroke-width": "3", style: { fill: tn(c).c, stroke: tn(c).lip } });
     const selIcon = V.s("g", {});
-    const ring = V.s("circle", { cx: 138, cy: CY, r: 17, fill: "none", "stroke-width": "4", style: { stroke: tn("orange").c } });
+    const ring = V.s("circle", {
+      cx: 138,
+      cy: CY,
+      r: 17,
+      fill: "none",
+      "stroke-width": "4",
+      style: { stroke: tn("orange").c },
+    });
     selIcon.append(dot(104, "blue"), dot(138, "blue"), ring);
     const tiles = [];
     const recIcon = V.s("g", {});
@@ -100,13 +111,16 @@
       }
     svg.append(selIcon, recIcon);
     const iconPop = (g, cx, k) =>
-      g.setAttribute("transform", `translate(${cx} ${CY}) scale(${(0.6 + 0.4 * k).toFixed(3)}) translate(${-cx} ${-CY})`);
+      g.setAttribute(
+        "transform",
+        `translate(${cx} ${CY}) scale(${(0.6 + 0.4 * k).toFixed(3)}) translate(${-cx} ${-CY})`,
+      );
 
     return (t) => {
       // panel
       const pk = ramp(t, 0.3, 1.0, E.lin);
       P.update({ curve: pk, fill: ramp(t, 0.5, 1.1, E.lin), o: fade(t, 0.3, 0.3) });
-      star.set({ i: 29, dy: -40, s: pop(t, 1.0, 0.4), o: fade(t, 1.0, 0.1) });
+      star.set({ i: 29, dy: -46, s: pop(t, 1.0, 0.4), o: fade(t, 1.0, 0.1) });
 
       // the lone grey hiker: three hops uphill, then a red cross
       const hs = L3.stepAt(t, 1.3, 0.35, 3);
@@ -170,8 +184,17 @@
       const done = LOG.filter((_, k) => t >= stepT(k) + 0.65 * stepD(k)).length;
       const n = done ? LOG[done - 1].hills : 3;
       const last = done ? stepT(done - 1) + 0.65 * stepD(done - 1) : -9;
-      const bump = 1 + 0.12 * V.flash(t, last, last + 0.3) * +(done > 0 && LOG[done - 1].hills !== (done > 1 ? LOG[done - 2].hills : 3));
-      pill.set({ text: `hills: ${n}`, tone: n === 1 ? "green" : "blue", s: bump * (0.8 + 0.2 * pop(t, 3.1, 0.4)), o: fade(t, 3.1, 0.1) });
+      const bump =
+        1 +
+        0.12 *
+          V.flash(t, last, last + 0.3) *
+          +(done > 0 && LOG[done - 1].hills !== (done > 1 ? LOG[done - 2].hills : 3));
+      pill.set({
+        text: `hills: ${n}`,
+        tone: n === 1 ? "green" : "blue",
+        s: bump * (0.8 + 0.2 * pop(t, 3.1, 0.4)),
+        o: fade(t, 3.1, 0.1),
+      });
 
       // bottom strip
       const kS = pop(t, CHIP1, 0.4);
@@ -189,10 +212,10 @@
       tiles.forEach((q) => {
         const tail = q.c >= 3;
         const dy = tail ? (q.row ? -24 : 24) * sw : 0;
-        const col = tail && sw > 0.5 ? (q.row ? "blue" : "purple") : q.row ? "purple" : "blue";
-        q.r.setAttribute("transform", `translate(0 ${(dy - (tail ? 8 * Math.sin(Math.PI * sw) * (q.row ? -1 : 1) : 0)).toFixed(1)})`);
-        q.r.style.fill = tn(col).c;
-        q.r.style.stroke = tn(col).lip;
+        q.r.setAttribute(
+          "transform",
+          `translate(0 ${(dy - (tail ? 8 * Math.sin(Math.PI * sw) * (q.row ? -1 : 1) : 0)).toFixed(1)})`,
+        );
       });
     };
   }
