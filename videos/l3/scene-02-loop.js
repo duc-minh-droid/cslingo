@@ -48,7 +48,18 @@
   ];
   const T_END = 11.1;
   const chipAt = (i) => 0.2 + 0.25 * i;
-  const T = { fit: 2.8, tourA: 4.35, tourB: 5.0, cut: 6.15, kid: 6.7, mut: 8.25, count: 8.8, weak: 9.35, out: 9.85, up: 10.0 };
+  const T = {
+    fit: 2.8,
+    tourA: 4.35,
+    tourB: 5.0,
+    cut: 6.15,
+    kid: 6.7,
+    mut: 8.25,
+    count: 8.8,
+    weak: 9.35,
+    out: 9.85,
+    up: 10.0,
+  };
   // arrows into chip i (0 = the closing one into Population)
   const ARR = [
     [131, 576, 131, 64],
@@ -85,7 +96,9 @@
 
       // ---- rows of tiles + f pill + frame
       const group = (parent) =>
-        parent.appendChild(V.h("div", { style: { position: "absolute", left: "0", top: "0", width: "0", height: "0" } }));
+        parent.appendChild(
+          V.h("div", { style: { position: "absolute", left: "0", top: "0", width: "0", height: "0" } }),
+        );
       function makeRow(parent, genes, y, tone, pillTone = "green") {
         const g = group(parent);
         const frame = g.appendChild(
@@ -110,7 +123,11 @@
       const work = group(stage);
       const labels = ["parent 1", "parent 2", "child"].map((txt, i) =>
         work.appendChild(
-          V.h("div", { class: "v-text dim", text: txt, style: { left: `${LABEL_X}px`, top: `${WORK_Y[i] + 10}px`, fontSize: "28px" } }),
+          V.h("div", {
+            class: "v-text dim",
+            text: txt,
+            style: { left: `${LABEL_X}px`, top: `${WORK_Y[i] + 10}px`, fontSize: "28px" },
+          }),
         ),
       );
       const par = [makeRow(work, P1, WORK_Y[0], "blue"), makeRow(work, P2, WORK_Y[1], "purple")];
@@ -143,7 +160,8 @@
           const end = i === STN.length - 1 ? T_END : STN[i + 1].a;
           const state = t < s.a ? "grey" : t < end ? "active" : "done";
           chips[i].set({ state, pop: ramp(t, chipAt(i), chipAt(i) + 0.3, E.lin), pulse: flash(t, s.a, s.a + 0.4) });
-          const drawn = i === 0 ? ramp(t, chipAt(5) + 0.3, chipAt(5) + 0.65, E.lin) : ramp(t, chipAt(i), chipAt(i) + 0.3, E.lin);
+          const drawn =
+            i === 0 ? ramp(t, chipAt(5) + 0.3, chipAt(5) + 0.65, E.lin) : ramp(t, chipAt(i), chipAt(i) + 0.3, E.lin);
           L5.drawOn(arrows[i].grey, drawn);
           const reach = i === 0 ? ramp(t, 10.9, 11.2, E.lin) : ramp(t, s.a - 0.3, s.a, E.lin);
           L5.drawOn(arrows[i].col, reach);
@@ -161,7 +179,11 @@
           const pk = ramp(t, t0, t0 + 0.2, E.lin);
           r.ch.all((j) => {
             const on = lit[ones.indexOf(j)] && !settle;
-            return { tone: on ? "green" : "blue", solid: on, s: on ? 1 + 0.1 * flash(t, t0 + 0.12 * ones.indexOf(j), t0 + 0.12 * ones.indexOf(j) + 0.3) : 1 };
+            return {
+              tone: on ? "green" : "blue",
+              solid: on,
+              s: on ? 1 + 0.1 * flash(t, t0 + 0.12 * ones.indexOf(j), t0 + 0.12 * ones.indexOf(j) + 0.3) : 1,
+            };
           });
           const isLoser = i === 1 || i === 3;
           const tour = i < 2 ? T.tourA : T.tourB;
@@ -210,7 +232,12 @@
         });
         const pk = ramp(t, 7.85, 8.15, E.lin);
         const f = t < T.count ? 3 : t < T.count + 0.25 ? 3 : 4;
-        kid.pill.set({ text: `f = ${f}`, tone: t >= T_END ? "orange" : "green", ...pop(pk), s: pop(pk).s * (1 + 0.15 * flash(t, T.count, T.count + 0.4)) });
+        kid.pill.set({
+          text: `f = ${f}`,
+          tone: t >= T_END ? "orange" : "green",
+          ...pop(pk),
+          s: pop(pk).s * (1 + 0.15 * flash(t, T.count, T.count + 0.4)),
+        });
         V.place(labels[2], { y: 8 * (1 - ramp(t, 6.65, 6.95)), o: ramp(t, 6.65, 6.95, E.lin) });
         V.place(work, { o: 1 - ramp(t, T.out, T.out + 0.5, E.lin) });
         setFrame(kid, "amber", ramp(t, T_END, T_END + 0.3, E.lin), null);

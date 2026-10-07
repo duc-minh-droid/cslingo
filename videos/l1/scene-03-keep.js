@@ -99,11 +99,12 @@
       const icoCross = L5.cross(0, 0, 34, "red", { on: true, w: 6 });
       const icoK = V.s("g", {}, icoTick);
       const icoX = V.s("g", {}, icoCross);
-      svg.append(icoK, icoX);
+      const top = L5.svg(stage);
+      top.append(icoK, icoX);
       // the big tick that celebrates CAT
       const bigTick = L5.tick(0, 0, 46, "green", { ink: true, w: 9 });
       const bigG = V.s("g", {}, bigTick);
-      svg.append(bigG);
+      top.append(bigG);
       const T3 = TRY[2];
       const LAND3 = T3.up[1];
 
@@ -128,7 +129,8 @@
           const k = ramp(t, 1.0 + 0.08 * i, 1.4 + 0.08 * i, E.pop);
           let land = 0;
           TRY.forEach((r, j) => {
-            if (r.up && r.gene === i) land = Math.max(land, flash(t, r.up[1], r.up[1] + 0.35) * (landed(t, j) || t > r.up[1] ? 1 : 0));
+            if (r.up && r.gene === i)
+              land = Math.max(land, flash(t, r.up[1], r.up[1] + 0.35) * (landed(t, j) || t > r.up[1] ? 1 : 0));
           });
           const g = ramp(t, LAND3 + 0.12 * i, LAND3 + 0.4 + 0.12 * i);
           const done = g > 0.5;
@@ -145,7 +147,8 @@
         const flags = [...s].map((_, i) => {
           let f = ok(s, i);
           TRY.forEach((r) => {
-            if (r.up && r.gene === i && t >= r.up[1]) f = ok(r.cur, i) + (ok(r.after, i) - ok(r.cur, i)) * ramp(t, r.up[1], r.up[1] + 0.3);
+            if (r.up && r.gene === i && t >= r.up[1])
+              f = ok(r.cur, i) + (ok(r.after, i) - ok(r.cur, i)) * ramp(t, r.up[1], r.up[1] + 0.3);
           });
           return f;
         });
@@ -182,7 +185,12 @@
           const tile = tri.tiles[i];
           tile.style.borderColor = edge ? edge.borderColor : "";
           const o = { tone, y: ty, x: tx, o: to };
-          if (i === r.gene) return { ...o, solid: fk > 0 && (t < r.f[1] + 0.2 || !r.keep || !!r.bad) && tone === "blue", tone: tone === "red" ? "red" : "purple" };
+          if (i === r.gene)
+            return {
+              ...o,
+              solid: fk > 0 && (t < r.f[1] + 0.2 || !r.keep || !!r.bad) && tone === "blue",
+              tone: tone === "red" ? "red" : "purple",
+            };
           return o;
         });
         const ch = r.gene;
@@ -199,7 +207,11 @@
         });
         if (keptNow) tri.tiles[ch].style.borderColor = "var(--teal-lip)";
         else if (tone === "red") tri.tiles[ch].style.borderColor = "";
-        V.place(tags[2], { y: ty - (act >= 0 ? ROW_Y - ROW_Y : 0) + (act >= 0 ? 0 : 0), o: to * ramp(t, r.a + 0.2, r.a + 0.5), x: tx });
+        V.place(tags[2], {
+          y: ty - (act >= 0 ? ROW_Y - ROW_Y : 0) + (act >= 0 ? 0 : 0),
+          o: to * ramp(t, r.a + 0.2, r.a + 0.5),
+          x: tx,
+        });
         const tflags = [...r.cand].map((_, i) => {
           if (i !== ch) return ok(r.cur, i);
           return ok(r.cur, i) + (ok(r.cand, i) - ok(r.cur, i)) * ramp(t, r.f[1] - 0.1, r.f[1] + 0.25);
@@ -219,15 +231,30 @@
         arrows.forEach((a, i) => V.place(a, { o: ramp(t, 2.0 + 0.1 * i, 2.4 + 0.1 * i) * 0.7 }));
         const kk = popK(2);
         const tk = popK(3);
-        V.place(icoK, { x: 811 - 62, y: 300, s: Math.max(0.001, kk), o: Math.min(1, kk * 3) * (0.7 + 0.3 * lit("keep", t)) });
-        V.place(icoX, { x: 811 - 104, y: 390, s: Math.max(0.001, tk), o: Math.min(1, tk * 3) * (0.7 + 0.3 * lit("throw", t)) });
+        V.place(icoK, {
+          x: 811 - 62,
+          y: 300,
+          s: Math.max(0.001, kk),
+          o: Math.min(1, kk * 3) * (0.7 + 0.3 * lit("keep", t)),
+        });
+        V.place(icoX, {
+          x: 811 - 104,
+          y: 390,
+          s: Math.max(0.001, tk),
+          o: Math.min(1, tk * 3) * (0.7 + 0.3 * lit("throw", t)),
+        });
         L5.drawOn(icoTick, 1);
         L5.drawOn(icoCross, 1);
 
         // ---- the finished word gets a tick
         const gk = ramp(t, LAND3 + 0.5, LAND3 + 1.1);
         L5.drawOn(bigTick, gk);
-        V.place(bigG, { x: X0 + 150, y: ROW_C - 40, s: 0.6 + 0.4 * ramp(t, LAND3 + 0.5, LAND3 + 0.9, E.pop), o: gk > 0 ? 1 : 0 });
+        V.place(bigG, {
+          x: X0 + 150,
+          y: ROW_C - 40,
+          s: 0.6 + 0.4 * ramp(t, LAND3 + 0.5, LAND3 + 0.9, E.pop),
+          o: gk > 0 ? 1 : 0,
+        });
       };
     },
   });

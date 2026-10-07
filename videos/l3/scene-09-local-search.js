@@ -131,8 +131,16 @@
       const tbTag = tagBox(bot.tag("Tabu", { at: "tl", tone: "grey" }), 170, 96);
       const legend = tagBox(top.tag("best so far", { at: "tr", tone: "orange" }), 250, 56);
       const tryTag = top.tag("try 0", { at: { x: 936 - 24, y: top.box.y + 150 }, anchor: "r", tone: "grey" });
+      // icons sit in an SVG above the tags (the tags are HTML and would cover anything in P.over)
+      const iconLayer = (P) => {
+        const svg = V.s("svg", { width: 936, height: 640, style: { position: "absolute", left: "0px", top: "0px", overflow: "visible" } });
+        P.html.append(svg);
+        return svg;
+      };
+      const topIcons = iconLayer(top);
+      const botIcons = iconLayer(bot);
       const miniDie = L5.dice(24 + 14 + 30, rowY(top) + 26, 34, { face: 5, tone: "purple" });
-      top.over.append(miniDie);
+      topIcons.append(miniDie);
       const crumbIcons = V.s("g", {});
       [0, 1, 2].forEach((j) => {
         crumbIcons.append(
@@ -144,9 +152,9 @@
           }),
         );
       });
-      bot.over.append(crumbIcons);
+      botIcons.append(crumbIcons);
       const legendDia = L3.diamond(936 - 24 - 250 + 30, rowY(top) + 26, 26);
-      top.over.append(legendDia);
+      topIcons.append(legendDia);
 
       // the die (Monte Carlo only): one group per face, only one is shown
       const DIE_X = 936 - 24 - 56;
@@ -186,7 +194,7 @@
         const dk = pops(t, 1.0, 0.4);
         m.dia.set({ i: dia.i, dy: dia.dy, s: dk, o: dk > 0 ? 1 : 0 });
         const stk = pops(t, 1.2, 0.4) * (1 - ramp(t, leave, leave + 0.25, E.lin));
-        m.stuck.set({ i: START, dy: -34, icon: "cross", k: stk, o: stk > 0.001 ? stk : 0 });
+        m.stuck.set({ i: START, dy: -28, icon: "cross", k: stk, o: stk > 0.001 ? stk : 0 });
       };
 
       return (t) => {
@@ -204,11 +212,11 @@
         M.prop.set({ i: e ? e.m : 0, tone: e && !e.acc ? "red" : "purple", s: 0.8 + 0.2 * pr, o: pr });
         // short outcome badge: cross for a rejected step, tick for an uphill one
         const qk = live && e && !e.down ? pops(lt, 0.04, 0.2) * (1 - ramp(lt, 0.2, 0.3, E.lin)) : 0;
-        M.quick.set({ i: e ? e.m : 0, dy: 26, icon: e && e.acc ? "tick" : "cross", k: qk, s: 0.7, o: qk > 0.001 ? 1 : 0 });
+        M.quick.set({ i: e ? e.m : 0, dy: e && e.acc ? -12 : 26, icon: e && e.acc ? "tick" : "cross", k: qk, s: 0.7, o: qk > 0.001 ? 1 : 0 });
         // a lucky downhill step lingers a little longer
         const dwn = MC.find((x) => x.down && t >= mcT(x.k) && t < mcT(x.k) + 0.8);
         const dk = dwn ? pops(t - mcT(dwn.k), 0.1, 0.3) * (1 - ramp(t - mcT(dwn.k), 0.6, 0.8, E.lin)) : 0;
-        M.down.set({ i: dwn ? dwn.m : 0, dy: 26, icon: "down", k: dk, s: 0.85, o: dk > 0.001 ? 1 : 0 });
+        M.down.set({ i: dwn ? dwn.m : 0, dy: -12, icon: "down", k: dk, s: 0.85, o: dk > 0.001 ? 1 : 0 });
         M.xs.forEach((m) => m.set({ k: 0, o: 0 }));
         M.crumbs.forEach((m) => m.set({ o: 0 }));
         M.cands.forEach((m) => m.set({ o: 0 }));
@@ -274,7 +282,7 @@
         const dstep = TB.find((s, k) => s.down && t >= TB_STEP[k].b - 0.05 && t < TB_STEP[k].b + 0.55);
         const dsi = dstep ? dstep.k - 1 : 0;
         const dtk = dstep ? pops(t - TB_STEP[dsi].b, 0.05, 0.25) * (1 - ramp(t - TB_STEP[dsi].b, 0.35, 0.55, E.lin)) : 0;
-        B.down.set({ i: dstep ? dstep.pick : 0, dy: 26, icon: "down", k: dtk, s: 0.85, o: dtk > 0.001 ? 1 : 0 });
+        B.down.set({ i: dstep ? dstep.pick : 0, dy: -12, icon: "down", k: dtk, s: 0.85, o: dtk > 0.001 ? 1 : 0 });
         // crumbs: path position j is on the floor from the moment the hiker leaves it until it drops out of the list
         B.crumbs.forEach((m, j) => {
           if (j >= TB.length) return m.set({ o: 0 });

@@ -23,7 +23,13 @@
   need(same(POPS[5], [164, 163, 169, 166, 176, 167]), "generation 5 changed");
   need(same(PICKS, [4, 1, 1, 4, 0, 2]), `pick counts ${PICKS}`);
   need(same(AVG.map(Math.round), [49, 73, 82, 92, 93, 95]), `averages ${AVG.map(Math.round)}`);
-  need(same(G1.map((c) => c.mid), [160, 174, 94, 166, 168, 160]), "midpoints changed");
+  need(
+    same(
+      G1.map((c) => c.mid),
+      [160, 174, 94, 166, 168, 160],
+    ),
+    "midpoints changed",
+  );
 
   // ---------- timeline ----------
   const BASE = 430;
@@ -34,7 +40,6 @@
   const RIB_W = [110, 120, 190, 130, 140];
   const RIB_TONE = ["orange", "orange", "purple", "purple", "green"];
   const CHANGE = [8.6, ...[0, 1, 2, 3].map((g) => FAST0 + FAST * g)]; // when the generation chip steps up
-  const slowGap = (t) => t >= 5 - 0.2 && t < 8.6; // kept for readability of the phase tests
 
   // the generation being shown at time t
   function genAt(t) {
@@ -96,7 +101,14 @@
         const b = V.h("div", {
           class: "v-tag solid c-orange",
           text: `x${PICKS[j]}`,
-          style: { width: "62px", height: "40px", padding: "0", textAlign: "center", lineHeight: "34px", fontSize: "28px" },
+          style: {
+            width: "62px",
+            height: "40px",
+            padding: "0",
+            textAlign: "center",
+            lineHeight: "34px",
+            fontSize: "28px",
+          },
         });
         stage.append(b);
         return b;
@@ -135,23 +147,20 @@
       // chips
       const genChip = L1.chip(stage, "generation 0", "grey", { x: 0, y: 0, width: 262 });
       const avgChip = L1.chip(stage, "average 49%", "green", { x: 674, y: 0, width: 262 });
-      const track = V.h(
-        "div",
-        {
-          style: {
-            position: "absolute",
-            left: "706px",
-            top: "56px",
-            width: "200px",
-            height: "20px",
-            boxSizing: "border-box",
-            borderRadius: "10px",
-            border: "3px solid var(--line-2)",
-            background: "var(--panel-2)",
-            overflow: "hidden",
-          },
+      const track = V.h("div", {
+        style: {
+          position: "absolute",
+          left: "706px",
+          top: "56px",
+          width: "200px",
+          height: "20px",
+          boxSizing: "border-box",
+          borderRadius: "10px",
+          border: "3px solid var(--line-2)",
+          background: "var(--panel-2)",
+          overflow: "hidden",
         },
-      );
+      });
       const fill = V.h("div", {
         style: { height: "100%", width: "0", background: "var(--teal)", borderRight: "3px solid var(--teal-lip)" },
       });
@@ -166,7 +175,16 @@
         const tag = V.h("div", {
           class: "v-tag c-grey",
           text: name,
-          style: { left: f1(left), top: "480px", width: `${RIB_W[i]}px`, height: "56px", padding: "0", textAlign: "center", lineHeight: "50px", fontSize: "30px" },
+          style: {
+            left: f1(left),
+            top: "480px",
+            width: `${RIB_W[i]}px`,
+            height: "56px",
+            padding: "0",
+            textAlign: "center",
+            lineHeight: "50px",
+            fontSize: "30px",
+          },
         });
         if (i === 2) tag.style.borderStyle = "dashed";
         stage.append(tag);
@@ -221,7 +239,12 @@
         if (slow) olds.forEach((d, j) => d.set(old0(j)));
         else {
           const u = clamp((t - FAST0 - FAST * (g - 2)) / FAST);
-          const sp = L1.sprout(POPS[g - 1], POPS[g], RUN[g].info.map((c) => c.p1), u);
+          const sp = L1.sprout(
+            POPS[g - 1],
+            POPS[g],
+            RUN[g].info.map((c) => c.p1),
+            u,
+          );
           olds.forEach((d, j) => d.set({ i: sp.olds[j].i, o: sp.olds[j].o }));
         }
         POPS[0].forEach((idx, j) => {
@@ -266,7 +289,10 @@
             d.set({
               i: lerp(c.mid, c.kid, slide),
               dx: spread[k] * (1 - slide) + wig,
-              s: Math.max(0, E.pop(clamp(v))) * (1.3 - 0.3 * slide) * (1 + 0.25 * flash(t, 8.0 + 0.05 * k, 8.3 + 0.05 * k)),
+              s:
+                Math.max(0, E.pop(clamp(v))) *
+                (1.3 - 0.3 * slide) *
+                (1 + 0.25 * flash(t, 8.0 + 0.05 * k, 8.3 + 0.05 * k)),
               o: clamp(v * 4),
               tone: solid ? "blue" : "purple",
               hollow: !solid,
@@ -274,11 +300,15 @@
           });
         } else {
           const u = clamp((t - FAST0 - FAST * (g - 2)) / FAST);
-          const sp = L1.sprout(POPS[g - 1], POPS[g], RUN[g].info.map((c) => c.p1), u);
+          const sp = L1.sprout(
+            POPS[g - 1],
+            POPS[g],
+            RUN[g].info.map((c) => c.p1),
+            u,
+          );
           kids.forEach((d, k) => d.set({ i: sp.kids[k].i, tone: "blue", hollow: false }));
         }
       };
     },
   });
-  void slowGap;
 })();
