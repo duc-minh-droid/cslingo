@@ -152,8 +152,8 @@
 
       const rows = [
         ["blue", "Fitness scores every solution", bitsToFitness],
-        ["red", "Hard problems blow up", curves],
-        ["green", "EAs: select, vary, update, repeat", loopTiles],
+        ["red", "Hard: exact methods blow up", curves],
+        ["green", "EAs loop for good answers to hard problems", loopTiles],
       ].map(([tone, text, make]) => {
         const card = V.h("div", { class: `v-card plain c-${tone}`, style: box(CARD.x, 0, CARD.w, CARD.h) });
         const i = stage.querySelectorAll(".v-card").length;
