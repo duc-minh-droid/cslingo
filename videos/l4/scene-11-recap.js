@@ -145,7 +145,8 @@
     const TOUR = "DEGJA";
     const BROKEN = TOUR.slice(0, 3) + "D" + TOUR.slice(4);
     const SWAPPED = L5.swapAt(TOUR, 1, 4);
-    if (L5.isPerm(BROKEN) || !L5.isPerm(SWAPPED) || SWAPPED !== "DAGJE") throw new Error("recap: unexpected tours");
+    if (L5.isPerm(BROKEN, TOUR) || !L5.isPerm(SWAPPED, TOUR) || SWAPPED !== "DAGJE")
+      throw new Error("recap: unexpected tours");
     const bad = L5.dupIdx(BROKEN);
     const [SIZE, PITCH] = [48, 56];
     const row = L4.tiles(pic, {

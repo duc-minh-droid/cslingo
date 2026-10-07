@@ -131,7 +131,8 @@
       i = nb.reduce((b, j) => (f[j] > f[b] ? j : b));
     }
   };
-  const peaks = (f) => f.map((_, i) => i).filter((i) => (i === 0 || f[i] > f[i - 1]) && (i === N - 1 || f[i] > f[i + 1]));
+  const peaks = (f) =>
+    f.map((_, i) => i).filter((i) => (i === 0 || f[i] > f[i - 1]) && (i === N - 1 || f[i] > f[i + 1]));
   const hills = (f, pop) => new Set(pop.map((i) => hillOf(f, i))).size;
 
   // ---------- search logs ----------
@@ -230,17 +231,44 @@
   const count = (a, b, k) => Math.round(a + (b - a) * clamp(k));
 
   Object.assign(L3, {
-    CITIES, D, POS, N, FN, TOURS12,
-    len, hops, cum, swapAdj, neighbours, nTours, digits,
-    ones, flip, cut, rng, pick, clamp,
-    fvals, bestOf, hillOf, peaks, hills,
-    hc, hcSteps, mc, dieFace, tabu, ea,
-    stepAt, count,
+    CITIES,
+    D,
+    POS,
+    N,
+    FN,
+    TOURS12,
+    len,
+    hops,
+    cum,
+    swapAdj,
+    neighbours,
+    nTours,
+    digits,
+    ones,
+    flip,
+    cut,
+    rng,
+    pick,
+    clamp,
+    fvals,
+    bestOf,
+    hillOf,
+    peaks,
+    hills,
+    hc,
+    hcSteps,
+    mc,
+    dieFace,
+    tabu,
+    ea,
+    stepAt,
+    count,
   });
 
   // ---------- self-check: every number the scene specs quote ----------
   const same = (a, b, what) => {
-    if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`VID.l3 selfCheck: ${what}: got ${JSON.stringify(a)}, expected ${JSON.stringify(b)}`);
+    if (JSON.stringify(a) !== JSON.stringify(b))
+      throw new Error(`VID.l3 selfCheck: ${what}: got ${JSON.stringify(a)}, expected ${JSON.stringify(b)}`);
   };
   L3.selfCheck = () => {
     same([len("ABDEC"), len("ABCED"), len("ABCDE"), len("ACBDE")], [32, 28, 34, 38], "tour lengths");
@@ -248,48 +276,150 @@
     same(cum("ABCED"), [5, 8, 15, 24, 28], "running total ABCED");
     same(neighbours("EABDC"), ["AEBDC", "EBADC", "EADBC", "EABCD", "CABDE"], "neighbours EABDC");
     same(neighbours("00110".replace(/./g, "A")).length, 5, "neighbour count");
-    same([...Array(5)].map((_, i) => flip("00110", i)), ["10110", "01110", "00010", "00100", "00111"], "bit flips");
-    same(TOURS12.map((q) => `${q.tour} ${q.len}`).join(),
-      "ABCED 28,ABECD 28,ABDEC 32,ACEBD 32,ABDCE 33,ABEDC 33,ACBED 33,ADBCE 33,ABCDE 34,ADCBE 34,ACBDE 38,ACDBE 38", "12 tours");
-    same([5, 6, 7, 8, 10, 20].map(nTours), ["12", "60", "360", "2,520", "181,440", "60,822,550,204,416,000"], "tour counts");
-    same([swapAdj("ABDEC", 2), swapAdj("ABDEC", 4), swapAdj("ABDEC", 0), swapAdj("BADEC", 3)], ["ABEDC", "CBDEA", "BADEC", "BADCE"], "HC trace swaps");
+    same(
+      [...Array(5)].map((_, i) => flip("00110", i)),
+      ["10110", "01110", "00010", "00100", "00111"],
+      "bit flips",
+    );
+    same(
+      TOURS12.map((q) => `${q.tour} ${q.len}`).join(),
+      "ABCED 28,ABECD 28,ABDEC 32,ACEBD 32,ABDCE 33,ABEDC 33,ACBED 33,ADBCE 33,ABCDE 34,ADCBE 34,ACBDE 38,ACDBE 38",
+      "12 tours",
+    );
+    same(
+      [5, 6, 7, 8, 10, 20].map(nTours),
+      ["12", "60", "360", "2,520", "181,440", "60,822,550,204,416,000"],
+      "tour counts",
+    );
+    same(
+      [swapAdj("ABDEC", 2), swapAdj("ABDEC", 4), swapAdj("ABDEC", 0), swapAdj("BADEC", 3)],
+      ["ABEDC", "CBDEA", "BADEC", "BADCE"],
+      "HC trace swaps",
+    );
     same([ones("10110"), ones("00100"), ones("01011"), ones("10001"), ones("11011")], [3, 1, 3, 2, 4], "OneMax");
     same([cut("10110", "01011", 2), flip(cut("10110", "01011", 2), 1)], ["10011", "11011"], "crossover and mutation");
     const m = fvals("multi");
     same(peaks(m), [7, 18, 29], "multi peaks");
-    same([m[7], m[18], m[29]].map((v) => +v.toFixed(2)), [0.65, 0.79, 1.09], "multi heights");
+    same(
+      [m[7], m[18], m[29]].map((v) => +v.toFixed(2)),
+      [0.65, 0.79, 1.09],
+      "multi heights",
+    );
     same(bestOf(m), 29, "multi best");
-    same([bestOf(fvals("uni")), bestOf(fvals("plateau")), bestOf(fvals("deceptive"))], [21, 31, 39], "best of each shape");
+    same(
+      [bestOf(fvals("uni")), bestOf(fvals("plateau")), bestOf(fvals("deceptive"))],
+      [21, 31, 39],
+      "best of each shape",
+    );
     const h6 = hcSteps(m, 4, [1, 1, 1, 1, -1]);
-    same([h6.path, h6.tries.map((q) => q.ok)], [[4, 5, 6, 7], [true, true, true, false, false]], "scene 6 hill climb");
-    same(hc(fvals("uni"), { start: 3, seed: 2, tries: 26, r: 2 }).path, [3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 19, 20, 21], "uni path");
+    same(
+      [h6.path, h6.tries.map((q) => q.ok)],
+      [
+        [4, 5, 6, 7],
+        [true, true, true, false, false],
+      ],
+      "scene 6 hill climb",
+    );
+    same(
+      hc(fvals("uni"), { start: 3, seed: 2, tries: 26, r: 2 }).path,
+      [3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 19, 20, 21],
+      "uni path",
+    );
     same(hc(m, { start: 13, seed: 6, tries: 26, r: 2 }).path, [13, 14, 15, 16, 17, 18], "multi path");
-    same(hc(fvals("plateau"), { start: 9, seed: 3, tries: 26, r: 2 }).path.slice(0, 15), [9, 10, 9, 10, 9, 7, 6, 7, 9, 7, 5, 7, 8, 9, 11], "plateau path");
-    same(hc(fvals("deceptive"), { start: 20, seed: 1, tries: 26, r: 2 }).path, [20, 18, 17, 16, 15, 14, 12, 11, 10, 9, 7, 6, 5, 3, 2, 0], "deceptive path");
+    same(
+      hc(fvals("plateau"), { start: 9, seed: 3, tries: 26, r: 2 }).path.slice(0, 15),
+      [9, 10, 9, 10, 9, 7, 6, 7, 9, 7, 5, 7, 8, 9, 11],
+      "plateau path",
+    );
+    same(
+      hc(fvals("deceptive"), { start: 20, seed: 1, tries: 26, r: 2 }).path,
+      [20, 18, 17, 16, 15, 14, 12, 11, 10, 9, 7, 6, 5, 3, 2, 0],
+      "deceptive path",
+    );
     const mcl = mc(m, { start: 7, seed: 435858, tries: 26, r: 3, p: 0.1 });
-    same(mcl.slice(0, 10).map((e) => e.m), [10, 8, 5, 9, 4, 6, 9, 5, 10, 4], "MC first ten proposals");
-    same(mcl.slice(0, 10).every((e) => !e.acc), true, "MC first ten rejected");
-    same(mcl.filter((e) => e.down).map((e) => [e.k, e.m]), [[11, 10], [13, 13], [19, 19], [21, 22]], "MC downhill moves");
+    same(
+      mcl.slice(0, 10).map((e) => e.m),
+      [10, 8, 5, 9, 4, 6, 9, 5, 10, 4],
+      "MC first ten proposals",
+    );
+    same(
+      mcl.slice(0, 10).every((e) => !e.acc),
+      true,
+      "MC first ten rejected",
+    );
+    same(
+      mcl.filter((e) => e.down).map((e) => [e.k, e.m]),
+      [
+        [11, 10],
+        [13, 13],
+        [19, 19],
+        [21, 22],
+      ],
+      "MC downhill moves",
+    );
     same(mcl[25].c, 29, "MC ends on the star");
     same([...new Set(mcl.map((e) => e.best))], [7, 16, 19, 17, 29], "MC best so far");
-    same(mcl.filter((e) => e.worse && e.acc).map((e) => +e.u.toFixed(3)), [0.003, 0.039, 0.08, 0.081], "MC lucky draws");
+    same(
+      mcl.filter((e) => e.worse && e.acc).map((e) => +e.u.toFixed(3)),
+      [0.003, 0.039, 0.08, 0.081],
+      "MC lucky draws",
+    );
     const tl = tabu(m, { start: 7, r: 3, tenure: 5, steps: 15 });
     same([7, ...tl.map((e) => e.pick)], [7, 8, 6, 9, 10, 13, 16, 18, 17, 19, 20, 21, 22, 25, 28, 29], "tabu path");
-    same(tl[0].cands.map((c) => c.i), [8, 6, 9, 5, 10, 4], "tabu step 1 candidates");
-    same(tl[1].cands.map((c) => c.i), [7, 6, 9, 5, 10, 11], "tabu step 2 candidates");
+    same(
+      tl[0].cands.map((c) => c.i),
+      [8, 6, 9, 5, 10, 4],
+      "tabu step 1 candidates",
+    );
+    same(
+      tl[1].cands.map((c) => c.i),
+      [7, 6, 9, 5, 10, 11],
+      "tabu step 2 candidates",
+    );
     same(tl[1].cands[0].tabu, true, "tabu step 2 first is tabu");
     same([...new Set(tl.map((e) => e.best))], [7, 16, 18, 28, 29], "tabu best so far");
     const start = [4, 10, 15, 21, 25, 33];
-    same(start.map((i) => +m[i].toFixed(2)), [0.34, 0.36, 0.55, 0.42, 0.31, 0.38], "EA start fitness");
-    same(start.map((i) => hillOf(m, i)), [7, 7, 18, 18, 29, 29], "EA start hills");
+    same(
+      start.map((i) => +m[i].toFixed(2)),
+      [0.34, 0.36, 0.55, 0.42, 0.31, 0.38],
+      "EA start fitness",
+    );
+    same(
+      start.map((i) => hillOf(m, i)),
+      [7, 7, 18, 18, 29, 29],
+      "EA start hills",
+    );
     const el = ea(m, { pop: start, seed: 44, steps: 10, r: 3 });
-    same(el.map((e) => [e.parentAt, e.child, e.replaced]),
-      [[33, 30, true], [15, 17, true], [30, 29, true], [33, 34, false], [15, 17, true], [29, 30, true], [17, 14, false], [30, 29, true], [29, 28, true], [29, 31, true]], "EA steps");
-    same(el[9].pop.slice().sort((a, b) => a - b), [28, 29, 29, 30, 30, 31], "EA final population");
-    same(el.map((e) => e.hills), [3, 3, 2, 2, 2, 2, 2, 2, 2, 1], "EA hills");
+    same(
+      el.map((e) => [e.parentAt, e.child, e.replaced]),
+      [
+        [33, 30, true],
+        [15, 17, true],
+        [30, 29, true],
+        [33, 34, false],
+        [15, 17, true],
+        [29, 30, true],
+        [17, 14, false],
+        [30, 29, true],
+        [29, 28, true],
+        [29, 31, true],
+      ],
+      "EA steps",
+    );
+    same(
+      el[9].pop.slice().sort((a, b) => a - b),
+      [28, 29, 29, 30, 30, 31],
+      "EA final population",
+    );
+    same(
+      el.map((e) => e.hills),
+      [3, 3, 2, 2, 2, 2, 2, 2, 2, 1],
+      "EA hills",
+    );
     return true;
   };
   L3.selfCheck();
 
-  if (typeof process !== "undefined" && /l3[\\/]common\.js$/.test(process.argv[1] || "")) console.log("VID.l3 selfCheck ok");
+  if (typeof process !== "undefined" && /l3[\\/]common\.js$/.test(process.argv[1] || ""))
+    console.log("VID.l3 selfCheck ok");
 })();

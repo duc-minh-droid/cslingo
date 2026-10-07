@@ -251,7 +251,8 @@
     const note = (e) => {
       const bi = fits.indexOf(Math.min(...fits));
       best.push(fits[bi]);
-      if (!snaps.length || fits[bi] < snaps[snaps.length - 1].len) snaps.push({ e, len: fits[bi], tour: pop[bi].slice() });
+      if (!snaps.length || fits[bi] < snaps[snaps.length - 1].len)
+        snaps.push({ e, len: fits[bi], tour: pop[bi].slice() });
     };
     note(P);
     for (let e = P + 1; e <= EV; e++) {
@@ -402,20 +403,37 @@
     const bad = (m) => {
       throw new Error("lecture 2 data changed: " + m);
     };
-    const eq = (a, b, m) => JSON.stringify(a) === JSON.stringify(b) || bad(`${m}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`);
+    const eq = (a, b, m) =>
+      JSON.stringify(a) === JSON.stringify(b) || bad(`${m}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`);
     const s = subsets();
     eq(s.reduce((a, b) => (b.f < a.f ? b : a)).bits, "110", "best subset");
-    eq(s.map((q) => q.f), [100, 40, 25, 35, 80, 20, 5, 55], "fitness list");
-    eq(s.map((q) => q.w), [0, 60, 75, 135, 20, 80, 95, 155], "weights");
+    eq(
+      s.map((q) => q.f),
+      [100, 40, 25, 35, 80, 20, 5, 55],
+      "fitness list",
+    );
+    eq(
+      s.map((q) => q.w),
+      [0, 60, 75, 135, 20, 80, 95, 155],
+      "weights",
+    );
     (expo(43) < poly(43) && expo(44) > poly(44)) || bad("exp vs poly crossing");
-    eq([expo(10), poly(10), expo(60), poly(60)].map((v) => v.toFixed(2)), ["2.59", "12.59", "304.48", "90.36"], "growth");
+    eq(
+      [expo(10), poly(10), expo(60), poly(60)].map((v) => v.toFixed(2)),
+      ["2.59", "12.59", "304.48", "90.36"],
+      "growth",
+    );
     eq(designs().str, "19342813113834066795298816", "16^21");
-    (Math.abs(designs().years / 1e8 - 6.13) < 0.01) || bad("years 6.13e8");
+    Math.abs(designs().years / 1e8 - 6.13) < 0.01 || bad("years 6.13e8");
     eq(+times().pow2.years.toFixed(1), 36.5, "36.5 years");
     eq(times().n2.micro, 3.6, "3.6 microseconds");
     const p0 = prim(0);
     eq([p0.tree, p0.cost], [["AC", "CD", "CE", "BE"], 18], "prim");
-    eq(p0.steps.map((q) => q.total), [4, 9, 15, 18], "prim totals");
+    eq(
+      p0.steps.map((q) => q.total),
+      [4, 9, 15, 18],
+      "prim totals",
+    );
     const p2 = prim(2);
     eq([p2.tree, p2.cost], [["AC", "CD", "BD", "BE"], 20], "prim limited");
     eq(p2.steps[2].blocked, ["BC", "CE"], "blocked step 3");
@@ -424,7 +442,11 @@
     const b0 = bruteTrees(0);
     eq([b0.count, b0.best.cost], [125, 18], "all trees");
     const b2 = bruteTrees(2);
-    eq([b2.feasibleCount, b2.best.cost, b2.bestCount, b2.best.edges], [60, 19, 1, ["AC", "AD", "BE", "CE"]], "feasible trees");
+    eq(
+      [b2.feasibleCount, b2.best.cost, b2.bestCount, b2.best.edges],
+      [60, 19, 1, ["AC", "AD", "BE", "CE"]],
+      "feasible trees",
+    );
     const u = updateRules();
     eq(u.merge.dropped, ["S1", "S10"], "merge dropped");
     u.merge.kept.includes("S12") || bad("S12 kept");
@@ -433,15 +455,27 @@
     eq(u.weakest.replaced, ["S1", "S10"], "weakest");
     const r = tspRace(16);
     eq(
-      [r.nnLen.toFixed(3), r.crossAt, r.finalLen.toFixed(3), r.snaps.length, r.bestAt(30).toFixed(3), r.bestAt(1000).toFixed(3)],
+      [
+        r.nnLen.toFixed(3),
+        r.crossAt,
+        r.finalLen.toFixed(3),
+        r.snaps.length,
+        r.bestAt(30).toFixed(3),
+        r.bestAt(1000).toFixed(3),
+      ],
       ["4.314", 1949, "3.563", 44, "9.065", "4.987"],
       "tsp race",
     );
-    eq([r.bestAt(100).toFixed(3), r.bestAt(300).toFixed(3), r.bestAt(3000).toFixed(3)], ["8.403", "5.836", "3.756"], "race curve");
+    eq(
+      [r.bestAt(100).toFixed(3), r.bestAt(300).toFixed(3), r.bestAt(3000).toFixed(3)],
+      ["8.403", "5.836", "3.756"],
+      "race curve",
+    );
     eq(+(r.shorter * 100).toFixed(1), 17.4, "17.4 % shorter");
     return { ok: true, nnCrossings: r.crossings(r.nn), finalCrossings: r.crossings(r.finalTour) };
   }
   L2.selfCheck = selfCheck;
   selfCheck();
+  // eslint-disable-next-line no-undef
   if (typeof module !== "undefined") module.exports = L2;
 })();

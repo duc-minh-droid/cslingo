@@ -48,6 +48,27 @@
   // genes of child c that change between stage s-1 and s, so they can flip one after another
   const changed = (s, c) => [...P[0]].map((_, i) => i).filter((i) => KIDS[s][c][i] !== KIDS[s - 1][c][i]);
 
+  // L4.cutLine makes a 0 x 0 svg, which browsers do not paint, so draw the orange dashed line here
+  function cutLine(parent, x0) {
+    const svg = L4.ui.svgIn(parent);
+    const line = V.s("line", {
+      "stroke-width": 5,
+      "stroke-linecap": "round",
+      "stroke-dasharray": "12 10",
+      style: { stroke: "var(--amber)" },
+    });
+    svg.append(line);
+    const set = ({ x = x0, k = 1, o = 1 }) => {
+      line.setAttribute("x1", x.toFixed(1));
+      line.setAttribute("x2", x.toFixed(1));
+      line.setAttribute("y1", LINE_Y[0]);
+      line.setAttribute("y2", (LINE_Y[0] + (LINE_Y[1] - LINE_Y[0]) * clamp(k)).toFixed(1));
+      svg.style.opacity = k <= 0.001 ? "0" : String(clamp(o));
+    };
+    set({});
+    return { set };
+  }
+
   V.scene({
     kicker: "CROSSOVER",
     title: ["Crossover mixes", "two parents' genes"],
@@ -59,8 +80,8 @@
     ],
     build(stage) {
       // cut lines first, so the tiles sit on top of them
-      const lineA = L4.cutLine(stage, { x: cutX(5), y1: LINE_Y[0], y2: LINE_Y[1] });
-      const lineB = L4.cutLine(stage, { x: cutX(6), y1: LINE_Y[0], y2: LINE_Y[1] });
+      const lineA = cutLine(stage, cutX(5));
+      const lineB = cutLine(stage, cutX(6));
       const row = (y, vals, tones) =>
         L4.tiles(stage, { x: X0, y, vals, w: SZ, h: SZ, gap: PITCH - SZ, font: 40, tones });
       const par = [row(ROW.p1, [...P[0]], Array(N).fill("blue")), row(ROW.p2, [...P[1]], Array(N).fill("purple"))];
@@ -109,35 +130,29 @@
         kids.forEach((r, c) => {
           const f = FLY[c];
           tags[3 + c].set(pop(ramp(t, f.t0, f.t0 + 0.4)));
-          r.all((i) => {
-            const k = ramp(t, f.t0 + i * f.step, f.t0 + i * f.step + f.dur);
+          for (let i = 0; i < N; i++) {
+            const t0 = f.t0 + i * f.step;
+            const k = ramp(t, t0, t0 + f.dur);
             const src = Number(MASKS[0][i]) === c ? 0 : 1; // parent row the tile starts on
             const dy = ([ROW.p1, ROW.p2][src] - [ROW.c1, ROW.c2][c]) * (1 - k);
-            const base = { ...stageOf(0, c, i), y: dy, o: t < f.t0 + i * f.step ? 0 : 1 };
+            const o = t < t0 ? 0 : 1;
             let cur = stageOf(0, c, i);
-            for (let s = 1; s <= 2; s++) {
+            let flipping = null;
+            for (let s = 1; s <= 2 && !flipping; s++) {
               const rank = changed(s, c).indexOf(i);
-              if (rank < 0) {
-                cur = stageOf(s, c, i);
-                continue;
+              if (rank < 0) cur = stageOf(s, c, i);
+              else {
+                const a = T.flip[s - 1] + rank * 0.07;
+                if (t >= a + 0.5) cur = stageOf(s, c, i);
+                else if (t >= a) flipping = { k: ramp(t, a, a + 0.5, E.lin), to: stageOf(s, c, i) };
+                else break;
               }
-              const a = T.flip[s - 1] + rank * 0.07;
-              if (t >= a + 0.5) cur = stageOf(s, c, i);
-              else if (t >= a) {
-                const to = stageOf(s, c, i);
-                r.flip(i, ramp(t, a, a + 0.5, E.lin), {
-                  from: cur.text,
-                  to: to.text,
-                  tone: cur.tone,
-                  toTone: to.tone,
-                  hop: 10,
-                });
-                return; // set by flip
-              }
-              if (t < a) break;
             }
-            return { ...base, text: cur.text, tone: cur.tone };
-          });
+            if (flipping) {
+              const { to } = flipping;
+              r.flip(i, flipping.k, { from: cur.text, to: to.text, tone: cur.tone, toTone: to.tone, hop: 10 });
+            } else r.set(i, { text: cur.text, tone: cur.tone, y: dy, o });
+          }
         });
       };
     },

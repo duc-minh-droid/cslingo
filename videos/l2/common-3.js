@@ -49,7 +49,13 @@
   const { clamp, ramp, ease: E } = V;
   const f1 = (n) => n.toFixed(1);
   const T = (name) => L5.tone(name);
-  const abs = (x, y, w, h) => ({ position: "absolute", left: `${f1(x)}px`, top: `${f1(y)}px`, width: `${f1(w)}px`, height: `${f1(h)}px` });
+  const abs = (x, y, w, h) => ({
+    position: "absolute",
+    left: `${f1(x)}px`,
+    top: `${f1(y)}px`,
+    width: `${f1(w)}px`,
+    height: `${f1(h)}px`,
+  });
   /* opacity and a scale about (cx, cy) for an SVG element drawn at absolute stage coordinates */
   const put = (e, cx, cy, s = 1, o = 1) => {
     V.show(e, o);
@@ -57,7 +63,17 @@
     e.style.transform = s === 1 ? "" : `scale(${s})`;
   };
   const text = (str, cx, cy, size, fill) =>
-    V.s("text", { x: f1(cx), y: f1(cy), "text-anchor": "middle", "dominant-baseline": "central", style: { fontSize: `${size}px`, fontWeight: "900", fill } }, str);
+    V.s(
+      "text",
+      {
+        x: f1(cx),
+        y: f1(cy),
+        "text-anchor": "middle",
+        "dominant-baseline": "central",
+        style: { fontSize: `${size}px`, fontWeight: "900", fill },
+      },
+      str,
+    );
 
   // ---------- 1. graph ----------
   function graph(parent, opt = {}) {
@@ -78,7 +94,15 @@
       const c = { x: pa.x + (pb.x - pa.x) * f, y: pa.y + (pb.y - pa.y) * f };
       const [pw, ph] = [30 + 17 * String(wt).length, 42];
       const line = V.s("line", { "stroke-linecap": "round" });
-      const rect = V.s("rect", { x: f1(c.x - pw / 2), y: f1(c.y - ph / 2), width: pw, height: ph, rx: ph / 2, "stroke-width": "3", style: { fill: "var(--panel)" } });
+      const rect = V.s("rect", {
+        x: f1(c.x - pw / 2),
+        y: f1(c.y - ph / 2),
+        width: pw,
+        height: ph,
+        rx: ph / 2,
+        "stroke-width": "3",
+        style: { fill: "var(--panel)" },
+      });
       const label = text(String(wt), c.x, c.y + 1, 28, "var(--ink)");
       const crossG = L5.cross(c.x, c.y, 40, "red", { w: 7 });
       const pill = V.s("g", {}, rect, label, crossG);
@@ -119,7 +143,12 @@
       const dashed = dash || bl > 0.01;
       const red = T("red");
       const col = bl > 0.01 ? red.c : tone ? tn.c : grey.edge;
-      Object.assign(e.line.style, { stroke: col, strokeWidth: f1(w), strokeDasharray: dashed ? `${f1(Math.max(14, w * 1.2))} ${f1(Math.max(12, w * 1.1))}` : "none", strokeLinecap: dashed ? "butt" : "round" });
+      Object.assign(e.line.style, {
+        stroke: col,
+        strokeWidth: f1(w),
+        strokeDasharray: dashed ? `${f1(Math.max(14, w * 1.2))} ${f1(Math.max(12, w * 1.1))}` : "none",
+        strokeLinecap: dashed ? "butt" : "round",
+      });
       e.line.setAttribute("x1", f1(pa.x));
       e.line.setAttribute("y1", f1(pa.y));
       e.line.setAttribute("x2", f1(pa.x + (pb.x - pa.x) * kk));
@@ -172,7 +201,14 @@
         if (!townBy[t]) throw new Error(`VID.l2.graph: no town "${t}"`);
       });
       towns.forEach((q) => drawTown(q, nodes[q.t] || {}, ramp(k, q.i * 0.05, q.i * 0.05 + 0.3, E.lin)));
-      edges.forEach((e) => drawEdge(e, es[e.key] || {}, ramp(k, 0.25 + e.j * 0.03, 0.55 + e.j * 0.03, E.out), ramp(k, 0.6 + e.j * 0.03, 0.72 + e.j * 0.03, E.lin)));
+      edges.forEach((e) =>
+        drawEdge(
+          e,
+          es[e.key] || {},
+          ramp(k, 0.25 + e.j * 0.03, 0.55 + e.j * 0.03, E.out),
+          ramp(k, 0.6 + e.j * 0.03, 0.72 + e.j * 0.03, E.lin),
+        ),
+      );
       V.show(svg, o);
     }
     update({ k: 0 });
@@ -200,11 +236,31 @@
     const n = cities.length;
     const loc = cities.map(([cx, cy]) => [20 + cx * 400, 56 + cy * 240]);
     const wrap = V.h("div", { style: abs(x, y, w, h) });
-    const card = V.h("div", { class: "v-card plain", style: { left: "0", top: "0", width: `${w}px`, height: `${h}px` } });
-    const tagEl = V.h("div", { class: `v-tag c-${tone0}`, text: tagText, style: { left: "12px", top: "8px", fontSize: `${tagSize}px` } });
-    const lenEl = V.h("div", { class: `v-tag c-${tone0}`, style: { right: "12px", top: "8px", fontSize: `${tagSize}px` } });
-    const svg = V.s("svg", { width: w, height: h, style: { position: "absolute", left: "0", top: "0", overflow: "visible" } });
-    const route = V.s("path", { fill: "none", pathLength: "1", "stroke-width": "5", "stroke-linejoin": "round", "stroke-linecap": "round" });
+    const card = V.h("div", {
+      class: "v-card plain",
+      style: { left: "0", top: "0", width: `${w}px`, height: `${h}px` },
+    });
+    const tagEl = V.h("div", {
+      class: `v-tag c-${tone0}`,
+      text: tagText,
+      style: { left: "10px", top: "8px", padding: "6px 10px 7px", fontSize: `${tagSize}px` },
+    });
+    const lenEl = V.h("div", {
+      class: `v-tag c-${tone0}`,
+      style: { right: "10px", top: "8px", padding: "6px 6px 7px", fontSize: `${tagSize}px` },
+    });
+    const svg = V.s("svg", {
+      width: w,
+      height: h,
+      style: { position: "absolute", left: "0", top: "0", overflow: "visible" },
+    });
+    const route = V.s("path", {
+      fill: "none",
+      pathLength: "1",
+      "stroke-width": "5",
+      "stroke-linejoin": "round",
+      "stroke-linecap": "round",
+    });
     const dots = loc.map(([px, py]) => V.s("circle", { cx: f1(px), cy: f1(py), r: 8, style: { fill: "var(--ink)" } }));
     svg.append(route, ...dots);
     wrap.append(card, svg, tagEl, lenEl);
@@ -220,29 +276,74 @@
       if (lenEl.textContent !== lt) lenEl.textContent = lt;
       V.show(lenEl, lt ? 1 : 0);
       card.style.boxShadow = `0 6px 0 var(--line-2)${flash > 0.01 ? `, 0 0 0 ${f1(8 * clamp(flash))}px ${tn.c}` : ""}`;
-      dots.forEach((d, i) => put(d, loc[i][0], loc[i][1], 0.4 + 0.6 * E.pop(ramp(dk, (i / n) * 0.6, (i / n) * 0.6 + 0.4, E.lin)), clamp(ramp(dk, (i / n) * 0.6, (i / n) * 0.6 + 0.15, E.lin))));
+      dots.forEach((d, i) =>
+        put(
+          d,
+          loc[i][0],
+          loc[i][1],
+          0.4 + 0.6 * E.pop(ramp(dk, (i / n) * 0.6, (i / n) * 0.6 + 0.4, E.lin)),
+          clamp(ramp(dk, (i / n) * 0.6, (i / n) * 0.6 + 0.15, E.lin)),
+        ),
+      );
       if (!tour || draw <= 0.002) return V.show(route, 0);
       const seg = tour.map((c, i) => dist(c, tour[(i + 1) % n]));
       const total = seg.reduce((a, b) => a + b, 0);
       const pos = clamp(draw) * n;
       const si = Math.min(n - 1, Math.floor(pos));
       const done = seg.slice(0, si).reduce((a, b) => a + b, 0) + seg[si] * (pos - si);
-      route.setAttribute("d", `M ${tour.map((c) => loc[c].map(f1).join(" ")).join(" L ")} L ${loc[tour[0]].map(f1).join(" ")}`);
-      Object.assign(route.style, { stroke: tn.c, strokeDasharray: `${(done / total).toFixed(5)} 2`, strokeDashoffset: "0" });
+      route.setAttribute(
+        "d",
+        `M ${tour.map((c) => loc[c].map(f1).join(" ")).join(" L ")} L ${loc[tour[0]].map(f1).join(" ")}`,
+      );
+      Object.assign(route.style, {
+        stroke: tn.c,
+        strokeDasharray: `${(done / total).toFixed(5)} 2`,
+        strokeDashoffset: "0",
+      });
       V.show(route, 1);
     }
-    // the tags are measured in the browser; fits = both tags side by side leave a 12 px gap
-    const fits = () => tagEl.offsetWidth + lenEl.offsetWidth + 12 * 3 <= w;
+    // the tags are measured in the browser; fits = both tags side by side leave a 6 px gap
+    const fits = () => tagEl.offsetWidth + lenEl.offsetWidth + 10 * 2 + 6 <= w;
     update({ dots: 0 });
-    return { update, pt: (i) => ({ x: x + loc[i][0], y: y + loc[i][1] }), w, h, get fits() { return fits(); } };
+    return {
+      update,
+      pt: (i) => ({ x: x + loc[i][0], y: y + loc[i][1] }),
+      w,
+      h,
+      get fits() {
+        return fits();
+      },
+    };
   }
 
   // ---------- 3. cost card ----------
   function costCard(parent, opt = {}) {
     const { x = 0, y = 0, w = 224, h = 170, label = "cost" } = opt;
-    const lab = V.h("div", { text: label, style: { position: "absolute", left: "16px", top: "6px", fontSize: "28px", fontWeight: "800", lineHeight: "34px", color: "var(--text-dim)" } });
+    const lab = V.h("div", {
+      text: label,
+      style: {
+        position: "absolute",
+        left: "16px",
+        top: "6px",
+        fontSize: "28px",
+        fontWeight: "800",
+        lineHeight: "34px",
+        color: "var(--text-dim)",
+      },
+    });
     const top = 40 + (h - 40 - 96) / 2;
-    const num = V.h("div", { style: { position: "absolute", left: "0", width: `${w - 6}px`, top: `${f1(top - 3)}px`, textAlign: "center", fontSize: "96px", fontWeight: "900", lineHeight: "96px" } });
+    const num = V.h("div", {
+      style: {
+        position: "absolute",
+        left: "0",
+        width: `${w - 6}px`,
+        top: `${f1(top - 3)}px`,
+        textAlign: "center",
+        fontSize: "96px",
+        fontWeight: "900",
+        lineHeight: "96px",
+      },
+    });
     const card = V.h("div", { class: "v-card plain", style: abs(x, y, w, h) }, lab, num);
     parent.append(card);
     return {

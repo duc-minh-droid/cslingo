@@ -93,8 +93,17 @@
     const lands = V.s(
       "g",
       { "clip-path": `url(#${id})` },
-      V.s("path", { d: `${line} L ${X(land.N - 1).toFixed(1)} ${base} L ${X(0).toFixed(1)} ${base} Z`, style: { fill: green.dim } }),
-      V.s("path", { d: line, fill: "none", "stroke-width": "6", "stroke-linejoin": "round", style: { stroke: green.c } }),
+      V.s("path", {
+        d: `${line} L ${X(land.N - 1).toFixed(1)} ${base} L ${X(0).toFixed(1)} ${base} Z`,
+        style: { fill: green.dim },
+      }),
+      V.s("path", {
+        d: line,
+        fill: "none",
+        "stroke-width": "6",
+        "stroke-linejoin": "round",
+        style: { stroke: green.c },
+      }),
     );
     const baseLine = V.s("line", {
       x1: px1(x0 + 6),
@@ -113,7 +122,12 @@
     const set = ({ k = 1, star: sk = 1, starPulse = 0, o = 1 } = {}) => {
       clipRect.setAttribute("width", px1(clamp(k) * (w + 40)));
       V.show(root, o);
-      V.place(starG, { x: px(land.star)[0], y: starTop, s: Math.max(0, E.pop(sk)) * (1 + 0.28 * starPulse), o: clamp(sk * 6) });
+      V.place(starG, {
+        x: px(land.star)[0],
+        y: starTop,
+        s: Math.max(0, E.pop(sk)) * (1 + 0.28 * starPulse),
+        o: clamp(sk * 6),
+      });
     };
     set({ k: 0, star: 0 });
 
@@ -128,10 +142,23 @@
       const d = {
         g,
         set(st = {}) {
-          const { i = 0, lift = 0, s = 1, o = 1, tone = dopt.tone || "blue", hollow = !!dopt.hollow, ring: rk = 0, dx = 0, dy = 0 } = st;
+          const {
+            i = 0,
+            lift = 0,
+            s = 1,
+            o = 1,
+            tone = dopt.tone || "blue",
+            hollow = !!dopt.hollow,
+            ring: rk = 0,
+            dx = 0,
+            dy = 0,
+          } = st;
           const t = T(tone);
           const [cx, cy] = px(i);
-          g.setAttribute("transform", `translate(${(cx + dx).toFixed(1)} ${(cy - r - 2 - lift + dy).toFixed(1)}) scale(${s.toFixed(3)})`);
+          g.setAttribute(
+            "transform",
+            `translate(${(cx + dx).toFixed(1)} ${(cy - r - 2 - lift + dy).toFixed(1)}) scale(${s.toFixed(3)})`,
+          );
           V.show(g, o);
           lip.style.fill = hollow ? "none" : t.lip;
           body.style.fill = hollow ? "none" : t.c;
@@ -166,7 +193,14 @@
     const el = V.h("div", { style: abs(x, y, width, height) });
     parent.append(el);
     const rows = Array.from({ length: nRows }, (_, r) =>
-      L5.chromosome(el, { x: 0, y: r * (size + rowGap), genes: genes.slice(r * cols, (r + 1) * cols), size, gap, tone }),
+      L5.chromosome(el, {
+        x: 0,
+        y: r * (size + rowGap),
+        genes: genes.slice(r * cols, (r + 1) * cols),
+        size,
+        gap,
+        tone,
+      }),
     );
     const rc = (i) => [rows[Math.floor(i / cols)], i % cols];
     const set = (i, st = {}) => {
@@ -190,7 +224,15 @@
     const { n = 3, size = 24, gap = 10, x = 0, y = 0 } = opt;
     const el = V.h("div", { style: abs(x, y, n * (size + gap) - gap, size) });
     const list = Array.from({ length: n }, (_, i) =>
-      V.h("div", { style: { ...abs(i * (size + gap), 0, size, size), boxSizing: "border-box", borderRadius: "50%", borderWidth: "3px", borderStyle: "solid" } }),
+      V.h("div", {
+        style: {
+          ...abs(i * (size + gap), 0, size, size),
+          boxSizing: "border-box",
+          borderRadius: "50%",
+          borderWidth: "3px",
+          borderStyle: "solid",
+        },
+      }),
     );
     el.append(...list);
     parent.append(el);
@@ -215,7 +257,15 @@
     const el = V.h("div", { style: abs(x, y, (n - 1) * pitch + w, h) });
     const t = T(tone);
     const list = Array.from({ length: n }, (_, i) =>
-      V.h("div", { style: { ...abs(i * pitch, 0, w, h), boxSizing: "border-box", borderRadius: "4px", background: t.c, border: `2px solid ${t.lip}` } }),
+      V.h("div", {
+        style: {
+          ...abs(i * pitch, 0, w, h),
+          boxSizing: "border-box",
+          borderRadius: "4px",
+          background: t.c,
+          border: `2px solid ${t.lip}`,
+        },
+      }),
     );
     el.append(...list);
     parent.append(el);
@@ -288,7 +338,13 @@
         style: { stroke: on ? ink : T(tn).c, opacity: on ? [0.3, 0.6, 1][k] : 1 },
       }),
     );
-    const needle = V.s("line", { x1: cx, y1: cy, "stroke-width": "7", "stroke-linecap": "round", style: { stroke: on ? ink : "var(--ink)" } });
+    const needle = V.s("line", {
+      x1: cx,
+      y1: cy,
+      "stroke-width": "7",
+      "stroke-linecap": "round",
+      style: { stroke: on ? ink : "var(--ink)" },
+    });
     const hub = V.s("circle", { cx, cy, r: "10", style: { fill: on ? ink : "var(--ink)" } });
     svg.append(...arcs, needle, hub);
     parent.append(svg);
@@ -304,15 +360,47 @@
 
   // ---------- ingredient bar ----------
   function ingredientBar(parent, opt = {}) {
-    const { y = 588, labels = ["Population", "Selection + mutation", "Recombination"], widths = [225, 350, 285], gap = 14 } = opt;
+    const {
+      y = 588,
+      labels = ["Population", "Selection + mutation", "Recombination"],
+      widths = [225, 350, 285],
+      gap = 14,
+    } = opt;
     const total = widths.reduce((a, b) => a + b, 0) + gap * 2;
     const el = V.h("div", { style: abs(0, y, 936, 56) });
     let left = (936 - total) / 2;
-    const tick = V.s("svg", { width: 26, height: 26, viewBox: "0 0 26 26" }, L5.tick(13, 13, 20, "green", { on: true, w: 4 }));
+    const tick = V.s(
+      "svg",
+      { width: 26, height: 26, viewBox: "0 0 26 26" },
+      L5.tick(13, 13, 20, "green", { on: true, w: 4 }),
+    );
     const tags = labels.map((lab, i) => {
       const num = V.h("span", { class: "l1-num", text: String(i + 1) });
-      Object.assign(num.style, { width: "34px", height: "34px", borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none" });
-      const tag = V.h("div", { class: "v-tag c-grey", style: { ...abs(left, 0, widths[i], 56), display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "0 10px" } }, num, V.h("span", { text: lab }));
+      Object.assign(num.style, {
+        width: "34px",
+        height: "34px",
+        borderRadius: "50%",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flex: "none",
+      });
+      const tag = V.h(
+        "div",
+        {
+          class: "v-tag c-grey",
+          style: {
+            ...abs(left, 0, widths[i], 56),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            padding: "0 10px",
+          },
+        },
+        num,
+        V.h("span", { text: lab }),
+      );
       if (i === 2) tag.style.borderStyle = "dashed";
       left += widths[i] + gap;
       return { tag, num, tick: i === 0 ? tick : tick.cloneNode(true) };
@@ -327,7 +415,12 @@
         const st = states[i] || "off";
         const cls = `v-tag${st === "active" ? " solid" : ""} c-${st === "active" ? "blue" : st === "done" ? "green" : "grey"}`;
         if (q.tag.className !== cls) q.tag.className = cls;
-        const [bg, fg] = st === "active" ? ["var(--bg)", "var(--blue-ink)"] : st === "done" ? ["var(--teal)", "var(--teal-on)"] : ["var(--line-2)", "var(--text-dim)"];
+        const [bg, fg] =
+          st === "active"
+            ? ["var(--bg)", "var(--blue-ink)"]
+            : st === "done"
+              ? ["var(--teal)", "var(--teal-on)"]
+              : ["var(--line-2)", "var(--text-dim)"];
         Object.assign(q.num.style, { background: bg, color: fg, fontSize: "24px", fontWeight: "900" });
         q.tick.style.display = st === "done" ? "block" : "none";
         q.num.firstChild.nodeType === 3 && (q.num.firstChild.textContent = st === "done" ? "" : String(i + 1));

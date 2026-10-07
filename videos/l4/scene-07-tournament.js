@@ -79,7 +79,7 @@
       const tm = { x: row.mid(WIN).x + 52, y: row.mid(WIN).y - 52 };
       const crossP = V.s("g", {}, crossG);
       const tickP = V.s("g", {}, tickG);
-      
+
       const dice = DRAWS.map((_, n) => V.s("g", {}, L5.dice(0, 0, 56, { face: n ? 3 : 5, tone: "orange" })));
       svg.append(crossP, tickP, ...dice);
       const diceWin = [
@@ -89,7 +89,6 @@
       return (t) => {
         const pop = ramp(t, 0.5, 1.3, E.back);
         const gone = ramp(t, 5.0, 5.4);
-        const drawn = (n) => ramp(t, diceWin[n][1] - 0.2, diceWin[n][1]);
         const orangeAt = (i) => DRAWS.includes(i) && t >= diceWin[DRAWS.indexOf(i)][1] - 0.1 && t < 5.0;
         const compare = ramp(t, 3.2, 3.8, E.inOut);
         row.all((i) => {

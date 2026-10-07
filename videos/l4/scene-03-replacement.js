@@ -102,6 +102,7 @@
           // tiles
           const tone = (i) => {
             if (i === stop && t >= p.red) return "red";
+            if (i > stop && p.cross) return "grey"; // first weaker has stopped
             const last = i === stop ? p.red : startAt(i) + STEP;
             return t >= startAt(i) && t < last ? "orange" : "grey";
           };

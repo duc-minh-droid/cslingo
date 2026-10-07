@@ -57,7 +57,13 @@
   const { clamp, ramp, ease: E } = V;
   const f1 = (n) => n.toFixed(1);
   const T = (name) => L5.tone(name);
-  const abs = (x, y, w, h) => ({ position: "absolute", left: `${f1(x)}px`, top: `${f1(y)}px`, width: `${f1(w)}px`, height: `${f1(h)}px` });
+  const abs = (x, y, w, h) => ({
+    position: "absolute",
+    left: `${f1(x)}px`,
+    top: `${f1(y)}px`,
+    width: `${f1(w)}px`,
+    height: `${f1(h)}px`,
+  });
 
   // ---------- 1. tag ----------
   const ANCHORS = {
@@ -76,7 +82,11 @@
     if (lip) style.boxShadow = "0 4px 0 var(--c-lip)";
     if (pad) style.padding = pad;
     const el = V.h("div", { class: `v-tag${solid ? " solid" : ""} c-${tone}`, style }, ...(kids || [text]));
-    const wrap = V.h("div", { style: { position: "absolute", left: `${x}px`, top: `${y}px`, width: "0", height: "0" } }, el);
+    const wrap = V.h(
+      "div",
+      { style: { position: "absolute", left: `${x}px`, top: `${y}px`, width: "0", height: "0" } },
+      el,
+    );
     parent.append(wrap);
     return {
       el,
@@ -100,17 +110,76 @@
       return bars[id];
     };
     items.forEach((it, i) => {
-      const ring = V.h("div", { style: { position: "absolute", boxSizing: "border-box", borderRadius: "22px", borderWidth: "5px", borderStyle: "solid" } });
-      const bar = V.h("div", { style: { position: "absolute", boxSizing: "border-box", border: "3px solid", borderRadius: "14px" } });
-      const value = V.h("div", { style: { position: "absolute", left: "0", width: `${BW}px`, textAlign: "center", fontSize: "28px", lineHeight: "34px", fontWeight: "800" } });
-      const name = V.h("div", { style: { position: "absolute", left: "0", top: `${base + 16}px`, width: `${BW}px`, textAlign: "center", fontSize: "28px", lineHeight: "34px", fontWeight: "800" } });
-      const wrap = V.h("div", { style: { ...abs(slotX(i) - BW / 2, 0, BW, base + 60), transformOrigin: `${BW / 2}px ${base}px`, pointerEvents: "none" } }, ring, bar, value, name);
+      const ring = V.h("div", {
+        style: {
+          position: "absolute",
+          boxSizing: "border-box",
+          borderRadius: "22px",
+          borderWidth: "5px",
+          borderStyle: "solid",
+        },
+      });
+      const bar = V.h("div", {
+        style: { position: "absolute", boxSizing: "border-box", border: "3px solid", borderRadius: "14px" },
+      });
+      const value = V.h("div", {
+        style: {
+          position: "absolute",
+          left: "0",
+          width: `${BW}px`,
+          textAlign: "center",
+          fontSize: "28px",
+          lineHeight: "34px",
+          fontWeight: "800",
+        },
+      });
+      const name = V.h("div", {
+        style: {
+          position: "absolute",
+          left: "0",
+          top: `${base + 16}px`,
+          width: `${BW}px`,
+          textAlign: "center",
+          fontSize: "28px",
+          lineHeight: "34px",
+          fontWeight: "800",
+        },
+      });
+      const wrap = V.h(
+        "div",
+        {
+          style: {
+            ...abs(slotX(i) - BW / 2, 0, BW, base + 60),
+            transformOrigin: `${BW / 2}px ${base}px`,
+            pointerEvents: "none",
+          },
+        },
+        ring,
+        bar,
+        value,
+        name,
+      );
       parent.append(wrap);
       bars[it.id] = { it, i, wrap, ring, bar, value, name, dy: 0, s: 1 };
     });
     const set = (id, st = {}) => {
       const b = need(id);
-      const { slot = b.i, dx = 0, dy = 0, s = 1, o = 1, grow = 1, tone = "grey", solid = false, ring = 0, ringTone = "orange", dash = false, value, name, nameTone } = st;
+      const {
+        slot = b.i,
+        dx = 0,
+        dy = 0,
+        s = 1,
+        o = 1,
+        grow = 1,
+        tone = "grey",
+        solid = false,
+        ring = 0,
+        ringTone = "orange",
+        dash = false,
+        value,
+        name,
+        nameTone,
+      } = st;
       Object.assign(b, { dy, s });
       const tn = T(tone);
       b.wrap.style.transform = `translate(${f1(dx + (slot - b.i) * pitch)}px, ${f1(dy)}px) scale(${s})`;
@@ -141,7 +210,11 @@
         transform: `scale(${f1(0.88 + 0.12 * clamp(ring))})`,
       });
       const label = value === false ? "" : typeof value === "string" ? value : (b.it.f * clamp(grow)).toFixed(1);
-      Object.assign(b.value.style, { top: `${f1(top - 40)}px`, color: tone === "grey" ? "var(--ink)" : tn.ink, visibility: show && label ? "" : "hidden" });
+      Object.assign(b.value.style, {
+        top: `${f1(top - 40)}px`,
+        color: tone === "grey" ? "var(--ink)" : tn.ink,
+        visibility: show && label ? "" : "hidden",
+      });
       if (b.value.textContent !== label) b.value.textContent = label;
       const nm = name == null ? b.it.id : name;
       if (b.name.textContent !== nm) b.name.textContent = nm;
@@ -166,9 +239,42 @@
     const [SW, SH] = [232, 64];
     const pitch = (w - SW) / 2;
     const cards = STEPS.map(([label, tn], i) => {
-      const badge = V.h("div", { text: String(i + 1), style: { width: "40px", height: "40px", boxSizing: "border-box", borderRadius: "50%", border: "3px solid", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", fontWeight: "900", flex: "none" } });
+      const badge = V.h("div", {
+        text: String(i + 1),
+        style: {
+          width: "40px",
+          height: "40px",
+          boxSizing: "border-box",
+          borderRadius: "50%",
+          border: "3px solid",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "28px",
+          fontWeight: "900",
+          flex: "none",
+        },
+      });
       const word = V.h("span", { text: label });
-      const el = V.h("div", { style: { ...abs(x + pitch * i, y, SW, SH), boxSizing: "border-box", border: "3px solid", borderRadius: "22px", display: "flex", alignItems: "center", gap: "12px", padding: "0 14px", fontSize: "34px", fontWeight: "900" } }, badge, word);
+      const el = V.h(
+        "div",
+        {
+          style: {
+            ...abs(x + pitch * i, y, SW, SH),
+            boxSizing: "border-box",
+            border: "3px solid",
+            borderRadius: "22px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "0 14px",
+            fontSize: "34px",
+            fontWeight: "900",
+          },
+        },
+        badge,
+        word,
+      );
       parent.append(el);
       return { el, badge, tn };
     });
@@ -183,8 +289,23 @@
     const [yb, yl] = [y + SH + 6, y + 96];
     const line = `M ${f1(ux)} ${f1(yb)} L ${f1(ux)} ${f1(yl)} L ${f1(sx)} ${f1(yl)} L ${f1(sx)} ${f1(yb + 18)}`;
     const head = `M ${f1(sx)} ${f1(yb)} L ${f1(sx - 11)} ${f1(yb + 20)} L ${f1(sx + 11)} ${f1(yb + 20)} Z`;
-    const path = (colour) => V.s("path", { d: line, fill: "none", pathLength: "1", "stroke-width": "5", "stroke-linecap": "round", "stroke-linejoin": "round", style: { stroke: colour } });
-    const tri = (colour) => V.s("path", { d: head, "stroke-width": "3", "stroke-linejoin": "round", style: { fill: colour, stroke: colour } });
+    const path = (colour) =>
+      V.s("path", {
+        d: line,
+        fill: "none",
+        pathLength: "1",
+        "stroke-width": "5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        style: { stroke: colour },
+      });
+    const tri = (colour) =>
+      V.s("path", {
+        d: head,
+        "stroke-width": "3",
+        "stroke-linejoin": "round",
+        style: { fill: colour, stroke: colour },
+      });
     const ghost = V.s("g", {}, path(T("grey").edge), tri(T("grey").edge));
     const live = path(T("orange").c);
     const liveHead = tri(T("orange").c);
@@ -201,8 +322,15 @@
           boxShadow: `0 6px 0 ${on ? tn.lip : tn.edge}`,
           color: on ? tn.on : "var(--ink)",
         });
-        Object.assign(c.badge.style, { background: "var(--panel)", borderColor: on ? tn.lip : tn.edge, color: "var(--ink)" });
-        V.place(c.el, { s: (0.7 + 0.3 * kk) * (on ? 1 + 0.1 * clamp(pulse) : 1), o: clamp(ramp(k, i * 0.18, i * 0.18 + 0.25, E.lin) * o) });
+        Object.assign(c.badge.style, {
+          background: "var(--panel)",
+          borderColor: on ? tn.lip : tn.edge,
+          color: "var(--ink)",
+        });
+        V.place(c.el, {
+          s: (0.7 + 0.3 * kk) * (on ? 1 + 0.1 * clamp(pulse) : 1),
+          o: clamp(ramp(k, i * 0.18, i * 0.18 + 0.25, E.lin) * o),
+        });
       });
       links.forEach((g, i) => V.place(g, { o: ramp(k, 0.45 + i * 0.1, 0.8 + i * 0.1, E.lin) * o }));
       V.place(ghost, { o: clamp(gh) * ramp(k, 0.7, 1, E.lin) * o * 0.8 });
@@ -219,15 +347,33 @@
   function clock(parent, opt = {}) {
     const { x = 0, y = 0, r = 64 } = opt;
     const wrap = V.h("div", { style: abs(x - r, y - r, 2 * r, 2 * r) });
-    const svg = V.s("svg", { width: 2 * r, height: 2 * r, style: { overflow: "visible", position: "absolute", left: "0", top: "0" } });
+    const svg = V.s("svg", {
+      width: 2 * r,
+      height: 2 * r,
+      style: { overflow: "visible", position: "absolute", left: "0", top: "0" },
+    });
     const lipC = V.s("circle", { cx: r, cy: r + 6, r: r - 2, "stroke-width": "4" });
     const face = V.s("circle", { cx: r, cy: r, r: r - 2, "stroke-width": "4", style: { fill: "var(--panel)" } });
     const ticks = Array.from({ length: 12 }, (_, i) => {
       const a = (i * Math.PI) / 6;
       const [r0, r1] = [r - (i % 3 ? 17 : 22), r - 10];
-      return V.s("line", { x1: f1(r + r0 * Math.sin(a)), y1: f1(r - r0 * Math.cos(a)), x2: f1(r + r1 * Math.sin(a)), y2: f1(r - r1 * Math.cos(a)), "stroke-width": i % 3 ? "3" : "5", "stroke-linecap": "round" });
+      return V.s("line", {
+        x1: f1(r + r0 * Math.sin(a)),
+        y1: f1(r - r0 * Math.cos(a)),
+        x2: f1(r + r1 * Math.sin(a)),
+        y2: f1(r - r1 * Math.cos(a)),
+        "stroke-width": i % 3 ? "3" : "5",
+        "stroke-linecap": "round",
+      });
     });
-    const hand = V.s("line", { x1: r, y1: r, x2: r, y2: f1(r - r * 0.66), "stroke-width": "7", "stroke-linecap": "round" });
+    const hand = V.s("line", {
+      x1: r,
+      y1: r,
+      x2: r,
+      y2: f1(r - r * 0.66),
+      "stroke-width": "7",
+      "stroke-linecap": "round",
+    });
     const hub = V.s("circle", { cx: r, cy: r, r: 7 });
     svg.append(lipC, face, ...ticks, hand, hub);
     wrap.append(svg);
@@ -257,7 +403,16 @@
       return `${f1(x + rr * Math.sin(a))},${f1(y + 0.06 * R - rr * Math.cos(a))}`;
     }).join(" ");
     const tn = T(tone);
-    return V.s("g", {}, V.s("polygon", { points: pts, "stroke-width": String(opt.w || 3), "stroke-linejoin": "round", style: { fill: tn.c, stroke: tn.lip } }));
+    return V.s(
+      "g",
+      {},
+      V.s("polygon", {
+        points: pts,
+        "stroke-width": String(opt.w || 3),
+        "stroke-linejoin": "round",
+        style: { fill: tn.c, stroke: tn.lip },
+      }),
+    );
   }
 
   Object.assign(L2, { tag, bars, loopStrip, clock, star });

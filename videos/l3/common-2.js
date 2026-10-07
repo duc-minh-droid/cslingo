@@ -47,7 +47,13 @@
   const L5 = V.l5;
   const { clamp, ease: E } = V;
   const f1 = (n) => (+n).toFixed(1);
-  const absStyle = (x, y, w, h) => ({ position: "absolute", left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  const absStyle = (x, y, w, h) => ({
+    position: "absolute",
+    left: `${x}px`,
+    top: `${y}px`,
+    width: `${w}px`,
+    height: `${h}px`,
+  });
   const SAMPLES = 160;
 
   const hop = (i0, i1, k, height = 40) => {
@@ -67,7 +73,15 @@
 
   const buildMarker = (type, opts) => {
     const size = opts.size || (type === "diamond" ? 22 : type === "crumb" ? 14 : type === "badge" ? 40 : 30);
-    const baseTone = opts.tone || (type === "ghost" ? "purple" : type === "star" || type === "diamond" ? "orange" : type === "crumb" ? "grey" : "blue");
+    const baseTone =
+      opts.tone ||
+      (type === "ghost"
+        ? "purple"
+        : type === "star" || type === "diamond"
+          ? "orange"
+          : type === "crumb"
+            ? "grey"
+            : "blue");
     const r = size / 2;
     const g = V.s("g", {});
     const body = V.s("g", {});
@@ -79,16 +93,33 @@
       parts.dot = V.s("circle", { r: f1(size * 0.16), style: { fill: "var(--panel)" } });
       body.append(parts.lip, parts.base, parts.dot);
     } else if (type === "ghost") {
-      parts.base = V.s("circle", { r: f1(r - 2), fill: "none", "stroke-width": "4", "stroke-dasharray": "7 6", "stroke-linecap": "round" });
+      parts.base = V.s("circle", {
+        r: f1(r - 2),
+        fill: "none",
+        "stroke-width": "4",
+        "stroke-dasharray": "7 6",
+        "stroke-linecap": "round",
+      });
       body.append(parts.base);
     } else if (type === "star") {
       parts.base = V.s("polygon", { points: starPoints(r), "stroke-width": "3.5", "stroke-linejoin": "round" });
       body.append(parts.base);
     } else if (type === "diamond") {
-      parts.base = V.s("rect", { x: f1(-r * 0.72), y: f1(-r * 0.72), width: f1(r * 1.44), height: f1(r * 1.44), rx: "3", "stroke-width": "3", transform: "rotate(45)" });
+      parts.base = V.s("rect", {
+        x: f1(-r * 0.72),
+        y: f1(-r * 0.72),
+        width: f1(r * 1.44),
+        height: f1(r * 1.44),
+        rx: "3",
+        "stroke-width": "3",
+        transform: "rotate(45)",
+      });
       body.append(parts.base);
     } else if (type === "crumb") {
-      parts.base = V.s("circle", { r: f1(r), style: { fill: "var(--node-off-ic)", stroke: "var(--node-off-lip)", strokeWidth: "2.5" } });
+      parts.base = V.s("circle", {
+        r: f1(r),
+        style: { fill: "var(--node-off-ic)", stroke: "var(--node-off-lip)", strokeWidth: "2.5" },
+      });
       body.append(parts.base);
     } else if (type === "badge") {
       parts.lip = V.s("circle", { r: f1(r), cy: "3" });
@@ -114,7 +145,8 @@
       const { i = 0, dx = 0, dy = 0, s = 1, o = 1, r: rot = 0, ring = null, ringK = 1, k = 1 } = st;
       const icon = st.icon || (m.type === "badge" ? "tick" : "");
       const tn = L5.tone(st.tone || (m.type === "badge" ? ICONS[icon] || "green" : m.baseTone));
-      const float = m.type === "diamond" ? 46 : m.type === "badge" ? 64 : LIFT[m.type] ? m.r + (m.type === "token" ? 3 : 0) : 0;
+      const float =
+        m.type === "diamond" ? 46 : m.type === "badge" ? 64 : LIFT[m.type] ? m.r + (m.type === "token" ? 3 : 0) : 0;
       const [x, y] = [P.px(i) + dx, P.py(i) - float + dy];
       const pop = m.type === "badge" ? E.pop(clamp(k)) : 1;
       m.g.setAttribute("transform", `translate(${f1(x)} ${f1(y)}) rotate(${f1(rot)}) scale(${(s * pop).toFixed(3)})`);
@@ -150,7 +182,10 @@
     const f = L3.fvals(kind);
     const n = L3.N;
     const defPad = frame ? { l: 24, r: 24, t: 36, b: 24 } : { l: 6, r: 6, t: 12, b: 8 };
-    const pad = typeof opt.pad === "number" ? { l: opt.pad, r: opt.pad, t: opt.pad, b: opt.pad } : { ...defPad, ...(opt.pad || {}) };
+    const pad =
+      typeof opt.pad === "number"
+        ? { l: opt.pad, r: opt.pad, t: opt.pad, b: opt.pad }
+        : { ...defPad, ...(opt.pad || {}) };
     const slot = (w - pad.l - pad.r) / n;
     const px = (i) => x + pad.l + (i + 0.5) * slot;
     const base = y + h - pad.b;
@@ -164,19 +199,48 @@
     const rect = (a) => V.s("rect", { x: f1(x), y: f1(y), width: f1(w), height: f1(h), rx: "26", ...a });
     if (frame) {
       g.append(
-        V.s("rect", { x: f1(x), y: f1(y + 6), width: f1(w), height: f1(h), rx: "26", style: { fill: "var(--line-2)" } }),
+        V.s("rect", {
+          x: f1(x),
+          y: f1(y + 6),
+          width: f1(w),
+          height: f1(h),
+          rx: "26",
+          style: { fill: "var(--line-2)" },
+        }),
         rect({ "stroke-width": "3", style: { fill: "var(--panel)", stroke: "var(--line-2)" } }),
       );
     }
-    const pts = Array.from({ length: SAMPLES + 1 }, (_, j) => [px((j * (n - 1)) / SAMPLES), py((j * (n - 1)) / SAMPLES)]);
+    const pts = Array.from({ length: SAMPLES + 1 }, (_, j) => [
+      px((j * (n - 1)) / SAMPLES),
+      py((j * (n - 1)) / SAMPLES),
+    ]);
     const line = pts.map((p, j) => `${j ? "L" : "M"} ${f1(p[0])} ${f1(p[1])}`).join(" ");
-    const area = V.s("path", { d: `${line} L ${f1(px(n - 1))} ${f1(base)} L ${f1(px(0))} ${f1(base)} Z`, style: { fill: "var(--line)" } });
-    const baseline = V.s("line", { x1: f1(x + pad.l / 2), x2: f1(x + w - pad.r / 2), y1: f1(base), y2: f1(base), "stroke-width": "3", "stroke-linecap": "round", style: { stroke: "var(--line-2)" } });
+    const area = V.s("path", {
+      d: `${line} L ${f1(px(n - 1))} ${f1(base)} L ${f1(px(0))} ${f1(base)} Z`,
+      style: { fill: "var(--line)" },
+    });
+    const baseline = V.s("line", {
+      x1: f1(x + pad.l / 2),
+      x2: f1(x + w - pad.r / 2),
+      y1: f1(base),
+      y2: f1(base),
+      "stroke-width": "3",
+      "stroke-linecap": "round",
+      style: { stroke: "var(--line-2)" },
+    });
     const bw = Math.min(slot * 0.62, 22);
     const bars = Array.from({ length: n }, (_, i) =>
       V.s("rect", { x: f1(px(i) - bw / 2), width: f1(bw), rx: f1(bw / 2.5), style: { fill: "var(--line-2)" } }),
     );
-    const curve = V.s("path", { d: line, fill: "none", pathLength: "1", "stroke-width": "6", "stroke-linecap": "round", "stroke-linejoin": "round", style: { stroke: "var(--text-dim)" } });
+    const curve = V.s("path", {
+      d: line,
+      fill: "none",
+      pathLength: "1",
+      "stroke-width": "6",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      style: { stroke: "var(--text-dim)" },
+    });
     const under = V.s("g", {});
     const marks = V.s("g", {});
     const over = V.s("g", {});
@@ -188,13 +252,17 @@
 
     const P = { svg, g, under, over, html, f, kind, best: L3.bestOf(f), box: { x, y, w, h }, base, px, py, pad };
     P.arc = (i0, i1, lift = 60) => {
-      const [a, b] = [[px(i0), py(i0) - 14], [px(i1), py(i1) - 14]];
+      const [a, b] = [
+        [px(i0), py(i0) - 14],
+        [px(i1), py(i1) - 14],
+      ];
       return `M ${f1(a[0])} ${f1(a[1])} Q ${f1((a[0] + b[0]) / 2)} ${f1(Math.min(a[1], b[1]) - lift * 1.6)} ${f1(b[0])} ${f1(b[1])}`;
     };
     P.marker = (type, o) => makeMarker(P, marks, type, o);
     P.tag = (text, o = {}) => {
       const at = o.at || "tl";
-      const pos = typeof at === "object" ? at : { x: at === "tr" ? x + w - 24 : at === "tc" ? x + w / 2 : x + 24, y: y + 20 };
+      const pos =
+        typeof at === "object" ? at : { x: at === "tr" ? x + w - 24 : at === "tc" ? x + w / 2 : x + 24, y: y + 20 };
       const anchor = typeof at === "object" ? o.anchor || "l" : at === "tr" ? "r" : at === "tc" ? "c" : "l";
       return L3.tag(html, { x: pos.x, y: pos.y, text, tone: o.tone || "grey", solid: o.solid, fs: o.fs, anchor });
     };

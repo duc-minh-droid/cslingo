@@ -75,7 +75,7 @@
         const rolling = roll > 0 && roll < 1;
         V.place(g, {
           x: at,
-          y: y - (rolling ? 8 * Math.abs(Math.sin(roll * 16)) : 0),
+          y: y - (rolling ? 5 * Math.abs(Math.sin(roll * 16)) : 0),
           s: 0.5 + 0.5 * on,
           r: rolling ? Math.sin(roll * 20) * 14 : 0,
           o: Math.min(1, on * 3),
@@ -126,8 +126,8 @@
         });
 
         // dice above the re-rolled genes
-        rollDie(die[0], t, 2.6, 3.3, 3.4, int.mid(INT_AT).x, ROW_Y[1] - 28);
-        rollDie(die[1], t, 5.0, 5.9, 6.5, tour.mid(TOUR_AT).x, ROW_Y[3] - 28);
+        rollDie(die[0], t, 2.6, 3.3, 3.4, int.mid(INT_AT).x, ROW_Y[1] - 26);
+        rollDie(die[1], t, 5.0, 5.9, 6.0, tour.mid(TOUR_AT).x, ROW_Y[3] - 26);
 
         // bell curve above the nudged gene, its dot moves with the nudge
         const nudge = ramp(t, 4.0, 4.5, E.inOut);
@@ -179,8 +179,8 @@
         const gap = 90 * (SWAP[1] - SWAP[0]);
         const moving = kS > 0 && kS < 1;
         const swapTone = done ? "blue" : moving ? "purple" : "grey";
-        tour.set(SWAP[0], { ...base, tone: swapTone, x: gap * kS, y: -38 * arc, s: base.s * (1 + 0.1 * arc) });
-        tour.set(SWAP[1], { ...base, tone: swapTone, x: -gap * kS, y: 38 * arc, s: base.s * (1 + 0.1 * arc) });
+        tour.set(SWAP[0], { ...base, tone: swapTone, x: gap * kS, y: -46 * arc, s: base.s * (1 + 0.1 * arc) });
+        tour.set(SWAP[1], { ...base, tone: swapTone, x: -gap * kS, y: 46 * arc, s: base.s * (1 + 0.1 * arc) });
         tour.tiles[SWAP[0]].style.zIndex = moving ? "3" : "";
         tour.tiles[SWAP[1]].style.zIndex = moving ? "2" : "";
 
