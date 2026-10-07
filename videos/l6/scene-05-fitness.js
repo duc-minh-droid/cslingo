@@ -33,9 +33,10 @@
 
   // ---------- layout (stage px, 936 x 640) ----------
   const M = 12; // margin kept free inside the stage
+  const TAG_Y = 18; // the legend tags above the plot
   const PW = 508; // the big plot
   const PH = 538;
-  const PY = 80;
+  const PY = 86;
   const YMAX = 3.6; // head room for the marker
   const START_X = (936 - PW) / 2 - M; // the plot starts centred and slides left when the cards arrive
   const CW = 384; // the two cards, on the right
@@ -46,16 +47,19 @@
     `position:absolute;left:${x}px;top:${y}px;width:${w}px;${ht == null ? "" : `height:${ht}px;`}${more}`;
 
   // ---------- timeline (local seconds) ----------
-  const SWEEP = [2.3, 4.1]; // the marker runs across
-  const SLIDE = [4.4, 5.0];
-  const CARD1 = 5.0;
-  const AREA1 = [5.1, 6.2]; // the red area fills in, the error counts up
-  const THUMB1 = 6.25;
-  const MORPH = [6.45, 7.1];
-  const CARD2 = 6.65;
-  const AREA2 = [7.35, 8.1];
-  const THUMB2 = 8.15;
-  const WIN = 8.55;
+  const DOTS = 0.55; // the 11 target dots pop in one by one
+  const CURVE = [0.9, 1.5]; // the dotted target curve is drawn through them
+  const LINE = [1.8, 2.4]; // the program's line appears
+  const SWEEP = [2.6, 4.2]; // the marker runs across
+  const SLIDE = [4.5, 5.1];
+  const CARD1 = 5.05;
+  const AREA1 = [5.2, 6.15]; // the red area fills in, the error counts up
+  const THUMB1 = 6.2;
+  const MORPH = [6.95, 7.5];
+  const CARD2 = 7.05;
+  const AREA2 = [7.6, 8.3];
+  const THUMB2 = 8.35;
+  const WIN = 9;
   const arrive = (i) => lerp(SWEEP[0], SWEEP[1], i / (XS.length - 1));
 
   // ---------- small pieces ----------
@@ -115,8 +119,11 @@
       dot.setAttribute("cy", cy.toFixed(1));
     });
     const crown = crowned ? makeCrown() : null;
+    const fitter = crowned
+      ? h("div", { class: "v-tag solid c-green", text: "fitter", style: { left: `${CW - 214}px`, top: "-44px" } })
+      : null;
     root.append(base, win, tag, err, num, track, ghost, box);
-    if (crown) root.append(crown);
+    if (crown) root.append(crown, fitter);
     return {
       root,
       /** at: when the card appears, v: the error to show, thumb: when the snapshot pops in, w: 0..1 winner, dim: 0..1 loser */
@@ -128,12 +135,15 @@
           o: fade(t, at, 0.2) * (1 - 0.35 * dim),
         });
         text(num, v.toFixed(2));
-        const red = `color-mix(in srgb, var(--rose-ink) ${Math.round(hot * 100)}%, var(--text-dim))`;
-        num.style.color = `color-mix(in srgb, var(--teal-ink) ${Math.round(w * 100)}%, ${red})`;
+        // the winner's colours switch in one frame (no muddy in-between), together with the card's pulse
+        const won = w >= 0.5;
+        num.style.color = won
+          ? "var(--teal-ink)"
+          : `color-mix(in srgb, var(--rose-ink) ${Math.round(hot * 100)}%, var(--text-dim))`;
         const wd = `${clamp(v / MAXERR) * TW}px`;
         fillR.style.width = wd;
         fillG.style.width = wd;
-        place(fillG, { o: w });
+        place(fillG, { o: won ? 1 : 0 });
         place(win, { o: w });
         place(box, { s: 0.85 + 0.15 * pop(t, thumb, 0.4), o: fade(t, thumb, 0.15) });
         place(ghost, { o: 1 - fade(t, thumb, 0.15) });
@@ -143,6 +153,7 @@
             s: pop(t, WIN + 0.1, 0.5),
             o: fade(t, WIN + 0.1, 0.1),
           });
+        if (fitter) place(fitter, { s: 0.8 + 0.2 * pop(t, WIN + 0.25, 0.5), o: fade(t, WIN + 0.25, 0.12) });
       },
     };
   }
@@ -163,13 +174,13 @@
       const tagTarget = h("div", {
         class: "v-tag solid c-green",
         text: "target",
-        style: { left: `${M}px`, top: `${M}px` },
+        style: { left: `${M}px`, top: `${TAG_Y}px` },
       });
       const progTags = [P1, P2].map((P) =>
         h("div", {
           class: "v-tag solid c-blue",
           text: `program: ${P.formula}`,
-          style: { left: `${M + 140}px`, top: `${M}px` },
+          style: { left: `${M + 140}px`, top: `${TAG_Y}px` },
         }),
       );
       wrap.append(tagTarget, ...progTags);
@@ -177,7 +188,7 @@
       // the plot and its curves; the grid is light and the data sit on top of it
       const pl = L.plot(wrap, {
         x: M, y: PY, w: PW, h: PH, xmin: -1, xmax: 1, ymin: 0, ymax: YMAX,
-        grid: true, xticks: [-1, 0, 1], yticks: [1, 2, 3],
+        grid: true, xticks: [-1, 0, 1],
       }); // prettier-ignore
       const gap1 = pl.gap(F1, T, "red");
       const gap2 = pl.gap(F2, T, "red");
@@ -253,20 +264,23 @@
         place(pl.svg, { y: (1 - kPlot) * 24, o: kPlot });
 
         // legend
-        place(tagTarget, { s: 0.8 + 0.2 * pop(t, 0.85, 0.5), o: fade(t, 0.85) });
+        place(tagTarget, { s: 0.8 + 0.2 * pop(t, DOTS + 0.1, 0.5), o: fade(t, DOTS + 0.1) });
         const pulse = Math.max(...XS.map((x, i) => flash(t, arrive(i) - 0.05, arrive(i) + 0.12)));
         const swap = ramp(t, MORPH[0], MORPH[0] + 0.12, ease.lin);
-        place(progTags[0], { s: (0.8 + 0.2 * pop(t, 1.55, 0.5)) * (1 + 0.07 * pulse), o: fade(t, 1.55) * (1 - swap) });
+        place(progTags[0], {
+          s: (0.8 + 0.2 * pop(t, LINE[0] - 0.1, 0.5)) * (1 + 0.07 * pulse),
+          o: fade(t, LINE[0] - 0.1) * (1 - swap),
+        });
         place(progTags[1], { s: 0.8 + 0.2 * pop(t, MORPH[0] + 0.12, 0.5), o: fade(t, MORPH[0] + 0.12, 0.12) });
 
         // target: 11 dots pop in, then the dotted curve is drawn through them
-        target.set({ k: ramp(t, 1.0, 1.7, ease.inOut), o: 1 });
-        tDots.forEach((d, i) => place(d, { s: pop(t, 0.65 + i * 0.05, 0.4), o: fade(t, 0.65 + i * 0.05, 0.08) }));
+        target.set({ k: ramp(t, CURVE[0], CURVE[1], ease.inOut), o: 1 });
+        tDots.forEach((d, i) => place(d, { s: pop(t, DOTS + i * 0.045, 0.4), o: fade(t, DOTS + i * 0.045, 0.08) }));
 
         // the program: the blue line, morphing from candidate 1 to candidate 2
         const m = ramp(t, MORPH[0], MORPH[1], ease.inOut);
         const g = (x) => lerp(F1(x), F2(x), m);
-        line.set({ fn: g, k: ramp(t, 1.65, 2.3, ease.inOut) });
+        line.set({ fn: g, k: ramp(t, LINE[0], LINE[1], ease.inOut) });
 
         // the marker sweeps across the 11 inputs; at each one the answer dot lands and the red error bar grows
         const run = ramp(t, SWEEP[0], SWEEP[1], ease.lin);

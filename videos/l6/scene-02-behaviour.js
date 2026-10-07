@@ -72,7 +72,7 @@
   const put = (el, name, v) => String(v) !== el.getAttribute(name) && el.setAttribute(name, v);
   const set = (style, name, v) => style[name] !== v && (style[name] = v);
   const css = (el, props) => Object.entries(props).forEach(([k, v]) => set(el.style, k, v));
-  /** "plain" white chip, "green" matched, "ghost" an empty dashed slot */
+  /** "plain" panel-coloured chip, "green" matched, "ghost" an empty dashed slot */
   function chipLook(el, look) {
     const ghost = look === "ghost";
     put(el, "class", look === "green" ? "v-card c-green" : "v-card plain");
@@ -353,11 +353,12 @@
 
   // ---------- RIGHT: genetic programming ----------
   const SEQ = [0, -1, 3, 2, -1, 4, 1, 5]; // which little tree each flicker slot shows (-1 = the question mark)
-  const SLOT = [0.12, 0.12, 0.13, 0.14, 0.15, 0.17, 0.19, 0.22]; // the flicker slows down as it settles
-  const FLICKER = 6.1;
+  const SLOT = [0.09, 0.09, 0.1, 0.11, 0.12, 0.13, 0.15, 0.2]; // the flicker slows down as it settles
+  const EVO = 5.35; // evolution takes over from "you" once the examples are in
+  const FLICKER = 5.95;
   const BOUNDS = SLOT.reduce((a, d) => (a.push(a[a.length - 1] + d), a), [FLICKER]);
-  const FOUND = BOUNDS[BOUNDS.length - 1]; // about 7.3 s
-  const hitAt = (i) => FOUND + 0.4 + 0.13 * i; // when example i turns green
+  const FOUND = BOUNDS[BOUNDS.length - 1]; // about 6.9 s
+  const hitAt = (i) => FOUND + 0.45 + 0.12 * i; // when example i turns green (the last one by about 7.8 s)
 
   function buildRight(stage) {
     const P = panel(stage, 486, "purple", "Genetic programming");
@@ -430,12 +431,12 @@
       const qOn = t < FOUND && (slot < 0 || SEQ[slot] === -1);
       place(q, { s: 1 + 0.05 * Math.sin(2 * Math.PI * (t - 3.6) * 0.8), o: qOn ? 1 : 0 });
       place(formula, { s: lerp(0.7, 1, pop(t, FOUND, 0.5)), o: fade(t, FOUND, 0.15) });
-      place(boxOk, { s: pop(t, FOUND + 0.3, 0.45), o: fade(t, FOUND + 0.3, 0.1) });
+      place(boxOk, { s: pop(t, FOUND + 0.2, 0.45), o: fade(t, FOUND + 0.2, 0.1) });
       // evolution does the work
-      place(eIn, { s: pop(t, 5.55, 0.45) * (1 + 0.12 * flash(t, FOUND, FOUND + 0.4)), o: fade(t, 5.55) });
+      place(eIn, { s: pop(t, EVO, 0.45) * (1 + 0.12 * flash(t, FOUND, FOUND + 0.4)), o: fade(t, EVO) });
       evo.spinTo(720 * ramp(t, FLICKER - 0.1, FOUND, ease.inOut));
-      place(evoTag, { s: pop(t, 5.7, 0.4), o: fade(t, 5.7) });
-      setLine(eUp, ramp(t, 5.8, 6.1), "var(--violet)");
+      place(evoTag, { s: pop(t, EVO + 0.15, 0.4), o: fade(t, EVO + 0.15) });
+      setLine(eUp, ramp(t, EVO + 0.25, EVO + 0.55), "var(--violet)");
       flowBeads(workBeads, t, FLICKER, FOUND, CX, 428, 388, 0.5);
     };
   }

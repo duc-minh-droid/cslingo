@@ -101,7 +101,6 @@ body.rec .v-root {
   line-height: 1.22;
   font-weight: 800;
   color: var(--ink);
-  visibility: hidden;
 }
 .v-mascot {
   position: absolute;

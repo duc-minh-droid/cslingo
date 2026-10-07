@@ -2,8 +2,9 @@
    Left: two bins, Functions (purple tiles + - x ÷ IF) and Terminals (blue tiles X 2 4 7). Right: three lanes, one per level, with a
    dashed "depth limit" under level 3. A small dice hops over the bins (the picks are a fixed list, so every frame is repeatable),
    lands on a tile (the chosen one turns orange) and a copy of it flies into a dashed "?" slot of the tree. The root can only be a
-   function. At level 3, the last one, the Functions bin is locked and only terminals are allowed, so the tree stops growing.
-   The result is (x + 2) × 4. Every rule below is checked against the real tree when the scene is built. */
+   function. At level 3, the last one, the Functions bin is locked (and the Terminals bin gets a green tick): only terminals
+   are allowed, so the tree stops growing. The result is (x + 2) × 4, read back token by token.
+   Every rule below is checked against the real tree when the scene is built. */
 (function () {
   const V = window.VID;
   const L = V.l6;
@@ -30,18 +31,19 @@
     [" × ", "violet", "root", 3],
     ["4", "blue", "four", 4],
   ];
-  const tokenAt = (step) => FORM_AT + 0.2 + step * 0.12;
+  const STEP = 0.2; // one beat of reading the tree back as a formula
+  const tokenAt = (step) => FORM_AT + 0.2 + step * STEP;
   const PICKS = [
-    { id: "root", cands: ["-", "IF", "+", "*"], t0: 3.85 },
-    { id: "plus", cands: ["X", "/", "+"], t0: 5.5 },
-    { id: "four", cands: ["IF", "7", "4"], t0: 6.85 },
-    { id: "x", cands: ["7", "4", "X"], t0: 9.8 },
-    { id: "two", cands: ["4", "2"], t0: 11.1 },
+    { id: "root", cands: ["-", "IF", "*"], t0: 3.6 },
+    { id: "plus", cands: ["X", "/", "+"], t0: 5.15 },
+    { id: "four", cands: ["IF", "4"], t0: 6.7 },
+    { id: "x", cands: ["4", "X"], t0: 9.5 },
+    { id: "two", cands: ["4", "2"], t0: 10.75 },
   ];
-  const JUMP = 0.26; // seconds per move of the dice ...
+  const JUMP = 0.24; // seconds per move of the dice ...
   const DWELL = 0.4; // ... of which the first part is spent sitting on a tile
-  const SETTLE = 0.24; // the dice rests on the chosen tile
-  const FLY = 0.5; // the copy flies into its slot
+  const SETTLE = 0.2; // the dice rests on the chosen tile
+  const FLY = 0.46; // the copy flies into its slot
   PICKS.forEach((p) => {
     p.n = p.cands.length;
     p.arrive = p.t0 + (p.n - 1) * JUMP;
@@ -68,12 +70,12 @@
   if (TOKENS.map((k) => k[0]).join("") !== FORMULA) throw new Error(`scene 04: tokens differ from ${FORMULA}`);
 
   // ---------- the other timings (local seconds) ----------
-  const LANE_AT = 3.0; // the three lanes slide out
-  const LIMIT_AT = 3.35; // the dashed depth limit and its label
-  const ROOT_SLOT = 3.45;
-  const LAST_AT = 8.25; // level 3 turns orange, its slots appear
-  const LOCK = { in: 9.15, shut: 9.45, grey: 9.55 }; // the padlock pops in open, snaps shut, the bin turns grey
-  const FORM_AT = 12.05; // the formula card; its tokens (and the tree nodes they stand for) light up one step at a time
+  const LANE_AT = 2.8; // the three lanes slide out
+  const LIMIT_AT = 3.15; // the dashed depth limit and its label
+  const ROOT_SLOT = 3.25;
+  const LAST_AT = 7.85; // level 3 turns orange, its slots appear
+  const LOCK = { in: 8.7, shut: 9.0, grey: 9.1 }; // the padlock pops in open, snaps shut, the bin turns grey; then the tick
+  const FORM_AT = 11.6; // the formula card; its tokens (and the tree nodes they stand for) light up one step at a time
   const PENDING = 0.8; // opacity of the edge to a slot that is still empty
   const SLOT_AT = { root: ROOT_SLOT, plus: PICK.root.land, four: PICK.root.land, x: LAST_AT, two: LAST_AT };
 
@@ -84,7 +86,7 @@
   const rowY = (d) => LANE.y0 + LANE.h / 2 + d * LANE.pitch; // 102, 252, 402
   const BINS = {
     fun: { x: 12, y: 24, w: 312, h: 264, tone: "purple", title: "Functions", at: 0.4 },
-    ter: { x: 12, y: 316, w: 312, h: 176, tone: "blue", title: "Terminals", at: 1.5 },
+    ter: { x: 12, y: 316, w: 312, h: 176, tone: "blue", title: "Terminals", at: 1.4 },
   };
   const SPOTS = [
     ["+", "fun", 72, 150],
@@ -101,9 +103,10 @@
     bin,
     x: x + BINS[bin].x,
     y,
-    at: i < 5 ? 0.7 + i * 0.1 : 1.8 + (i - 5) * 0.1,
+    at: i < 5 ? 0.7 + i * 0.1 : 1.7 + (i - 5) * 0.1,
   }));
   const SPOT = Object.fromEntries(SPOTS.map((sp) => [sp.label, sp]));
+  const LOCK_X = BINS.fun.x + BINS.fun.w - 16 - 24; // the padlock and the tick sit at the right end of each bin's title row
   const LIMIT_Y = LANE.y0 + 2 * LANE.pitch + LANE.h + 26; // the dashed line under level 3 (500)
 
   // what the dice does to each tile: sit on it (hover) or settle on it (chosen)
@@ -142,11 +145,9 @@
       g,
       face(n) {
         pips.forEach((c, i) => {
-          const p = PIPS[n][i];
-          if (p) {
-            c.setAttribute("cx", String(p[0] * 11));
-            c.setAttribute("cy", String(p[1] * 11));
-          }
+          const p = PIPS[n][i]; // an unused pip is hidden and parked at the centre, so the frame never depends on the last face
+          c.setAttribute("cx", String(p ? p[0] * 11 : 0));
+          c.setAttribute("cy", String(p ? p[1] * 11 : 0));
           show(c, p ? 1 : 0);
         });
       },
@@ -281,6 +282,29 @@
       );
       stage.append(formulaCard);
 
+      // the green tick that pairs with the padlock: terminals are still allowed on the last level
+      const okTick = L.tick(38, "green", true);
+      const okBadge = h(
+        "div",
+        {
+          class: "c-green",
+          style: {
+            position: "absolute",
+            left: `${LOCK_X - 22}px`,
+            top: `${BINS.ter.y + 3 + 14 + 29 - 22}px`,
+            width: "44px",
+            height: "44px",
+            boxSizing: "border-box",
+            borderRadius: "50%",
+            background: "var(--c)",
+            border: "3px solid var(--c-lip)",
+            boxShadow: "0 4px 0 var(--c-lip)",
+          },
+        },
+        okTick,
+      );
+      stage.append(okBadge);
+
       // ----- SVG: bin tiles, ghost slots, the tree, the flying copies, pills, lock, dice, rings -----
       SPOTS.forEach((sp) => (sp.tile = L.tile(stage, sp.label, { size: BIN_TILE })));
       const top = rowY(0) - NODE / 2;
@@ -342,7 +366,7 @@
           text: "depth limit 3",
           tone: "grey",
           look: "soft",
-          x: LANE.x + LANE.w - 8 - pillW("depth limit 3") / 2,
+          x: LANE.x + LANE.w - 30 - pillW("depth limit 3") / 2,
           y: LIMIT_Y,
           s: pop(t, LIMIT_AT + 0.35, 0.4),
           o: fade(t, LIMIT_AT + 0.35, 0.1),
@@ -351,7 +375,7 @@
         lastPill.apply({
           text: "last level",
           tone: "orange",
-          x: LANE.x + LANE.w - 16 - lastW / 2,
+          x: LANE.x + LANE.w - 24 - lastW / 2,
           y: rowY(2),
           s: pop(t, LAST_AT + 0.25, 0.4),
           o: fade(t, LAST_AT + 0.25, 0.1),
@@ -386,7 +410,9 @@
         });
         const open = 1 - ramp(t, LOCK.shut, LOCK.shut + 0.15, ease.in);
         const sc = pop(t, LOCK.in, 0.35) * (1 + 0.25 * flash(t, LOCK.shut + 0.05, LOCK.shut + 0.35));
-        lock.draw(BINS.fun.x + BINS.fun.w - 16 - 24, BINS.fun.y + 14 + 28, sc, open);
+        lock.draw(LOCK_X, BINS.fun.y + 14 + 28, sc, open);
+        const ok = LOCK.grey + 0.2;
+        place(okBadge, { s: pop(t, ok, 0.4), o: fade(t, ok, 0.1) });
       }
 
       function drawDice(t) {
@@ -407,7 +433,7 @@
         const x = lerp(x0, x1, hop);
         const y = lerp(y0, y1, hop) - 30 * Math.sin(Math.PI * hop) - rest;
         const r = (i % 2 ? -1 : 1) * 28 * Math.sin(Math.PI * hop);
-        const sc = pop(t, p.t0 - 0.25, 0.3) * (1 - ramp(t, p.take + 0.05, p.take + 0.25, lin));
+        const sc = pop(t, p.t0 - 0.25, 0.3) * (1 - ramp(t, p.take - 0.06, p.take + 0.1, lin));
         dice.face(FACES[(PICKS.indexOf(p) * 2 + i + (hop > 0.5 ? 1 : 0)) % 6]);
         dice.g.setAttribute(
           "transform",
@@ -430,7 +456,7 @@
             x: pos.x,
             y: pos.y,
             s: pop(t, slot, 0.4),
-            o: shown ? fade(t, slot, 0.15) : 0,
+            o: shown ? fade(t, slot, 0.15) * (1 - ramp(t, p.land - 0.2, p.land - 0.05, lin)) : 0,
             tone: filling ? "orange" : LEVEL[id] === LIMIT && locked ? "blue" : "grey",
           });
           // the copy of the chosen tile flies from its bin to the slot in an arc
@@ -456,17 +482,17 @@
         // reading the tree as a formula: each node lights up orange as its token appears
         TOKENS.forEach(([, , id, step]) => {
           const a = tokenAt(step);
-          if (id && t >= a && t < a + 0.26) tr.set(id, { tone: "orange", halo: 1, pulse: 0.8 * flash(t, a, a + 0.26) });
+          if (id && t >= a && t < a + STEP) tr.set(id, { tone: "orange", halo: 1, pulse: 0.8 * flash(t, a, a + STEP) });
         });
         tr.draw();
         rings.forEach((c, i) => {
           const p = PICKS[i];
-          const k = clamp((t - p.land) / 0.45);
+          const k = clamp((t - p.land) / 0.35);
           const pos = tr.pos(p.id);
           setClass(c, tr.node(p.id).kind === "fn" ? "c-purple" : "c-blue");
           c.setAttribute("cx", f1(pos.x));
           c.setAttribute("cy", f1(pos.y));
-          c.setAttribute("r", f1(lerp(NODE * 0.5, NODE * 0.95, ease.out(k))));
+          c.setAttribute("r", f1(lerp(NODE * 0.5, NODE * 0.78, ease.out(k))));
           show(c, k > 0 && k < 1 ? 0.9 * (1 - k) : 0);
         });
       }

@@ -21,12 +21,12 @@
   const GROW = { from: 2.0, gap: 0.11, dur: 0.7 };
   const DIAL_IN = [3.55, 3.95];
   const TAGS_IN = [3.55, 3.95]; // the "root" and "leaf" labels
-  const SLIDE = [8.5, 9.1]; // the dial moves from TIME = 5 to TIME = 11
-  const CLEAR = [8.5, 8.85]; // the old values fade away
+  const SLIDE = [8.5, 9.0]; // the dial moves from TIME = 5 to TIME = 11
+  const CLEAR = [8.5, 8.8]; // the old values fade away
   const POP = 0.4;
   const NEVER = 1e9;
 
-  /** One evaluation, from the moment TIME lands in its leaf (b); r stretches the pace (1 = calm, 0.8 = a little faster). */
+  /** One evaluation, from the moment TIME lands in its leaf (b); r stretches the pace (1 = calm, 0.75 = a little faster). */
   function phase(b, r, TIME) {
     const at = (x) => b + x * r;
     const vals = L.evalAll(ROOT, { TIME });
@@ -45,7 +45,8 @@
       plus: [at(3.0), at(3.4)], // 1, 2 and IF's value fly up into +
     };
   }
-  const P = [phase(4.4, 1, 5), phase(9.45, 0.8, 11)];
+  // the second round is a repeat, so it runs a little quicker and its answer holds for about 0.8 s
+  const P = [phase(4.4, 1, 5), phase(9.3, 0.75, 11)];
 
   // value badges: each node can show a list of values over time (the second replaces the first)
   const BADGE = {};
@@ -74,7 +75,7 @@
   // ---------- the TIME dial (stage px) ----------
   const DX0 = 190;
   const DX1 = 890;
-  const DY = 592;
+  const DY = 590;
   const KNOB = 26;
   const UNIT = 56; // px per TIME unit along the track
   const dialX = (v) => DX0 + v * UNIT;
@@ -316,7 +317,7 @@
 
       function drawDial(t) {
         const o = ramp(t, DIAL_IN[0], DIAL_IN[1], lin);
-        const dy = (1 - ramp(t, DIAL_IN[0], DIAL_IN[1])) * 6;
+        const dy = (1 - ramp(t, DIAL_IN[0], DIAL_IN[1])) * 4; // rises into place, staying inside the stage margin
         const tv = lerp(P[0].TIME, P[1].TIME, ramp(t, SLIDE[0], SLIDE[1], ease.inOut));
         const right = tv > 10;
         dialG.setAttribute("transform", `translate(0 ${dy.toFixed(1)})`);
