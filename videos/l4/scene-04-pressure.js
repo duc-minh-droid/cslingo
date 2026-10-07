@@ -7,9 +7,9 @@
 
   const [P, G] = [12, 8];
   const PANELS = [
-    { method: "random", label: "random", x: 12, verdict: "too little", tone: "red" },
-    { method: "tournament", label: "tournament", x: 336, verdict: "modest", tone: "green" },
-    { method: "best", label: "always best", x: 660, verdict: "too much", tone: "red" },
+    { method: "random", label: "random", x: 12, verdict: "too weak", tone: "red" },
+    { method: "tournament", label: "tournament t = 2", x: 336, verdict: "tunable", tone: "green" },
+    { method: "best", label: "always best", x: 660, verdict: "too strong", tone: "red" },
   ];
   const ROWS = Object.fromEntries(PANELS.map((p) => [p.method, L4.takeoverRows(p.method, 4, P, G)]));
   const COUNTS = Object.fromEntries(PANELS.map((p) => [p.method, ROWS[p.method].map((r) => L4.countOf(r, P))]));
@@ -33,20 +33,20 @@
 
   V.scene({
     kicker: "SELECTION PRESSURE",
-    title: ["Too little: no progress", "Too much: stuck early"],
-    dur: 11,
+    title: ["Selection pressure:", "too weak or too strong"],
+    dur: 12,
     caps: [
-      [1.0, 3.4, "Each row is a generation. Orange is the best."],
+      [1.0, 3.4, "Each row is a generation. Orange = copies of the best."],
       [3.6, 6.8, "Only selection acts: no mutation, no crossover."],
-      [7.2, 10.5, "Too little: no progress. Too much: stuck early."],
+      [7.2, 10.8, "Too weak: no progress. Too strong: one copy takes over."],
     ],
     build(stage) {
       const parts = PANELS.map((p) => ({
         p,
-        hm: L4.heat(stage, { x: p.x, y: 70, cols: P, rows: G, cw: 22, ch: 44, gap: 2 }),
-        name: L4.tag(stage, { x: p.x + 132, y: 12, text: p.label, tone: "grey", anchor: "c" }),
-        count: L4.tag(stage, { x: p.x + 132, y: 444, text: "1 / 12", tone: "orange", anchor: "c" }),
-        verdict: L4.tag(stage, { x: p.x + 132, y: 520, text: p.verdict, tone: p.tone, solid: true, anchor: "c" }),
+        hm: L4.heat(stage, { x: p.x, y: 84, cols: P, rows: G, cw: 22, ch: 44, gap: 2 }),
+        name: L4.tag(stage, { x: p.x + 132, y: 26, text: p.label, tone: "grey", anchor: "c" }),
+        count: L4.tag(stage, { x: p.x + 132, y: 458, text: "1 / 12", tone: "orange", anchor: "c" }),
+        verdict: L4.tag(stage, { x: p.x + 132, y: 534, text: p.verdict, tone: p.tone, solid: true, anchor: "c" }),
       }));
       return (t) => {
         const shown = shownAt(t);
@@ -57,7 +57,7 @@
           hm.update({ vals: ROWS[p.method], best: P, shown: t < 1.3 ? 0 : shown, o: clamp(k * 3) });
           name.set(pop(k, 8));
           const kc = ramp(t, 1.3, 1.7, E.lin);
-          count.set({ ...pop(kc, 8), text: `${COUNTS[p.method][g]} / ${P}` });
+          count.set({ ...pop(kc, 8), text: `${COUNTS[p.method][g]} / ${P} best` });
           const kv = ramp(t, 7.0 + i * 0.3, 7.4 + i * 0.3, E.lin);
           verdict.set({ ...pop(kv, 10), s: 0.7 + 0.3 * E.pop(kv) });
         });

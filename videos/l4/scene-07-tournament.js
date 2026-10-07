@@ -26,7 +26,7 @@
       if (Math.abs(v - wins[i] / total) > 1e-9) throw new Error("tournament probability mismatch");
     });
   });
-  const [TX, TY, TS, GAP] = [174, 90, 120, 36];
+  const [TX, TY, TS, GAP] = [174, 110, 120, 36];
   const BASE = 520;
   const LEN = 190;
   const PCT = 0.7; // bar length LEN stands for 70%
@@ -43,7 +43,7 @@
     caps: [
       [0.9, 3.6, "Draw two at random. The better one wins."],
       [3.8, 5.2, "The best was not even drawn."],
-      [5.4, 7.6, "A bigger t means tougher competition."],
+      [5.2, 7.6, "A bigger t means tougher competition."],
       [7.8, 10.5, "The best wins more often as t grows."],
     ],
     build(stage) {
@@ -54,7 +54,7 @@
           text: `#${i + 1}`,
           style: {
             left: `${TX + i * (TS + GAP)}px`,
-            top: "224px",
+            top: "244px",
             width: `${TS}px`,
             textAlign: "center",
             fontSize: "28px",
@@ -68,19 +68,20 @@
         L4.bar(stage, { x: TX + i * (TS + GAP) + (TS - 90) / 2, y: BASE, len: LEN, thick: 90, dir: "v" }),
       );
       const tags = [
-        L4.tag(stage, { x: row.mid(WIN).x, y: 270, text: "parent", tone: "blue", solid: true, anchor: "c" }),
-        L4.tag(stage, { x: row.mid(BEST).x, y: 326, text: "not drawn", tone: "orange", solid: true, anchor: "c" }),
+        L4.tag(stage, { x: row.mid(WIN).x, y: 290, text: "parent", tone: "blue", solid: true, anchor: "c" }),
+        L4.tag(stage, { x: row.mid(BEST).x, y: 346, text: "not drawn", tone: "grey", solid: true, anchor: "c" }),
       ];
+      const chance = L4.tag(stage, { x: 468, y: 262, text: "chance to be picked", tone: "green", anchor: "c" });
       const knob = L4.knob(stage, { x: 250, y: 580, w: 440, stops: [1, 2, 3, 4], pillX: 100, tone: "green" });
       const svg = L5.svg(stage);
       const crossG = L5.cross(0, 0, 64, "red");
-      const tickG = L5.tick(0, 0, 64, "blue", { ink: true });
-      const cm = { x: row.mid(DRAWS[0]).x + 52, y: row.mid(DRAWS[0]).y - 52 };
-      const tm = { x: row.mid(WIN).x + 52, y: row.mid(WIN).y - 52 };
+      const tickG = L5.tick(0, 0, 64, "green", { ink: true });
+      const cm = { x: row.mid(DRAWS[0]).x + 64, y: row.mid(DRAWS[0]).y - 72 };
+      const tm = { x: row.mid(WIN).x + 64, y: row.mid(WIN).y - 72 };
       const crossP = V.s("g", {}, crossG);
       const tickP = V.s("g", {}, tickG);
 
-      const dice = DRAWS.map((_, n) => V.s("g", {}, L5.dice(0, 0, 56, { face: n ? 3 : 5, tone: "orange" })));
+      const dice = DRAWS.map((_, n) => V.s("g", {}, L5.dice(0, 0, 56, { face: FIT[DRAWS[n]], tone: "orange" })));
       svg.append(crossP, tickP, ...dice);
       const diceWin = [
         [1.5, 2.1],
@@ -116,7 +117,7 @@
           const fromX = n ? m.x + 80 : m.x - 200;
           const hop = Math.sin(Math.PI * k) * -18;
           const show = ramp(t, a - 0.2, a) * (1 - ramp(t, 5.0, 5.4));
-          V.place(d, { x: fromX + (m.x - fromX) * k, y: 42 + hop, o: show });
+          V.place(d, { x: fromX + (m.x - fromX) * k, y: 60 + hop, o: show });
         });
         // cross and tick for the comparison
         V.place(crossP, { x: cm.x, y: cm.y, s: 0.6 + 0.4 * compare, o: compare * (1 - gone) });
@@ -133,6 +134,7 @@
         const lo = Math.min(3, Math.floor(v - 1 + 1e-9));
         const p = L4.mix(PROBS[lo], PROBS[Math.min(3, lo + 1)], v - 1 - lo);
         const on = ramp(t, 5.0, 5.6, E.back);
+        chance.set({ s: 0.7 + 0.3 * ramp(t, 5.4, 5.9, E.back), o: ramp(t, 5.4, 5.8) });
         knob.set({ v, text: `t = ${Math.round(v)}`, o: on });
         bars.forEach((b, i) =>
           b.set({

@@ -1,0 +1,67 @@
+{
+ "findings": [
+  {
+   "scene": "scene-07-shapes.js (also every scene with a two-line headline: 02-11)",
+   "severity": "should",
+   "problem": "The second headline line sits flush on the stage top. Descenders (the 'y' in 'only one is easy', 'p' in 'loop') touch or poke into the first card and chip row (stage starts at y 262, headline bottom is about 255-262). It reads as cramped. In scenes 2 and 4 the chips sit directly under the descenders.",
+   "fix": "Add 12-20px of gap: start stage content a little lower (shift y of stage items by about 16px) or reduce headline line-height or size for scene 7 (the longest headline). Check shared engine CSS so L5/L6 do not regress.",
+   "evidence": "s7@5 full-size still: 'y' of 'easy' touches the top edge of the Unimodal card. s2@6: 'loop' descender meets the Population chip row."
+  },
+  {
+   "scene": "scene-04-too-many.js",
+   "severity": "should",
+   "problem": "The exponent '16' in 'about 6 x 10^16 tours' is 22px (sup style font-size:22px), below the 28px label minimum, and it is the key number of the scene. Also the red badge text is dark rose-on on a red fill, which is correct, but the exponent is the one unreadable part at video scale.",
+   "fix": "Raise the superscript to at least 28px (for example font-size:30px with vertical-align / a small translateY) and give the badge more height, or write 'about 60 quadrillion tours'. Do not use a size under 28px.",
+   "evidence": "DOM audit of all text across the video (1 s steps): only '16' (22px, x 605-632, y 734-765) at s4@7.5 onward is under 28px apart from the engine kicker. Visible in s4@8.5."
+  },
+  {
+   "scene": "scene-04-too-many.js / scene-02-loop.js (boundary frames)",
+   "severity": "nit",
+   "problem": "At t=0.3 the first chip ('five cities: 12 tours' in scene 4, 'Population' in scene 2) is already visible and overlaps the second headline line, which is still fading in (headline line 2 at about 40% opacity under the chip). Looks like a collision for about 0.2 s at each scene start. The other scenes start cleanly.",
+   "fix": "Delay the first stage item by 0.2-0.3 s (start it after the headline has fully appeared), or fade the chip in later than the headline.",
+   "evidence": "s2@0.3 and s4@0.3 stills."
+  },
+  {
+   "scene": "scene-06-landscape.js",
+   "severity": "nit",
+   "problem": "At t=0.15 and 0.3 an empty sticker card (the landscape frame) is on screen before the headline and with no content, under only a faint kicker. It looks like a blank placeholder for about half a second at the start of the scene.",
+   "fix": "Fade the frame in after the headline, as the other scenes do (frame o from about 0.4 s), or draw the baseline/curve together with it.",
+   "evidence": "s6@0.15 and s6@0.3 stills."
+  },
+  {
+   "scene": "scene-09-local-search.js / scene-10-population.js",
+   "severity": "nit",
+   "problem": "Markers (hiker pins, breadcrumbs, team dots) are small, about 14-24px, and in scene 10 the converged team at the peak overlaps into one blob, so the converging count cannot be counted. It is a drawn pictogram, not text, so not a hard rule break, but it is the main subject of the scene.",
+   "fix": "Make the team dots about 28px and fan the converged ones slightly (a few px horizontal offsets) so each stays visible. Keep the blue role colour.",
+   "evidence": "s10@11.5 (cluster on the right peak), s9@8 (breadcrumbs under the Tabu hiker)."
+  },
+  {
+   "scene": "scene-02-loop.js",
+   "severity": "nit",
+   "problem": "The recombination block labels the first row 'parent 1' but the second row (purple) has no 'parent 2' label, so the purple role is unexplained at that moment.",
+   "fix": "Add a matching 'parent 2' tag in purple-ink, or drop the lone 'parent 1' label.",
+   "evidence": "s2@6 full-size still."
+  },
+  {
+   "scene": "video (lecture-3.html)",
+   "severity": "nit",
+   "problem": "Page <title> reads 'Lecture 3 \u00b7 Lecture 3 \u00b7 Local vs population search \u00b7 CSLingo video' (duplicated prefix; the json title already starts with 'Lecture 3 \u00b7'). Lecture 1 has the same fault.",
+   "fix": "Use the title 'Local vs population search' in the json, or strip the prefix in the page template.",
+   "evidence": "grep '<title>' videos/lecture-*.html."
+  },
+  {
+   "scene": "scene-03-tour.js",
+   "severity": "nit",
+   "problem": "The length badge rolls through wrong intermediate values (31 shown while the tour ABDEC is on screen at s3@5, the final value is 32). A viewer who pauses sees 31 beside a tour that sums to 32.",
+   "fix": "Make the counter step through the running partial sums (5, 9, 18, 25, 32) in sync with each hop being lit, or fade the badge in only at the final value.",
+   "evidence": "s3@5 still: badge 'length 31' with ABDEC."
+  }
+ ],
+ "technical": {
+  "determinism": "20 absolute times (5 to 114.9 s) rendered forward and in reverse: 12 md5-identical, 8 differ only by anti-aliasing noise (max channel diff 1-2, and 7 at the mascot/final frame; 0 pixels over 16). update(t) is pure: grep finds no Math.random/Date/setTimeout/setInterval/requestAnimationFrame/transition/animation (rng is seeded mulberry32).",
+  "lint": "npx eslint videos tools: clean. npx prettier --check videos/**/*.js: clean.",
+  "info": "total 115 s, 11 scenes (4,13,11,9,13,10,10,10,14,12,9), no page errors.",
+  "size": "common-3.js is 520 raw lines but passes the 500 code-line lint.",
+  "brand_checks": "grep and a Playwright DOM audit across t=1..115. None. Verified: no #hex, white, rgba(255, gradient, blur, drop-shadow or filter in videos/l3/*.js or lecture-3.html; runtime audit of computed styles at 77 times found no white colour/fill/stroke other than var(--panel) (white in light mode) and mascot artwork; all text colours are -ink or -on shades; every box-shadow is a solid 0 4-6px 0 lip; no text-shadow or background-image; symbols (tick, cross, arrow, dice, star, pin) are SVG; no US spellings, no teal/violet/rose/amber words in shown text."
+ }
+}
