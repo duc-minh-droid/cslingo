@@ -50,14 +50,14 @@
     dur: 13,
     caps: [
       [0.4, 1.8, "A landscape: height is how good."],
-      [1.9, 4.2, "One climber keeps steps only if better."],
+      [1.9, 4.2, "One climber keeps a step if it is not worse."],
       [4.3, 5.4, "Stuck on the first hill."],
       [5.8, 10, "Twenty climbers spread out and compete."],
-      [10.3, 12.5, "200 runs: more climbers find the top."],
+      [10.3, 12.5, "Each square is one run. More climbers find the top."],
     ],
     build(stage) {
-      const ls = L1.landscape(stage, { x: 0, w: 936, base: 280, peak: 50, star: 44 });
-      const top = L1.chip(stage, "1 climber", "blue", { x: 0, y: 0 });
+      const ls = L1.landscape(stage, { x: 0, w: 936, base: 272, peak: 76, star: 66 });
+      const top = L1.chip(stage, "1 climber", "blue", { x: 0, y: 12 });
       const stuck = L1.chip(stage, "stuck", "red", { solid: true, width: 124 });
       const gen = L1.chip(stage, "generation 0", "grey", { x: 0, y: 340, width: 250 });
       const hill = L1.chip(stage, "", "orange", { x: 280, y: 340, width: 400 });

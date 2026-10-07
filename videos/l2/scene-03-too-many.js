@@ -146,10 +146,7 @@
         // slow settle of the final layout when the grid shrinks
         const k = ramp(t, SHRINK[0], SHRINK[1], E.inOut);
         const s = 1 - 0.75 * k;
-        grid.style.transform =
-          k > 0
-            ? `translate(${k * 45}px, ${k * (40 + DY - 0.25 * TOP_FULL)}px) scale(${s})`
-            : "";
+        grid.style.transform = k > 0 ? `translate(${k * 45}px, ${k * (40 + DY - 0.25 * TOP_FULL)}px) scale(${s})` : "";
         // positions use the real top while growing and the finished 8 x 8 top while shrinking
         const useTop = t < SHRINK[0] ? top : TOP_FULL;
         CELLS.forEach((q, i) => {
@@ -206,11 +203,9 @@
         const sx = STEPS.findLastIndex((st) => t >= st);
         if (sx >= 0 && t < SHRINK[0] - 0.1) {
           const st = STEPS[sx];
-                    // the tag sits beside the seam, outside the grid: left of a horizontal seam, above a vertical one
+          // the tag sits beside the seam, outside the grid: left of a horizontal seam, above a vertical one
           const seam =
-            sx === 1
-              ? { x: GX + 4 * PITCH - 3, y: top - 40 }
-              : { x: GX - 62, y: top + (sx === 0 ? 2 : 4) * PITCH - 3 };
+            sx === 1 ? { x: GX + 4 * PITCH - 3, y: top - 40 } : { x: GX - 62, y: top + (sx === 0 ? 2 : 4) * PITCH - 3 };
           times.set({
             x: seam.x,
             y: seam.y + 5 * Math.sin((t - st) * 9),

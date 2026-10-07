@@ -28,12 +28,13 @@
   if (MEAN.join() !== "0.39,0.49" || RULES.merge.meanAfter !== 0.49) throw new Error("scene 09: means changed");
 
   // ---- layout (stage px)
-  const BASE = 548;
-  const SCALE = 320;
+  const BASE = 576;
+  const SCALE = 280;
   const slotX = (s) => 60 + 72 * s;
   const CUT_X = slotX(9.5); // 744: between the tenth and the eleventh bar
-  const TAG = { x: 468, y: 126 };
-  const f1 = (n) => n.toFixed(1);
+  const TAG = { x: 468, y: 160 };
+  const BADGE = { x: 300, y: 206, w: 290, h: 58 }; // the best lost / kept badge, same place in every rule
+  const READ = { y: 235 }; // the mean readout, right of the badge
   const lin = (t, a, b) => ramp(t, a, b, E.lin);
   const pop = (t, a, d = 0.35) => E.pop(lin(t, a, a + d));
   // the three rule tags, the number badge sits in each (32 px text)
@@ -48,13 +49,13 @@
     title: ["Update: who stays", "in the population?"],
     dur: 12,
     caps: [
-      [0.8, 3.4, "Replace everyone: the best can be lost."],
+      [0.8, 3.4, "Replace everyone: the old best can be lost."],
       [4.2, 7.6, "Merge, keep the best 10: the best survives."],
-      [8.4, 10.0, "Replace the weakest: the best survives too."],
-      [10.2, 11.5, "Then repeat the loop."],
+      [8.7, 10.3, "Replace the weakest: the best survives too."],
+      [10.5, 11.8, "Then repeat the loop."],
     ],
     build(stage) {
-      const strip = L2.loopStrip(stage, { x: 48, y: 0, w: 840 });
+      const strip = L2.loopStrip(stage, { x: 48, y: 14, w: 840 });
       const pop12 = L2.bars(stage, { items: ITEMS, x: 24, base: BASE, pitch: 72, w: 60, scale: SCALE });
 
       // extras: placeholder outlines for the unknown children, the cut line
@@ -81,7 +82,7 @@
         style: {
           position: "absolute",
           left: `${CUT_X - 2}px`,
-          top: "190px",
+          top: "290px",
           width: "0",
           height: "0",
           borderLeft: `4px dashed ${L5.tone("orange").c}`,
@@ -127,45 +128,27 @@
       // SVG layer: the cross, ticks, arrow
       const svg = L5.svg(stage);
       const crossG = L5.cross(slotX(4), BASE - 144, 90, "red", { w: 9 });
-      const tickG = L5.tick(slotX(1), 196, 44, "green", { w: 8 });
-      const tick3 = L5.tick(slotX(4), 196, 44, "green", { w: 8 });
-      const avgArrow = L5.arrow(0, 0, 0, 0, "grey", 1, { w: 5, head: 16 });
-      svg.append(crossG, tickG, tick3);
+      svg.append(crossG);
 
       // badges
-      const lostBadge = L5.badge(stage, { x: slotX(4) - 145, y: 172, w: 290, h: 60, invalid: "best lost" });
-      const keptBadge = L5.badge(stage, { x: 468 - 145, y: 172, w: 290, h: 60, valid: "best kept" });
+      const bx = BADGE.x - BADGE.w / 2;
+      const lostBadge = L5.badge(stage, { x: bx, y: BADGE.y, w: BADGE.w, h: BADGE.h, invalid: "old best lost" });
+      const keptBadge = L5.badge(stage, { x: bx, y: BADGE.y, w: BADGE.w, h: BADGE.h, valid: "best kept" });
+      const keptBadge3 = L5.badge(stage, { x: bx, y: BADGE.y, w: BADGE.w, h: BADGE.h, valid: "best kept" });
 
-      // average row (rule 3): label, 0.39, arrow, 0.49
-      const AVG = { x: 560, y: 190 };
-      const avgLabel = L2.tag(stage, {
-        text: "average",
-        tone: "grey",
-        x: AVG.x - 190,
-        y: AVG.y,
-        anchor: "l",
-        size: 28,
-      });
-      const avgFrom = L2.tag(stage, {
-        text: MEAN[0].toFixed(2),
-        tone: "grey",
-        x: AVG.x - 66,
-        y: AVG.y,
-        anchor: "c",
-        size: 28,
-      });
+      // mean row (rules 2 and 3): label, 0.39, arrow, 0.49, laid out with fixed gaps right of the badge
+      const avgLabel = L2.tag(stage, { text: "mean", tone: "grey", x: 500, y: READ.y, anchor: "l" });
+      const avgFrom = L2.tag(stage, { text: MEAN[0].toFixed(2), tone: "grey", x: 676, y: READ.y, anchor: "c" });
+      const arrowG = L5.arrow(724, READ.y, 782, READ.y, "grey", 1, { w: 6, head: 18 });
+      svg.append(arrowG);
       const avgTo = L2.tag(stage, {
         text: MEAN[1].toFixed(2),
         tone: "green",
         solid: true,
-        x: AVG.x + 96,
-        y: AVG.y,
+        x: 850,
+        y: READ.y,
         anchor: "c",
-        size: 28,
       });
-      const arrowG = L5.arrow(AVG.x - 20, AVG.y, AVG.x + 44, AVG.y, "grey", 1, { w: 6, head: 18 });
-      svg.append(arrowG);
-      void avgArrow;
 
       // ---- bar states per phase (lt = seconds on the phase's own clock, a = the cross-fade opacity)
       const base = (id) => (OLD.includes(id) ? { tone: "grey" } : { tone: "purple", solid: true });
@@ -183,7 +166,8 @@
           if (id === BEST) {
             return e > 0 ? { tone: "red", dash: true, value: false, nameTone: "red" } : {};
           }
-          return { grow: 1 - e, o: 1 - e, value: e > 0 ? false : undefined };
+          // the old bars stay behind as faint ghosts, so the stage is not empty
+          return { o: 1 - 0.8 * e, value: e > 0 ? false : undefined, name: e > 0 ? "" : undefined };
         };
       }
       // rule 2
@@ -214,8 +198,8 @@
         return (id) => {
           const st = {};
           if (GONE.includes(id)) {
-            const pulse = flash(t, 8.6, 9.0);
-            const k = lin(t, 9.0, 9.9);
+            const pulse = flash(t, 8.9, 9.3);
+            const k = lin(t, 9.3, 10.2);
             return {
               tone: "red",
               s: (1 + 0.14 * pulse) * (1 - 0.4 * k),
@@ -225,9 +209,10 @@
             };
           }
           if (!OLD.includes(id)) {
-            const e = ramp(t, 9.0, 9.9, E.inOut);
+            const e = ramp(t, 9.3, 10.2, E.inOut);
             st.slot = lerp(IDS.indexOf(id), WEAK_SLOT[id], e);
           }
+          if (id === BEST) Object.assign(st, { ring: ramp(t, 10.2, 10.6), ringTone: "green" });
           return st;
         };
       }
@@ -238,16 +223,16 @@
         let a = 1 - lin(t, 3.55, 3.75);
         if (t >= 3.75) {
           ph = 2;
-          a = Math.min(lin(t, 3.75, 3.95), 1 - lin(t, 7.7, 7.9));
+          a = Math.min(lin(t, 3.75, 3.95), 1 - lin(t, 7.9, 8.1));
         }
-        if (t >= 7.9) {
+        if (t >= 8.1) {
           ph = 3;
-          a = lin(t, 7.9, 8.1);
+          a = lin(t, 8.1, 8.3);
         }
         setAll(ph === 1 ? bars1(t) : ph === 2 ? bars2(t) : bars3(t), a);
 
         // tags: only the current rule's tag, popped in at its start
-        const tagAt = [0.7, 4.0, 8.2];
+        const tagAt = [0.7, 4.0, 8.5];
         tags.forEach((tg, i) => {
           const on = ph === i + 1;
           const k = pop(t, tagAt[i], 0.3);
@@ -268,39 +253,30 @@
         // rule 2 extras
         const p2 = ph === 2 ? a : 0;
         const cutK = ramp(t, 5.5, 5.9);
-        cut.style.height = `${(600 - 190) * cutK}px`;
+        cut.style.height = `${(BASE + 40 - 290) * cutK}px`;
         V.show(cut, cutK > 0 ? p2 : 0);
-        L5.drawOn(tickG, lin(t, 7.0, 7.4));
-        V.place(tickG, { o: p2 });
         const kk = pop(t, 7.0, 0.4);
         keptBadge(p2 > 0 && t > 6.9 ? "valid" : "none", kk);
         keptBadge.el.style.opacity = String(clamp(keptBadge.el.style.opacity || 1) * p2);
 
         // rule 3 extras
         const p3 = ph === 3 ? a : 0;
-        L5.drawOn(tick3, lin(t, 9.9, 10.3));
-        V.place(tick3, { o: p3 });
-        const avK = pop(t, 10.0, 0.4);
-        const avAll = p3 * clamp(avK * 3);
-        [avLabelSet, avFromSet, avToSet].forEach((fn) => fn(avK, avAll));
-        L5.drawOn(arrowG, lin(t, 10.15, 10.5));
-        V.place(arrowG, { o: avAll > 0 ? p3 : 0 });
+        const k3 = pop(t, 10.2, 0.4);
+        keptBadge3(p3 > 0 && t > 10.1 ? "valid" : "none", k3);
+        keptBadge3.el.style.opacity = String(clamp(keptBadge3.el.style.opacity || 1) * p3);
+
+        // the mean readout: rule 2 (merged) and rule 3 (replaced) both end at 0.49
+        const avK = ph === 2 ? pop(t, 7.1, 0.4) : pop(t, 10.3, 0.4);
+        const avAll = (ph === 2 ? p2 : p3) * clamp(avK * 3);
+        [avgLabel, avgFrom, avgTo].forEach((tg) => tg.set({ s: 0.85 + 0.15 * avK, o: avAll }));
+        const arrowOn = ph === 2 ? lin(t, 7.25, 7.55) : lin(t, 10.45, 10.8);
+        L5.drawOn(arrowG, arrowOn);
+        V.place(arrowG, { o: avAll > 0 ? (ph === 2 ? p2 : p3) : 0 });
 
         // the loop strip: Update is lit, then the return arrow draws and Select pulses
-        const loop = lin(t, 10.4, 11.3);
-        const sel = t >= 11.1;
-        strip.update({ k: 1, active: sel ? 0 : 2, pulse: sel ? flash(t, 11.1, 11.5) : 0, loop });
-
-        function avLabelSet(k, o) {
-          avgLabel.set({ s: 0.85 + 0.15 * k, o });
-        }
-        function avFromSet(k, o) {
-          avgFrom.set({ s: 0.85 + 0.15 * k, o });
-        }
-        function avToSet(k, o) {
-          avgTo.set({ s: 0.85 + 0.15 * k, o });
-        }
-        void f1;
+        const loop = lin(t, 10.7, 11.6);
+        const sel = t >= 11.4;
+        strip.update({ k: 1, active: sel ? 0 : 2, pulse: sel ? flash(t, 11.4, 11.8) : 0, loop });
       };
     },
   });

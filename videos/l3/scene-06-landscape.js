@@ -32,7 +32,7 @@
     ],
     build(stage) {
       const P = L3.land(stage, { x: 0, y: 10, w: 936, h: 450, kind: "multi", frame: true });
-      const tall = P.tag("taller = fitter", { at: "tl", tone: "grey" });
+      const tall = P.tag("taller = fitter = shorter tour", { at: "tl", tone: "grey" });
       const axis = L3.tag(stage, {
         x: 468,
         y: 490,

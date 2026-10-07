@@ -29,9 +29,9 @@
       const flyer = h("div", {
         class: "v-tag c-orange",
         style: {
-          left: "-34px",
+          left: "-40px",
           top: "-21px",
-          width: "68px",
+          width: "80px",
           height: "42px",
           padding: "0",
           display: "flex",
@@ -42,7 +42,7 @@
       stage.append(flyer);
       const tag = h(
         "div",
-        { style: { position: "absolute", left: "0", top: "570px", width: "936px", height: "56px" } },
+        { style: { position: "absolute", left: "0", top: "548px", width: "936px", height: "56px" } },
         h("div", {
           class: "v-tag solid c-green",
           text: "easy: fast and optimal",
@@ -135,9 +135,9 @@
           o: clamp((t - 1.4) * 6),
         });
         if (fly) {
-          const to = card.numberPt();
+          const to = { x: 700 + 224 - 64, y: 40 + 24 }; // the top-right corner of the cost card, above the number
           const p = ramp(fly.ts, 0.9, 1.5, E.inOut);
-          if (flyer.textContent !== String(fly.w)) flyer.textContent = String(fly.w);
+          if (flyer.textContent !== `+${fly.w}`) flyer.textContent = `+${fly.w}`;
           flyer.className = "v-tag c-green";
           place(flyer, {
             x: fly.from.x + (to.x - fly.from.x) * p,

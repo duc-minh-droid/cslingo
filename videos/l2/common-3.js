@@ -92,7 +92,7 @@
       const f = G.labelAt[key] ?? 0.5;
       const [pa, pb] = [P(a), P(b)];
       const c = { x: pa.x + (pb.x - pa.x) * f, y: pa.y + (pb.y - pa.y) * f };
-      const [pw, ph] = [30 + 17 * String(wt).length, 42];
+      const [pw, ph] = [34 + 19 * String(wt).length, 46];
       const line = V.s("line", { "stroke-linecap": "round" });
       const rect = V.s("rect", {
         x: f1(c.x - pw / 2),
@@ -103,12 +103,13 @@
         "stroke-width": "3",
         style: { fill: "var(--panel)" },
       });
-      const label = text(String(wt), c.x, c.y + 1, 28, "var(--ink)");
-      const crossG = L5.cross(c.x, c.y, 40, "red", { w: 7 });
+      const label = text(String(wt), c.x, c.y + 1, 32, "var(--ink)");
+      const sgn = c.x > 600 ? -1 : 1; // keep the cross off the cost card on the right
+      const crossG = L5.cross(c.x + sgn * (pw / 2 + 18), c.y, 34, "red", { w: 7 }); // beside the pill, so the weight stays readable
       const pill = V.s("g", {}, rect, label, crossG);
       gE.append(line);
       gP.append(pill);
-      return { key, a, b, c, line, pill, label, rect, crossG, j };
+      return { key, a, b, c, line, pill, label, rect, crossG, j, cx: c.x + sgn * (pw / 2 + 18) };
     });
     const edgeBy = Object.fromEntries(edges.map((e) => [e.key, e]));
 
@@ -123,7 +124,7 @@
       const over = V.s("circle", { cx: f1(x), cy: f1(y), r: R + 14, fill: "none", "stroke-width": "5" });
       const xmark = L5.cross(x + 31, y - 31, 30, "red", { w: 6 });
       const dots = [0, 1, 2].map(() =>
-        V.s("g", {}, V.s("circle", { r: 6, "stroke-width": "3" }), V.s("circle", { r: 6 })),
+        V.s("g", {}, V.s("circle", { r: 10, "stroke-width": "3" }), V.s("circle", { r: 10 })),
       );
       gS.append(...dots);
       gT.append(town);
@@ -158,9 +159,9 @@
       const pc = T(bl > 0.01 ? "red" : pt);
       e.rect.style.stroke = bl > 0.01 ? red.c : pt === "grey" ? grey.edge : pc.c;
       e.label.style.fill = pt === "grey" && bl < 0.01 ? "var(--ink)" : pc.ink;
-      e.label.style.opacity = String(1 - 0.75 * bl);
+      e.label.style.opacity = String(1 - 0.5 * bl);
       put(e.pill, e.c.x, e.c.y, (0.6 + 0.4 * E.pop(pillIn)) * (1 + 0.14 * clamp(pulse)), clamp(pillIn * 4) * pillO);
-      put(e.crossG, e.c.x, e.c.y, 0.6 + 0.4 * E.pop(bl), bl > 0.01 ? 1 : 0);
+      put(e.crossG, e.cx, e.c.y, 0.6 + 0.4 * E.pop(bl), bl > 0.01 ? 1 : 0);
       L5.drawOn(e.crossG, ramp(bl, 0, 0.8, E.lin));
     }
 
@@ -181,8 +182,8 @@
       put(q.xmark, q.x + 31, q.y - 31, 0.6 + 0.4 * over, over);
       q.dots.forEach((d, n) => {
         const [empty, fill] = d.childNodes;
-        const dx = (n - (limit - 1) / 2) * 22;
-        d.setAttribute("transform", `translate(${f1(q.x + dx)} ${f1(q.y + 46)})`);
+        const dx = (n - (limit - 1) / 2) * 32;
+        d.setAttribute("transform", `translate(${f1(q.x + dx)} ${f1(q.y + 52)})`);
         const isOver = n >= limit;
         empty.style.fill = "var(--panel-2)";
         empty.style.stroke = isOver ? T("red").c : grey.edge;
@@ -234,7 +235,7 @@
     const { x = 0, y = 0, w = 440, h = 316, cities, tag: tagText = "", tone: tone0 = "grey", tagSize = 28 } = opt;
     if (!cities) throw new Error("VID.l2.tourPanel: cities required");
     const n = cities.length;
-    const loc = cities.map(([cx, cy]) => [20 + cx * 400, 56 + cy * 240]);
+    const loc = cities.map(([cx, cy]) => [20 + cx * 400, 82 + cy * 218]);
     const wrap = V.h("div", { style: abs(x, y, w, h) });
     const card = V.h("div", {
       class: "v-card plain",

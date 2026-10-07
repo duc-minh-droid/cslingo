@@ -32,7 +32,7 @@
     ],
     build(stage) {
       const svg = L5.svg(stage);
-      const tagL = L3.tag(stage, { x: LEFT.mid, y: 0, text: "swap two neighbours", tone: "purple", anchor: "c" });
+      const tagL = L3.tag(stage, { x: LEFT.mid, y: 0, text: "swap adjacent pair", tone: "purple", anchor: "c" });
       const tagR = L3.tag(stage, { x: RIGHT.mid, y: 0, text: "flip one bit", tone: "purple", anchor: "c" });
       const cntL = L3.tag(stage, { x: LEFT.mid, y: 580, text: "0 neighbours", tone: "green", anchor: "c" });
       const cntR = L3.tag(stage, { x: RIGHT.mid, y: 580, text: "0 neighbours", tone: "green", anchor: "c" });

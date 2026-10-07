@@ -47,7 +47,11 @@
       });
       // target line (behind everything)
       const line = V.h("div", {
-        style: { ...abs(LINE_X - 2, 136 + SY, 0, 0), borderLeft: `5px dashed ${tone("green").c}`, boxSizing: "border-box" },
+        style: {
+          ...abs(LINE_X - 2, 136 + SY, 0, 0),
+          borderLeft: `5px dashed ${tone("green").c}`,
+          boxSizing: "border-box",
+        },
       });
       stage.append(line);
       // placeholders and blocks

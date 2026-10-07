@@ -229,7 +229,7 @@
       [2.6, 4.3, "A team starts on many hills."],
       [4.5, 6.4, "A low score can still climb the tallest hill."],
       [6.6, 9.2, "The team gathers on the best hill."],
-      [9.4, 11.5, "A team makes selection and recombination possible."],
+      [9.4, 11.5, "A team can select and recombine."],
     ],
     build,
   });

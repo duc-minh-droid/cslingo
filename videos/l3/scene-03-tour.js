@@ -78,7 +78,7 @@
 
         // total pill value: counts up by each hop as its edge draws
         const running = (hops, cum, start, dur, k0) =>
-          hops.reduce((v, h, i) => v + h * ramp(t, start(i), start(i) + dur, E.lin), 0) + k0;
+          hops.reduce((v, h, i) => v + (ramp(t, start(i), start(i) + dur, E.lin) >= 0.999 ? h : 0), 0) + k0;
         const val = second ? Math.round(running(H2, C2, A2, D2, 0)) : Math.round(running(H1, C1, A1, D1, 0));
         num.textContent = String(t < 1.4 ? 0 : val);
 

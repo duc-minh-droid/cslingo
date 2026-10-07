@@ -43,18 +43,34 @@
     title: ["Trial and error,", "keep what works"],
     dur: 10,
     caps: [
-      [0.4, 2.2, "Goal: turn QZT into CAT."],
-      [2.4, 4.6, "Change one letter at random. Better? Keep it."],
+      [0.4, 2.2, "Goal: turn QZT into CAT. Score = letters right."],
+      [2.4, 4.6, "Change one letter at random. Not worse? Keep it."],
       [4.8, 6.4, "Worse? Throw it away."],
       [6.6, 9.4, "Progress adds up. That is cumulative selection."],
     ],
-    build(stage) {
+    build(root) {
+      // everything sits in a group pushed down so the figure fills the stage
+      const stage = V.h("div", {
+        style: { position: "absolute", left: "0", top: "56px", width: "936px", height: "584px" },
+      });
+      root.append(stage);
       const row = (y, genes, tone) => L5.chromosome(stage, { x: X0, y, genes, size: SIZE, gap: 12, tone });
       const tgt = row(ROW_T, TARGET, "green");
       const cur = row(ROW_C, START, "blue");
       const tri = row(ROW_Y, START, "blue");
       const curPips = L1.pips(stage, { n: N, size: 24, gap: 10, x: PIPX, y: ROW_C + 34 });
       const triPips = L1.pips(stage, { n: N, size: 24, gap: 10, x: PIPX, y: ROW_Y + 34 });
+      const count = (y) => {
+        const e = V.h("div", {
+          class: "v-text dim",
+          text: "",
+          style: { left: `${PIPX}px`, top: `${y + 62}px`, fontSize: "28px" },
+        });
+        stage.append(e);
+        return e;
+      };
+      const curCount = count(ROW_C);
+      const triCount = count(ROW_Y);
       const tag = (text, y, tone) => {
         const e = L1.chip(stage, text, tone, { x: 0, y: y + 46 - 26, width: 150 });
         e.style.height = "52px";
@@ -153,6 +169,8 @@
           return f;
         });
         curPips(flags, ramp(t, 1.3, 1.9));
+        curCount.textContent = `${Math.round(flags.reduce((a, b) => a + b, 0))} of ${N}`;
+        V.place(curCount, { o: ramp(t, 1.3, 1.9) });
 
         // ---- try row: the active try (if any)
         const act = TRY.findIndex((r) => t >= r.a && t < r.end);
@@ -218,6 +236,8 @@
         });
         triPips(tflags, 1);
         V.place(triPips.el, { y: ty, x: tx, o: to });
+        triCount.textContent = `${Math.round(tflags.reduce((a, b) => a + b, 0))} of ${N}`;
+        V.place(triCount, { y: ty, x: tx, o: to });
         void newOk;
 
         // ---- the rule

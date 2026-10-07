@@ -32,8 +32,8 @@
   );
 
   // ---------- timeline ----------
-  const BASE = 430;
-  const PEAK = 90;
+  const BASE = 440;
+  const PEAK = 160;
   const FAST0 = 10.2; // generations 2..5 run here, 0.5 s each
   const FAST = 0.5;
   const RIB = ["Score", "Select", "Recombine", "Mutate", "Replace"];
@@ -65,7 +65,7 @@
 
   V.scene({
     kicker: "THE CYCLE",
-    title: ["One generation:", "select, vary, replace"],
+    title: ["One generation:", "score, select, vary, replace"],
     dur: 13,
     caps: [
       [0.4, 2.9, "Score every dot: height is fitness."],
@@ -149,13 +149,16 @@
 
       // chips
       const genChip = L1.chip(stage, "generation 0", "grey", { x: 0, y: 0, width: 262 });
-      const avgChip = L1.chip(stage, "average 49%", "green", { x: 674, y: 0, width: 262 });
+      const avgChip = L1.chip(stage, "average 49% of best", "green", { x: 596, y: 0, width: 340 });
+      const reads = [2, 3].map((j) =>
+        L1.chip(stage, `${Math.round(100 * L1.land.pct(POPS[0][j]))}%`, "blue", { width: 104 }),
+      );
       const track = V.h("div", {
         style: {
           position: "absolute",
-          left: "706px",
+          left: "636px",
           top: "56px",
-          width: "200px",
+          width: "270px",
           height: "20px",
           boxSizing: "border-box",
           borderRadius: "10px",
@@ -225,11 +228,11 @@
 
         // chips
         genChip.textContent = `generation ${g}`;
-        avgChip.textContent = `average ${Math.round(avgAt(t))}%`;
+        avgChip.textContent = `average ${Math.round(avgAt(t))}% of best`;
         const gs = CHANGE.reduce((s, c) => s + flash(t, c, c + 0.35), 0) * 0.08;
         V.place(genChip, { s: Math.max(0, E.pop(clamp((t - 0.4) / 0.5))) * (1 + gs), o: clamp((t - 0.4) * 6) });
         V.place(avgChip, { s: Math.max(0, E.pop(clamp((t - 0.5) / 0.5))), o: clamp((t - 0.5) * 6) });
-        fill.style.width = `${f1((avgAt(t) / 100) * 194)}px`;
+        fill.style.width = `${f1((avgAt(t) / 100) * 264)}px`;
         V.place(track, { o: clamp((t - 0.6) * 6) });
 
         // the phases of generation 1, all fading out together while the children take over
@@ -273,21 +276,35 @@
           const by = j === 3 || j === 1 ? c[1] - 20 : c[1] - 82;
           badges[j].style.left = `${f1(bx)}px`;
           badges[j].style.top = `${f1(by)}px`;
-          V.place(badges[j], { s: rk, o: so });
+          V.place(badges[j], { s: rk, o: so * (1 - ramp(t, 4.9, 5.2, E.lin)) });
+        });
+        // fitness read-outs on two dots while scoring
+        reads.forEach((r, n) => {
+          const j = n + 2;
+          const c = cen(POPS[0][j]);
+          r.style.left = `${f1(j === 3 ? c[0] - 130 : c[0] - 20)}px`;
+          r.style.top = `${f1(j === 3 ? c[1] - 22 : c[1] - 92)}px`;
+          const a = 2.1 + 0.4 * n;
+          V.place(r, {
+            s: 0.8 + 0.2 * E.pop(ramp(t, a, a + 0.35)),
+            o: clamp((t - a) * 5) * (1 - ramp(t, 2.95, 3.1, E.lin)),
+          });
         });
         // recombine arcs, then the ghosts that mutate
         const arcFade = 1 - ramp(t, 7.0, 7.4, E.lin);
         G1.forEach((c, k) => {
-          const dk = ramp(t, 5 + 0.2 * k, 5.5 + 0.2 * k, E.inOut);
+          const a0 = 5.1 + 0.3 * k;
+          const dk = ramp(t, a0, a0 + 0.4, E.inOut);
+          const gone = 1 - ramp(t, a0 + 0.55, a0 + 0.75, E.lin);
           arcs[k].forEach((a) => {
             a.setAttribute("stroke-dashoffset", f1(1 - dk));
-            V.show(a, dk > 0 ? arcFade : 0);
+            V.show(a, dk > 0 ? Math.min(arcFade, gone) : 0);
           });
         });
         if (slow) {
           kids.forEach((d, k) => {
             const c = G1[k];
-            const v = (t - (5.45 + 0.2 * k)) / 0.3;
+            const v = (t - (5.45 + 0.3 * k)) / 0.3;
             const slide = ramp(t, 7.3 + 0.05 * k, 8.0 + 0.05 * k, E.inOut);
             const wig = t >= 7 && t < 7.3 ? 4 * Math.sin(Math.PI * 4 * ((t - 7) / 0.3)) : 0;
             const solid = slide > 0.98;

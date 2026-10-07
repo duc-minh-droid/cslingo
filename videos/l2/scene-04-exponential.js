@@ -145,7 +145,11 @@
     const p2 = h("div", { style: { position: "absolute", left: "0", top: "0", width: "936px", height: "640px" } });
     stage.append(p2);
     const head = L2.tag(p2, { text: "n = 60", x: 12, y: 0 });
-    const head2 = L2.tag(p2, { kids: ["10", h("sup", { text: "9", style: supStyle() }), " steps a second"], x: 160, y: 0 });
+    const head2 = L2.tag(p2, {
+      kids: ["10", h("sup", { text: "9", style: supStyle() }), " steps a second"],
+      x: 160,
+      y: 0,
+    });
     const bar = (x0, w, tone) =>
       h("div", {
         class: `c-${tone}`,

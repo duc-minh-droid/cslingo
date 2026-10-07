@@ -38,7 +38,7 @@
   // cost shown at time t, and the tone of the card
   function costAt(t) {
     if (t < FADE[0]) return PRE_COST;
-    if (t < FADE[1]) return Math.round(PRE_COST * (1 - ramp(t, FADE[0], FADE[1], E.lin)));
+    if (t < FADE[1]) return t < (FADE[0] + FADE[1]) / 2 ? PRE_COST : 0; // swaps, no count-down through odd numbers
     let v = 0;
     STEPS.forEach((s, i) => {
       if (t >= LAND[i]) v = s.total;
@@ -101,7 +101,8 @@
     title: ["Add one rule and", "greedy gets stuck"],
     dur: 12,
     caps: [
-      [0.3, 2.5, "New rule: at most 2 cables per town."],
+      [0.3, 1.5, "New rule: at most 2 cables per town."],
+      [1.6, 2.8, "But the best tree has 3 cables at C."],
       [3.0, 5.4, "Run the same greedy method again."],
       [5.6, 8.6, "An early cheap choice blocks cheaper ones later."],
       [9.2, 11.5, "Greedy gets 20, but a tree costing 19 exists."],
@@ -141,9 +142,9 @@
       stage.append(ruleCard);
       const cost = L2.costCard(stage, { x: 680, y: 130, w: 244, h: 150, label: "cost" });
       const greedyTag = L2.tag(stage, { text: `greedy ${GREEDY}`, tone: "red", solid: true, x: 680, y: 310, size: 30 });
-      const bestTag = L2.tag(stage, { text: `best ${BEST}`, tone: "green", solid: true, x: 680, y: 372, size: 30 });
+      const bestTag = L2.tag(stage, { text: `best ${BEST}`, tone: "green", solid: true, x: 680, y: 392, size: 30 });
       const hardTag = L2.tag(stage, {
-        text: "hard: no fast exact method",
+        text: "hard: no fast exact method known",
         tone: "red",
         solid: true,
         x: 468,

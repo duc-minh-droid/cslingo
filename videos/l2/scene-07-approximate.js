@@ -13,9 +13,9 @@
   const T1 = 10; // and ends
   const tCross = T0 + ((T1 - T0) * (race.crossAt - 30)) / (EV - 30);
   const PANEL = { y: 0, w: 440, h: 316 };
-  const CHART = { x: 12, y: 340, w: 912, h: 270 };
+  const CHART = { x: 12, y: 410, w: 912, h: 222 };
   const YMIN = -9.4;
-  const YMAX = -3.0;
+  const YMAX = -1.6;
   const pct = Math.round(race.shorter * 100);
 
   V.scene({
@@ -24,7 +24,8 @@
     dur: 13,
     caps: [
       [0.4, 2.4, "Nearest neighbour: an instant, decent tour."],
-      [2.8, 6.0, "The EA starts from random tangles."],
+      [2.8, 4.2, "The EA starts from random tangles."],
+      [4.4, 6.0, "It keeps improving its best tour."],
       [6.2, 9.8, "Given time, it overtakes the quick method."],
       [10.2, 12.6, "Approximate: good answers, no guarantee."],
     ],
@@ -59,15 +60,15 @@
       const ring = V.s("circle", { r: 20, fill: "none", "stroke-width": 6 });
       ring.setAttribute("class", "c-green");
       ring.style.stroke = "var(--c)";
-      const upArrow = L5.arrow(CHART.x + 40, CHART.y + 92, CHART.x + 40, CHART.y + 58, "grey", 1, { w: 6, head: 18 });
+      const upArrow = L5.arrow(CHART.x + 34, CHART.y + 150, CHART.x + 34, CHART.y + 100, "grey", 1, { w: 6, head: 18 });
       over.append(front, ring, upArrow);
       const nnY = pl.toPx(0, -race.nnLen)[1];
       const xc = pl.toPx(race.crossAt, -race.nnLen);
       const better = L2.tag(stage, {
-        text: "better",
+        text: "shorter tour",
         tone: "grey",
-        x: CHART.x + 70,
-        y: CHART.y + 14,
+        x: CHART.x + 62,
+        y: CHART.y + 8,
         pad: "6px 14px 7px",
       });
       const time = L2.tag(stage, {
@@ -80,26 +81,47 @@
       const instant = L2.tag(stage, {
         text: "instant",
         tone: "orange",
-        x: CHART.x + CHART.w - 70,
-        y: nnY - 12,
+        x: CHART.x + 410,
+        y: nnY - 10,
         anchor: "bc",
       });
       const ahead = L2.tag(stage, {
         text: "EA ahead",
         tone: "green",
         solid: true,
-        x: xc[0] - 60,
-        y: xc[1] - 22,
-        anchor: "bc",
+        x: xc[0] + 24,
+        y: nnY + 34,
+        anchor: "tl",
       });
       const short = L2.tag(stage, {
-        text: `${pct} % shorter`,
+        text: `${pct}% shorter`,
         tone: "green",
         solid: true,
         x: 484 + PANEL.w / 2,
-        y: 288,
+        y: 366,
         anchor: "c",
       });
+      const noGuarantee = L2.tag(stage, {
+        text: "good, no guarantee",
+        tone: "orange",
+        x: 12 + PANEL.w / 2,
+        y: 366,
+        anchor: "c",
+      });
+      // the crossing marker: a dashed line down to the time axis
+      const axisY = pl.toPx(0, YMIN)[1];
+      const crossLine = V.h("div", {
+        style: {
+          position: "absolute",
+          left: `${xc[0] - 2}px`,
+          top: `${xc[1]}px`,
+          width: "0",
+          height: `${axisY - xc[1]}px`,
+          borderLeft: `4px dashed ${L5.tone("green").c}`,
+          boxSizing: "border-box",
+        },
+      });
+      stage.append(crossLine);
 
       return (t) => {
         // panels, nearest neighbour
@@ -144,6 +166,9 @@
         instant.set({ o: kI, s: 0.8 + 0.2 * E.pop(kI), y: (1 - E.out(kI)) * 8 });
         const kA = ramp(t, tCross, tCross + 0.4, E.lin);
         ahead.set({ o: kA, s: 0.7 + 0.3 * E.pop(kA) });
+        V.show(crossLine, ramp(t, tCross, tCross + 0.4, E.lin));
+        const kN = ramp(t, 10.9, 11.4, E.lin);
+        noGuarantee.set({ o: kN, s: 0.7 + 0.3 * E.pop(kN) });
         const kS = ramp(t, 10.2, 10.8, E.lin);
         short.set({ o: kS, s: 0.7 + 0.3 * E.pop(kS) });
       };

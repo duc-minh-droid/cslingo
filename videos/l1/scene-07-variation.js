@@ -34,20 +34,29 @@
     title: ["Mutate, and", "mix two parents"],
     dur: 12,
     caps: [
-      [0.4, 4.9, "Mutation: copy a parent, change one gene at random."],
+      [0.4, 4.9, "Mutation: copy a parent, change one gene."],
       [5.2, 8.6, "Recombination: mix pieces of two parents."],
       [8.9, 11.5, "Mutation is needed. Recombination often helps."],
     ],
-    build(stage) {
-      const panels = PX.map((x) =>
-        stage.appendChild(
+    build(root) {
+      // two groups pushed down a little; the left (mutate) one starts centred and slides over for recombination
+      const mkG = () =>
+        root.appendChild(
+          V.h("div", { style: { position: "absolute", left: "0", top: "14px", width: "936px", height: "560px" } }),
+        );
+      const stage = mkG();
+      const lg = mkG();
+      stage.style.zIndex = "0";
+      const panels = PX.map((x, k) =>
+        (k === 0 ? lg : stage).appendChild(
           V.h("div", {
             class: "v-card plain c-grey",
             style: { left: `${x}px`, top: `${PY}px`, width: `${PW}px`, height: `${PH}px` },
           }),
         ),
       );
-      const row = (p, y, genes, tone) => L5.chromosome(stage, { x: PX[p] + X0, y, genes, size: SZ, gap: GAP, tone });
+      const row = (p, y, genes, tone) =>
+        L5.chromosome(p === 0 ? lg : stage, { x: PX[p] + X0, y, genes, size: SZ, gap: GAP, tone });
       const mP = row(0, ROW.mp, P1, "blue");
       const mC = row(0, ROW.mc, P1, "blue");
       const rP1 = row(1, ROW.rp1, P1, "blue");
@@ -55,6 +64,7 @@
       const rC = row(1, ROW.rc, KID, "blue");
 
       const svg = L5.svg(stage);
+      const svgL = L5.svg(lg);
       const cut = V.s("line", {
         x1: CUT_X,
         x2: CUT_X,
@@ -65,12 +75,13 @@
         style: { stroke: "var(--amber)", strokeDasharray: "12 10" },
       });
       const arrow = L5.arrow(PX[0] + 62, 190, PX[0] + 62, 270, "purple", 1, { w: 7 });
-      svg.append(cut, arrow);
+      svg.append(cut);
+      svgL.append(arrow);
       const diceG = V.s("g", {});
-      svg.append(diceG);
+      svgL.append(diceG);
 
       const tag = (text, cls, x, y, w, extra = {}) =>
-        stage.appendChild(
+        (x < PX[1] ? lg : stage).appendChild(
           V.h("div", {
             class: `v-tag ${cls}`,
             text,
@@ -91,12 +102,13 @@
       const tParent = tag("parent", "c-grey", PX[0] + 34, 56, 120, { height: "40px" });
       const tChild = tag("child", "c-grey", PX[0] + 34, 372, 110, { height: "40px" });
       const tChild2 = tag("child", "c-grey", PX[1] + 34, 412, 110, { height: "40px" });
-      const bar = L1.ingredientBar(stage, { y: 588 });
+      const bar = L1.ingredientBar(root, { y: 588 });
 
       const arc = (k, a, b, h) => ({ x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k) - h * Math.sin(Math.PI * k) });
 
       return (t) => {
         // panels and headers
+        V.place(lg, { x: 246 * (1 - ramp(t, 4.9, 5.6, E.inOut)) });
         const pL = ramp(t, 0.4, 0.9);
         const pR = ramp(t, 5.2, 5.7);
         V.place(panels[0], pop(pL, 0));

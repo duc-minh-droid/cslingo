@@ -162,7 +162,7 @@
         });
         return { arr, el, html };
       });
-      const bigHtml = `<span style="display:inline-flex;align-items:center;gap:12px"><svg width="34" height="34" viewBox="0 0 24 24"><path d="${CROSS}" fill="none" stroke="var(--rose-on)" stroke-width="3.6" stroke-linecap="round"/></svg><span>about 6 ${times("var(--rose-on)")} 10<sup style="font-size:22px;line-height:0">16</sup> tours</span></span>`;
+      const bigHtml = `<span style="display:inline-flex;align-items:center;gap:12px"><svg width="34" height="34" viewBox="0 0 24 24"><path d="${CROSS}" fill="none" stroke="var(--rose-on)" stroke-width="3.6" stroke-linecap="round"/></svg><span>about 6 ${times("var(--rose-on)")} 10<sup style="font-size:30px;line-height:0;position:relative;top:-6px">16</sup> tours</span></span>`;
       const big = L3.tag(stage, {
         x: 468,
         y: 500,

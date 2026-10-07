@@ -9,9 +9,9 @@
   const FIT = [9, 6, 3, 1];
   const NAMES = ["A", "B", "C", "D"];
   const CX = [117, 351, 585, 819];
-  const BASE = 250;
-  const UNIT = 22;
-  const BIN = { y: 382, w: 150, h: 188 };
+  const BASE = 262;
+  const UNIT = 20;
+  const BIN = { y: 394, w: 150, h: 180 };
   const NPICK = 20;
   const PICKS = L1.picks(46, FIT, NPICK);
   const COUNTS = L1.countPicks(PICKS, 4);
@@ -59,10 +59,10 @@
     dur: 12,
     caps: [
       [0.4, 2.6, "Four parents with fitness 9, 6, 3 and 1."],
-      [2.8, 6, "Fitter parents are likelier to be picked."],
+      [2.8, 6, "Fitter parents are likelier to be picked, 20 times."],
       [6.2, 8, "Only the best? Everyone becomes a copy."],
       [8.2, 10, "Equal chances? Nothing pushes towards better."],
-      [10.1, 11.5, "Weak bias: fitter, but nobody is shut out."],
+      [10.1, 11.5, "Weak bias: fitter is likelier, nobody is shut out."],
     ],
     build(stage) {
       const svgIcon = (kind) =>
@@ -80,7 +80,7 @@
           {
             class: `v-tag solid c-${tone}`,
             style: {
-              ...abs(468 - w / 2, 0, w, 52),
+              ...abs(468 - w / 2, 12, w, 52),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -94,6 +94,7 @@
         stage.append(e);
         return e;
       };
+      const picks = L1.chip(stage, `${NPICK} picks`, "orange", { x: 790, y: 12, width: 146 });
       const vWeak = verdict("weak bias", "green", "tick", 250);
       const vStrong = verdict("only the best", "red", "cross", 300);
       const vNone = verdict("equal chances", "red", "cross", 310);
@@ -117,17 +118,17 @@
         const tile = V.h("div", {
           class: "v-gene c-blue",
           text: NAMES[i],
-          style: { ...abs(cx - 33, 256, 66, 66), fontSize: "38px", borderRadius: "16px" },
+          style: { ...abs(cx - 33, 268, 66, 66), fontSize: "38px", borderRadius: "16px" },
         });
         const ring = V.h("div", {
           style: {
-            ...abs(cx - 33 - 9, 256 - 9, 84, 84),
+            ...abs(cx - 33 - 9, 268 - 9, 84, 84),
             boxSizing: "border-box",
             border: "5px solid var(--amber)",
             borderRadius: "24px",
           },
         });
-        const chip = L1.chip(stage, "", "grey", { x: cx - 60, y: 330, width: 120 });
+        const chip = L1.chip(stage, "", "grey", { x: cx - 60, y: 342, width: 120 });
         chip.style.height = "50px";
         stage.append(bin, bar, num, ring, tile, chip);
         return { cx, bin, bar, num, tile, ring, chip };
@@ -164,7 +165,7 @@
         const t0 = PICK0 + PICK_DT * j;
         if (t < t0) return [0, 0, 0];
         const home = slotXY(SLOT.weak[j]);
-        const start = [CX[PICKS[j]], 376];
+        const start = [CX[PICKS[j]], 402];
         const kf = ramp(t, t0, t0 + FALL, E.inOut);
         let [x, y] = [lerp(start[0], home[0], kf), lerp(start[1], home[1], kf)];
         y -= 5 * Math.sin(Math.PI * ramp(t, t0 + FALL, t0 + FALL + 0.2, E.lin));
@@ -245,6 +246,7 @@
         set(vStrong, win(SW.strong, 8.05));
         set(vNone, win(SW.none, 9.9));
         set(vWeak, pop(SW.weak));
+        V.place(picks, { s: 0.8 + 0.2 * pop(PICK0 - 0.2), o: Math.min(1, pop(PICK0 - 0.2) * 3) });
         bar3(["done", "active", "off"], ramp(t, 0.3, 1.1, E.lin));
       };
     },

@@ -5,8 +5,7 @@
 (function () {
   const V = window.VID;
   const L1 = V.l1;
-  const L5 = V.l5;
-  const { h, s, place, ramp, ease: E, flash, show } = V;
+  const { h, place, ramp, ease: E, flash, show } = V;
   const px = (n) => `${n}px`;
   const abs = (x, y, w, hh) => ({ left: px(x), top: px(y), width: px(w), height: px(hh) });
 
@@ -16,12 +15,12 @@
   const BAR_LEN = SCORES.map((n) => Math.round((n / 6) * 230));
   if (SCORES.join() !== "2,4,5" || BAR_LEN.join() !== "77,153,192") throw new Error("scene 09: scores changed");
   const AREAS = [
-    ["planning", "Planning"],
-    ["design", "Design"],
-    ["simulation", "Simulation"],
-    ["identification", "Identification"],
-    ["control", "Control"],
-    ["classification", "Classification"],
+    ["planning", "Planning", "routes, timetables"],
+    ["design", "Design", "antennas, car shapes"],
+    ["simulation", "Simulation", "competing firms"],
+    ["identification", "Identification", "fit a curve to data"],
+    ["control", "Control", "robot, turbine"],
+    ["classification", "Classification", "spam, diagnosis"],
   ];
 
   // ---------- timeline (local seconds) ----------
@@ -32,9 +31,10 @@
   const BOB_AT = 9.0;
 
   // ---------- layout (stage px) ----------
-  const CARD_Y = (k) => 70 + 140 * k;
+  const CARD_Y = (k) => 100 + 160 * k;
   const ROW_C = (k) => CARD_Y(k) + 50;
-  const BOX = { x: 380, y: 130, w: 220, h: 200 };
+  const BOX = { x: 380, y: 220, w: 220, h: 200 };
+  const BCY = BOX.y + BOX.h / 2;
   const BAR_X = 660;
 
   const tile = (on, size, x, y) =>
@@ -56,7 +56,7 @@
     title: ["If you can score it,", "you can evolve it"],
     dur: 12,
     caps: [
-      [0.4, 5, "An EA only needs a score for each candidate."],
+      [0.4, 5, "Score = green boxes. An EA only needs a score."],
       [5.4, 8.6, "Six areas, one requirement: you can score it."],
       [8.8, 11.5, "Anything you can score, you can evolve."],
     ],
@@ -151,25 +151,14 @@
           borderRadius: "18px",
         },
       });
-      const keep = h(
-        "div",
-        { class: "v-tag c-green", style: { left: px(BAR_X), top: px(ROW_C(2) + 40), paddingLeft: "46px" } },
-        "keep",
-      );
-      const tk = s("svg", {
-        width: 30,
-        height: 30,
-        style: { position: "absolute", left: "10px", top: "7px", overflow: "visible" },
-      });
-      tk.append(L5.tick(15, 15, 30, "green", { ink: true, w: 5 }));
-      keep.append(tk);
+      const keep = h("div", { class: "v-tag c-orange", style: { left: px(BAR_X), top: px(ROW_C(2) + 40) } }, "fittest");
       b1.append(ring, keep);
 
       // ---------- beat 2 ----------
-      const tiles = AREAS.map(([kind, name], i) => {
+      const tiles = AREAS.map(([kind, name, eg], i) => {
         const t = h("div", {
           class: "v-card plain c-blue",
-          style: abs(320 * (i % 3), 20 + 270 * Math.floor(i / 3), 296, 230),
+          style: abs(320 * (i % 3), 20 + 306 * Math.floor(i / 3), 296, 270),
         });
         const p = L1.picto(kind, 140, { x: 78 - 3, y: 14 - 3 });
         t.append(
@@ -184,6 +173,18 @@
               textAlign: "center",
               font: "900 32px/1.2 var(--sans)",
               color: "var(--ink)",
+            },
+          }),
+          h("div", {
+            text: eg,
+            style: {
+              position: "absolute",
+              left: "0px",
+              top: "212px",
+              width: "290px",
+              textAlign: "center",
+              font: "800 28px/1.2 var(--sans)",
+              color: "var(--text-dim)",
             },
           }),
         );
@@ -207,7 +208,7 @@
           const sl = ramp(t, a, a + 0.35, E.inOut);
           place(copies[k], {
             x: 325 * sl,
-            y: (230 - ROW_C(k)) * sl,
+            y: (BCY - ROW_C(k)) * sl,
             s: 1 - 0.4 * sl,
             o: t < a ? 0 : 1 - ramp(t, a + 0.25, a + 0.4, E.lin),
           });
@@ -215,7 +216,7 @@
           const pf = ramp(t, a + 0.45, a + 0.75, E.inOut);
           const pk = bars[k].pk;
           pk.style.left = px(600 - 11 + (BAR_X - 600) * pf + 11);
-          pk.style.top = px(230 - 11 + (ROW_C(k) - 230) * pf);
+          pk.style.top = px(BCY - 11 + (ROW_C(k) - BCY) * pf);
           show(pk, t < a + 0.45 ? 0 : 1 - ramp(t, a + 0.7, a + 0.85, E.lin));
           // bar and number
           const g = ramp(t, a + 0.65, a + 1.05, E.out);
@@ -234,7 +235,6 @@
         const kp = ramp(t, KEEP_AT, KEEP_AT + 0.4, E.pop);
         place(ring, { s: 0.9 + 0.1 * kp, o: kp > 0.001 ? Math.min(1, kp * 2) : 0 });
         place(keep, { s: kp, o: kp > 0.001 ? 1 : 0 });
-        L5.drawOn(tk.firstChild, ramp(t, KEEP_AT + 0.1, KEEP_AT + 0.35, E.lin));
         // beat 2
         tiles.forEach((el, i) => {
           const p = ramp(t, TILE_AT(i), TILE_AT(i) + 0.5, E.pop);
