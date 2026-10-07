@@ -48,27 +48,6 @@
   // genes of child c that change between stage s-1 and s, so they can flip one after another
   const changed = (s, c) => [...P[0]].map((_, i) => i).filter((i) => KIDS[s][c][i] !== KIDS[s - 1][c][i]);
 
-  // L4.cutLine makes a 0 x 0 svg, which browsers do not paint, so draw the orange dashed line here
-  function cutLine(parent, x0) {
-    const svg = L4.ui.svgIn(parent);
-    const line = V.s("line", {
-      "stroke-width": 5,
-      "stroke-linecap": "round",
-      "stroke-dasharray": "12 10",
-      style: { stroke: "var(--amber)" },
-    });
-    svg.append(line);
-    const set = ({ x = x0, k = 1, o = 1 }) => {
-      line.setAttribute("x1", x.toFixed(1));
-      line.setAttribute("x2", x.toFixed(1));
-      line.setAttribute("y1", LINE_Y[0]);
-      line.setAttribute("y2", (LINE_Y[0] + (LINE_Y[1] - LINE_Y[0]) * clamp(k)).toFixed(1));
-      svg.style.opacity = k <= 0.001 ? "0" : String(clamp(o));
-    };
-    set({});
-    return { set };
-  }
-
   V.scene({
     kicker: "CROSSOVER",
     title: ["Crossover mixes", "two parents' genes"],
@@ -80,8 +59,9 @@
     ],
     build(stage) {
       // cut lines first, so the tiles sit on top of them
-      const lineA = cutLine(stage, cutX(5));
-      const lineB = cutLine(stage, cutX(6));
+      const cut = (x) => L4.cutLine(stage, { x, y1: LINE_Y[0], y2: LINE_Y[1] });
+      const lineA = cut(cutX(5));
+      const lineB = cut(cutX(6));
       const row = (y, vals, tones) =>
         L4.tiles(stage, { x: X0, y, vals, w: SZ, h: SZ, gap: PITCH - SZ, font: 40, tones });
       const par = [row(ROW.p1, [...P[0]], Array(N).fill("blue")), row(ROW.p2, [...P[1]], Array(N).fill("purple"))];

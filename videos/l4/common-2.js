@@ -327,7 +327,7 @@
   // ---------- 5. cut line ----------
   function cutLine(parent, opt = {}) {
     const { x = 0, y1 = 0, y2 = 100 } = opt;
-    const svg = svgIn(parent, 0, 0);
+    const svg = svgIn(parent);
     const line = V.s("line", {
       x1: 0,
       x2: 0,

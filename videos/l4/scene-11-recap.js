@@ -23,7 +23,8 @@
   const PIC = { x: 16, y: 10, w: 340, h: 140, zoom: 1.1 };
 
   // time inside the current loop cycle, -1 before the first start
-  const loop = (t, t0, period) => (t < t0 ? -1 : (t - t0) % period);
+  // (it plays once and holds its final pose at `cap`, so the held end frame is clean)
+  const loop = (t, t0, cap) => (t < t0 ? -1 : Math.min(t - t0, cap));
 
   // tone and flip state of one tile from a list of steps {a, b, from, to} (a === b: an instant colour change)
   function stepState(steps, q, base) {
@@ -54,7 +55,6 @@
       tone: "grey",
     });
     const base = (i) => (i === 4 ? "green" : "grey");
-    const P = 5.2;
     const steps = (i) => {
       const w = 0.3 + 0.16 * i;
       const all = [
@@ -72,7 +72,7 @@
     };
     const stepsOf = [0, 1, 2, 3, 4].map(steps);
     return (t) => {
-      const q = loop(t, 1.4, P);
+      const q = loop(t, 1.4, 4.3);
       row.all((i) => ({ o: 1 }));
       for (let i = 0; i < 5; i++) {
         const born = ramp(t, 1.0 + 0.08 * i, 1.5 + 0.08 * i, E.lin);
@@ -85,7 +85,6 @@
 
   // ---------- row 2: bars follow the exponent b ----------
   function pressureRow(pic) {
-    const P = 4.8;
     const [BASE, LEN, KMAX] = [132, 118, 0.5];
     const bars = [0, 1, 2, 3, 4].map((i) =>
       L4.bar(pic, { x: 10 + i * 32, y: BASE, len: LEN, thick: 22, dir: "v", textPos: "none" }),
@@ -124,7 +123,7 @@
     thumb.style.stroke = gr.lip;
     const tag = L4.tag(pic, { x: 200, y: 8, text: "b = 1", tone: "green", fs: 28 });
     return (t) => {
-      const q = loop(t, 2.4, P);
+      const q = loop(t, 2.4, 4.6);
       const b = bOf(q);
       const ps = L4.rankProbs([5, 4, 3, 2, 1], b).p;
       bars.forEach((bar, i) => {
@@ -181,7 +180,7 @@
     const tickG = L5.tick(BX, BY, 44, "green", { ink: true, w: 7 });
     const badge = over.appendChild(svgOf("g", {}, lip, disc, crossG, tickG));
     return (t) => {
-      const q = loop(t, 3.4, 6.4);
+      const q = loop(t, 3.4, 5.1);
       const k = q < 0 ? 0 : ramp(q, T.swap[0], T.swap[1], E.inOut) - ramp(q, T.undo[0], T.undo[1], E.inOut);
       const moving = k > 0 && k < 1;
       const brokenNow = q >= T.red0 && q < T.back[1];

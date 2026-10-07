@@ -1,0 +1,109 @@
+{
+  "findings": [
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "must",
+      "problem": "Monte Carlo runs 26 tries at 0.22 s each, with ghost rings, die faces, ticks and arrows changing every try. A first-time learner cannot tell which tries were rejected and which were accepted, nor see why the hiker leaves the hill. The die faces and the '1 in 10' tag are never connected (what does a 5 on the die mean?). The Tabu panel is cramped and fast too: at step 2 the red cross on candidate 7 (blocked by a crumb) sits on top of the hiker next to the original 'stuck' cross, so it reads as stuck again. Two algorithms in 14 s is too much.",
+      "fix": "Slow the first two or three tries to about 0.7 s and say what happens on each: a rejected worse step is a red ring with a cross, then the single lucky downhill step is a clear orange down arrow with the die showing 1. Only then fast-forward the rest, with a visible 'x tries' count. Show the die as a simple hit/miss strip of 10 slots with 1 slot lit green, or drop the faces. Remove the 'stuck' cross from the Tabu panel as soon as step 1 starts, and draw candidate rings in two colours only: orange for the pick, red cross for the tabu one. Consider moving Tabu to its own scene, or cut it to the first 3 steps before time-lapsing.",
+      "evidence": "s9@3 and s9@5 (try 7 and try 16: ring, cross, diamond, orange token and die all at once), s9@9.5 (red cross over hiker plus six dashed rings), s9@8.2"
+    },
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "should",
+      "problem": "The word 'Tabu' and the crumbs are never explained. The caption says 'avoiding its crumbs' but crumbs are 14 px grey dots that are tiny and unlabelled, and the tag shows three grey dots with no meaning. A learner will not understand that Tabu means 'recently visited positions are forbidden'.",
+      "fix": "Make the tag 'Tabu: no going back' (or 'Tabu list: last 5'). Draw crumbs larger (about 22 px) the first time one drops, and when the best neighbour is blocked show the crumb with a red cross over it for a full second. A short caption 'It cannot step back onto a crumb.' would match what is shown.",
+      "evidence": "s9@8.2, s9@9.5, s9@11"
+    },
+    {
+      "scene": "scene-09-local-search.js",
+      "severity": "should",
+      "problem": "Only one panel moves at a time. Tabu sits still for the first 7 s, then Monte Carlo sits still for the last 6 s, and at the end the hiker, the best-so-far diamond and the star are stacked on one spot, so the star is hidden. The 'best so far' legend appears only in the top panel.",
+      "fix": "Keep the finished MC panel visibly settled (for example a green tick on the hiker) and offset the diamond so the star stays visible: draw the diamond to the side or shrink it to 18 px. Add the same orange 'best so far' legend in the Tabu panel when its diamond first moves.",
+      "evidence": "s9@7.6 (star hidden behind token and diamond), s9@13.4"
+    },
+    {
+      "scene": "scene-03-tour.js",
+      "severity": "should",
+      "problem": "The end beat is confusing. A red '32' pill with a short green arrow pointing at empty space and a tick appears to the right of the green 28 length pill. The arrow does not point from 32 to 28, and the 'fitness = length' sticker disappears, so nothing says that shorter equals fitter. Also the distance pills collide with the city circles: the 4 on B-D touches B, the 4 on D-A touches D, the 7 on C-A sits against C.",
+      "fix": "Put the old 32 (red, struck through or dimmed) directly left of the 28 pill and draw the green arrow between the two, 32 pointing to 28, with the tick beside 28. Keep 'fitness = length' visible until the end. Move the pill fractions so each pill is at least 10 px clear of the city discs (for example BD 0.5, DA 0.55, CA 0.6).",
+      "evidence": "s3@9.8 (arrow points down at nothing), s3@4.8 and s3@6.2 (pills touching B, D and C)"
+    },
+    {
+      "scene": "scene-06-landscape.js",
+      "severity": "should",
+      "problem": "The bridge from the TSP to the landscape is missing. The 40 bars are anonymous: nothing shows that each bar is a tour (like ABDEC) and that neighbours are tours one swap apart, so the learner does not see what 'draw every solution' means. Also scene 3 said shorter is better, but here the label says 'taller = fitter' with no note that the TSP score is flipped (length turned into height).",
+      "fix": "Under the first few bars show 3 or 4 small tour strings (ABDEC, ABEDC, BADEC) with a purple swap arrow between neighbouring ones while the bars grow. Change the tag to 'taller = fitter (shorter tour = taller)' or add a short flip hint such as an arrow labelled 'flip length'. Alternatively show one bar's height as 'higher = better'.",
+      "evidence": "s6@0.8 and s6@2 (anonymous bars), s6@3.4 ('taller = fitter' vs scene 3 'minimise')"
+    },
+    {
+      "scene": "scene-06-landscape.js",
+      "severity": "should",
+      "problem": "The orange 'best' sticker is about 135 px to the left of the star and unattached, so it reads as a label for nothing. The 'all solutions, neighbours side by side' tag is offset from the axis it describes and its arrow is detached. The panel leaves a large empty band at the bottom (y about 810 to 940).",
+      "fix": "Centre the 'best' sticker above the star (and drop it slightly closer). Put the axis tag centred under the panel with the arrow joined to it, or make the arrow run the full width of the baseline. Enlarge the panel by about 80 px or move the tag lower to rebalance the stage.",
+      "evidence": "s6@8.2, s6@0.8"
+    },
+    {
+      "scene": "scene-10-population.js",
+      "severity": "should",
+      "problem": "The last caption wraps to two lines with the orphan word 'possible.' and sits lower than every other caption, nearly at the bottom edge. The step-1 and step-2 ring colours (purple = picked at random, orange = fitter parent, red = replaced) are never explained and each lasts under a second, so the viewer cannot decode them. 'hills: 3' has no explanation. The grey lone hiker is not labelled, and it is blue in scenes 6 and 9, so the colour role changes.",
+      "fix": "Shorten the caption to 'A team can select and recombine.' (one line). Add three 28 px mini labels the first time each ring appears ('pick two', 'fitter wins', 'replaced') and hold step 1 about 1.6 s. Label the grey hiker 'one hiker' and the blue group 'team' (or make the lone hiker blue to match earlier scenes). Make the pill read 'hills with a climber: 3'.",
+      "evidence": "s10@11.6 (two-line caption), s10@5 and s10@6.2 (unexplained rings), s10@2 (grey hiker)"
+    },
+    {
+      "scene": "scene-08-neighbours.js",
+      "severity": "should",
+      "problem": "The start row is not marked: once five neighbour rows exist, the start solution is just another blue row of the same size, so the learner cannot tell which row is the original. The scene also has no payoff: it shows neighbours but never links them back to the landscape or to hillclimbing (the lecture's point that a different operator changes which solutions are local optima).",
+      "fix": "Add a 28 px blue 'start' tag left of each start row and a thin divider line between it and the neighbours. In the last beat, flash a tiny landscape or an arrow labelled 'the places a climber can step to', and make the closing caption mention that a different operator means different hills. The tag pulses at 7.4 to 9.4 are barely visible; make the purple tags scale 1.15 with a visible lip change.",
+      "evidence": "s8@7 and s8@9.6 (start row indistinguishable), caption 3 not supported visually"
+    },
+    {
+      "scene": "scene-05-hillclimb.js",
+      "severity": "should",
+      "problem": "Unbalanced stage: all content sits in the left 70 per cent (tiles end at about x 720, pill at x 860) and the middle of the stage is empty between the current row and the log. The log stickers (✗ 33, ✗ 38, ✓ 28) have no title, so it is not clear they are the mutants' lengths. The wrap-around swap (C and A) is drawn as a long arc but the video never says that last and first are neighbours, so a learner may think swapping C and A is illegal or random.",
+      "fix": "Centre the row and pill group (shift the rows right by about 90 px) and put a grey 'mutants tried' tag over the log row. When step 2 starts show a small purple note 'a tour is a loop: last and first are neighbours' with a loop arrow from the last tile to the first.",
+      "evidence": "s5@2.2, s5@5 (wrap swap unexplained), s5@12.4 (log unlabelled, empty middle)"
+    },
+    {
+      "scene": "scene-02-loop.js",
+      "severity": "should",
+      "problem": "Selection is hard to decode: the purple frames, dimmed loser and the copy flying down overlap the faded rows 2 and 3 (the copied row crosses 'f = 3' pills at mid-flight), and nothing says 'two picked at random' or 'the fitter one wins'. A first-time learner sees rows flash without understanding tournament selection. The chip row sits flush under the 2-line headline (chips start at y 262, headline descenders end near 250).",
+      "fix": "Add a 28 px purple caption tag beside each framed pair ('pick 2 at random') and an orange 'fitter wins' tag; delay the copy flight until the loser has dimmed, and fly it along a clear lane to the right of the f pills instead of over them. Push the whole stage content down about 14 px (or shrink the headline gap) so chips clear the headline.",
+      "evidence": "s2@5 (overlapping copy and pills), s2@4.5 and s2@5.5 (frames without explanation), s2@1.5 (chips touch headline)"
+    },
+    {
+      "scene": "scene-07-shapes.js",
+      "severity": "should",
+      "problem": "The plateau climber visibly goes nowhere (it hops back and forth on a flat line) and nothing says why, so the learner cannot tell whether it is stuck, slow or wandering. The deceptive climber walks away from the star with no sign that this is wrong other than the end badge. The headline's second line is a descender away from the top of the panels (the 'y' in 'easy' touches the edge) and the two lines read as a run-on ('landscape only one is easy').",
+      "fix": "Add a tiny 28 px note inside each red panel at the end ('flat: no hint' / 'slope leads away'). Make the plateau token leave a grey breadcrumb trail so wandering is visible. Move the panel grid down 16 px and punctuate the headline ('Four shapes of landscape: only one is easy').",
+      "evidence": "s7@5 (plateau token looks idle), s7@0.6 (headline touching panels), s7@9.2"
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "should",
+      "problem": "Row 1 shows six unlabelled dots, so 'score, pick, change, replace' cannot be matched to them. Row 3 says 'Step downhill' but its picture is a long dotted purple jump from the small hill to the tall hill, which is a leap, not a step, and the team dots (the second half of the label) are hard to read at this size. The row 2 star pokes against the top border of its card.",
+      "fix": "Put a 1-2 letter or tiny icon on each ring dot, or show the station name for the dot the token is on in a 28 px tag. In row 3 replace the arc with a short down-then-up step path for the first half, then show the team. Move the star down 8 px or lower the curve so it stays inside the card.",
+      "evidence": "s11@2.5 (unlabelled ring, star on border), s11@4 and s11@5.8 (arc jump)"
+    },
+    {
+      "scene": "scene-04-too-many.js",
+      "severity": "nit",
+      "problem": "The rule behind the counts is never shown: a learner sees 12 tours and may wonder why not 24 (4! orderings) and why ABCED and ABECD both appear. The x5/x6/x7 chips and 'five cities: 12 tours' tag sit immediately under the headline (y 262), and the ladder hugs the top-left with about 130 px of empty space below it. The multiplication chips are small relative to the bars.",
+      "fix": "Optional: add a tiny 'x2 for direction, then /2' tag, or caption 'Each tour and its reverse count once.' Shift the ladder down about 20 px and enlarge the x chips to 32 px.",
+      "evidence": "s4@5.5, s4@6.8"
+    },
+    {
+      "scene": "scene-03-tour.js",
+      "severity": "nit",
+      "problem": "Distance numbers inside the map pills read smaller than the table numbers and the pills pop in at 70 per cent scale. The tick appears but the caption 'ABCED is shorter: 28 beats 32' is gone by the time the 32 -> 28 arrow shows, because the arrow lands at 8.8 and the caption starts at 8.4 while the pill is still counting.",
+      "fix": "Hold the 'length 28' pill and the 32 -> 28 comparison for at least 1.2 s before the scene fades (extend the hold to about 10.9 s or shorten tour 2 by 0.4 s).",
+      "evidence": "s3@8, s3@9.8, s3@10.8"
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Every scene except 2 and 5 puts its first content at y 262, directly under a two-line headline, so the stage always feels pushed against the title (scenes 2, 4, 7, 8, 9). Many scenes also end with 100 to 150 px of unused space above the caption (scenes 3, 4, 6, 8) while others fill it, so vertical balance varies across the video.",
+      "fix": "Shift the content origin down by about 10 to 16 px for scenes with long headlines, or reduce the headline to one line where possible (for example scene 4 'Too many tours to check'). This is a style-level adjustment; keep within the 640 px stage.",
+      "evidence": "s2@1.5, s4@0.8, s7@0.6, s8@0.8, s9@0.8"
+    }
+  ]
+}

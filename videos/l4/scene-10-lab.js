@@ -13,8 +13,8 @@
     title: ["Put it together:", "evolve a picture"],
     dur: 11,
     caps: [
-      [0.8, 3.4, "Fitness: how many pixels match the heart."],
-      [3.6, 6.0, "Two recipes race to copy it."],
+      [0.8, 3.4, "Fitness: pixels that match, blank ones too."],
+      [3.6, 6.0, "Two recipes race. Both rely on mutation."],
       [6.6, 10.5, "Algorithm 1 got there first, in this run."],
     ],
     build(stage) {
@@ -34,8 +34,8 @@
       const tEvals = L4.tag(stage, { x: 468, y: 250, text: "evals 30", tone: "grey", anchor: "c" });
 
       const panels = [
-        { cx: 180, x: 48, name: "algorithm 1", recipe: ["steady-state", "tournament", "mutation"], tickX: 324 },
-        { cx: 756, x: 624, name: "algorithm 2", recipe: ["generational", "rank", "crossover"], tickX: 612 },
+        { cx: 180, x: 48, name: "algorithm 1", recipe: ["steady-state", "tournament t = 3", "replace worst", "mutation"], tickX: 324 },
+        { cx: 756, x: 624, name: "algorithm 2", recipe: ["generational", "1 elite", "rank", "crossover + mutation"], tickX: 612 },
       ].map((p, i) => {
         const head = L4.tag(stage, { x: p.cx, y: 12, text: p.name, tone: "blue", anchor: "c" });
         const pic = L4.pixels(stage, { x: p.x, y: 66, cell: 22 });
@@ -43,7 +43,7 @@
           class: "v-text",
           style: {
             left: `${p.cx - 130}px`,
-            top: "338px",
+            top: "326px",
             width: "260px",
             textAlign: "center",
             fontSize: "44px",
@@ -54,7 +54,7 @@
         stage.append(count);
         const fin = L4.tag(stage, {
           x: p.cx,
-          y: 398,
+          y: 380,
           text: `${L4.commas(runs[i].evals)} evaluations`,
           tone: "green",
           anchor: "c",
@@ -69,7 +69,7 @@
         const tg = V.s("g", {}, disc, tick);
         svg.append(tg);
         const recipe = p.recipe.map((txt, k) =>
-          L4.tag(stage, { x: p.cx, y: 458 + 52 * k, text: txt, tone: "grey", anchor: "c" }),
+          L4.tag(stage, { x: p.cx, y: 440 + 48 * k, text: txt, tone: "grey", anchor: "c" }),
         );
         return { ...p, head, pic, count, fin, tg, tick, recipe };
       });
