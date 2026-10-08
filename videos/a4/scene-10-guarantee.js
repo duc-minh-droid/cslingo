@@ -177,7 +177,8 @@
         T.best.legs.forEach((l, i) => {
           const a = BEST0 + 0.1 * i;
           const cut = A4.key(l.from, l.to) === CUT_KEY;
-          const o = ramp(t, a, a + 0.3, lin) * (1 - ramp(t, cut ? CUT_RED : TREE0, (cut ? CUT_RED : TREE0) + 0.5, lin));
+          // the dashes stay under the blue cable until it is fully there; the cut cable fades away red
+          const o = ramp(t, a, a + 0.3, lin) * (cut ? 1 - ramp(t, CUT_RED, CUT_RED + 0.4, lin) : +(t < TREE0 + 0.6));
           edges[A4.key(l.from, l.to)] = { tone: cut && t >= CUT_RED ? "red" : "purple", dash: true, o };
         });
         const towns = {};
