@@ -67,7 +67,7 @@
       const band = P.band({ tone: "red" });
       const ref = P.internals.mk("line", { "stroke-width": "5", "stroke-linecap": "round", "stroke-dasharray": "2 10" });
       ref.style.stroke = L5.tone("green").c;
-      const gap = P.vline({ w: 5, dash: "2 10" });
+      const gap = P.vline({ w: 6, dash: "none" });
       const lead = P.vline({ tone: "green", w: 4, dash: "2 10" });
       const guides = pts.map(() => P.vline({}));
       const span = P.span({ tone: "purple" });
@@ -204,8 +204,8 @@
         reused.set({
           s: 0.8 + 0.2 * E.pop(kr),
           o: re ? pk(kr) * (1 - K(t, re[1] + 0.85, 0.25)) : 0,
-          dx: re ? P.px(re[0]) : 0,
-          dy: re ? P.py(A3.BF(re[0])) - 62 : 0,
+          dx: re ? P.px(re[0]) - 24 : 0,
+          dy: re ? P.py(A3.BF(re[0])) - 82 : 0,
         });
 
         // the two stats and the "x 0.618" tag
