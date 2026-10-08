@@ -20,11 +20,23 @@
   });
   A4.same("scene 2 tree", [T, A4.sumOf(T), T.length], [["AB", "BC", "BD", "DE"], 12, A4.TOWNS.length - 1]);
   A4.same("scene 2 spanning", A4.groupsOf(T).length, 1);
-  A4.same("scene 2 loop", [A4.pathIn(T, "A", "C"), A4.EXCHANGE.cycle], [["A", "B", "C"], ["AB", "BC", "AC"]]);
+  A4.same(
+    "scene 2 loop",
+    [A4.pathIn(T, "A", "C"), A4.EXCHANGE.cycle],
+    [
+      ["A", "B", "C"],
+      ["AB", "BC", "AC"],
+    ],
+  );
   A4.same(
     "scene 2 arrivals",
     LAY.map((l) => [l.from, ...l.arrive]),
-    [["A", "A", "B"], ["B", "C"], ["B", "D"], ["D", "E"]],
+    [
+      ["A", "A", "B"],
+      ["B", "C"],
+      ["B", "D"],
+      ["D", "E"],
+    ],
   );
 
   V.scene({
@@ -93,7 +105,10 @@
           const k = ramp(t, 0.2 + 0.1 * i, 0.7 + 0.1 * i, E.lin);
           const v = 6.1 + 0.06 * i;
           const st = t >= v ? { tone: "green", solid: true, bump: flash(t, v, v + 0.3), up: 0.15 } : null;
-          const lay = !st && t >= arriveAt[c] ? { tone: "blue", solid: true, bump: flash(t, arriveAt[c], arriveAt[c] + 0.3), up: 0.1 } : null;
+          const lay =
+            !st && t >= arriveAt[c]
+              ? { tone: "blue", solid: true, bump: flash(t, arriveAt[c], arriveAt[c] + 0.3), up: 0.1 }
+              : null;
           const s = st || lay || { tone: "grey", bump: 0, up: 0 };
           townState[c] = { tone: s.tone, solid: !!s.solid, s: E.pop(k) * (1 + s.up * s.bump), o: Math.min(1, 4 * k) };
         });

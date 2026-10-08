@@ -73,7 +73,10 @@
   // the other half of the square: the diagonal and everything above it (j >= i) around the staircase
   const GHOST = [];
   for (let r = 0; r < N; r++) for (let c = r; c < N; c++) GHOST.push([r, c]);
-  A1.must(GHOST.length === A1.COUNTS8.sq - A1.COUNTS8.tri, "scene 04: the ghost half plus the staircase fill the square");
+  A1.must(
+    GHOST.length === A1.COUNTS8.sq - A1.COUNTS8.tri,
+    "scene 04: the ghost half plus the staircase fill the square",
+  );
 
   VID.scene({
     kicker: "COUNTING WORK",
@@ -121,7 +124,9 @@
       });
 
       // the legend: n = 8, one cell = one call
-      const legend = h("div", { style: { position: "absolute", left: "0px", top: "564px", width: "330px", height: "52px" } });
+      const legend = h("div", {
+        style: { position: "absolute", left: "0px", top: "564px", width: "330px", height: "52px" },
+      });
       const nTag = A1.tag(legend, { text: "n = 8", tone: "blue" });
       nTag.set({ x: 0, y: 0 });
       const mini = s("svg", { width: 32, height: 32, viewBox: "0 0 32 32" });

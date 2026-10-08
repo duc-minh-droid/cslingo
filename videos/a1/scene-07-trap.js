@@ -114,6 +114,7 @@
         tags: { X: "above" },
       });
       const trapLine = outline(g);
+      const bars = A1.bars(stage, { x: 664, y: 250, w: 272, names: NAMES, rowH: 62, max: 60, labelW: 52, valueW: 12 });
       const pills = [0, 1, 2].map(() => A1.svgPill(g.overlay));
       const stat = A1.stat(stage, { x: 700, y: 60, w: 200, h: 128, label: "round", text: "0", tone: "blue" });
       const trapped = A1.tag(stage, {
@@ -196,10 +197,22 @@
         const bump = Math.max(0, ...[1, 2, 3].map((r) => flash(t, tr(r) + FLY, tr(r) + ARR - 0.05)));
         stat.set({ text: String(done), s: (0.7 + 0.3 * E.pop(k0)) * (1 + 0.08 * bump), o: clamp(k0 * 4) });
 
+        // ---- the see-saw: bars of the tokens each page holds (they change when a round's packets arrive)
+        const kb = ramp(t, 0.9, 1.3, E.lin);
+        const rs = roundsStarted(t);
+        const held = {};
+        NAMES.forEach((n, i) => {
+          held[n] =
+            rs === 0
+              ? R[0][n] * ramp(t, 1.0 + 0.08 * i, 1.5 + 0.08 * i, E.out)
+              : R[rs - 1][n] + (R[rs][n] - R[rs - 1][n]) * ramp(t, tr(rs) + FLY, tr(rs) + ARR, E.inOut);
+        });
+        bars.update({ vals: held, text: { X: "", A: "", B: "" }, tone: "blue", o: kb });
+
         // ---- the trap
         trapLine.set(ramp(t, TRAP.line[0], TRAP.line[1], E.inOut));
         const kt = ramp(t, TRAP.tag[0], TRAP.tag[1], E.lin);
-        trapped.set({ x: 548, y: 270, center: false, s: 0.7 + 0.3 * E.pop(kt), o: clamp(kt * 4) });
+        trapped.set({ x: trapLine.box.x1, y: (trapLine.box.y0 + trapLine.box.y1) / 2, center: true, s: 0.7 + 0.3 * E.pop(kt), o: clamp(kt * 4) });
         const kc = ramp(t, TRAP.cross[0], TRAP.cross[1], E.lin);
         V.place(cross, { x: crossAt.x, y: crossAt.y, s: 0.8 + 0.2 * E.back(kc), o: clamp(kc * 4) });
         A1.drawOn(cross, kc);

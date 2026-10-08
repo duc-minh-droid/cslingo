@@ -53,7 +53,8 @@
     stage.append(svg);
     return svg;
   };
-  const pop = (k, dy = 12) => ({ s: 0.8 + 0.2 * E.pop(k), y: (1 - E.out(k)) * dy, o: clamp(k * 3) });
+  const pop = (k, dy = 12) => ({ s: 0.8 + 0.2 * E.pop(k), y: (1 - E.out(k)) * dy, o: clamp(k * 3) }); // for V.place
+  const popT = (k, dy = 12) => ({ s: 0.8 + 0.2 * E.pop(k), dy: (1 - E.out(k)) * dy, o: clamp(k * 3) }); // for tag.set, stat.set
   const lerpVec = (a, b, k) => Object.fromEntries(NAMES.map((n) => [n, lerp(a[n], b[n], k)]));
   const leaderOf = (p) => {
     const order = [...NAMES].sort((a, b) => p[b] - p[a]);
@@ -71,6 +72,14 @@
     const [gE, gN, gD] = [0, 1, 2].map(() => svg.appendChild(S("g")));
     const has = (a, b) => WEB.edges.some(([x, y]) => x === a && y === b);
 
+    /* the dead end pours to every page: faint dashed lines (and a small loop back to itself), shown while the dots fly */
+    const pours = WEB.dead.flatMap((a) =>
+      NAMES.map((b) => {
+        const line = gE.appendChild(S("path", { fill: "none", "stroke-width": 4, "stroke-linecap": "round" }));
+        css(line, { stroke: T("purple").c, strokeDasharray: "9 9" });
+        return { a, b, line };
+      }),
+    );
     const links = WEB.edges.map(([a, b]) => {
       const line = gE.appendChild(S("path", { fill: "none", "stroke-linecap": "round" }));
       const head = gE.appendChild(S("path", { "stroke-width": 3, "stroke-linejoin": "round" }));
@@ -324,12 +333,12 @@
           text: String(st.shown),
           label: settled ? "settled" : "round",
           tone: settled ? "green" : "blue",
-          ...pop(ramp(t, POP + 0.4, POP + 0.9), 12),
+          ...popT(ramp(t, POP + 0.4, POP + 0.9), 12),
           s: (0.8 + 0.2 * E.pop(ramp(t, POP + 0.4, POP + 0.9))) * (1 + 0.08 * bump),
         });
         sp.update({ data: DELTA, upto: st.cp >= 1 ? st.cp - 1 : -1, tone: "purple" });
         V.place(sp.svg, pop(ramp(t, POP + 0.6, POP + 1.0), 12));
-        tab.set({ x: SPARK.x + SPARK.w / 2, y: SPARK.y - 30, center: true, ...pop(ramp(t, POP + 0.7, POP + 1.1), 8) });
+        tab.set({ x: SPARK.x + SPARK.w / 2, y: SPARK.y - 30, center: true, ...popT(ramp(t, POP + 0.7, POP + 1.1), 8) });
 
         // ---- the rule chips under the web: pour, then floor, three times; then repeat
         const chipIn = ramp(t, POP + 0.6, POP + 1.0);
@@ -341,17 +350,17 @@
         });
         const ruleO = Math.min(chipIn, ramp(FF[0] - t, 0, 0.3, E.lin));
         const tone = (k, base) => (lit[k] ? base : "grey");
-        pour.set({ x: WEB_CX - 87, y: CHIP_Y, tone: tone(0, "blue"), solid: lit[0] === 1, ...pop(ruleO), o: ruleO });
-        plus.set({ x: WEB_CX + 87, y: CHIP_Y, tone: tone(1, "purple"), solid: lit[1] === 1, ...pop(ruleO), o: ruleO });
+        pour.set({ x: WEB_CX - 87, y: CHIP_Y, tone: tone(0, "blue"), solid: lit[0] === 1, ...popT(ruleO), o: ruleO });
+        plus.set({ x: WEB_CX + 87, y: CHIP_Y, tone: tone(1, "purple"), solid: lit[1] === 1, ...popT(ruleO), o: ruleO });
         const ffIn = ramp(t, FF[0], FF[0] + 0.4) * ramp(SET - 0.2 - t, 0, 0.3, E.lin);
-        again.set({ x: WEB_CX, y: CHIP_Y, tone: "purple", solid: true, ...pop(ffIn), o: ffIn });
+        again.set({ x: WEB_CX, y: CHIP_Y, tone: "purple", solid: true, ...popT(ffIn), o: ffIn });
         V.place(again.icon, { r: -360 * 1.4 * (t - FF[0]) });
 
         // ---- settled: ticks, R first, total
         const kFirst = ramp(t, SET + 0.7, SET + 1.2);
         const kTot = ramp(t, SET + 1.1, SET + 1.6);
-        first.set({ x: BARS.x, y: 304, ...pop(kFirst, 8) });
-        total.set({ x: STAT.x, y: 552, ...pop(kTot, 8) });
+        first.set({ x: BARS.x, y: 304, ...popT(kFirst, 8) });
+        total.set({ x: STAT.x, y: 552, ...popT(kTot, 8) });
         css(outline, { strokeDasharray: "1 1", strokeDashoffset: String(1 - ramp(t, SET + 0.6, SET + 1.3)) });
         V.show(outline, ramp(t, SET + 0.6, SET + 0.7, E.lin));
       };

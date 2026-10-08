@@ -72,7 +72,7 @@
           o: clamp(pop * 4),
         };
       });
-      row.ring({ i: ringAt, k: ramp(q, 0.3, 0.6, E.lin) * out(q, END, END + 0.3), tone: "blue", pad: 5 });
+      row.ring({ i: ringAt, k: ramp(q, 0.3, 0.6, E.lin) * out(q, END, END + 0.3), tone: "blue", pad: 4 });
 
       const shown = live ? ramp(q, verdict(0), verdict(0) + 0.25, E.lin) * out(q, END - 0.05, END) : 0;
       const [bx, by] = [4 + (LIST.length * SIZE + (LIST.length - 1) * GAP) / 2, 106];
@@ -109,7 +109,7 @@
     const [oneA, oneB, sqA, sqB] = [lit("one", W0), lit("one", W1), lit("sq", W0), lit("sq", W1)];
     const [cx1, cx2, cx3] = [57, 170, 283]; // the three column centres
     const span = (7 * CELL.pitch + CELL.size) / 2;
-    const strip = A1.grid(pic, { x: cx1 - CELL.size / 2, y: CELL.top, rows: 8, cols: 1, ...CELL });
+    const strip = A1.grid(pic, { x: cx1 - span, y: CELL.top + span - CELL.size / 2, rows: 1, cols: 8, ...CELL });
     const square = A1.grid(pic, { x: cx2 - span, y: CELL.top, rows: 8, cols: 8, ...CELL });
 
     // the halving chain: boxes joined by small arrows, the new box joins at the top
@@ -166,7 +166,7 @@
       const intro = ramp(t, START[1], START[1] + 0.5, E.lin);
       V.show(strip.svg, intro);
       V.show(square.svg, intro);
-      strip.update((r, c) => cellState(oneA.has(`${r},${c}`), oneB.has(`${r},${c}`), T.strip + 0.12 * (r - W0), q), {
+      strip.update((r, c) => cellState(oneA.has(`${c},${r}`), oneB.has(`${c},${r}`), T.strip + 0.12 * (c - W0), q), {
         o: intro,
       });
       square.update(
@@ -194,8 +194,8 @@
   function webRow(pic) {
     const web = A1.WEBS.web5;
     A1.must(web.edges.length === 6 && web.dead.join() === "T", "recap row 3: the five-page web has six links and T is a dead end");
-    const NODE = { P: [50, 36], Q: [150, 20], R: [244, 68], S: [172, 114], T: [50, 108] };
-    const R0 = 14;
+    const NODE = { P: [42, 36], Q: [150, 20], R: [262, 68], S: [186, 114], T: [44, 108] };
+    const R0 = 15;
     const [blue, orange, purple, grey] = ["blue", "orange", "purple", "grey"].map(L5.tone);
     const svg = L5.svg(pic, PIC.w, PIC.h);
     const gLinks = svg.appendChild(V.s("g"));
@@ -242,7 +242,9 @@
     const rOrange = mkNode();
 
     // teleport: a dashed arc P -> T, a purple dot that rides it, and a ring round T
-    const [A, C, B] = [[41, 49], [6, 72], [41, 95]];
+    const A = [NODE.P[0] - 9, NODE.P[1] + 13];
+    const B = [NODE.T[0] - 9, NODE.T[1] - 13];
+    const C = [NODE.P[0] - 40, (A[1] + B[1]) / 2];
     const arcAt = (u) => [(1 - u) ** 2 * A[0] + 2 * (1 - u) * u * C[0] + u * u * B[0], (1 - u) ** 2 * A[1] + 2 * (1 - u) * u * C[1] + u * u * B[1]]; // prettier-ignore
     const arc = gPort.appendChild(V.s("path", { d: `M${A} Q${C} ${B}`, fill: "none", "stroke-width": 4, "stroke-linecap": "round", "stroke-dasharray": "7 6", style: { stroke: purple.c } })); // prettier-ignore
     const [tx, ty] = [B[0] - C[0], B[1] - C[1]];
@@ -299,7 +301,7 @@
 
       const k = q < 0 ? 0 : ramp(q, 3.7, 4.0, E.lin) * reset;
       A1.drawOn(tick, k);
-      V.place(tick, { x: 290, y: 50, s: 0.7 + 0.3 * E.pop(k), o: k });
+      V.place(tick, { x: 298, y: 6, s: 0.7 + 0.3 * E.pop(k), o: k });
     };
   }
 
@@ -352,7 +354,7 @@
         style: { position: "relative", display: "flex", alignItems: "center", fontSize: "34px", padding: "8px 34px 10px" },
       });
       const ctaBar = V.h("div", {
-        style: { ...box(0, 864, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
+        style: { ...box(0, 876, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
       });
       ctaBar.append(cta);
       stage.append(ctaBar);

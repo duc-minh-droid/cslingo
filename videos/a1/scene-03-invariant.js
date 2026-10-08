@@ -14,7 +14,10 @@
   A1.must(N === 7 && answer === 9, "scene 3: the list run must give 7 steps and the answer 9");
   A1.must(steps.map((s) => s.best).join() === "3,8,8,9,9,9,9", "scene 3: best so far must be 3 8 8 9 9 9 9");
   A1.must(steps.map((s) => +s.beat).join("") === "1101000", "scene 3: the item beats best at steps 0, 1 and 3 only");
-  A1.must(steps.every((s) => s.holds && s.maxChecked === s.best), "scene 3: the invariant must hold at every step");
+  A1.must(
+    steps.every((s) => s.holds && s.maxChecked === s.best),
+    "scene 3: the invariant must hold at every step",
+  );
 
   const DY = 22; // the whole figure sits a little lower than the storyboard's y values, to centre it in the stage
   const Y = (y) => y + DY;
@@ -38,12 +41,35 @@
     build(stage) {
       const row = A1.row(stage, { x: 62, y: Y(120), values: A1.LIST, size: 104, gap: 14, tone: "grey" });
       const marks = steps.map(() => stage.appendChild(A1.icon("tick", 36, "green", { w: 7 })));
-      const bestBox = A1.stat(stage, { x: 62, y: Y(300), w: 240, h: 150, label: "best so far", text: "–", tone: "orange" });
-      const bigBox = A1.stat(stage, { x: 392, y: Y(300), w: 300, h: 150, label: "biggest of first k", text: "–", tone: "blue" });
+      const bestBox = A1.stat(stage, {
+        x: 62,
+        y: Y(300),
+        w: 240,
+        h: 150,
+        label: "best so far",
+        text: "–",
+        tone: "orange",
+      });
+      const bigBox = A1.stat(stage, {
+        x: 392,
+        y: Y(300),
+        w: 300,
+        h: 150,
+        label: "biggest of first k",
+        text: "–",
+        tone: "blue",
+      });
       const bars = [Y(363), Y(379)].map((top) =>
         stage.appendChild(
           V.h("div", {
-            style: { position: "absolute", left: "325px", top: `${top}px`, width: "44px", height: "8px", borderRadius: "4px" },
+            style: {
+              position: "absolute",
+              left: "325px",
+              top: `${top}px`,
+              width: "44px",
+              height: "8px",
+              borderRadius: "4px",
+            },
           }),
         ),
       );
@@ -53,7 +79,9 @@
       const tickV = stage.appendChild(A1.icon("tick", 40, "green", { w: 7 }));
       const crossV = stage.appendChild(A1.icon("cross", 40, "grey", { w: 7 }));
       crossV.querySelectorAll("[data-draw]").forEach((p) => (p.style.stroke = "var(--text-dim)"));
-      const chip = stage.appendChild(V.h("div", { class: "v-gene c-orange solid", style: { left: "0px", top: "0px" } }));
+      const chip = stage.appendChild(
+        V.h("div", { class: "v-gene c-orange solid", style: { left: "0px", top: "0px" } }),
+      );
       const ret = A1.tag(stage, { text: `return ${answer}`, tone: "green", solid: true, fs: 34 });
 
       const BEST_C = { x: 62 + 120, y: Y(300) + 75 }; // centre of the best-so-far box (where the chip lands)
@@ -91,7 +119,16 @@
         const w = tagW(d);
         const cx = row.mid(d).x;
         const shift = Math.max(0, cx + w / 2 + 8 + 40 - 924); // keep the icon inside the stage on the last tiles
-        cmp.set({ text: compareText(d), tone: "blue", x: cx - shift, y: Y(76), center: true, w, s: 0.8 + 0.2 * E.pop(pop), o: tagO });
+        cmp.set({
+          text: compareText(d),
+          tone: "blue",
+          x: cx - shift,
+          y: Y(76),
+          center: true,
+          w,
+          s: 0.8 + 0.2 * E.pop(pop),
+          o: tagO,
+        });
         const verdict = steps[d].beat ? tickV : crossV;
         const other = steps[d].beat ? crossV : tickV;
         const drawK = old ? 1 : ramp(u, 0.6, 0.85, E.inOut);
@@ -117,7 +154,10 @@
         // --- the two boxes: best so far (orange) and the biggest of the first k (blue) ---
         const landed = steps.reduce((b, st, i) => (st.beat && t >= ts(i) + ARRIVE ? i : b), -1);
         const checked = steps.reduce((b, st, i) => (t >= ts(i) + CHECK ? i : b), -1);
-        const bestPulse = steps.reduce((a, st, i) => a + (st.beat ? flash(t, ts(i) + ARRIVE, ts(i) + ARRIVE + 0.25) : 0), 0);
+        const bestPulse = steps.reduce(
+          (a, st, i) => a + (st.beat ? flash(t, ts(i) + ARRIVE, ts(i) + ARRIVE + 0.25) : 0),
+          0,
+        );
         const bigPulse = steps.reduce((a, st, i) => a + flash(t, ts(i) + CHECK, ts(i) + CHECK + 0.25), 0);
         const done = t >= FINAL;
         const pin = (a) => E.pop(ramp(t, a, a + 0.4, E.lin));
@@ -139,7 +179,10 @@
 
         // --- equals sign, 'holds' tag and the ticks under the tiles: the promise held after every step ---
         const firstHold = ts(0) + ARRIVE;
-        const holdPulse = steps.reduce((a, st, i) => a + (i > 0 ? flash(t, ts(i) + ARRIVE, ts(i) + ARRIVE + 0.25) : 0), 0);
+        const holdPulse = steps.reduce(
+          (a, st, i) => a + (i > 0 ? flash(t, ts(i) + ARRIVE, ts(i) + ARRIVE + 0.25) : 0),
+          0,
+        );
         const eqIn = ramp(t, 0.9, 1.3, E.lin);
         bars.forEach((b) => {
           b.style.background = t >= firstHold ? "var(--teal)" : "var(--text-dim)";

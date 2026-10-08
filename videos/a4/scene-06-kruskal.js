@@ -34,7 +34,10 @@
   A4.same("kruskal path of AB", EV[3].path, ["A", "C", "B"]);
   A4.same("kruskal loop of AB", EV[3].cycle, ["AC", "BC", "AB"]);
   A4.same("kruskal groups before AC", EV[2].before, [["A"], ["B", "C"], ["D", "E"]]);
-  A4.same("kruskal groups after AC", EV[2].after, [["A", "B", "C"], ["D", "E"]]);
+  A4.same("kruskal groups after AC", EV[2].after, [
+    ["A", "B", "C"],
+    ["D", "E"],
+  ]);
   A4.same("kruskal groups after BD", EV[4].after, [["A", "B", "C", "D", "E"]]);
   A4.same("kruskal unread", K.unread, ["CD", "CE"]);
   A4.same("kruskal tree", K.tree, ["DE", "BC", "AC", "BD"]);
@@ -89,7 +92,12 @@
       if (u < BLUE || (!e.accept && u < RED_AT)) {
         Object.assign(st, { tone: "blue", solid: true, w: 1 + 0.35 * ramp(u, 0, 0.3), halo: ramp(u, 0, 0.3) });
       } else if (e.accept) {
-        Object.assign(st, { tone: "green", solid: true, w: 1 + 0.35 * (1 - ramp(u, BLUE, 1.1)), halo: 1 - ramp(u, 0.8, 1.3) });
+        Object.assign(st, {
+          tone: "green",
+          solid: true,
+          w: 1 + 0.35 * (1 - ramp(u, BLUE, 1.1)),
+          halo: 1 - ramp(u, 0.8, 1.3),
+        });
       } else {
         const gone = ramp(u, RED_AT, 2.3);
         Object.assign(st, { tone: "red", dash: true, w: 1 + 0.35 * (1 - gone), halo: 1 - ramp(u, RED_AT, 2.4) });
@@ -236,15 +244,21 @@
         let at = 0;
         for (let i = 1; i < T.length; i++) if (t >= T[i]) at = lerp(i - 1, i, ramp(t, T[i], T[i] + 0.3, E.inOut));
         const pk = ramp(t, 1.5, 1.8, E.lin);
-        V.place(pointer, { x: 130 * at, s: 0.4 + 0.6 * E.pop(pk), o: Math.min(1, pk * 4) * (1 - ramp(t, END + 0.1, END + 0.5)) });
+        V.place(pointer, {
+          x: 130 * at,
+          s: 0.4 + 0.6 * E.pop(pk),
+          o: Math.min(1, pk * 4) * (1 - ramp(t, END + 0.1, END + 0.5)),
+        });
         never.set({ k: ramp(t, 12.0, 12.4, E.lin) });
 
         // the verdict card
         let card_ = { k: 0, o: 1, ok: true, u: 0 };
         EV.forEach((e, i) => {
           const u = t - T[i];
-          if (e.accept && u >= 0.3 && u < 1.7) card_ = { k: ramp(u, 0.3, 0.7, E.lin), o: 1 - ramp(u, 1.5, 1.7), ok: true, u: u - 0.3 };
-          if (!e.accept && u >= 1.4 && u < 2.6) card_ = { k: ramp(u, 1.4, 1.9, E.lin), o: 1 - ramp(u, 2.3, 2.6), ok: false, u: u - 1.4 };
+          if (e.accept && u >= 0.3 && u < 1.7)
+            card_ = { k: ramp(u, 0.3, 0.7, E.lin), o: 1 - ramp(u, 1.5, 1.7), ok: true, u: u - 0.3 };
+          if (!e.accept && u >= 1.4 && u < 2.6)
+            card_ = { k: ramp(u, 1.4, 1.9, E.lin), o: 1 - ramp(u, 2.3, 2.6), ok: false, u: u - 1.4 };
         });
         const cls = `v-card plain c-${card_.ok ? "green" : "red"}`;
         if (card.className !== cls) card.className = cls;
