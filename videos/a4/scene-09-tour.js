@@ -19,20 +19,12 @@
     T.mst.map((m) => m.key),
     ["AB", "AC", "CD", "DE", "DF", "FG"],
   );
-  A4.same(
-    "tour: tree totals",
-    T.runW.map(num),
-    ["11.2", "23.3", "37.1", "49.1", "63.0", "75.7"],
-  );
+  A4.same("tour: tree totals", T.runW.map(num), ["11.2", "23.3", "37.1", "49.1", "63.0", "75.7"]);
   A4.same("tour: walk", T.walk, "ABACDEDFGFDCA");
   A4.same("tour: walk total", num(T.runWalk[T.runWalk.length - 1]), "151.4");
   A4.close("tour: walk is twice the tree", T.walkLen, 2 * T.W, 1e-9);
   A4.same("tour: tour order", T.pre, "ABCDEFG");
-  A4.same(
-    "tour: tour totals",
-    T.runTour.map(num),
-    ["11.2", "30.3", "44.1", "56.0", "75.1", "87.8", "124.8"],
-  );
+  A4.same("tour: tour totals", T.runTour.map(num), ["11.2", "30.3", "44.1", "56.0", "75.1", "87.8", "124.8"]);
   A4.same(
     "tour: legs",
     T.legs.map((l) => `${l.from}${l.to}${l.tree ? "" : ":" + l.skipped.join("")}`),
@@ -125,9 +117,28 @@
         el.setAttribute("x2", f1(b[0]));
         el.setAttribute("y2", f1(b[1]));
       };
-      const lanes = WALK.slice(0, LAST).map((_, i) => A4.offsetLine(P(WALK[i]), P(WALK[i + 1]), 7));
+      const lanes = WALK.slice(0, LAST).map((_, i) => A4.offsetLine(P(WALK[i]), P(WALK[i + 1]), 8));
       const laneEls = lanes.map(() => line("var(--amber)", 5));
-      const tourEls = T.legs.map(() => line("var(--blue)", 12.6));
+      // a leg is a straight cable, except the way home: G to A would run straight through D, so it bows underneath it
+      const BOW = 150; // how far the control point of the way home sits below the straight line
+      const tourEls = T.legs.map((l) => {
+        const [p, q] = [P(l.from), P(l.to)];
+        const mid = A4.lerpPt(p, q, 0.5);
+        const home = l.skipped.length > 1;
+        const d = home
+          ? `M${f1(p[0])} ${f1(p[1])}Q${f1(mid[0])} ${f1(mid[1] + BOW)} ${f1(q[0])} ${f1(q[1])}`
+          : `M${f1(p[0])} ${f1(p[1])}L${f1(q[0])} ${f1(q[1])}`;
+        return lay.appendChild(
+          V.s("path", {
+            d,
+            pathLength: 1,
+            fill: "none",
+            "stroke-width": 12.6,
+            "stroke-linecap": "round",
+            style: { stroke: "var(--blue)" },
+          }),
+        );
+      });
 
       const tree = A4.total(stage, { x: 650, y: 40, w: 270, h: 80, label: "tree", tone: "green" });
       const walk = A4.total(stage, { x: 650, y: 140, w: 270, h: 80, label: "walk", tone: "orange" });
@@ -145,7 +156,13 @@
         T.mst.forEach((c, i) => {
           const a = TREE0 + TREE_STEP * i;
           const spare = c.key === "AC" || c.key === "DF";
-          edges[c.key] = { tone: "green", w: 1.2, from: c.from, k: ramp(t, a, a + DRAW), o: spare ? dim - (dim - 0.15) * unused : dim };
+          edges[c.key] = {
+            tone: "green",
+            w: 1.2,
+            from: c.from,
+            k: ramp(t, a, a + DRAW),
+            o: spare ? dim - (dim - 0.15) * unused : dim,
+          };
         });
         const towns = {};
         T.towns.forEach((c, i) => {
@@ -178,7 +195,7 @@
         // --- the tour legs, drawn on in blue ---
         T.legs.forEach((l, i) => {
           const k = ramp(t, legStart(i), legStart(i) + DRAW);
-          place(tourEls[i], P(l.from), A4.lerpPt(P(l.from), P(l.to), k));
+          tourEls[i].style.strokeDasharray = `${k.toFixed(3)} 2`;
           V.show(tourEls[i], k < 0.003 ? 0 : 1);
         });
 

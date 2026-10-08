@@ -9,11 +9,11 @@
   // ---------- data (all from the real enumeration in common.js) ----------
   const ORDER = A4.FLIP.map((i) => A4.TREES[i]); // the 21 trees in flip-book order
   const MST = A4.MST;
-  A4.same("flip: first, last", [ORDER[0].name, ORDER.at(-1).keys.slice().sort(), ORDER.at(-1).total], [
-    "AB BC BD DE",
-    MST.keys,
-    MST.total,
-  ]);
+  A4.same(
+    "flip: first, last",
+    [ORDER[0].name, ORDER.at(-1).keys.slice().sort(), ORDER.at(-1).total],
+    ["AB BC BD DE", MST.keys, MST.total],
+  );
   const start = (j) => (j < 3 ? 1.0 + 0.5 * j : 2.5 + 0.15 * (j - 3)); // flip-book: slow for three, then quick
   const DROP = 0.25;
   const X0 = 404; // cost line: x(v) = 404 + (v - 11) * 44
@@ -76,7 +76,11 @@
             style: { left: `${x}px`, top: `${y}px`, ...(centred ? { transform: "translateX(-50%)" } : {}) },
           }),
         );
-      const noteR = V.h("div", { class: "v-text dim", text: "one dot = one tree", style: { right: "30px", top: "26px" } });
+      const noteR = V.h("div", {
+        class: "v-text dim",
+        text: "one dot = one tree",
+        style: { right: "30px", top: "26px" },
+      });
       stage.append(noteR);
       const plotBits = [
         noteR,
@@ -114,9 +118,7 @@
         const edgeSt = {};
         if (tree)
           tree.keys.forEach((k) => {
-            edgeSt[k] = isMst
-              ? { tone: "green", w: 1.4, halo: green, o: netK }
-              : { tone: "blue", w: 1.3, o: netK };
+            edgeSt[k] = isMst ? { tone: "green", w: 1.4, halo: green, o: netK } : { tone: "blue", w: 1.3, o: netK };
           });
         const dimK = isMst ? 1 - 0.5 * ramp(t, 5.4, 5.8) : 0.5;
         const towns = {};
