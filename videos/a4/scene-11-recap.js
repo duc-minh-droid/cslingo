@@ -11,7 +11,7 @@
   const V = window.VID;
   const A4 = V.a4;
   const L5 = V.l5;
-  const { ramp, flash, clamp, lerp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
 
   const f1 = (n) => n.toFixed(1);
   const box = (x, y, w, h) => ({
@@ -30,12 +30,25 @@
   const PIC = { x: 16, y: 10, w: 340, h: 140, zoom: 1.1 }; // pictograms are drawn at 340 x 140 and shown 10% larger
   const START = APPEAR.map((a) => a + 0.4);
 
+  // tiny towns look chunky with the standard 5 px lip: slim it to 3 px (done once at build time)
+  const slimLips = (g) =>
+    [...g.el.children[3].children].forEach((town) => {
+      const [lip, face] = town.children;
+      lip.setAttribute("cy", f1(+face.getAttribute("cy") + 3));
+    });
+
   // a round green sticker with a tick (drawn on, then popped)
   function tickBadge(parent, x, y) {
     const green = L5.tone("green");
     const svg = L5.svg(parent, PIC.w, PIC.h);
     const lip = V.s("circle", { cx: x, cy: y + 5, r: 24, style: { fill: green.edge } });
-    const disc = V.s("circle", { cx: x, cy: y, r: 24, "stroke-width": 3, style: { fill: green.dim, stroke: green.edge } });
+    const disc = V.s("circle", {
+      cx: x,
+      cy: y,
+      r: 24,
+      "stroke-width": 3,
+      style: { fill: green.dim, stroke: green.edge },
+    });
     const tick = L5.tick(x, y, 44, "green", { ink: true, w: 7 });
     const g = svg.appendChild(V.s("g", {}, lip, disc, tick));
     return (k, o = 1) => {
@@ -61,6 +74,7 @@
       pills: false,
       blobs: 1,
     });
+    slimLips(g);
     const badge = tickBadge(pic, 300, 70);
     const T = { blob: [0.3, 0.8], orange: [0.9, 1.3], pick: [1.6, 2.1], end: 3.3 };
 
@@ -123,15 +137,17 @@
     // three stacked drawings of one network: grey cables, the tree's cables, and the towns on top
     const side = (x) => {
       const o = { nodes: A4.netPos({ x, y: 20, s: 0.25 }), r: 10, ew: 5, letters: false, pills: false };
+      const towns = A4.graph(pic, { ...o, hidden: true });
+      slimLips(towns);
       return {
         grey: A4.graph(pic, { ...o, townBase: { o: 0 } }),
         tree: A4.graph(pic, { ...o, hidden: true, townBase: { o: 0 } }),
-        towns: A4.graph(pic, { ...o, hidden: true }),
+        towns,
       };
     };
-    const [L, R] = [side(4), side(190)];
+    const [L, R] = [side(8), side(190)];
     const svg = L5.svg(pic, PIC.w, PIC.h);
-    const eq = svg.appendChild(A4.equals(172, 70, 30, "green"));
+    const eq = svg.appendChild(A4.equals(173, 68, 28, "green"));
 
     const P0 = 0.3; // Prim: cable i starts here + 0.7 i and grows for 0.45 s
     const [PP, PD] = [0.7, 0.45];
@@ -214,7 +230,8 @@
     A4.close("recap row 3: the walk is twice the tree", TS.walkLen, 2 * TS.W, 1e-9);
     A4.close("recap row 3: the tour is no longer than the walk", Math.min(TS.tourLen, TS.walkLen), TS.tourLen, 1e-9);
     const WALK = [...TS.walk];
-    const map = A4.tspMap(pic, { x: 33, y: -14, s: 0.56, r: 9 });
+    const map = A4.tspMap(pic, { x: 33, y: -14, s: 0.56, r: 9, letters: false });
+    slimLips(map);
     const P = (c) => {
       const p = map.pt(c);
       return [p.x, p.y];
@@ -225,7 +242,9 @@
     map.el.insertBefore(lay, map.el.children[2] || null);
     const lanes = WALK.slice(0, -1).map((c, i) => A4.offsetLine(P(c), P(WALK[i + 1]), 5.5));
     const laneEls = lanes.map(() =>
-      lay.appendChild(V.s("line", { "stroke-width": 3.2, "stroke-linecap": "round", style: { stroke: "var(--amber)" } })),
+      lay.appendChild(
+        V.s("line", { "stroke-width": 3.2, "stroke-linecap": "round", style: { stroke: "var(--amber)" } }),
+      ),
     );
     const BOW = 56; // the way home (G to A) would run through D, so it bows underneath
     const legEls = TS.legs.map((l) => {
@@ -248,7 +267,17 @@
     });
     const badge = tickBadge(pic, 312, 104);
 
-    const T = { tree: 0.2, step: 0.12, draw: 0.2, walk: 1.1, tour: 2.4, tourStep: 0.15, tourDraw: 0.3, tick: 3.8, end: 4.4 };
+    const T = {
+      tree: 0.2,
+      step: 0.12,
+      draw: 0.2,
+      walk: 1.1,
+      tour: 2.4,
+      tourStep: 0.15,
+      tourDraw: 0.3,
+      tick: 3.8,
+      end: 4.4,
+    };
     const LEG = 1.1 / (WALK.length - 1); // the walk takes 1.1 s in all
     const green = { A: T.tree };
     TS.mst.forEach((c, i) => (green[c.to] = T.tree + T.step * i + T.draw));

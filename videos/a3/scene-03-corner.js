@@ -17,7 +17,7 @@
   const TAG_AT = [
     [54, 32],
     [40, 30],
-    [54, 30],
+    [78, 34],
     [54, -26],
   ];
   const ROW0 = 8.6; // first bar starts growing
@@ -62,9 +62,11 @@
           anchor: "m",
         }),
       );
-      const zLabel = P.text({ tone: "orange" });
-      const star = A3.star(P.over, { size: 56 });
-      const badge = A3.badge(stage, { x: P.px(6), y: P.py(1.5), icon: "cross", tone: "red", size: 48 });
+      // three points on the line: they all earn the same score
+      const onLine = [0, 1, 2].map(() => P.dot({ tone: "orange", r: 9 }));
+      const zLabel = A3.tag(P.html, { x: 0, y: 0, text: "z = 6", tone: "orange", anchor: "m" }); // a sticker, so rule lines never cross it
+      const star = A3.star(P.over, { size: 52 });
+      const badge = A3.badge(stage, { x: P.px(6.2), y: P.py(1.2), icon: "cross", tone: "red", size: 48 });
 
       // ---------- right column ----------
       const stat = A3.stat(stage, { x: 624, y: 0, w: 312, label: "profit z", tone: "orange" });
@@ -75,7 +77,7 @@
         rows: CORNERS.map((c) => ({ label: `(${c.join(",")})`, tone: "blue" })),
         min: 0,
         max: 20,
-        labelW: 120,
+        labelW: 100,
         valW: 56,
         title: "score at each corner",
       });
@@ -92,15 +94,26 @@
         // the profit line draws on at z = 6, then slides out to z = 18
         const lk = V.ramp(t, 1.0, 2.2, E.inOut);
         iso.set({ k: lk, o: V.ramp(t, 1.0, 1.6, E.lin), r: z });
+        // three points on the line all earn the same z (they fade as the line starts to slide)
+        [0, 1, 2].forEach((i) => {
+          const a = 2.0 + 0.2 * i;
+          const k = V.ramp(t, a, a + 0.4, E.lin);
+          onLine[i].set({
+            x: [0, z / 6, z / 3][i],
+            y: [z / 2, z / 4, 0][i],
+            s: pop(k),
+            o: clamp(k * 4) * (1 - V.ramp(t, 2.7, 3.1, E.lin)),
+          });
+        });
+        // the "z = ..." sticker rides next to the middle of the line; it steps aside while the z = 21 line is shown
         const kLab = V.ramp(t, 1.4, 2.0, E.lin);
+        const kBack = V.ramp(t, 10.4, 11.0, E.lin);
         zLabel.set({
           text: `z = ${zi}`,
-          x: z / 6,
-          y: z / 4,
-          dx: 80,
-          dy: -14,
-          s: pop(kLab),
-          o: clamp(kLab * 4),
+          dx: P.px(z / 6) + 80,
+          dy: P.py(z / 4) - 24,
+          s: pop(t > 9 ? kBack : kLab),
+          o: Math.max(clamp(kLab * 4) * (1 - V.ramp(t, 7.5, 7.9, E.lin)), clamp(kBack * 4)),
         });
 
         // the line at z = 21 misses the polygon completely
@@ -111,19 +124,23 @@
         const kb = V.ramp(t, 7.8, 8.6, E.lin);
         badge.set({ k: kb, o: 1 - V.ramp(t, 9.0, 9.6, E.lin) });
 
-        // corner dots: pulse as their bar grows; (4, 3) turns orange when the line touches it
+        // corner dots pulse as their bar grows; the star lands on (4, 3) when the line touches it (and pulses with its bar)
+        const rowPulse = (i) => V.flash(t, ROW0 + ROW_GAP * i, ROW0 + ROW_GAP * i + ROW_LEN);
         CORNERS.forEach(([cx, cy], i) => {
-          const best = i === 2 && t >= 7.0;
-          const pulse = V.flash(t, ROW0 + ROW_GAP * i, ROW0 + ROW_GAP * i + ROW_LEN) + (i === 2 ? V.flash(t, 7.0, 7.6) : 0);
-          dots[i].set({ x: cx, y: cy, tone: best ? "orange" : "blue", s: 1 + 0.35 * pulse });
+          dots[i].set({
+            x: cx,
+            y: cy,
+            tone: i === 2 && t >= 7.0 ? "orange" : "blue",
+            s: 1 + 0.35 * (i === 2 ? 0 : rowPulse(i)),
+          });
           tags[i].set({});
         });
         const ks = V.ramp(t, 7.0, 7.8, E.lin);
-        star.set({ x: P.px(4), y: P.py(3) - 36, s: E.pop(ks), o: clamp(ks * 4) });
+        star.set({ x: P.px(4), y: P.py(3), s: E.pop(ks) * (1 + 0.25 * rowPulse(2)), o: clamp(ks * 4) });
 
         // right column
         const kst = V.ramp(t, 0.6, 1.4, E.lin);
-        stat.set({ text: String(zi), s: pop(kst), o: clamp(kst * 4), bump: V.flash(t, 7.0, 7.6) });
+        stat.set({ text: String(zi), s: pop(kst), o: clamp(kst * 4), bump: 0.5 * V.flash(t, 7.0, 7.6) });
 
         // bars: one corner after another, each growing from zero
         const g = Z.map((_, i) => V.ramp(t, ROW0 + ROW_GAP * i, ROW0 + ROW_GAP * i + ROW_LEN));

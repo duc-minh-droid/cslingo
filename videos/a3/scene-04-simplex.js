@@ -269,7 +269,13 @@
 
         // ----- profit z and the verdict -----
         const zp = pop(t, 0.8, 0.4);
-        zStat.set({ text: String(z), s: zp.s, o: zp.o, bump: Math.max(flash(t, 5.8, 6.3), flash(t, 10.0, 10.5)) });
+        // a small bump on arrival (the card is as wide as the column, so keep it under 1.04)
+        zStat.set({
+          text: String(z),
+          s: zp.s,
+          o: zp.o,
+          bump: 0.5 * Math.max(flash(t, 5.8, 6.3), flash(t, 10.0, 10.5)),
+        });
         done.set({ k: ramp(t, 11.4, 11.9, lin) });
       };
     },
