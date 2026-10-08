@@ -162,7 +162,7 @@
       const costLabel = A2.tag(stage, { x: 150, y: 440, text: "cost of C", tone: "grey" });
       const rip = A2.tag(stage, { x: 700, y: 552, text: `RIP: ${CAP} = unreachable`, tone: "red" });
       const poison = A2.tag(stage, { x: POS.B[0], y: 100, text: "poisoned reverse", tone: "purple" });
-      const note = A2.tag(stage, { x: POS.B[0], y: 392, text: `A says C: ${A2.fmt(INF)}`, tone: "purple" }); // what B remembers
+      const note = A2.tag(stage, { x: POS.B[0], y: 398, text: `A says C: ${A2.fmt(INF)}`, tone: "purple" }); // what B remembers
       const agreed = A2.tag(stage, { x: 500, y: 596, text: "agreed at once", tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = L5.tick(332, 596, 52, "green");
@@ -188,6 +188,7 @@
         G.update({ nodes, edges });
 
         // ---- what A and B believe about C ----
+        V.place(track, { o: fade(t, T.ruler, 0.3) });
         const bl = beliefs(t);
         NAMES.slice(0, 2).forEach((n, i) => {
           const a = i ? T.tagB : T.tagA;

@@ -114,7 +114,7 @@
         const tree = cur >= 0 ? ORDER[cur] : null;
 
         // ----- the small network -----
-        const netK = ramp(t, 0.2, 0.9);
+        const netK = ramp(t, 0.5, 1.0); // the cables fade in once the towns have popped
         const edgeSt = {};
         if (tree)
           tree.keys.forEach((k) => {

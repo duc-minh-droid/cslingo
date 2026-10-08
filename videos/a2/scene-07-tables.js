@@ -114,7 +114,7 @@
         x: 0,
         y: 40,
         at: { "A-C": 0.25, "B-D": 0.3, "C-D": 0.55 },
-        badge: { B: "t", C: "t", D: "b", E: "b", F: "tr" },
+        badge: { B: "t", C: "t", D: "bl", E: "br", F: "tr" },
       });
       const names = A2.NET.names;
       const roadKeys = A2.NET.edges.map(([a, b]) => key(a, b));
@@ -150,13 +150,13 @@
       // the table of A, and the heading tags
       const table = A2.table(stage, {
         x: 676,
-        y: 70,
+        y: 76,
         cols: [90, 130],
         head: ["to", "via"],
         rows: TABLE.map((r) => [r.dest, r.next]),
       });
-      const algo = A2.tag(stage, { x: 800, y: 34, text: "Dijkstra", tone: "purple" });
-      const head = A2.tag(stage, { x: 800, y: 34, text: `${SRC}'s table`, tone: "blue" });
+      const algo = A2.tag(stage, { x: 800, y: 40, text: "Dijkstra", tone: "purple" });
+      const head = A2.tag(stage, { x: 800, y: 40, text: `${SRC}'s table`, tone: "blue" });
 
       // the packet, the lookups at D and E, and the arrival
       const packet = A2.token(stage, { text: DST, size: 44, tone: "blue", fs: 28 });

@@ -57,8 +57,10 @@
   const LET_GO = 7.3; // the walk, its lanes and the red rings fade
   const TOUR0 = 7.5; // tour leg i starts here + 0.33 i and draws for 0.3 s
   const TOUR_STEP = 0.33;
-  const CLOSE0 = 9.9; // the repeats drop out and the tour tiles close up
-  const CLOSE1 = 10.5;
+  const DROP0 = 9.9; // the repeats drop out first (0.35 s), then the tour tiles close up (0.6 s)
+  const DROP1 = 10.25;
+  const CLOSE0 = 10.25;
+  const CLOSE1 = 10.85;
 
   // when each town turns green (the tree reaches it) and blue (the tour reaches it)
   const GREEN_AT = { A: TREE0 };
@@ -181,7 +183,7 @@
         m.update({ edges, towns });
 
         // --- the walk: lanes grow with the walker, then fade ---
-        const lanesO = 0.9 - 0.65 * ramp(t, LET_GO, LET_GO + 0.5, E.lin);
+        const lanesO = 0.9 - 0.72 * ramp(t, LET_GO, LET_GO + 0.5, E.lin);
         lanes.forEach((l, i) => {
           const f = ramp(t, WALK0 + LEG * i, WALK0 + LEG * (i + 1), E.lin);
           place(laneEls[i], l[0], A4.lerpPt(l[0], l[1], f));
@@ -214,6 +216,7 @@
         never.set({ k: ramp(t, 10, 10.4) });
 
         // --- the strip: the walk's letters, the repeats drop out, the rest close up into the tour ---
+        const drop = ramp(t, DROP0, DROP1, E.inOut);
         const close = ramp(t, CLOSE0, CLOSE1, E.inOut);
         strip.all((s) => {
           const a = WALK0 + LEG * s;
@@ -226,8 +229,8 @@
               st.s *= 1 + 0.12 * flash(t, r, r + 0.3);
             }
             st.ghost = t >= legStart(SKIP_LEG[s]);
-            st.s *= 1 - 0.5 * close;
-            st.o *= 1 - close;
+            st.s *= 1 - 0.5 * drop;
+            st.o *= 1 - drop;
           } else {
             const p = KEEP.indexOf(s);
             const b = p ? legStart(p - 1) + DRAW : TOUR0;

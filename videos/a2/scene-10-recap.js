@@ -11,7 +11,7 @@
   const V = window.VID;
   const A2 = V.a2;
   const L5 = V.l5;
-  const { ramp, flash, clamp, lerp, ease: E } = V;
+  const { ramp, flash, clamp, ease: E } = V;
 
   const f1 = (n) => n.toFixed(1);
   const box = (x, y, w, h) => ({
@@ -102,8 +102,8 @@
           "C-B": { tone: "blue", from: "C", k: A2.lin(q, ...T.relax), w: 10 },
         },
         badges: {
-          B: { ...bBadge, k: A2.lin(q, T.badges, T.badges + 0.35) },
-          C: { text: firstC, ...cBadge, k: A2.lin(q, T.badges + 0.1, T.badges + 0.45) },
+          B: { ...bBadge, dx: 14, k: A2.lin(q, T.badges, T.badges + 0.35) },
+          C: { text: firstC, ...cBadge, dx: 14, k: A2.lin(q, T.badges + 0.1, T.badges + 0.45) },
         },
       });
     };
@@ -121,13 +121,13 @@
     const vio = L5.tone("purple");
     const grn = L5.tone("green");
     // the compass: a purple dial with a needle that swings and settles on G (the right)
-    const [CX, CY] = [280, 46];
+    const [CX, CY] = [280, 44];
     const dial = svg.appendChild(
       V.s(
         "g",
         {},
-        V.s("circle", { cx: CX, cy: CY + 5, r: 31, style: { fill: vio.edge } }),
-        V.s("circle", { cx: CX, cy: CY, r: 31, "stroke-width": 3, style: { fill: vio.dim, stroke: vio.edge } }),
+        V.s("circle", { cx: CX, cy: CY + 5, r: 34, style: { fill: vio.edge } }),
+        V.s("circle", { cx: CX, cy: CY, r: 34, "stroke-width": 3, style: { fill: vio.dim, stroke: vio.edge } }),
       ),
     );
     const needle = svg.appendChild(
@@ -135,15 +135,18 @@
         "g",
         {},
         V.s("path", {
-          d: `M ${CX - 22} ${CY} L ${CX + 4} ${CY - 8} L ${CX + 4} ${CY + 8} Z`,
+          d: `M ${CX - 27} ${CY} L ${CX + 4} ${CY - 10} L ${CX + 4} ${CY + 10} Z`,
           style: { fill: "var(--line-2)" },
         }),
-        V.s("path", { d: `M ${CX + 22} ${CY} L ${CX - 4} ${CY - 8} L ${CX - 4} ${CY + 8} Z`, style: { fill: vio.c } }),
+        V.s("path", {
+          d: `M ${CX + 27} ${CY} L ${CX - 4} ${CY - 10} L ${CX - 4} ${CY + 10} Z`,
+          style: { fill: vio.c },
+        }),
         V.s("circle", { cx: CX, cy: CY, r: 5, style: { fill: vio.on } }),
       ),
     );
     // the tick sticker pops in when the route is found
-    const [BX, BY] = [280, 108];
+    const [BX, BY] = [280, 111];
     const tickG = L5.tick(BX, BY, 38, "green", { ink: true, w: 7 });
     const badge = svg.appendChild(
       V.s(
@@ -273,6 +276,7 @@
           o: A2.fade(t, START[2] - 0.1),
         });
       });
+      rs.slice(0, 2).forEach((r) => V.show(r.on, 0)); // only the last router turns green
       V.show(rs[2].on, q < 0 ? 0 : A2.lin(q, T.win, T.win + 0.15) * out(q, T.end, P));
     };
   }
