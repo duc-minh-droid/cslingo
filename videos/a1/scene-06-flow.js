@@ -62,14 +62,16 @@
     const out = [];
     const send = (s, [a, b], tone) => {
       if (t < a || t > b) return;
+      const f = ramp(t, a, b, E.inOut);
       out.push({
         from: s.from,
         to: s.to,
-        f: ramp(t, a, b, E.inOut),
+        f,
         tone,
         text: fmt(s.amt),
-        o: ramp(t, a, a + 0.1, E.lin) * (1 - ramp(t, b - 0.16, b, E.lin)),
-        s: 1 - 0.3 * ramp(t, b - 0.2, b, E.lin),
+        // small and faint at both ends, so pills do not pile up on a node
+        o: ramp(f, 0, 0.08, E.lin) * (1 - ramp(f, 0.74, 0.96, E.lin)),
+        s: (0.72 + 0.28 * ramp(f, 0, 0.3, E.lin)) * (1 - 0.35 * ramp(f, 0.62, 0.95, E.lin)),
       });
     };
     T0.sends.forEach((s) => send(s, BLUE.in, "blue"));

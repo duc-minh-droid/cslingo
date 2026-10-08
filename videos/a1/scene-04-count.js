@@ -99,8 +99,8 @@
       Object.assign(ghostSvg.style, { position: "absolute", left: "0px", top: "0px", overflow: "visible" });
       GHOST.forEach(([r, c]) => {
         const p = mid.grid.cellAt(r, c);
-        const rect = s("rect", { x: f1(p.x - CELL / 2), y: f1(p.y - CELL / 2), width: CELL, height: CELL, rx: 6, "stroke-width": 2.5, "stroke-dasharray": "4 3", fill: "none" });
-        rect.style.stroke = T("purple").c;
+        const rect = s("rect", { x: f1(p.x - CELL / 2), y: f1(p.y - CELL / 2), width: CELL, height: CELL, rx: 6, "stroke-width": 3, "stroke-dasharray": "5 3" });
+        Object.assign(rect.style, { fill: T("purple").dim, stroke: T("purple").c });
         ghostSvg.append(rect);
       }); // prettier-ignore
       stage.append(ghostSvg);

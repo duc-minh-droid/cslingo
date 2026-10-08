@@ -384,7 +384,7 @@
       root.appendChild(predict({ id: "a2-in-1", q: "Router A sends a packet to F. What does A decide by itself?", opts: ["The entire route to F, which is written onto the packet", "Only the next hop, read from its own forwarding table", "Nothing: a central server chooses every hop"], a: 1,
         why: "Forwarding is local. Each router looks up the destination in its table and passes the packet to one neighbour. The route emerges from many such lookups." }));
       root.appendChild(predict({ id: "a2-in-2", q: "Tick <b>Link D–E fails</b> and send A → F again. What changes?", opts: ["The route and its cost: the tables are recomputed", "Nothing: routers never change their tables", "The packet is lost for good"], a: 0,
-        why: "With D–E gone, the cheapest A→F route becomes A→B→C→F at cost 9 instead of A→D→E→F at 7. The tables are rebuilt from the changed graph and the packet still arrives." }));
+        why: "With D–E gone, the cheapest A→F route becomes A→B→C→E→F at cost 8 instead of A→D→E→F at 7. The tables are rebuilt from the changed graph and the packet still arrives." }));
       root.appendChild(takeaways([
         "<b>Routing</b> finds end-to-end paths; <b>forwarding</b> is the local table lookup for each packet.",
         "Messages are cut into <b>packets</b> that are forwarded hop by hop.",
