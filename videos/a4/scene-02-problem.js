@@ -137,7 +137,8 @@
         fewer.set({ k: ramp(t, 9.6, 10.2) });
 
         // verdict badge and the loop's cross
-        if (t < 6.3) badge("none", 0);
+        if (t < 6.3)
+          badge("valid", 0); // hidden, but in its start state (the badge keeps its colour between calls)
         else if (t < 7.8) badge("valid", ramp(t, 6.3, 6.9));
         else if (t < 9.4) badge("invalid", ramp(t, 7.8, 8.3));
         else badge("valid", ramp(t, 9.4, 9.9));

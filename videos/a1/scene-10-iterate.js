@@ -39,8 +39,8 @@
   // ---- layout (stage px)
   const WEB_BOX = { x: 0, y: 30, w: 430, h: 380 };
   const BARS = { x: 470, y: 30, w: 466, rowH: 52, max: 0.5 };
-  const STAT = { x: 470, y: 384, w: 190, h: 128 };
-  const SPARK = { x: 676, y: 370, w: 260, h: 180 };
+  const STAT = { x: 470, y: 384, w: 180, h: 128 };
+  const SPARK = { x: 664, y: 370, w: 260, h: 180 };
   const CHIP_Y = 480;
   const WEB_CX = WEB_BOX.w / 2;
   const RAD = (p) => 30 * (0.8 + 2.4 * p); // circle radius from rank

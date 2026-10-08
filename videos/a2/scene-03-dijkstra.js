@@ -140,7 +140,7 @@
       });
       const result = A2.tag(stage, { x: 822, y: 100, text: `A to E: ${TOTAL}`, tone: "green", solid: true });
       const svg = L5.svg(stage);
-      const tick = L5.tick(0, 0, 46, "green", { w: 9 });
+      const tick = L5.tick(0, 0, 52, "green", { w: 10 });
       svg.append(tick);
       const settledY = (s) => s + (LIST_Y[0] - LIST_Y[1]) / 54; // a waiting-room slot, counted in settled-list slots
 
