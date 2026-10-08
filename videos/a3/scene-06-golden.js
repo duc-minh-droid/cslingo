@@ -67,9 +67,9 @@
       const band = P.band({ tone: "red" });
       const ref = P.internals.mk("line", { "stroke-width": "5", "stroke-linecap": "round", "stroke-dasharray": "2 10" });
       ref.style.stroke = L5.tone("green").c;
+      const guides = pts.map(() => P.vline({}));
       const gap = P.vline({ w: 6, dash: "none" });
       const lead = P.vline({ tone: "green", w: 4, dash: "2 10" });
-      const guides = pts.map(() => P.vline({}));
       const span = P.span({ tone: "purple" });
       const dots = pts.map(() => P.dot({ tone: "blue", r: 14 }));
       const letters = {
@@ -195,7 +195,7 @@
             tone: s.lower ? "green" : "red",
             s: 0.8 + 0.2 * E.pop(kv),
             o: pk(kv) * (1 - K(t, T + 0.85, 0.15)),
-            dx: P.px(s.x),
+            dx: P.px(s.x) + [0, 0, 50, -30][st.k],
             dy: Math.min(P.py(s.fx), P.py(s.t.fb)) - 62,
           });
         } else verdict.set({ o: 0 });
