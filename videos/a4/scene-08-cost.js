@@ -96,7 +96,7 @@
         const nodes = Object.fromEntries(
           LETTERS.map((t, i) => {
             const a = ((-90 + 45 * i) * Math.PI) / 180;
-            return [t, [cx + 72 * Math.cos(a), 135 + 72 * Math.sin(a)]];
+            return [t, [cx + 66 * Math.cos(a), 150 + 66 * Math.sin(a)]];
           }),
         );
         const g = A4.graph(stage, {
@@ -114,7 +114,7 @@
           stage.appendChild(
             V.h("div", { class: cls, text: txt, style: { left: `${c.x0}px`, top: `${y}px`, fontSize: "28px" } }),
           );
-        const size = text(`${A4.commas(c.cost.V)} towns · ${A4.commas(c.cost.E)} cables`, 226);
+        const size = text(`${A4.commas(c.cost.V)} towns · ${A4.commas(c.cost.E)} cables`, 240);
         const labels = [text("Prim · V²", 290), text("Kruskal · E log V", 384)];
         const top = Math.max(c.cost.prim, c.cost.kruskal);
         const mk = (y, v) => ({ bar: A4.bar(stage, { x: c.x0, y, w: BAR_W, h: 44 }), max: v / top, value: v });
@@ -124,7 +124,7 @@
         svg.append(tick);
         return { c, ci, g, title, size, labels, bars, said, tick };
       });
-      const final = A4.tag(stage, { x: 278, y: 560, text: "same tree either way", tone: "green", solid: true, fs: 32 });
+      const final = A4.tag(stage, { x: 284, y: 562, text: "same tree either way", tone: "green", solid: true, fs: 32 });
       const fade = (e, k) => V.place(e, { y: (1 - k) * 8, o: k });
 
       function drawCol(t, col) {
@@ -137,7 +137,8 @@
         const edges = {};
         c.edges.forEach(([a, b], j) => {
           const a0 = 0.5 + j * c.step;
-          const pulse = flash(t, c.kruskal[0] + j * 0.01, c.kruskal[0] + j * 0.01 + 0.5);
+          const lag = (0.15 * j) / (c.edges.length - 1); // one sweep along the cables, 0.15 s however many there are
+          const pulse = flash(t, c.kruskal[0] + lag, c.kruskal[0] + lag + 0.5);
           edges[A4.key(a, b)] = { k: ramp(t, a0, a0 + 0.3), w: 1 + 0.9 * pulse, halo: 0.8 * pulse };
         });
         const towns = {};
@@ -145,7 +146,7 @@
           const a0 = 0.3 + i * 0.03;
           const hop = flash(t, c.prim[0] + i * 0.05, c.prim[0] + i * 0.05 + 0.45);
           towns[l] = {
-            s: (0.4 + 0.6 * E.pop(ramp(t, a0, a0 + 0.35, E.lin))) * (1 + 0.5 * hop),
+            s: (0.4 + 0.6 * E.pop(ramp(t, a0, a0 + 0.35, E.lin))) * (1 + 0.4 * hop),
             o: ramp(t, a0, a0 + 0.1, E.lin),
           };
         });
@@ -163,7 +164,6 @@
         const vk = ramp(t, c.verdict[0] + 0.2, c.verdict[0] + 0.8, E.lin);
         said.set({ k: vk });
         L5.drawOn(tick, ramp(t, c.verdict[0] + 0.4, c.verdict[1], E.inOut));
-        V.show(tick, vk > 0 ? 1 : 0);
       }
 
       return (t) => {

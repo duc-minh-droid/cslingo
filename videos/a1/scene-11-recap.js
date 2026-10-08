@@ -204,7 +204,7 @@
     );
     const NODE = { P: [42, 36], Q: [150, 20], R: [262, 68], S: [186, 114], T: [44, 108] };
     const R0 = 15;
-    const [blue, orange, purple, grey] = ["blue", "orange", "purple", "grey"].map(L5.tone);
+    const [blue, purple, grey] = ["blue", "purple", "grey"].map(L5.tone);
     const svg = L5.svg(pic, PIC.w, PIC.h);
     const gLinks = svg.appendChild(V.s("g"));
     const gNodes = svg.appendChild(V.s("g"));

@@ -147,7 +147,7 @@
             text: fmt(s.amt),
             tone: "blue",
             look: "solid",
-            s: 0.92 * (1 - 0.3 * ramp(t, tr(r) + FLY - 0.2, tr(r) + FLY, E.lin)),
+            s: 1 - 0.3 * ramp(t, tr(r) + FLY - 0.2, tr(r) + FLY, E.lin),
             o: ramp(t, tr(r), tr(r) + 0.12, E.lin) * (1 - ramp(t, tr(r) + FLY - 0.16, tr(r) + FLY, E.lin)),
           });
         });
@@ -212,7 +212,13 @@
         // ---- the trap
         trapLine.set(ramp(t, TRAP.line[0], TRAP.line[1], E.inOut));
         const kt = ramp(t, TRAP.tag[0], TRAP.tag[1], E.lin);
-        trapped.set({ x: trapLine.box.x1, y: (trapLine.box.y0 + trapLine.box.y1) / 2, center: true, s: 0.7 + 0.3 * E.pop(kt), o: clamp(kt * 4) });
+        trapped.set({
+          x: trapLine.box.x1,
+          y: (trapLine.box.y0 + trapLine.box.y1) / 2,
+          center: true,
+          s: 0.7 + 0.3 * E.pop(kt),
+          o: clamp(kt * 4),
+        });
         const kc = ramp(t, TRAP.cross[0], TRAP.cross[1], E.lin);
         V.place(cross, { x: crossAt.x, y: crossAt.y, s: 0.8 + 0.2 * E.back(kc), o: clamp(kc * 4) });
         A1.drawOn(cross, kc);

@@ -49,13 +49,15 @@
       [6.5, 10.5, "A fifth cable makes a loop. A tree has no loops."],
     ],
     build(stage) {
+      // the grey cables live on their own layer under the towns, so a cable that turns blue, green or red grows over its grey self
+      const under = A4.net(stage, { x: 24, y: 20, s: 1, pills: false, hidden: true });
       const g = A4.net(stage, { x: 24, y: 20, s: 1 });
       const cables = A4.total(stage, { x: 650, y: 30, w: 270, label: "cables", tone: "blue" });
       const towns = A4.total(stage, { x: 650, y: 130, w: 270, label: "towns", tone: "grey" });
       const fewer = A4.tag(stage, { x: 700, y: 232, text: "one fewer", tone: "green" });
       const badge = L5.badge(stage, { x: 24, y: 490, w: 340, h: 68, valid: "spanning tree", invalid: "a loop" });
       const svg = L5.svg(stage);
-      const cross = svg.appendChild(L5.cross(181, 243, 64, "red", { w: 9 }));
+      const cross = svg.appendChild(L5.cross(165, 243, 72, "red", { w: 9 })); // the middle of the loop A-B-C
       const arriveAt = {};
       LAY.forEach((l) => l.arrive.forEach((c) => (arriveAt[c] = l.b)));
 

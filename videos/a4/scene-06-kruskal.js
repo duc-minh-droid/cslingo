@@ -107,7 +107,7 @@
     const lit = ramp(ur, 0.4, 0.7) * (1 - ramp(ur, RED_AT, 2.3));
     EV[REJECT].path.slice(1).forEach((town, n) => {
       const key = A4.key(EV[REJECT].path[n], town);
-      Object.assign(out[key], { halo: lit, w: 1 + 0.2 * lit });
+      Object.assign(out[key], { halo: lit, w: 1 + 0.35 * lit });
     });
     // the finished tree flashes once
     K.tree.forEach((key) => {
@@ -203,8 +203,11 @@
       stage.append(card);
 
       // the blue token that walks the existing path of the loop
-      const token = A4.token(stage, { tone: "blue", size: 34 });
+      const token = A4.token(stage, { tone: "blue", size: 36 });
       const route = EV[REJECT].path.map((town) => [g.pt(town).x, g.pt(town).y]);
+      // the walker starts and stops just outside the end towns, so it never hides a letter
+      const span = route.slice(1).reduce((a, q, n) => a + Math.hypot(q[0] - route[n][0], q[1] - route[n][1]), 0);
+      const [F0, F1] = [(g.r + 26) / span, 1 - (g.r + 26) / span];
 
       // pictograms on top: the pointer, the cross on AB and the final tick
       const ov = L5.svg(stage);
@@ -228,7 +231,7 @@
         // the sorted list: slides in, then each tile follows the cable that is read
         tiles.all((i) => {
           const k = ramp(t, 0.3 + 0.08 * i, 0.7 + 0.08 * i);
-          const st = { x: -90 * (1 - k), o: Math.min(1, k * 3) };
+          const st = { y: 30 * (1 - k), o: Math.min(1, k * 3) };
           if (i < EV.length && t >= T[i]) {
             const [e, u] = ev(i, t - T[i]);
             const open = u < BLUE || (!e.accept && u < RED_AT);
@@ -275,7 +278,7 @@
 
         // the walker on the existing path A - C - B, and the cross on AB
         const ur = t - T[REJECT];
-        const f = ramp(ur, 0.5, 1.4, E.inOut);
+        const f = lerp(F0, F1, ramp(ur, 0.5, 1.4, E.inOut));
         const p = A4.along(route, f);
         token.set({
           x: p.x,

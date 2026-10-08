@@ -174,7 +174,7 @@
       const b = A1.bars(stage, BARS);
       const stat = A1.stat(stage, { ...STAT, label: "hops", text: "0", tone: "blue" });
       const tagPR = A1.tag(stage, { text: "PageRank", tone: "green", solid: true });
-      const tagFloor = A1.tag(stage, { text: "teleport floor", tone: "purple" });
+      const tagFloor = A1.tag(stage, { text: "via teleport", tone: "purple" });
 
       // green pegs on the bars at the exact long-run values
       const pegSvg = svgLayer(stage);
@@ -236,15 +236,37 @@
           if (k > lit[q][0]) lit[q] = [k, PATH[h].kind === "teleport" ? "purple" : "blue"];
         });
 
+        // ---- visit shares and the hop counter
+        let v = { ...ZERO };
+        let hops = 0;
+        if (t < FF[0]) {
+          let k = 0;
+          while (k < HOPS && END[k + 1] <= t) k++;
+          hops = k;
+          if (k >= 1) {
+            const e = ramp(t, END[k], END[k] + 0.2, E.out);
+            const [a, c] = [k === 1 ? ZERO : shareAt(k - 1), shareAt(k)];
+            v = Object.fromEntries(NAMES.map((q) => [q, lerp(a[q], c[q], e)]));
+          }
+        } else {
+          hops = Math.round(HOPS * Math.pow(LONG / HOPS, quadOut(ramp(t, FF[0], FF[1], E.lin))));
+          v = shareAt(hops);
+        }
+        const kr = Object.fromEntries(NAMES.map((q) => [q, ramp(t, PEG[q], PEG[q] + 0.4, E.inOut)]));
+        v = Object.fromEntries(NAMES.map((q) => [q, lerp(v[q], EXACT[q], kr[q])]));
+
         // ---- web: nodes pop, links draw on
         const node = {};
         WEB.names.forEach((q, i) => {
           const k = popK(t, 0.3 + 0.12 * i);
           const [hk, tone] = lit[q];
+          const idle = t >= PEG[q] ? "green" : t >= FF[0] + 0.3 ? "blue" : "grey"; // settled pages turn green
+          // in the fast forward a page grows with its share of the visits
+          const size = lerp(1, 0.8 + 0.7 * v[q], ramp(t, FF[0], FF[0] + 0.5, E.out));
           node[q] = {
             o: Math.min(1, k * 4),
-            s: 0.5 + 0.5 * E.pop(k),
-            tone: hk > 0.02 ? tone : "grey",
+            s: (0.5 + 0.5 * E.pop(k)) * size,
+            tone: hk > 0.02 ? tone : idle,
             halo: hk,
           };
         });
@@ -296,23 +318,6 @@
         V.place(noteRoll, { y: (1 - E.out(dk)) * 8, o: Math.min(1, dk * 3) * rollsOut });
 
         // ---- visit shares and the hop counter
-        let v = { ...ZERO };
-        let hops = 0;
-        if (t < FF[0]) {
-          let k = 0;
-          while (k < HOPS && END[k + 1] <= t) k++;
-          hops = k;
-          if (k >= 1) {
-            const e = ramp(t, END[k], END[k] + 0.2, E.out);
-            const [a, c] = [k === 1 ? ZERO : shareAt(k - 1), shareAt(k)];
-            v = Object.fromEntries(NAMES.map((q) => [q, lerp(a[q], c[q], e)]));
-          }
-        } else {
-          hops = Math.round(HOPS * Math.pow(LONG / HOPS, quadOut(ramp(t, FF[0], FF[1], E.lin))));
-          v = shareAt(hops);
-        }
-        const kr = Object.fromEntries(NAMES.map((q) => [q, ramp(t, PEG[q], PEG[q] + 0.4, E.inOut)]));
-        v = Object.fromEntries(NAMES.map((q) => [q, lerp(v[q], EXACT[q], kr[q])]));
         const bk = popK(t, 0.6);
         b.update({ vals: v, text: Object.fromEntries(NAMES.map((q) => [q, A1.pct(v[q])])), o: Math.min(1, bk * 3) });
         V.place(noteBars, { y: (1 - E.out(bk)) * 8, o: Math.min(1, bk * 3) });
@@ -334,7 +339,7 @@
         const pr = popK(t, T_PR);
         tagPR.set({ x: 736, y: STAT.y + STAT.h / 2 - 28, ...tagPop(pr) });
         const fl = popK(t, T_FLOOR);
-        tagFloor.set({ x: b.left + 40, y: b.rowY("X") - 26, ...tagPop(fl) });
+        tagFloor.set({ x: b.left + 56, y: b.rowY("X") - 26, ...tagPop(fl) });
       };
 
       function tagPop(k) {

@@ -18,12 +18,12 @@
   const DROP = 0.25;
   const X0 = 404; // cost line: x(v) = 404 + (v - 11) * 44
   const xOf = (v) => X0 + (v - 11) * 44;
-  const AXIS_Y = 226;
+  const AXIS_Y = 216;
   // a dot sits on the stack of the dots with the same total that were dropped before it
   const seen = {};
   const DOTS = ORDER.map((tr) => {
     const row = (seen[tr.total] = (seen[tr.total] || 0) + 1) - 1;
-    return { x: xOf(tr.total), y: 207 - 34 * row, row };
+    return { x: xOf(tr.total), y: AXIS_Y - 19 - 34 * row, row };
   });
   A4.same("stack heights", Math.max(...DOTS.map((d) => d.row)) + 1, 3);
   A4.same("rightmost tick", xOf(22) < 906, true);
@@ -76,26 +76,28 @@
             style: { left: `${x}px`, top: `${y}px`, ...(centred ? { transform: "translateX(-50%)" } : {}) },
           }),
         );
+      const noteR = V.h("div", { class: "v-text dim", text: "one dot = one tree", style: { right: "30px", top: "26px" } });
+      stage.append(noteR);
       const plotBits = [
-        text("one dot = one tree", 392, 26),
-        ...[11, 14, 17, 20, 22].map((v) => text(String(v), xOf(v), 238, true)),
-        text("total cost", 646, 272, true),
+        noteR,
+        ...[11, 14, 17, 20, 22].map((v) => text(String(v), xOf(v), AXIS_Y + 12, true)),
+        text("total cost", 646, 270, true),
       ];
       // one dot per tree
       const dots = DOTS.map(() => A4.token(stage, { tone: "blue", size: 30 }));
       // 'cheapest' tag and arrow to the 11 dot
-      const cheap = A4.tag(stage, { x: 380, y: 70, text: "cheapest", tone: "green", solid: true });
+      const cheap = A4.tag(stage, { x: 388, y: 40, text: "cheapest", tone: "green", solid: true });
       const svgTop = L5.svg(stage);
-      const arrow = svgTop.appendChild(L5.arrow(X0, 122, X0, 186, "green", 1, { w: 7, head: 22 }));
+      const arrow = svgTop.appendChild(L5.arrow(X0, 96, X0, 172, "green", 1, { w: 7, head: 22 }));
       // ladder: how many spanning trees?
-      const head = A4.tag(stage, { x: 372, y: 324, text: "how many spanning trees?" });
+      const head = A4.tag(stage, { x: 372, y: 334, text: "how many spanning trees?" });
       const rows = COUNTS.map((c, r) => ({
         label: stage.appendChild(
           V.h("div", { class: "v-text dim", text: ROW_LAB[r], style: { left: "0px", top: `${ROW_Y[r] + 8}px` } }),
         ),
         bar: A4.bar(stage, { x: 180, y: ROW_Y[r], w: barW(c.text), h: 56, fs: 34, tone: ROW_TONE[r], text: c.text }),
       }));
-      const note = text("every pair of towns linked", 180, 584);
+      const note = text("every pair of towns linked", 180, 592);
 
       return (t) => {
         // ----- the flip-book: which tree is on show -----

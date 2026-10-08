@@ -16,8 +16,8 @@
   const NONE = "none";
 
   // ---------- layout (stage px) ----------
-  const YC = 350; // centre line of the pipeline
-  const TAG_Y = 196; // the row of part labels
+  const YC = 366; // centre line of the pipeline
+  const TAG_Y = 208; // the row of part labels
   const LIST = { x: 0, y: YC - 26, size: 52, gap: 6, w: 400 };
   const FIN_X = 410; // the finish line (a pole) just after the last tile
   const ARROW1_X = 430;
@@ -68,22 +68,41 @@
     ],
     build(stage) {
       // ----- the wish skeleton: dashed empty slots with orange question marks -----
-      const gList = V.h("div", { class: "v-card c-grey", style: { ...box(LIST.x, LIST.y, LIST.w, 52), ...dashed({ borderRadius: "18px" }) } });
-      const gMach = V.h("div", { class: "v-card c-grey", style: { ...box(MACH.x, MACH.y, MACH.w, MACH.h), ...dashed({}) } });
+      const gList = V.h("div", {
+        class: "v-card c-grey",
+        style: { ...box(LIST.x, LIST.y, LIST.w, 52), ...dashed({ borderRadius: "18px" }) },
+      });
+      const gMach = V.h("div", {
+        class: "v-card c-grey",
+        style: { ...box(MACH.x, MACH.y, MACH.w, MACH.h), ...dashed({}) },
+      });
       stage.append(gList, gMach);
       const ghostQ = (cx, cy, size) => {
         const ic = A1.icon("qmark", size, "orange");
         stage.append(ic);
-        return (k, o = 1) => V.place(ic, { x: cx - size / 2, y: cy - size / 2, s: 0.6 + 0.4 * E.pop(k), o: clamp(k * 4) * o });
+        return (k, o = 1) =>
+          V.place(ic, { x: cx - size / 2, y: cy - size / 2, s: 0.6 + 0.4 * E.pop(k), o: clamp(k * 4) * o });
       };
       const qList = ghostQ(LIST.w / 2, YC, 40);
       const qMach = ghostQ(MACH_CX, YC, 64);
       const qOut = ghostQ(OUT_CX, YC, 44);
 
       // ----- INPUT: the list, with a finish line at its end -----
-      const list = A1.row(stage, { x: LIST.x, y: LIST.y, values: A1.LIST, size: LIST.size, gap: LIST.gap, tone: "blue" });
+      const list = A1.row(stage, {
+        x: LIST.x,
+        y: LIST.y,
+        values: A1.LIST,
+        size: LIST.size,
+        gap: LIST.gap,
+        tone: "blue",
+      });
       const pole = V.h("div", {
-        style: { ...box(FIN_X, TAG_Y + 52, 6, LIST.y + 52 + 4 - (TAG_Y + 52)), background: "var(--amber)", borderRadius: "3px", transformOrigin: "50% 0%" },
+        style: {
+          ...box(FIN_X, TAG_Y + 52, 6, LIST.y + 52 + 4 - (TAG_Y + 52)),
+          background: "var(--amber)",
+          borderRadius: "3px",
+          transformOrigin: "50% 0%",
+        },
       });
       stage.append(pole);
       const empty = V.h("div", {
@@ -91,7 +110,14 @@
         text: "empty list",
         style: {
           ...box(LIST.x, LIST.y, LIST.w, 52),
-          ...dashed({ borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", color: "var(--text-dim)" }),
+          ...dashed({
+            borderRadius: "18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "28px",
+            color: "var(--text-dim)",
+          }),
         },
       });
       stage.append(empty);
@@ -99,7 +125,14 @@
       // ----- STEPS and COMPARE: the machine -----
       const machine = V.h("div", { class: "v-card c-purple", style: box(MACH.x, MACH.y, MACH.w, MACH.h) });
       const spinner = A1.icon("loop", 56, "purple");
-      const lineStyle = (top) => ({ left: "0px", top: `${top}px`, width: `${MACH.w - 6}px`, textAlign: "center", fontSize: "28px", color: "var(--c-ink)" });
+      const lineStyle = (top) => ({
+        left: "0px",
+        top: `${top}px`,
+        width: `${MACH.w - 6}px`,
+        textAlign: "center",
+        fontSize: "28px",
+        color: "var(--c-ink)",
+      });
       const line1 = V.h("div", { class: "v-text", style: lineStyle(70) });
       const line2 = V.h("div", { class: "v-text", style: lineStyle(106) });
       machine.append(spinner, line1, line2);
@@ -108,6 +141,7 @@
       // ----- the two arrows and the OUTPUT slot -----
       const arrows = [ARROW1_X, ARROW2_X].map((x) => {
         const a = A1.icon("arrow", 52, "grey");
+        a.querySelectorAll("path").forEach((p) => (p.style.stroke = "var(--text-dim)")); // darker than the pale grey token, so the flow reads
         stage.append(a);
         return { a, x };
       });
@@ -129,7 +163,11 @@
 
       // ----- copies of the list tiles that hop into the machine -----
       const copies = A1.LIST.map((x) =>
-        V.h("div", { class: "v-gene c-blue solid", text: String(x), style: { ...box(0, 0, LIST.size, LIST.size), fontSize: "29px" } }),
+        V.h("div", {
+          class: "v-gene c-blue solid",
+          text: String(x),
+          style: { ...box(0, 0, LIST.size, LIST.size), fontSize: "29px" },
+        }),
       );
       stage.append(...copies);
 
@@ -152,7 +190,12 @@
         V.place(bytes[0], { ...pop(bk), y: -6 * flash(t, HAPPY, HAPPY + 0.3), o: clamp(bk * 4) * (1 - happy) });
         V.place(bytes[1], { s: 0.9 + 0.1 * E.pop(happy), y: -8 * flash(t, HAPPY, HAPPY + 0.35), o: happy });
         const wk = ramp(t, 0.3, 0.9, E.lin);
-        wish.set({ x: 140, y: 22, dx: -30 * (1 - E.out(wk)), o: clamp(wk * 4) * (1 - 0.45 * ramp(t, 2.2, 2.6, E.lin)) });
+        wish.set({
+          x: 140,
+          y: 22,
+          dx: -30 * (1 - E.out(wk)),
+          o: clamp(wk * 4) * (1 - 0.45 * ramp(t, 2.2, 2.6, E.lin)),
+        });
         V.place(strip, { ...pop(ramp(t, 0.7, 1.1, E.lin)) });
         qs.forEach((q, i) => {
           const born = ramp(t, 0.8 + 0.1 * i, 1.15 + 0.1 * i, E.lin);
@@ -160,7 +203,12 @@
           const gone = ramp(t, a - 0.2, a, E.lin);
           const bob = 3 * Math.sin((2 * Math.PI * t) / 1.7 + i * 0.9);
           const ping = 1 + 0.25 * flash(t, PARTS[i].at, PARTS[i].at + 0.4);
-          V.place(q.q, { x: qx(i), y: QY + bob, s: (0.6 + 0.4 * E.pop(born)) * ping * (1 - 0.6 * gone), o: clamp(born * 4) * (1 - gone) });
+          V.place(q.q, {
+            x: qx(i),
+            y: QY + bob,
+            s: (0.6 + 0.4 * E.pop(born)) * ping * (1 - 0.6 * gone),
+            o: clamp(born * 4) * (1 - gone),
+          });
           const grow = ramp(t, a, a + 0.35, E.lin);
           V.place(q.k, { x: qx(i), y: QY, s: 1 + 0.25 * flash(t, a, a + 0.35) });
           A1.drawOn(q.k, grow);
@@ -180,12 +228,18 @@
         // ---- INPUT: label, then the tiles pop in one by one
         const inK = ramp(t, PARTS[0].at, PARTS[0].at + 0.4, E.lin);
         tags.input.set({ x: 0, y: TAG_Y, ...pop(inK), dy: (1 - E.out(inK)) * 10 });
-        const slideK = (i) => ramp(t, SLIDE + 0.05 * i, SLIDE + 0.05 * i + 0.4, E.inOut);
+        const slideK = (i) => ramp(t, SLIDE + 0.03 * i, SLIDE + 0.03 * i + 0.35, E.inOut);
         list.all((i) => {
           const born = ramp(t, 2.1 + 0.1 * i, 2.4 + 0.1 * i, E.lin);
           const sk = slideK(i);
           const taken = flash(t, DEPART(i), DEPART(i) + 0.3);
-          return { s: E.pop(born) * (1 + 0.1 * taken), x: -70 * sk, y: -8 * taken, o: clamp(born * 4) * (1 - sk), solid: taken > 0.2 };
+          return {
+            s: E.pop(born) * (1 + 0.06 * taken),
+            x: -50 * sk,
+            y: -6 * taken,
+            o: clamp(born * 4) * (1 - sk),
+            solid: taken > 0.5,
+          };
         });
 
         // ---- STOP: a finish line and a flag
@@ -211,7 +265,13 @@
         const stepsK = ramp(t, PARTS[1].at, PARTS[1].at + 0.4, E.lin);
         tags.steps.set({ x: MACH_CX, y: TAG_Y + 26, center: true, ...pop(stepsK), dy: (1 - E.out(stepsK)) * 10 });
         const cmpK = ramp(t, PARTS[2].at, PARTS[2].at + 0.4, E.lin);
-        tags.compare.set({ x: MACH_CX, y: MACH.y + MACH.h + 40, center: true, ...pop(cmpK), dy: (1 - E.out(cmpK)) * 10 });
+        tags.compare.set({
+          x: MACH_CX,
+          y: MACH.y + MACH.h + 46,
+          center: true,
+          ...pop(cmpK),
+          dy: (1 - E.out(cmpK)) * 10,
+        });
 
         // ---- OUTPUT: arrows, label, the slot and the run
         const outK = ramp(t, PARTS[4].at, PARTS[4].at + 0.4, E.lin);
@@ -249,14 +309,25 @@
           const x = u * u * p0.x + 2 * u * k * ctl.x + k * k * p2.x;
           const y = u * u * p0.y + 2 * u * k * ctl.y + k * k * p2.y;
           const live = k > 0 && k < 1;
-          V.place(c, { x: x - LIST.size / 2, y: y - LIST.size / 2, s: 1 - 0.65 * E.in(k), o: live ? 1 - ramp(k, 0.7, 1, E.lin) : 0 });
+          V.place(c, {
+            x: x - LIST.size / 2,
+            y: y - LIST.size / 2,
+            s: 1 - 0.65 * E.in(k),
+            o: live ? 1 - ramp(k, 0.7, 1, E.lin) : 0,
+          });
         });
 
         // ---- EDGE CASES: the list is empty
-        V.place(empty, { ...pop(ramp(t, SLIDE + 0.3, SLIDE + 0.7, E.lin)) });
+        V.place(empty, { ...pop(ramp(t, SLIDE + 0.35, SLIDE + 0.75, E.lin)) });
         const edK = ramp(t, PARTS[5].at, PARTS[5].at + 0.4, E.lin);
         const okK = ramp(t, PARTS[5].ans - 0.2, PARTS[5].ans + 0.2, E.lin);
-        edgeRed.set({ x: 0, y: EDGE_Y, ...pop(edK), dy: (1 - E.out(edK)) * 10, o: clamp(edK * 4) * (1 - clamp(okK * 4)) });
+        edgeRed.set({
+          x: 0,
+          y: EDGE_Y,
+          ...pop(edK),
+          dy: (1 - E.out(edK)) * 10,
+          o: clamp(edK * 4) * (1 - clamp(okK * 4)),
+        });
         edgeGreen.set({ x: 0, y: EDGE_Y, ...pop(okK), dy: (1 - E.out(okK)) * 10 });
         A1.drawOn(edgeQ, edK);
         A1.drawOn(edgeTick, ramp(t, PARTS[5].ans, PARTS[5].ans + 0.3, E.lin));

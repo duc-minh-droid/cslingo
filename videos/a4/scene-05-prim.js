@@ -30,6 +30,7 @@
   const GREY = 0.6; // opacity of a cable that is not in play
   const SLOTS = 4; // candidate tiles
   const at = (k) => FIRST + STEP * k;
+  const grey = (o, extra = {}) => ({ tone: "grey", o, pillO: Math.min(1, o + 0.25), ...extra });
   const tileText = (c) => `${c.key} ${c.w}`;
 
   /* which step is running, and how many seconds into it (k = -1 before the first step) */
@@ -44,20 +45,20 @@
     const out = {};
     A4.EDGE_KEYS.forEach((key, i) => {
       if (k < 0) {
-        const draw = ramp(t, 0.5 + 0.06 * i, 0.9 + 0.06 * i, lin);
-        out[key] = { tone: "grey", k: draw, o: lerp(1, GREY, ramp(t, 1.2, 1.6, lin)) };
+        const draw = ramp(t, 0.6 + 0.05 * i, 0.95 + 0.05 * i, lin);
+        out[key] = grey(lerp(1, GREY, ramp(t, 1.2, 1.6, lin)), { k: draw });
         return;
       }
       const st = P.steps[k];
       const ci = st.cands.findIndex((c) => c.key === key);
-      let e = { tone: "grey", o: GREY };
+      let e = grey(GREY);
       if (k > 0 && P.steps[k - 1].tree.includes(key)) e = { tone: "green", solid: true, w: 1.2 };
       else if (st.inside.includes(key)) {
         const was = k > 0 && P.steps[k - 1].inside.includes(key);
-        e = { tone: "grey", o: was ? 0.3 : lerp(GREY, 0.3, ramp(u, 0, 0.4, lin)) };
+        e = grey(was ? 0.3 : lerp(GREY, 0.3, ramp(u, 0, 0.4, lin)));
       } else if (ci >= 0 && u >= 0.08 * ci) {
         if (key === st.pick.key && u >= 1.0) e = { tone: "green", solid: true, w: 1.2, halo: flash(u, 1.0, 1.7) };
-        else if (u >= 1.0) e = { tone: "grey", o: lerp(0.85, GREY, ramp(u, 1.0, 1.5, lin)) };
+        else if (u >= 1.0) e = grey(lerp(0.85, GREY, ramp(u, 1.0, 1.5, lin)));
         else e = { tone: "orange", solid: true, w: 1.2, halo: 1 - ramp(u, 0.08 * ci, 0.08 * ci + 0.5, lin) };
       }
       if (t >= END && P.tree.includes(key)) e = { ...e, halo: Math.max(e.halo || 0, ramp(t, END, END + 0.4, lin)) };
@@ -70,7 +71,7 @@
   function townStates(t, k, u) {
     const out = {};
     A4.TOWNS.forEach((name, i) => {
-      const p = ramp(t, 0.2 + 0.1 * i, 0.6 + 0.1 * i, lin);
+      const p = ramp(t, 0.2 + 0.08 * i, 0.55 + 0.08 * i, lin);
       let s = E.pop(p);
       let solid = false;
       if (k < 0) {
@@ -114,7 +115,7 @@
         tone: "orange",
       });
       const tot = A4.total(stage, { x: 650, y: 330, w: 270, h: 80, label: "tree cost", tone: "green" });
-      const start = A4.tag(stage, { x: 20, y: 150, text: "start", tone: "green" });
+      const start = A4.tag(stage, { x: 6, y: 306, text: "start", tone: "green" });
       const ignored = A4.tag(stage, { x: 16, y: 96, text: "ignored", tone: "grey" });
       const best = A4.tag(stage, { x: 650, y: 440, text: "cheapest tree", tone: "green", solid: true });
       const svg = L5.svg(stage);
@@ -135,7 +136,7 @@
           const fade = 1 - ramp(u, 2.2, 2.6, lin);
           const e = {
             text: tileText(c),
-            x: (1 - E.out(p)) * 36 + 14 * (1 - fade),
+            y: (E.out(p) - 1) * 16 - 10 * (1 - fade),
             s: 0.8 + 0.2 * E.pop(p),
             o: Math.min(1, 4 * p) * fade,
           };

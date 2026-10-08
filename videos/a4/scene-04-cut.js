@@ -69,9 +69,9 @@
       tone: "orange",
     });
     const tot = A4.total(stage, { x: 650, y: 40, w: 270, h: 80, label: "tree cost", tone: "blue" });
-    const cheaper = A4.tag(stage, { x: 650, y: 128, text: "one cheaper", tone: "green" });
+    const cheaper = A4.tag(stage, { x: 650, y: 136, text: "one cheaper", tone: "green" });
     const ov = L5.svg(stage);
-    const loopX = L5.cross(181, 243, 64, "red", { w: 9 });
+    const loopX = L5.cross(172, 250, 64, "red", { w: 9 });
     const mid = top.mid(EX.f);
     const swapX = L5.cross(mid.x, mid.y, 46, "red", { w: 8 });
     const tick = L5.tick(780, 250, 70, "green");
