@@ -82,7 +82,8 @@
 
   function nodeState(n, t) {
     let st = { look: "grey" };
-    if (n === SRC && t >= T.me) st = { look: "solid", tone: "blue", pulse: bump(t, T.me, 0.4) };
+    if (n === SRC && t >= T.me)
+      st = { look: t >= T.packet ? "soft" : "solid", tone: "blue", pulse: bump(t, T.me, 0.4) }; // soft once the packet sits on it
     const fk = bump(t, ICON[n], 0.6);
     if (fk > 0.001) Object.assign(st, { ring: "blue", ringK: fk });
     if (n !== SRC && t >= ARR[n] && t < GONE[n])
@@ -134,7 +135,7 @@
         );
       const ringTimes = [...new Set(Object.values(ICON))].sort((a, b) => a - b);
       const waveCurve = ringTimes.map((a) => [a, a === ringTimes[0] ? 0 : reach(a)]);
-      const clip = V.s("clipPath", { id: "a2s7-stage" }, V.s("rect", { x: 0, y: 0, width: 936, height: 640 }));
+      const clip = V.s("clipPath", { id: "a2s7-stage" }, V.s("rect", { x: 0, y: 24, width: 936, height: 592 }));
       const wave = V.s("circle", {
         cx: G.pt(SRC).x,
         cy: G.pt(SRC).y,
@@ -163,7 +164,7 @@
         { tag: A2.tag(stage, { x: 100, y: 592, text: lookup(HOPS[1]), tone: "orange", solid: true }), a: LOOK_AT[0] },
         { tag: A2.tag(stage, { x: 545, y: 575, text: lookup(HOPS[2]), tone: "orange", solid: true }), a: LOOK_AT[1] },
       ];
-      const cost = A2.tag(stage, { x: 590, y: 420, text: `cost ${HOPS[0].cost}`, tone: "green", solid: true });
+      const cost = A2.tag(stage, { x: 600, y: 476, text: `cost ${HOPS[0].cost}`, tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = L5.tick(0, 0, 50, "green", { w: 9 });
       svg.append(tick);
@@ -194,7 +195,7 @@
         const wk = A2.curve(t, waveCurve);
         const wo = fade(t, ICON[SRC], 0.1) * (1 - fade(t, ringTimes[ringTimes.length - 1], 0.4));
         wave.setAttribute("r", wk.toFixed(1));
-        V.show(wave, wo * 0.55);
+        V.show(wave, wo * 0.55 * (1 - 0.6 * lin(t, ringTimes[0], ringTimes[ringTimes.length - 1])));
         names.forEach((n) => {
           const out = lin(t, ...ICON_OUT);
           V.place(icons[n], {
@@ -221,7 +222,7 @@
         // ---- the packet and the two lookups ----
         const j = HOP.findLastIndex(([a]) => t >= a);
         const p = j < 0 ? G.pt(ROUTE[0]) : G.along([ROUTE[j], ROUTE[j + 1]], io(t, ...HOP[j]));
-        const gone = lin(t, END, END + 0.25);
+        const gone = lin(t, END, END + 0.15);
         packet.set({
           x: p.x,
           y: p.y,

@@ -18,6 +18,7 @@
   const DIRECT = ROADS[1][2]; // what B pays to reach C directly
   const NAMES = ["A", "B", "C"];
   const BUBBLE_Y = 160;
+  const [RULER_X, RULER_Y, UNIT] = [52, 470, 52]; // 16 units of 52 px fill the stage width
   const TAG_Y = 330;
   const PRE = { A: A2.ctiAt(0).A, B: { d: DIRECT, via: null } }; // beliefs before the cut
 
@@ -148,11 +149,20 @@
       };
       const msg = A2.tag(stage, { x: POS.A[0], y: BUBBLE_Y, text: "", tone: "blue", solid: true });
       const packetX = [POS.A[0] + G.r + 30, POS.B[0] - G.r - 30];
-      const packet = A2.token(stage, { size: 40, tone: "blue", text: "C" });
-      const bar = A2.bar(stage, { x: 52, y: 470, unit: 52, segs: [{ v: CAP, tone: "red", text: "" }] });
+      const packet = A2.token(stage, { size: 44, tone: "blue", text: "C" });
+      // the ruler: an empty track with a mark for every unit, then the bar that fills it
+      const track = L5.svg(stage);
+      track.append(
+        V.s("rect", { x: RULER_X, y: RULER_Y, width: CAP * UNIT, height: 44, rx: 13, "stroke-width": 3, style: { fill: "var(--panel-2)", stroke: "var(--line)" } }),
+        ...Array.from({ length: CAP - 1 }, (_, i) =>
+          V.s("path", { d: `M${RULER_X + (i + 1) * UNIT} ${RULER_Y + 28}v12`, "stroke-width": 3, "stroke-linecap": "round", style: { stroke: "var(--line)" } }),
+        ),
+      ); // prettier-ignore
+      const bar = A2.bar(stage, { x: RULER_X, y: RULER_Y, unit: UNIT, segs: [{ v: CAP, tone: "red", text: "" }] });
       const costLabel = A2.tag(stage, { x: 150, y: 440, text: "cost of C", tone: "grey" });
       const rip = A2.tag(stage, { x: 700, y: 552, text: `RIP: ${CAP} = unreachable`, tone: "red" });
       const poison = A2.tag(stage, { x: POS.B[0], y: 100, text: "poisoned reverse", tone: "purple" });
+      const note = A2.tag(stage, { x: POS.B[0], y: 392, text: `A says C: ${A2.fmt(INF)}`, tone: "purple" }); // what B remembers
       const agreed = A2.tag(stage, { x: 500, y: 596, text: "agreed at once", tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = L5.tick(332, 596, 52, "green");
@@ -231,6 +241,7 @@
 
         // ---- the cure ----
         poison.set({ s: 0.8 + 0.2 * pop(t, T.mend + 0.45), o: fade(t, T.mend + 0.45, 0.2) });
+        note.set({ s: 0.8 + 0.2 * pop(t, T.poison + 0.7), o: fade(t, T.poison + 0.7, 0.2) });
         agreed.set({ s: 0.8 + 0.2 * pop(t, T.agree), o: fade(t, T.agree, 0.2) });
         L5.drawOn(tick, lin(t, T.agree + 0.15, T.agree + 0.55));
         V.place(tick, { s: 0.7 + 0.3 * pop(t, T.agree + 0.15), o: lin(t, T.agree + 0.15, T.agree + 0.55) > 0 ? 1 : 0 });

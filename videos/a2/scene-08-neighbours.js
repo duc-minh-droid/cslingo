@@ -74,7 +74,7 @@
       const table = A2.table(stage, {
         x: 12,
         y: 494,
-        cols: [72, 96, 92],
+        cols: [64, 88, 80],
         head: ["to", "cost", "via"],
         rows: [[BF.dest, String(BF.cost), BF.best]],
         rowH: 48,
@@ -82,7 +82,7 @@
       const svg = L5.svg(stage);
       const noMap = A2.mapIcon(86, 214, 104, "grey");
       const noMapCross = L5.cross(86, 214, 76, "red", { w: 10 });
-      const tick = L5.tick(352, 590, 48, "green", { w: 9 });
+      const tick = L5.tick(312, 582, 52, "green", { w: 10 });
       svg.append(noMap, noMapCross, tick);
 
       /* a node: grey until it pops; a neighbour is soft blue from the moment it has spoken, then the winner is orange (ring) and
@@ -97,7 +97,7 @@
             const k = lin(t, T.min, T.min + 0.3);
             return { ...base, look: "soft", tone: "orange", ring: "orange", ringK: k, pulse: bump(t, T.min, 0.4) };
           }
-          return { ...base, look: "grey", o: base.o * (1 - 0.6 * io(t, T.min, T.min + 0.4)) };
+          return { ...base, look: "grey" };
         }
         if (t >= speak(n)) return { ...base, look: "soft", tone: "blue", pulse: bump(t, speak(n), 0.4) };
         return { ...base, look: "grey" };
