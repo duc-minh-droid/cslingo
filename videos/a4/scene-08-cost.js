@@ -12,7 +12,7 @@
   const V = window.VID;
   const A4 = V.a4;
   const L5 = V.l5;
-  const { ramp, flash, lerp, ease: E } = V;
+  const { ramp, flash, ease: E } = V;
 
   // ---------- the numbers (asserted against the storyboard) ----------
   const { sparse, dense } = A4.COST;
@@ -27,7 +27,11 @@
     [1000, 499500, 998001, 4977909, "998 k", "5.0 M"],
   );
   A4.same("scene 8 Prim steps", [A4.primSteps(1024), A4.primSteps(1000)], [1046529, 998001]);
-  A4.same("scene 8 Kruskal steps", [A4.kruskalSteps(2048, 1024), Math.round(A4.kruskalSteps(499500, 1000))], [20480, 4977909]);
+  A4.same(
+    "scene 8 Kruskal steps",
+    [A4.kruskalSteps(2048, 1024), Math.round(A4.kruskalSteps(499500, 1000))],
+    [20480, 4977909],
+  );
   A4.close("scene 8 sparse ratio", sparse.ratio, 51.1, 0.1);
   A4.close("scene 8 dense ratio", dense.ratio, 4.99, 0.02);
 
@@ -107,7 +111,9 @@
         });
         const title = A4.tag(stage, { x: c.x0, y: 0, text: c.name });
         const text = (txt, y, cls = "v-text dim") =>
-          stage.appendChild(V.h("div", { class: cls, text: txt, style: { left: `${c.x0}px`, top: `${y}px`, fontSize: "28px" } }));
+          stage.appendChild(
+            V.h("div", { class: cls, text: txt, style: { left: `${c.x0}px`, top: `${y}px`, fontSize: "28px" } }),
+          );
         const size = text(`${A4.commas(c.cost.V)} towns · ${A4.commas(c.cost.E)} cables`, 226);
         const labels = [text("Prim · V²", 290), text("Kruskal · E log V", 384)];
         const top = Math.max(c.cost.prim, c.cost.kruskal);
@@ -138,7 +144,10 @@
         LETTERS.forEach((l, i) => {
           const a0 = 0.3 + i * 0.03;
           const hop = flash(t, c.prim[0] + i * 0.05, c.prim[0] + i * 0.05 + 0.45);
-          towns[l] = { s: (0.4 + 0.6 * E.pop(ramp(t, a0, a0 + 0.35, E.lin))) * (1 + 0.5 * hop), o: ramp(t, a0, a0 + 0.1, E.lin) };
+          towns[l] = {
+            s: (0.4 + 0.6 * E.pop(ramp(t, a0, a0 + 0.35, E.lin))) * (1 + 0.5 * hop),
+            o: ramp(t, a0, a0 + 0.1, E.lin),
+          };
         });
         g.update({ edges, towns });
 
@@ -160,7 +169,6 @@
       return (t) => {
         cols.forEach((col) => drawCol(t, col));
         final.set({ k: ramp(t, T_FINAL[0], T_FINAL[1], E.lin) });
-        void lerp;
       };
     },
   });

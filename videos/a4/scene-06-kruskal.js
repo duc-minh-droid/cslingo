@@ -47,7 +47,6 @@
   const REJECT = EV.findIndex((e) => !e.accept);
   const END = 11.6; // BD has joined the last two groups
   const GHOST = 11.9; // the two unread tiles become ghosts
-  const SLOT_X = (i) => 78 + 130 * i; // centre of tile i
   const ev = (i, u) => [EV[i], u];
   // seconds after T at which each phase of an event ends
   const BLUE = 0.7; // blue (being tested) until here, then green
@@ -193,7 +192,7 @@
       const lines = [0, 1].map((n) =>
         V.h("div", {
           class: "v-text",
-          style: { left: "96px", top: `${37 + 44 * n}px`, fontSize: "36px", fontWeight: "900", color: "var(--c-ink)" },
+          style: { left: "92px", top: `${39 + 42 * n}px`, fontSize: "34px", fontWeight: "900", color: "var(--c-ink)" },
         }),
       );
       const card = V.h("div", {

@@ -152,6 +152,16 @@
       update(st) {
         const { rad } = st;
         links.forEach((l) => paintLink(l, rad, st.edgeK ?? 1, T("grey").c));
+        pours.forEach((l) => {
+          const k = (st.pourK ?? 0) * 0.55;
+          V.show(l.line, k);
+          if (l.a === l.b) {
+            const [cx, cy] = [C[l.a][0], C[l.a][1] + rad[l.a] + 18];
+            return l.line.setAttribute("d", `M${f1(cx)} ${f1(cy - 16)}a16 16 0 1 1 0 32a16 16 0 1 1 0 -32`);
+          }
+          const { p0, p3 } = ends(l.a, l.b, rad);
+          l.line.setAttribute("d", `M${f1(p0[0])} ${f1(p0[1])}L${f1(p3[0])} ${f1(p3[1])}`);
+        });
         NAMES.forEach((k) => {
           const n = nodes[k];
           const c = T((st.tone || {})[k] || "blue");
@@ -305,6 +315,7 @@
           solid: lead ? { [lead]: true } : {},
           nodeK,
           edgeK: ramp(t, 0.6, 1.2),
+          pourK: st.round && t < RS[st.round - 1] + FLY + 0.3 ? clamp(st.f * 6) * ramp(RS[st.round - 1] + FLY + 0.3 - t, 0, 0.3, E.lin) : 0,
           dots,
         });
 

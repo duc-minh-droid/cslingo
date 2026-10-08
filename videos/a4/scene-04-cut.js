@@ -56,8 +56,8 @@
   function build(stage) {
     const base = A4.net(stage, { x: 24, y: 20, s: 1 });
     const top = A4.net(stage, { x: 24, y: 20, s: 1, hidden: true });
-    const xTag = A4.tag(stage, { x: 20, y: 150, text: "X", tone: "purple", solid: true });
-    const crossTag = A4.tag(stage, { x: 650, y: 120, text: "across the cut", tone: "orange" });
+    const xTag = A4.tag(stage, { x: 20, y: 142, text: "X", tone: "purple", solid: true });
+    const crossTag = A4.tag(stage, { x: 650, y: 104, text: "across the cut", tone: "orange" });
     const tiles = A4.tiles(stage, {
       x: 650,
       y: 176,
@@ -87,9 +87,9 @@
       });
       const hide = (key) => (U[key] = { tone: "grey", o: 0 });
       // a cable that grows in colour over its grey line: the grey fades out as the coloured pill pops in
-      const grow = (key, a, tone, from) => {
-        const k = ramp(t, a, a + GROW);
-        const pill = ramp(t, a + 0.05, a + 0.3, lin);
+      const grow = (key, a, tone, from, d = GROW) => {
+        const k = ramp(t, a, a + d, E.inOut);
+        const pill = ramp(t, a + 0.1, a + 0.4, lin);
         G[key] = { tone, solid: true, w: W, k, from, pill };
         if (k >= 0.999) hide(key);
         else U[key] = { tone: "grey", o: baseO, pillO: baseO * (1 - pill) };
@@ -122,7 +122,7 @@
       EX.T.forEach((key) => {
         if (t >= TREE[key]) grow(key, TREE[key], "blue", FROM[key]);
       });
-      if (t >= AC_ADD) grow("AC", AC_ADD, "green", "A");
+      if (t >= AC_ADD) grow("AC", AC_ADD, "green", "A", AC_DONE - AC_ADD);
       // ----- the loop alarm -----
       const alarm = ramp(t, ALARM, ALARM + 0.3, lin);
       if (t >= ALARM) {

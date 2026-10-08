@@ -7,7 +7,6 @@
   const V = window.VID;
   const A2 = V.a2;
   const L5 = V.l5;
-  const { ease: E } = V;
 
   const RUN = A2.DIJ_RUN;
   const NAMES = A2.DIJ.names;

@@ -88,7 +88,13 @@
       V.place(tick, {
         x: 288,
         y: 22,
-        s: 1 + 0.3 * bumps(q, run.steps.map((_, s) => verdict(s))),
+        s:
+          1 +
+          0.3 *
+            bumps(
+              q,
+              run.steps.map((_, s) => verdict(s)),
+            ),
         o: live ? shown : 0,
       });
     };
@@ -169,10 +175,9 @@
       strip.update((r, c) => cellState(oneA.has(`${c},${r}`), oneB.has(`${c},${r}`), T.strip + 0.12 * (c - W0), q), {
         o: intro,
       });
-      square.update(
-        (r, c) => cellState(sqA.has(`${r},${c}`), sqB.has(`${r},${c}`), T.sq + 0.08 * (r + c - W0), q),
-        { o: intro },
-      );
+      square.update((r, c) => cellState(sqA.has(`${r},${c}`), sqB.has(`${r},${c}`), T.sq + 0.08 * (r + c - W0), q), {
+        o: intro,
+      });
 
       slots.forEach((sl, k) => {
         const isNew = k === 0;
@@ -193,7 +198,10 @@
   // ---------- row 3: share rank, teleport, repeat ----------
   function webRow(pic) {
     const web = A1.WEBS.web5;
-    A1.must(web.edges.length === 6 && web.dead.join() === "T", "recap row 3: the five-page web has six links and T is a dead end");
+    A1.must(
+      web.edges.length === 6 && web.dead.join() === "T",
+      "recap row 3: the five-page web has six links and T is a dead end",
+    );
     const NODE = { P: [42, 36], Q: [150, 20], R: [262, 68], S: [186, 114], T: [44, 108] };
     const R0 = 15;
     const [blue, orange, purple, grey] = ["blue", "orange", "purple", "grey"].map(L5.tone);
@@ -251,7 +259,9 @@
     const tl = Math.hypot(tx, ty);
     const [hx, hy] = [tx / tl, ty / tl];
     const arcHead = gPort.appendChild(V.s("path", { d: `M${f1(B[0] + hx * 4)} ${f1(B[1] + hy * 4)}L${f1(B[0] - hx * 8 - hy * 6)} ${f1(B[1] - hy * 8 + hx * 6)}L${f1(B[0] - hx * 8 + hy * 6)} ${f1(B[1] - hy * 8 - hx * 6)}Z`, "stroke-width": 2, "stroke-linejoin": "round", style: { fill: purple.c, stroke: purple.c } })); // prettier-ignore
-    const jump = gPort.appendChild(V.s("circle", { r: 6.5, "stroke-width": 2, style: { fill: purple.c, stroke: purple.lip } }));
+    const jump = gPort.appendChild(
+      V.s("circle", { r: 6.5, "stroke-width": 2, style: { fill: purple.c, stroke: purple.lip } }),
+    );
     const halo = gPort.appendChild(V.s("circle", { cx: NODE.T[0], cy: NODE.T[1], r: R0 + 8, fill: "none", "stroke-width": 4, style: { stroke: purple.c } })); // prettier-ignore
     const tick = A1.icon("tick", 34, "green");
     pic.append(tick);
@@ -301,7 +311,7 @@
 
       const k = q < 0 ? 0 : ramp(q, 3.7, 4.0, E.lin) * reset;
       A1.drawOn(tick, k);
-      V.place(tick, { x: 298, y: 6, s: 0.7 + 0.3 * E.pop(k), o: k });
+      V.place(tick, { x: 296, y: 51, s: 0.7 + 0.3 * E.pop(k), o: k });
     };
   }
 
@@ -351,7 +361,13 @@
       const cta = V.h("div", {
         class: "v-tag solid c-blue",
         text: "Code it: Workshop 1.C",
-        style: { position: "relative", display: "flex", alignItems: "center", fontSize: "34px", padding: "8px 34px 10px" },
+        style: {
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          fontSize: "34px",
+          padding: "8px 34px 10px",
+        },
       });
       const ctaBar = V.h("div", {
         style: { ...box(0, 876, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
