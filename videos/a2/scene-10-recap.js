@@ -3,7 +3,7 @@
    Row 1 (period 4.2): the lesson's triangle A, B, C. A is settled; its roads draw blue and B waits at 4, C at 2 (A2.DIJ_RUN round 1).
           C is the smallest, so it turns orange, then green (settled); its road to B draws blue and B's 4 is struck out and
           becomes 3 with an orange flash (round 2: 2 + 1 = 3 beats 4). Numbers come from A2.DIJ_RUN.
-   Row 2 (period 4.5): the 10 x 7 grid at cell 18 runs A* from S round the wall to G (n = 0 -> 20 over 3 s, A2.RUNS.astar) while a
+   Row 2 (period 4.8): the 10 x 7 grid at cell 18 runs A* from S round the wall to G (n = 0 -> 20 over 3 s, A2.RUNS.astar) while a
           purple compass needle swings and settles on G; then the path lights up solid green and a green tick pops.
    Row 3 (period 3.0): three routers in a row: a blue packet slides out of each router and into the next (0.5 s a hop), the last one
           turns green; a purple message tag keeps sliding between the first two (gossip, period 1.5). */
@@ -157,10 +157,10 @@
         tickG,
       ),
     );
-    const T = { run: [0.4, 3.4], path: [3.4, 3.95], tick: 3.85, end: 4.25 };
+    const T = { run: [0.35, 3.35], path: [3.35, 3.85], tick: 3.65, end: 4.5 };
     return (t) => {
-      const q = cyc(t, START[1], 4.5);
-      const o = q < 0 ? 0 : A2.fade(q, 0, 0.3) * out(q, T.end, 4.5);
+      const q = cyc(t, START[1], 4.8);
+      const o = q < 0 ? 0 : A2.fade(q, 0, 0.3) * out(q, T.end, 4.8);
       const n = run.count * A2.lin(q, ...T.run);
       const paint = A2.gridPaint(run, n, { pathK: A2.lin(q, ...T.path) });
       Gd.update({
@@ -265,11 +265,12 @@
       // the message tag slides to router 2 and back (period 1.5), pausing at each end
       const tx = XS[0] + (XS[1] - XS[0]) * (A2.io(u, 0.1, 0.6) - A2.io(u, 0.75, 1.25));
       V.place(tag, { x: tx, y: 28, s: 0.8 + 0.2 * born, o: u < 0 ? 0 : A2.fade(t, START[2] + 0.1) });
-      const hits = [
-        flash(u, 0.5, 0.9) + flash(q, T.hop1[1] - 0.05, T.hop1[1] + 0.3), // router 2: the tag arrives, and the packet
-        flash(q, T.win - 0.05, T.win + 0.35), // router 3: the packet arrives
+      // each router bumps when the tag or the packet reaches it (router 1 also when the packet leaves)
+      const bump = [
+        flash(u, 1.15, 1.55) + flash(q, T.hop1[0] - 0.1, T.hop1[0] + 0.2),
+        flash(u, 0.5, 0.9) + flash(q, T.hop1[1] - 0.05, T.hop1[1] + 0.3),
+        flash(q, T.win - 0.05, T.win + 0.35),
       ];
-      const bump = [flash(u, 1.15, 1.55) + flash(q, T.hop1[0] - 0.1, T.hop1[0] + 0.2), hits[0], hits[1]];
       rs.forEach((r, i) => {
         V.place(r.g, {
           s: (0.8 + 0.2 * (i === 0 ? born : A2.pop(t, START[2] + 0.05 * i - 0.1))) * (1 + 0.09 * bump[i]),
