@@ -65,7 +65,11 @@
       // ---------- handles (layers stack in creation order) ----------
       const curve = P.curve(A3.BF, { x0: 0, x1: 1 });
       const band = P.band({ tone: "red" });
-      const ref = P.internals.mk("line", { "stroke-width": "5", "stroke-linecap": "round", "stroke-dasharray": "2 10" });
+      const ref = P.internals.mk("line", {
+        "stroke-width": "5",
+        "stroke-linecap": "round",
+        "stroke-dasharray": "2 10",
+      });
       ref.style.stroke = L5.tone("green").c;
       const guides = pts.map(() => P.vline({}));
       const gap = P.vline({ w: 6, dash: "none" });
@@ -141,7 +145,8 @@
           const out = p.drop == null ? 0 : K(t, p.drop, 0.4);
           let bump = 0;
           S.forEach((q, j) => {
-            if (toneOf(p.x, q.t, q) !== toneOf(p.x, q.nt, null)) bump = Math.max(bump, flash(t, Tk(j) + 1.2, Tk(j) + 1.6));
+            if (toneOf(p.x, q.t, q) !== toneOf(p.x, q.nt, null))
+              bump = Math.max(bump, flash(t, Tk(j) + 1.2, Tk(j) + 1.6));
           });
           const ev = reuse.find(([x, a]) => x === p.x && t >= a - 0.1 && t < a + 1.3);
           const ringK = ev ? K(t, ev[1], 0.35) * (1 - K(t, ev[1] + 0.85, 0.3)) : 0;
@@ -215,7 +220,7 @@
           text: String(evals),
           s: 0.8 + 0.2 * E.pop(kStat),
           o: pk(kStat),
-          bump: Math.max(0, ...S.map((q, j) => flash(t, Tk(j) + 0.3, Tk(j) + 0.6))),
+          bump: 0.6 * Math.max(0, ...S.map((q, j) => flash(t, Tk(j) + 0.3, Tk(j) + 0.6))),
         });
         const kW = K(t, 2.4, 0.4);
         const w0 = st.k > 0 ? S[st.k - 1].width : 1;

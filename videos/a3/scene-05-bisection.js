@@ -2,8 +2,11 @@
    f(x) = e^x - 2x on [0, 1]: the slope is falling at a = 0 and rising at b = 1, so a minimum is trapped between them. Test the middle m:
    falling -> a moves up to m, rising -> b moves down to m. Four halvings (A3.bisect(4): m 0.5, 0.75, 0.625, 0.6875) leave the bracket
    [0.6875, 0.75], which still holds ln 2 = 0.6931.
-   Every frame is a pure function of t: the three "ends" (a, b and the middle m) are drawn from the round (k) and the time inside it (u).
-   The invariant (slope falling at a, rising at b) is asserted for every bracket when the scene is built. */
+   Every frame is a pure function of t: the three points (the ends a, b and the middle m) are drawn from the round (rd) and the time
+   inside it (u). The invariant (slope falling at a, rising at b) is asserted for every bracket when the scene is built.
+   Layout of the "falling" / "rising" tags: each tag sits as low as it can without touching the curve; the two end tags lean towards
+   each other while the bracket is wide and keep 240 px between their centres once it is narrow (so the final star fits between them);
+   the tag of the middle point goes above any end tag it would overlap. */
 (function () {
   const V = window.VID;
   const A3 = V.a3;
@@ -35,8 +38,10 @@
   const ROUND = 1.7;
   const CUT = 0.8; // the thrown-away half tints red and the old end fades
   const HAND = 1.1; // m takes over the role of the end that was cut
-  const TAG_W = 150; // a "falling" / "rising" tag is about this wide
-  const TAG_GAP = 240; // the two end tags keep this far apart (centre to centre) once the bracket is narrow
+  const TAG_W = 130; // a "falling" / "rising" tag is about 130 x 54 px
+  const TAG_H = 54;
+  const TAG_SEP = 240; // narrow bracket: the two end tags keep this far apart (centre to centre)
+  const TAG_IN = 49; // wide bracket: the end tags lean this far towards each other
   const WHAT = ["falling", "rising"]; // the end a falls, the end b rises
 
   V.scene({
@@ -66,26 +71,45 @@
       const band = P.band({ tone: "red" });
       const span = P.span({ tone: "purple" });
       const stat = A3.stat(P.html, { x: 358, y: 24, w: 220, label: "bracket width" });
-      // one set of handles per end (a, b) and one for the middle m
-      const part = (tone) => ({
-        guide: P.vline({}),
-        dot: P.dot({ tone, r: 14 }),
-        tan: P.tangent({ tone: "purple", len: 140 }),
-        tag: A3.tag(P.html, { x: 0, y: 0, anchor: "c", tone: "purple" }),
-        letter: P.text({ tone }),
-      });
+      // one set of handles per point: the ends a and b, and the middle m (tangents are made before the dots so the dots sit on top)
+      const part = (tone) => {
+        const guide = P.vline({});
+        const tan = P.tangent({ tone: "purple", len: 140 });
+        return {
+          guide,
+          tan,
+          dot: P.dot({ tone, r: 14 }),
+          tag: A3.tag(P.html, { x: 0, y: 0, anchor: "c", tone: "purple" }),
+          letter: P.text({ tone }),
+        };
+      };
       const ends = [part("blue"), part("blue")];
       const mid = part("orange");
       const star = A3.star(P.over, { size: 52 });
       const y0 = P.cur.y0;
+      const [areaL, areaR] = [P.area.x + TAG_W / 2, P.area.x + P.area.w - TAG_W / 2];
 
-      // draw one end: everything the viewer sees of a point x (dot, guide, tangent, tag, letter), faded by o
+      // where a tag centred on stage x cx may sit: as low as possible without touching the curve (f is convex, so its highest
+      // point under the tag is at one of the tag's two ends) and clear of the dot below it
+      const curveY = (px) => P.py(f(P.cur.x0 + (px - P.area.x) / P.cur.sx));
+      const tagAt = (cx0, x) => {
+        const cx = clamp(cx0, areaL, areaR);
+        return [cx, Math.min(curveY(cx - TAG_W / 2), curveY(cx + TAG_W / 2), P.py(f(x)) - 30) - 12 - TAG_H];
+      };
+      // the two end tags for a bracket [xa, xb]: leaning inwards when it is wide, 240 px apart when it is narrow
+      const endTags = ([xa, xb]) => {
+        const [pa, pb] = [P.px(xa), P.px(xb)];
+        const d = Math.min(TAG_IN, (pb - pa - TAG_SEP) / 2);
+        return [tagAt(pa + d, xa), tagAt(pb - d, xb)];
+      };
+
+      // everything the viewer sees of one point x: dot, guide, tangent, tag, letter
       const showPart = (h, d) => {
-        const { x, o, k, s, text, letter, tagPos, tagO, len, tone, lo } = d;
+        const { x, o, k, kT, s, text, letter, tagPos, tagO, len, tone, lo } = d;
         h.guide.set({ x, y0, y1: f(x), k, o });
         h.dot.set({ x, y: f(x), s: s * E.pop(k), o: Math.min(o, k * 4), tone });
-        h.tan.set({ x, y: f(x), m: df(x), k: d.kT, o, len });
-        h.tag.set({ text, dx: tagPos[0], dy: tagPos[1], s: 0.8 + 0.2 * E.pop(d.kT), o: Math.min(tagO, d.kT * 4) });
+        h.tan.set({ x, y: f(x), m: df(x), k: kT, o, len });
+        h.tag.set({ text, dx: tagPos[0], dy: tagPos[1], s: 0.8 + 0.2 * E.pop(kT), o: Math.min(tagO, kT * 4) });
         h.letter.set({ text: letter, x, y: y0, dy: -16, o: lo * k, tone });
       };
 
@@ -98,9 +122,9 @@
         const post = bracket[rd];
         const glide = rd ? ramp(u, 1.05, 1.45, E.inOut) : 0;
         const xd = [lerp(pre[0], post[0], glide), lerp(pre[1], post[1], glide)]; // the bracket as drawn (the span glides)
-        const sepPx = P.px(xd[1]) - P.px(xd[0]);
-        const len = clamp(sepPx, 56, 140); // tangents get shorter as the bracket closes
-        const shift = Math.max(0, (TAG_GAP - sepPx) / 2); // end tags step outwards when the ends crowd
+        const len = clamp(P.px(xd[1]) - P.px(xd[0]), 56, 140); // tangents get shorter as the bracket closes
+        const tags = endTags(xd);
+        const tagsPre = endTags(pre);
 
         // ---------- the card and the curve ----------
         P.set({ o: ramp(t, 0, 0.5, lin) });
@@ -113,35 +137,32 @@
           o: row ? ramp(u, CUT, HAND) * (1 - ramp(u, 1.45, 1.7)) : 0,
         });
 
+        // ---------- the middle: where m sits and its tag (above any end tag it would overlap) ----------
+        const mx = row ? row.m : 0.5;
+        const mPos = tagAt(P.px(mx), mx);
+        tagsPre.forEach(([cx, top]) => {
+          if (Math.abs(cx - mPos[0]) < TAG_W + 8) mPos[1] = Math.min(mPos[1], top - TAG_H - 8);
+        });
+
         // ---------- the two ends ----------
         ends.forEach((h, i) => {
           const role = i ? "b" : "a";
           const moving = !!row && row.keep === role; // this end is the one that gets cut away
-          const after = moving && u >= HAND; // m has taken over
+          const after = moving && u >= HAND; // m has taken over its role
           const cutF = moving && !after ? ramp(u, CUT, HAND, lin) : 0;
-          const x = after ? row.m : pre[i];
-          const k = rd ? 1 : ramp(t, 1.2 + 0.4 * i, 1.6 + 0.4 * i, lin); // dot, guide, letter appear
+          const k = rd ? 1 : ramp(t, 1.2 + 0.4 * i, 1.6 + 0.4 * i, lin); // dot, guide and letter appear
           const kT = rd ? 1 : ramp(t, 2.0 + 0.6 * i, 2.4 + 0.6 * i, lin); // tangent and tag appear
-          const cxEnd = clamp(
-            i ? P.px(xd[1]) + shift : P.px(xd[0]) - shift,
-            P.area.x + TAG_W / 2,
-            P.area.x + P.area.w - TAG_W / 2,
-          );
-          const topEnd = P.py(f(xd[i])) - 84;
           // the tag of an end that m has just replaced starts where m's tag was and slides to its place
           const gT = after ? ramp(u, HAND, HAND + 0.4, E.inOut) : 1;
-          const tagPos = after
-            ? [lerp(P.px(row.m), cxEnd, gT), lerp(P.py(f(row.m)) - 140, topEnd, gT)]
-            : [cxEnd, topEnd];
           showPart(h, {
-            x,
+            x: after ? row.m : pre[i],
             o: 1 - cutF,
             k,
             kT,
             s: (1 - 0.4 * cutF) * (after ? 1 + 0.3 * (1 - ramp(u, HAND, HAND + 0.3)) : 1),
             text: WHAT[i],
             letter: role,
-            tagPos,
+            tagPos: after ? [lerp(mPos[0], tags[i][0], gT), lerp(mPos[1], tags[i][1], gT)] : tags[i],
             tagO: 1 - cutF,
             len,
             tone: "blue",
@@ -150,19 +171,17 @@
         });
 
         // ---------- the middle: probe, test, hand over ----------
-        const kM = row && u < HAND ? ramp(u, 0, 0.35, lin) : 0;
-        const kMT = row && u < HAND ? ramp(u, 0.3, 0.8) : 0;
-        const mx = row ? row.m : 0.5;
+        const live = !!row && u < HAND;
         showPart(mid, {
           x: mx,
-          o: row && u < HAND ? 1 : 0,
-          k: kM,
-          kT: kMT,
+          o: live ? 1 : 0,
+          k: live ? ramp(u, 0, 0.35, lin) : 0,
+          kT: live ? ramp(u, 0.3, 0.8) : 0,
           s: 1,
           text: row && row.falling ? WHAT[0] : WHAT[1],
           letter: "m",
-          tagPos: [P.px(mx), P.py(f(mx)) - 140],
-          tagO: row && u < HAND ? 1 : 0,
+          tagPos: mPos,
+          tagO: live ? 1 : 0,
           len,
           tone: "orange",
           lo: row ? 1 - ramp(u, HAND, 1.4) : 0,
