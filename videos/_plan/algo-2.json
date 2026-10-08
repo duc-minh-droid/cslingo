@@ -1,0 +1,283 @@
+{
+  "slug": "algo-2",
+  "dir": "a2",
+  "title": "Algorithms phase 2 · Graph search & internet routing",
+  "outline": "Algorithms phase 2 video (ECM3428 'Algorithms that Changed the World'), 'Graph Search & Internet Routing', video algo-2, 116 s: title (4), a map is a graph (11), Dijkstra's run (17), why settled means final (11), A* adds a compass (13), the A* vs Dijkstra race (12), routers forward one hop at a time (13), distance vectors: ask your neighbours (12), count to infinity and poisoned reverse (14), recap (9). STORY: finding the cheapest way is a graph problem (places, roads with costs); Dijkstra settles the closest node and relaxes its roads, and that only works because no road is negative; A* adds a guess h of the distance left (f = g + h) so the same search heads for the goal and finds the same route with far fewer steps, provided h never overestimates; the Internet does the same job in its routers: link-state routers each run Dijkstra on the shared map and keep only the first hop in a forwarding table, then packets move one table lookup at a time; distance-vector routers have no map, ask their neighbours and add (Bellman-Ford), which can count to infinity when a road breaks, cured by poisoned reverse.\n\nLESSONS (js/content/algo/): a2-graphs 2.1, a2-dijkstra 2.2, a2-astar 2.3, a2-astar-hand 2.4, a2-admissible 2.5, a2-weighted 2.6, a2-astar-code 2.7, a2-internet 2.8, a2-linkstate 2.9, a2-bellman 2.10, a2-routing 2.11, a2-hierarchy 2.12, workshops a2-watch 2.W and a2-code 2.C, boss a2-boss. The video covers 2.1, 2.2, 2.3 (with the rule of 2.4/2.5), 2.8, 2.9, 2.10 and 2.11. Weighted A*, A* in code and the autonomous systems / BGP lesson stay in the app. (App note for the reviewer, not for the video: lesson 2.8's predict a2-in-2 says that with link D-E down the cheapest A to F route is A-B-C-F at cost 9; the real answer is A-B-C-E-F at cost 8.)\n\nROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nSHARED DATA, REUSED FROM SCENE TO SCENE (all computed by videos/a2/common.js, which asserts every number below at load and throws if one differs): ACT 1, scenes 2-4, the lesson's five-node road graph A2.DIJ: edges A-B 4, A-C 2, C-B 1, C-D 5, B-D 3, C-E 7, D-E 2. All 7 routes from A to E (A2.ROUTES): A-C-B-D-E 8 (4 roads, the cheapest), A-C-E 9 (2 roads, the fewest), A-B-D-E 9, A-C-D-E 9, A-B-C-E 12, A-B-C-D-E 12, A-B-D-C-E 19. Dijkstra from A (A2.DIJ_RUN): settle order A C B D E, final distances A 0, B 3, C 2, D 6, E 8, parents B<-C, C<-A, D<-B, E<-D. Rounds: A settles at 0 and relaxes B 0+4=4 and C 0+2=2 (both new); C settles at 2 and relaxes B 2+1=3 (beats 4: a shortcut), D 2+5=7 and E 2+7=9 (both new); B settles at 3 and relaxes D 3+3=6 (beats 7: a shortcut); D settles at 6 and relaxes E 6+2=8 (beats 9: a shortcut); E settles at 8. Three shortcuts, seven relaxations. The shortest-path tree is A-C, C-B, B-D, D-E. Scene 4 uses the triangle A, B, C: undirected A-B 4, A-C 2, C-B 1 (after A is settled, B waits at 4 and C at 2; the only other way into C is through B: 4 + 1 = 5 > 2), then the directed version A->B 4, A->C 5, C->B -3 (Dijkstra settles B at 4, then C at 5, and relaxing C->B would give 5 - 3 = 2 but B is already settled: the true distance to B is 2). ACT 2, scenes 5-6, one 10 x 7 grid A2.GRID: start S (1,3), goal G (8,3), a wall of four cells at x = 5, y = 1..4, 4-connected, every step costs 1. A* with h = Manhattan distance expands 20 cells, Dijkstra (h = 0) expands 59 of the 66 free cells, both return cost 11 along the same 12-cell path (1,3) (2,3) (3,3) (4,3) (4,4) (4,5) (5,5) (6,5) (7,5) (8,5) (8,4) (8,3). A* order: four cells with f 7 ((1,3) (2,3) (3,3) (4,3)), then nine with f 9 ((4,4) (4,2) (3,4) (3,2) (2,4) (2,2) (1,4) (0,3) (1,2)), then seven with f 11 ((4,5) (5,5) (6,5) (7,5) (8,5) (8,4) (8,3)). From S: true cost left 11, Manhattan h 7 (never too high), twice that 14 (too high). ACT 3, scenes 7-9: the six-router network A2.NET (A-B 3, A-C 6, A-D 2, B-C 2, B-D 4, C-D 5, C-E 1, C-F 4, D-E 3, E-F 2). Router A's Dijkstra tree: D 2, B 3, C 5 (via B), E 5 (via D), F 7 (via E); A's forwarding table keeps only the first hop: B via B, C via B, D via D, E via D, F via D. A packet for F goes A, D, E, F (cost 7), each router using its own table (A: F via D, D: F via E, E: F direct). Distance-vector worked example (lesson 2.10): router A, links B 3, C 6, D 2, the neighbours say their distance to F is 5, 3, 5, so the totals are 3+5=8, 6+3=9, 2+5=7: A keeps 7 and next hop D. Count to infinity (lesson 2.11): line A - B - C, every link cost 1, destination C; before the cut A says 'C: 2 via B' and B says 'C: 1'. B-C breaks. B still remembers A's old 'C: 2' and installs 'C: 3 via A'; B tells A 3 (A: 4), A tells B 4 (B: 5), ... each message adds 1 until 16 (RIP's infinity): A: 16 = unreachable after 14 messages, B follows. With poisoned reverse A has always told B 'C: infinity' (A's route goes through B), so after the cut B has no way in, tells A 'C: infinity' and both agree at once.\n\nVIDEO-WIDE LAYOUT: every scene uses the stage (936 x 640) from the top-left; keep >= 12 px margins. The graphs use the suggested layouts in common.js (A2.DIJ.pos, A2.TRI.pos, A2.NET.pos) through A2.graph(x, y offsets); the same node sits at the same place in the scenes of one act (scenes 2, 3 and 4 share the letters A-E and colours). Right-hand column panels (the waiting room list of scene 3, the table of scene 7) sit at x >= 664. Captions are drawn by the engine below the stage.",
+  "titleCard": {
+    "kicker": "Algorithms · Phase 2",
+    "title": "Search & routing",
+    "sub": "How maps and the internet find the way",
+    "who": "byte",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-graph.js",
+      "kicker": "THE PROBLEM",
+      "title": [
+        "A map is a graph:",
+        "every road has a cost"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          3.2,
+          "A map is places joined by roads."
+        ],
+        [
+          3.4,
+          6.2,
+          "Each road has a cost. A route adds them up."
+        ],
+        [
+          6.4,
+          9.0,
+          "The fewest roads is not always the cheapest."
+        ],
+        [
+          9.2,
+          10.8,
+          "There are 7 routes. We need a method."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: every 'find the way' problem is a graph: places are nodes, roads are edges, each road has a cost, and a route costs the sum of its roads. The cheapest route is not the one with fewest roads, and even this tiny map has 7 routes from A to E, so we need a method (Dijkstra, next scene).\n\nLAYOUT (stage px): G = A2.graph(stage, {nodes: A2.DIJ.pos, edges: A2.DIJ.edges, x: 158, y: 20, at: {\"A-C\": 0.38}}). Nodes then sit at A (218,320), B (408,120), C (408,520), D (628,320), E (718,580); the weight pills sit on the roads (A-C's at 0.38 so it clears the A-B pill). A2.tag 'sum' (tone blue, 28 px) centred at (468, 34) holds the running cost of the route being tried. Free A2.tags: 'start' (blue, solid) centred at (190, 258), 'goal' (orange, solid) centred at (835, 580), and a grey tag '7 routes in all' centred at (150, 596) (nothing else is in that corner).\n\nDATA (assert and throw if different): r1 = A2.ROUTES.find(r => r.path === 'ACE') -> legs [2,7], cost 9, 2 roads; r2 = A2.ROUTES[0] -> path 'ACBDE', legs [2,1,3,2], cost 8, 4 roads; A2.ROUTES.length === 7. Road keys: A-C, C-E for r1; A-C, C-B, B-D, D-E for r2.\n\nTIMELINE (local seconds):\n0.25-2.1  the five nodes pop in one after another (0.12 s apart, A2.pop; look 'grey' = white with grey edge); from 0.9 the seven roads draw on (edges k 0 -> 1 over 0.5 s, 0.12 s apart, grey, in the order of A2.DIJ.edges), pills hidden (pk 0) until 2.3.\n2.3-3.3   the seven weight pills pop in (0.1 s apart: keep G.update weights at 1 and give each road edges[key].pk = A2.pop(t, 2.3 + 0.1 * i) with pk 0 before that; roads drawn before 2.3 have no pill yet). Hold.\n3.5-3.9   'start' and 'goal' tags pop (scale 0.8 -> 1, fade); node A turns look 'solid' tone blue, node E look 'solid' tone orange.\n4.0-5.9   ROUTE 1 (A-C-E), tone blue, width 12: edge A-C draws from A over 4.0-4.5, edge C-E draws from C over 4.6-5.1; node C turns soft blue as it is reached. The sum tag (blue) pops at 4.0 with text '2', becomes '2 + 7' at 4.5 and '2 + 7 = 9' at 5.1. Hold to 5.9, then both roads fade back to grey (edges tone null over 5.9-6.3) and the tag fades out.\n6.4-8.1   ROUTE 2 (A-C-B-D-E), tone blue, width 12: four roads draw in turn, 0.45 s each from 6.4 (A-C, C-B from C, B-D from B, D-E from D); nodes C, B, D turn soft blue as reached. The sum tag text grows with each road: '2', '2 + 1', '2 + 1 + 3', '2 + 1 + 3 + 2'; at 8.0 '= 8' is appended.\n8.2-8.9   the route turns green (edges tone green, width 14; nodes C, B, D soft green; E stays orange, A blue), the sum tag becomes solid green, an L5.tick (size 56, green) draws on beside E at (690, 520) with V.place pop.\n9.2-10.6  the grey tag '7 routes in all' pops in at the bottom-left. Hold.\nEND STATE: the graph with the green cheapest route A-C-B-D-E, the green tag '2 + 1 + 3 + 2 = 8', 'start' and 'goal', and '7 routes in all'. No other text. CAPTIONS: [[0.4,3.2,\"A map is places joined by roads.\"],[3.4,6.2,\"Each road has a cost. A route adds them up.\"],[6.4,9.0,\"The fewest roads is not always the cheapest.\"],[9.2,10.8,\"There are 7 routes. We need a method.\"]]"
+    },
+    {
+      "n": 3,
+      "file": "scene-03-dijkstra.js",
+      "kicker": "DIJKSTRA",
+      "title": [
+        "Settle the closest node,",
+        "then relax its roads"
+      ],
+      "dur": 17,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Settle the node with the smallest distance."
+        ],
+        [
+          3.2,
+          7.8,
+          "Then check its roads. A shorter way replaces the old distance."
+        ],
+        [
+          8.0,
+          12.2,
+          "Repeat. The smallest waiting distance is always final."
+        ],
+        [
+          12.6,
+          16.4,
+          "The green roads are the shortest routes: A to E costs 8."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: Dijkstra's whole algorithm on the five-node graph, as it runs: keep a distance for every node (infinity until reached); repeat: settle the waiting node with the smallest distance (it is final), then relax each road out of it (is going through this node shorter than what the neighbour had?). The picture must show the two groups (waiting, settled) and the three shortcuts. The finished run is the shortest-path tree and the route A-C-B-D-E (8).\n\nLAYOUT (stage px): G = A2.graph(stage, {nodes: A2.DIJ.pos, edges: A2.DIJ.edges, badge: {A: 't', B: 'tl', C: 'bl', D: 'tr', E: 'tr'}, at: {'A-C': 0.38}}) at offset 0: A (60,300), B (250,100), C (250,500), D (470,300), E (560,560); distance badges sit by the nodes (G.update badges). Right column: waiting = A2.list(stage, {x: 664, y: 20, head: 'waiting room', headTone: 'purple', keys: A2.DIJ.names}) (rows at y 90, 144, 198) and settled = A2.list(stage, {x: 664, y: 262, head: 'settled', headTone: 'green', keys: A2.DIJ.names}) (rows at y 332, 386, 440, 494, 548). Rows read 'B = 4' (28 px). One candidate sum replaces a road's weight pill while the road is checked (G.update edges text, e.g. '2 + 1 = 3').\n\nDATA (A2.DIJ_RUN, assert against these): rounds[i].relax lists the roads in order. Round 0 A (d 0): B 0+4=4 new, C 0+2=2 new. Round 1 C (d 2): B 2+1=3 < 4 shortcut, D 2+5=7 new, E 2+7=9 new. Round 2 B (d 3): D 3+3=6 < 7 shortcut. Round 3 D (d 6): E 6+2=8 < 9 shortcut. Round 4 E (d 8): nothing. Use A2.DIJ_RUN.snap(n) for the state after n rounds (dist, parent, settled, waiting in smallest-first order) so nothing is typed by hand. Roads to already-settled nodes are not shown.\n\nLOOKS: unseen node = grey look, badge ∞ (grey tag); waiting (tentative) = look soft purple, badge purple, list row purple; the pick = look solid orange with an orange ring, its row solid orange; settled = look soft green, badge green, row green in the settled list. A road is blue (width 12, drawn from the settled node, k 0 -> 1 in 0.35 s) while it is being checked; afterwards the road into a waiting node stays purple (it is that node's best way in) and the road into a settled node turns green; when a shortcut replaces a parent, the old parent road goes back to grey. A shortcut: the old number in the badge is struck through (badge strike 0 -> 1 over 0.25 s) while the new number pops in orange for 0.4 s and settles to purple; the node gets an orange ring pulse.\n\nTIMELINE (local seconds, each state sits about a second):\n0.0-0.6   graph fades in grey; 0.4 / 0.6 the two list headers pop (A2.list k); badges for B, C, D, E pop as grey infinity tags from 0.5 (0.1 s apart); 0.9 badge A '0' (purple) and row 'A = 0' (waiting slot 0).\nROUND A    pick 1.4-2.0 (A solid orange + ring, row orange); at 2.0 A turns soft green, its row slides 2.0-2.5 from the waiting room to settled slot 0. Relax A-B 2.6-3.2: road blue from A, pill '0 + 4 = 4', B gets badge 4, soft purple, row 'B = 4' appears in waiting slot 0. Relax A-C 3.2-3.8: pill '0 + 2 = 2', C badge 2, row 'C = 2' appears and slides above B (C slot 0, B slot 1).\nROUND C    pick 4.3-4.9 (C is the top row of the waiting room: orange); settled at 4.9 (row slides to settled slot 1). Relax C-B 5.5-6.4 (slower: it is the shortcut): pill '2 + 1 = 3', B's badge 4 is struck, 3 pops in orange then purple, B's row text 'B = 3'; the road A-B goes grey, C-B purple. Relax C-D 6.4-7.0 (pill '2 + 5 = 7', D badge 7, row 'D = 7'). Relax C-E 7.0-7.6 (pill '2 + 7 = 9', E badge 9, row 'E = 9'). Waiting room now B 3, D 7, E 9.\nROUND B    pick 8.0-8.5, settled 8.5 (settled slot 2). Relax B-D 9.1-9.9: pill '3 + 3 = 6', D's 7 struck, 6 pops in; road C-D grey, B-D purple, row 'D = 6'.\nROUND D    pick 10.3-10.8, settled 10.8 (slot 3). Relax D-E 11.0-11.8: pill '6 + 2 = 8', E's 9 struck, 8 pops; road C-E grey, D-E purple, row 'E = 8'.\nROUND E    pick 12.2-12.7, settled 12.7 (slot 4). The waiting room is empty; its header fades out at 13.0.\n13.2-14.6 the shortest-path tree draws solid green (width 12) one road after the other from A: A-C, C-B, B-D, D-E (0.3 s each), nodes turn solid green in that order.\n14.8-16.0 a green solid tag 'A to E: 8' pops at (794, 110) (inside the emptied waiting-room area) with an L5.tick. Hold to the end.\nEND STATE: all five nodes solid green with badges 0, 3, 2, 6, 8, the green route A-C-B-D-E, the settled list 'A = 0, C = 2, B = 3, D = 6, E = 8', the green tag. CAPTIONS: [[0.4,3.0,\"Settle the node with the smallest distance.\"],[3.2,7.8,\"Then check its roads. A shorter way replaces the old distance.\"],[8.0,12.2,\"Repeat. The smallest waiting distance is always final.\"],[12.6,16.4,\"The green roads are the shortest routes: A to E costs 8.\"]]"
+    },
+    {
+      "n": 4,
+      "file": "scene-04-why-final.js",
+      "kicker": "WHY IT WORKS",
+      "title": [
+        "Why settled means final,",
+        "and when it breaks"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          4.6,
+          "Any other way to C goes via B, and B is already further."
+        ],
+        [
+          4.8,
+          6.8,
+          "So the smallest waiting node is final."
+        ],
+        [
+          7.0,
+          10.6,
+          "A negative road can undercut a node that was settled."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: two beats on one small triangle. (A) Why it is safe to settle the closest waiting node: any other way into it must leave the settled set through a node that is already at least as far, and roads cost zero or more, so no detour can be shorter. (B) What breaks if a road can be negative: the node was locked in too early.\n\nLAYOUT (stage px): TWO graphs on the same positions, cross-faded: Ga = A2.graph(stage, {nodes: A2.TRI.pos, edges: A2.SAFE.edges}) (undirected: A-B 4, A-C 2, C-B 1) and Gb = A2.graph(stage, {nodes: A2.TRI.pos, edges: A2.NEG.edges, directed: true}) (A->B 4, A->C 5, C->B -3, drawn with arrowheads; the -3 pill is red). A2.TRI.pos: A (110,320), B (420,120), C (420,520). Beat A also has a right-hand panel: bar1 = A2.bar(stage, {x: 560, y: 210, unit: 70, segs: [{v: 2, tone: 'green', text: '2'}]}) with a green A2.tag 'direct' centred at (610, 172); bar2 = A2.bar(stage, {x: 560, y: 330, unit: 70, segs: [{v: 4, tone: 'blue', text: '4'}, {v: 1, tone: 'blue', text: '1'}]}) with a blue tag 'detour via B' centred at (655, 292); an orange dashed vertical line (your own SVG, stroke 4) at x = 700 from y 196 to y 400 marks the length of the direct way (bar1.xAt(2)); a blue tag '4 + 1 = 5' centred at (735, 420).\n\nDATA (assert): A2.SAFE = {settle: 'C', d: 2, rival: {via: 'B', first: 4, then: 1, total: 5}}; A2.NEG.run.rounds = settle A (0), B (4), C (5); rounds[2].late = [{to: 'B', cand: 2, old: 4}]; A2.NEG.trueB === 2.\n\nTIMELINE (local seconds):\n0.2-1.2   Ga appears: A soft green, badge '0' green; B soft purple badge '4'; C soft purple badge '2' (pop 0.15 s apart).\n1.0-1.8   C gets an orange ring (ringK grows in) and stays: the closest waiting node.\n2.0-3.4   the DETOUR: edge A-B draws blue and dashed (width 12, from A, 2.0-2.5), then edge C-B blue dashed from B (2.6-3.0); at the same time bar1 reveals (k 0 -> 1 over 2.0-2.5), bar2 reveals over 2.0-3.0 (first segment '4' done at 2.6 -> it passes the orange line at x = 700 at about 2.4: pulse the line once, V.flash), and the labels 'direct' (2.0) and 'detour via B' (2.1) pop; the tag '4 + 1 = 5' pops at 3.1.\n3.6-4.6   hold; the line pulses again at 4.0; the blue detour road greys out at 4.4.\n4.6-5.4   C turns soft green (settled), badge green, an L5.tick (green, size 48) draws beside C at (470, 560); the panel (bars, labels, line, '4 + 1 = 5' tag) fades out 5.0-5.6.\n5.9-6.6   cross-fade Ga -> Gb (0.5 s): same A, B, C; A soft green '0'; B soft purple '4'; C soft purple '5' (it was settled a moment ago: it goes back to waiting); roads become arrows A->B 4 (grey), A->C 5 (grey), C->B red '-3'. No extra tag: the red pill is the only marker.\n7.0-7.6   B is picked (smallest waiting, 4): solid orange + ring, then soft green with badge '4' green and a small green L5.tick (size 40) at (470, 90): 'settled at 4'.\n8.0-8.6   C is picked (5) and settled green, badge '5'.\n8.7-9.6   C->B is checked: road blue from C (width 12) with the pill '5 - 3 = 2' (real minus signs, blue). B's badge '4' is struck through in red (strike 0 -> 1) and a red tag '2' pops above B with an L5.cross (red); B shakes sideways 6 px for 0.3 s (V.place dx sine) - it cannot change because it is settled.\n9.8-10.8  a solid red tag 'B is really 2, not 4' pops at the bottom centre (468, 596). Hold.\nEND STATE: the directed triangle with B green but marked wrong (red cross, struck 4) and the red tag. CAPTIONS: [[0.4,4.6,\"Any other way to C goes via B, and B is already further.\"],[4.8,6.8,\"So the smallest waiting node is final.\"],[7.0,10.6,\"A negative road can undercut a node that was settled.\"]]"
+    },
+    {
+      "n": 5,
+      "file": "scene-05-astar.js",
+      "kicker": "A*",
+      "title": [
+        "A* is Dijkstra",
+        "plus a compass"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          2.6,
+          "A* is Dijkstra with a compass."
+        ],
+        [
+          2.8,
+          5.0,
+          "Score each cell: cost so far g, plus a guess h."
+        ],
+        [
+          5.2,
+          9.6,
+          "It expands the lowest score, so it heads for the goal."
+        ],
+        [
+          10.0,
+          12.6,
+          "It finds the way round the wall: cost 11."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: A* ranks the waiting cells by f = g + h: g = the real cost so far, h = a guess of the cost still to go (here Manhattan distance to G). Cells that head for the goal get a lower f and are expanded first, so the search runs at the goal, meets the wall, tries around it, and finds the route. Show the numbers on the cells, and the run.\n\nLAYOUT (stage px): Gd = A2.grid(stage, {x: 81, y: 70, cell: 72, gap: 6, fs: 28}) (10 x 7 cells, 774 x 540; wall cells x = 5, y = 1..4; S at (1,3) and G at (8,3) drawn by A2.gridPaint as solid blue 'S' / 'G'). Top band (y centre 34), three tags in a row: chipG = A2.tag green at (190, 34), chipH = purple at (480, 34), chipF = orange at (770, 34); two small grey tags '+' at (335, 34) and '=' at (625, 34) appear only in the equation phase. (Use text for the signs; they are plain ASCII.)\n\nDATA (all from A2.RUNS.astar; assert): expansion 1 is S: g 0, h 7, f 7; its four neighbours open with (2,3): g 1, h 6, f 7; (0,3): g 1, h 8, f 9; (1,2): 1, 8, 9; (1,4): 1, 8, 9. Counts: 20 expansions, cost 11, path (1,3) (2,3) (3,3) (4,3) (4,4) (4,5) (5,5) (6,5) (7,5) (8,5) (8,4) (8,3). The cells of the first four expansions have f 7, the next nine f 9, the last seven f 11. Paint every frame with Gd.update({cells: A2.gridPaint(A2.RUNS.astar, n, {nums: true, pathK})}) where n = A2.curve(t, [[3.0,0],[3.4,1],[4.4,1],[4.9,2],[5.4,3],[5.9,4],[7.7,13],[9.8,20]]) (expansions done, fractional: the fraction is the cell turning orange, then soft green) and pathK = A2.lin(t, 10.0, 11.4).\n\nTIMELINE (local seconds):\n0.2-1.0   the grid pops in (a wave from the left, 0.04 s per column); wall, S, G visible.\n1.0-2.4   the three definition chips pop in turn: chipG (green) 'g: cost so far' at 1.0, chipH (purple) 'h: guess to goal' at 1.5, chipF (orange) 'f = g + h' at 2.0. Nothing else moves.\n2.6-3.4   S is expanded (n 0 -> 1): S gets an orange ring; the four neighbours pop in as purple cells with their f: 7, 9, 9, 9. The chips switch to numbers at 3.2 and the signs '+' and '=' pop in: chipG 'g = 1', chipH 'h = 6', chipF 'f = 7' with an orange ring on cell (2,3) (Gd cell state ring 'orange'); at 3.8 chipG 'g = 1', chipH 'h = 8', chipF 'f = 9' with the ring on (0,3), then at 4.2 the ring goes back to (2,3) and chipF turns solid orange: the lowest f wins.\n4.4-5.9   expansions 2, 3, 4 run straight at the goal, 0.5 s each: (2,3), (3,3), (4,3), all f 7; the chips fade out at 4.6. The orange cell then soft green with its f.\n5.9-7.7   the wall stops it: the open cells are now all f 9, and nine of them are expanded 0.2 s apart (expansions 5-13): the green area fans out above and below the wall.\n7.7-9.8   the last seven (f 11), 0.3 s apart: (4,5) (5,5) (6,5) (7,5) (8,5) (8,4) (8,3): the search slips under the wall and reaches G.\n10.0-11.4 the route lights up as solid green from S to G (pathK), cell by cell; G gets an orange ring at the end. 11.2 a green tag 'cost 11' pops at (468, 34).\n11.6-12.8 hold.\nEND STATE: the grid with 20 soft-green expanded cells, the purple open cells, the solid green path of 12 cells (S and G stay blue) and the green tag 'cost 11'. CAPTIONS: [[0.4,2.6,\"A* is Dijkstra with a compass.\"],[2.8,5.0,\"Score each cell: cost so far g, plus a guess h.\"],[5.2,9.6,\"It expands the lowest score, so it heads for the goal.\"],[10.0,12.6,\"It finds the way round the wall: cost 11.\"]]"
+    },
+    {
+      "n": 6,
+      "file": "scene-06-race.js",
+      "kicker": "A* VS DIJKSTRA",
+      "title": [
+        "Same route,",
+        "far less work"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3.4,
+          "Same grid, same wall. Dijkstra looks everywhere."
+        ],
+        [
+          3.6,
+          7.4,
+          "A* aims at the goal and expands far fewer cells."
+        ],
+        [
+          7.8,
+          11.6,
+          "But its guess must never be higher than the true cost."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: the same search on the same grid, side by side at the same speed (one cell per 0.09 s). Dijkstra (h = 0) floods the whole grid; A* heads for the goal. Both return cost 11. Then the rule that keeps A* honest: h must never be higher than the true cost left.\n\nLAYOUT (stage px): left grid GL = A2.grid(stage, {x: 20, y: 66, cell: 38, gap: 4, fs: 28}) = Dijkstra, right grid GR = A2.grid(stage, {x: 500, y: 66, cell: 38, gap: 4, fs: 28}) = A*; each is 416 x 290 (ends at y 356). Header tags (y centre 34): 'Dijkstra: h = 0' (grey) at (228, 34), 'A*: h = guess' (purple) at (708, 34). Counters, A2.tag with fs 36 at y 392: 'n cells' at (150, 392) and (630, 392) (blue soft while counting); 'cost 11' green tags at (330, 392) and (810, 392). Rule bars (beat 3), unit 40, h 44, left x 330: B1 = A2.bar({x: 330, y: 450, unit: 40, segs: [{v: 11, tone: 'green', text: '11'}]}), B2 = A2.bar({x: 330, y: 508, ...segs: [{v: 7, tone: 'purple', text: '7'}]}), B3 = A2.bar({x: 330, y: 566, ...segs: [{v: 14, tone: 'red', text: '14'}]}); label tags at x centre 170, y 472 / 530 / 588: 'true cost left' (green soft), 'h, never too high' (purple soft), '2 x h, too high' (red soft) (use the letter x or a drawn L5.cross-free text: write '2 x h'). Nothing else on the stage.\n\nDATA (A2.RUNS, assert): A* expands 20 cells, Dijkstra 59, both cost 11 along the same path. A2.HONEST = {trueLeft: 11, honest: 7, doubled: 14} (from S: the real cost left, Manhattan h, twice that).\nPaint: GL.update({cells: A2.gridPaint(A2.RUNS.dijkstra, nD, {pathK: kD, o: dim})}) and GR.update({cells: A2.gridPaint(A2.RUNS.astar, nA, {pathK: kA, o: dim})}) with nD = min(59, max(0, (t - 1.4) / 0.09)), nA = min(20, max(0, (t - 1.4) / 0.09)), kA = A2.lin(t, 3.7, 4.4), kD = A2.lin(t, 7.0, 7.7), dim = 1 - 0.65 * A2.lin(t, 8.0, 8.6). Counters show A2.count(0, run.count, ...) of the same fraction, i.e. floor(n).\n\nTIMELINE (local seconds):\n0.2-1.0   both grids pop in (wave from the left); wall, S, G visible. 0.6-1.2 the two header tags pop; counters '0 cells' pop at 1.0.\n1.4-3.6   the race starts. Both run; the A* beam reaches the wall and fans round it; Dijkstra's cells spread like a growing diamond (its numbers count up faster in appearance because it opens more cells). A* finishes at 1.4 + 20 x 0.09 = 3.2 (a few cells later with the final fraction) and its path lights up 3.7-4.4 (solid green); the A* counter stops at '20 cells', turns solid green at 4.0 and the green 'cost 11' tag pops at 4.2.\n4.4-6.9   Dijkstra keeps flooding (the left counter passes 30, 40, 50) until 1.4 + 59 x 0.09 = 6.7; its counter reaches '59 cells' and turns solid red at 6.9; its path lights up 7.0-7.7 and its 'cost 11' tag pops at 7.5.\n8.0-8.6   both grids dim to 35 % (o), the counters and cost tags stay full.\n8.4-11.4  the rule: label tags and bars pop in turn: 'true cost left' with bar B1 revealing to '11' (8.4-9.0), 'h, never too high' with B2 to '7' (9.2-9.8, A2.lin k), '2 x h, too high' with B3 to '14' (10.0-10.6) whose bar passes the end of B1 (14 > 11): at 10.6 the label turns solid red and an L5.cross (red, 44) pops at the end of B3 (bar B3.endX + 30, y 588). Hold.\nEND STATE: two dimmed grids with 20 vs 59 expanded cells and green paths; counters '20 cells' (green) and '59 cells' (red); 'cost 11' twice; the three bars with the red one longer than the green one. CAPTIONS: [[0.4,3.4,\"Same grid, same wall. Dijkstra looks everywhere.\"],[3.6,7.4,\"A* aims at the goal and expands far fewer cells.\"],[7.8,11.6,\"But its guess must never be higher than the true cost.\"]]"
+    },
+    {
+      "n": 7,
+      "file": "scene-07-tables.js",
+      "kicker": "ROUTERS",
+      "title": [
+        "Routers forward",
+        "one hop at a time"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Every router learns the whole map."
+        ],
+        [
+          3.2,
+          7.0,
+          "Each runs Dijkstra and keeps only the first hop."
+        ],
+        [
+          7.4,
+          12.4,
+          "A packet moves on one table lookup at a time."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: link-state routing and forwarding. Every router floods its own links so all routers hold the same map (the six-router network); each runs Dijkstra from itself and keeps, for every destination, only the FIRST hop (that is the forwarding table); then a packet is passed on one hop at a time, each router using only its own table. Routing computes the tables; forwarding is one lookup per packet.\n\nLAYOUT (stage px): G = A2.graph(stage, {nodes: A2.NET.pos, edges: A2.NET.edges, x: 0, y: 40, at: {'A-C': 0.25, 'B-D': 0.3, 'C-D': 0.55}}): A (50,340), B (210,140), C (430,190), D (210,540), E (430,510), F (590,340). Table T = A2.table(stage, {x: 676, y: 70, cols: [90, 130], head: ['to', 'via'], rows: A2.TABLE_A.map(r => [r.dest, r.next])}) (248 x 336: rows B/B, C/B, D/D, E/D, F/D) with a blue tag \"A's table\" centred at (800, 34). Packet = A2.token(stage, {text: 'F', size: 44}) (blue). Lookup tags (orange, 28 px): at D centred (100, 592) 'F via E', at E centred (545, 575) 'F: direct'. Map icons: A2.mapIcon in your own SVG (G.over) size 44 at (50, 278) for A, (210, 78) for B, (430, 128) for C, (210, 602) for D, (430, 572) for E, (590, 278) for F.\n\nDATA (assert; A2.netDijkstra('A'), A2.TABLE_A, A2.hops('A','F')): A's tree in settle order: D 2 (A-D), B 3 (A-B), C 5 (B-C), E 5 (D-E), F 7 (E-F) (A2.netDijkstra('A').tree = [[A,D],[A,B],[B,C],[D,E],[E,F]], .d = {B 3, C 5, D 2, E 5, F 7}). A's table (to / via): B B, C B, D D, E D, F D. Hops for a packet A -> F: at A next D, at D next E, at E next F (total 7).\n\nTIMELINE (local seconds):\n0.2-1.4   the network builds: six nodes pop (0.1 s apart), ten roads draw on, weight pills pop. A is look solid blue from 1.2 ('the router we follow').\n1.6-3.0   FLOOD: map icons pop outward from A in rings of distance: A at 1.6, B and D at 1.9, C and E at 2.2, F at 2.5 (A2.pop; each node does a blue ring pulse as its icon appears). All six hold their icon.\n3.0-5.2   A RUNS DIJKSTRA: the icons fade out 3.0-3.4; A's tree draws solid green (width 12) in settle order, 0.4 s each: A-D (3.0), A-B (3.4), B-C (3.8), D-E (4.2), E-F (4.6); with each road the new node turns soft green and its distance badge pops in green: D 2, B 3, C 5, E 5, F 7 (G badges).\n5.4-7.0   the TABLE: T pops in at 5.4 with the tag \"A's table\"; its five rows slide in one per 0.25 s from 5.6 (B, C, D, E, F); as the rows E and F arrive, the road A-D flashes orange once (the first hop), to show 'only the first step is kept'.\n7.2-7.6   the tree and the badges fade out (roads back to grey, nodes grey except A); the map is plain again.\n7.4-12.4  THE PACKET: the token 'F' pops on A (7.4); table row F (F / D) turns solid orange (7.6); the packet hops A -> D along the road (7.8-8.5, G.along(['A','D'], k)); the row dims; at D the orange tag 'F via E' pops (8.7-9.3); the packet hops D -> E (9.3-10.0); at E the tag 'F: direct' pops (10.2-10.7); the packet hops E -> F (10.7-11.4); on arrival F turns solid green, a green L5.tick pops above F and a green tag 'cost 7' pops at (590, 420). Hold to the end.\nEND STATE: the network with the path A-D-E-F green, F solid green with 'cost 7', A's table (row F dimmed). CAPTIONS: [[0.4,3.0,\"Every router learns the whole map.\"],[3.2,7.0,\"Each runs Dijkstra and keeps only the first hop.\"],[7.4,12.4,\"A packet moves on one table lookup at a time.\"]]"
+    },
+    {
+      "n": 8,
+      "file": "scene-08-neighbours.js",
+      "kicker": "NO MAP",
+      "title": [
+        "Routing without a map:",
+        "ask your neighbours"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3.8,
+          "A has no map. It only hears its neighbours."
+        ],
+        [
+          4.0,
+          7.0,
+          "Each says how far F is. A adds its own road cost."
+        ],
+        [
+          7.4,
+          11.4,
+          "It keeps the smallest total, and the next hop: D."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: distance-vector routing (the Bellman-Ford equation) in one worked example. Router A cannot see the network. Its neighbours B, C and D each tell it how far THEY are from the destination F; A adds the cost of its own road to that neighbour and keeps the smallest total. The neighbour that gave the minimum is the next hop.\n\nLAYOUT (stage px): G = A2.graph(stage, {nodes: {A: [110,330], B: [400,130], C: [400,330], D: [400,530], F: [820,330]}, edges: [['A','B',3],['A','C',6],['A','D',2],['B','F',null],['C','F',null],['D','F',null]]}). The three links A-B, A-C, A-D are solid roads with their cost pills (3, 6, 2 at the road midpoints (255,230), (255,330), (255,430)); the three roads B-F, C-F, D-F are DASHED (G.update edges dash: true, 'somewhere beyond: we do not see them') and carry the neighbours' reports as pills (their pill text '5', '3', '5' at the midpoints (610,230), (610,330), (610,430)). F is look solid, tone orange (the destination). A is look solid blue. Table T = A2.table(stage, {x: 12, y: 500, cols: [80, 100, 100], head: ['to', 'cost', 'via'], rows: [['F', '7', 'D']], rowH: 48}) (308 x 124) bottom-left.\n\nDATA (A2.BF, assert): links {B 3, C 6, D 2}, the neighbours say {B 5, C 3, D 5}, totals {B 8, C 9, D 7}, best 'D', cost 7.\n\nTIMELINE (local seconds):\n0.2-1.6   the network builds: A, B, C, D, F pop (0.12 s apart), the three links draw on with their pills (3, 6, 2), the three dashed roads draw on from the neighbours to F without pills.\n1.8-4.0   THE REPORTS: each dashed road is traced in blue from F back towards its neighbour (edges tone blue, dash true, k 0 -> 1, from 'F', 0.5 s) and its pill pops with the report: B-F '5' at 1.8, C-F '3' at 2.4, D-F '5' at 3.0; the speaking neighbour turns soft blue while it speaks.\n4.2-6.8   A ADDS: for each neighbour in turn (B 4.2, C 5.0, D 5.8; 0.8 s each): a small blue token with the report number (A2.token round, 40 px, text '5' / '3' / '5') flies from the neighbour to the middle of its link to A (G.edgePt('A-B', f, 'B'), 0.5 s) and the link's pill text becomes the sum '3 + 5 = 8', '6 + 3 = 9', '2 + 5 = 7' (pill tone blue, scale 1.1 for 0.3 s). The tokens vanish as the pill changes.\n7.0-8.6   THE MINIMUM: the pills for B and C fade to 40 % (grey); D's pill turns solid orange with an orange ring on node D; the link A-D turns green and thick (width 14, drawn from A, 7.8-8.4).\n8.8-9.8   the table pops in at the bottom-left with the row 'F | 7 | D' (the 'D' cell in the orange ink); a green L5.tick pops next to it.\n9.8-11.2  hold.\nEND STATE: A with three blue-ish sums (two faded), the orange 7 on A-D, the green link, A's table row. CAPTIONS: [[0.4,3.8,\"A has no map. It only hears its neighbours.\"],[4.0,7.0,\"Each says how far F is. A adds its own road cost.\"],[7.4,11.4,\"It keeps the smallest total, and the next hop: D.\"]]"
+    },
+    {
+      "n": 9,
+      "file": "scene-09-count.js",
+      "kicker": "BAD NEWS",
+      "title": [
+        "When a road breaks,",
+        "the gossip can loop"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "A reaches C through B. B reaches C directly."
+        ],
+        [
+          3.2,
+          6.6,
+          "The B to C road breaks. B hears A's old news."
+        ],
+        [
+          6.8,
+          9.6,
+          "The cost creeps up, one step at a time."
+        ],
+        [
+          10.0,
+          13.4,
+          "Poisoned reverse: A tells B that C is unreachable via you."
+        ]
+      ],
+      "spec": "ROLES (whole video): grey = unreached place or unused road (and walls); purple = waiting (a tentative distance, an open frontier cell, an estimate); blue = what we are looking at right now (the road being checked, the start cell, a packet, a neighbour's report); orange = the pick (smallest waiting node, the cell A* expands, the minimum) and the goal; green = settled / final / the route (solid green = the final route); red = rejected or wrong (a negative road, a cut link, counting to infinity). Symbols are SVG (L5.tick / L5.cross / L5.arrow); the video font has no infinity sign, so write the text \"∞\" in any A2 tag or badge and the helper draws it as a shape.\n\nIDEA: the weakness of gossip routing. Line A - B - C (every link cost 1), destination C. A reaches C via B (2), B reaches it directly (1). The B-C road breaks: B still remembers A's old message 'C is 2 away' and thinks 'C via A, 3'. It tells A, A says 4, B says 5, ... each message adds 1 until 16, RIP's infinity: a loop that wastes seconds and packets (count to infinity). The cure: poisoned reverse. Because A's route to C goes through B, A always tells B 'C: ∞'; after the cut B has no way in, tells A 'C: ∞' and both agree at once.\n\nLAYOUT (stage px): G = A2.graph(stage, {nodes: {A: [140,230], B: [468,230], C: [796,230]}, edges: [['A','B',1],['B','C',1]]}). Belief tags (A2.tag, 28 px) under the routers at y 330: A at (140, 330) 'C: 2 via B' (green soft), B at (468, 330) 'C: 1' (green soft). C is look solid orange (the destination). Message bubbles are A2.tags that travel above the links at y 160 (centre moves from one router's x to the other's); a packet A2.token (blue, size 40) loops between A and B along y 230. Ruler: bar = A2.bar(stage, {x: 52, y: 470, unit: 52, segs: [{v: 16, tone: 'red', text: ''}]}) (832 px = 16 units) with a grey label tag 'cost of C' at (150, 440) and a red tag 'RIP: 16 = unreachable' at (700, 540); the bar's k = (current cost) / 16.\n\nDATA (A2.CTI, A2.ctiAt, A2.CTI_POISON, A2.poisonAt; assert): message 1 is A's stale 'C: 2' (B recalculates to 3 via A); message k says k + 1 and makes the receiver k + 2 (odd k: A -> B, even k: B -> A); A2.ctiAt(1).B = 3, ctiAt(2).A = 4, ctiAt(6).A = 8, ctiAt(13).B = 15, ctiAt(14).A = ∞ (16), ctiAt(15).B = infinity. Poisoned reverse: A2.poisonAt(0) = A {2 via B}, B ∞; poisonAt(1): both ∞.\n\nTIMELINE (local seconds):\n0.2-1.4   routers and links build (A, B, C pop; A-B and B-C draw on, pills '1'); the two belief tags pop at 1.0 / 1.2; the ruler pops at 1.4 showing 2.\n1.8-2.6   the gossip in normal times: a blue bubble 'C: 1' slides B -> A (1.8-2.4) and A's tag pulses green once (A: 1 + 1 = 2 via B). Then hold.\n2.8-3.6   THE CUT: road B-C cuts (edge cut 0 -> 1: a gap opens and a red cross draws on); B's tag 'C: 1' is struck through in red.\n3.7-4.4   B's tag becomes the red 'C: 3 via A' (pop) after A's old bubble 'C: 2' (blue) slides A -> B (3.7-4.2). The ruler grows to 3.\n4.5-5.2   bubble 'C: 3' slides B -> A; A's tag becomes red 'C: 4 via B'; ruler 4.   5.3-6.0 bubble 'C: 4' A -> B; B 'C: 5 via A'; ruler 5.   6.1-6.8 bubble 'C: 5' B -> A; A 'C: 6'; ruler 6.\n6.8-9.0   FAST FORWARD: the bubbles shuttle faster (0.35 s per hop) and the two tags count up alternately 7, 8, ... 16 (A2.count) while the ruler grows to 16; the packet token bounces A <-> B during 4.6-9.0 (one hop per 0.5 s, V.ease.inOut), a looping packet. At 9.0 both tags read 'C: ∞' (red) and the red tag 'RIP: 16 = unreachable' pops.\n9.4-9.9   RESET for the cure: tags back to 'C: 2 via B' and 'C: 1' (green), the road B-C mends (cut 1 -> 0), the ruler back to 2, the packet and the RIP tag fade out; a purple tag 'poisoned reverse' pops at (468, 100).\n10.0-10.7 before the cut: a purple bubble 'C: ∞' slides A -> B (A tells B 'I cannot reach C' because its route goes through B).\n10.9-11.5 the cut again (B-C cut 0 -> 1); B's tag becomes red 'C: ∞' at once (no phantom route).\n11.7-12.3 a red bubble 'C: ∞' slides B -> A; A's tag becomes red 'C: ∞'.\n12.4-13.4 a green L5.tick and a solid green tag 'agreed at once' pop at the bottom centre (468, 596). Hold.\nEND STATE: broken road, both tags 'C: ∞', purple 'poisoned reverse' tag, green 'agreed at once'. CAPTIONS: [[0.4,3.0,\"A reaches C through B. B reaches C directly.\"],[3.2,6.6,\"The B to C road breaks. B hears A's old news.\"],[6.8,9.6,\"The cost creeps up, one step at a time.\"],[10.0,13.4,\"Poisoned reverse: A tells B that C is unreachable via you.\"]]"
+    }
+  ],
+  "recap": {
+    "file": "scene-10-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "Dijkstra: settle the\nsmallest, then relax",
+        "tone": "green",
+        "pictogram": "A mini three-node graph (nodes A, B, C as A2.graph with r 14, fs 20, scale 0.28, no pills or with tiny ones; or your own small SVG): the middle node turns orange, then green, and its road draws blue to a neighbour whose small number drops from 4 to 3 (orange flash). Loops every 4 s."
+      },
+      {
+        "head": "A*: Dijkstra plus a\ncompass (g + h)",
+        "tone": "blue",
+        "pictogram": "A mini 10 x 7 grid (A2.grid cell 18, gap 2, no text, 340 x 140 px at most; A2.gridPaint with A2.RUNS.astar and n looping 0 -> 20 over 3.2 s): the purple/green beam runs from S to G round the wall, then the solid green path lights up and a green tick pops. Loops every 4.5 s."
+      },
+      {
+        "head": "Routers: a table from\nDijkstra, or gossip",
+        "tone": "purple",
+        "pictogram": "Three small routers (circles) in a row joined by roads: a blue packet hops along them (looping, 0.5 s per hop), and a small purple speech tag slides back and forth between the first two (gossip). Loops every 3 s."
+      }
+    ],
+    "cta": "Beat the Phase 2 boss quiz",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js: kicker 'RECAP' and the headline 'Remember' (76 px) at the top left, Byte (V.mascot('byte', {size: 168, mood: 'love'})) bobbing at the top right (x 840, y 38), three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648, tone-coloured edge via c-green / c-blue / c-purple), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440) on the right. At the bottom, centred at y 904, one solid blue tag (34 px) with the call to action 'Beat the Phase 2 boss quiz'.\nROWS: (1, green) label 'Dijkstra: settle the\\nsmallest, then relax'. Pictogram: a mini graph of three nodes joined by two roads (use A2.graph at a small scale, or small SVG): the middle node turns orange, then green, and a blue road draws to a neighbour whose little distance drops from 4 to 3 with an orange flash. (2, blue) label 'A*: Dijkstra plus a\\ncompass (g + h)'. Pictogram: the 10 x 7 grid at cell 18 (A2.grid with A2.gridPaint, no numbers) running A* from S round the wall to G (n loops 0 -> 20 over 3.2 s), then the path lights up solid green and a small green tick pops. (3, purple) label 'Routers: a table from\\nDijkstra, or gossip'. Pictogram: three small routers in a row, a blue packet hopping along them (looping) and a small purple message tag sliding back and forth between the first two. Loop the pictograms with a period of about 3 to 4.5 s so they keep moving.\nTIMELINE: 0.1 kicker, headline and Byte; rows slide in at 0.8, 1.9, 3.0 (0.5 s each, label 0.15 s later); pictograms start 0.4 s after their row; 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else happens in the last 2 s except the looping pictograms and Byte's bob. Same roles as the rest of the video (green settled/route, blue looking at, purple waiting, orange pick). No captions."
+  },
+  "helpers": "FILES: videos/a2/common.js (pure data and the real algorithms, no DOM, asserts every number of the specs when it loads), videos/a2/common-2.js (A2.tag, A2.token, A2.along, time helpers, A2.graph) and videos/a2/common-3.js (A2.grid + A2.gridPaint, A2.list, A2.table, A2.bar, A2.mapIcon, A2.dot). Everything hangs off window.VID.a2 (short name A2). videos/algo-2.html loads, after engine.js and cards.js: l5/common.js (tones, L5.tick / L5.cross / L5.arrow / L5.drawOn / L5.svg), a2/common.js, common-2.js, common-3.js, then scene-01 .. scene-10 and audio/algo-2.js. It does NOT load l6. Every draw call is PURE: call it every frame from update(t) with everything you want to see; anything left out falls back to its default; nothing is remembered. Read the header comment of each file for the exact signatures (it is the API reference). Summary:\nA. DATA (common.js): A2.DIJ {names, edges, pos}; A2.dijkstra(names, edges, {directed, start}) -> {rounds: [{node, d, relax: [{to, w, cand, old, better, edge}], late, before, after}], dist, parent, settled, snap(n)}; A2.DIJ_RUN; A2.treeEdges(run, upto); A2.routeOf(run, node); A2.routes(...) / A2.ROUTES (7 routes A to E); A2.TRI, A2.SAFE, A2.NEG (scene 4); A2.GRID, A2.gridRun('astar' | 'dijkstra') / A2.RUNS -> {steps: [{x, y, key, g, h, f, added, open}], count, cost, path, fAt, at(n)}; A2.HONEST; A2.NET {names, edges, pos}, A2.netDijkstra(src) -> {d, parent, first, order, tree}, A2.netTable(src), A2.TABLE_A, A2.hops(src, dst); A2.BF; A2.CTI, A2.ctiAt(k); A2.CTI_POISON, A2.poisonAt(k); A2.INF, A2.fmt, A2.need, A2.stepAt, A2.count.\nB. DRAWING (common-2.js): A2.tag(parent, {x, y, text, tone, solid, fs, minW}) -> {set({x, y, text, tone, solid, s, o, r, dx, dy, strike})} (a pill CENTRED on x, y; write the infinity sign as the character in the text and it is drawn as a shape); A2.token(parent, {size, tone, text, round}) -> {set({x, y, s, o, r, tone, text})}; A2.along(points, k); A2.graph(parent, {nodes, edges, x, y, scale, r, fs, directed, at, badge}) -> G with G.update({o, weights, nodes: {A: {look: 'grey' | 'soft' | 'solid' | 'ghost', tone, s, o, ring, ringK, pulse, dx, dy, text}}, edges: {'A-B': {tone, k, from, o, w, dash, cut, text, pill, pk, po, ps}}, badges: {A: {text, tone, solid, k, o, s, strike, dx, dy}}}), G.pt(n), G.edge(key), G.edgePt(key, f, from), G.pillPt(key), G.badgePt(n), G.along(names, k), G.under / G.over / G.html layers; time helpers A2.pop(t, a, d), A2.fade(t, a, d), A2.lin(t, a, b), A2.io(t, a, b), A2.bump(t, a, d), A2.on(t, a), A2.curve(t, [[t0, v0], ...]).\nC. DRAWING (common-3.js): A2.grid(parent, {x, y, cols, rows, cell, gap, fs}) -> Gd with Gd.update({o, s, cells: (cx, cy, key) => {look: 'empty' | 'soft' | 'solid' | 'wall', tone, text, s, o, ring, ringK, pulse, dx, dy}}), Gd.centre(cx, cy); A2.gridPaint(run, n, {nums, pathK, o}) -> the standard picture of a search on A2.GRID for Gd.update({cells}); A2.list(parent, {x, y, w, head, headTone, keys}) -> Ls with Ls.update({k, items: {key: {text, slot, tone, solid, o, s}}}); A2.table(parent, {x, y, cols, head, rows, rowH}) -> Tb with Tb.update({k, o, rows: [{k, hl, solid}], cells}), Tb.rowY(i), Tb.colX(j); A2.bar(parent, {x, y, h, unit, segs}) -> Br with Br.update({k, o, tones}), Br.xAt(v), Br.endX; A2.mapIcon(x, y, size, tone), A2.dot(x, y, r, tone) (SVG pictograms).\nNOTES FOR SCENE AUTHORS: (1) use the data helpers instead of typing numbers; (2) tags are centred on x, y, graphs draw roads centre to centre under the nodes; (3) A2.graph builds its pills and badges once, so create ONE graph per figure and re-use it; two graphs on the same stage are fine (scene 4); (4) 'o: 0' hides a node, edge, badge, tag or cell completely; (5) the engine's V.place (pop-ins) works on any returned .el / .box; (6) text >= 28 px, margins >= 12 px; (7) the video font lacks the infinity sign and arrows, so use 'infinity' via the tag helpers or L5.arrow pictograms, never glyphs."
+}

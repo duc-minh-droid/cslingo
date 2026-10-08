@@ -1,0 +1,331 @@
+{
+  "slug": "algo-4",
+  "dir": "a4",
+  "title": "Phase 4 · Minimum Spanning Trees",
+  "outline": "Phase 4 video (Algorithms, ECM3428): 'Minimum Spanning Trees', sub line 'The cheapest way to connect everything'. 11 scenes, 120 s: title (4), the problem (11), many trees one cheapest (11), the cut property (14), Prim (13), Kruskal (14), why both are correct (11), the cost (11), from tree to tour (12), the guarantee (10), recap (9). Story: connect every town with the least cable; the answer is a spanning tree (every town linked, no loops, n - 1 cables); a 5-town network has 21 of them and bigger ones far too many to try; the CUT PROPERTY (the cheapest cable across any cut is always safe, proved by swapping) is the engine; Prim grows one tree, Kruskal merges a forest, and each cable either takes is the cheapest across some cut, so both are correct and find the same tree; Prim's array version costs about V^2, Kruskal about E log V, so sparse networks favour Kruskal and dense ones Prim; and an MST gives a travelling-salesman tour at most twice the best (double the tree, skip repeats). Not covered (lesson 4.8 and the workshop): ties (several MSTs), disconnected graphs, clustering by cutting heavy MST edges; the recap points to Workshop 4.W.\n\nLESSONS the facts come from: a4-intro 4.1 (spanning trees), a4-cut 4.2 (cut property), a4-prim 4.3, a4-kruskal 4.4, a4-mst 4.5 (Prim vs Kruskal on the 5-town graph), a4-proof 4.6 (exchange proof), a4-cost 4.7, a4-edge 4.8, a4-tsp 4.9 (MST to tour), a4-build 4.W; js/content/algo/algo-p4-*.js, algo-p4-x-*.js, algo-workshops-4-03.js; bank js/bank/algo-*.js.\n\nTHE EXAMPLE NETWORK (scenes 2-7, lessons 4.2 and 4.5): towns A-E, cables AB 4, AC 3, BC 2, BD 5, CD 6, CE 7, DE 1. Minimum spanning tree = AC 3 + BC 2 + BD 5 + DE 1 = 11. Prim from A adds AC, BC, BD, DE (totals 3, 5, 10, 11). Kruskal sorts DE 1, BC 2, AC 3, AB 4, BD 5, CD 6, CE 7: takes DE, BC, AC, rejects AB (A and B already joined through C), takes BD, then stops at 4 cables (CD and CE are never read). Cuts and their safe cable: {A} -> AC, {B} -> BC, {A,B,C} -> BD, {A,B,C,D} -> DE. Swap proof: tree T = AB BC BD DE costs 12; adding AC makes the loop A-B-C; dropping AB gives AC BC BD DE = 11. The network has 21 spanning trees with totals 11 (1), 12 (2), 13 (3), 14 (2), 15 (2), 16 (2), 17 (2), 18 (2), 19 (2), 20 (1), 21 (1), 22 (1). The 8-town network of lessons 4.3-4.4 has 452 spanning trees; 20 towns with every pair linked have 20^18 = 262,144,000,000,000,000,000,000. Cost: array Prim does (V - 1)^2 steps (V = 1024: 1,046,529), Kruskal E log2 V (E = 2048: 20,480, about 50 times less); for V = 1000 and every pair linked (E = 499,500): Prim 998,001, Kruskal 4,977,909 (Prim about 5 times less). Tour (lesson 4.9, seven towns, straight-line distances): MST W = 75.7 (AB, AC, CD, DE, DF, FG), walk ABACDEDFGFDCA = 2W = 151.4, shortcut tour ABCDEFG(A) = 124.8, best tour ABEGFDC = 97.6 (brute force), so 75.7 <= 97.6 <= 124.8 <= 151.4 and the tour is at most 2 x best = 195.2.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached). The same example network (five towns A-E at the same positions, the same cable weights) appears in scenes 2-7 so the viewer follows ONE network from scene to scene; scenes 3 and 6-8 draw it smaller. Town letters are 28 px or more, weight pills are 28 px (they do not shrink: keep them off graphs smaller than scale 0.68). Green cables are drawn in the tree, grey ones are not in play, dimmed (o 0.3-0.5) ones are out of the story for now. Every cable and tree state comes from the real algorithm logs in videos/a4/common.js (A4.PRIM, A4.KRUSKAL, A4.CUTS, A4.EXCHANGE, A4.TREES, A4.COST, A4.TSP), which assert every number when the page loads and throw a clear Error if one differs from this storyboard. Symbols (ticks, crosses, arrows, the equals sign) are SVG pictograms (L5.tick/cross/arrow, A4.equals), never glyphs. The headline of the title card is 80 px, because 'Minimum Spanning Trees' wraps at the 92 px of VID.titleCard: scene-01-title.js is finished (a copy of the card with a smaller headline) and must not be replaced by VID.titleCard.",
+  "titleCard": {
+    "kicker": "Algorithms · Phase 4",
+    "title": "Minimum Spanning Trees",
+    "sub": "The cheapest way to connect everything",
+    "who": "byte",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-problem.js",
+      "kicker": "THE PROBLEM",
+      "title": [
+        "Connect every town",
+        "with no spare cable"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "Every cable has a cost. Every town must be linked."
+        ],
+        [
+          3.0,
+          6.3,
+          "Four cables link all five towns: a spanning tree."
+        ],
+        [
+          6.5,
+          10.5,
+          "A fifth cable makes a loop. A tree has no loops."
+        ]
+      ],
+      "spec": "IDEA: link every town with as little cable as possible. The answer is a spanning tree: every town reachable, no loops, exactly one cable fewer than there are towns. Shown on the example network: a tree T of four cables, then a fifth cable that closes a loop. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). THE NETWORK (same in scenes 2-7): const g = A4.net(stage, {x: 24, y: 20, s: 1}) puts the towns at A (64,250), B (214,60), C (264,420), D (454,100), E (584,330) with a weight pill on each cable: AB 4, AC 3, BC 2, BD 5, CD 6, CE 7, DE 1 (pills at the cable midpoints: AB (139,155), AC (164,335), BC (239,240), BD (334,80), CD (359,260), CE (424,375), DE (519,215)). The graph fills x 17-631, y 13-459; the right column x 650-920 is free for counters and tiles, and so is y 470-640. Right column (x 650-920): cables = A4.total(stage, {x: 650, y: 30, w: 270, label: 'cables', tone: 'blue'}); towns = A4.total(stage, {x: 650, y: 130, w: 270, label: 'towns', tone: 'grey'}); fewer = A4.tag(stage, {x: 700, y: 232, text: 'one fewer', tone: 'green'}). Verdict badge under the graph: badge = L5.badge(stage, {x: 24, y: 490, w: 340, h: 68, valid: 'spanning tree', invalid: 'a loop'}) and badge('valid' | 'invalid' | 'none', k) each frame. A cross for the loop: const svg = L5.svg(stage); const cross = svg.appendChild(L5.cross(181, 243, 64, 'red', {w: 9})); L5.drawOn(cross, k) (181, 243 is the middle of the triangle ABC).\n\nDATA (assert at build time with A4.same): the tree T = A4.EXCHANGE.T = ['AB','BC','BD','DE'] (cost 12; it is also the starting tree of scene 4). The fifth cable is AC (cost 3): A4.pathIn(T, 'A', 'C') = ['A','B','C'], so AC closes the loop A-B-C (cables AB, BC, AC, A4.EXCHANGE.cycle).\n\nTIMELINE (local seconds). 0.2-0.9 the five towns pop in, 0.1 s apart: towns[x] = {s: E.pop(k), o: min(1, 4k)} with k = V.ramp(t, 0.2 + 0.1 i, 0.7 + 0.1 i). 1.0-2.5 the seven cables draw on in grey, 0.12 s apart: edges[key] = {k: ramp(t, 1.0 + 0.12 i, 1.4 + 0.12 i)} over A4.EDGE_KEYS (the weight pills pop in by themselves as each cable passes its middle). 2.7 the 'towns 5' counter pops (A4.total .set({text: '5', k})), 2.9 the 'cables 0' counter. 3.0-5.8 lay T one cable at a time, cable j (0..3) starting at 3.0 + 0.8 j and drawing for 0.4 s: edges[key] = {tone: 'blue', solid: true, w: 1.3, k, from} with from 'A' for AB, 'B' for BC, 'B' for BD, 'D' for DE; when a cable arrives its far town turns solid blue (A and B at 3.4, C at 4.2, D at 5.0, E at 5.8) and the cables counter reads j + 1 (bump = V.flash(t, end, end + 0.4)). 6.1-6.8 everything is checked: the five towns turn solid green one after another (0.06 s apart, each with a small pop s 1.15), the four cables turn solid green, the cables counter turns green, badge('valid', ramp(t, 6.3, 6.9)). 7.2-7.7 a fifth cable AC draws on from A in red (edges.AC = {tone: 'red', w: 1.3, k, from: 'A'}). 7.7-9.0 loop alarm: AB, BC and AC get tone 'red' with halo 1 (edges stay solid), the cross draws on (L5.drawOn, ramp(t, 7.8, 8.2)), badge('invalid', ramp(t, 7.8, 8.3)), the cables counter reads 5 in red. 9.0-9.8 the spare cable goes: AC shrinks back towards A (k = 1 - ramp(t, 9.0, 9.6), from 'A'), the cross fades, AB and BC return to solid green, the counter returns to 4 in green, badge('valid') again (ramp 9.4-9.9). 9.6-10.2 the 'one fewer' tag pops in (k = ramp(t, 9.6, 10.2)). 10.2-10.8 hold.\n\nEND STATE: the green tree AB BC BD DE on all five green towns, counters 'cables 4' and 'towns 5' with the green 'one fewer' tag, the green 'spanning tree' badge. AC is gone, CD and CE stay grey. Scene 3 starts with the same five towns. CAPTIONS: [[0.4,2.8,\"Every cable has a cost. Every town must be linked.\"],[3.0,6.3,\"Four cables link all five towns: a spanning tree.\"],[6.5,10.5,\"A fifth cable makes a loop. A tree has no loops.\"]]"
+    },
+    {
+      "n": 3,
+      "file": "scene-03-many-trees.js",
+      "kicker": "THE GOAL",
+      "title": [
+        "Many spanning trees,",
+        "one is cheapest"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          2.9,
+          "The same five towns have 21 different spanning trees."
+        ],
+        [
+          3.0,
+          5.3,
+          "Each one has its own total cost."
+        ],
+        [
+          5.4,
+          6.9,
+          "The cheapest is the minimum spanning tree."
+        ],
+        [
+          7.0,
+          10.6,
+          "Bigger networks have far too many trees to try them all."
+        ]
+      ],
+      "spec": "IDEA: the same five towns have 21 spanning trees whose totals run from 11 to 22; the cheapest is the minimum spanning tree. Trying every tree is hopeless for bigger networks. A flip-book of all 21 trees drops one dot per tree onto a cost line, then the count explodes. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). TOP LEFT the network as a small picture: const g = A4.net(stage, {x: 14, y: 24, s: 0.52, pills: false}) (towns A (34.8,143.6), B (112.8,44.8), C (138.8,232), D (237.6,65.6), E (305.2,185), radius 22, no weight pills). Under it the current tree's total: tot = A4.total(stage, {x: 40, y: 262, w: 260, h: 80, label: 'total', tone: 'blue'}). TOP RIGHT a plot card: a sticker V.h('div', {class: 'v-card plain c-grey', style: left 372, top 14, width 552, height 300}); inside it (stage coordinates) a 28 px dim text 'one dot = one tree' at (392, 26); a grey axis line y 226 from x 390 to 906 (4 px, round caps) with a 10 px tick at every cost x(v) = 404 + (v - 11) * 44 for v = 11..22 and 28 px dim labels (V.h with class 'v-text dim', centred on x(v), top y 238) for 11, 14, 17, 20 and 22; a 28 px dim 'total cost' centred at x 646, top 272. One dot per tree = A4.token(stage, {tone: 'blue', size: 30}) centred at (x(total), 207 - 34 * row), x(total) = 404 + (total - 11) * 44 where row counts the dots of equal total shown before it (the highest stack, total 13, has 3). BELOW: a grey tag A4.tag(stage, {x: 372, y: 324, text: 'how many spanning trees?'}) and the ladder, three rows at y = 380, 450, 520: a 28 px dim label at x 0 (top y + 8) '5 towns', '8 towns', '20 towns', and a bar A4.bar(stage, {x: 180, y, w, h: 56, fs: 34, tone, text}) with w = min(744, 110 + 26 * digits of the count), tone 'blue', 'blue', 'red'; a 28 px dim note 'every pair of towns linked' at (180, 584).\n\nDATA (assert): A4.TREES = the 21 spanning trees sorted by total (A4.TREES[i].keys = its four cables, .total); A4.HIST = {11:1, 12:2, 13:3, 14:2, 15:2, 16:2, 17:2, 18:2, 19:2, 20:1, 21:1, 22:1}; A4.FLIP = the order of the flip-book (index into A4.TREES): the tree 'AB BC BD DE' (total 12, the tree of scenes 2 and 4) first, then 'AB BD CD CE' (22), 'AC BD CE DE' (16), 17 more in a fixed shuffled order, and the cheapest 'AC BC BD DE' (11) last. A4.MST.keys = ['AC','BC','BD','DE'] (total 11). Ladder: A4.COUNTS[r].text = '21' (the five-town network), '452' (the 8-town network of lessons 4.3-4.4, counted by brute force), '262,144,000,000,000,000,000,000' (20 towns with every pair linked: 20^18, Cayley's formula).\n\nTIMELINE. 0.2-0.9 the small network (grey) and the plot card pop in (V.place s 0.9 -> 1, fade), the total pill pops. FLIP-BOOK: tree j (j = 0..20, A4.TREES[A4.FLIP[j]]) is current from start_j: for j < 3 start_j = 1.0 + 0.5 j (shown 0.5 s), for j >= 3 start_j = 2.5 + 0.15 (j - 3) (shown 0.15 s, the last ends at 5.2). While tree j is current: g.update({edges: {each of its 4 cables: {tone: 'blue', w: 1.3}}, base: {edge: {o: 0.5}}}), the total pill shows its total (blue), and its dot drops in from 50 px above its place over 0.25 s (E.out), blue. 5.4-6.4 the cheapest: the network shows the minimum spanning tree in green (cables tone 'green', solid pills not needed, w 1.4, halo 1; towns solid green), the total pill turns solid green and reads 11, the 11 dot (at x 404) turns green and pops (s 1.4 with E.pop), the other 20 dots dim to o 0.55, a green solid tag A4.tag 'cheapest' at (380, 76) pops at 5.6 and a green L5.arrow from (404, 122) to (404, 186) draws on (L5.drawOn, 5.7-6.1) pointing at the 11 dot. 6.6 the header tag pops; the three ladder rows pop at 6.7, 7.5 and 8.3 (label fades in, bar grows k = ramp 0.4 s; rows 1 and 2 show their text at once; row 3 types its number out left to right over 8.4-9.4 with V.type(text, k) while its bar grows to full length 8.3-8.9). 9.5-10.0 the red bar does one small shake (V.place(bar.el, {x: 6 sin(...)}) with a fading envelope). 10.0-10.8 hold.\n\nEND STATE: green minimum spanning tree and green '11' pill, the dot plot (one green dot at 11, twenty dimmed blue dots), the three ladder bars. The idea 'so we need a rule that builds the cheapest tree directly' leads into scene 4. CAPTIONS: [[0.4,2.9,\"The same five towns have 21 different spanning trees.\"],[3.0,5.3,\"Each one has its own total cost.\"],[5.4,6.9,\"The cheapest is the minimum spanning tree.\"],[7.0,10.6,\"Bigger networks have far too many trees to try them all.\"]]"
+    },
+    {
+      "n": 4,
+      "file": "scene-04-cut.js",
+      "kicker": "THE CUT PROPERTY",
+      "title": [
+        "The cheapest bridge",
+        "across a cut is safe"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Split the towns into two groups: a cut."
+        ],
+        [
+          3.2,
+          5.4,
+          "A tree must cross it. AC is the cheapest."
+        ],
+        [
+          5.6,
+          8.0,
+          "Suppose a tree uses the dearer cable AB."
+        ],
+        [
+          8.2,
+          10.6,
+          "Add AC: a loop. Drop AB and the tree is cheaper."
+        ],
+        [
+          10.8,
+          13.5,
+          "The cheapest cable across a cut is always safe."
+        ]
+      ],
+      "spec": "IDEA: split the towns into two groups (a cut). A tree must bridge the gap, and the cheapest bridge is always safe, because any tree that uses a dearer bridge can swap it for the cheapest one and only get cheaper. Shown with the cut {A} | {B, C, D, E} and the swap proof on a real tree. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). THE NETWORK (same in scenes 2-7): const g = A4.net(stage, {x: 24, y: 20, s: 1}) puts the towns at A (64,250), B (214,60), C (264,420), D (454,100), E (584,330) with a weight pill on each cable: AB 4, AC 3, BC 2, BD 5, CD 6, CE 7, DE 1 (pills at the cable midpoints: AB (139,155), AC (164,335), BC (239,240), BD (334,80), CD (359,260), CE (424,375), DE (519,215)). The graph fills x 17-631, y 13-459; the right column x 650-920 is free for counters and tiles, and so is y 470-640. Right column (x 650): total = A4.total(stage, {x: 650, y: 40, w: 270, h: 80, label: 'tree cost', tone: 'blue'}); the crossing cables as tiles tiles = A4.tiles(stage, {x: 650, y: 170, items: ['AC 3', 'AB 4'], w: 270, h: 56, gap: 12, dir: 'col', tone: 'orange'}); a purple solid tag A4.tag(stage, {x: 20, y: 160, text: 'X', tone: 'purple', solid: true}) above-left of town A; later a green tag 'one cheaper' (A4.tag at (650, 128), tone 'green') and a green L5.tick(780, 235, 70). The loop cross is L5.cross(181, 243, 64, 'red', {w: 9}) from an L5.svg(stage).\n\nDATA (assert): A4.CUTS[0] = the cut X = ['A']: A4.CUTS[0].crossing = AC 3 then AB 4 (A4.crossing(['A'])), safe = AC. A4.EXCHANGE = {X: ['A'], e: 'AC', T: ['AB','BC','BD','DE'] (cost 12), cycle: ['AB','BC','AC'], f: 'AB', T2: ['BC','BD','DE','AC'] (cost 11)}: adding AC to T makes the loop A-B-C; its other cable that crosses the cut is AB (4), which is dearer than AC (3), so swapping AB for AC saves 1. The tree-cost counter goes 12 -> 15 (with the extra cable) -> 11.\n\nTIMELINE. 0.2-1.2 the network pops in (towns pop, cables draw grey 0.06 s apart, pills follow). 1.3-2.4 the cut: g.update({blobs: [{set: ['A'], k: ramp(t, 1.3, 2.0)}]}), the purple 'X' tag pops (k ramp 1.4-1.9), towns A tone 'purple'; the two cables that leave the blob turn orange with solid pills (edges AB, AC = {tone: 'orange', solid: true, w: 1.2} from 1.8 on, fading in with k of a ramp) while the other five cables dim (base edge o 0.4). 2.2-2.8 the two tiles 'AC 3', 'AB 4' pop in (0.15 s apart, orange). 2.6-3.4 hold; the two orange cables pulse once (halo = V.flash(t, 2.8, 3.4)). 3.6-4.8 the lightest: AC turns solid green (pill solid green, halo 1) and its tile turns solid green; AB and its tile dim to o 0.5. 5.0-5.6 AC becomes a dashed green ghost (edges.AC = {tone: 'green', dash: true, o: 0.8}), the blob, X tag, orange tone and tiles fade out. 5.6-6.9 the example tree T drawn in blue, cable by cable, 0.3 s apart (5.6, 5.9, 6.2, 6.5; 0.35 s each): AB (from 'A'), BC (from 'B'), BD (from 'B'), DE (from 'D'), edges = {tone: 'blue', solid: true, w: 1.3}, towns solid blue when reached; the tree-cost pill pops at 6.4 reading 12. 7.0-7.4 hold. 7.4-8.0 AC draws on from A (solid green, w 1.3, k ramp). 8.3-9.7 loop alarm: AB, BC, AC tone 'red' with halo 1, the cross draws on (8.3-8.7), the tree-cost pill reads 15 in red (tone 'red'). 9.8-10.4 the swap: AB turns dashed red (dash true) and fades (o 0.4 s), a small red L5.cross at AB's middle (g.mid('AB')) flashes; BC, AC, BD, DE turn solid green, the towns solid green; the pill counts 15 -> 11 (round(V.lerp(15, 11, ramp(t, 10.0, 10.6)))) and turns solid green with a bump. 10.6 the green 'one cheaper' tag pops. 10.9 the green tick pops. 11.2-13.5 hold.\n\nEND STATE: AB gone, green tree AC BC BD DE on green towns (CD and CE grey, dimmed), green pill 11, 'one cheaper' tag and tick. The same tree is what Prim and Kruskal find next. CAPTIONS: [[0.4,3.0,\"Split the towns into two groups: a cut.\"],[3.2,5.4,\"A tree must cross it. AC is the cheapest.\"],[5.6,8.0,\"Suppose a tree uses the dearer cable AB.\"],[8.2,10.6,\"Add AC: a loop. Drop AB and the tree is cheaper.\"],[10.8,13.5,\"The cheapest cable across a cut is always safe.\"]]"
+    },
+    {
+      "n": 5,
+      "file": "scene-05-prim.js",
+      "kicker": "PRIM'S ALGORITHM",
+      "title": [
+        "Prim grows one tree,",
+        "cheapest cable first"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          2.6,
+          "Start at any town. Look at every cable leaving the tree."
+        ],
+        [
+          2.8,
+          6.0,
+          "Take the cheapest one. A new town joins."
+        ],
+        [
+          6.2,
+          9.6,
+          "Repeat. A cable inside the tree is ignored."
+        ],
+        [
+          9.8,
+          12.5,
+          "Every town is in. The cheapest tree costs 11."
+        ]
+      ],
+      "spec": "IDEA: Prim grows one tree from a start town. Each step looks at every cable that leaves the tree, takes the cheapest one and adds the new town. Run for real from A on the example network. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). THE NETWORK (same in scenes 2-7): const g = A4.net(stage, {x: 24, y: 20, s: 1}) puts the towns at A (64,250), B (214,60), C (264,420), D (454,100), E (584,330) with a weight pill on each cable: AB 4, AC 3, BC 2, BD 5, CD 6, CE 7, DE 1 (pills at the cable midpoints: AB (139,155), AC (164,335), BC (239,240), BD (334,80), CD (359,260), CE (424,375), DE (519,215)). The graph fills x 17-631, y 13-459; the right column x 650-920 is free for counters and tiles, and so is y 470-640. Right column (x 650): the candidate list cand = A4.tiles(stage, {x: 650, y: 20, items: ['AC 3', 'AB 4', 'BC 2', 'CD 6'] (4 slots; you change each slot's text per step with cand.set(i, {text})), w: 270, h: 56, gap: 10, dir: 'col', fs: 32}) (y 20-274); the running total tot = A4.total(stage, {x: 650, y: 330, w: 270, h: 80, label: 'tree cost', tone: 'green'}); at the end a green solid tag A4.tag(stage, {x: 650, y: 440, text: 'cheapest tree', tone: 'green', solid: true}). Next to the start town a tag A4.tag(stage, {x: 20, y: 150, text: 'start', tone: 'green'}) and, in step 3 only, a grey tag 'ignored' at (16, 96).\n\nDATA (A4.PRIM = A4.prim('A'); assert A4.PRIM.order = ['AC','BC','BD','DE'], totals 3, 5, 10, 11): steps[k].X = the towns in the tree before step k ([A], [A,C], [A,C,B], [A,C,B,D]); steps[k].cands = the cables with exactly one end in the tree, cheapest first: step 0 AC 3, AB 4; step 1 BC 2, AB 4, CD 6, CE 7; step 2 BD 5, CD 6, CE 7; step 3 DE 1, CE 7; steps[k].pick = the first of them (AC, BC, BD, DE), steps[k].town = the town that joins (C, B, D, E), steps[k].inside = cables with both ends in the tree that are not in it (step 2: AB; step 3: AB, CD), steps[k].total = tree cost after the step (3, 5, 10, 11), steps[k].tree = its cables.\n\nTIMELINE. 0.2-1.2 the network pops in (grey, pills). 1.2-1.6 town A turns solid green with a pop (s 1.2) and the 'start' tag pops; the total pill pops reading 0. Four steps, step k (0..3) starting at s_k = 1.6 + 2.6 k (1.6, 4.2, 6.8, 9.4); u = t - s_k. Every frame of a step shows: the tree cables so far (steps[k-1].tree, none for k = 0) solid green, the towns of steps[k].X solid green, the cables in steps[k].cands orange with solid pills (w 1.2), the cables in steps[k].inside grey at o 0.3, all other cables grey at o 0.6. u 0-0.5: the candidate cables turn orange and the tiles pop in, slot i showing cands[i] ('AC 3' ...; 0.08 s apart); unused slots stay hidden (o 0). u 0.6-1.0: the cheapest tile (slot 0) turns solid orange and the other tiles dim to o 0.5. u 1.0-1.6: the pick turns solid green (halo flash) and the new town turns solid green with a pop; its tile turns solid green; the other candidate cables go back to grey (o 0.6). u 1.6-2.2: the total counts up to steps[k].total (V.lerp from the previous total) and bumps. u 2.2-2.6: the tiles fade out. In step 2 (u 0.2-1.8) the 'ignored' grey tag shows beside AB, which sits dimmed at o 0.3 (both its ends are in the tree). 12.0-12.8 all five towns and the four cables solid green with halo 1; the green 'cheapest tree' tag pops and a green L5.tick(780, 540, 64) draws on. 12.8-13 hold.\n\nEND STATE: the green tree AC BC BD DE (the minimum spanning tree), total 11, 'cheapest tree' tag; CD, CE and AB grey. Scene 6 builds the same tree the other way. CAPTIONS: [[0.4,2.6,\"Start at any town. Look at every cable leaving the tree.\"],[2.8,6.0,\"Take the cheapest one. A new town joins.\"],[6.2,9.6,\"Repeat. A cable inside the tree is ignored.\"],[9.8,12.5,\"Every town is in. The cheapest tree costs 11.\"]]"
+    },
+    {
+      "n": 6,
+      "file": "scene-06-kruskal.js",
+      "kicker": "KRUSKAL'S ALGORITHM",
+      "title": [
+        "Cheapest cable first,",
+        "never close a loop"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          1.7,
+          "Sort every cable by cost."
+        ],
+        [
+          1.9,
+          4.8,
+          "Take the cheapest cable. It joins two groups."
+        ],
+        [
+          5.0,
+          7.1,
+          "Groups merge into one tree."
+        ],
+        [
+          7.3,
+          9.7,
+          "AB is next, but A and B are already joined. Skip it."
+        ],
+        [
+          9.9,
+          11.6,
+          "BD joins the last two groups."
+        ],
+        [
+          11.8,
+          13.7,
+          "Four cables are enough, so the last two are never read."
+        ]
+      ],
+      "spec": "IDEA: Kruskal sorts every cable by cost and walks down the list, taking each cable unless its two ends are already joined (that would close a loop). Small trees merge into one. It stops at four cables, so the last two are never read. Run for real on the example network. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px; this scene packs a list on top, so the network is smaller and lower). Sorted list on top: row = A4.tiles(stage, {x: 19, y: 6, items: A4.KRUSKAL.sorted.map((e) => e.key[0] + e.key[1] + ' ' + e.w), w: 118, h: 56, gap: 12, fs: 30}) = 'DE 1', 'BC 2', 'AC 3', 'AB 4', 'BD 5', 'CD 6', 'CE 7' (slot i centre x = 78 + 130 i, y 34). A blue pointer under the current tile: an SVG triangle M cx 74 L cx+14 98 L cx-14 98 Z (fill var(--blue), stroke var(--blue-lip) 3, round joins) from an L5.svg(stage), sliding to the next tile in 0.3 s. Network: const g = A4.net(stage, {x: 28, y: 150, s: 0.88, blobs: 4}) puts the towns at A (63,352), B (195,185), C (239,502), D (406,220), E (521,423), town radius 30, pills on. Right column (x 600): verdict card = V.h('div', {class: 'v-card plain c-green' or 'c-red', style: left 600, top 160, width 324, height 170}) holding a 64 px L5.tick or L5.cross at stage (652, 245) and two 36 px bold lines at x 700: 'two groups:' / 'join them' (tick) or 'same group:' / 'skip it' (cross); total = A4.total(stage, {x: 600, y: 360, w: 324, h: 80, label: 'total', tone: 'green'}). After the stop a grey tag A4.tag(stage, {x: 700, y: 76, text: 'never read'}) under the last two tiles.\n\nDATA (A4.KRUSKAL = A4.kruskal(); assert): sorted DE 1, BC 2, AC 3, AB 4, BD 5, CD 6, CE 7. events[i] for i = 0..4 (one per cable READ, slot i of the list): DE accept, groups {D,E}, total 1; BC accept, groups {B,C} {D,E}, total 3; AC accept, groups {A,B,C} {D,E}, total 6; AB REJECT: the towns of the existing tree path between its ends are events[3].path = ['A','C','B'] (cables AC, BC), the loop is events[3].cycle = ['AC','BC','AB'], total stays 6; BD accept, one group {A,B,C,D,E}, total 11. events[i].before / .after = the groups (arrays of town arrays) before / after the cable. unread = ['CD','CE'] (4 cables = 5 - 1, so the loop stops). Tree = ['DE','BC','AC','BD'].\n\nTIMELINE. 0.2-1.4 towns pop and the grey cables draw on (0.06 s apart); the seven tiles slide in from the left, 0.1 s apart (0.3-1.2, all grey), and the pointer pops above 'DE 1' at 1.5. Event i starts at T = [1.8, 3.6, 5.4, 7.2, 9.9] (u = t - T). ACCEPT events (0, 1, 2, 4; 1.7 s each): u 0-0.3 the pointer slides to tile e.i, the tile turns solid blue, the cable becomes blue (w 1.35, halo 1) and its two end towns get a blue ring (ring: 'blue', ringK pops); u 0.3-0.7 the verdict card pops in green ('two groups: join them'); u 0.7-1.1 the cable turns solid green (halo flash), the tile turns green (tone 'green', solid false), the rings go, the end towns turn solid green; the group outlines change: the groups after the event (events[i].after, only groups with 2 or more towns) are drawn as blobs {set, tone: 'green', dash: false} fading in while the groups before fade out (use the 4 blob slots, k = ramp / 1 - ramp over 0.3 s); u 1.1-1.5 the total counts up by w and bumps (1, 3, 6, 11); u 1.5-1.7 the verdict card fades. REJECT event 3 (AB; 2.5 s, 7.2-9.7): u 0-0.3 pointer to 'AB 4', tile solid blue, AB blue, rings on A and B; u 0.4-1.4 a blue A4.token runs along the existing path A -> C -> B (positions from g.pt, A4.along(points, f)), with AC and BC given halo 1; u 1.4-1.9 the verdict card pops red ('same group: skip it'); u 1.9-2.5 AB turns red and dashed with a red L5.cross at g.mid('AB'), its tile turns red (tone 'red'), the token and rings disappear, the total stays 6. After BD (ends 11.6): 11.7-12.4 the two unread tiles CD 6 and CE 7 become ghosts (ghost: true), CD and CE dim to o 0.3, the grey 'never read' tag pops; 12.4-13.4 the total turns solid green with a bump and a green L5.tick(900, 400, 56) draws on. 13.4-13.9 hold.\n\nEND STATE: green tree DE BC AC BD on one green group outline, total 11, AB red dashed, CD and CE dimmed, 'never read' tag under the two ghost tiles. Same tree as Prim, built the other way. CAPTIONS: [[0.4,1.7,\"Sort every cable by cost.\"],[1.9,4.8,\"Take the cheapest cable. It joins two groups.\"],[5.0,7.1,\"Groups merge into one tree.\"],[7.3,9.7,\"AB is next, but A and B are already joined. Skip it.\"],[9.9,11.6,\"BD joins the last two groups.\"],[11.8,13.7,\"Four cables are enough, so the last two are never read.\"]]"
+    },
+    {
+      "n": 7,
+      "file": "scene-07-correct.js",
+      "kicker": "WHY BOTH ARE CORRECT",
+      "title": [
+        "Every step is",
+        "a safe cut"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Every cable they take is the cheapest across some cut."
+        ],
+        [
+          3.2,
+          7.0,
+          "Prim cuts off its tree. Kruskal cuts off one group."
+        ],
+        [
+          7.2,
+          10.5,
+          "Both only make safe choices, so both find the same tree."
+        ]
+      ],
+      "spec": "IDEA: why Prim and Kruskal cannot go wrong. Each cable they take is the cheapest cable across SOME cut (Prim: X is the tree grown so far; Kruskal: X is one group), so by the cut property it is safe. The two panels run their four steps side by side: different order, same four cables, same total. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). Two panels, each a sticker card: V.h('div', {class: 'v-card plain c-grey', style: left 12, top 8, width 444, height 520}) and the same at left 480. Panel headers: A4.tag(stage, {x: 26, y: 22, text: 'Prim: X is the tree'}) and A4.tag(stage, {x: 494, y: 22, text: 'Kruskal: X is a group'}). Graphs: gl = A4.net(stage, {x: 32, y: 100, s: 0.68, blobs: 2}) and gr = A4.net(stage, {x: 500, y: 100, s: 0.68, blobs: 2}) (town radius 23; left towns A (59,256), B (161,127), C (195,372), D (324,154), E (413,311); the right ones are 468 px further right). Order rows (the cables in the order taken): A4.tiles(stage, {x: 23, y: 430, items: ['AC 3','BC 2','BD 5','DE 1'], w: 98, h: 48, gap: 10, fs: 28}) in the left panel and A4.tiles(stage, {x: 491, y: 430, items: ['DE 1','BC 2','AC 3','BD 5'], ...}) in the right one. Under the panels: two A4.total(stage, {x: 190 / 506, y: 548, w: 240, h: 80, label: 'total', tone: 'green'}) and a green equals sign: svg = L5.svg(stage); eq = svg.appendChild(A4.equals(468, 588, 52, 'green')).\n\nDATA (assert): Prim from A (A4.PRIM.steps[k]): X = [A], [A,C], [A,C,B], [A,C,B,D], pick AC, BC, BD, DE, crossing cables steps[k].cands. Kruskal (A4.KRUSKAL.cuts, one per ACCEPTED cable): DE with X = [D] (crossing DE 1, BD 5, CD 6), BC with X = [B] (BC 2, AB 4, BD 5), AC with X = [A] (AC 3, AB 4), BD with X = [A,B,C] (BD 5, CD 6, CE 7). In every step the picked cable is A4.safe(X) = the lightest crossing cable (A4.crossing(X)[0]). Both end on A4.MST.keys = AC BC BD DE, total 11. The rejected cable AB (scene 6) is not shown here.\n\nTIMELINE. 0.2-1.0 both panels, headers and graphs pop in (grey). Four steps for both panels at once, step k (0..3) starting at s_k = 1.2 + 2.0 k (1.2, 3.2, 5.2, 7.2); u = t - s_k. Every frame of a step, in each panel: cables picked in earlier steps solid green with their towns solid green; u 0-0.4 the cut: blob {set: X, tone 'purple', k} pops (the previous step's blob fades out in the second slot), the crossing cables of X turn orange with solid pills (w 1.2), everything else dims (base edge o 0.4); u 0.5-0.9 the lightest crossing cable pulses (halo flash) and its tile pops into slot k of the panel's order row (orange); u 0.9-1.4 that cable turns solid green, the town it reaches turns solid green, the tile turns solid green; u 1.4-1.8 blob and orange fade; u 1.8-2.0 breathe. Prim's blob sits round the whole tree, Kruskal's round one group (the tile and the cable are the same size in both panels). 9.2-9.6 all blobs gone, both graphs show the four green cables with halo 1 flashing once. 9.4-10.0 the two totals pop reading 11 (solid green) and the equals sign pops between them (V.place s 0.6 -> 1 with E.pop). 10.0-10.8 hold.\n\nEND STATE: two identical green trees, the two order rows (different order), 11 = 11. CAPTIONS: [[0.4,3.0,\"Every cable they take is the cheapest across some cut.\"],[3.2,7.0,\"Prim cuts off its tree. Kruskal cuts off one group.\"],[7.2,10.5,\"Both only make safe choices, so both find the same tree.\"]]"
+    },
+    {
+      "n": 8,
+      "file": "scene-08-cost.js",
+      "kicker": "THE COST",
+      "title": [
+        "Which is faster?",
+        "It depends on the network"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          3.6,
+          "Prim's work counts towns. Kruskal's work counts cables."
+        ],
+        [
+          4.0,
+          6.4,
+          "Few cables: Kruskal does far less."
+        ],
+        [
+          7.4,
+          10.5,
+          "Nearly every pair linked: Prim wins. Same tree either way."
+        ]
+      ],
+      "spec": "IDEA: the array version of Prim loops over towns, so it costs about V x V steps however few cables there are; Kruskal sorts the cables, about E log V steps. A sparse road map favours Kruskal, a nearly complete network favours Prim. Same tree either way. Two columns, each with a picture of the network and two step-count bars. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached).\n\nLAYOUT (stage px). Two columns: left x0 = 12, right x0 = 480 (each 440 wide). Column title tags at y 0: A4.tag(stage, {x: x0, y: 0, text: 'Road map: few cables'}) and 'Every pair linked'. Picture (y 63-207): an 8-town ring on a circle of radius 72 about (x0 + 220, 135), A4.graph(stage, {nodes, edges, r: 12, ew: 4, letters: false, pills: false}) with towns H.. = 'ABCDEFGH' at angle -90 deg + 45 deg * i; left edges = the ring (AB BC CD DE EF FG GH AH) plus AE and BG (10 cables), right edges = all 28 pairs; everything blue (base edge tone 'blue', every town 'blue'). Size line (28 px dim v-text, top y 226): '1,024 towns · 2,048 cables' and '1,000 towns · 499,500 cables'. Labels (28 px bold dim, V.h class 'v-text dim'): 'Prim · V²' at (x0, 290) and 'Kruskal · E log V' at (x0, 384). Bars (A4.bar, w 340, h 44, textOut: true): Prim at (x0, 324), Kruskal at (x0, 418). Verdict tag (green solid, y 490): 'about 50 times less' (left) / 'about 5 times less' (right). Final tag A4.tag(stage, {x: 278, y: 560, text: 'same tree either way', tone: 'green', solid: true, fs: 32}).\n\nDATA (A4.COST, assert): sparse V = 1024, E = 2048: Prim A4.primSteps(1024) = 1,046,529 ('1.0 M'), Kruskal A4.kruskalSteps(2048, 1024) = 20,480 ('20 k'), ratio 51.1. Dense V = 1000, E = 499,500: Prim 998,001 ('998 k'), Kruskal 4,977,909 ('5.0 M'), ratio 4.99. Bar k = value / the larger of the two in that column: left Prim 1, Kruskal 0.0196 (a 14 px stub); right Prim 0.2005, Kruskal 1. Labels use A4.COST.sparse.primText etc.\n\nTIMELINE. 0.2-1.2 titles pop; the two pictures draw in (towns pop, cables draw on, 0.03 s apart; the dense one fills in quicker). 1.2-1.8 the size lines fade in (0.2 s apart). 1.8-2.3 the left labels appear. 2.3-3.4 left Prim bar grows (blue, solid) to 340 px with '1.0 M' beside it; 3.2-4.0 left Kruskal bar grows to its 14 px stub with '20 k'. 4.2-5.4 LEFT VERDICT: the Kruskal bar turns green, the Prim bar turns grey, the 'about 50 times less' tag pops (with a green L5.tick 36 px at its left). 5.6-5.9 the right labels appear. 5.8-6.6 right Prim bar grows to 68 px ('998 k'); 6.4-7.4 right Kruskal bar grows to 340 px ('5.0 M'). 7.6-8.8 RIGHT VERDICT: Prim bar green, Kruskal bar grey, 'about 5 times less' tag pops. 9.0-9.6 the 'same tree either way' tag pops. 9.6-10.8 hold.\n\nEND STATE: two columns with their verdicts and the centred 'same tree either way' tag. CAPTIONS: [[0.4,3.6,\"Prim's work counts towns. Kruskal's work counts cables.\"],[4.0,6.4,\"Few cables: Kruskal does far less.\"],[7.4,10.5,\"Nearly every pair linked: Prim wins. Same tree either way.\"]]"
+    },
+    {
+      "n": 9,
+      "file": "scene-09-tour.js",
+      "kicker": "FROM TREE TO TOUR",
+      "title": [
+        "Walk round the tree,",
+        "skip the repeats"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "Start with the minimum spanning tree. Its cost is W."
+        ],
+        [
+          3.0,
+          6.3,
+          "Walk round it. Every cable is used twice: 2W."
+        ],
+        [
+          6.5,
+          9.8,
+          "Skip towns already visited. Detours become direct legs."
+        ],
+        [
+          10.0,
+          11.6,
+          "A round trip, no longer than the walk."
+        ]
+      ],
+      "spec": "IDEA: a round trip through all seven towns is hard to optimise, but the minimum spanning tree gives a cheap start. Walk all the way round the tree (every cable twice: 2W), then skip every town you have already visited: the detours become direct legs and the walk becomes a tour that is no longer than the walk. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached). In scenes 9 and 10: green = the tree (W), orange = the doubled walk (2W), blue = our shortcut tour.\n\nLAYOUT (stage px). THE MAP (scenes 9 and 10; seven towns of lesson 4.9): const m = A4.tspMap(stage, {x, y, s}) draws the towns A..G and ALL 21 straight cables, every cable hidden until you list it in m.update({edges: {AB: {tone, k, w, dash, from, o}}, towns: {...}}). Scene 9 uses the defaults (x -40, y -20, s 1.5): A (50,205), B (140,62), C (162,347), D (312,205), E (410,55), F (477,332), G (605,190), town radius 28. m.pt(town) gives the centre. Right column (x 650, w 280, h 80): three counters A4.total(stage, {x: 650, y: 40 / 140 / 240, w: 270, h: 80, label: 'tree' (tone 'green') / 'walk' (tone 'orange') / 'tour' (tone 'blue')}). A red solid tag A4.tag(stage, {x: 24, y: 420, text: 'visited twice', tone: 'red', solid: true}); a green tag A4.tag(stage, {x: 650, y: 346, text: 'never longer', tone: 'green'}). The walker: A4.token(stage, {tone: 'orange', size: 34}). Walk lanes: your own svg = L5.svg(stage) with one orange line (stroke var(--amber), 5 px, round caps) per walk leg, drawn as the segment returned by A4.offsetLine(P[i], P[i+1], 7) (P[i] = m.pt of the i-th town of the walk, so the two passes over a cable run in two lanes).\n\nDATA (A4.TSP, assert): the minimum spanning tree in the order Prim adds it from A: A4.TSP.mst = AB, AC, CD, DE, DF, FG (each {key, w, from, to}); its running totals A4.TSP.runW = 11.2, 23.3, 37.1, 49.1, 63.0, 75.7 (W = 75.7). The walk A4.TSP.walk = 'ABACDEDFGFDCA' (12 legs, children in alphabetical order); running totals A4.TSP.runWalk[i] after leg i, ending at 151.4 = 2W. The tour A4.TSP.legs (7 legs of A B C D E F G -> A): AB (tree), BC (shortcut over A), CD (tree), DE (tree), EF (shortcut over D), FG (tree), GA (shortcut over F, D, C: the way home); running totals A4.TSP.runTour = 11.2, 30.3, 44.1, 56.0, 75.1, 87.8, 124.8 (read A4.num(runTour[i]); they come from the exact lengths). The tour uses AB, CD, DE, FG from the tree and drops AC and DF. Show running totals only, never single cable lengths (rounded lengths do not add up to the rounded total).\n\nTIMELINE. 0.2-1.0 the seven towns pop (grey, 0.1 s apart). 1.1-2.7 the tree: cable i of A4.TSP.mst starts at 1.1 + 0.22 i, draws for 0.3 s from mst[i].from (m.update edges[key] = {tone: 'green', w: 1.2, k, from}); town A turns solid green at 1.1 and each mst[i].to when its cable arrives; the 'tree' counter pops at 1.1 and shows runW[i] when cable i is complete (75.7 at 2.5). 2.9-6.2 the walk: the tree cables dim to o 0.5; the 'walk' counter pops at 2.9; leg i (0..11) runs from 3.0 + 0.27 i to 3.0 + 0.27 (i + 1): the orange token moves along it (A4.along), the orange lane line grows with it and stays (o 0.9), and the counter shows runWalk[i] when the leg ends (151.4 at 6.24). 6.4-7.2 the repeats: red rings (ring: 'red', ringK pops) on A, D, F and C (the towns the walk visits a second time) and the red 'visited twice' tag pops. 7.3-7.8 the orange walk and its token fade out to o 0.25 and the rings go. 7.5-9.8 the shortcuts: tour leg i (0..6) starts at 7.5 + 0.33 i and draws for 0.3 s from legs[i].from: m.update edges[A4.key(from, to)] = {tone: 'blue', w: 1.4, k, from}; tree cables used by the tour turn blue; during a shortcut leg (BC, EF, GA) the towns it skips (legs[i].skipped: A; D; F, D, C) get a dashed red ring (ring 'red', ringDash true) for 0.5 s; the 'tour' counter pops at 7.5 and shows runTour[i] when leg i is complete (124.8 at 9.78). 9.5-9.9 the unused tree cables AC and DF fade to o 0.15; the tour towns turn solid blue. 10.0-10.6 the green 'never longer' tag pops (and the walk counter dims to o 0.6). 10.6-11.8 hold.\n\nEND STATE: the closed blue tour A B C D E F G A on the map, counters tree 75.7, walk 151.4 (dimmed), tour 124.8, the 'never longer' tag. Scene 10 explains why the tour is never worse than twice the best. CAPTIONS: [[0.4,2.8,\"Start with the minimum spanning tree. Its cost is W.\"],[3.0,6.3,\"Walk round it. Every cable is used twice: 2W.\"],[6.5,9.8,\"Skip towns already visited. Detours become direct legs.\"],[10.0,11.6,\"A round trip, no longer than the walk.\"]]"
+    },
+    {
+      "n": 10,
+      "file": "scene-10-guarantee.js",
+      "kicker": "THE GUARANTEE",
+      "title": [
+        "The tour is never worse",
+        "than twice the best"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.4,
+          3.8,
+          "Cut one cable from the best tour: a spanning tree is left."
+        ],
+        [
+          4.0,
+          6.8,
+          "So the best tour costs at least W. Ours costs at most 2W."
+        ],
+        [
+          7.0,
+          9.6,
+          "Our tour is never worse than twice the best."
+        ]
+      ],
+      "spec": "IDEA: why the tour of scene 9 is never worse than twice the best possible tour. (1) Cut one cable out of the BEST tour and a spanning tree is left, and no spanning tree costs less than W, so W <= best. (2) Our tour is no longer than the walk, which is 2W. So tour <= 2W <= 2 x best. A number line collects the five numbers. COLOURS (whole video): green = in the tree / kept / safe (a cable or town that belongs to the minimum spanning tree, its total); red = rejected or wasteful (the cable that would close a loop, the dearer cable swapped out, a loop alarm); orange = candidates under test (the cables that cross a cut, the doubled walk of scenes 9-10); blue = a tree or tour we are looking at but have not accepted (the example tree T, the cable being tested in Kruskal, the shortcut tour); purple = the cut (one side X of it; in scene 10 only, also the best possible tour as a dashed benchmark); grey = neutral (cables and towns not in play, tiles not reached). Here purple (dashed) = the best possible tour, the benchmark; green = W, the minimum spanning tree; orange = 2W, the walk; blue = our tour.\n\nLAYOUT (stage px). Map: const m = A4.tspMap(stage, {x: -35, y: -15, s: 1.35}) (towns A (46,188), B (127,59), C (147,316), D (282,188), E (370,53), F (431,302), G (545,174), radius 25; same seven towns as scene 9, same hidden-until-listed cables). Right of the map a blue solid tag A4.tag(stage, {x: 620, y: 120, text: 'a spanning tree', tone: 'blue', solid: true}). Number line (y 540): a grey line (5 px, round caps, var(--line-2)) from x 24 to 912 in an L5.svg(stage); X(v) = 24 + (v - 50) * 5.573 (the line runs from 50 to 200 cost units, no ticks). Five markers = A4.marker(stage, {x: X(v), y: 540, tone, name, text}): W (green, name 'W', text '75.7') at x 167, best (purple, 'best', '97.6') at 289, tour (blue, 'tour', '124.8') at 441, walk (orange, '2W', '151.4') at 589, twice best (purple, 'twice best', '195.2', anchor: 'right') at 833; each shows its name tag above the line and its number pill below. A purple bracket above the line: path M X(best) 436 v-14 H X(twice best) v14 (5 px, round joins, stroke var(--violet), no fill) at y 422-436, and a green L5.tick(560, 392, 56).\n\nDATA (A4.TSP, assert): W = 75.7 (A4.TSP.W); the best tour A4.TSP.best = {order: 'ABEGFDC', len: 97.6} (brute force over all 720 orders); its legs A4.TSP.best.legs (AB, BE, EG, GF, FD, DC, CA); the longest leg is A4.TSP.cut.key = 'BE' (18.0), and without it the 6 remaining cables are a spanning tree of cost A4.TSP.cut.pathLen = 79.6 >= W; our tour A4.TSP.tourLen = 124.8 (A4.TSP.legs, tour order ABCDEFG); the walk A4.TSP.walkLen = 151.4 = 2W; A4.TSP.twiceBest = 195.2. Chain: 75.7 <= 97.6 <= 124.8 <= 151.4 <= 195.2 (the 'tour <= 2W <= 2 x best' guarantee; 124.8 is about 1.28 times the best, well inside 2).\n\nTIMELINE. 0.2-0.8 the towns pop in (grey) and the number line draws on left to right (k via stroke-dasharray or a growing line). 0.8-1.6 the best tour appears: its 7 cables (A4.TSP.best.legs, m.update edges[A4.key(from, to)] = {tone: 'purple', dash: true}) fade in one after another (0.1 s apart, o = ramp); 1.6-2.0 the 'best' marker (purple) pops on the line. 2.2-2.6 a red L5.cross (size 56) draws on at m.mid('BE'); 2.6-3.0 the BE cable turns red and fades out (o), then 2.8-3.4 the remaining six cables turn solid blue (tone 'blue', w 1.3, no dash): the blue tag 'a spanning tree' pops at 3.0. 3.4-4.2 the 'W' marker (green) pops on the line, left of 'best' (a short green L5.arrow from the blue tag's lower edge towards the W marker may help). 4.6-5.6 the map changes to our tour: the purple/blue cables fade out and the seven cables of the tour A B C D E F G A (A4.TSP.legs) draw on in blue, 0.1 s apart (edges tone 'blue', w 1.3, k); 5.6 the 'tour' marker (blue) pops. 6.0-6.8 the '2W' marker (orange) pops and an orange L5.arrow with bow runs from the tour marker to it (a hop of 'no longer than the walk'). 7.0-7.6 the 'twice best' marker (purple, anchor right) pops; 7.2-8.4 the purple bracket draws on from the best marker to it (stroke-dashoffset); the tour marker bounces (bump) because it sits inside. 8.6-9.2 the green tick pops above the bracket. 9.2-9.8 hold.\n\nEND STATE: the blue tour on the map, five markers on the line (W 75.7, best 97.6, tour 124.8, 2W 151.4, twice best 195.2), the purple bracket round tour and 2W, the green tick. CAPTIONS: [[0.4,3.8,\"Cut one cable from the best tour: a spanning tree is left.\"],[4.0,6.8,\"So the best tour costs at least W. Ours costs at most 2W.\"],[7.0,9.6,\"Our tour is never worse than twice the best.\"]]"
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "Cheapest across a cut\nis always safe",
+        "tone": "purple",
+        "pictogram": "A tiny example network (A4.graph with A4.netPos({x: 80, y: 6, s: 0.3}), radius 12, letters: false, pills: false, 340 x 140 drawing area). Loop of 4 s: a purple blob (A4.graph blobs) grows round town A (0.3-0.8), its two cables AB and AC turn orange (0.9-1.3), the lighter AC turns solid green and a green tick (L5.tick) pops at x 300 (1.6-2.1), hold to 3.3, then everything fades and restarts."
+      },
+      {
+        "head": "Prim grows one tree,\nKruskal merges pieces",
+        "tone": "green",
+        "pictogram": "Two tiny networks side by side (A4.graph with A4.netPos({x: 8, y: 20, s: 0.25}) and ({x: 188, y: 20, s: 0.25}), radius 10, letters: false, pills: false). Loop of 5 s. Left (Prim): a green tree grows from A, one cable per 0.5 s: AC, BC, BD, DE (towns turn solid green as they join). Right (Kruskal): DE appears first, then BC, then AC, then BD, each cable popping green on its own (two small green pieces merge when AC arrives) until the same tree stands. Both finish together (3.2) and a green equals sign (A4.equals) pops between them."
+      },
+      {
+        "head": "A tour at most twice\nthe best possible",
+        "tone": "blue",
+        "pictogram": "The seven towns of lesson 4.9 as dots (A4.tspMap with A4.tspPos({x: -16, y: -6, s: 0.62}) so they fit 340 x 140; radius 9, letters false, no pills): loop of 5 s: the green tree draws (0.2-1.0), an orange doubled outline walks round it (1.1-2.2), then the blue shortcut tour ABCDEFG closes (2.4-3.6) while the orange fades; a green tick pops at the end (3.8)."
+      }
+    ],
+    "cta": "Next: Workshop 4.W",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js (and the scene-11 recaps of the other phases): kicker 'RECAP' and the headline 'Remember' (76 px) at the top left (x 72, top 108 and 74), the Byte mascot (V.mascot('byte', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / green / blue), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, graphs and L5.svg drawn into it in its own pixel coordinates) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 4.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row and LOOP (period 4-5 s) so they keep moving; 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else happens in the last 2 s except the looping pictograms and Byte's bob. No captions.\nROWS: (1, purple) 'Cheapest across a cut\\nis always safe': A tiny example network (A4.graph with A4.netPos({x: 80, y: 6, s: 0.3}), radius 12, letters: false, pills: false, 340 x 140 drawing area). Loop of 4 s: a purple blob (A4.graph blobs) grows round town A (0.3-0.8), its two cables AB and AC turn orange (0.9-1.3), the lighter AC turns solid green and a green tick (L5.tick) pops at x 300 (1.6-2.1), hold to 3.3, then everything fades and restarts. (2, green) 'Prim grows one tree,\\nKruskal merges pieces': Two tiny networks side by side (A4.graph with A4.netPos({x: 8, y: 20, s: 0.25}) and ({x: 188, y: 20, s: 0.25}), radius 10, letters: false, pills: false). Loop of 5 s. Left (Prim): a green tree grows from A, one cable per 0.5 s: AC, BC, BD, DE (towns turn solid green as they join). Right (Kruskal): DE appears first, then BC, then AC, then BD, each cable popping green on its own (two small green pieces merge when AC arrives) until the same tree stands. Both finish together (3.2) and a green equals sign (A4.equals) pops between them. (3, blue) 'A tour at most twice\\nthe best possible': The seven towns of lesson 4.9 as dots (A4.tspMap with A4.tspPos({x: -16, y: -6, s: 0.62}) so they fit 340 x 140; radius 9, letters false, no pills): loop of 5 s: the green tree draws (0.2-1.0), an orange doubled outline walks round it (1.1-2.2), then the blue shortcut tour ABCDEFG closes (2.4-3.6) while the orange fades, and a green tick pops at the end (3.8). Use the same green / red / blue / purple / orange roles as the rest of the video."
+  },
+  "helpers": "FILES: videos/a4/common.js (pure data and algorithms, no DOM), videos/a4/common-2.js (graph drawing: A4.graph, A4.net, A4.tspMap, blobs, positions), videos/a4/common-3.js (A4.tag, A4.tiles, A4.total, A4.bar, A4.token, A4.marker, A4.equals, geometry). Everything hangs off window.VID.a4; scenes start with const V = window.VID, A4 = V.a4, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/algo-4.html loads engine.js, cards.js, l5/common.js, then a4/common.js, common-2.js, common-3.js, then scene-01 ... scene-11, audio/algo-4.js. l6 is not loaded. Every file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers (A4.rng(seed) is seeded).\n\nA. DATA (common.js, all asserted at load): A4.TOWNS, A4.EDGES [[a, b, w]], A4.EDGE_KEYS, A4.key(a, b) ('AC' never 'CA'), A4.wOf(key), A4.sumOf(keys), A4.groupsOf(keys), A4.pathIn(keys, a, b), A4.crossing(X) -> [{key, w, a, b}] cheapest first, A4.safe(X), A4.CUTS (4 cuts), A4.EXCHANGE (the swap proof), A4.PRIM (steps with X, cands, pick, town, inside, total, tree), A4.KRUSKAL (sorted, events with accept/path/cycle/before/after/total, unread, cuts), A4.MST {keys, total 11}, A4.TREES (21 spanning trees), A4.HIST, A4.FLIP (flip-book order), A4.COUNTS (21 / 452 / 20^18), A4.COST {sparse, dense} with primText / kruskalText, A4.primSteps, A4.kruskalSteps, A4.big, A4.TSP {mst, W, walk, walkLen, legs, tourLen, best, cut, twiceBest, runW, runWalk, runTour}, A4.num(x, d = 1), A4.commas, A4.rng(seed), A4.same / A4.close (build-time asserts).\n\nB. THE GRAPH (common-2.js): A4.netPos({x, y, s}) / A4.tspPos({x, y, s}) town positions; g = A4.graph(parent, {nodes, edges, r, ew, font, pills, fmt, pillAt, blobs, hidden, letters, edgeBase, townBase}); g.update({edges: {AC: 'green' | {tone, k, o, w, dash, from, halo, pill, pillTone, solid, pillO}}, towns: {A: 'green' | {tone, solid, s, o, dx, dy, ring, ringK, ringDash}}, blobs: [{set, tone, k, dash, fill, pad}], base: {edge, town}, o}); g.pt(town), g.mid(key, f), g.len(key), g.keys, g.r, g.el. A4.net(parent, {x, y, s, ...}) = the example network (pills on, r = max(22, 34 s)); A4.tspMap(parent, {x, y, s}) = the seven towns of lesson 4.9 with all 21 cables hidden until listed. A4.blobPath(points, R) / A4.hull(points) for your own SVG. Cable tones: grey (pale line), green, red, orange, blue, purple; a cable's k grows it from its first letter (or from: 'B'); dash: true makes it dashed (k ignored); the weight pill pops in by itself as k passes 0.5 (pill: 0..1 overrides); solid: true gives a solid sticker pill. Towns: tone soft by default (white when grey), solid: true = filled; ring = a coloured ring with ringK pop-in. A blob is a rounded dashed outline round the towns in `set` (a cut side X or a group), behind everything.\n\nC. SMALL PIECES (common-3.js): A4.tag(parent, {x, y, text, tone, solid, h, fs}) -> .set({text, tone, solid, k, x, y, s, o}); A4.tiles(parent, {x, y, items, w, h, gap, dir: 'row' | 'col', fs, tone}) -> .set(i, {tone, solid, ghost, text, x, y, s, o}), .all(fn), .pos(i), .mid(i); A4.total(parent, {x, y, w, h, label, tone}) -> .set({text, tone, solid, bump, k, o}); A4.bar(parent, {x, y, w, h, tone, solid, text, fs}) -> .set({k, tone, solid, text, textOut, o}), .end(k); A4.token(parent, {tone, size}) -> .set({x, y, s, o, tone}); A4.marker(parent, {x, y, tone, name, text, anchor}) -> .set({k, o, tone, name, text, bump}); A4.equals(x, y, size, tone) -> SVG g; A4.along(points, f) -> {x, y, dx, dy, i}; A4.offsetLine(p, q, off); A4.lerpPt(p, q, f).\n\nD. REUSED FROM videos/l5/common.js (V.l5): L5.tone(name), L5.tick(x, y, size, tone, opt), L5.cross(...), L5.arrow(x1, y1, x2, y2, tone, o, {w, head, bow}), L5.drawOn(g, k), L5.svg(parent) (a full-stage SVG), L5.badge(parent, {x, y, w, h, valid, invalid}) -> badge('valid' | 'invalid' | 'none', k), L5.dice. Do NOT use L5.tourMap / L5.chromosome (different towns, different look).\n\nE. RULES: no white colours (var(--panel) / var(--bg)); labels >= 28 px; everything >= 12 px inside the 936 x 640 stage; update(t) pure; assert every number in the scene file against the storyboard with A4.same(...) when the scene is built; each file < 500 code lines (split a long scene into helpers in the same file or a second part named scene-NN-<slug>-b.js listed in algo-4.html); run npx prettier --write and npx eslint on every file you touch. Stills: node tools/video-still.js algo-4 s4@6,s4@12 /tmp/<your folder> (scene number @ local seconds)."
+}
