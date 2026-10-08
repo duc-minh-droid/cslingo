@@ -20,21 +20,29 @@
     [8, 19, false],
   ];
   A3.need(TESTS.length === WANT.length, "scene 02: expected five test plans");
-  TESTS.forEach((c, i) => A3.need(c.m === WANT[i][0] && c.r === WANT[i][1] && c.ok === WANT[i][2], `scene 02: plan ${i} differs`));
+  TESTS.forEach((c, i) =>
+    A3.need(c.m === WANT[i][0] && c.r === WANT[i][1] && c.ok === WANT[i][2], `scene 02: plan ${i} differs`),
+  );
 
   // ---------- timing ----------
   // where each plan's coordinate label sits (px from its dot): clear of the dots and rule lines, never on top of another label
   const LABEL_AT = [
     [64, 8],
-    [-64, 20],
-    [54, -30],
+    [-64, 26],
+    [64, 8],
     [64, 8],
     [64, 8],
   ];
   const T0 = 5.6; // the first plan test starts here, one every STEP seconds
   const STEP = 1.1;
   const pop = (k) => 0.8 + 0.2 * E.pop(k); // pop-in scale for stickers and labels
-  const abs = (x, y, w, h) => ({ position: "absolute", left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  const abs = (x, y, w, h) => ({
+    position: "absolute",
+    left: `${x}px`,
+    top: `${y}px`,
+    width: `${w}px`,
+    height: `${h}px`,
+  });
 
   V.scene({
     kicker: "THE PROBLEM",
@@ -63,7 +71,7 @@
       const h1 = P.half(RULE1.a, RULE1.b, RULE1.r);
       const h2 = P.half(RULE2.a, RULE2.b, RULE2.r);
       const poly = P.poly({ tone: "green" });
-      const glow = P.poly({ tone: "green" }); // a second tint laid over the polygon for the final pulse
+      const glow = P.poly({ tone: "green", w: 14, fill: false }); // a soft halo round the polygon edge for the final pulse
       const l1 = P.eq(RULE1.a, RULE1.b, RULE1.r);
       const l2 = P.eq(RULE2.a, RULE2.b, RULE2.r);
       const xName = P.text({ tone: "grey" });
@@ -100,7 +108,7 @@
         h1.set({ o: ramp(t, 1.2, 2.0, lin) });
         l1.set({ k: ramp(t, 1.2, 2.2, E.inOut) });
         const k1 = ramp(t, 2.4, 2.9, lin);
-        lab1.set({ text: `1: ${RULE1.short}`, x: 5.9, y: 2.05, dy: -22, r: 26.6, s: pop(k1), o: Math.min(1, k1 * 4) });
+        lab1.set({ text: `1: ${RULE1.short}`, x: 1.35, y: 4.325, dy: 36, r: 26.6, s: pop(k1), o: Math.min(1, k1 * 4) });
         h2.set({ o: ramp(t, 3.4, 4.2, lin) });
         l2.set({ k: ramp(t, 3.4, 4.4, E.inOut) });
         const k2 = ramp(t, 4.4, 4.9, lin);
@@ -108,7 +116,7 @@
 
         // 4.8-5.6 the overlap: the legal polygon; 11.2 one soft pulse at the end
         poly.set({ pts: A3.CORNERS, o: ramp(t, 4.8, 5.6, lin) });
-        glow.set({ pts: A3.CORNERS, o: flash(t, 11.2, 11.9), fillO: 0.8, strokeO: 0 });
+        glow.set({ pts: A3.CORNERS, o: 0.5 * flash(t, 11.2, 11.9) });
         const kl = ramp(t, 5.2, 5.7, lin);
         legal.set({ s: pop(kl), o: Math.min(1, kl * 4) });
 
@@ -136,7 +144,13 @@
           row.icon.set({ icon: ok ? "tick" : "cross", tone, k, o: out });
         });
         const kv = ramp(u, 0.8, 1.0, lin);
-        verdict.set({ text: test.ok ? "legal" : "not allowed", tone: test.ok ? "green" : "red", icon: test.ok ? "tick" : "cross", k: kv, o: out });
+        verdict.set({
+          text: test.ok ? "legal" : "not allowed",
+          tone: test.ok ? "green" : "red",
+          icon: test.ok ? "tick" : "cross",
+          k: kv,
+          o: out,
+        });
 
         // the plan dots stay on the plot: blue when they appear, green or red once judged
         TESTS.forEach((c, j) => {
@@ -146,7 +160,15 @@
           const s = E.pop(kd) * (1 + 0.25 * flash(t, Tj + 0.8, Tj + 1.0));
           const o = Math.min(1, kd * 4);
           dots[j].set({ x: c.p[0], y: c.p[1], s, o, tone });
-          dotLabels[j].set({ text: `(${c.p[0]}, ${c.p[1]})`, x: c.p[0], y: c.p[1], dx: LABEL_AT[j][0], dy: LABEL_AT[j][1], o, s: pop(kd) });
+          dotLabels[j].set({
+            text: `(${c.p[0]}, ${c.p[1]})`,
+            x: c.p[0],
+            y: c.p[1],
+            dx: LABEL_AT[j][0],
+            dy: LABEL_AT[j][1],
+            o,
+            s: pop(kd),
+          });
         });
       };
     },
