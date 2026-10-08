@@ -195,7 +195,7 @@
         walker.set({ x: at[0], y: at[1], s: 0.6 + 0.4 * E.pop(wk), o: Math.min(1, wk * 4) });
 
         // --- the tour legs, drawn on in blue ---
-        T.legs.forEach((l, i) => {
+        T.legs.forEach((_, i) => {
           const k = ramp(t, legStart(i), legStart(i) + DRAW);
           tourEls[i].style.strokeDasharray = `${k.toFixed(3)} 2`;
           V.show(tourEls[i], k < 0.003 ? 0 : 1);
