@@ -4,8 +4,8 @@ VID.scene({
   title: ["Routing without a map:", "ask your neighbours"],
   dur: 12,
   caps: [
-    [0.4, 3.8, "A has no map. It only hears its neighbours."],
-    [4.0, 7.0, "Each says how far F is. A adds its own road cost."],
+    [0.4, 4.0, "A has no map. Each neighbour says how far F is."],
+    [4.2, 7.0, "A adds its own road cost to each answer."],
     [7.4, 11.4, "It keeps the smallest total, and the next hop: D."],
   ],
   build(stage) {

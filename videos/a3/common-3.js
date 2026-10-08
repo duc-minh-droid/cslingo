@@ -33,8 +33,9 @@
      P.path({tone: "blue", w: 4, dash}) -> g      g.set({pts: [[x, y], ...], o, k, tone})    OPEN polyline in data coords (the trail of the best corner); k 0..1 shows the first part
      P.dot({tone: "blue", r: 14}) -> d      d.set({x, y, o, s, tone, dx, dy, ring, ringK})       a sticker dot centred on data (x, y); s pops (use E.pop),
          ring: a tone name draws a ring round it (ringK 0..1 grows it). d.el is the <g>.
-     P.text({fs: 28, tone: "grey", anchor: "middle", px: false}) -> t     t.set({text, x, y, dx, dy, o, tone, s})    SVG text with a paper halo
-         (so it stays legible over lines). x, y data coords (stage px when px: true), 900 weight, ink shade of the tone. Labels are >= 28 px.
+     P.text({fs: 28, tone: "grey", anchor: "middle", px: false}) -> t     t.set({text, x, y, dx, dy, o, tone, s, r})    SVG text with a paper halo
+         (so it stays legible over lines). x, y data coords (stage px when px: true; y is the text BASELINE, so a 28 px label sits about 10 px above
+         y), r degrees (clockwise, about x, y: write along a line), 900 weight, ink shade of the tone. Labels are >= 28 px.
      P.vline({tone: "grey", w: 3, dash: "3 8"}) -> v      v.set({x, y0, y1, o, k, tone})      vertical segment at data x from y0 to y1 (k draws it from y1 to y0)
      P.band({tone: "red"}) -> b      b.set({x0, x1, o, tone})      a full-height vertical band between two data x (a bracket's thrown-away part), 22 % opacity
      P.span({tone: "purple", dy: 30}) -> s      s.set({x0, x1, o, tone})      a thick rounded bar with end ticks under the bottom axis, between data x0 and x1 (the bracket)
@@ -325,14 +326,14 @@
       );
       return {
         el: e,
-        set({ text = "", x: vx = 0, y: vy = 0, dx = 0, dy = 0, o = 1, tone: t = tone, s = 1 } = {}) {
+        set({ text = "", x: vx = 0, y: vy = 0, dx = 0, dy = 0, o = 1, tone: t = tone, s = 1, r = 0 } = {}) {
           if (e.textContent !== text) e.textContent = text;
           e.style.fill = t === "grey" ? "var(--text-dim)" : tn(t).ink;
           const [X, Y] = px ? [vx, vy] : P.pt(vx, vy);
           e.setAttribute("x", f1(X + dx));
           e.setAttribute("y", f1(Y + dy));
           e.style.transformOrigin = `${f1(X + dx)}px ${f1(Y + dy)}px`;
-          e.style.transform = `scale(${s})`;
+          e.style.transform = `rotate(${r}deg) scale(${s})`;
           V.show(e, o);
         },
       };

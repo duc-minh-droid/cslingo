@@ -41,9 +41,11 @@
            look   "grey" (default) | "soft" tinted | "solid" filled | "ghost" dashed outline; tone for soft / solid / ring
            ring   tone name: a thick ring round the node, ringK 0..1 grows it in      pulse 0..1: one scale bump (A2.bump)
            text   replaces the letter       o 0 hides it      Nodes you leave out are drawn grey.
-       edges: { "A-B": {tone: "blue", k: 1, from: "A", o: 1, w: 8, dash: false, cut: 0, text, pill: "blue", pk: 1, po: 1, ps: 1} },
+       edges: { "A-B": {tone: "blue", k: 1, from: "A", base: true, o: 1, w: 8, dash: false, cut: 0, text, pill: "blue", pk: 1, po: 1, ps: 1} },
            key    "A-B" or "B-A", either order       tone   null = grey road
-           k      0..1 how much of the road is drawn, starting at the node named in `from` (default the first-named end)
+           k      0..1 how much of the road is drawn, starting at the node named in `from` (default the first-named end). With a
+                  tone the coloured road is an overlay on a full GREY road (base: false hides the grey one, e.g. for a dashed
+                  road that should not exist underneath); with tone null the grey road itself draws on (a road appearing)
            dash   true = dashed road, "dots" = dotted road      w  line width in px (grey 8, routes 12 look good)
            cut    0..1 the road breaks: a gap opens in the middle and a red cross draws on (the weight pill hides)
            text   replaces the pill text (e.g. "2 + 1 = 3")   pill  tone of the pill (default the road's tone, grey if none)
@@ -249,8 +251,10 @@
     parent.append(el);
 
     EDGES.forEach((e) => {
-      e.line = gRoads.appendChild(V.s("path", { fill: "none", "stroke-linecap": "round" }));
-      e.head = directed ? gRoads.appendChild(V.s("path", { "stroke-linejoin": "round", "stroke-width": 3 })) : null;
+      const road = () => gRoads.appendChild(V.s("path", { fill: "none", "stroke-linecap": "round" }));
+      const arrow = () =>
+        directed ? gRoads.appendChild(V.s("path", { "stroke-linejoin": "round", "stroke-width": 3 })) : null;
+      [e.baseLine, e.baseHead, e.line, e.head] = [road(), arrow(), road(), arrow()]; // the grey road, then the coloured overlay
       e.cross = L5.cross(e.mid.x, e.mid.y, 56, "red", { w: 9 });
       over.appendChild(e.cross);
       const f = dflt(at[`${e.a}-${e.b}`], dflt(at[`${e.b}-${e.a}`] != null ? 1 - at[`${e.b}-${e.a}`] : null, 0.5));
@@ -301,45 +305,67 @@
       V.place(g, { x: s.dx || 0, y: s.dy || 0, s: dflt(s.s, 1) * (1 + 0.18 * clamp(s.pulse || 0)), o: dflt(s.o, 1) });
     }
 
-    function drawEdge(e, s = {}, wk) {
-      const { tone = null, k = 1, o = 1, w = 8, dash = false, cut = 0 } = s;
-      const colour = tone ? L5.tone(tone).c : "var(--line-2)";
-      const kk = clamp(k);
-      const back = s.from === e.b;
+    /* geometry of a road from `from` to the far end, drawn up to fraction kk with a gap of 2 * gap px in the middle:
+       {d: path data, head: arrow head path data or ""} (directed roads are trimmed to the node edges and end in a head) */
+    function geom(e, from, kk, gap) {
+      const back = from === e.b;
       const [p, q] = back ? [e.q, e.p] : [e.p, e.q];
       const [ux, uy] = back ? [-e.ux, -e.uy] : [e.ux, e.uy];
-      let d = "";
       if (directed) {
         const a0 = { x: p.x + ux * (r + 5), y: p.y + uy * (r + 5) };
         const a1 = { x: q.x - ux * (r + 7), y: q.y - uy * (r + 7) };
         const tip = lerpPt(a0, a1, kk);
-        const headK = clamp((kk * e.len) / 40);
-        const base = { x: tip.x - ux * 26 * headK, y: tip.y - uy * 26 * headK };
-        if (kk > 0.004 && Math.hypot(base.x - a0.x, base.y - a0.y) > 1)
-          d = `M${f1(a0.x)} ${f1(a0.y)}L${f1(base.x)} ${f1(base.y)}`;
-        if (e.head) {
-          const nx = -uy * 13 * headK;
-          const ny = ux * 13 * headK;
-          e.head.setAttribute(
-            "d",
-            `M${f1(tip.x)} ${f1(tip.y)}L${f1(base.x + nx)} ${f1(base.y + ny)}L${f1(base.x - nx)} ${f1(base.y - ny)}Z`,
-          );
-          e.head.style.fill = e.head.style.stroke = colour;
-          V.show(e.head, kk > 0.004 ? o : 0);
-        }
-      } else {
-        const L = e.len;
-        const gap = 34 * clamp(cut);
-        const end = kk * L;
-        const seg = (u0, u1) =>
-          u1 > u0 + 0.5 ? `M${f1(p.x + ux * u0)} ${f1(p.y + uy * u0)}L${f1(p.x + ux * u1)} ${f1(p.y + uy * u1)}` : "";
-        d = gap < 0.5 ? seg(0, end) : seg(0, Math.min(end, L / 2 - gap)) + seg(L / 2 + gap, end);
+        const hk = clamp((kk * e.len) / 40);
+        const base = { x: tip.x - ux * 26 * hk, y: tip.y - uy * 26 * hk };
+        const [nx, ny] = [-uy * 13 * hk, ux * 13 * hk];
+        return {
+          d:
+            kk > 0.004 && Math.hypot(base.x - a0.x, base.y - a0.y) > 1
+              ? `M${f1(a0.x)} ${f1(a0.y)}L${f1(base.x)} ${f1(base.y)}`
+              : "",
+          head:
+            kk > 0.004
+              ? `M${f1(tip.x)} ${f1(tip.y)}L${f1(base.x + nx)} ${f1(base.y + ny)}L${f1(base.x - nx)} ${f1(base.y - ny)}Z`
+              : "",
+        };
       }
-      e.line.setAttribute("d", d);
-      e.line.style.stroke = colour;
-      e.line.setAttribute("stroke-width", f1(w));
-      e.line.setAttribute("stroke-dasharray", dash === "dots" ? "0.1 17" : dash ? "14 14" : "");
-      V.show(e.line, d ? o : 0);
+      const seg = (u0, u1) =>
+        u1 > u0 + 0.5 ? `M${f1(p.x + ux * u0)} ${f1(p.y + uy * u0)}L${f1(p.x + ux * u1)} ${f1(p.y + uy * u1)}` : "";
+      const [L, end] = [e.len, kk * e.len];
+      return { d: gap < 0.5 ? seg(0, end) : seg(0, Math.min(end, L / 2 - gap)) + seg(L / 2 + gap, end), head: "" };
+    }
+    function paintRoad(line, head, g, colour, w, dash, o) {
+      line.setAttribute("d", g.d);
+      line.style.stroke = colour;
+      line.setAttribute("stroke-width", f1(w));
+      line.setAttribute("stroke-dasharray", dash === "dots" ? "0.1 17" : dash ? "14 14" : "");
+      V.show(line, g.d ? o : 0);
+      if (!head) return;
+      head.setAttribute("d", g.head);
+      head.style.fill = head.style.stroke = colour;
+      V.show(head, g.head ? o : 0);
+    }
+
+    function drawEdge(e, s = {}, wk) {
+      const { tone = null, k = 1, o = 1, w = 8, dash = false, cut = 0 } = s;
+      const [kk, gap] = [clamp(k), 34 * clamp(cut)];
+      const from = s.from || e.a;
+      // without a tone the road itself draws on (grey); with a tone a grey road stays underneath (unless base: false)
+      if (tone) {
+        paintRoad(
+          e.baseLine,
+          e.baseHead,
+          s.base === false ? { d: "", head: "" } : geom(e, e.a, 1, gap),
+          "var(--line-2)",
+          8,
+          false,
+          o,
+        );
+        paintRoad(e.line, e.head, geom(e, from, kk, gap), L5.tone(tone).c, w, dash, o);
+      } else {
+        paintRoad(e.baseLine, e.baseHead, { d: "", head: "" }, "var(--line-2)", 8, false, o);
+        paintRoad(e.line, e.head, geom(e, from, kk, gap), "var(--line-2)", w, dash, o);
+      }
       // the red cross of a cut road
       L5.drawOn(e.cross, clamp(cut * 1.6));
       V.place(e.cross, { s: 0.7 + 0.3 * E.pop(clamp(cut * 1.6)), o: cut > 0.02 ? 1 : 0 });
@@ -351,7 +377,7 @@
         text,
         tone: s.pill || tone || "grey",
         s: dflt(s.ps, 1) * (0.78 + 0.22 * E.pop(pk)),
-        o: on ? clamp(pk * 4) * dflt(s.po, 1) * o : 0,
+        o: on ? clamp(pk * 4) * dflt(s.po, 1) * o * (1 - clamp(cut * 5)) : 0,
       });
     }
 

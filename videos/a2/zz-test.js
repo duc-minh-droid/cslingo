@@ -386,6 +386,7 @@
           edges: {
             "A-B": { cut: 0.4, tone: "red" },
             "B-C": { k: 0.5, from: "C", tone: "blue", w: 12 },
+            "A-B": { cut: 0.6, tone: "red" },
             "A-C": { dash: "dots", tone: "purple", w: 12 },
           },
           nodes: { A: { look: "ghost", tone: "purple" }, C: { look: "solid", tone: "green", pulse: 0.5 } },

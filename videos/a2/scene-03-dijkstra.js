@@ -4,10 +4,10 @@ VID.scene({
   title: ["Settle the closest node,", "then relax its roads"],
   dur: 17,
   caps: [
-    [0.4, 3.0, "Settle the node with the smallest distance."],
-    [3.2, 7.8, "Then check its roads. A shorter way replaces the old distance."],
-    [8.0, 12.2, "Repeat. The smallest waiting distance is always final."],
-    [12.6, 16.4, "The green roads are the shortest routes: A to E costs 8."],
+    [0.4, 2.5, "Settle the node with the smallest distance."],
+    [2.7, 8.0, "Then check its roads. A shorter way replaces the old distance."],
+    [8.2, 12.4, "Repeat. The smallest waiting distance is always final."],
+    [12.8, 16.4, "The green roads are the shortest routes: A to E costs 8."],
   ],
   build(stage) {
     const card = VID.h("div", {

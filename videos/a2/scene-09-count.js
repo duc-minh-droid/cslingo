@@ -5,7 +5,7 @@ VID.scene({
   dur: 14,
   caps: [
     [0.4, 3.0, "A reaches C through B. B reaches C directly."],
-    [3.2, 6.6, "The B to C road breaks. B hears A's old news."],
+    [3.0, 6.6, "The B to C road breaks. B hears A's old news."],
     [6.8, 9.6, "The cost creeps up, one step at a time."],
     [10.0, 13.4, "Poisoned reverse: A tells B that C is unreachable via you."],
   ],
