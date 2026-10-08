@@ -21,7 +21,7 @@
   const T0 = 1.6;
   const DT = 1.35;
   const ts = (s) => T0 + DT * s;
-  const [ARRIVE, CHECK, FINAL] = [1.15, 1.1, 11.5]; // chip lands / second box updates / answer, in local seconds
+  const [FLY, ARRIVE, CHECK, FINAL] = [0.85, 1.2, 1.15, 11.5]; // chip leaves / lands / second box updates / answer, in seconds
   const compareText = (s) => (s === 0 ? "first item" : `${steps[s].x} > ${steps[s - 1].best}?`);
   const tagW = (s) => Math.ceil(A1.textW(compareText(s), 28) + 44);
 
@@ -37,7 +37,7 @@
     ],
     build(stage) {
       const row = A1.row(stage, { x: 62, y: Y(120), values: A1.LIST, size: 104, gap: 14, tone: "grey" });
-      const marks = steps.map(() => stage.appendChild(A1.icon("tick", 30, "green")));
+      const marks = steps.map(() => stage.appendChild(A1.icon("tick", 36, "green", { w: 7 })));
       const bestBox = A1.stat(stage, { x: 62, y: Y(300), w: 240, h: 150, label: "best so far", text: "–", tone: "orange" });
       const bigBox = A1.stat(stage, { x: 392, y: Y(300), w: 300, h: 150, label: "biggest of first k", text: "–", tone: "blue" });
       const bars = [Y(363), Y(379)].map((top) =>
@@ -50,8 +50,8 @@
       const holdsIcon = A1.icon("tick", 30, "green", { flow: true, on: true });
       const holds = A1.tag(stage, { text: "holds", tone: "green", solid: true, icon: holdsIcon });
       const cmp = A1.tag(stage, { tone: "blue" });
-      const tickV = stage.appendChild(A1.icon("tick", 36, "green"));
-      const crossV = stage.appendChild(A1.icon("cross", 36, "grey"));
+      const tickV = stage.appendChild(A1.icon("tick", 40, "green", { w: 7 }));
+      const crossV = stage.appendChild(A1.icon("cross", 40, "grey", { w: 7 }));
       crossV.querySelectorAll("[data-draw]").forEach((p) => (p.style.stroke = "var(--text-dim)"));
       const chip = stage.appendChild(V.h("div", { class: "v-gene c-orange solid", style: { left: "0px", top: "0px" } }));
       const ret = A1.tag(stage, { text: `return ${answer}`, tone: "green", solid: true, fs: 34 });
@@ -65,13 +65,13 @@
         const started = t >= T0;
 
         // --- the list: pop in grey, then each tile is checked; the winner is orange and solid ---
-        const bestIdx = steps.reduce((b, st, i) => (st.beat && t >= ts(i) + 0.85 ? i : b), -1);
+        const bestIdx = steps.reduce((b, st, i) => (st.beat && t >= ts(i) + FLY ? i : b), -1);
         row.all((i) => {
           const p = ramp(t, 0.3 + 0.08 * i, 0.65 + 0.08 * i, E.lin);
           const isBest = i === bestIdx;
-          const bump = isBest ? 0.1 * flash(t, ts(i) + 0.85, ts(i) + 1.2) : 0;
+          const bump = isBest ? 0.1 * flash(t, ts(i) + FLY, ts(i) + ARRIVE) : 0;
           return {
-            tone: isBest ? "orange" : t >= ts(i) + 0.85 ? "blue" : "grey",
+            tone: isBest ? "orange" : t >= ts(i) + FLY ? "blue" : "grey",
             solid: isBest,
             s: E.back(p) * (1 + bump),
             o: clamp(p * 4),
@@ -90,18 +90,18 @@
         const tagO = (old ? 1 - ramp(u, 0, 0.2, E.lin) : clamp(pop * 4)) * ringOut;
         const w = tagW(d);
         const cx = row.mid(d).x;
-        const shift = Math.max(0, cx + w / 2 + 8 + 36 - 924); // keep the icon inside the stage on the last tiles
+        const shift = Math.max(0, cx + w / 2 + 8 + 40 - 924); // keep the icon inside the stage on the last tiles
         cmp.set({ text: compareText(d), tone: "blue", x: cx - shift, y: Y(76), center: true, w, s: 0.8 + 0.2 * E.pop(pop), o: tagO });
         const verdict = steps[d].beat ? tickV : crossV;
         const other = steps[d].beat ? crossV : tickV;
         const drawK = old ? 1 : ramp(u, 0.6, 0.85, E.inOut);
-        const iconAt = { x: cx - shift + w / 2 + 8, y: Y(76) - 18 };
+        const iconAt = { x: cx - shift + w / 2 + 8, y: Y(76) - 20 };
         V.place(verdict, { ...iconAt, o: tagO });
         A1.drawOn(verdict, drawK);
         V.place(other, { o: 0 });
 
         // --- the chip carries the winning number into the best-so-far box ---
-        const f = clamp((u - 0.85) / 0.3);
+        const f = clamp((u - FLY) / (ARRIVE - FLY));
         const flying = started && steps[s].beat && f > 0 && f < 1;
         if (chip.textContent !== String(steps[s].x)) chip.textContent = String(steps[s].x);
         chip.style.fontSize = "58px";
@@ -151,7 +151,7 @@
         marks.forEach((m, i) => {
           const a = ts(i) + ARRIVE;
           const k = ramp(t, a, a + 0.35, E.lin);
-          V.place(m, { x: row.mid(i).x - 15, y: Y(244), s: 0.6 + 0.4 * E.pop(k), o: clamp(k * 4) });
+          V.place(m, { x: row.mid(i).x - 18, y: Y(242), s: 0.6 + 0.4 * E.pop(k), o: clamp(k * 4) });
           A1.drawOn(m, ramp(t, a, a + 0.3, E.inOut));
         });
 

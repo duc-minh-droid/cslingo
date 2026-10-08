@@ -117,6 +117,20 @@
       // objects
       const g1 = A1.grid(stage, { x: CX[0] - CELL / 2, y: Y_OBJ, rows: N1, cols: 1, pitch: PITCH, cell: CELL });
       const g2 = A1.grid(stage, { x: CX[1] - (15 * PITCH + CELL) / 2, y: Y_OBJ, rows: N1, cols: N1, pitch: PITCH, cell: CELL });
+      // four frames round the 8 x 8 blocks of the square: after the three new quadrants arrive it reads as four copies
+      const X2 = CX[1] - (15 * PITCH + CELL) / 2;
+      const frameSvg = V.s("svg", { width: 936, height: 640, viewBox: "0 0 936 640" });
+      Object.assign(frameSvg.style, { position: "absolute", left: "0px", top: "0px", overflow: "visible" });
+      const frames = [0, 1, 2, 3].map((i) => {
+        const [qr, qc] = [i >> 1, i & 1]; // 0 = old square, 1 = right, 2 = below, 3 = diagonal
+        const [r0, c0] = i === 3 ? [1, 1] : i === 2 ? [1, 0] : [qr, qc];
+        const side = (N0 - 1) * PITCH + CELL + 2;
+        const rect = V.s("rect", { x: X2 + c0 * N0 * PITCH - 1, y: Y_OBJ + r0 * N0 * PITCH - 1, width: side, height: side, rx: 10, fill: "none", "stroke-width": 3.5 }); // prettier-ignore
+        frameSvg.append(rect);
+        return rect;
+      });
+      stage.append(frameSvg);
+
       const boxes = CH16.map((v) => A1.tag(stage, { text: String(v), tone: "grey", fs: 28, w: 88, h: BOX_H }));
       const arrows = CH16.slice(1).map(() => A1.icon("arrow", 24, "blue", { w: 7 }));
       arrows.forEach((a) => stage.append(a));
@@ -179,6 +193,14 @@
           },
           { o: lin(t, T.obj[1], T.obj[1] + 0.3) },
         );
+
+        frames.forEach((f, i) => {
+          const born = i === 0 ? T.q[0] - 0.3 : T.q[i - 1];
+          const k = lin(t, born, born + 0.35);
+          const c = V.l5.tone(i === 0 || t >= T.c2settle ? "blue" : "orange");
+          Object.assign(f.style, { stroke: c.lip });
+          V.place(f, { s: 0.94 + 0.06 * E.pop(k), o: Math.min(1, k * 3) });
+        });
 
         // ---- column 3: halving chain. Slot 0 (the 16) is new ----
         const k0 = lin(t, T.c3, T.c3 + 0.4);

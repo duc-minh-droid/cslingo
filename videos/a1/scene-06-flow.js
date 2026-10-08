@@ -16,13 +16,27 @@
   const POURS = T1.sends.filter((s) => s.kind === "pour");
   A1.must(A1.near(T0.total, 75) && A1.near(T0.lost, 25) && T0.sends.length === 5, "flow: the leaky token trace");
   A1.must(A1.near(T1.total, 100) && T1.sends.length === 9, "flow: the repaired token trace");
-  A1.must(POURS.length === 4 && POURS.every((s) => s.from === "D" && A1.near(s.amt, 6.25)), "flow: D pours 6.25 to each page");
+  A1.must(
+    POURS.length === 4 && POURS.every((s) => s.from === "D" && A1.near(s.amt, 6.25)),
+    "flow: D pours 6.25 to each page",
+  );
   A1.must(W.dead.join() === "D", "flow: D is the only dead end");
 
-  const BLUE = { in: [2.1, 3.5], halo: [2.0, 3.6] }; // first pour
-  const FIX = { blue: [7.9, 9.1], purple: [8.25, 9.4], halo: [7.8, 9.5] }; // second pour
+  const HALO = [2.0, 3.6]; // the pages that pour glow blue (first pour)
+  const HALO2 = [7.8, 9.5]; // and again in the second pour
+  /* when a packet leaves and arrives: pages send in turn (A, then B, then C, then D's pour links one after another), so two
+     pills never pass through each other on the same link pair */
+  const ORDER = { A: 0, B: 1, C: 2 };
+  const win1 = (s) => [2.0 + 0.15 * ORDER[s.from], 3.2 + 0.15 * ORDER[s.from]];
+  const win2 = (s, j) =>
+    s.kind === "pour" ? [8.15 + 0.08 * j, 9.2 + 0.08 * j] : [7.9 + 0.1 * ORDER[s.from], 9.0 + 0.1 * ORDER[s.from]];
   const TALLY = [4.3, 9.9]; // when the "adding up" of the arrived pills starts (each pill 0.2 s after the last)
-  const EXTRA = [["D", "A"], ["D", "B"], ["D", "C"], ["D", "D"]];
+  const EXTRA = [
+    ["D", "A"],
+    ["D", "B"],
+    ["D", "C"],
+    ["D", "D"],
+  ];
   const fmt = A1.fmt;
 
   /* the text and pop of a node's value pill at time t */
@@ -74,8 +88,9 @@
         s: (0.72 + 0.28 * ramp(f, 0, 0.3, E.lin)) * (1 - 0.35 * ramp(f, 0.62, 0.95, E.lin)),
       });
     };
-    T0.sends.forEach((s) => send(s, BLUE.in, "blue"));
-    T1.sends.forEach((s) => send(s, s.kind === "pour" ? FIX.purple : FIX.blue, s.kind === "pour" ? "purple" : "blue"));
+    T0.sends.forEach((s) => send(s, win1(s), "blue"));
+    let j = 0;
+    T1.sends.forEach((s) => send(s, win2(s, s.kind === "pour" ? j++ : 0), s.kind === "pour" ? "purple" : "blue"));
     return out;
   }
 
@@ -100,11 +115,11 @@
         r: 34,
         extra: EXTRA,
         labels: { A: "below", B: "right", C: "below", D: "right" },
-        tags: { D: "above" },
         loops: { D: "below" },
       });
       const stat = A1.stat(stage, { x: 704, y: 40, w: 220, h: 140, label: "total tokens", text: "100", tone: "blue" });
       const lost = A1.tag(stage, { text: `−${fmt(T0.lost)} lost`, tone: "red", solid: true, fs: 32 });
+      const dtag = A1.tag(stage, { solid: true });
       const tick = A1.icon("tick", 44, "green");
       stage.append(tick);
       // D's own 25: it has nowhere to go, so it floats away (an SVG pill above the web)
@@ -119,35 +134,24 @@
           const k = ramp(t, 0.3 + 0.1 * i, 0.8 + 0.1 * i, E.lin);
           const v = val(i, t);
           const dead = n === "D";
-          const pouring = (t >= BLUE.halo[0] && t < BLUE.halo[1] + 0.1) || (t >= FIX.halo[0] && t < FIX.halo[1] + 0.1);
-          const halo = Math.min(ramp(t, BLUE.halo[0], BLUE.halo[0] + 0.2), 1 - ramp(t, BLUE.halo[1] - 0.2, BLUE.halo[1]));
-          const halo2 = Math.min(ramp(t, FIX.halo[0], FIX.halo[0] + 0.2), 1 - ramp(t, FIX.halo[1] - 0.2, FIX.halo[1]));
+          const pouring = (t >= HALO[0] && t < HALO[1] + 0.1) || (t >= HALO2[0] && t < HALO2[1] + 0.1);
+          const glow = ([a, b]) => Math.min(ramp(t, a, a + 0.2), 1 - ramp(t, b - 0.2, b));
+          const halo = Math.max(glow(HALO), glow(HALO2));
           let tone = pouring && !dead ? "blue" : "grey";
-          let ring = "red";
-          let rk = ramp(t, 5.4, 5.8);
-          let tagText = "dead end";
-          let tagTone = "red";
-          let tagK = ramp(t, 5.4, 5.8);
           if (dead && t >= 5.4) tone = "red";
-          if (dead && t >= 7.0) {
-            [tone, ring, rk, tagText, tagTone, tagK] = ["purple", "purple", 1, "pours to all", "purple", ramp(t, 7.0, 7.4)];
-          }
-          if (dead && t >= FIX.halo[0] && t < FIX.halo[1] + 0.1) tone = "purple";
+          if (dead && t >= 7.0) tone = "purple";
           const tallyAt = (t < 6.4 ? TALLY[0] : TALLY[1]) + 0.2 * (i + 1);
           node[n] = {
             tone,
             o: clamp(k * 3),
             s: 0.6 + 0.4 * E.pop(k),
-            halo: dead ? (t >= 7.0 ? halo2 : 0) : Math.max(halo, halo2),
+            halo: dead ? 0 : halo,
             pulse: ((t >= TALLY[0] && t < 6.4) || t >= TALLY[1]) && t < 11.2 ? flash(t, tallyAt, tallyAt + 0.35) : 0,
             val: v.text,
             valTone: "blue",
             valK: v.k,
-            ring,
-            rk: dead ? rk : 0,
-            tag: dead ? tagText : "",
-            tagTone,
-            tagK: dead ? tagK : 0,
+            ring: t >= 7.0 ? "purple" : "red",
+            rk: dead ? (t >= 7.0 ? 1 : ramp(t, 5.4, 5.8)) : 0,
           };
         });
         const edge = {};
@@ -158,6 +162,19 @@
           edge[a + b] = { k: ramp(t, 7.0 + 0.1 * idx, 7.4 + 0.1 * idx, E.lin), tone: "purple", dash: true, o: 1 };
         });
         g.update({ node, edge, packets: packets(t) });
+
+        // ---- D's tag: "dead end" (red), then "pours to all" (purple); it sits up and to the right so the pour links stay clear
+        const fixed = t >= 7.0;
+        const kd = fixed ? ramp(t, 7.0, 7.4, E.lin) : ramp(t, 5.4, 5.8, E.lin);
+        dtag.set({
+          x: D.x + 60,
+          y: D.y - 78,
+          center: true,
+          text: fixed ? "pours to all" : "dead end",
+          tone: fixed ? "purple" : "red",
+          s: 0.7 + 0.3 * E.pop(kd),
+          o: clamp(kd * 4),
+        });
 
         // ---- D's 25 floats away
         const fl = ramp(t, 2.0, 2.9, E.out);
@@ -173,9 +190,16 @@
         // ---- the total
         const st = statState(t);
         const k0 = ramp(t, 0.9, 1.4, E.lin);
-        const shake = t >= 5.1 && t < 5.45 ? Math.sin((t - 5.1) * 2 * Math.PI * 6) * 9 * (1 - ramp(t, 5.1, 5.45, E.lin)) : 0;
+        const shake =
+          t >= 5.1 && t < 5.45 ? Math.sin((t - 5.1) * 2 * Math.PI * 6) * 9 * (1 - ramp(t, 5.1, 5.45, E.lin)) : 0;
         const bump = Math.max(0, ...stepTimes.map((s) => flash(t, s, s + 0.25)));
-        stat.set({ text: st.text, tone: st.tone, dx: shake, s: (0.7 + 0.3 * E.pop(k0)) * (1 + 0.05 * bump), o: clamp(k0 * 4) });
+        stat.set({
+          text: st.text,
+          tone: st.tone,
+          dx: shake,
+          s: (0.7 + 0.3 * E.pop(k0)) * (1 + 0.05 * bump),
+          o: clamp(k0 * 4),
+        });
         const kl = ramp(t, 5.3, 5.7, E.lin) * (1 - ramp(t, 6.4, 6.7, E.lin));
         lost.set({ x: 814, y: 224, center: true, s: 0.7 + 0.3 * E.pop(kl), o: clamp(kl * 4) });
         const kt = ramp(t, 10.8, 11.3, E.lin);

@@ -2,18 +2,17 @@
    columns the SOURCE page (H[to][from]), so a column is where one page sends its rank. Three steps light three chips:
    1 links (H: the link weights fly from the web into their cells), 2 repair (A: the dead end T pours 0.2 into every page),
    3 teleport (G = 0.85 A + 0.03: a purple wave fills every empty cell with the floor). All numbers come from A1.matrices.
-   Local seconds: 0.2-1.2 web, matrix and chips appear; 1.4-4.6 links (P, Q, R, S); 4.5-5.9 column sums, T's 0;
-   5.4-7.6 repair; 8.2-10.7 teleport wave; 11.2-12.7 the closing tag. */
+   Local seconds: 0.2-1.3 web, matrix and chips appear; 1.4-4.3 links (P, Q, R, S); 4.4-5.2 column sums, T's 0;
+   5.4-7.7 repair; 8.2-10.7 teleport wave; 11.2-12.7 the closing tag. */
 (function () {
   const V = window.VID;
   const A1 = V.a1;
-  const { ramp, flash, clamp, lerp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
 
   // ---- the algorithm: all three matrices of the five-page web
   const WEB = A1.WEBS.web5;
   const M = A1.matrices(WEB, A1.D);
   const { names: NAMES, H, A, G } = M;
-  const N = NAMES.length;
   const IDX = Object.fromEntries(NAMES.map((k, i) => [k, i]));
   const colSum = (X, j) => X.reduce((a, row) => a + row[j], 0);
   const eq = (a, b, what) => A1.must(A1.near(a, b, 1e-9), `scene 9: ${what} is ${a}, expected ${b}`);
@@ -27,19 +26,17 @@
   eq(A[0][4], 0.2, "A[P][T]");
   A1.must(WEB.dead.join() === "T", "scene 9: T is the only dead end");
   const SRC = [0, 1, 2, 3]; // pages that have links, in column order
-  const LINKS = SRC.map((j) =>
-    NAMES.map((to, i) => ({ to, i, w: H[i][j] })).filter((l) => l.w > 0),
-  ); // the weights that fly into column j
+  const LINKS = SRC.map((j) => NAMES.map((to, i) => ({ to, i, w: H[i][j] })).filter((l) => l.w > 0)); // the weights that fly into column j
 
   // ---- timeline (local seconds)
   const T = {
     link: [1.4, 2.2, 2.9, 3.6], // the source page whose column is being filled
-    sums: 4.5, // the column sums (0.1 apart)
-    zero: 5.1, // T's sum is 0
+    sums: 4.4, // the column sums (0.1 apart)
+    zero: 4.95, // T's sum is 0
     repair: 5.4, // chip 2
-    pour: 5.6, // T's dashed pour edges draw on
-    send: 6.0, // the 0.2 packets leave T (0.1 apart)
-    fixed: 7.3, // T's sum becomes 1
+    pour: 5.5, // T's dashed pour edges draw on
+    send: 5.9, // the 0.2 packets leave T (0.15 apart, 0.6 s on the way)
+    fixed: 7.4, // T's sum becomes 1
     tele: 8.2, // chip 3
     wave: 8.5, // the teleport wave reaches column P ...
     waveDt: 0.4, // ... and a new column every 0.4 s
@@ -47,7 +44,8 @@
   };
   const LIFE = 0.62; // how long one edge weight lives before it lands in its cell
   const cellT = (j, rank) => T.link[j] + 0.5 + 0.06 * rank; // a link cell pops as its weight lands
-  const fixT = (i) => 6.6 + 0.1 * i; // T's cells pop as the 0.2 packets arrive
+  const sendT = (i) => T.send + 0.15 * i;
+  const fixT = (i) => sendT(i) + 0.65; // T's cells pop as the 0.2 packets arrive
   const waveT = (i, j) => T.wave + T.waveDt * j + 0.05 * i;
 
   // ---- layout (stage px)
@@ -63,8 +61,6 @@
   const WEB9 = { ...WEB, pos: { ...WEB.pos, S: [290, 320], T: [110, 285] } };
   const POUR = NAMES.slice(0, 4).map((to) => ["T", to]); // T pours to every page (its own cell is the matrix's 0.2)
 
-  const f1 = (n) => n.toFixed(1);
-  const pop = (k) => ({ s: 0.7 + 0.3 * E.pop(k), o: Math.min(1, k * 4) });
   /* the strongest of several outlines for one column */
   const best = (list) => list.reduce((a, b) => (b.k > a.k ? b : a), { k: 0 });
 
@@ -131,6 +127,8 @@
             // a 0.2 packet landing on this page
             const land = fixT(j) - 0.05;
             s.pulse += 0.5 * flash(t, land, land + 0.4);
+            const w = T.wave + T.waveDt * j;
+            s.pulse += 0.6 * flash(t, w, w + 0.5); // the teleport wave passes this page's column
           } else {
             const red = t < T.repair;
             Object.assign(s, {
@@ -138,7 +136,11 @@
               ring: red ? "red" : "purple",
               rk: ramp(t, 1.0, 1.4),
               halo: 0.8 * flash(t, T.zero, T.zero + 0.6),
-              pulse: 0.5 * flash(t, T.zero, T.zero + 0.5) + 0.5 * flash(t, T.pour, T.pour + 0.5),
+              pulse:
+                0.5 * flash(t, T.zero, T.zero + 0.5) +
+                0.5 * flash(t, T.pour, T.pour + 0.5) +
+                0.5 * flash(t, fixT(4), fixT(4) + 0.4) +
+                0.6 * flash(t, T.wave + T.waveDt * 4, T.wave + T.waveDt * 4 + 0.5),
               tag: t < T.repair + 0.15 ? "dead end" : "pours to all",
               tagTone: red ? "red" : "purple",
               tagK:
@@ -152,7 +154,7 @@
           node[k] = s;
         });
         const edge = {};
-        const grow = ramp(t, 0.5, 1.2, E.inOut);
+        const grow = ramp(t, 0.7, 1.3, E.inOut);
         WEB.edges.forEach(([a, b]) => {
           const s0 = T.link[IDX[a]];
           edge[a + b] = { k: grow, tone: t >= s0 ? "blue" : "grey", w: 1 + 0.5 * flash(t, s0 + 0.05, s0 + 0.55) };
@@ -161,9 +163,9 @@
         POUR.forEach(([a, b]) => (edge[a + b] = { k: pourK, o: pourK > 0 ? 1 : 0, tone: "purple", dash: true }));
         const packets = [];
         POUR.forEach(([, b], i) => {
-          const [s0, s1] = [T.send + 0.1 * i, fixT(i) - 0.05];
-          if (t >= s0 && t < s1 + 0.1)
-            packets.push({ from: "T", to: b, f: ramp(t, s0, s1, E.inOut), tone: "purple", text: A1.fmt(A[i][4]), o: 1 - ramp(t, s1 - 0.1, s1 + 0.1, E.lin) });
+          const [s0, s1] = [sendT(i), fixT(i) - 0.05];
+          if (t >= s0 && t < s1)
+            packets.push({ from: "T", to: b, f: ramp(t, s0, s1, E.inOut), tone: "purple", text: A1.fmt(A[i][4]), s: 0.7 + 0.3 * ramp(t, s0, s0 + 0.2, E.lin) - 0.3 * ramp(t, s1 - 0.2, s1, E.lin), o: ramp(t, s0, s0 + 0.12, E.lin) * (1 - ramp(t, s1 - 0.2, s1, E.lin)) });
         }); // prettier-ignore
         g.update({ node, edge, packets });
 
@@ -178,7 +180,7 @@
             if (t >= s0) colHead[k] = "blue";
           } else {
             o.push({ tone: "red", k: flash(t, T.zero, T.zero + 0.8) });
-            o.push({ tone: "purple", k: ramp(t, 6.4, 6.7) * (1 - ramp(t, 7.1, 7.4)) });
+            o.push({ tone: "purple", k: ramp(t, 6.3, 6.6) * (1 - ramp(t, 7.5, 7.8)) });
             if (t >= T.zero) colHead[k] = t >= T.repair ? "purple" : "red";
           }
           const w = T.wave + T.waveDt * j;
@@ -193,9 +195,19 @@
           if (k > 0) sums[NAMES[j]] = { text: A1.fmt(colSum(H, j)), tone: "green", mark: "tick", k };
         });
         if (t >= T.zero && t < T.fixed)
-          sums.T = { text: A1.fmt(colSum(H, 4)), tone: "red", mark: "cross", k: ramp(t, T.zero, T.zero + 0.3, E.lin) * (1 - ramp(t, T.fixed - 0.1, T.fixed, E.lin)) };
+          sums.T = {
+            text: A1.fmt(colSum(H, 4)),
+            tone: "red",
+            mark: "cross",
+            k: ramp(t, T.zero, T.zero + 0.3, E.lin) * (1 - ramp(t, T.fixed - 0.1, T.fixed, E.lin)),
+          };
         else if (t >= T.fixed)
-          sums.T = { text: A1.fmt(colSum(A, 4)), tone: "green", mark: "tick", k: ramp(t, T.fixed, T.fixed + 0.3, E.lin) };
+          sums.T = {
+            text: A1.fmt(colSum(A, 4)),
+            tone: "green",
+            mark: "tick",
+            k: ramp(t, T.fixed, T.fixed + 0.3, E.lin),
+          };
         // prettier-ignore
 
         const cell = (to, from) => {
@@ -264,11 +276,13 @@
         times.set({ x: 80, y: 520, center: true, s: 0.8 + 0.2 * E.pop(rb), o: Math.min(1, rb * 4) });
         plus.set({ x: 222, y: 520, center: true, s: 0.8 + 0.2 * E.pop(rc), o: Math.min(1, rc * 4) });
         const dk = rk(0.45);
-        V.place(dice, { x: 290, y: 498, s: 0.7 + 0.3 * E.pop(dk), r: 360 * (1 - E.out(dk)) * 0.5, o: Math.min(1, dk * 4) });
-        void f1;
-        void clamp;
-        void N;
-        void pop;
+        V.place(dice, {
+          x: 290,
+          y: 498,
+          s: 0.7 + 0.3 * E.pop(dk),
+          r: 360 * (1 - E.out(dk)) * 0.5,
+          o: Math.min(1, dk * 4),
+        });
       };
     },
   });
