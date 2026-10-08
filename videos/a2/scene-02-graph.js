@@ -12,12 +12,18 @@
   const R2 = A2.ROUTES[0]; // the cheapest
   A2.need(A2.ROUTES.length === 7, "scene 2: 7 routes from A to E");
   A2.need(R1 && R1.legs.join() === "2,7" && R1.cost === 9 && R1.hops === 2, "scene 2: route A-C-E is 2 + 7 = 9");
-  A2.need(R2.path === "ACBDE" && R2.legs.join() === "2,1,3,2" && R2.cost === 8 && R2.hops === 4, "scene 2: A-C-B-D-E is 8");
+  A2.need(
+    R2.path === "ACBDE" && R2.legs.join() === "2,1,3,2" && R2.cost === 8 && R2.hops === 4,
+    "scene 2: A-C-B-D-E is 8",
+  );
   A2.need(
     A2.ROUTES.every((r) => r.hops >= R1.hops) && A2.ROUTES.every((r) => r.cost >= R2.cost),
     "scene 2: A-C-E has the fewest roads, A-C-B-D-E the lowest cost",
   );
-  A2.need(R1.legs.reduce((a, b) => a + b, 0) === R1.cost && R2.legs.reduce((a, b) => a + b, 0) === R2.cost, "scene 2: sums");
+  A2.need(
+    R1.legs.reduce((a, b) => a + b, 0) === R1.cost && R2.legs.reduce((a, b) => a + b, 0) === R2.cost,
+    "scene 2: sums",
+  );
 
   // ---------- timeline (local seconds) ----------
   const T = {
@@ -65,12 +71,12 @@
       const roadKeys = A2.DIJ.edges.map(([a, b]) => `${a}-${b}`);
       const names = A2.DIJ.names;
 
-      const sum = A2.tag(stage, { x: 468, y: 34, text: "", tone: "blue" });
-      const start = A2.tag(stage, { x: 178, y: 256, text: "start", tone: "blue", solid: true });
+      const sum = A2.tag(stage, { x: 468, y: 40, text: "", tone: "blue", fs: 30 });
+      const start = A2.tag(stage, { x: 166, y: 254, text: "start", tone: "blue", solid: true });
       const goal = A2.tag(stage, { x: 835, y: 580, text: "goal", tone: "orange", solid: true });
       const seven = A2.tag(stage, { x: 150, y: 596, text: `${A2.ROUTES.length} routes in all`, tone: "grey" });
       const svg = L5.svg(stage);
-      const tick = L5.tick(836, 506, 56, "green");
+      const tick = L5.tick(812, 506, 56, "green");
       svg.append(tick);
       const dots = A2.ROUTES.map((r, i) => {
         const d = A2.dot(150 + (i - 3) * 36, 548, 11, i === 0 ? "green" : "grey");
@@ -89,7 +95,12 @@
         const k2 = i2 >= 0 ? lin(t, legStart2(i2), legStart2(i2) + DR2) : 0;
         if (k2 > 0.001) {
           const green = t >= waveAt(i2);
-          return { tone: green ? "green" : "blue", k: k2, from: L2[i2].from, w: 12 + 2 * lin(t, waveAt(i2), waveAt(i2) + 0.2) };
+          return {
+            tone: green ? "green" : "blue",
+            k: k2,
+            from: L2[i2].from,
+            w: 12 + 2 * lin(t, waveAt(i2), waveAt(i2) + 0.2),
+          };
         }
         if (k1 > 0.001) return { tone: "blue", k: k1, from: L1[i1].from, w: 12 };
         return null;

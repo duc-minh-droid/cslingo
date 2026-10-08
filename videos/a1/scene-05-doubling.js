@@ -70,7 +70,14 @@
   function counter(stage) {
     const el = V.h("div", {
       class: "v-tag c-blue",
-      style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "0", fontSize: "30px" },
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        padding: "0",
+        fontSize: "30px",
+      },
     });
     const [a, b] = [V.h("span"), V.h("span")];
     const arrow = A1.icon("arrow", 28, "blue", { flow: true, w: 7 });
@@ -116,7 +123,14 @@
 
       // objects
       const g1 = A1.grid(stage, { x: CX[0] - CELL / 2, y: Y_OBJ, rows: N1, cols: 1, pitch: PITCH, cell: CELL });
-      const g2 = A1.grid(stage, { x: CX[1] - (15 * PITCH + CELL) / 2, y: Y_OBJ, rows: N1, cols: N1, pitch: PITCH, cell: CELL });
+      const g2 = A1.grid(stage, {
+        x: CX[1] - (15 * PITCH + CELL) / 2,
+        y: Y_OBJ,
+        rows: N1,
+        cols: N1,
+        pitch: PITCH,
+        cell: CELL,
+      });
       // four frames round the 8 x 8 blocks of the square: after the three new quadrants arrive it reads as four copies
       const X2 = CX[1] - (15 * PITCH + CELL) / 2;
       const frameSvg = V.s("svg", { width: 936, height: 640, viewBox: "0 0 936 640" });

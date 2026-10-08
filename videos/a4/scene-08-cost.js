@@ -163,7 +163,7 @@
         });
         const vk = ramp(t, c.verdict[0] + 0.2, c.verdict[0] + 0.8, E.lin);
         said.set({ k: vk });
-        L5.drawOn(tick, ramp(t, c.verdict[0] + 0.4, c.verdict[1], E.inOut));
+        L5.drawOn(tick, ramp(t, c.verdict[0] + 0.4, c.verdict[1], E.out));
       }
 
       return (t) => {

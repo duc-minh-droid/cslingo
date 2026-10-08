@@ -41,7 +41,10 @@
       `scene 8: the replayed roll for hop ${h} disagrees with A1.SURF`,
     );
   const TELE = Array.from({ length: HOPS }, (_, i) => i + 1).filter((k) => PATH[k].kind === "teleport");
-  A1.must(TELE.join() === "5,9" && PATH[5].at === "X" && PATH[9].at === "X", "scene 8: teleports must be hops 5 and 9, to X");
+  A1.must(
+    TELE.join() === "5,9" && PATH[5].at === "X" && PATH[9].at === "X",
+    "scene 8: teleports must be hops 5 and 9, to X",
+  );
   A1.must(
     NAMES.map((k) => A1.pct(share(HOPS, k))).join() === "55%,27%,18%" &&
       NAMES.map((k) => A1.pct(EXACT[k])).join() === "49%,46%,5%",
@@ -195,12 +198,17 @@
       css(ffSvg, { position: "absolute", left: "0px", top: "0px", overflow: "visible" });
       const ffC = T("blue");
       for (const d of ["M4 4L32 22L4 40Z", "M38 4L66 22L38 40Z"])
-        ffSvg.append(css(S("path", { d, "stroke-width": 5, "stroke-linejoin": "round" }), { fill: ffC.c, stroke: ffC.lip }));
+        ffSvg.append(
+          css(S("path", { d, "stroke-width": 5, "stroke-linejoin": "round" }), { fill: ffC.c, stroke: ffC.lip }),
+        );
       stage.append(ffSvg);
 
       const surfer = A1.dot(stage, { size: 30, tone: "blue" });
 
-      const dieFaces = [[5, 3, 6, 2], [4, 6, 3, 1]]; // three rolling faces, then the one it lands on (1 or 2 = X)
+      const dieFaces = [
+        [5, 3, 6, 2],
+        [4, 6, 3, 1],
+      ]; // three rolling faces, then the one it lands on (1 or 2 = X)
       const quadOut = (x) => 1 - (1 - x) * (1 - x);
 
       return (t) => {
@@ -238,7 +246,7 @@
 
         // ---- visit shares and the hop counter
         let v = { ...ZERO };
-        let hops = 0;
+        let hops;
         if (t < FF[0]) {
           let k = 0;
           while (k < HOPS && END[k + 1] <= t) k++;

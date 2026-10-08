@@ -64,9 +64,13 @@
       return (t) => {
         const dim = 1 - 0.45 * ramp(t, 6.1, 6.6); // cables that are not in play fade back once the tree is checked
         const edges = {};
-        // 1. the seven cables draw on in grey (and stay grey, dimmed, when they are not part of the tree)
+        const greys = {};
+        // 1. the seven cables draw on in grey (the lines on the lower layer, their weight pills on the main graph)
         A4.EDGE_KEYS.forEach((key, i) => {
-          edges[key] = { tone: "grey", k: ramp(t, 1.0 + 0.12 * i, 1.4 + 0.12 * i), o: dim };
+          const k = ramp(t, 1.0 + 0.12 * i, 1.4 + 0.12 * i);
+          const o = T.includes(key) ? 1 : dim; // a cable of the tree is covered by its colour anyway; the others dim
+          greys[key] = { tone: "grey", k, o };
+          edges[key] = { tone: "grey", k, o: 0, pillO: o };
         });
         // 2. tree T laid one cable at a time (blue), then checked (green)
         LAY.forEach((l, j) => {
@@ -87,20 +91,20 @@
             halo: alarm ? ramp(t, 7.7, 8.0) : tone === "green" ? flash(t, v, v + 0.4) : 0,
           };
         });
-        // 3. the fifth cable closes a loop, then goes back to being an unused (grey) cable
-        if (t >= 7.2 && t < 9.6) {
-          const k = t < 9.0 ? ramp(t, 7.2, 7.7) : 1 - ramp(t, 9.0, 9.6);
+        // 3. the fifth cable lights up red from A and closes a loop, then shrinks back to being an unused (grey) cable
+        const kSpare = t < 9.0 ? ramp(t, 7.2, 7.7) : 1 - ramp(t, 9.0, 9.6);
+        if (t >= 7.2 && kSpare > 0.04) {
           edges[SPARE] = {
             tone: "red",
-            k,
+            k: kSpare,
             from: "A",
             w: 1.3,
             solid: t >= 7.7,
             pill: t < 9.0 ? 1 : undefined,
-            pillTone: k >= 0.5 ? "red" : "grey",
+            pillTone: kSpare >= 0.5 ? "red" : "grey",
             halo: t < 9.0 ? ramp(t, 7.7, 8.0) : 0,
           };
-        } else if (t >= 9.6) edges[SPARE] = { tone: "grey", o: dim * ramp(t, 9.6, 10.0) };
+        } else if (t >= 7.2) edges[SPARE] = { tone: "grey", o: 0, pillO: dim * ramp(t, 9.6, 10.0) };
         // towns: pop in, blue when the tree reaches them, green once it is checked
         const townState = {};
         A4.TOWNS.forEach((c, i) => {
@@ -114,6 +118,7 @@
           const s = st || lay || { tone: "grey", bump: 0, up: 0 };
           townState[c] = { tone: s.tone, solid: !!s.solid, s: E.pop(k) * (1 + s.up * s.bump), o: Math.min(1, 4 * k) };
         });
+        under.update({ edges: greys, base: { town: { o: 0 } } });
         g.update({ edges, towns: townState });
 
         // counters

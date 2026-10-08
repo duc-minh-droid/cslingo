@@ -173,7 +173,10 @@
           const nk = (st.nodeK || {})[k] ?? 1;
           const s = 0.7 + 0.3 * E.pop(nk);
           const [x, y] = C[k];
-          n.g.setAttribute("transform", `translate(${f1(x)} ${f1(y)}) scale(${s.toFixed(3)}) translate(${f1(-x)} ${f1(-y)})`);
+          n.g.setAttribute(
+            "transform",
+            `translate(${f1(x)} ${f1(y)}) scale(${s.toFixed(3)}) translate(${f1(-x)} ${f1(-y)})`,
+          );
           V.show(n.g, clamp(nk * 3));
         });
         pool.forEach((slot, i) => {
@@ -239,7 +242,14 @@
     const a = RS[round - 1];
     const f = ramp(t, a, a + FLY, E.inOut);
     const tw = ramp(t, a + FLY, a + FLY + TWEEN, E.inOut);
-    return { p: lerpVec(PR.p[round - 1], PR.p[round], tw), cp: round - 1 + tw, shown: tw > 0 ? round : round - 1, round, f, tw };
+    return {
+      p: lerpVec(PR.p[round - 1], PR.p[round], tw),
+      cp: round - 1 + tw,
+      shown: tw > 0 ? round : round - 1,
+      round,
+      f,
+      tw,
+    };
   }
 
   V.scene({
@@ -273,7 +283,16 @@
       const hi = layer(stage);
       const rowR = bars.rowY("R");
       const outline = hi.appendChild(
-        S("rect", { x: BARS.x - 8, y: rowR - 25, width: BARS.w - 20, height: 50, rx: 22, fill: "none", pathLength: "1", "stroke-width": 5 }),
+        S("rect", {
+          x: BARS.x - 8,
+          y: rowR - 25,
+          width: BARS.w - 8,
+          height: 50,
+          rx: 22,
+          fill: "none",
+          pathLength: "1",
+          "stroke-width": 5,
+        }),
       );
       css(outline, { stroke: T("orange").c });
 
@@ -295,15 +314,22 @@
               to: s.to,
               f: st.f,
               tone: link ? "blue" : "purple",
-              size: 10 + 50 * s.amt,
-              o: clamp(st.f * 10) * clamp((1 - st.f) * 10),
+              size: (10 + 50 * s.amt) * (0.35 + 0.65 * clamp((1 - st.f) * 5)),
+              o: clamp(st.f * 10) * clamp((1 - st.f) * 12),
             });
           }
         } else if (t >= FF[0] && t < FF[1] + 0.2) {
           const fade = ramp(t, FF[0], FF[0] + 0.3, E.lin) * ramp(FF[1] + 0.2 - t, 0, 0.5, E.lin);
           WEB.edges.forEach(([from, to], i) => {
             const f = (t * 2.2 + i * 0.17) % 1;
-            dots.push({ from, to, f, tone: "blue", size: 16, o: fade * clamp(f * 10) * clamp((1 - f) * 10) });
+            dots.push({
+              from,
+              to,
+              f,
+              tone: "blue",
+              size: 16 * (0.35 + 0.65 * clamp((1 - f) * 5)),
+              o: fade * clamp(f * 10) * clamp((1 - f) * 12),
+            });
           });
         }
 
@@ -315,7 +341,10 @@
           solid: lead ? { [lead]: true } : {},
           nodeK,
           edgeK: ramp(t, 0.6, 1.2),
-          pourK: st.round && t < RS[st.round - 1] + FLY + 0.3 ? clamp(st.f * 6) * ramp(RS[st.round - 1] + FLY + 0.3 - t, 0, 0.3, E.lin) : 0,
+          pourK:
+            st.round && t < RS[st.round - 1] + FLY + 0.3
+              ? clamp(st.f * 6) * ramp(RS[st.round - 1] + FLY + 0.3 - t, 0, 0.3, E.lin)
+              : 0,
           dots,
         });
 
@@ -336,10 +365,7 @@
 
         // ---- round counter and change chart
         const settled = t >= SET;
-        const bump = Math.max(
-          ...RS.map((a) => flash(t, a + FLY, a + FLY + 0.3)),
-          flash(t, SET, SET + 0.4),
-        );
+        const bump = Math.max(...RS.map((a) => flash(t, a + FLY, a + FLY + 0.3)), flash(t, SET, SET + 0.4));
         stat.set({
           text: String(st.shown),
           label: settled ? "settled" : "round",
@@ -371,7 +397,7 @@
         const kFirst = ramp(t, SET + 0.7, SET + 1.2);
         const kTot = ramp(t, SET + 1.1, SET + 1.6);
         first.set({ x: BARS.x, y: 304, ...popT(kFirst, 8) });
-        total.set({ x: STAT.x, y: 552, ...popT(kTot, 8) });
+        total.set({ x: WEB_CX, y: CHIP_Y, center: true, ...popT(kTot, 8) });
         css(outline, { strokeDasharray: "1 1", strokeDashoffset: String(1 - ramp(t, SET + 0.6, SET + 1.3)) });
         V.show(outline, ramp(t, SET + 0.6, SET + 0.7, E.lin));
       };

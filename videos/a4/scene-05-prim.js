@@ -116,7 +116,7 @@
       });
       const tot = A4.total(stage, { x: 650, y: 330, w: 270, h: 80, label: "tree cost", tone: "green" });
       const start = A4.tag(stage, { x: 6, y: 306, text: "start", tone: "green" });
-      const ignored = A4.tag(stage, { x: 16, y: 96, text: "ignored", tone: "grey" });
+      const ignored = A4.tag(stage, { x: 2, y: 72, text: "ignored", tone: "grey" });
       const best = A4.tag(stage, { x: 650, y: 440, text: "cheapest tree", tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = svg.appendChild(L5.tick(780, 540, 64, "green"));
@@ -141,7 +141,7 @@
             o: Math.min(1, 4 * p) * fade,
           };
           if (i === 0) {
-            e.s *= 1 + 0.08 * flash(u, 0.6, 1.0) + 0.08 * flash(u, 1.0, 1.4);
+            e.s *= 1 + 0.06 * flash(u, 0.6, 1.0) + 0.06 * flash(u, 1.0, 1.4);
             if (u >= 1.0) Object.assign(e, { tone: "green", solid: true });
             else if (u >= 0.6) Object.assign(e, { tone: "orange", solid: true });
           } else e.o *= lerp(1, 0.5, ramp(u, 0.6, 1.0, lin));

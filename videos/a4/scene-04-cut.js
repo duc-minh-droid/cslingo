@@ -22,15 +22,11 @@
     ["AC 3", "AB 4"],
   );
   A4.same("cut {A} safe", CUT.safe.key, "AC");
-  A4.same("swap proof", [EX.e, EX.f, EX.cycle, EX.T, EX.total, EX.T2, EX.total2], [
-    "AC",
-    "AB",
-    ["AB", "BC", "AC"],
-    ["AB", "BC", "BD", "DE"],
-    12,
-    ["BC", "BD", "DE", "AC"],
-    11,
-  ]);
+  A4.same(
+    "swap proof",
+    [EX.e, EX.f, EX.cycle, EX.T, EX.total, EX.T2, EX.total2],
+    ["AC", "AB", ["AB", "BC", "AC"], ["AB", "BC", "BD", "DE"], 12, ["BC", "BD", "DE", "AC"], 11],
+  );
   A4.same("cost of T + AC", A4.sumOf(EX.T) + A4.wOf(EX.e), 15);
   A4.same("cost after the swap", A4.sumOf(EX.T) + A4.wOf(EX.e) - A4.wOf(EX.f), EX.total2);
   const KEYS = A4.EDGE_KEYS;
@@ -133,7 +129,12 @@
       }
       // ----- the swap: AB goes, the rest of the tree T2 turns green -----
       if (t >= SWAP) {
-        G.AB = { tone: "red", dash: true, o: 1 - ramp(t, SWAP, SWAP + 0.4, lin), pillO: 1 - ramp(t, SWAP, SWAP + 0.2, lin) };
+        G.AB = {
+          tone: "red",
+          dash: true,
+          o: 1 - ramp(t, SWAP, SWAP + 0.4, lin),
+          pillO: 1 - ramp(t, SWAP, SWAP + 0.2, lin),
+        };
         hide("AB");
       }
       EX.T2.forEach((key) => {

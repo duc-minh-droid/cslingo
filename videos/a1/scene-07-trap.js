@@ -139,7 +139,7 @@
           const b = g.pt(s.to);
           const len = Math.hypot(b.x - a.x, b.y - a.y);
           const lane = g.hasEdge(s.to, s.from) ? 14 : 0;
-          const f = 0.08 + 0.84 * ramp(t, tr(r), tr(r) + FLY, E.inOut);
+          const f = 0.08 + 0.78 * ramp(t, tr(r), tr(r) + FLY, E.inOut);
           const pt = g.edgePt(s.from, s.to, f);
           p.set({
             x: pt.x + ((b.y - a.y) / len) * lane,
@@ -147,7 +147,7 @@
             text: fmt(s.amt),
             tone: "blue",
             look: "solid",
-            s: 1 - 0.3 * ramp(t, tr(r) + FLY - 0.2, tr(r) + FLY, E.lin),
+            s: 1 - 0.3 * ramp(t, tr(r) + FLY - 0.35, tr(r) + FLY, E.lin),
             o: ramp(t, tr(r), tr(r) + 0.12, E.lin) * (1 - ramp(t, tr(r) + FLY - 0.16, tr(r) + FLY, E.lin)),
           });
         });

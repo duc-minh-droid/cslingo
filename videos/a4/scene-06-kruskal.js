@@ -150,7 +150,7 @@
       if (t >= T[i] + 1.1) val = lerp(from, e.total, ramp(t, T[i] + 1.1, T[i] + 1.5));
       if (e.accept) bump = Math.max(bump, flash(t, T[i] + 1.1, T[i] + 1.5));
     });
-    return { text: String(Math.round(val)), bump: Math.max(bump, flash(t, 12.4, 12.9)) };
+    return { text: String(Math.round(val)), bump: 0.6 * Math.max(bump, flash(t, 12.4, 12.9)) };
   }
 
   // ---------- the scene ----------
@@ -220,7 +220,7 @@
         }),
       );
       const abMid = g.mid("AB", 0.62);
-      const abCross = ov.appendChild(L5.cross(abMid.x, abMid.y, 46, "red"));
+      const abCross = ov.appendChild(L5.cross(abMid.x, abMid.y, 58, "red"));
       const doneTick = ov.appendChild(L5.tick(762, 480, 60, "green"));
 
       return (t) => {

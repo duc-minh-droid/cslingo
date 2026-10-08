@@ -25,11 +25,20 @@
   // ---------- the real steps, asserted against the storyboard ----------
   const keysOf = (list) => list.map((c) => c.key);
   const PRIM_STEPS = A4.PRIM.steps.map((st) => ({ X: st.X, key: st.pick.key, w: st.pick.w, reach: [st.town] }));
-  const KRUSKAL_STEPS = A4.KRUSKAL.cuts.map((c) => ({ X: c.X, key: c.key, w: A4.wOf(c.key), reach: [c.key[0], c.key[1]] }));
+  const KRUSKAL_STEPS = A4.KRUSKAL.cuts.map((c) => ({
+    X: c.X,
+    key: c.key,
+    w: A4.wOf(c.key),
+    reach: [c.key[0], c.key[1]],
+  }));
   [PRIM_STEPS, KRUSKAL_STEPS].forEach((steps, p) =>
     steps.forEach((st) => {
       st.cross = A4.crossing(st.X); // cheapest first
-      A4.same(`scene 07: ${["Prim", "Kruskal"][p]} takes ${st.key}, the lightest across ${st.X}`, st.cross[0].key, st.key);
+      A4.same(
+        `scene 07: ${["Prim", "Kruskal"][p]} takes ${st.key}, the lightest across ${st.X}`,
+        st.cross[0].key,
+        st.key,
+      );
       A4.same(`scene 07: ${st.key} is A4.safe`, A4.safe(st.X).key, st.key);
     }),
   );
@@ -48,8 +57,9 @@
   const TOTAL = String(A4.MST.total);
 
   const PANELS = [
-    { head: "Prim: X is the tree", steps: PRIM_STEPS, dx: 0, delay: 0, start: "A" },
-    { head: "Kruskal: X is a group", steps: KRUSKAL_STEPS, dx: 468, delay: 0.1, start: null },
+    // xAt: where the purple "X" tag sits for each step (stage px, top-left), on the outline of that step's blob
+    { head: "Prim: X is the tree", steps: PRIM_STEPS, dx: 0, delay: 0, start: "A", xAt: [[18, 298], [18, 298], [18, 298], [18, 298]] }, // prettier-ignore
+    { head: "Kruskal: X is a group", steps: KRUSKAL_STEPS, dx: 468, delay: 0.1, start: null, xAt: [[836, 106], [532, 98], [486, 298], [486, 298]] }, // prettier-ignore
   ];
   const stepAt = (t) => (t < S0 || t >= END ? -1 : Math.floor((t - S0) / STEP));
   const startOf = (j) => S0 + STEP * j;
@@ -73,7 +83,16 @@
         stage.append(card);
         const head = A4.tag(stage, { x: 26 + dx, y: 22, text: P.head });
         const g = A4.net(stage, { x: 32 + dx, y: 100, s: 0.68, blobs: 2 });
-        const slots = A4.tiles(stage, { x: 23 + dx, y: 430, items: steps.map(() => ""), w: 98, h: 48, gap: 10, fs: 28 });
+        const xTag = A4.tag(stage, { x: 0, y: 0, text: "X", tone: "purple", solid: true });
+        const slots = A4.tiles(stage, {
+          x: 23 + dx,
+          y: 430,
+          items: steps.map(() => ""),
+          w: 98,
+          h: 48,
+          gap: 10,
+          fs: 28,
+        });
         const tiles = A4.tiles(stage, {
           x: 23 + dx,
           y: 430,
@@ -87,16 +106,18 @@
         const greenAt = {};
         if (P.start) greenAt[P.start] = S0;
         steps.forEach((st, j) => st.reach.forEach((town) => (greenAt[town] = greenAt[town] ?? startOf(j) + 0.9)));
-        return { ...P, card, head, g, slots, tiles, greenAt };
+        return { ...P, card, head, g, xTag, slots, tiles, greenAt };
       });
 
       // totals under the panels and the equals sign between them
-      const totals = [190, 506].map((x) => A4.total(stage, { x, y: 548, w: 240, h: 80, label: "total", tone: "green" }));
+      const totals = [190, 506].map((x) =>
+        A4.total(stage, { x, y: 548, w: 240, h: 80, label: "total", tone: "green" }),
+      );
       const svg = L5.svg(stage);
       const eq = svg.appendChild(A4.equals(468, 588, 52, "green"));
 
       function updatePanel(P, t) {
-        const { steps, g, tiles, slots, greenAt } = P;
+        const { steps, g, xTag, tiles, slots, greenAt } = P;
         const kin = ramp(t, 0.2 + P.delay, 0.8 + P.delay, lin);
         V.place(P.card, { s: 0.92 + 0.08 * E.pop(kin), o: clamp(kin * 4) });
         P.head.set({ k: ramp(t, 0.3 + P.delay, 0.8 + P.delay, lin) });
@@ -150,6 +171,8 @@
           blobs: k < 0 ? [] : [{ set: steps[k].X, tone: "purple", k: cut }],
           o: clamp(kin * 2),
         });
+        const [xx, xy] = P.xAt[Math.max(k, 0)];
+        xTag.set({ k: cut, x: xx, y: xy });
 
         // the order row: each tile flies from its cable into its slot, orange at first, then green
         steps.forEach((st, j) => {
