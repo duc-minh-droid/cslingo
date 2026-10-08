@@ -123,10 +123,12 @@
       const cross = L5.cross(bars[2].endX + 30, BAR.ys[2] + BAR.h / 2, 44, "red");
       svg.append(mark, cross);
 
-      /* a grid paint with the column-by-column pop-in of the start */
-      const wave = (paint, t) => (cx, cy, key) => {
+      /* a grid paint with the column-by-column pop-in of the start. A cell that is about to open is hidden by gridPaint until
+         its pop starts: keep the empty cell in place meanwhile, so the grid never shows a hole. */
+      const wave = (paint, t, base) => (cx, cy, key) => {
         const a = T.grid + 0.04 * cx;
-        const st = paint(cx, cy, key);
+        let st = paint(cx, cy, key);
+        if (st.look === "soft" && st.tone === "purple" && (st.o ?? 1) < base - 1e-6) st = { o: base };
         return { ...st, o: (st.o ?? 1) * fade(t, a, 0.2), s: (st.s ?? 1) * (0.7 + 0.3 * pop(t, a)) };
       };
 
@@ -134,8 +136,8 @@
         // ---- the two searches, side by side at the same speed ----
         const [nD, nA] = [done(DJ, t), done(AS, t)];
         const dim = 1 - 0.65 * lin(t, T.dim, T.dim + 0.6);
-        GL.update({ cells: wave(A2.gridPaint(DJ, nD, { pathK: lin(t, T.pathD, T.pathD + 0.7), o: dim }), t) });
-        GR.update({ cells: wave(A2.gridPaint(AS, nA, { pathK: lin(t, T.pathA, T.pathA + 0.7), o: dim }), t) });
+        GL.update({ cells: wave(A2.gridPaint(DJ, nD, { pathK: lin(t, T.pathD, T.pathD + 0.7), o: dim }), t, dim) });
+        GR.update({ cells: wave(A2.gridPaint(AS, nA, { pathK: lin(t, T.pathA, T.pathA + 0.7), o: dim }), t, dim) });
 
         // ---- headers, counters, costs ----
         const show = (tag, a, extra = {}) => tag.set({ s: 0.8 + 0.2 * pop(t, a), o: fade(t, a, 0.2), ...extra });
@@ -163,7 +165,7 @@
         labels[2].set({
           tone: "red",
           solid: red,
-          s: (0.8 + 0.2 * pop(t, T.r3)) * (1 + 0.1 * bump(t, T.cross, 0.4)),
+          s: (0.8 + 0.2 * pop(t, T.r3)) * (1 + 0.04 * bump(t, T.cross, 0.4)),
           o: fade(t, T.r3, 0.2),
         });
         V.place(mark, { o: fade(t, T.r1 + 0.6, 0.3) });

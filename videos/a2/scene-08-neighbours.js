@@ -80,8 +80,8 @@
         rowH: 48,
       });
       const svg = L5.svg(stage);
-      const noMap = A2.mapIcon(72, 222, 76, "grey");
-      const noMapCross = L5.cross(72, 222, 60, "red", { w: 9 });
+      const noMap = A2.mapIcon(86, 214, 104, "grey");
+      const noMapCross = L5.cross(86, 214, 76, "red", { w: 10 });
       const tick = L5.tick(352, 590, 48, "green", { w: 9 });
       svg.append(noMap, noMapCross, tick);
 
