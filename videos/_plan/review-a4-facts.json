@@ -53,7 +53,7 @@
       "scene": "scene-09-tour.js",
       "severity": "should",
       "problem": "The claims 'A round trip, no longer than the walk.' (scene 9) and 'Our tour is never worse than twice the best.' (scene 10, also its headline) hold only for straight-line (triangle-inequality) distances; lesson 4.9 says so ('needs the triangle inequality ... true for ordinary distances'). The video never mentions straight lines or distances, so it reads as a guarantee for any network, which is false for general graphs. Scene 9 also gives no reason why a direct leg is not longer than the detour.",
-      "fix": "Scene 9: change the last caption to 'With straight-line distances, a direct leg never beats... is never longer than the detour' (keep it short: 'Straight lines are never longer, so the tour is no longer than the walk.'). Scene 10: add a small tag on the map 'straight-line distances' or end the last caption with 'on a map'.",
+      "fix": "Scene 9: change the last caption (10.0-11.6 s) to \"Straight lines are never longer, so the tour is no longer than the walk.\" Scene 10: add a small tag on the map \"straight-line distances\", or end the last caption with \"on a map\".",
       "evidence": "s9@11.5 caption 'A round trip, no longer than the walk.'; s10@9.4 caption and headline unconditional. I checked the three shortcuts: BC 19.06 vs detour 23.34, EF 19.04 vs 25.83, GA 37.01 vs 52.55 (all true here because the map is straight-line)."
     },
     {
