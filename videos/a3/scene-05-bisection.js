@@ -96,7 +96,7 @@
         const cx = clamp(cx0, areaL, areaR);
         return [cx, Math.min(curveY(cx - TAG_W / 2), curveY(cx + TAG_W / 2), P.py(f(x)) - 30) - 12 - TAG_H];
       };
-      // the two end tags for a bracket [xa, xb]: leaning inwards when it is wide, 240 px apart when it is narrow
+      // the two end tags for a bracket [xa, xb]: leaning inwards when it is wide, 280 px apart when it is narrow
       const endTags = ([xa, xb]) => {
         const [pa, pb] = [P.px(xa), P.px(xb)];
         const d = Math.min(TAG_IN, (pb - pa - TAG_SEP) / 2);

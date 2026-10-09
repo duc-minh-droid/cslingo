@@ -8,7 +8,7 @@
 (function () {
   const V = window.VID;
   const A3 = V.a3;
-  const { ease: E, ramp, flash, lerp, clamp } = V;
+  const { ease: E, ramp, flash, clamp } = V;
 
   const RUN0 = 3.0; // the run starts here ...
   const RUN1 = 10.4; // ... and the last round ends here
@@ -73,7 +73,8 @@
       // ---------- the facts (asserted) ----------
       const run = A3.NM_ROS;
       const { need } = A3;
-      const edge = (L) => Math.max(...[0, 1, 2].map((i) => Math.hypot(L[i][0] - L[(i + 1) % 3][0], L[i][1] - L[(i + 1) % 3][1])));
+      const edge = (L) =>
+        Math.max(...[0, 1, 2].map((i) => Math.hypot(L[i][0] - L[(i + 1) % 3][0], L[i][1] - L[(i + 1) % 3][1])));
       const c = run.counts[run.it];
       need(run.it === 84 && run.ev === 198, "scene 9: 84 rounds, 198 evaluations");
       need(c.reflect === 29 && c.expand === 19 && c.contract === 36 && c.shrink === 0, "scene 9: move counts");
@@ -86,10 +87,7 @@
         "scene 9: rounds 7-13 grow the triangle past 0.3",
       );
       need(edge(run.slots[0]) < 0.15 && edge(run.slots[75]) < 0.04 && edge(run.slots[84]) < 0.002, "scene 9: sizes");
-      need(
-        Math.hypot(run.final.p[0] - 1, run.final.p[1] - 1) < 1e-3,
-        "scene 9: the run ends at the minimum (1, 1)",
-      );
+      need(Math.hypot(run.final.p[0] - 1, run.final.p[1] - 1) < 1e-3, "scene 9: the run ends at the minimum (1, 1)");
       const uAt = warp(KEYS);
       need(KEYS[KEYS.length - 1][0] === RUN1 - RUN0 && KEYS[KEYS.length - 1][1] === run.it, "scene 9: time warp keys");
 
@@ -118,7 +116,15 @@
       const rounds = A3.stat(stage, { x: 258, y: 24, w: 200, label: "rounds" });
       const evals = A3.stat(stage, { x: 478, y: 24, w: 220, label: "evaluations" });
       const mv = A3.moves(stage, { x: 0, y: 560, w: 936, h: 60 });
-      const found = A3.sticker(stage, { x: 570, y: 440, w: 330, h: 64, text: "minimum found", tone: "green", icon: "tick" });
+      const found = A3.sticker(stage, {
+        x: 570,
+        y: 440,
+        w: 330,
+        h: 64,
+        text: "minimum found",
+        tone: "green",
+        icon: "tick",
+      });
 
       return (t) => {
         // ----- the run: round number u -> the three corners, the middle, the counts -----
@@ -131,7 +137,9 @@
         const reach = Math.max(...px.map((p) => Math.hypot(p[0] - mid[0], p[1] - mid[1])));
         const stretching = STRETCH.some(([a, b]) => u >= a && u <= b);
         const squeezing = u >= SQUEEZE_FROM;
-        const kStretch = Math.max(...STRETCH.map(([a, b]) => ramp(u, a - 0.4, a + 0.4, E.lin) * (1 - ramp(u, b, b + 0.8, E.lin))));
+        const kStretch = Math.max(
+          ...STRETCH.map(([a, b]) => ramp(u, a - 0.4, a + 0.4, E.lin) * (1 - ramp(u, b, b + 0.8, E.lin))),
+        );
         const kSqueeze = ramp(u, SQUEEZE_FROM - 0.4, SQUEEZE_FROM + 0.6, E.lin);
         const end = t >= RUN1;
 
@@ -206,8 +214,6 @@
         // ----- the end: minimum found -----
         const kf = K(t, RUN1 + 0.2, 0.4);
         found.set({ k: kf, o: 1 });
-        // (lerp keeps its place in the helpers for the final hold)
-        void lerp;
       };
     },
   });
