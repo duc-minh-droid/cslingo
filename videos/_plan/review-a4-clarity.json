@@ -1,0 +1,165 @@
+{
+  "findings": [
+    {
+      "scene": "scene-05-prim.js",
+      "severity": "must",
+      "problem": "Caption 4 ('Every town is in. The cheapest tree costs 11.', 9.8-12.5 s) contradicts the picture for about 1.5 s. At 9.8 s E is still white and the counter reads 10. E joins at about 10.4-11.0 s (step 3 starts 9.4, pick turns green at u 1.0-1.6), the counter only reaches 11 at about 11.0-11.6 s, and the 'cheapest tree' tag and tick come at 12.0-12.8 s. A learner reads a claim that the screen then takes 1-2 s to make true.",
+      "fix": "Split the window so words follow pictures: [9.6, 11.0] 'The last cable reaches E.' (or 'DE 1 is the cheapest. E joins.'), then [11.1, 12.9] 'Every town is in: cost 11.' Keep each at 4.5 words/s or slower. Scene dur is 13 s, so 12.9 is the latest end.",
+      "evidence": "s5@9.8 (global 49.8 s): caption says every town is in, E white, tree cost 10. s5@10.6: E just turning green, counter still 10. s5@11.4: counter 11. s5@12.6: 'cheapest tree' tag and tick."
+    },
+    {
+      "scene": "scene-04-cut.js",
+      "severity": "must",
+      "problem": "The swap proof loses the cut it depends on. The purple X blob, the 'X' tag and the 'across the cut' tiles are cleared at 5.0-5.6 s, before the tree T is drawn. When AC is added and AB dropped (8.3-10.4 s) nothing shows that AB and AC are the two cables crossing the cut, so a first-time learner cannot tell why AB is dropped rather than BC (the loop A-B-C has three cables, all turned red at 9.0 s, including the kept BC 2). Dropping BC would also open the loop but cost 13, not 11. Red on BC also breaks the 'red = rejected' role because BC returns to green a second later.",
+      "fix": "Keep the cut visible through the proof: redraw the faint purple blob and X tag round A from 5.6 s (o about 0.35) and, when AC is added at 7.4 s, tint AB and AC orange (the two crossing cables) while BC stays blue. In the loop alarm turn only AB (the dearer crossing cable) red with the cross beside it, and leave BC blue. Caption could say 'AB also crosses the cut, but costs more.'",
+      "evidence": "s4@6.4 and s4@7.8 (global 32.4 and 33.8 s): no blob or X tag. s4@9.0 (global 35 s): AB, BC, AC all red, no cut shown. Compare s4@2.0 where the cut is drawn."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "must",
+      "problem": "The problem this scene solves is never stated until the last caption. The scene opens on a brand-new 7-town map (the letters A-E are reused at different positions, with F and G added, and no weights or distances) and caption 1 says 'Start with the minimum spanning tree. Its cost is W.' Start for what? 'A round trip' first appears at 10.0 s. A learner coming from scene 8 (cost of Prim versus Kruskal) has no idea what a tour is, why a tree helps, that the distances are straight-line, or that this is a different network from scenes 2-8.",
+      "fix": "Add a setup beat at 0.2-2.8 s: draw a dashed purple or grey loop A-B-C-D-E-F-G-A with a 'round trip: visit every town, come home' tag (or the label 'travelling salesman'), say it in caption 1 ('New goal: a round trip through every town.'), and move 'Start with the minimum spanning tree. Its cost is W.' to a second caption at 2.9 s. Tag the map 'new network' or 'straight-line distances' so the reused letters do not read as the five-town network.",
+      "evidence": "s9@0.6 (global 89.6 s): only five grey towns, caption about the MST. s9@11.8: first time the words 'round trip' are on screen is caption 4 (10.0-11.6 s)."
+    },
+    {
+      "scene": "video",
+      "severity": "should",
+      "problem": "Twelve captions wrap onto a second line with one to three words alone on it, because the 36 px caption box wraps greedily at about 49 characters. Measured in the page (caption box 936 px, 38 px bold): s3 c1 ('trees.'), s3 c4 ('them all.'), s5 c1 ('tree.'), s6 c6 ('read.'), s7 c1 ('cut.'), s7 c3 ('tree.'), s8 c1 ('cables.'), s8 c3 ('either way.'), s9 c1 ('W.'), s9 c3 ('legs.'), s10 c1 ('left.'), s10 c2 ('most 2W.'). Scenes 6 and 7 are the ones already noticed, but the problem is across the video.",
+      "fix": "One-line fix in videos/video.css: add 'text-wrap: balance;' to .v-caption. Verified in the Playwright Chromium (141) with the caption element patched live: all twelve captions break into two balanced lines (for example 'Four cables are enough, so // the last two are never read.') and none has a stranded word. It changes only wrapping, so recorded NIC videos are unaffected until re-rendered. Alternative: shorten each caption to 48 characters or fewer.",
+      "evidence": "Measured with a script that seeks to the middle of each caption window and reads the line of every word. Stills: s3@0.6, s3@9.2, s5@1.8, s6@12.2, s7@0.6, s7@8.4, s8@1.8, s9@0.6, s9@7.0, s10@1.2."
+    },
+    {
+      "scene": "video",
+      "severity": "should",
+      "problem": "Several captions are too fast to read comfortably with the 0.25 s fade in and out (words per second over the whole window): s6 c6 'Four cables are enough, so the last two are never read.' 5.8 w/s (1.9 s); s5 c1 5.0 (2.2 s); s6 c4 'AB is next, but A and B are already joined. Skip it.' 5.0 (2.4 s); s9 c4 5.0 (1.6 s); s3 c3 4.7 (1.5 s); s4 c4 4.6 (2.4 s); s10 c2 4.6 (2.8 s); s2 c1 and s9 c1 4.2. The rest sit at 2.4-3.8 w/s, which reads well.",
+      "fix": "Aim for 3.5 w/s or less (about 8 words in 2.4 s). Rewrites: s6 c6 'Four cables are enough. The rest are never read.' over 11.7-13.8; s6 c4 'A and B are already joined. Skip AB.'; s5 c1 'Start anywhere. List the cables leaving the tree.' over 0.4-2.8; s9 c4 'A round trip, no longer than the walk.' over 9.9-11.8; s4 c4 see the scene-04 timing finding. Where a window cannot lengthen, cut words rather than speed up.",
+      "evidence": "Words per second computed from the caption table (caps in each scene). Stills s6@12.2 and s6@8.8 show the captions on screen."
+    },
+    {
+      "scene": "scene-02-problem.js",
+      "severity": "should",
+      "problem": "Caption timing runs ahead of the picture twice. Caption 2 'Four cables link all five towns: a spanning tree.' appears at 3.0 s, but the tree is laid one cable at a time until 5.8 s and the green 'spanning tree' badge only lands at 6.3-6.9 s, after the caption has ended. Caption 3 'A fifth cable makes a loop.' fades in at 6.5 s, but AC is drawn at 7.2-7.7 s and the loop alarm is at 7.7-9.0 s, so for 0.7 s the screen shows the finished green tree and the badge 'spanning tree' under a caption about a loop.",
+      "fix": "Start caption 3 at 7.1 s (window [7.1, 10.6]) and make caption 2 end at 7.0 with a lead-in at 3.0 such as 'Link the towns, one cable at a time.' [3.0, 5.9], then 'Four cables, five towns: a spanning tree.' [6.0, 7.0]. Alternatively move the badge pop to 5.9-6.4 so it matches the existing caption.",
+      "evidence": "s2@5.5 (global 9.5 s): three cables laid, caption already says four cables link all five. s2@6.6: tree finished and badge showing, caption 3 (loop) fading in. s2@8.4: loop alarm."
+    },
+    {
+      "scene": "scene-02-problem.js",
+      "severity": "should",
+      "problem": "The green 'one fewer' tag floating under the 'cables 4' and 'towns 5' counters has no subject and is never mentioned in a caption. 'One fewer than what?' It is the one key fact of the scene (a spanning tree has n - 1 cables), and it appears at 9.6 s, at the very end, small and unattached.",
+      "fix": "Make it say what it means and tie it to the counters: for example a green bracket or arrow from 'towns 5' to 'cables 4' with the label 'cables = towns - 1', or 'one fewer cable than towns'. Pop it at about 6.3 s with the green badge so the caption 'Four cables link all five towns' is explained by the number, not left for the last half second.",
+      "evidence": "s2@10.6 (global 14.6 s): tag sits alone below the towns counter, nothing links it to the cables counter."
+    },
+    {
+      "scene": "scene-03-many-trees.js",
+      "severity": "should",
+      "problem": "The flip-book of 21 trees is unreadable and the stage is half empty while it runs. Trees 4 to 21 each show for 0.15 s (2.5-5.2 s) on a 0.52-scale graph with no weight pills, so nobody can see any tree, its total or why it differs: it is a blur with a counter. Meanwhile everything sits in the top 40 % of the stage and y 620-930 is blank until the ladder arrives at 6.7 s.",
+      "fix": "Keep the idea but make it legible: show the first five trees at 0.4-0.5 s each, then speed up for the rest, or enlarge the small network and show weight pills so each total can be seen to come from the cables. Use the empty lower half for a larger network (scale 0.8) or move the ladder's first row ('5 towns: 21') up to meet the first caption, so the stage is balanced and '21' appears with the caption that says it.",
+      "evidence": "s3@4.5 (global 19.5 s): twelve dots in, total 17, tree unreadable. s3@1.5 and s3@4.5: lower 40 % of the stage empty."
+    },
+    {
+      "scene": "scene-03-many-trees.js",
+      "severity": "nit",
+      "problem": "The grey 'how many spanning trees?' tag sits under the right end of the plot card at (372, 324), but the ladder it introduces is at the left (labels at x 0, bars at x 180) and starts a row lower, so the header reads as belonging to the plot card. The '21 / 452 / 262,144,000,000,000,000,000,000' ladder is also bars of arbitrary length (the 8-town bar is longer than the 5-town one, but the 20-town bar is the same width as a 24-digit number).",
+      "fix": "Left-align the tag over the ladder (x 0, y 330) and drop the ladder rows 24 px nearer. Optionally add a short '= 20^18' under the big number so the scale of the 20-town bar means something.",
+      "evidence": "s3@9.2 (global 24.2 s)."
+    },
+    {
+      "scene": "scene-04-cut.js",
+      "severity": "should",
+      "problem": "Caption 4 'Add AC: a loop. Drop AB and the tree is cheaper.' is on screen from 8.2 s, but AC is drawn at 7.4-8.0 s, the loop alarm at 8.3-9.7 s (cost 15), and AB is only dropped at 9.8-10.4 s with the cost reaching 11 at about 10.6 s. The conclusion is shown 1.6-2.4 s before the picture earns it. Also the 'one cheaper' tag (10.6 s) has no baseline: the learner last saw 15 (not 12) next to the cost, so 'one cheaper' than what? 11 is four cheaper than 15.",
+      "fix": "Split: [8.2, 9.7] 'Add AC: it makes a loop.' and [9.8, 11.2] 'Drop AB: the tree is cheaper.' then move the final caption to [11.3, 13.8]. Replace 'one cheaper' with a before/after pair: a struck-through grey '12' beside the 11 ('was 12, now 11') or the tag 'saves 1' placed with an arrow from the 12 pill.",
+      "evidence": "s4@9.0 (global 35.0 s): caption says drop AB and cheaper, cost shows 15 in red. s4@10.2: mid-count, AB gone. s4@11.5: 11 and 'one cheaper'."
+    },
+    {
+      "scene": "scene-04-cut.js",
+      "severity": "nit",
+      "problem": "The headline says 'bridge' ('The cheapest bridge across a cut is safe') while every caption and tile says 'cable'; 'bridge' is not used anywhere else, and 'X' (the purple tag) is never explained. Also the right column is empty from 5.0 s onward.",
+      "fix": "Use 'cable' in the headline ('The cheapest cable across a cut is safe') and call the tag 'cut X' or 'group X' on first appearance.",
+      "evidence": "s4@2.0 headline and X tag; s4@7.8 empty right column."
+    },
+    {
+      "scene": "scene-05-prim.js",
+      "severity": "should",
+      "problem": "The 'ignored' idea (caption 3, 'A cable inside the tree is ignored') is nearly invisible. AB is dimmed to o 0.3 in step 2, so the grey 'ignored' tag floats at the left of B next to an almost invisible line, and the tag is not attached to the cable. A learner cannot tell what is being ignored or why.",
+      "fix": "Draw AB at o 0.6 as a grey dashed line, add a small grey cross at its middle (L5.cross, grey) and move the 'ignored' tag onto its middle (left of the pill), then dim it after the step. Show it in step 3 as well (AB and CD) or say explicitly 'both ends already in the tree'.",
+      "evidence": "s5@7.6 (global 47.6 s): AB barely visible, tag detached."
+    },
+    {
+      "scene": "scene-06-kruskal.js",
+      "severity": "should",
+      "problem": "The word 'groups' is used from the first event ('two groups: join them', caption 'It joins two groups') but no group is drawn until a cable has joined two towns. At 2.4 s D and E get blue rings and the card says 'two groups', but each town is just a plain white circle, so a first-time learner cannot see what a group is. Caption 3 ('Groups merge into one tree.') is also premature: one group appears only at 11.6 s.",
+      "fix": "From 1.5 s draw every town in its own faint dashed group outline (a single-town blob) so the first accept visibly merges two outlines into one. Change caption 3 to 'Groups merge as cables join them.' (5.0-7.1).",
+      "evidence": "s6@2.4 (global 55.4 s): ringed D and E, no outlines. s6@5.8: three groups, caption says one tree."
+    },
+    {
+      "scene": "scene-07-correct.js",
+      "severity": "should",
+      "problem": "Too much runs at once. Two panels each run a full cut, orange crossing cables, a pulsing pick, a flying tile and a green commit, four times in 2 s per step, and the two panels are at different steps of different algorithms, so the learner cannot compare them or follow either. The caption names two ideas (Prim cuts off its tree, Kruskal cuts off one group) at the same time. The purple 'X' tag is parked at the lower left of A even when the blob surrounds A, B, C (and D), so it labels town A rather than the cut.",
+      "fix": "Either run the panels in sequence (Prim steps 1.2-5.0 with the Kruskal panel dimmed, then Kruskal 5.2-9.0) with the caption following the active panel, or give each step 2.6 s by showing only three steps. Move the X tag to the blob's top-left edge for every step.",
+      "evidence": "s7@1.8, s7@5.4, s7@8.4 (global 68.8, 72.4, 75.4 s): both panels mid-step. The X tag stays at the lower left of A in all of them."
+    },
+    {
+      "scene": "scene-08-cost.js",
+      "severity": "should",
+      "problem": "Jargon and units are missing. The bar labels 'Prim · V²' and 'Kruskal · E log V' use V and E, which are never defined, and the bars show '1.0 M', '20 k', '998 k', '5.0 M' with no unit (steps). Caption 1 says towns and cables, but nothing on screen ties 'towns' to V or 'cables' to E, and the only picture is eight tiny circles (r 12) captioned '1,024 towns', so the counting idea is carried by text alone.",
+      "fix": "Relabel as 'Prim · towns x towns' and 'Kruskal · cables x log towns' (or keep V and E but add 'V = towns, E = cables' under the size lines in the same 28 px style), and add 'steps' after each number ('1.0 M steps'). While caption 1 is on, pulse the towns when 'Prim' is named and the cables when 'Kruskal' is named.",
+      "evidence": "s8@3.0 (global 81.0 s): 'Prim · V²' with '845 k' and no definition or unit. s8@1.8: caption 1 over two small ring pictures."
+    },
+    {
+      "scene": "scene-08-cost.js",
+      "severity": "should",
+      "problem": "Each column scales its bars to its own larger value, so the same algorithm gets very different bars for the same cost: left Prim (1.0 M) is a full 340 px bar, right Prim (998 k) is a 68 px stub. A learner reads bar length as absolute and concludes that Prim got five times cheaper on the dense network, the opposite of the lesson (Prim depends only on towns, Kruskal on cables). The left column's win is only visible because the 20 k stub is stretched to 14 px.",
+      "fix": "Use one scale for all four bars (the 5.0 M bar is 340 px; 1.0 M and 998 k are both about 68 px; 20 k is a 14 px minimum stub with a 'not to scale' tick) so Prim stays the same while Kruskal jumps from tiny to huge. If a column scale must stay, label it ('bars scaled within each network').",
+      "evidence": "s8@7.0 (global 85.0 s): left Prim full-length at 1.0 M, right Prim short at 998 k. s8@10.6: right Kruskal grey bar 5.0 M is the same length as the left grey bar 1.0 M."
+    },
+    {
+      "scene": "scene-08-cost.js",
+      "severity": "nit",
+      "problem": "At the end the green 'same tree either way' tag sits 12 px under the two verdict tags and is a different size (32 px against 28 px), so the three tags crowd into one block at y 782-893. The blank lower fifth of the stage (y 900-930) could take the spacing.",
+      "fix": "Move the final tag down 16-20 px (y 580) or set it in the same size as the verdict tags.",
+      "evidence": "s8@10.6 (global 88.6 s)."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "should",
+      "problem": "The counters say 'tree 75.7', 'walk 151.4', 'tour 124.8', but the caption and scene 10 speak of 'W' and '2W' and the picture never links the letters to the numbers. Caption 1 says 'Its cost is W' next to a counter labelled 'tree', and caption 2 says '2W' next to 'walk'. A learner has to infer that W = 75.7 and 2W = 151.4 (and has no way to see that 151.4 is twice 75.7).",
+      "fix": "Label the counters 'tree W', 'walk 2W' and 'tour', and add a small 'x2' arrow from the tree counter to the walk counter at 6.2 s, when the walk total settles at 151.4. Show '75.7 x 2 = 151.4' in the same pill style if there is room.",
+      "evidence": "s9@4.2 and s9@7.0 (global 93.2 and 96.0 s): counters labelled tree / walk with no W or 2W."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "nit",
+      "problem": "The walk runs at 0.27 s per leg (twelve legs in 3.2 s), which is brisk for a first viewing, and the 'two lanes' that show every cable used twice are thin orange lines hugging a 12 px green cable, so they read as an orange outline rather than a second pass. The curved arc A-G (needed to avoid passing through D) looks like a road rather than a straight line.",
+      "fix": "Slow the walk to about 0.35 s per leg (extend to 7.2 s if the caption timing allows) and widen the offset between the two lanes to 10-12 px. Add a small 'straight line' note or draw the GA leg as a gentle bow, not an arc under D.",
+      "evidence": "s9@7.0 (global 96.0 s) orange lanes; s9@11.8 curved A-G leg."
+    },
+    {
+      "scene": "scene-10-guarantee.js",
+      "severity": "should",
+      "problem": "The key inference is not shown. Caption 2 'So the best tour costs at least W' follows a tree appearing at 3.0 s, but nothing says why the leftover tree is at least W (because W is the cheapest spanning tree) or that the leftover tree costs less than the tour. The W marker simply pops at 3.4 s with an arrow to 'best'; the leftover tree (79.6) has no marker, and the 'So' in the caption has nothing in front of it.",
+      "fix": "Add the missing link: when the blue 'a spanning tree' tag appears, put a blue marker for it (79.6) on the number line between W and best, and a short 'no tree is cheaper than W' tag (green) before the W marker pops, with the caption 'No spanning tree costs less than W, so the best tour costs at least W.' Splitting caption 1 into [0.4, 2.6] and [2.8, 5.2] would give the sentence time.",
+      "evidence": "s10@3.2 (global 104.2 s): blue spanning tree, no marker for it. s10@5.0: W marker and arrow, caption 'So the best tour costs at least W' with no premise on screen."
+    },
+    {
+      "scene": "scene-10-guarantee.js",
+      "severity": "nit",
+      "problem": "Three small continuity issues. (1) The seven towns are at different positions from scene 9 (scale 1.35 against 1.5, shifted), so the map visibly jumps between scenes. (2) Purple means 'the cut' in scenes 4 and 7, and here also 'the best tour' and its 'twice best' marker, while the red cross on BE is a different kind of 'cut'. (3) The number line has no axis label, so '75.7 ... 195.2' has no unit.",
+      "fix": "Use the same tspMap parameters in both scenes if the layout allows (or add 0.3 s of cross-fade), add 'cost' above the arrowhead, and consider grey-violet for the benchmark with a caption 'best possible'. If the purple overload is accepted, keep it consistent (always dashed here).",
+      "evidence": "s9@11.8 against s10@1.2: A at (122, 467) against (118, 450). s10@7.8: unlabelled axis."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "should",
+      "problem": "The video ends on a frame that is not a summary. The three pictograms loop with different periods, and at the last frame (8.9 s) row 1's picture is blank, row 3 is half drawn (a few green cables and open circles) and only row 2 is complete. The last second is the one a viewer remembers and a thumbnail or freeze-frame would catch.",
+      "fix": "Align the loops so that at about 7.5-9.0 s all three show their completed state (start the loops so each reaches its end state, tick included, around 8 s and hold), or stop looping after the second cycle and hold the end state for the last 1.5 s.",
+      "evidence": "s11@8.9 (global 119.9 s): row 1 blank, row 3 partial. s11@4.5: all three rows at different phases but complete-looking, so the problem is only the last second."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "nit",
+      "problem": "The recap has three rows (cut, Prim/Kruskal, tour) and omits the cost scene (which algorithm is faster depends on the network), which got a whole scene.",
+      "fix": "Either fold it into row 2 ('Prim: towns. Kruskal: cables.') or accept as a deliberate omission and mention it in the CTA line.",
+      "evidence": "s11@4.5 (global 115.5 s)."
+    }
+  ]
+}

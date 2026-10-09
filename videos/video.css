@@ -101,6 +101,7 @@ body.rec .v-root {
   line-height: 1.22;
   font-weight: 800;
   color: var(--ink);
+  text-wrap: balance; /* no stranded last word on a two-line caption */
 }
 .v-mascot {
   position: absolute;

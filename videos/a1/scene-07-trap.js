@@ -35,6 +35,7 @@
   );
   A1.must(SENDS[1].length === 3 && SENDS[2].length === 2 && SENDS[3].length === 2, "trap: X sends only in round 1");
 
+  const DY = 30; // the whole figure sits a little lower, so it is centred in the stage
   const tr = (r) => 1.4 + 1.6 * (r - 1); // start of round r
   const FLY = 0.8; // packets travel
   const ARR = 1.2; // round ends (arrival done)
@@ -100,13 +101,14 @@
     caps: [
       [0.4, 2.6, "A and B link only to each other."],
       [2.8, 6.0, "Rank sloshes between them, round after round."],
-      [6.2, 9.4, "A trap: X gets nothing, so the ranking says little."],
+      [6.2, 8.0, "X is starved; A and B just swap the lead."],
+      [8.2, 9.7, "What if the rank could jump anywhere?"],
     ],
     build(stage) {
       const g = A1.web(stage, {
         web: W,
         x: 40,
-        y: 20,
+        y: 20 + DY,
         w: 560,
         h: 500,
         r: 38,
@@ -114,9 +116,18 @@
         tags: { X: "above" },
       });
       const trapLine = outline(g);
-      const bars = A1.bars(stage, { x: 664, y: 250, w: 272, names: NAMES, rowH: 62, max: 60, labelW: 52, valueW: 12 });
+      const bars = A1.bars(stage, {
+        x: 664,
+        y: 250 + DY,
+        w: 272,
+        names: NAMES,
+        rowH: 62,
+        max: 60,
+        labelW: 52,
+        valueW: 12,
+      });
       const pills = [0, 1, 2].map(() => A1.svgPill(g.overlay));
-      const stat = A1.stat(stage, { x: 700, y: 60, w: 200, h: 128, label: "round", text: "0", tone: "blue" });
+      const stat = A1.stat(stage, { x: 700, y: 60 + DY, w: 200, h: 128, label: "round", text: "0", tone: "blue" });
       const trapped = A1.tag(stage, {
         text: "trapped",
         tone: "red",
@@ -125,6 +136,10 @@
       });
       const cross = A1.icon("cross", 40, "red");
       stage.append(cross);
+      // teaser for the next scene: a purple die and "a random jump?"
+      const die = A1.icon("dice", 64, "purple");
+      stage.append(die);
+      const jump = A1.tag(stage, { text: "a random jump?", tone: "purple" });
       const X = g.pt("X");
       const crossAt = { x: X.x + 38 + 4, y: X.y + 38 + 6.7 + 11.2 + 21 - 20 };
 
@@ -222,6 +237,12 @@
         const kc = ramp(t, TRAP.cross[0], TRAP.cross[1], E.lin);
         V.place(cross, { x: crossAt.x, y: crossAt.y, s: 0.8 + 0.2 * E.back(kc), o: clamp(kc * 4) });
         A1.drawOn(cross, kc);
+
+        // ---- teaser: a die rolls in
+        const kd = ramp(t, 8.2, 8.7, E.lin);
+        const kj = ramp(t, 8.5, 8.9, E.lin);
+        V.place(die, { x: 758, y: 506, s: 0.6 + 0.4 * E.pop(kd), r: 540 * (1 - E.out(kd)), o: clamp(kd * 4) });
+        jump.set({ x: 790, y: 596, center: true, s: 0.8 + 0.2 * E.pop(kj), o: clamp(kj * 4) });
       };
     },
   });
