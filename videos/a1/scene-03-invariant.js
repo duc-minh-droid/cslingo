@@ -1,9 +1,11 @@
 /* Algorithms Phase 1 video (algo-1), scene 03: the loop invariant.
    "Find the biggest" runs on A1.LIST with two boxes that are always equal: best so far (orange) and the biggest of the first
    k items (blue). Each step: a blue ring slides to the item, a compare tag asks "x > best?", the verdict icon draws on, a
-   winning item turns orange and flies its number into the best box, the second box updates and a green tick lands under the
-   tile (the promise held after this step). Every number comes from A1.maxRun(). Times are local seconds:
-   0.3-1.3 tiles and stats pop in, step s starts at 1.6 + 1.35 s (last step ends 11.05), 11.3-11.9 the answer. */
+   winning item turns orange and flies its number into the best box (an orange arrow says "new best"), the second box
+   updates and a green tick lands under the tile (the promise held after this step). Three chips name the three parts of the
+   promise: "starts true" lights after the first step, "stays true" after the second (and pulses every step), "ends useful" at
+   the end. Every number comes from A1.maxRun(). Times are local seconds:
+   0.3-1.5 tiles, stats and chips pop in, step s starts at 1.6 + 1.35 s (last step ends 11.05), 11.3-11.9 the answer. */
 (function () {
   const V = window.VID;
   const A1 = V.a1;
@@ -35,7 +37,7 @@
     caps: [
       [0.4, 2.6, "Scan once and keep the biggest so far."],
       [2.8, 6.2, "After k items, best is the biggest of those k."],
-      [6.6, 10.6, "It holds after every step. That is the invariant."],
+      [6.6, 10.6, "It stays true after every step: the invariant."],
       [10.9, 12.8, "At the end the promise is the answer: 9."],
     ],
     build(stage) {
@@ -73,16 +75,28 @@
           }),
         ),
       );
-      const holdsIcon = A1.icon("tick", 30, "green", { flow: true, on: true });
-      const holds = A1.tag(stage, { text: "holds", tone: "green", solid: true, icon: holdsIcon });
+      // the three parts of the promise: a dashed grey chip lights up as a green chip with a tick
+      const CHIPS = [
+        { text: "starts true", w: 252, x: 62, at: ts(0) + ARRIVE },
+        { text: "stays true", w: 236, x: 338, at: ts(1) + ARRIVE },
+        { text: "ends useful", w: 252, x: 598, at: FINAL },
+      ];
+      const chips = CHIPS.map((c) => ({
+        off: A1.tag(stage, { text: c.text, tone: "grey", ghost: true, w: c.w }),
+        icon: A1.icon("tick", 30, "green", { flow: true, on: true }),
+      }));
+      chips.forEach(
+        (c, i) =>
+          (c.on = A1.tag(stage, { text: CHIPS[i].text, tone: "green", solid: true, w: CHIPS[i].w, icon: c.icon })),
+      );
+      const tie = A1.tag(stage, { text: "tie: keep the first", tone: "purple" });
       const cmp = A1.tag(stage, { tone: "blue" });
-      const tickV = stage.appendChild(A1.icon("tick", 40, "green", { w: 7 }));
+      const tickV = stage.appendChild(A1.icon("arrow", 40, "orange", { w: 7 }));
       const crossV = stage.appendChild(A1.icon("cross", 40, "grey", { w: 7 }));
       crossV.querySelectorAll("[data-draw]").forEach((p) => (p.style.stroke = "var(--text-dim)"));
       const chip = stage.appendChild(
         V.h("div", { class: "v-gene c-orange solid", style: { left: "0px", top: "0px" } }),
       );
-      const ret = A1.tag(stage, { text: `return ${answer}`, tone: "green", solid: true, fs: 34 });
 
       const BEST_C = { x: 62 + 120, y: Y(300) + 75 }; // centre of the best-so-far box (where the chip lands)
 
@@ -133,7 +147,7 @@
         const other = steps[d].beat ? crossV : tickV;
         const drawK = old ? 1 : ramp(u, 0.6, 0.85, E.inOut);
         const iconAt = { x: cx - shift + w / 2 + 8, y: Y(76) - 20 };
-        V.place(verdict, { ...iconAt, o: tagO });
+        V.place(verdict, { ...iconAt, r: steps[d].beat ? -90 : 0, o: tagO });
         A1.drawOn(verdict, drawK);
         V.place(other, { o: 0 });
 
@@ -171,7 +185,12 @@
         });
         bigBox.set({
           text: checked < 0 ? "–" : steps[checked].maxChecked,
-          label: checked < 0 ? "biggest of first k" : `biggest of first ${steps[checked].k}`,
+          label:
+            checked < 0
+              ? "biggest of first k"
+              : steps[checked].k === 1
+                ? "biggest of 1 item"
+                : `biggest of first ${steps[checked].k}`,
           tone: "blue",
           s: pin(0.9) * (1 + 0.07 * bigPulse),
           o: pinO(0.9),
@@ -188,19 +207,26 @@
           b.style.background = t >= firstHold ? "var(--teal)" : "var(--text-dim)";
           V.place(b, { s: (0.7 + 0.3 * E.pop(eqIn)) * (1 + 0.15 * holdPulse), o: clamp(eqIn * 4) });
         });
-        const hk = ramp(t, firstHold, firstHold + 0.4, E.lin);
-        holds.set({ x: 716, y: Y(350), s: (0.7 + 0.3 * E.pop(hk)) * (1 + 0.08 * holdPulse), o: clamp(hk * 4) });
-        A1.drawOn(holdsIcon, ramp(t, firstHold + 0.15, firstHold + 0.45, E.inOut));
+        // the three chips: a dashed grey chip lights up green at its moment ("stays true" pulses every step)
+        const chipY = Y(480);
+        CHIPS.forEach((c, i) => {
+          const ink = ramp(t, 1.0 + 0.12 * i, 1.4 + 0.12 * i, E.lin);
+          const lit = ramp(t, c.at, c.at + 0.4, E.lin);
+          const pulse = i === 1 ? holdPulse : flash(t, c.at, c.at + 0.4);
+          chips[i].off.set({ x: c.x, y: chipY, s: 0.8 + 0.2 * E.pop(ink), o: clamp(ink * 4) * (1 - clamp(lit * 4)) });
+          chips[i].on.set({ x: c.x, y: chipY, s: (0.8 + 0.2 * E.pop(lit)) * (1 + 0.1 * pulse), o: clamp(lit * 4) });
+          A1.drawOn(chips[i].icon, ramp(t, c.at + 0.1, c.at + 0.4, E.inOut));
+        });
+        // a tie is not a win: the second 9 does not beat the first
+        const tieStep = steps.findIndex((st, i) => i > 0 && st.x === steps[i - 1].best);
+        const tk = Math.min(ramp(t, ts(tieStep) + 0.6, ts(tieStep) + 0.9, E.lin), 1 - ramp(t, ts(tieStep) + 1.25, ts(tieStep) + 1.4, E.lin)); // prettier-ignore
+        tie.set({ x: row.mid(tieStep).x, y: Y(76) - 56, center: true, s: 0.8 + 0.2 * E.pop(tk), o: clamp(tk * 4) });
         marks.forEach((m, i) => {
           const a = ts(i) + ARRIVE;
           const k = ramp(t, a, a + 0.35, E.lin);
           V.place(m, { x: row.mid(i).x - 18, y: Y(242), s: 0.6 + 0.4 * E.pop(k), o: clamp(k * 4) });
           A1.drawOn(m, ramp(t, a, a + 0.3, E.inOut));
         });
-
-        // --- the end: the promise is the answer ---
-        const rk = ramp(t, FINAL, FINAL + 0.4, E.lin);
-        ret.set({ x: 62, y: Y(490), s: 0.7 + 0.3 * E.pop(rk), o: clamp(rk * 4) });
       };
     },
   });

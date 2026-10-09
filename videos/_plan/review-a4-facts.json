@@ -1,0 +1,109 @@
+{
+  "findings": [
+    {
+      "scene": "scene-05-prim.js",
+      "severity": "must",
+      "problem": "Still so (the known issue): the caption 'Every town is in. The cheapest tree costs 11.' is on screen from 9.8 s to 12.5 s, but step 3 only starts at 9.4 s local. Town E turns green at 10.55 s (u 1.15 of the step) and the 'tree cost' counter only reads 11 from about 11.3 s (round(lerp(10, 11, ramp(u, 1.6, 2.2))) flips at u 1.9). So for about 0.75 s the caption says every town is in while E is still white, and for about 1.5 s it says the tree costs 11 while the counter shows 10 and the orange DE and CE tiles are still live.",
+      "fix": "Split the caption around the real events. Keep [6.2, 9.6] as is, then use [9.8, 11.1] 'One more step: DE is the cheapest way out.' and [11.3, 12.8] 'Every town is in. The cheapest tree costs 11.' (the scene is 13 s long, so 12.8 is safe). The tick and 'cheapest tree' tag already start at 12.0.",
+      "evidence": "s5@10.4: caption already shows, E is white, tree cost 10. s5@11.0: all towns green but cost still 10. s5@11.4: cost 11. Code: scene-05-prim.js caps [9.8, 12.5]; FIRST 1.6 + 3 x 2.6 = 9.4 start of step 3."
+    },
+    {
+      "scene": "scene-06-kruskal.js",
+      "severity": "should",
+      "problem": "The caption 'Groups merge into one tree.' (5.0-7.1 s) covers the AC event, after which the network still has TWO groups, {A,B,C} and {D,E}; they only become one tree when BD is taken at 9.9-11.6 s (caption 'BD joins the last two groups.'). The caption states the end result about 5 s early and contradicts the two blobs on screen.",
+      "fix": "Say what actually happens at that moment: 'Groups merge into bigger trees.' (or 'AC joins A to the group B C.').",
+      "evidence": "s6@5.9 and s6@6.8: two green outlines (A B C and D E), total 3 then 6, caption 'Groups merge into one tree.'. Kruskal log: after AC the groups are [[A,B,C],[D,E]]."
+    },
+    {
+      "scene": "scene-03-many-trees.js",
+      "severity": "should",
+      "problem": "The caption 'Each one has its own total cost.' (3.0-5.3 s) is not true as written: the 21 trees share only 12 different totals (11:1, 12:2, 13:3, 14:2, 15:2, 16:2, 17:2, 18:2, 19:2, 20:1, 21:1, 22:1), and the dot plot on screen shows the dots stacking two and three high at the very moment the caption is up. 'Its own' reads as 'a different cost each'.",
+      "fix": "Use 'Each one has a total cost, from 11 to 22.' (the axis already shows it) or 'Their total costs differ: 11 to 22.'",
+      "evidence": "s3@5.0: caption 'Each one has its own total cost.' above stacks of 2 and 3 dots at 12-19. I recomputed all 21 trees independently: histogram matches A4.HIST."
+    },
+    {
+      "scene": "scene-03-many-trees.js",
+      "severity": "should",
+      "problem": "The count ladder compares unlike things and the single note 'every pair of towns linked' under the last row reads as applying to all three rows. Row 1 (21) is the example network with 7 of 10 possible cables, row 2 (452) is the 8-town network of lessons 4.3-4.4 with 13 of 28 cables, only row 3 is a complete graph (190 cables, 20^18). If every pair were linked, 5 towns would give 125 trees and 8 towns 262,144. So a learner reads '5 towns: 21, 8 towns: 452, 20 towns: 2.6e23' as a growth-by-town-count law. (All three numbers are correct: 21 and 452 verified with the matrix-tree theorem, 20^18 = 262,144,000,000,000,000,000,000; none of them appears in the app lessons.)",
+      "fix": "Label each row with its cables: '5 towns · 7 cables', '8 towns · 13 cables', '20 towns · every pair (190 cables)'; or move the note 'every pair of towns linked' to sit on the third row only. Keep labels at 28 px or more.",
+      "evidence": "s3@10.5: rows '5 towns 21', '8 towns 452', '20 towns 262,144,...' with one grey note under row 3 at x 180."
+    },
+    {
+      "scene": "scene-02-problem.js",
+      "severity": "should",
+      "problem": "The key fact of lesson 4.1 (n towns need exactly n - 1 cables) is never said. The only hint is the 'one fewer' tag that pops at 9.6-10.2 s, under the caption 'A fifth cable makes a loop. A tree has no loops.' (6.5-10.5 s), so 'one fewer' has no stated subject (fewer than what?). The cables / towns counters, 4 and 5, are right but unexplained.",
+      "fix": "Add a closing caption at 9.6-10.8 s: 'Five towns, four cables: always one fewer.' (shorten the loop caption to end at 9.4). Optionally write the tag as 'one fewer than towns'.",
+      "evidence": "s2@10.5: counters 'cables 4', 'towns 5', tag 'one fewer', caption still about loops."
+    },
+    {
+      "scene": "scene-04-cut.js",
+      "severity": "should",
+      "problem": "Two ideas the proof rests on are not on screen. (1) 'Safe' is the headline and the last caption but is never defined (lesson: part of a minimum spanning tree). (2) The caption 'Drop AB and the tree is cheaper' does not say why AB is the cable to drop. It is the other cable of the loop that crosses the cut, but the purple cut and the orange tiles fade out by 5.6 s, and in the loop A-B-C AB is just the heaviest cable. Dropping BC instead would give 13, dearer than the 12 we started with, so the argument only works for the crossing cable.",
+      "fix": "Re-show the purple X (or a purple ring on A) while the loop alarm is up, so AB is visibly 'the other cable across the cut'. Change the caption to 'Drop AB, the other cable across the cut: the tree is cheaper.' and the last caption to 'The cheapest cable across a cut is always safe: some cheapest tree uses it.'",
+      "evidence": "s4@8.6: loop A-B-C all red, no cut marker, caption 'Add AC: a loop. Drop AB and the tree is cheaper.'. Independent check: T = AB BC BD DE = 12; T + AC = 15; drop AB = 11; drop BC = 13."
+    },
+    {
+      "scene": "scene-08-cost.js",
+      "severity": "should",
+      "problem": "Nothing on screen says Prim's cost is the ARRAY version. The labels read 'Prim · V²' and the verdict 'Prim wins' for the dense network, but with a priority queue Prim costs about E log V like Kruskal (lesson 4.7 says so explicitly), so the stated winner depends on the array version. A learner (or the exam) would take 'Prim is V²' as a property of Prim itself. The storyboard IDEA does say 'array version'; it did not reach the screen.",
+      "fix": "Label the bar 'Prim (array) · V²' (28 px) or make the first caption 'Prim's array version counts towns. Kruskal counts cables.'",
+      "evidence": "s8@5.0 and s8@8.6: labels 'Prim · V²' and 'Kruskal · E log V', no mention of the array. Lesson a4-cost step 'Dense graphs favour Prim' (parenthesis about the priority queue)."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "should",
+      "problem": "The claims 'A round trip, no longer than the walk.' (scene 9) and 'Our tour is never worse than twice the best.' (scene 10, also its headline) hold only for straight-line (triangle-inequality) distances; lesson 4.9 says so ('needs the triangle inequality ... true for ordinary distances'). The video never mentions straight lines or distances, so it reads as a guarantee for any network, which is false for general graphs. Scene 9 also gives no reason why a direct leg is not longer than the detour.",
+      "fix": "Scene 9: change the last caption to 'With straight-line distances, a direct leg never beats... is never longer than the detour' (keep it short: 'Straight lines are never longer, so the tour is no longer than the walk.'). Scene 10: add a small tag on the map 'straight-line distances' or end the last caption with 'on a map'.",
+      "evidence": "s9@11.5 caption 'A round trip, no longer than the walk.'; s10@9.4 caption and headline unconditional. I checked the three shortcuts: BC 19.06 vs detour 23.34, EF 19.04 vs 25.83, GA 37.01 vs 52.55 (all true here because the map is straight-line)."
+    },
+    {
+      "scene": "scene-10-guarantee.js",
+      "severity": "should",
+      "problem": "The middle step of the proof is skipped. After the longest cable BE is cut, the blue tree on screen (AB AC CD DF FG GE) costs 79.6, not W = 75.7: it has E linked to G, whereas the minimum spanning tree of scene 9 links E to D. Yet the W marker (75.7) pops next to it at 3.4 s and a green arrow runs from W to 'best', so it looks as if the blue tree IS W. The reasoning 'any spanning tree costs at least W, and this one costs at most best, so W <= best' is never shown, and the 79.6 value does not appear anywhere.",
+      "fix": "Between 'a spanning tree' (3.0 s) and the W marker (3.4 s) add a pill/marker for the left-over tree (79.6, blue) on the number line, and change the caption to 'No spanning tree beats the cheapest one, W. So best is at least W.' (79.6 verified: 97.6 - 18.0). The W <= 79.6 <= 97.6 order then reads directly.",
+      "evidence": "s10@4.2: blue tree with E-G, no D-E, tag 'a spanning tree', W marker 75.7 and a green arrow to best 97.6, no 79.6. Independent run: best ABEGFDC 97.6, longest leg BE 18.0, remainder 79.6."
+    },
+    {
+      "scene": "scene-02-problem.js",
+      "severity": "nit",
+      "problem": "Colour-role clash: the example tree AB BC BD DE (cost 12, not the minimum) is turned GREEN as 'valid' (6.1-7.7 s and again at 9.4 s), while the video-wide rule is green = belongs to the minimum spanning tree and blue = the example tree T (scenes 3 and 4 draw T in blue; scene 4 then drops AB as the dearer cable). The 'spanning tree' green badge is fine, but green AB can be remembered as 'AB is in the answer'.",
+      "fix": "Keep T blue in scene 2 (verdict badge can still be green), or add 'valid, not the cheapest' as the badge text.",
+      "evidence": "s2@10.5: AB, BC, BD, DE green on green towns; s4@6.8: the same tree is blue."
+    },
+    {
+      "scene": "scene-04-cut.js",
+      "severity": "nit",
+      "problem": "While T is laid the 'tree cost' pill shows the running totals 4, 6, 11, 12 (storyboard says it pops at 6.4 reading 12). The 11 shows for about 0.3 s (6.55-6.85 s), the same number as the final minimum cost two scenes later and a few seconds before the pill is supposed to say 'this tree costs 12'.",
+      "fix": "Show the cost only after the fourth cable (pop at 6.85 reading 12), or show a blue 'tree cost' that stays hidden until T is complete.",
+      "evidence": "s4@6.8: tree cost 11 with all four cables drawn but E still white."
+    },
+    {
+      "scene": "scene-08-cost.js",
+      "severity": "nit",
+      "problem": "Small wording/picture mismatches: the last caption says 'Nearly every pair linked' while the column title says 'Every pair linked' and the numbers (499,500 = 1000 x 999 / 2) are exactly every pair. Both pictures are 8-town rings under size lines of 1,024 and 1,000 towns, with nothing saying they are schematic.",
+      "fix": "Make the caption 'Every pair linked: Prim wins.' (or retitle the column 'Nearly every pair' and use a slightly smaller E), and add 'drawn with 8 towns' to a size line if there is room.",
+      "evidence": "s8@8.6: caption 'Nearly every pair linked: Prim wins...', column tag 'Every pair linked', size line '1,000 towns · 499,500 cables' under an 8-dot picture."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "nit",
+      "problem": "The way home G to A is drawn as a curve bowed under D (in scene 10 too, and in the recap), but its length in the counter (37.0) is the straight line, which would pass through D in the lesson's own picture. A curved arc looks longer than the detour it replaces and does not look like 'a direct leg'. The code comment explains the bow, the viewer cannot.",
+      "fix": "Draw GA straight but offset a few pixels below D with a visible gap (or a small label 'passes D'), or keep the bow but add a caption word: 'the way home skips F, D and C'.",
+      "evidence": "s9@11.5 and s10@9.4: curved blue GA under D. Independent check: distance from D to the line GA is 0.47 units (inside the town circle), GA 37.01 vs detour G-F-D-C-A 52.55."
+    },
+    {
+      "scene": "scene-09-tour.js",
+      "severity": "nit",
+      "problem": "The red tag 'visited twice' (6.4-7.3 s) rings A, D, F and C, but in the walk ABACDEDFGFDCA D is reached three times and A three times counting the return, so 'twice' is not exact. Also the captions say W and 2W while the counters are labelled 'tree' and 'walk', so W and 2W never appear on screen in this scene (scene 10 introduces the W tag).",
+      "fix": "Tag text 'visited again' (or 'repeats'). Label the counters 'tree W' and 'walk 2W'.",
+      "evidence": "s9@7.0: rings and tag 'visited twice'. Independent count of visits in the walk: A 3, B 1, C 2, D 3, E 1, F 2, G 1."
+    },
+    {
+      "scene": "scene-07-correct.js",
+      "severity": "nit",
+      "problem": "'Both find the same tree' (scene 7 caption) and 'same tree either way' (scene 8 tag, about 1,000-town networks) are only guaranteed when all costs are different (lesson 4.5: 'the same tree when the weights are distinct'; with ties there are several minimum trees with the same total). The example network has costs 1-7 so scene 7 is true as shown; scene 8's networks have unspecified costs.",
+      "fix": "Scene 8 tag: 'same cheapest cost either way' or 'same tree when costs differ'; scene 7 can stay.",
+      "evidence": "s7@10.4: identical trees, totals 11 = 11. s8@10.4: tag 'same tree either way'. Lesson a4-mst step 'Prim and Kruskal compared'."
+    }
+  ]
+}

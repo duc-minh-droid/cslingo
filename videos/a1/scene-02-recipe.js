@@ -152,7 +152,7 @@
         { x: 0, y: TAG_Y },
         { x: MACH_CX, y: TAG_Y + 26, center: true },
         { x: MACH_CX, y: SLOT_B.y - 32, center: true },
-        { x: 360, y: TAG_Y + 26, center: true },
+        { x: 345, y: TAG_Y + 26, center: true },
         { x: OUT_CX, y: TAG_Y + 26, center: true },
         { x: 0, y: EDGE_Y },
       ];
