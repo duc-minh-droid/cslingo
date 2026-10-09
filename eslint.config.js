@@ -93,6 +93,7 @@ export default [
       "tools/video-lib.js",
       "tools/video-still.js",
       "tools/render-video.js",
+      "tools/narrate.js",
     ],
     languageOptions: {
       ecmaVersion: "latest",

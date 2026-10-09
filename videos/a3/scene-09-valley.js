@@ -182,8 +182,8 @@
         startTag.set({
           s: pop(K(t, 1.9, 0.35)),
           o: pk(K(t, 1.9, 0.35)) * (1 - K(t, 3.6, 0.4)),
-          dx: P.px(-1),
-          dy: P.py(1) - 88,
+          dx: P.px(-1) - 122,
+          dy: P.py(1) + 2,
         });
 
         // ----- tags that ride beside the triangle while it stretches, then squeezes -----
@@ -196,7 +196,7 @@
         });
         squeezeTag.set({
           s: pop(kSqueeze),
-          o: pk(kSqueeze),
+          o: pk(kSqueeze) * (1 - K(t, RUN1 - 0.5, 0.3)),
           dx: mid[0] - 118,
           dy: mid[1] - 70,
         });
