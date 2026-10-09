@@ -154,12 +154,7 @@
         // ----- the start: three corners pop 0.15 s apart, then the triangle and the finder ring -----
         const popK = (i) => K(t, 1.6 + 0.15 * i, 0.4);
         const kTri = K(t, 1.95, 0.35);
-        tri.set({
-          pts: s.slots,
-          o: kTri,
-          fillO: 1,
-          strokeO: 1,
-        });
+        tri.set({ pts: s.slots, o: kTri });
         trail.set({ pts: s.centreTrail, o: K(t, RUN0, 0.3) });
         dots.forEach((d, i) => {
           d.set({
