@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "scene": "scene-05-doubling.js (and scene-04-count.js)",
+      "severity": "should",
+      "problem": "The lesson's central Big-O point is never shown: the growing inner loop (n(n-1)/2) is still quadratic. Scene 4 builds the 28-cell staircase and ends on 'About half of 64', but scene 5 doubles only the full nested loops (64 -> 256, x4), so the staircase vanishes and nothing says 28 -> 120 is also about x4 (120/28 = 4.29). A first-time learner can read 'half of 64' as 'so it grows more gently', which is the exact misconception lesson step 'The growing inner loop is still quadratic' and predict a1-bigo-1 exist to remove. A1.TRI16 = 120 is computed and asserted in common.js but never displayed.",
+      "fix": "In scene 5, after the x4 tag (7.2-7.6) or with the class tags (10.1+), add a small grey ghost tag under the nested column such as '28 -> 120: also x4' (numbers from A1.work('tri', 8/16) and A1.TRI16), or re-use the staircase shape inside the 16 x 16 square for 1-2 s. Alternatively add a short last caption in scene 4: 'Half the work, still O(n squared).'",
+      "evidence": "Stills s4@10.8 (caption '28 is about half of 64', no mention of order of growth) and s5@11.8 (only 'one loop', 'nested loops', 'halving loop' columns). node check: tri(8) = 28, tri(16) = 120, ratio 4.29. Lesson: algo-p1-02.js step 2 and predict a1-bigo-1."
+    },
+    {
+      "scene": "scene-08-surfer.js",
+      "severity": "should",
+      "problem": "In the reveal (9.5-10.2) the bars are silently morphed from what the simulation counted to the exact long-run values while the hop counter still reads 600. The bars are titled 'share of visits', but after 600 hops the real visit shares are A 48.4% (291/601), B 47.3% (284/601), X 4.3% (26/601), i.e. 48% / 47% / 4% on screen just before the reveal. The tags then switch to 49% / 46% / 5% for the same 600 hops, so for those labels the number shown is not the number the run produced (B 47 -> 46, X 4 -> 5). The exact values are right and match the lesson (A 49, B 46, X 5), but the caption 'The shares settle' and the 'hops 600' counter imply the bars are measured.",
+      "fix": "Keep the bars at the sampled 600-hop values (A 48, B 47, X 4) and let the green pegs alone mark the exact long-run values 49 / 46 / 5, or change the header 'share of visits' to 'long-run share' (and relabel the counter, e.g. fade the 'hops' stat) when the pegs appear at 9.5. Do not lerp the bar text to EXACT while hops still reads 600.",
+      "evidence": "Still s8@7.7 (hops 216: 48/46/6) and s8@10.5 (hops 600: 49/46/5 with pegs). Node check on A1.SURF.counts[600] = {X: 26, A: 291, B: 284} -> 48.4 / 47.3 / 4.3 %; exact (stationary): 0.4865 / 0.4635 / 0.05."
+    },
+    {
+      "scene": "scene-09-matrix.js",
+      "severity": "should",
+      "problem": "Caption 3, 'Damping adds a teleport floor of 0.03 to every cell', is incomplete and can lead a learner to the wrong arithmetic. The rule is G = 0.85 A + 0.03: every cell is first multiplied by 0.85 (0.5 -> 0.455, 1 -> 0.88) and then 0.03 is added. 'Adds 0.03' alone gives 0.53 and 1.03, which contradict the cells on screen (0.455, 0.88). The 'x 0.85' and '+ 0.03' tags appear under the web, but they sit away from the matrix and the caption does not mention the 0.85. Also the video never says d = 0.85 in words, while the lesson's worked example (0.75, floor 0.05, column P 0.425) differs from these numbers.",
+      "fix": "Reword the caption to 'Damping scales every cell by 0.85, then adds a floor of 0.03.' (about 55 characters, one line). Optionally make the recipe tags read 'd = 0.85' and '(1 - d) / 5 = 0.03'.",
+      "evidence": "Still s9@10.5 (cells 0.455 / 0.88 / 0.03 with caption 'Damping adds a teleport floor of 0.03 to every cell'). Node check of G: 0.85*0.5+0.03 = 0.455, 0.85*1+0.03 = 0.88. Lesson step 'Repair, then teleport' uses d = 0.75 (0.425, floor 0.05)."
+    },
+    {
+      "scene": "scene-02-recipe.js",
+      "severity": "nit",
+      "problem": "The six questions use different words and order from the lesson's table. Lesson a1-anatomy lists INPUT, OUTPUT, COMPARE, STEPS, TERMINATE, EDGE CASES; the video shows INPUT, STEPS, COMPARE, STOP, OUTPUT, EDGE CASES. 'STOP' replaces the lesson's 'TERMINATE', so a learner who revises with the lesson table will not recognise the fourth label.",
+      "fix": "Use TERMINATE for the finish-line tag (it fits at 28 px: about 190 px wide) or write 'TERMINATE' under the flag; the order can stay as the picture needs it. If STOP is kept for friendliness, say so in the storyboard so the lesson and video vocabulary are decided together.",
+      "evidence": "Still s2@6.5 (tags INPUT, STOP, STEPS, OUTPUT, COMPARE); lesson algo-p1-01.js step 'A wish is not an algorithm' table."
+    },
+    {
+      "scene": "scene-06-flow.js",
+      "severity": "nit",
+      "problem": "The 'total tokens' box is used as a running tally while the arrived pills are added up: it jumps from 100 to 0 at 4.3 s and then shows 12.5, 25, 62.5, 75 (and 0, 18.75, 37.5, 81.25, 100 at 9.9-10.7). While the label still says 'total tokens', the screen therefore states totals of 0 and 62.5 for about 0.2 s each, with all four node pills visible. The final values 75 and 100 are right, but the intermediate numbers are partial sums, not totals.",
+      "fix": "Relabel the box 'added up' (or 'sum so far') while the tally runs and switch it back to 'total tokens' when the last pill lands, or count up silently by morphing the digits without passing through 0.",
+      "evidence": "Still s6@4.4 ('total tokens 0' beside pills 12.5, 12.5, 37.5, 12.5) and s6@10.15 ('total tokens 18.75')."
+    },
+    {
+      "scene": "scene-08-surfer.js, scene-10-iterate.js",
+      "severity": "nit",
+      "problem": "During tweens the printed numbers interpolate, so some frames show values the algorithm never produces: s10@2.5 shows R 0.48 (round 1 is 0.49) and T 0.07 (0.06) with P Q S 0.15, so the column does not sum to 1; s8@2.0 shows A 24% / B 24% (true share after hop 1: 50% / 50%); s8@3.9 shows 56% / 37% / 6% (hop 4 is 60/40/0, hop 5 is 50/33/17). Each lasts only 0.2-0.5 s, but they are visible mid-sentence and contradict 'every number comes from the real algorithm'.",
+      "fix": "Tween bar lengths and node sizes only; set the text from the integer round or hop (value of the state being moved to, or the one being left) so it only ever shows real values such as 0.49 or 50%.",
+      "evidence": "Stills s10@2.5, s8@2.0, s8@3.9. True values from node: round 1 = 0.149 0.149 0.489 0.149 0.064; shares after hop 5 = 50.0 / 33.3 / 16.7 %."
+    },
+    {
+      "scene": "scene-09-matrix.js",
+      "severity": "nit",
+      "problem": "Caption 2 ('T has no links, so it pours 0.2 into every page') starts at 4.6 s, but T's 0.2 cells and the purple pour edges only appear at 5.4-6.6 and T's sum still shows a red '0' with a cross until 7.4. For about 1 s the sentence states something the picture has not yet shown (T's column is still empty at s9@5.1).",
+      "fix": "Start the caption at about 5.4 (or move the repair step 0.6 s earlier), so the claim and the T column fill appear together.",
+      "evidence": "Still s9@5.1: caption 'T has no links, so it pours 0.2 into every page' while T's column is empty and the chip '2 repair' is still grey."
+    },
+    {
+      "scene": "scene-04-count.js",
+      "severity": "nit",
+      "problem": "The (i, j) frame is never explained and no loop code is shown, so the picture alone does not say why 'one loop' is the left column, why 'inner loop grows' is a staircase (+0, +1, ... +7) or what a full nested loop is. The 28 = 0 + 1 + ... + 7 claim rests on the lesson's code 'for j in 0..i', which the viewer has not seen. In addition the dashed ghost 'other half' is 36 cells (8 diagonal + 28), visibly larger than the lit 28, while the tag says '28 is about half of 64' (true: n(n-1)/2 = 28 versus n squared / 2 = 32, but the ghost does not show it).",
+      "fix": "Add a tiny 2-line code chip under each panel (for example 'for i: work()', 'for i: for j < i: work()', 'for i: for j < n: work()' at 28 px or as icons), or at least label the axes 'i' and 'j' once. Optionally make the ghost region exclude the diagonal or say 'n squared / 2 = 32' in the tag.",
+      "evidence": "Stills s4@6.4 (staircase with +0...+7 but no code) and s4@10.8 (ghost region around the staircase)."
+    },
+    {
+      "scene": "scene-08-surfer.js",
+      "severity": "nit",
+      "problem": "Both teleports in the first ten hops (5 and 9) jump from A to X, the page nobody links to, and the die faces (2 and 1) carry no mapping to pages. A learner may take away 'teleporting means jumping to X' or that the die value picks the page; the caption says 'a random page'. The path is the real simulation (seed 5), so the data is correct.",
+      "fix": "Either pick a seed whose first ten hops include a teleport to a different page (A1.surfer seed search, keep the 600-hop result within 1%), or show three faces on the die labelled A, B, X, or add a caption word such as 'any page, even X'.",
+      "evidence": "A1.SURF.path first 15 = A B A B A X A B A X A B A B A, kinds s l l l l t l l l t ...; stills s8@3.9 and s8@5.9 (surfer purple on X)."
+    },
+    {
+      "scene": "scene-10-iterate.js",
+      "severity": "nit",
+      "problem": "The small chart is only tagged 'change'. The lesson calls it 'max |dp| per iteration' (biggest change in any page's rank per round), and the storyboard data are exactly A1.PR5.delta (0.289, 0.131, 0.085, ... 5.9e-4 at round 10, 2.2e-7 at round 20). 'change' alone does not say what changes or why a falling line means 'settled', and there is no axis.",
+      "fix": "Relabel the tab 'biggest change' (fits at 28 px above the 260 px chart) and keep the flat tail as the visual proof; optionally add a tiny 'round 20' tick under the right end.",
+      "evidence": "Still s10@11.0 (tab 'change', purple dots flatten). A1.PR5.delta from node check: 0.289, 0.131, 0.085, 0.044, 0.023, 0.011 ... 5.9e-4, 2.2e-7."
+    },
+    {
+      "scene": "scene-07-trap.js",
+      "severity": "nit",
+      "problem": "Caption 3, 'A trap: X gets nothing, so the ranking says little', is vaguer than the lesson ('X sits at 0 and the ranking says nothing real about A vs B') and the picture never shows the second half: A and B just swap the lead each round (50/25, 25/50, 50/25) while X is 0. 'Says little' is left for the learner to guess.",
+      "fix": "Reword to 'X is starved and A and B just swap the lead.' (or 'Rank is trapped: X starves, A and B swap places.'), and optionally pulse the leader bar at each arrival.",
+      "evidence": "Stills s7@2.9, s7@5.3, s7@8.0; A1.trapRounds(3) = (0,50,25), (0,25,50), (0,50,25)."
+    },
+    {
+      "scene": "scene-06-flow.js, scene-09-matrix.js",
+      "severity": "nit",
+      "problem": "The lesson's term for a page with no links is 'dangling' (step titles, takeaways, boss/bank questions use 'dangling page'); the video only ever says 'dead end'. A learner moving from the video to the lesson or boss quiz will meet 'dangling' without a bridge.",
+      "fix": "Once, in scene 6 where the D tag first appears, show 'dead end' and then add the lesson word, e.g. tag 'dead end (dangling)' or a small grey ghost tag 'also called dangling' at 5.4-6.4.",
+      "evidence": "Stills s6@5.9 and s9@2.0 (red tag 'dead end'); lesson algo-p1-03.js SURF.leaky note and takeaways ('Dangling pages leak rank')."
+    },
+    {
+      "scene": "scene-03-invariant.js",
+      "severity": "nit",
+      "problem": "At step 1 the box reads 'biggest of first 1' (k = 1), and the compare tag for step 0 shows a green tick, i.e. the same green tick as the 'holds' tag, although it means 'this item beats best' (and a grey cross means 'does not beat'). The data are right (verdicts T T F T F F F, best 3 8 8 9 9 9 9, 9 > 9 is false), but the green tick is used for two different ideas (beats best vs the promise holds), and the green role is meant to be 'holds / valid'.",
+      "fix": "Use the blue/orange 'up' arrow or a plain 'beats' wording for the compare verdict, keep green ticks only for 'holds'; write 'biggest of first 1 item' or fix the label to 'biggest so far (k = 1)'.",
+      "evidence": "Stills s3@4.0 (verdict tick over '8 > 3?' and 'biggest of first 1') and s3@9.0 ('9 > 9?' with the grey cross)."
+    }
+  ]
+}

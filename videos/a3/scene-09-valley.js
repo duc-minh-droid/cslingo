@@ -15,12 +15,12 @@
   // [seconds into the run, round u]: busy stretches (the stretch, the squeeze) get more time per round
   const KEYS = [
     [0, 0],
-    [0.9, 7],
-    [1.7, 14],
-    [2.35, 28],
-    [3.45, 36],
-    [5.2, 66],
-    [6.3, 76],
+    [0.7, 7],
+    [1.4, 14],
+    [2.0, 28],
+    [3.15, 36],
+    [5.0, 66],
+    [6.2, 76],
     [7.4, 84],
   ];
   const STRETCH = [
@@ -149,7 +149,7 @@
         const ks = K(t, 1.2, 0.4);
         star.set({ x: sx, y: sy, s: E.pop(ks) * (1 + 0.25 * flash(t, RUN1, RUN1 + 0.5)), o: pk(ks) });
         const km = K(t, 1.4, 0.3);
-        minTag.set({ s: pop(km), o: pk(km), dx: sx + 108, dy: sy - 4 });
+        minTag.set({ s: pop(km), o: pk(km), dx: sx + 124, dy: sy - 4 });
 
         // ----- the start: three corners pop 0.15 s apart, then the triangle and the finder ring -----
         const popK = (i) => K(t, 1.6 + 0.15 * i, 0.4);
@@ -183,7 +183,7 @@
           s: pop(K(t, 1.9, 0.35)),
           o: pk(K(t, 1.9, 0.35)) * (1 - K(t, 3.6, 0.4)),
           dx: P.px(-1),
-          dy: P.py(1) - 78,
+          dy: P.py(1) - 88,
         });
 
         // ----- tags that ride beside the triangle while it stretches, then squeezes -----
