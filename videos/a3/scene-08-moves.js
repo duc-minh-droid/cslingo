@@ -36,7 +36,10 @@
   A3.need(RD[0].fR < RD[0].B.f && RD[0].fE < RD[0].fR, "scene 8: round 1 expands");
   A3.need(RD[1].fR < RD[1].B.f && RD[1].fE < RD[1].fR, "scene 8: round 2 expands");
   A3.need(RD[2].fR < RD[2].B.f && RD[2].fE >= RD[2].fR, "scene 8: round 3, the expansion fails");
-  A3.need(RD[3].fR >= RD[3].G.f && RD[3].f1 < RD[3].W.f && RD[3].f1 < RD[3].f2 && RD[3].f2 >= RD[3].W.f, "scene 8: round 4");
+  A3.need(
+    RD[3].fR >= RD[3].G.f && RD[3].f1 < RD[3].W.f && RD[3].f1 < RD[3].f2 && RD[3].f2 >= RD[3].W.f,
+    "scene 8: round 4",
+  );
   const SHR = A3.nmShrink(RD[3].next);
   const AFTER = RD[3].to; // the three corners (slot order) before the hypothetical shrink
   const SHRUNK = AFTER.map((p) => {
@@ -144,9 +147,20 @@
       const rects = [legend];
       const items = [];
       cor.forEach((at, i) =>
-        items.push({ id: `c${i}`, at, pref: [at[0] - cen[0], at[1] - cen[1]], w: tagW(`${rl.letters[i]} ${fv(r.from[i])}`), h: TAG_H }),
+        items.push({
+          id: `c${i}`,
+          at,
+          pref: [at[0] - cen[0], at[1] - cen[1]],
+          w: tagW(`${rl.letters[i]} ${fv(r.from[i])}`),
+          h: TAG_H,
+        }),
       );
-      const label = { R: `R ${fv(r.R)}`, E: k < 3 ? `E ${fv(r.E)}` : "", M1: `M1 ${fv(r.M1 || [0, 0])}`, M2: `M2 ${fv(r.M2 || [0, 0])}` };
+      const label = {
+        R: `R ${fv(r.R)}`,
+        E: k < 3 ? `E ${fv(r.E)}` : "",
+        M1: `M1 ${fv(r.M1 || [0, 0])}`,
+        M2: `M2 ${fv(r.M2 || [0, 0])}`,
+      };
       Object.entries(cands).forEach(([id, p]) => {
         const at = pt(p);
         const w = tagW(label[id]);
@@ -204,7 +218,12 @@
       const tri = P.simplex({ tone: "purple" });
       const side = P.path({ tone: "grey", w: 5, dash: "2 11" });
       const centre = A3.diamond(P.over, { size: 24, tone: "grey" });
-      const dots = { R: P.dot({ tone: "purple", r: 12 }), E: P.dot({ tone: "purple", r: 12 }), M1: P.dot({ tone: "purple", r: 12 }), M2: P.dot({ tone: "purple", r: 12 }) };
+      const dots = {
+        R: P.dot({ tone: "purple", r: 12 }),
+        E: P.dot({ tone: "purple", r: 12 }),
+        M1: P.dot({ tone: "purple", r: 12 }),
+        M2: P.dot({ tone: "purple", r: 12 }),
+      };
       const cTags = [0, 1, 2].map(() => A3.tag(P.html, { anchor: "m", text: "B 0", tone: "green" }));
       const kTags = {};
       const badges = {};
@@ -223,9 +242,7 @@
         const pts = [...AFTER, ...SHRUNK].map(pt);
         const all = [...pts, pt(MIN)];
         const circles = [...all.map(([x, y]) => [x, y, 40]), [...pt(MIN), 34]];
-        [AFTER, SHRUNK].forEach((tr) =>
-          tr.forEach((p, i) => circles.push(...samples(pt(p), pt(tr[(i + 1) % 3]), 8))),
-        );
+        [AFTER, SHRUNK].forEach((tr) => tr.forEach((p, i) => circles.push(...samples(pt(p), pt(tr[(i + 1) % 3]), 8))));
         const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
         const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
         const best = placeOne({ at: [cx, cy], pref: [1, 1], w: 184, h: TAG_H }, circles, [legendBox], P.area);
@@ -310,7 +327,7 @@
         const dropE = s.dropE ? 1 - ramp(t, s.dropE, s.dropE + 0.3, E.lin) : 1;
         const dropR = s.dropR ? 1 - ramp(t, s.dropR, s.dropR + 0.3, E.lin) : 1;
         const chosen = CHOSEN[r.op];
-        const keep = 1 - ramp(t, g1 - 0.12, g1, E.lin); // the winner's purple dot waits for the corner
+        const keep = t < g1 ? 1 : 0; // the winner's purple dot waits for the corner, then it becomes that corner
         const kC = pk(t, s.C);
         const lc = RD[k].C;
         centre.set({ x: P.px(lc[0]), y: P.py(lc[1]), s: popS(kC), o: live ? op(kC) * fo : 0 });
@@ -387,7 +404,8 @@
         });
 
         // ---------- the move chips and the last-resort tag ----------
-        const act = t < 2.4 ? null : t < 4.1 ? "reflect" : t < 8.2 ? "expand" : t < 10.6 ? "reflect" : t < 11.8 ? "in" : "shrink";
+        const act =
+          t < 2.4 ? null : t < 4.1 ? "reflect" : t < 8.2 ? "expand" : t < 10.6 ? "reflect" : t < 11.8 ? "in" : "shrink";
         const used = [];
         if (t >= 2.4) used.push("reflect");
         if (t >= 4.1) used.push("expand");
