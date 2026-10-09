@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "scene": "scene-09-count.js",
+      "severity": "must",
+      "problem": "Caption 4, 'Poisoned reverse: A tells B that C is unreachable via you.', states the mechanism the wrong way round. What A sends is 'C: infinity' because A's own route to C goes THROUGH B (A's tag still reads 'C: 2 via B'); the lesson words it from the speaker's side ('C is unreachable via me'). Read literally, 'via you' says 'C cannot be reached through B', which is false (B has the direct road until it is cut) and is the opposite of what B is meant to learn ('do not route to C through A'). This is the teaching point of the whole last beat.",
+      "fix": "Reword to say why A sends infinity, for example 'Poisoned reverse: A says C is unreachable, because its route goes through B.' (about 70 characters, two lines like the other captions). Keep the on-screen 'A says C: infinity' tag as it is.",
+      "evidence": "Stills s9@10.3 and s9@12.0 (caption on screen while A's tag reads 'C: 2 via B' and the purple bubble 'C: infinity' leaves A). Lesson js/content/algo/algo-p2-03.js step 'The patch: poisoned reverse' ('C is unreachable via me')."
+    },
+    {
+      "scene": "scene-09-count.js",
+      "severity": "should",
+      "problem": "The cure beat ends on 'agreed at once' with no limit, so a first-time learner will think poisoned reverse solves count to infinity. The lesson is explicit that it only stops loops between TWO routers (loops through three or more still count up, which is why RIP caps infinity at 16) and its quick check asks 'Will poisoned reverse completely solve count-to-infinity?' (answer: No). The video's example is a two-router loop, so the claim shown is true, but nothing on screen or in the captions says the fix is limited.",
+      "fix": "Add the scope to existing text: change the purple tag 'poisoned reverse' (468, 100) to 'poisoned reverse: two-router loops' (fits at 28 px) or make the last caption 'Poisoned reverse kills a two-router loop at once.' Do not add a new scene.",
+      "evidence": "Still s9@13.0 (green 'agreed at once' tag, no qualifier); lesson algo-p2-03.js step 'The patch: poisoned reverse' and the step 'Poisoned reverse on the three routers' (check question a: 'No: loops through three or more routers can still form')."
+    },
+    {
+      "scene": "scene-08-neighbours.js",
+      "severity": "should",
+      "problem": "The reports are drawn as dashed ROADS B-F, C-F and D-F with weight pills 5, 3, 5. A learner who has just watched scene 7 (the same six-router network, where F has only two links, C-F = 4 and E-F = 2, and there is no B-F or D-F) sees roads that do not exist and a C-F cost of 3 that contradicts the 4 they saw. The numbers are right as reported distances (checked: d(B,F) = 5 via C and E, d(C,F) = 3 via E, d(D,F) = 5 via E), but the picture says they are road costs, and E is silently dropped. The caption 'Each neighbour says how far F is' is the only cue.",
+      "fix": "Make the dashed lines clearly 'somewhere beyond' and the pills clearly reports: for example put a gap or a wavy break in each dashed line and give the pill a speech-bubble tail with text such as 'says 5' (still at least 28 px), or label the three pills with a small grey tag 'distance to F'. Optionally add a one-line note in the storyboard that B, C and D are the same routers as scene 7.",
+      "evidence": "Still s8@3.5 (dashed roads with pills 5, 3, 5 beside the solid costs 3, 6, 2) against s7@2.8 (C-F = 4, no B-F or D-F). Node check on A2.NET: distances to F are B 5, C 3, D 5."
+    },
+    {
+      "scene": "scene-07-tables.js",
+      "severity": "should",
+      "problem": "The weight pill of road B-D ('4') sits almost exactly on the crossing of roads A-C and B-D, so it can be read as the cost of A-C (which already has its own '6' pill near A). A learner copying numbers off the map for the tree and table (A-C = 6, B-D = 4) can swap them. The pill is placed at 0.3 along B-D, which is about 17 px from the crossing point, and the pill is 56 px wide.",
+      "fix": "Move the B-D pill away from the crossing: in A2.graph(...at) change 'B-D': 0.3 to about 0.7 (stage (210, 420), clear of the A-D, C-D and A-C roads), or 0.15. Re-check against the 'C-D': 0.55 pill.",
+      "evidence": "Still s7@2.8: '4' at roughly (282, 520) px on the page where the grey road A-C passes under it; geometry: A (50,340), C (430,190), B-D at x = 210 crosses A-C at y of about 277 stage px."
+    },
+    {
+      "scene": "scene-06-race.js",
+      "severity": "should",
+      "problem": "The counters read just 'N cells' (and '0 cells', '1 cells' for a moment, which is ungrammatical). Nothing says these are cells EXPANDED (looked at), so '59 cells' next to a 10 x 7 grid can be read as the size or the number of cells in the picture. The whole comparison of the scene (20 versus 59 of 66 free cells) rests on this label.",
+      "fix": "Change the counter text to 'N expanded' (fits the 190 px min width at 36 px) or 'N looked at', and start it at '0 expanded'.",
+      "evidence": "Stills s6@5.5 ('45 cells' / '20 cells') and s6@7.8 ('59 cells' / '20 cells'); text scan shows the strings '0 cells', '1 cells', ..., '59 cells'."
+    },
+    {
+      "scene": "scene-02-graph.js",
+      "severity": "should",
+      "problem": "Caption 3, 'The fewest roads is not always the cheapest.', needs two facts on screen at once, and neither is: the number of roads of each route (2 versus 4) is never shown, and route 1's '2 + 7 = 9' has vanished (retracted at 5.9) before route 2's '= 8' appears, so the 9 versus 8 comparison relies on memory. The claim is true (A-C-E has 2 roads and costs 9; A-C-B-D-E has 4 roads and costs 8; 7 simple routes in all) but is not demonstrated.",
+      "fix": "Leave route 1's result as a small grey ghost tag, for example '2 roads: 9', on screen (top-left is free) when route 2 starts, and write the road count in the final green tag or beside it ('4 roads: 8'), so both numbers are visible together when the caption is read.",
+      "evidence": "Stills s2@5.5 ('2 + 7 = 9', 2 roads) and s2@10.5 ('2 + 1 + 3 + 2 = 8'); no frame shows both costs. Node check: ROUTES = ACBDE 8, ACE 9, ABDE 9, ACDE 9, ABCE 12, ABCDE 12, ABDCE 19."
+    },
+    {
+      "scene": "scene-04-why-final.js",
+      "severity": "nit",
+      "problem": "The second triangle (negative road) is a different map from the first: A-C is 5 (it was 2) and the roads are now one-way. Nothing marks the change; a learner may wonder why A-C changed. It does follow the lesson's negative-edge mode (A to C = 5, C to B = -3).",
+      "fix": "Add a short tag at the swap, for example 'now with a -3 road' (grey or red, 28 px), or flash the new A-C weight once.",
+      "evidence": "Stills s4@5.2 (A-C = 2) and s4@6.5 (A->C = 5, C->B = -3). Lesson algo-p2-01.js negative-edge mode: 'directed, C to B = -3', A to C = 5."
+    },
+    {
+      "scene": "scene-06-race.js",
+      "severity": "nit",
+      "problem": "Caption 3 says the guess 'must never be higher than the true cost'. The rule is about the true cost STILL TO GO from each cell (h at most the real remaining cost); the bars correctly say 'true cost left', but the caption drops 'left' and can be read as the cost of the whole route.",
+      "fix": "Caption: 'But its guess must never be higher than the true cost left.'",
+      "evidence": "Still s6@10.0 (bar 'true cost left 11') and the caption text in scene-06-race.js."
+    },
+    {
+      "scene": "scene-03-dijkstra.js",
+      "severity": "nit",
+      "problem": "Vocabulary: the video says 'waiting room' / 'waiting' for the lesson's 'tentative' nodes. 'Waiting room' matches the Dijkstra workshop (a2-watch), but the lesson 2.2 and its quick checks use 'settled' and 'tentative', and the video never connects the two words.",
+      "fix": "Add the lesson word once, for example caption 3: 'Repeat. The smallest waiting (tentative) distance is always final.' or a small grey '(tentative)' under the 'waiting room' header.",
+      "evidence": "Stills s3@9.5 (header 'waiting room'); lesson algo-p2-01.js step 'Every node is in one of two states' (Settled / Tentative)."
+    },
+    {
+      "scene": "scene-09-count.js",
+      "severity": "nit",
+      "problem": "The ruler is labelled 'cost of C' but it shows the number made by the latest message, which alternates between A's and B's belief (4 for A while B says 3, and so on). It is not any one router's cost, and it reaches full length (16) while the tags show infinity.",
+      "fix": "Relabel it 'latest cost of C' or 'cost in the last message', or tint the bar with the tone of the router that just updated.",
+      "evidence": "Stills s9@5.0 (A 'C: 4 via B', B 'C: 3 via A', bar at about 4) and s9@8.8 (A 14, B 15, bar at 15)."
+    },
+    {
+      "scene": "app: js/content/algo/algo-p2-03.js (not the video)",
+      "severity": "nit",
+      "problem": "Storyboard-vs-lesson note: in the A - B - C scenario the lesson's poisoned-reverse text and demo checkbox put the roles the other way round ('B tells A C unreachable via me'), but A's route goes through B, so it is A that must tell B. The video is correct (A tells B 'C: infinity'); the app text will contradict it for a learner who watches both.",
+      "fix": "Change the demo checkbox to 'Poisoned reverse (A tells B \"C unreachable via me\")' and the step text to 'If A's route to C goes through B, A tells B ...'. Optionally keep the generic wording of the step but name the routers as in the demo.",
+      "evidence": "algo-p2-03.js lines 123, 129 and 224. Behaviour of the demo itself (both routers go to infinity at once) matches the video."
+    },
+    {
+      "scene": "app: js/content/algo/algo-p2-02.js (not the video)",
+      "severity": "nit",
+      "problem": "Storyboard-vs-lesson note: lesson 2.3 step 'The one rule: never overestimate' shows bars 10 / 8 / 16 (true cost left / Manhattan / twice Manhattan), but the lesson's own run (S (1,3) to G (8,3) round the same wall) has 11 / 7 / 14. The video uses 11 / 7 / 14, which is right for the grid it shows; the two sets of numbers differ for anyone who does the video and the lesson.",
+      "fix": "Align the lesson figure to the grid of the run (true cost left 11, Manhattan 7, twice Manhattan 14), or keep it generic and say so. No change needed in the video.",
+      "evidence": "algo-p2-02.js F.bars([['true cost left', 10], ['h = Manhattan', 8], ['h = 2 x Manhattan', 16]]); node check on the run grid gives Manhattan 7, optimal cost 11, doubled 14."
+    },
+    {
+      "scene": "videos/a2/common.js",
+      "severity": "nit",
+      "problem": "Stale comment in the header (section 5): '(App note: if D-E fails, A reaches F by A B C E F at cost 8, not 9 as the lesson text says.)'. The lesson text (a2-in-2) now says A to B to C to E to F at cost 8, so the note is out of date. No effect on the video.",
+      "fix": "Delete the note, or change it to 'the lesson now agrees: A B C E F costs 8'.",
+      "evidence": "common.js line 70; js/content/algo/algo-p2-x-03.js a2-in-2 'why' (cost 8 instead of 7). Node check: with D-E removed, A to F = 8 via A B C E F."
+    }
+  ]
+}
