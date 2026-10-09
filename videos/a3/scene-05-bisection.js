@@ -5,8 +5,8 @@
    Every frame is a pure function of t: the three points (the ends a, b and the middle m) are drawn from the round (rd) and the time
    inside it (u). The invariant (slope falling at a, rising at b) is asserted for every bracket when the scene is built.
    Layout of the "falling" / "rising" tags: each tag sits as low as it can without touching the curve; the two end tags lean towards
-   each other while the bracket is wide and keep 240 px between their centres once it is narrow (so the final star fits between them);
-   the tag of the middle point goes above any end tag it would overlap. */
+   each other while the bracket is wide and keep 280 px between their centres once it is narrow, so the tag of the middle point fits
+   between them and so does the final star. */
 (function () {
   const V = window.VID;
   const A3 = V.a3;
@@ -40,7 +40,7 @@
   const HAND = 1.1; // m takes over the role of the end that was cut
   const TAG_W = 130; // a "falling" / "rising" tag is about 130 x 54 px
   const TAG_H = 54;
-  const TAG_SEP = 240; // narrow bracket: the two end tags keep this far apart (centre to centre)
+  const TAG_SEP = 280; // narrow bracket: the two end tags keep this far apart (centre to centre), room for m's tag between them
   const TAG_IN = 49; // wide bracket: the end tags lean this far towards each other
   const WHAT = ["falling", "rising"]; // the end a falls, the end b rises
 
@@ -124,7 +124,6 @@
         const xd = [lerp(pre[0], post[0], glide), lerp(pre[1], post[1], glide)]; // the bracket as drawn (the span glides)
         const len = clamp(P.px(xd[1]) - P.px(xd[0]), 56, 140); // tangents get shorter as the bracket closes
         const tags = endTags(xd);
-        const tagsPre = endTags(pre);
 
         // ---------- the card and the curve ----------
         P.set({ o: ramp(t, 0, 0.5, lin) });
@@ -134,15 +133,12 @@
         band.set({
           x0: row ? row.cut[0] : 0,
           x1: row ? row.cut[1] : 0,
-          o: row ? ramp(u, CUT, HAND) * (1 - ramp(u, 1.45, 1.7)) : 0,
+          o: row ? ramp(u, CUT, HAND) * (1 - ramp(u, 1.45, 1.7, lin)) : 0,
         });
 
-        // ---------- the middle: where m sits and its tag (above any end tag it would overlap) ----------
+        // ---------- the middle: where m sits and its tag (between the two end tags) ----------
         const mx = row ? row.m : 0.5;
         const mPos = tagAt(P.px(mx), mx);
-        tagsPre.forEach(([cx, top]) => {
-          if (Math.abs(cx - mPos[0]) < TAG_W + 8) mPos[1] = Math.min(mPos[1], top - TAG_H - 8);
-        });
 
         // ---------- the two ends ----------
         ends.forEach((h, i) => {
