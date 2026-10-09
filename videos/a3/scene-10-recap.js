@@ -10,8 +10,7 @@
 (function () {
   const V = window.VID;
   const A3 = V.a3;
-  const L5 = V.l5;
-  const { ramp, flash, clamp, lerp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
   const { need } = A3;
 
   const f1 = (n) => n.toFixed(1);
@@ -49,15 +48,24 @@
     const [S0, S1] = A3.SIMPLEX.steps;
     const WALK = [S0.from, S0.to, S1.to];
     need(same(WALK, [[0, 0], [5, 0], [4, 3]]) && same(WALK[2], A3.BEST), "recap row 1: the walk is (0,0), (5,0), (4,3)"); // prettier-ignore
-    need(same(WALK.map(A3.z), [0, 15, 18]) && same(A3.CORNER_Z.slice(0, 3), [0, 15, 18]), "recap row 1: z along the walk");
+    need(
+      same(WALK.map(A3.z), [0, 15, 18]) && same(A3.CORNER_Z.slice(0, 3), [0, 15, 18]),
+      "recap row 1: z along the walk",
+    );
     const [A, B, C] = WALK;
-    // the polygon sits at the left of the picture, room for the z read-out on the right (equal scale: about 19.7 px per unit)
-    const P = plotOf(pic, [-2.1, 14.3, -0.5, 5.8], { equal: true, pad: { l: 8, r: 8, t: 8, b: 8 } });
+    // the polygon sits at the left of the picture, room for the z read-out on the right (equal scale: about 21 px per unit)
+    const P = plotOf(pic, [-1.7, 13.5, -0.35, 5.45], { equal: true, pad: { l: 8, r: 8, t: 8, b: 8 } });
     const poly = P.poly({ tone: "green", w: 4 });
     // each rule line runs a little past the polygon's corners, so they read as the lines the edges lie on
     const rules = [
-      [[-0.5, 5.25], [5, 2.5]], // x + 2y = 10 // prettier-ignore
-      [[5.17, -0.5], [3.5, 4.5]], // 3x + y = 15 // prettier-ignore
+      [
+        [-0.5, 5.25],
+        [5, 2.5],
+      ], // x + 2y = 10 // prettier-ignore
+      [
+        [31 / 6, -0.5],
+        [3.5, 4.5],
+      ], // 3x + y = 15 // prettier-ignore
     ];
     rules.forEach(([p, q], i) => {
       const r = A3.LP.rules[i];
@@ -111,7 +119,7 @@
     need(rows[2].wa < XMIN && XMIN < rows[2].wb, "recap row 2: ln 2 is inside the last bracket");
     need(same(rows.map((r) => r.cut), [[0, 0.5], [0.75, 1], [0.5, 0.625]]), "recap row 2: the thrown-away parts"); // prettier-ignore
     const P = plotOf(pic, [-0.1, 1.1, 0.5, 1.15], { pad: { l: 8, r: 8, t: 8, b: 46 } });
-    const curve = P.curve(f, { x0: -0.1, x1: 1.1 });
+    const curve = P.curve(f, { x0: -0.08, x1: 1.08 });
     const bands = rows.map(() => P.band({ tone: "red" }));
     const span = P.span({ tone: "purple", dy: 16 });
     const dots = [P.dot({ tone: "blue", r: 9 }), P.dot({ tone: "blue", r: 9 })];
@@ -161,12 +169,21 @@
     need(f(STAR) === 0 && inside(STAR, run.slots[run.it]), "recap row 3: the minimum lies inside the last triangle");
     const P = plotOf(pic, [-1.45, 7.45, -0.5, 3.1], { equal: true, pad: { l: 8, r: 8, t: 8, b: 8 } });
     const cont = P.contours(A3.contours(f, [-1.6, 7.6, -0.7, 3.3], A3.BOWL_LEVELS, { n: 160 }), { w: 2 });
-    const tri = P.simplex({ tone: "purple" });
+    const tri = P.poly({ tone: "purple", w: 4 });
+    const dots = [0, 1, 2].map(() => P.dot({ r: 8 }));
     const star = A3.star(P.over, { size: 36 });
     const tick = A3.badge(P.html, { x: 304, y: 34, size: 46, icon: "tick", tone: "green" });
     // rounds 1-4 take 0.45 s each, rounds 5-6 0.3 s each; u counts rounds
-    const T = { move: 0.6, fast: 0.6 + 4 * 0.45, end: 0.6 + 4 * 0.45 + 2 * 0.3, star: 3.0, tick: 3.2, out: [3.9, 4.25] };
-    const rounds = (q) => (q < T.fast ? (4 * Math.max(0, q - T.move)) / (T.fast - T.move) : 4 + (2 * (q - T.fast)) / (T.end - T.fast));
+    const T = {
+      move: 0.6,
+      fast: 0.6 + 4 * 0.45,
+      end: 0.6 + 4 * 0.45 + 2 * 0.3,
+      star: 3.0,
+      tick: 3.2,
+      out: [3.9, 4.25],
+    };
+    const rounds = (q) =>
+      q < T.fast ? (4 * Math.max(0, q - T.move)) / (T.fast - T.move) : 4 + (2 * (q - T.fast)) / (T.end - T.fast);
     const TONES = ["green", "blue", "red"];
     return (t) => {
       const alive = t >= START[2];
@@ -179,7 +196,11 @@
       const tones = [];
       order.forEach(([, i], rank) => (tones[i] = TONES[rank]));
       const born = ramp(q, 0.2, 0.7, E.lin);
-      tri.set({ pts: at.slots, tones, o: pk(born), fillO: 1 - 0.6 * K(q, T.star, T.star + 0.3), dotO: pk(born) * (1 - 0.5 * K(q, T.star, T.star + 0.3)) });
+      const dim = 1 - 0.75 * K(q, T.star, T.star + 0.3);
+      tri.set({ pts: at.slots, o: pk(born), fillO: dim });
+      dots.forEach((d, i) =>
+        d.set({ x: at.slots[i][0], y: at.slots[i][1], tone: tones[i], s: E.pop(born), o: pk(born) * dim }),
+      );
       const sk = ramp(q, T.star, T.star + 0.5, E.lin);
       star.set({ x: P.px(STAR[0]), y: P.py(STAR[1]), s: E.pop(sk), o: pk(sk) });
       tick.set({ k: ramp(q, T.tick, T.tick + 0.5, E.lin) });
@@ -229,7 +250,15 @@
         return { card, label, update: make(pic) };
       });
 
-      const cta = A3.tag(stage, { x: 540, y: 904, anchor: "m", solid: true, tone: "blue", fs: 34, text: "Beat the Phase 3 boss quiz" });
+      const cta = A3.tag(stage, {
+        x: 540,
+        y: 904,
+        anchor: "m",
+        solid: true,
+        tone: "blue",
+        fs: 34,
+        text: "Beat the Phase 3 boss quiz",
+      });
       cta.style.padding = "8px 34px 10px";
 
       return (t) => {
