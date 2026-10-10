@@ -33,7 +33,6 @@
 
   const T0 = 1.7; // the sweep starts level
   const TOUCH = (i) => 2.2 + 0.7 * i; // the line reaches ORDER[i]
-  const T_END = TOUCH(ORDER.length - 1); // 5.7
   const smooth = (x) => 0.5 * x + 0.5 * E.inOut(x); // slows at each touch, never stops dead
   const OFF = { G: [52, 2] }; // badge offsets: the default sits up and to the right of a point
   const BADGE = [38, -38];
@@ -67,9 +66,18 @@
       };
 
       const svg = L5.svg(stage);
-      const head = V.s("path", { class: "c-purple", style: { fill: "var(--c)", stroke: "var(--c)", strokeWidth: "3", strokeLinejoin: "round" } });
+      const head = V.s("path", {
+        class: "c-purple",
+        style: { fill: "var(--c)", stroke: "var(--c)", strokeWidth: "3", strokeLinejoin: "round" },
+      });
       svg.append(head);
-      const lowest = A5.tag(stage, { x: P[PIVOT][0] - 62, y: P[PIVOT][1] + 44, text: "lowest", tone: "green", solid: true });
+      const lowest = A5.tag(stage, {
+        x: P[PIVOT][0] - 62,
+        y: P[PIVOT][1] + 44,
+        text: "lowest",
+        tone: "green",
+        solid: true,
+      });
       const readout = A5.counter(stage, { x: 392, y: 456, w: 260, h: 76, label: "angle", tone: "purple" });
       const sortedTag = A5.tag(stage, { x: 12, y: 556, text: "sorted", tone: "grey" });
       const tiles = A5.tiles(stage, { x: 150, y: 548, items: ORDER, w: 84, h: 60, gap: 12, fs: 32, tone: "purple" });
