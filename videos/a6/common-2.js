@@ -427,6 +427,7 @@
     stat,
     disc,
     token,
+    card,
     bolt,
     xorIcon,
     qmark,

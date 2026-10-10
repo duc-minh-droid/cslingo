@@ -10,7 +10,7 @@
     build(stage) {
       const mascot = V.mascot("byte", { size: 250, mood: "happy" });
       mascot.style.left = "415px";
-      mascot.style.top = "96px";
+      mascot.style.top = "84px";
       const k = h("div", {
         class: "v-kicker",
         text: "Algorithms · Phase 6",
