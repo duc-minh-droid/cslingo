@@ -3,7 +3,8 @@
    Story (local seconds): 0.2-1.2 the network pops in, 1.2-1.6 town A joins (start tag, total 0). Four steps of 2.6 s from 1.6:
    the cables leaving the tree turn orange and their tiles pop in (u 0-0.5), the cheapest tile is chosen (0.6-1.0), its cable
    and town turn green (1.0-1.6), the total counts up (1.6-2.2), the tiles fade (2.2-2.6). Step 3 also dims the cable that sits
-   inside the tree (ignored). 12.0-12.8 the whole tree lights up, 'cheapest tree' tag and tick. */
+   inside the tree (ignored): it is drawn dashed with a grey cross and an 'ignored' tag. A candidate that is not taken turns grey
+   (never a faded orange, so its text stays readable). 12.0-12.8 the whole tree lights up, 'cheapest tree' tag and tick. */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -54,8 +55,9 @@
       let e = grey(GREY);
       if (k > 0 && P.steps[k - 1].tree.includes(key)) e = { tone: "green", solid: true, w: 1.2 };
       else if (st.inside.includes(key)) {
+        // both ends are in the tree: dashed and crossed out (the cross is drawn in the overlay)
         const was = k > 0 && P.steps[k - 1].inside.includes(key);
-        e = grey(was ? 0.3 : lerp(GREY, 0.3, ramp(u, 0, 0.4, lin)));
+        e = { tone: "grey", dash: true, o: was ? 0.8 : lerp(GREY, 0.8, ramp(u, 0, 0.4, lin)), pillO: 1 };
       } else if (ci >= 0 && u >= 0.08 * ci) {
         if (key === st.pick.key && u >= 1.0) e = { tone: "green", solid: true, w: 1.2, halo: flash(u, 1.0, 1.7) };
         else if (u >= 1.0) e = grey(lerp(0.85, GREY, ramp(u, 1.0, 1.5, lin)));
@@ -94,12 +96,13 @@
   V.scene({
     kicker: "PRIM'S ALGORITHM",
     title: ["Prim grows one tree,", "cheapest cable first"],
-    dur: 13,
+    dur: 13.5,
     caps: [
-      [0.4, 2.6, "Start at any town. Look at every cable leaving the tree."],
+      [0.4, 2.7, "Start anywhere. List the cables leaving the tree."],
       [2.8, 6.0, "Take the cheapest one. A new town joins."],
-      [6.2, 9.6, "Repeat. A cable inside the tree is ignored."],
-      [9.8, 12.5, "Every town is in. The cheapest tree costs 11."],
+      [6.2, 9.4, "Repeat. A cable inside the tree is ignored."],
+      [9.6, 11.2, "DE 1 is the cheapest. E joins."],
+      [11.3, 13.3, "Every town is in. The cheapest tree costs 11."],
     ],
     build(stage) {
       const g = A4.net(stage, { x: 24, y: 20, s: 1 });
@@ -115,11 +118,23 @@
         tone: "orange",
       });
       const tot = A4.total(stage, { x: 650, y: 330, w: 270, h: 80, label: "tree cost", tone: "green" });
-      const start = A4.tag(stage, { x: 6, y: 306, text: "start", tone: "green" });
-      const ignored = A4.tag(stage, { x: 2, y: 72, text: "ignored", tone: "grey" });
+      const start = A4.tag(stage, { x: 14, y: 306, text: "start", tone: "green" });
+      // 'ignored' sits beside the crossed-out cable: AB in step 2, CD in step 3
+      const IGN = { AB: 0.76, CD: 0.78 };
+      const ignAt = { AB: { x: 14, y: 64 }, CD: { x: 266, y: 150 } };
+      const ignored = Object.fromEntries(
+        Object.keys(IGN).map((key) => [key, A4.tag(stage, { ...ignAt[key], text: "ignored", tone: "grey" })]),
+      );
       const best = A4.tag(stage, { x: 650, y: 440, text: "cheapest tree", tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = svg.appendChild(L5.tick(780, 540, 64, "green"));
+      // a grey cross on every cable that is inside the tree but not in it
+      const crosses = Object.fromEntries(
+        Object.keys(IGN).map((key) => {
+          const m = g.mid(key, IGN[key]);
+          return [key, svg.appendChild(L5.cross(m.x, m.y, 34, "grey", { ink: true, w: 6 }))];
+        }),
+      );
 
       return (t) => {
         const { k, u } = stepOf(t);
@@ -144,7 +159,7 @@
             e.s *= 1 + 0.06 * flash(u, 0.6, 1.0) + 0.06 * flash(u, 1.0, 1.4);
             if (u >= 1.0) Object.assign(e, { tone: "green", solid: true });
             else if (u >= 0.6) Object.assign(e, { tone: "orange", solid: true });
-          } else e.o *= lerp(1, 0.5, ramp(u, 0.6, 1.0, lin));
+          } else if (u >= 1.0) e.tone = "grey"; // not taken: grey, not a faded orange
           cand.set(i, e);
         }
 
@@ -161,8 +176,16 @@
 
         // tags and the tick
         start.set({ k: ramp(t, 1.3, 1.7, lin) });
-        const ig = k === 2 ? ramp(u, 0.2, 0.6, lin) * (1 - ramp(u, 1.5, 1.8, lin)) : 0;
-        ignored.set({ k: ig, o: ig });
+        // the crosses stay for as long as their cable is inside the tree; the tag shows for the first 1.6 s of that step
+        const showTag = (step) => (k === step ? ramp(u, 0.2, 0.6, lin) * (1 - ramp(u, 1.5, 1.8, lin)) : 0);
+        const inside = (key) => (k >= 0 ? P.steps[k].inside.includes(key) : false);
+        const crossK = (key) => (inside(key) ? ramp(k === (key === "AB" ? 2 : 3) ? u : 9, 0.1, 0.5, lin) : 0);
+        ignored.AB.set({ k: showTag(2) });
+        ignored.CD.set({ k: showTag(3) });
+        Object.keys(crosses).forEach((key) => {
+          L5.drawOn(crosses[key], crossK(key));
+          V.show(crosses[key], crossK(key) > 0 ? 1 : 0);
+        });
         best.set({ k: ramp(t, END, END + 0.5, lin) });
         L5.drawOn(tick, ramp(t, END + 0.2, END + 0.7, lin));
       };

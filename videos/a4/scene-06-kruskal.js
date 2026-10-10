@@ -1,12 +1,14 @@
 /* Phase 4 · scene 06-kruskal: Kruskal sorts every cable by cost and walks down the list, taking a cable unless its two ends are
    already in one group (that would close a loop). Run for real on the example network (A4.KRUSKAL), so every cable, group and
    total below comes from the algorithm log.
-   Story (local seconds): 0.2-1.4 towns and grey cables appear, the sorted tiles slide in (0.3-1.2), the blue pointer pops at 1.5.
-   Event i (one cable read) starts at T = [1.8, 3.6, 5.4, 7.2, 9.9]. ACCEPT (DE, BC, AC, BD): pointer + blue tile + blue cable and
+   Story (local seconds): 0.2-1.4 towns and grey cables appear, the sorted tiles slide in (0.3-1.2), 1.4-1.9 every town gets its
+   own faint dashed outline (its group of one), the blue pointer pops at 2.5.
+   Event i (one cable read) starts at T = [3.0, 4.8, 6.6, 8.4, 11.1] (D = 1.2 s later than in the storyboard, for the groups).
+   Times below are relative to T. ACCEPT (DE, BC, AC, BD): pointer + blue tile + blue cable and
    rings (0-0.3), the green verdict card "two groups: join them" (0.3-0.7), cable / tile / towns turn green and the group outlines
    merge (0.7-1.1), the total counts up (1.1-1.5), card fades (1.5-1.7). REJECT (AB, 7.2-9.7): a blue token runs A - C - B along the
    tree that already joins them (0.4-1.4), red card "same group: skip it" (1.4-1.9), AB turns red, dashed and crossed (1.9-2.5).
-   After BD: the two unread tiles become ghosts with a "never read" tag (11.7-12.4), the total turns solid green and a tick draws on. */
+   After BD: the two unread tiles become ghosts with a "never read" tag, the total turns solid green and a tick draws on. */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -43,35 +45,42 @@
   A4.same("kruskal tree", K.tree, ["DE", "BC", "AC", "BD"]);
 
   // ---------- timeline ----------
-  const T = [1.8, 3.6, 5.4, 7.2, 9.9];
+  const D = 1.2; // the intro is longer than in the storyboard: every town is shown as a group of its own first
+  const T = [1.8, 3.6, 5.4, 7.2, 9.9].map((x) => x + D);
   const REJECT = EV.findIndex((e) => !e.accept);
-  const END = 11.6; // BD has joined the last two groups
-  const GHOST = 11.9; // the two unread tiles become ghosts
+  const END = 11.6 + D; // BD has joined the last two groups
+  const GHOST = 11.9 + D; // the two unread tiles become ghosts
+  const SOLO = 54; // a town's own outline sits just outside the blue ring that marks a cable's ends
+  const UNREAD = 11.7 + D; // the two cables that were never read dim
+  const WIN = 12.4 + D; // the total turns solid green, the tick draws on
   const ev = (i, u) => [EV[i], u];
   // seconds after T at which each phase of an event ends
   const BLUE = 0.7; // blue (being tested) until here, then green
   const RED_AT = 1.9; // the rejected cable turns red
 
-  // ---------- the groups drawn as outlines (only groups of two or more towns) ----------
+  // ---------- the groups drawn as outlines: a faint dashed one round every town on its own, a green one round a joined group ----------
   const gkey = (g) => g.join("");
   function blobsAt(t) {
     let i = -1;
     T.forEach((s, n) => {
       if (t >= s) i = n;
     });
-    if (i < 0) return [];
-    const k = ramp(t - T[i], 0.7, 1.0);
     const map = new Map();
-    const add = (groups, w) =>
-      groups
-        .filter((g) => g.length > 1)
-        .forEach((g) => map.set(gkey(g), { set: g, k: (map.get(gkey(g))?.k || 0) + w }));
-    add(EV[i].before, 1 - k);
-    add(EV[i].after, k);
+    const add = (groups, w) => groups.forEach((g) => map.set(gkey(g), { set: g, k: (map.get(gkey(g))?.k || 0) + w }));
+    if (i < 0) add(EV[0].before, ramp(t, 1.4, 1.9));
+    else {
+      const k = ramp(t - T[i], 0.7, 1.0);
+      add(EV[i].before, 1 - k);
+      add(EV[i].after, k);
+    }
     return [...map.values()]
       .filter((b) => b.k > 0.003)
       .sort((p, q) => (gkey(p.set) < gkey(q.set) ? -1 : 1))
-      .map((b) => ({ set: b.set, tone: "green", dash: false, k: clamp(b.k) }));
+      .map((b) =>
+        b.set.length > 1
+          ? { set: b.set, tone: "green", dash: false, k: clamp(b.k) }
+          : { set: b.set, tone: "grey", fill: false, pad: SOLO, k: clamp(b.k) },
+      );
   }
 
   // the time each town turns solid green (the first accepted cable that reaches it)
@@ -111,11 +120,11 @@
     });
     // the finished tree flashes once
     K.tree.forEach((key) => {
-      const fl = flash(t, 12.4, 12.9);
+      const fl = flash(t, WIN, WIN + 0.5);
       if (fl > 0) Object.assign(out[key], { halo: 0.8 * fl });
     });
     // the two cables that were never read dim
-    K.unread.forEach((key) => (out[key].o = 1 - 0.7 * ramp(t, 11.7, 12.4)));
+    K.unread.forEach((key) => (out[key].o = 1 - 0.7 * ramp(t, UNREAD, WIN)));
     return out;
   }
 
@@ -128,7 +137,7 @@
       if (t >= GREEN_AT[town]) {
         Object.assign(st, { tone: "green", solid: true });
         st.s *= 1 + 0.18 * flash(t, GREEN_AT[town], GREEN_AT[town] + 0.4);
-        if (t > 12.4) st.s *= 1 + 0.08 * flash(t, 12.4, 12.9);
+        if (t > WIN) st.s *= 1 + 0.08 * flash(t, WIN, WIN + 0.5);
       }
       out[town] = st;
     });
@@ -150,36 +159,36 @@
       if (t >= T[i] + 1.1) val = lerp(from, e.total, ramp(t, T[i] + 1.1, T[i] + 1.5));
       if (e.accept) bump = Math.max(bump, flash(t, T[i] + 1.1, T[i] + 1.5));
     });
-    return { text: String(Math.round(val)), bump: 0.6 * Math.max(bump, flash(t, 12.4, 12.9)) };
+    return { text: String(Math.round(val)), bump: 0.6 * Math.max(bump, flash(t, WIN, WIN + 0.5)) };
   }
 
   // ---------- the scene ----------
   V.scene({
     kicker: "KRUSKAL'S ALGORITHM",
     title: ["Cheapest cable first,", "never close a loop"],
-    dur: 14,
+    dur: 15.2,
     caps: [
-      [0.4, 1.7, "Sort every cable by cost."],
-      [1.9, 4.8, "Take the cheapest cable. It joins two groups."],
-      [5.0, 7.1, "Groups merge into one tree."],
-      [7.3, 9.7, "AB is next, but A and B are already joined. Skip it."],
-      [9.9, 11.6, "BD joins the last two groups."],
-      [11.8, 13.7, "Four cables are enough, so the last two are never read."],
+      [0.4, 2.9, "Sort every cable by cost. Each town is its own group."],
+      [3.1, 6.4, "Take the cheapest cable that joins two groups."],
+      [6.6, 8.3, "Groups merge as cables join them."],
+      [8.5, 10.9, "A and B are already joined. Skip AB."],
+      [11.1, 12.8, "BD joins the last two groups."],
+      [13.0, 15.0, "Four cables are enough. The rest are never read."],
     ],
     build(stage) {
       // the network, smaller and lower to leave room for the list on top (AB's pill sits off-centre to leave room for the cross)
-      const g = A4.net(stage, { x: 28, y: 150, s: 0.88, blobs: 4, pillAt: { AB: 0.36 } });
+      const g = A4.net(stage, { x: 28, y: 158, s: 0.88, blobs: 6, pillAt: { AB: 0.36 } });
       const tiles = A4.tiles(stage, {
         x: 19,
-        y: 6,
+        y: 14,
         items: K.sorted.map((e) => `${e.key} ${e.w}`),
         w: 118,
         h: 56,
         gap: 12,
         fs: 30,
       });
-      const total = A4.total(stage, { x: 600, y: 360, w: 324, h: 80, label: "total", tone: "green" });
-      const never = A4.tag(stage, { x: 700, y: 76, text: "never read" });
+      const total = A4.total(stage, { x: 600, y: 368, w: 324, h: 80, label: "total", tone: "green" });
+      const never = A4.tag(stage, { x: 700, y: 84, text: "never read" });
 
       // the verdict card: a tick or a cross and two lines
       const tickG = L5.tick(40, 40, 64, "green");
@@ -197,7 +206,7 @@
       );
       const card = V.h("div", {
         class: "v-card plain c-green",
-        style: { left: "600px", top: "160px", width: "324px", height: "170px" },
+        style: { left: "600px", top: "168px", width: "324px", height: "170px" },
       });
       card.append(sym(tickG), sym(crossG), ...lines);
       stage.append(card);
@@ -213,7 +222,7 @@
       const ov = L5.svg(stage);
       const pointer = ov.appendChild(
         V.s("path", {
-          d: "M 78 74 L 92 98 L 64 98 Z",
+          d: "M 78 82 L 92 106 L 64 106 Z",
           "stroke-width": "3",
           "stroke-linejoin": "round",
           style: { fill: "var(--blue)", stroke: "var(--blue-lip)" },
@@ -221,7 +230,7 @@
       );
       const abMid = g.mid("AB", 0.62);
       const abCross = ov.appendChild(L5.cross(abMid.x, abMid.y, 58, "red"));
-      const doneTick = ov.appendChild(L5.tick(762, 480, 60, "green"));
+      const doneTick = ov.appendChild(L5.tick(762, 488, 60, "green"));
 
       return (t) => {
         // network
@@ -237,21 +246,21 @@
             const open = u < BLUE || (!e.accept && u < RED_AT);
             if (open) Object.assign(st, { tone: "blue", solid: true, s: 1 + 0.1 * flash(u, 0, 0.3) });
             else st.tone = e.accept ? "green" : "red";
-          } else if (K.unread.includes(K.sorted[i].key) && t >= 11.7) {
-            if (t < GHOST) st.o *= 1 - 0.6 * ramp(t, 11.7, GHOST);
-            else Object.assign(st, { ghost: true, o: 0.4 + 0.6 * ramp(t, GHOST, 12.4) });
+          } else if (K.unread.includes(K.sorted[i].key) && t >= UNREAD) {
+            if (t < GHOST) st.o *= 1 - 0.25 * ramp(t, UNREAD, GHOST);
+            else Object.assign(st, { ghost: true, o: 0.75 + 0.25 * ramp(t, GHOST, WIN) });
           }
           return st;
         });
         let at = 0;
         for (let i = 1; i < T.length; i++) if (t >= T[i]) at = lerp(i - 1, i, ramp(t, T[i], T[i] + 0.3, E.inOut));
-        const pk = ramp(t, 1.5, 1.8, E.lin);
+        const pk = ramp(t, 2.5, 2.8, E.lin);
         V.place(pointer, {
           x: 130 * at,
           s: 0.4 + 0.6 * E.pop(pk),
           o: Math.min(1, pk * 4) * (1 - ramp(t, END + 0.1, END + 0.5)),
         });
-        never.set({ k: ramp(t, 12.0, 12.4, E.lin) });
+        never.set({ k: ramp(t, UNREAD + 0.3, UNREAD + 0.7, E.lin) });
 
         // the verdict card
         let card_ = { k: 0, o: 1, ok: true, u: 0 };
@@ -274,7 +283,7 @@
 
         // total
         const tt = totalAt(t);
-        total.set({ text: tt.text, bump: tt.bump, k: ramp(t, 1.4, 1.8, E.lin), solid: t >= 12.4 });
+        total.set({ text: tt.text, bump: tt.bump, k: ramp(t, 2.4, 2.8, E.lin), solid: t >= WIN });
 
         // the walker on the existing path A - C - B, and the cross on AB
         const ur = t - T[REJECT];
@@ -287,7 +296,7 @@
           o: ur < 0.3 || ur > 2.2 ? 0 : 1 - ramp(ur, RED_AT, 2.2),
         });
         L5.drawOn(abCross, ramp(ur, RED_AT, 2.3));
-        L5.drawOn(doneTick, ramp(t, 12.5, 13.2));
+        L5.drawOn(doneTick, ramp(t, WIN + 0.1, WIN + 0.8));
       };
     },
   });

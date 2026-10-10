@@ -3,11 +3,13 @@
    of step counts: Prim (array version, about V x V steps, it counts TOWNS) and Kruskal (sort the cables, about E log V steps, it
    counts CABLES). The bars grow while a counter runs up to the number; while a bar grows the thing it counts lights up in the
    picture (towns hop for Prim, cables thicken for Kruskal). The shorter bar turns green with a tick and a verdict tag
-   ("about 50 times less" / "about 5 times less"), the longer one turns grey. Last, "same tree either way".
-   Numbers: A4.COST (asserted below), never typed into the picture. Bars are drawn against the larger count of their column.
+   ("about 50 times less" / "about 5 times less"), the longer one turns grey. Last, "same tree cost either way".
+   Numbers: A4.COST (asserted below), never typed into the picture. ALL FOUR BARS SHARE ONE SCALE (the longest, Kruskal on the
+   dense network, is the full 340 px): Prim stays about the same length in both columns, Kruskal jumps from a stub to the longest.
+   Labels say towns and cables in words ("towns²", "cables × log towns") and the numbers say "steps".
    Story (local seconds): 0.2 titles, 0.3-1.3 pictures draw in, 1.2 size lines, 1.8 left labels, 2.3 left Prim bar (towns light
    up), 3.2 left Kruskal bar (cables light up), 4.3 left verdict, 5.6 right labels, 5.8 right Prim bar, 6.4 right Kruskal bar,
-   7.7 right verdict, 9.0 "same tree either way". */
+   7.7 right verdict, 9.0 "same tree cost either way". */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -48,6 +50,9 @@
   A4.same("scene 8 picture cables", [SPARSE_EDGES.length, DENSE_EDGES.length], [10, 28]);
   A4.same("scene 8 every pair", DENSE_EDGES.length, (8 * 7) / 2);
   const BAR_W = 340;
+  // one scale for every bar: the longest count is the full bar
+  const TOP = Math.max(sparse.prim, sparse.kruskal, dense.prim, dense.kruskal);
+  A4.same("scene 8 the longest bar is Kruskal on the dense network", TOP, dense.kruskal);
 
   // two columns: the picture, its cost numbers, its timeline (everything in local seconds)
   const COLS = [
@@ -85,9 +90,9 @@
     title: ["Which is faster?", "It depends on the network"],
     dur: 11,
     caps: [
-      [0.4, 3.6, "Prim's work counts towns. Kruskal's work counts cables."],
+      [0.4, 3.6, "Prim's array version counts towns. Kruskal's counts cables."],
       [4.0, 6.4, "Few cables: Kruskal does far less."],
-      [7.4, 10.5, "Nearly every pair linked: Prim wins. Same tree either way."],
+      [7.4, 10.5, "Every pair linked: Prim wins. Same tree cost either way."],
     ],
     build(stage) {
       const svg = L5.svg(stage);
@@ -96,7 +101,7 @@
         const nodes = Object.fromEntries(
           LETTERS.map((t, i) => {
             const a = ((-90 + 45 * i) * Math.PI) / 180;
-            return [t, [cx + 66 * Math.cos(a), 150 + 66 * Math.sin(a)]];
+            return [t, [cx + 60 * Math.cos(a), 138 + 60 * Math.sin(a)]];
           }),
         );
         const g = A4.graph(stage, {
@@ -109,22 +114,28 @@
           edgeBase: { tone: "blue" },
           townBase: { tone: "blue" },
         });
-        const title = A4.tag(stage, { x: c.x0, y: 0, text: c.name });
+        const title = A4.tag(stage, { x: c.x0, y: 12, text: c.name });
         const text = (txt, y, cls = "v-text dim") =>
           stage.appendChild(
             V.h("div", { class: cls, text: txt, style: { left: `${c.x0}px`, top: `${y}px`, fontSize: "28px" } }),
           );
-        const size = text(`${A4.commas(c.cost.V)} towns · ${A4.commas(c.cost.E)} cables`, 240);
-        const labels = [text("Prim · V²", 290), text("Kruskal · E log V", 384)];
-        const top = Math.max(c.cost.prim, c.cost.kruskal);
-        const mk = (y, v) => ({ bar: A4.bar(stage, { x: c.x0, y, w: BAR_W, h: 44 }), max: v / top, value: v });
-        const bars = { prim: mk(324, c.cost.prim), kruskal: mk(418, c.cost.kruskal) };
-        const said = A4.tag(stage, { x: c.x0 + 52, y: 490, text: c.said, tone: "green", solid: true });
-        const tick = L5.tick(c.x0 + 22, 516, 36, "green", { ink: true, w: 6 });
+        const size = text(`${A4.commas(c.cost.V)} towns · ${A4.commas(c.cost.E)} cables`, 222);
+        const labels = [text("Prim (array) · towns²", 268), text("Kruskal · cables × log towns", 362)];
+        const mk = (y, v) => ({ bar: A4.bar(stage, { x: c.x0, y, w: BAR_W, h: 44 }), max: v / TOP, value: v });
+        const bars = { prim: mk(306, c.cost.prim), kruskal: mk(400, c.cost.kruskal) };
+        const said = A4.tag(stage, { x: c.x0 + 52, y: 458, text: c.said, tone: "green", solid: true });
+        const tick = L5.tick(c.x0 + 22, 482, 36, "green", { ink: true, w: 6 });
         svg.append(tick);
         return { c, ci, g, title, size, labels, bars, said, tick };
       });
-      const final = A4.tag(stage, { x: 284, y: 562, text: "same tree either way", tone: "green", solid: true, fs: 32 });
+      const final = A4.tag(stage, {
+        x: 250,
+        y: 538,
+        text: "same tree cost either way",
+        tone: "green",
+        solid: true,
+        fs: 32,
+      });
       const fade = (e, k) => V.place(e, { y: (1 - k) * 8, o: k });
 
       function drawCol(t, col) {
@@ -159,7 +170,8 @@
           const [a, b] = c[who];
           const p = ramp(t, a, b, E.inOut);
           const tone = !verdict ? "blue" : who === c.win ? "green" : "grey";
-          bar.set({ k: p * max, tone, text: A4.big(value * p), textOut: true });
+          // a short bar carries its number just beside it, a long one inside
+          bar.set({ k: p * max, tone, text: `${A4.big(value * p)} steps`, textOut: BAR_W * max < 230 });
         });
         const vk = ramp(t, c.verdict[0] + 0.2, c.verdict[0] + 0.8, E.lin);
         said.set({ k: vk });

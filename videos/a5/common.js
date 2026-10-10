@@ -322,11 +322,15 @@
       });
     }
     const corners = [[0.12, 0.2], [0.9, 0.08], [0.96, 0.86], [0.04, 0.92]]; // prettier-ignore
+    const area = (a, b, c) => Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
+    const tris = [[0, 1, 2], [0, 2, 3]].map((t) => t.map((i) => corners[i])); // prettier-ignore
+    const share = area(...tris[0]) / (area(...tris[0]) + area(...tris[1]));
     const pts = corners.slice();
     while (pts.length < 60) {
-      const w = corners.map(() => 0.05 + r());
-      const s = w.reduce((a, b) => a + b, 0);
-      pts.push([0, 1].map((k) => corners.reduce((acc, c, i) => acc + (c[k] * w[i]) / s, 0)));
+      const [a, b, c] = tris[r() < share ? 0 : 1];
+      const [u, v] = [Math.sqrt(r()), r()];
+      const [wa, wb, wc] = [1 - u, u * (1 - v), u * v]; // uniform inside the triangle
+      pts.push([0, 1].map((k) => a[k] * wa + b[k] * wb + c[k] * wc));
     }
     return pts;
   }

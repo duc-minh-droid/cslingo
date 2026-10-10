@@ -16,14 +16,14 @@
   const toneOf = (x, tri, live) => (live && live.x === x ? "orange" : x === tri.b ? "green" : "blue");
 
   V.scene({
-    kicker: "BRACKETING",
+    kicker: "GOLDEN SECTION",
     title: ["No slope needed:", "one new probe a step"],
     dur: 13,
     caps: [
-      [0.4, 3.2, "No slope? Three points can still trap a minimum."],
-      [3.4, 7.2, "Add one probe a step. The lowest stays in the middle."],
-      [7.4, 11.0, "Old probes are reused, so each cut costs one test."],
-      [11.2, 12.8, "Every step keeps 0.618 of the bracket."],
+      [0.4, 3.2, "Golden section: no slope, three heights trap it."],
+      [3.4, 5.2, "One probe a step: the lowest stays in the middle."],
+      [5.3, 7.1, "Old probes are reused, so each cut costs one test."],
+      [7.3, 12.8, "Each step keeps 0.618 of the bracket."],
     ],
     build(stage) {
       const G = A3.golden(4);
@@ -88,7 +88,15 @@
       const reused = A3.tag(P.html, { anchor: "m", text: "reused", tone: "grey" });
       const evalStat = A3.stat(stage, { x: 484, y: 24, w: 200, label: "evaluations" });
       const widthStat = A3.stat(stage, { x: 704, y: 24, w: 220, label: "width", tone: "purple" });
-      const times = A3.tag(stage, { x: 814, y: 178, anchor: "m", text: "× 0.618", tone: "orange", solid: true });
+      const times = A3.tag(stage, {
+        x: 784,
+        y: 178,
+        anchor: "m",
+        text: "each step × 0.618",
+        tone: "orange",
+        solid: true,
+      });
+      const method = A3.tag(P.html, { x: 130, y: 24, anchor: "l", text: "golden section", tone: "purple" });
 
       /** which step is running at t, and the triple the dots show (before the colours settle at T + 1.35, or after) */
       const stateAt = (t) => {
@@ -112,6 +120,8 @@
         const s = st.k >= 0 ? S[st.k] : null;
         const T = s ? Tk(st.k) : 0;
         P.set({ o: ramp(t, 0, 0.4, E.lin) });
+        const km = K(t, 0.5, 0.4);
+        method.set({ s: 0.8 + 0.2 * E.pop(km), o: pk(km) });
         curve.set({ k: ramp(t, 0.4, 1.4, E.lin), fillO: ramp(t, 1.2, 1.6, E.lin) });
 
         // the red band over the part that is thrown away, and the dashed "lower or higher than b?" line
@@ -225,7 +235,7 @@
         const kW = K(t, 2.4, 0.4);
         const w0 = st.k > 0 ? S[st.k - 1].width : 1;
         widthStat.set({
-          text: A3.fmt(s ? lerp(w0, s.width, ramp(t, T + 1.3, T + 1.7, E.inOut)) : 1, 3),
+          text: A3.fmt(s && t >= T + 1.3 ? s.width : w0, 3), // the real widths only: it snaps when the bar has glided
           s: 0.8 + 0.2 * E.pop(kW),
           o: pk(kW),
           bump: 0.6 * Math.max(0, ...S.map((q, j) => flash(t, Tk(j) + 1.3, Tk(j) + 1.7))),

@@ -127,7 +127,7 @@
       class: `v-card c-${tn(base)}`,
       style: { ...abs(x, y, w, h), ...flex, justifyContent: "space-between", padding: "0 24px", borderRadius: "22px" },
     });
-    const lab = V.h("span", { text: label, style: { fontSize: "28px", fontWeight: "800" } });
+    const lab = V.h("span", { text: label, style: { fontSize: "28px", fontWeight: "800", whiteSpace: "nowrap" } });
     const val = V.h("span", { text: "0", style: { fontSize: "50px", fontWeight: "900", lineHeight: "1" } });
     el.append(lab, val);
     parent.append(el);

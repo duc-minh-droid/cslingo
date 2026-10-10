@@ -33,7 +33,6 @@
   A4.same("cost after the swap", A4.sumOf(EX.T) + A4.wOf(EX.e) - A4.wOf(EX.f), EX.total2);
   const KEYS = A4.EDGE_KEYS;
   const REST = A4.TOWNS.filter((x) => !CUT.X.includes(x));
-  const RUN = EX.T.reduce((r, k) => r.concat(r[r.length - 1] + A4.wOf(k)), [0]); // 0, 4, 6, 11, 12
   const LOOP = EX.cycle;
 
   // ---------- timings (local seconds) ----------
@@ -73,7 +72,12 @@
       tone: "orange",
     });
     const tot = A4.total(stage, { x: 650, y: 40, w: 270, h: 80, label: "tree cost", tone: "blue" });
-    const saved = A4.tag(stage, { x: 650, y: 140, text: `was ${EX.total}, saves ${EX.total - EX.total2}`, tone: "green" });
+    const saved = A4.tag(stage, {
+      x: 650,
+      y: 140,
+      text: `was ${EX.total}, saves ${EX.total - EX.total2}`,
+      tone: "green",
+    });
     const ov = L5.svg(stage);
     const loopX = L5.cross(172, 250, 64, "red", { w: 9 });
     A4.same("the swap saves", EX.total - EX.total2, 1);
@@ -128,14 +132,10 @@
         if (t >= TREE[key]) grow(key, TREE[key], "blue", FROM[key]);
       });
       if (t >= AC_ADD) grow("AC", AC_ADD, "green", "A", AC_DONE - AC_ADD);
-      // ----- the loop alarm -----
-      const alarm = ramp(t, ALARM, ALARM + 0.3, lin);
-      if (t >= ALARM) {
-        LOOP.forEach((key) => {
-          G[key] = { tone: "red", solid: true, w: W, halo: alarm };
-          hide(key);
-        });
-      }
+      // ----- the loop alarm: a red outline round the three cables of the loop (BC keeps its own colour) -----
+      const alarm = ramp(t, ALARM, ALARM + 0.3, lin) * (1 - ramp(t, SWAP, SWAP + 0.4, lin));
+      // AB and AC are the two cables across the cut: their pills turn orange, as in the first half of the scene
+      if (t >= CROSSING && t < SWAP) ["AB", "AC"].forEach((key) => Object.assign(G[key], { pillTone: "orange" }));
       // ----- the swap: AB goes, the rest of the tree T2 turns green -----
       if (t >= SWAP) {
         G.AB = {
@@ -174,7 +174,13 @@
         towns[town] = st;
       });
 
-      const blobK = ramp(t, 1.3, 2.0) * (1 - leave);
+      // the cut stays on as a faint outline round X for the whole proof, so the viewer can see which cables cross it
+      const cutOut = 1 - ramp(t, CUT_OUT, CUT_OUT + 0.5, lin);
+      const blobK = ramp(t, 1.3, 2.0) * (1 - 0.86 * leave) * cutOut;
+      alarmG.update({
+        edges: Object.fromEntries(LOOP.map((key) => [key, { tone: "red", w: 2.2, o: alarm }])),
+        base: { town: { o: 0 } },
+      });
       base.update({
         edges: U,
         blobs: [
@@ -185,10 +191,10 @@
       top.update({ edges: G, towns });
 
       // ----- the right-hand column -----
-      const xk = Math.min(ramp(t, 1.4, 1.9, lin), 1 - ramp(t, 5.0, 5.4, lin));
-      xTag.set({ k: xk });
+      xTag.set({ k: Math.min(ramp(t, 1.4, 1.9, lin), cutOut) });
       const gone = 1 - ramp(t, 5.0, 5.4, lin);
       crossTag.set({ k: Math.min(ramp(t, 2.2, 2.6, lin), gone) });
+      safeTag.set({ k: Math.min(ramp(t, 4.0, 4.4, lin), gone) });
       tiles.all((i) => {
         const k = ramp(t, 2.2 + 0.15 * i, 2.6 + 0.15 * i, lin);
         const win = i === 0 ? lit : 0;
@@ -201,20 +207,24 @@
         };
       });
 
-      // the running tree cost: 4, 6, 11, 12 as T is built, 15 with the extra cable, 11 after the swap
-      const done = EX.T.filter((k) => t >= DONE[k]).length;
-      const bump = Math.max(...EX.T.map((k) => flash(t, DONE[k], DONE[k] + 0.25)), flash(t, AC_DONE, AC_DONE + 0.3));
-      let text = String(RUN[done]);
-      let state = { tone: "blue", bump, k: ramp(t, DONE.AB, DONE.AB + 0.25, lin) };
-      if (t >= AC_DONE) text = String(RUN[4] + A4.wOf(EX.e));
-      if (t >= ALARM) state = { tone: "red", bump: Math.max(flash(t, ALARM, ALARM + 0.4), 0) };
-      if (t >= SWAP + 0.2) {
-        const n = ramp(t, SWAP + 0.2, SWAP + 0.8, lin);
-        text = String(Math.round(lerp(RUN[4] + A4.wOf(EX.e), EX.total2, n)));
-        state = { tone: "green", solid: true, bump: flash(t, SWAP + 0.8, SWAP + 1.2) };
+      // the tree cost shows up once T is complete (12), reads 15 with the extra cable (red), then runs down to 11 (green)
+      const built = DONE[EX.T[EX.T.length - 1]];
+      const full = A4.sumOf(EX.T) + A4.wOf(EX.e);
+      let text = String(A4.sumOf(EX.T));
+      let state = {
+        tone: "blue",
+        bump: Math.max(flash(t, built, built + 0.4), flash(t, AC_DONE, AC_DONE + 0.3)),
+        k: ramp(t, built, built + 0.25, lin),
+      };
+      if (t >= AC_DONE) text = String(full);
+      if (t >= ALARM) state = { tone: "red", bump: flash(t, ALARM, ALARM + 0.4) };
+      if (t >= COUNT[0]) {
+        const n = ramp(t, COUNT[0], COUNT[1], lin);
+        text = String(Math.round(lerp(full, EX.total2, n)));
+        state = n < 1 ? { tone: "red" } : { tone: "green", solid: true, bump: flash(t, COUNT[1], COUNT[1] + 0.4) };
       }
       tot.set({ ...state, text });
-      cheaper.set({ k: ramp(t, 10.6, 11.0, lin) });
+      saved.set({ k: ramp(t, SAVED, SAVED + 0.4, lin) });
 
       // ----- pictograms -----
       L5.drawOn(loopX, ramp(t, ALARM, ALARM + 0.4, lin));
@@ -222,7 +232,7 @@
       const sk = ramp(t, SWAP, SWAP + 0.2, lin);
       L5.drawOn(swapX, sk);
       V.place(swapX, { o: Math.min(1, sk * 3) * (1 - ramp(t, SWAP + 0.35, SWAP + 0.6, lin)) });
-      const tk = ramp(t, 10.9, 11.3, lin);
+      const tk = ramp(t, SAVED + 0.3, SAVED + 0.7, lin);
       L5.drawOn(tick, tk);
       V.place(tick, { s: 0.8 + 0.2 * E.pop(clamp(tk * 1.5)), o: tk <= 0 ? 0 : 1 });
     };
@@ -230,14 +240,15 @@
 
   V.scene({
     kicker: "THE CUT PROPERTY",
-    title: ["The cheapest bridge", "across a cut is safe"],
-    dur: 14,
+    title: ["The cheapest cable", "across a cut is safe"],
+    dur: 15.8,
     caps: [
-      [0.4, 3.0, "Split the towns into two groups: a cut."],
+      [0.4, 3.0, "Split the towns into X and the rest: a cut."],
       [3.2, 5.4, "A tree must cross it. AC is the cheapest."],
-      [5.6, 8.0, "Suppose a tree uses the dearer cable AB."],
-      [8.2, 10.6, "Add AC: a loop. Drop AB and the tree is cheaper."],
-      [10.8, 13.5, "The cheapest cable across a cut is always safe."],
+      [5.6, 7.8, "Suppose a tree uses the dearer cable AB."],
+      [8.0, 10.2, "Add AC: a loop. AB also crosses the cut."],
+      [10.4, 12.5, "Drop the dearer AB: the tree is cheaper."],
+      [12.7, 15.5, "The cheapest cable across a cut is safe: a cheapest tree uses it."],
     ],
     build,
   });

@@ -1,44 +1,50 @@
 /* Algorithms Phase 3 · scene 07-brent: Brent's method on the same curve and start triple as scene 6.
    Three points and their heights define ONE parabola; jump to its lowest point, evaluate there, keep the best three. When a jump
-   looks unsafe (the step is not shrinking fast enough) take a golden step instead. The picture zooms in as the bracket collapses.
-   Every number comes from A3.brent(4) and A3.golden(4) (common.js, asserted there against the lesson); update(t) is a pure function of t. */
+   looks unsafe (the step is not shrinking fast enough: the jump is more than half the last step, lesson a3-brent) take a golden
+   step instead. The picture zooms in as the bracket collapses (a "zoomed in" tag says so).
+   The unsafe step is drawn with the two lengths the rule compares: the last step (grey arrow from a to b) and the new jump (red
+   arrow from b to the parabola's bottom). Every number comes from A3.brent(4) and A3.golden(4) (common.js, asserted there against
+   the lesson); update(t) is a pure function of t. */
 (function () {
   const V = window.VID;
   const A3 = V.a3;
-  const { ease: E, ramp, flash, lerp } = V;
+  const { ease: E, ramp, flash, lerp, clamp } = V;
 
   const K = (t, a, d) => ramp(t, a, a + d, E.lin); // linear 0..1 progress of t over [a, a + d]
   const pk = (k) => Math.min(1, k * 4); // opacity that comes in with a pop
   const pop = (k) => 0.8 + 0.2 * E.pop(k);
   const V0 = [-0.04, 1.04, 0.12, 1.5]; // the scene 6 view
   const START = [0.35, 0.5, 0.78]; // the three start points pop in (the curve has drawn past them)
-  const WIDE = V0[1] - V0[0];
 
   /* when things happen in each step (local seconds): par = [start, length, "draw" | "fade"] of the parabola, ring = the vertex ring,
      jump = the dotted jump line, probe = the probe pops, band = the thrown-away part tints, settle = colours / letters / bracket
      bar move to the new triple, out = ring, jump line and parabola fade, cross = the red cross (unsafe step only). */
   const PLAN = [
     { par: [1.0, 1.1, "draw"], ring: 2.2, jump: 2.4, probe: 2.65, band: 3.0, settle: 3.05, out: 3.4, hold: 0.75 },
-    { par: [3.4, 0.3, "fade"], ring: 3.8, jump: 3.95, probe: 4.15, band: 4.5, settle: 4.55, out: 5.25, hold: 0.7 },
-    { par: [6.8, 0.55, "draw"], ring: 7.1, jump: 7.25, probe: 7.4, band: 7.7, settle: 7.75, out: 8.15, hold: 0.4 },
-    { par: [9.0, 0.6, "draw"], ring: 9.5, cross: 9.8, probe: 10.3, band: 10.45, settle: 10.55, out: 10.2, hold: 0.45 },
+    { par: [3.4, 0.3, "fade"], ring: 4.3, jump: 4.45, probe: 4.65, band: 5.0, settle: 5.05, out: 5.7, hold: 0.7 },
+    { par: [5.8, 0.55, "draw"], ring: 7.4, jump: 7.55, probe: 7.7, band: 8.0, settle: 8.05, out: 8.5, hold: 0.4 },
+    { par: [8.6, 0.6, "draw"], ring: 9.3, cross: 10.5, probe: 11.9, band: 12.1, settle: 12.2, out: 11.6, hold: 0.45 },
   ];
   const CHIPS = [
     [1.0, 3.4],
-    [3.4, 5.4],
-    [6.8, 8.6],
-    [9.8, 11.05],
+    [3.4, 5.8],
+    [5.8, 8.6],
+    [10.5, 12.6],
   ]; // [turns active, done]
+  const ZOOM1 = [3.4, 4.3]; // zoom in on the triple of step 2 (b and the probe are 77 px apart instead of 28)
+  const ZOOM2 = [6.5, 7.3]; // zoom in on the tiny triple of step 3 / 4 (the probe is 64 px from b instead of 11)
+  const UNSAFE = { last: 9.5, jump: 10.0 }; // the two arrows of the unsafe step grow here
 
   V.scene({
-    kicker: "BRACKETING",
+    kicker: "BRENT'S METHOD",
     title: ["Fit a parabola,", "jump to its bottom"],
-    dur: 13,
+    dur: 15,
     caps: [
-      [0.4, 3.2, "Same curve. Fit a parabola through the three points."],
-      [3.4, 6.2, "Jump to the bottom of the parabola."],
-      [6.4, 9.2, "Repeat: it homes in much faster than golden section."],
-      [9.4, 12.4, "If a jump looks unsafe, take a golden step instead."],
+      [0.4, 2.3, "Same curve: fit a parabola through three points."],
+      [2.5, 5.6, "Jump to the bottom of the parabola."],
+      [5.8, 8.4, "Repeat: the bracket collapses fast."],
+      [8.6, 12.3, "Jump not shrinking? Take a golden step instead."],
+      [12.4, 14.6, "Same 7 tests, a bracket 5 times tighter."],
     ],
     build(stage) {
       const B = A3.brent(4);
@@ -55,6 +61,12 @@
       const lag = S.map((s) => A3.lagrange(s.t));
       const vy = S.map((s, k) => lag[k](s.vertex)); // the parabola's lowest value in each step
       A3.need(A3.near2(vy[0], 0.413) && A3.near2(vy[1], 0.25) && A3.near2(vy[3], 0.251), "scene 7: parabola bottoms");
+      // the unsafe rule: the jump b -> vertex is more than half the last step (a -> b)
+      const u4 = S[3];
+      const [lastStep, jump] = [S[2].step, Math.abs(u4.vertex - u4.t.b)];
+      A3.need(Math.abs(u4.t.b - u4.t.a - lastStep) < 1e-12, "scene 7: the last step is the distance a to b");
+      A3.need(jump > 0.5 * lastStep && jump > lastStep, "scene 7: the jump of step 4 is not shrinking");
+      A3.need(A3.fmt(lastStep, 4) === "0.0049" && A3.fmt(jump, 4) === "0.0091", "scene 7: step lengths");
 
       const P = A3.plot(stage, {
         x: 0,
@@ -90,6 +102,8 @@
       const span = P.span({ tone: "purple" });
       const rings = S.map(() => P.ring({ tone: "purple", r: 18, w: 5 }));
       const dots = pts.map(() => P.dot({ tone: "blue", r: 14 }));
+      const lastArrow = P.arrow({ tone: "grey", w: 7 });
+      const jumpArrow = P.arrow({ tone: "red", w: 7 });
       const letters = {
         a: P.text({ tone: "blue", px: true }),
         b: P.text({ tone: "green", px: true }),
@@ -98,27 +112,51 @@
       };
       const verdict = A3.tag(P.html, { anchor: "m", text: "lower", tone: "green" });
       const cross = A3.badge(P.html, { size: 48, icon: "cross", tone: "red" });
+      const lastTag = A3.tag(P.html, { x: 24, y: 24, anchor: "l", text: "last step 0.0049", tone: "grey" });
+      const jumpTag = A3.tag(P.html, { x: 24, y: 78, anchor: "l", text: "this jump 0.0091", tone: "red" });
       const sticker = A3.sticker(P.html, {
         x: 24,
-        y: 24,
+        y: 134,
         w: 340,
         h: 64,
-        text: "jump too big",
+        text: "step not shrinking",
         tone: "red",
         icon: "cross",
       });
-      const zoomTag = A3.tag(P.html, { x: 912, y: 24, anchor: "r", text: "zoom ×1", tone: "grey" });
+      const zoomTag = A3.tag(P.html, { x: 912, y: 24, anchor: "r", text: "zoomed in", tone: "grey" });
       const evalStat = A3.stat(stage, { x: 484, y: 24, w: 200, label: "evaluations" });
-      const cmpGold = A3.stat(P.html, { x: 232, y: 24, w: 220, label: "golden width", tone: "grey" });
-      const cmpBrent = A3.stat(P.html, { x: 484, y: 24, w: 220, label: "Brent width", tone: "purple" });
-      const same = A3.tag(P.html, { x: 468, y: 150, anchor: "c", text: "same 7 evaluations", tone: "grey" });
+      const cmpBox = V.h("div", {
+        style: {
+          position: "absolute",
+          left: "232px",
+          top: "24px",
+          width: "472px",
+          height: "204px",
+          pointerEvents: "none",
+        },
+      });
+      P.html.append(cmpBox);
+      const cmp = A3.bars(cmpBox, {
+        x: 0,
+        y: 0,
+        w: 472,
+        rows: [
+          { label: "golden", tone: "grey" },
+          { label: "Brent", tone: "purple" },
+        ],
+        min: 0,
+        max: 0.15,
+        labelW: 130,
+        valW: 110,
+        title: "after the same 7 evaluations",
+      });
       const chips = S.map((s, k) =>
         A3.chip(stage, {
           x: 242 * k,
           y: 548,
           w: 210,
           h: 60,
-          text: `${s.k} ${s.kind === "P" ? "parabola" : "golden"}`,
+          text: `${s.kind === "P" ? "parabola" : "golden"} ${s.k}`,
           tone: s.kind === "P" ? "purple" : "orange",
         }),
       );
@@ -141,12 +179,16 @@
           : lerp(S[st.k].t[r], S[st.k].nt[r], ramp(t, PLAN[st.k].settle, PLAN[st.k].settle + 0.4, E.inOut));
 
       return (t) => {
-        // the window: scene 6's view, zoomed in on the new triple after step 2 and again after step 3
+        // the window: scene 6's view, zoomed in on step 2's triple, then on the tiny triple of steps 3 and 4
         const view =
-          t < 6.8 ? A3.mixView(V0, V1, ramp(t, 5.4, 6.8, E.lin)) : A3.mixView(V1, V2, ramp(t, 8.2, 9.0, E.lin));
+          t < ZOOM2[0]
+            ? A3.mixView(V0, V1, ramp(t, ZOOM1[0], ZOOM1[1], E.lin))
+            : A3.mixView(V1, V2, ramp(t, ZOOM2[0], ZOOM2[1], E.lin));
         P.view(view);
         const y0 = P.cur.y0;
         const base = P.area.y + P.area.h; // the axis, in stage px
+        // a point that has left the window fades (the dots and letters are not clipped to the card)
+        const seen = (px) => clamp((px - P.area.x + 6) / 30) * clamp((P.area.x + P.area.w + 6 - px) / 30);
         const st = stateAt(t);
         const s = S[Math.max(0, st.k)];
         const p = PLAN[Math.max(0, st.k)];
@@ -169,7 +211,12 @@
             o: (mode === "draw" ? 1 : K(t, a, d)) * (1 - out),
           });
           const kr = K(t, PLAN[k].ring, 0.3);
-          rings[k].set({ x: q.vertex, y: vy[k], r: 18 + 16 * (1 - E.out(kr)), o: pk(kr) * (1 - out) });
+          rings[k].set({
+            x: q.vertex,
+            y: vy[k],
+            r: 18 + 16 * (1 - E.out(kr)),
+            o: pk(kr) * (1 - out) * seen(P.px(q.vertex)),
+          });
           if (k < 3) jumps[k].set({ x: q.vertex, y1: vy[k], y0: q.fx, k: K(t, PLAN[k].jump, 0.25), o: 1 - out });
         });
 
@@ -187,7 +234,7 @@
             y: A3.BF(pt.x),
             tone: toneOf(pt.x, st.tri, st.live),
             s: E.pop(k) * (1 - 0.4 * out) * (1 + 0.25 * bump),
-            o: pk(k) * (1 - out),
+            o: pk(k) * (1 - out) * seen(P.px(pt.x)),
           });
           guides[i].set({ x: pt.x, y0, y1: A3.BF(pt.x), k: K(t, pt.at + 0.1, 0.4), o: 1 - out });
         });
@@ -200,6 +247,7 @@
         };
         lo.x = st.k < 0 ? 0 : pk(K(t, p.probe, 0.4)) * (1 - K(t, p.settle, 0.2));
         const lx = { a: P.px(roleX("a", st, t)), b: P.px(roleX("b", st, t)), c: P.px(roleX("c", st, t)), x: P.px(s.x) };
+        Object.keys(lx).forEach((r) => (lo[r] *= seen(lx[r])));
         const order = Object.keys(lx).sort((m, n) => lx[m] - lx[n]);
         for (let pass = 0; pass < 2; pass++)
           order.slice(1).forEach((n, i) => {
@@ -210,12 +258,13 @@
           });
         Object.keys(lx).forEach((r) => letters[r].set({ text: r, x: lx[r], y: base, dy: -16, o: lo[r] }));
 
-        // the bracket bar under the axis: grows to [0, 1], then glides to each new triple
+        // the bracket bar under the axis: grows to [0, 1], then glides to each new triple (kept inside the window)
         const g = st.k < 0 ? 0 : ramp(t, p.settle, p.settle + 0.5, E.inOut);
         const sx0 = lerp(s.t.a, s.nt.a, g);
+        const [wx0, wx1] = [P.cur.x0 + 0.005 * (P.cur.x1 - P.cur.x0), P.cur.x1 - 0.005 * (P.cur.x1 - P.cur.x0)];
         span.set({
-          x0: sx0,
-          x1: lerp(sx0, lerp(s.t.c, s.nt.c, g), ramp(t, 0.7, 1.2, E.inOut)),
+          x0: clamp(sx0, wx0, wx1),
+          x1: clamp(lerp(sx0, lerp(s.t.c, s.nt.c, g), ramp(t, 0.7, 1.2, E.inOut)), wx0, wx1),
           o: K(t, 0.7, 0.2),
         });
 
@@ -235,31 +284,29 @@
           });
         } else verdict.set({ o: 0 });
 
-        // the unsafe jump: a red cross on the ring and the sticker
+        // the unsafe jump: the last step against the new jump (two arrows above the dots), a red cross on the ring, the sticker
         const u = PLAN[3];
+        const yA = u4.t.fb + 62 / P.cur.sy; // the arrows float 62 px above the dots
+        const [kl, kj] = [K(t, UNSAFE.last, 0.4), K(t, UNSAFE.jump, 0.4)];
+        const aOut = 1 - K(t, u.out, 0.3);
+        lastArrow.set({ x1: u4.t.a, y1: yA, x2: u4.t.b, y2: yA, k: kl, o: aOut });
+        jumpArrow.set({ x1: u4.t.b, y1: yA, x2: u4.vertex, y2: yA, k: kj, o: aOut });
+        lastTag.set({ s: pop(kl), o: pk(kl) * aOut });
+        jumpTag.set({ s: pop(kj), o: pk(kj) * aOut });
         const kc = K(t, u.cross, 0.35);
-        cross.set({
-          x: P.px(S[3].vertex) + 32,
-          y: P.py(vy[3]) - 38,
-          k: kc,
-          o: 1 - K(t, u.out, 0.3),
-        });
-        sticker.set({ k: kc, o: 1 - K(t, 10.4, 0.2) });
+        cross.set({ x: P.px(u4.vertex) + 32, y: P.py(vy[3]) - 38, k: kc, o: 1 - K(t, u.out, 0.3) });
+        sticker.set({ k: kc, o: 1 - K(t, u.out, 0.25) });
 
         // stats, zoom tag, step chips
         const kStat = K(t, 0.9, 0.35);
         evalStat.set({
           text: String(3 + PLAN.filter((q) => t >= q.probe + 0.2).length),
           s: pop(kStat),
-          o: pk(kStat) * (1 - K(t, 11.05, 0.2)),
+          o: pk(kStat) * (1 - K(t, 12.7, 0.2)),
           bump: Math.max(0, ...PLAN.map((q) => flash(t, q.probe + 0.2, q.probe + 0.5))),
         });
-        const kz = K(t, 5.6, 0.3);
-        zoomTag.set({
-          text: `zoom ×${A3.fmt(WIDE / (P.cur.x1 - P.cur.x0), 1)}`,
-          s: pop(kz),
-          o: pk(kz) * (1 - K(t, 10.9, 0.25)),
-        });
+        const kz = K(t, ZOOM1[0], 0.3);
+        zoomTag.set({ s: pop(kz), o: pk(kz) });
         chips.forEach((c, k) => {
           const [on, done] = CHIPS[k];
           c.set({
@@ -269,11 +316,14 @@
           });
         });
 
-        // the finish: golden against Brent after the same 7 evaluations
-        const [k1, k2, k3] = [K(t, 11.3, 0.4), K(t, 11.5, 0.4), K(t, 11.8, 0.4)];
-        cmpGold.set({ text: A3.fmt(gold.width, 3), s: pop(k1), o: pk(k1) });
-        cmpBrent.set({ text: A3.fmt(S[3].width, 3), s: pop(k2), o: pk(k2), bump: flash(t, 12.1, 12.6) });
-        same.set({ s: pop(k3), o: pk(k3) });
+        // the finish: golden against Brent after the same 7 evaluations, as two bars on one scale
+        const kc2 = K(t, 12.8, 0.4);
+        V.place(cmpBox, { s: pop(kc2), o: pk(kc2) });
+        cmp.set({
+          vals: [gold.width, S[3].width],
+          k: K(t, 13.2, 0.8),
+          texts: [A3.fmt(gold.width, 3), A3.fmt(S[3].width, 3)],
+        });
       };
     },
   });

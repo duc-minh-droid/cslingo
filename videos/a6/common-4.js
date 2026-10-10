@@ -12,9 +12,10 @@
       H.set(i, state)   = H.bits.set       H.all(fn)   = H.bits.all       H.mid(i) / H.top(i) / H.bottom(i)  in parent pixels
       H.nums(k, {hot, tone})       the position numbers 1..7 (28 px) fade in with k 0..1; hot = a list of positions (1-based)
                                    drawn in that tone's ink and bold (default tone "purple")
-      H.bin(k, {hot})              the position numbers written in binary under them ("001" ... "111", monospace); k 0..1 fades them
+      H.bin(k, {hot, at})          the position numbers written in binary under them ("001" ... "111", monospace); k 0..1 fades them
                                    in; hot = "p1" | "p2" | "p4" | null: the digit that check reads (p1 the last, p2 the middle, p4 the
-                                   first) is drawn bold purple where it is 1 and the other digits stay grey: the groups read off
+                                   first) is drawn bold purple where it is 1 and the other digits stay grey: the groups read off;
+                                   at = a position (1-based): its whole binary label is drawn bold orange (the answer 110 under 6)
       H.row(name, st)              the check band of "p4" | "p2" | "p1":
           st = {k: 0..1 the band and its label pop in,
                 dots: 0..1 the discs of the watched positions pop in left to right (default k),
@@ -165,13 +166,18 @@
     const digitOf = { p1: 2, p2: 1, p4: 0 };
     const binFn = (k, o = {}) => {
       bin.all((i) => ({ k: clamp(k * 1.2 - i * 0.03) }));
-      bin.els.forEach((e, i) =>
+      bin.els.forEach((e, i) => {
+        const at = o.at === i + 1;
+        if (at) {
+          e.style.color = A6.tone("orange").ink;
+          e.style.fontWeight = "900";
+        }
         [...e.children].forEach((s, d) => {
           const on = o.hot && digitOf[o.hot] === d && A6.HAM.bin[i][d] === "1";
           s.style.color = on ? A6.tone("purple").ink : "";
           s.style.fontWeight = on ? "900" : "";
-        }),
-      );
+        });
+      });
     };
 
     // the syndrome readout

@@ -42,6 +42,9 @@
         const o = A6.disc(parent, {x, y, size: 64, text: "6", tone: "orange"});   a round solid sticker with a number inside
             (x, y = its CENTRE).  o.set({text, tone, solid: true, k, x, y, s, o})   x, y = offset
         const m = A6.token(parent, {tone: "blue", size: 30});   a round marker, m.set({x, y, s, o, tone})  x, y = its CENTRE
+        const b = A6.card(parent, {x, y, w: 130, h: 100, text: "sender", tone: "grey", plain: true, fs: 28});   a sticker box with
+            centred text (a panel, the sender / receiver stubs).  b.set({text, tone, plain, k: 1, x, y, s, o})   plain = white
+            face with the tone's edge, false = the tone's tint
    4. SVG ICONS  (append to your own L5.svg(parent) layer; drawn at absolute coordinates, so V.place(g, {x, y, s, r, o}) moves
       and scales them; x, y = centre.  Strokes can be drawn on with VID.l5.drawOn(g, k).)
         A6.bolt(x, y, size, tone = "orange")      a lightning bolt (the noise).  Pop it in and out quickly.
@@ -309,6 +312,30 @@
         el.style.left = `${f1((st.x || 0) - size / 2)}px`;
         el.style.top = `${f1((st.y || 0) - size / 2)}px`;
         V.place(el, { s: st.s ?? 1, o: st.o ?? 1 });
+      },
+    };
+  }
+
+  function card(parent, o = {}) {
+    const { x = 0, y = 0, w = 130, h = 100, tone: base = "grey", plain = true, fs = 28 } = o;
+    const el = V.h("div", {
+      class: `v-card${plain ? " plain" : ""} c-${tn(base)}`,
+      text: o.text || "",
+      style: { ...abs(x, y, w, h), ...flex, fontSize: `${fs}px`, borderRadius: "22px", textAlign: "center" },
+    });
+    parent.append(el);
+    return {
+      el,
+      set(st = {}) {
+        setClass(el, `v-card${(st.plain ?? plain) ? " plain" : ""} c-${tn(st.tone || base)}`);
+        setText(el, st.text);
+        const k = clamp(st.k ?? 1);
+        V.place(el, {
+          x: st.x || 0,
+          y: st.y || 0,
+          s: (st.s ?? 1) * (0.9 + 0.1 * E.pop(k)),
+          o: Math.min(1, k * 4) * (st.o ?? 1),
+        });
       },
     };
   }

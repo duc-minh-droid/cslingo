@@ -1,0 +1,323 @@
+{
+  "slug": "algo-5",
+  "dir": "a5",
+  "title": "Phase 5 · Convex Hulls",
+  "outline": "Phase 5 video (Algorithms, ECM3428): 'Convex Hulls', sub line 'How to wrap a set of points'. 10 scenes, 113 s: title (4), the rubber band (12), the turn test (14), a convex walk only turns one way (11), gift wrapping (15), Graham scan: sort (10), Graham scan: the stack (15), wrap or scan: the cost (12), what hulls are for: the farthest pair (11), recap (9). Story: stretch a rubber band round pins and it snaps onto the outer ones: those corners are the CONVEX HULL, the smallest convex shape holding every point; every hull algorithm rests on one tiny test, the cross product of p -> a -> b, whose sign says LEFT (positive), RIGHT (negative) or STRAIGHT (zero); walk round a convex hull and every turn is the same way, so one turn the other way marks a DENT (that point is no corner); gift wrapping (Jarvis march) starts at the leftmost point and repeatedly swings a line clockwise to the point with the smallest angle, one sweep per hull corner (cost n x h, 'output sensitive'); Graham scan sorts the points by angle round the lowest point, then walks them with a STACK and pops every dent (cost n log n, the sort dominates); which is cheaper depends on h: n x h against n log2 n, wrapping wins while the hull is small (h below log2 n = 10), the scan wins when most points are corners; payoff: the farthest pair of points is always two hull corners, so a 1,000-point set with 10 corners needs 45 pairs, not 499,500. Not covered (lessons 5.5, 5.7 and the workshop): ties and collinear points, tiny inputs, decimal noise, onion peeling, clustering and line separability; the recap points to Workshop 5.C (code the hull).\n\nLESSONS the facts come from: a5-convex 5.1 (rubber band, convex sets), a5-orient 5.2 (turn test, cross product, why hulls care about turns), a5-wrap 5.3 (gift wrapping, the lecture's angle version), a5-graham 5.4 (Graham scan, stack), a5-edge 5.5 (not covered), a5-race 5.6 (wrap or scan), a5-onion 5.7 (not covered), a5-uses 5.8 (farthest pair), a5-code 5.C (workshop); js/content/algo/algo-p5-01.js, algo-p5-02.js, algo-p5-x-01.js to -04.js, algo-workshops-5-01.js, algo-workshops-5-02.js; bank js/bank/algo-*.js (a5-* modules).\n\nTHE EXAMPLE POINTS (scenes 2 and 4-7 and 9; the app's own data of lessons 5.2 to 5.4, screen coordinates, y down): A (60,230), B (160,170), C (190,245), D (330,210), E (410,120), F (250,140), G (230,45). The hull has FIVE corners A, C, D, E, G; B and F are inside. Walked anticlockwise as seen it is A C D E G (A5.HULL, the order Graham scan returns it from the lowest point: C D E G A); walked clockwise it is A G E D C (A5.HULL_CW, gift wrapping's order). TURN TEST (lesson 5.2 table, maths coordinates y up): p (2,0) a (5,1) b (3,4): a - p = (3,1), b - p = (1,4), 3 x 4 - 1 x 1 = 11, LEFT; p (1,3) a (4,4) b (6,1): (3,1), (5,-2), 3 x (-2) - 1 x 5 = -11, RIGHT; p (0,2) a (2,3) b (6,5): (2,1), (6,3), 2 x 3 - 1 x 6 = 0, STRAIGHT. DENT: the walk A C D E F G turns left at A, C, D, E, G and RIGHT at F (E -> F -> G), so F is a dent; the same test pops F in Graham scan. GIFT WRAPPING as the lecture and the app's 'Watch it run' do it: start at the leftmost point A, reference r = a made-up point straight above A, clockwise angle r-h-p measured for every candidate, the smallest wins. Round 1 from A: B 59, C 97, D 86, E 73, F 65, G 43 degrees (G is 42.6), so A -> G; then G -> E, E -> D, D -> C, C -> A (the start: the loop closes): 5 rounds = 5 sweeps = h. GRAHAM SCAN (the app's version): pivot = the lowest point C; the others sorted anticlockwise by angle: D 14, E 29.6, F 60.3, G 78.7, B 111.8, A 173.4 degrees; the stack starts C D; E: C D E left, push; F: D E F left, push; G: E F G RIGHT, pop F; D E G left, push G; B: E G B left, push; A: G B A RIGHT, pop B; E G A left, push A: stack C D E G A = the hull, 7 turn tests, 2 pops (F, B). The sorted walk C D E F G B A has dents at F and B. COST (lesson 5.6, n = 1,024, log2 n = 10): Graham scan n log2 n = 10,240 whatever the hull; gift wrapping n x h: h = 4 -> 4,096 (cheaper), h = 1,024 (every point a corner, a ring) -> 1,048,576 (about 100 times dearer); they tie at h = 10. FARTHEST PAIR (lesson 5.8): of the 21 pairs of the seven points only 10 are between hull corners (11 involve B or F); the longest of all 21 is A-E (366.9 app units, the second is A-D), two corners; for 1,000 points with a 10-corner hull: 499,500 pairs against 45.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more. SHARED LAYOUT: scenes 4, 5, 6, 7 and 9 draw the same seven points at A5.pos() = A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60) (scale 1.75 of the app's coordinates), discs of radius 26 with 30 px letters; scene 2 draws them smaller (A5.pos({x: 118, y: 100, s: 1.55}), unlettered pins r 20) because its loose rubber band needs room; the viewer follows ONE point set from scene to scene. The right-hand column (x 716..924) and the bottom band (y 440..628) hold counters, the stack, tiles and verdict cards. A tile row at y 548 (h 60) is used for the hull list (scene 5), the sorted order (scene 6) and the queue (scene 7). Every turn / angle / stack state comes from the real algorithms in videos/a5/common.js (A5.WRAP, A5.SORT, A5.SCAN, A5.DENT, A5.TRIPLES, A5.COST, A5.FAR), which assert every number when the page loads and throw a clear Error if one differs from this storyboard. Symbols (ticks, crosses, arrows, turn arrows, the break mark on a long bar) are SVG pictograms (L5.tick / L5.cross, A5.turnIcon, the plot's arrowheads), never glyphs; the real operators x, minus and = in the cross-product sum are plain text in the sheet. 'Left' and 'right' always mean what the viewer sees (y points down on screen, A5.turnValue handles it). Degrees are shown in gift-wrapping ROUND 1 only (later rounds measure from the direction back to the previous corner and read 180 to 360, which would confuse): rounds 2 to 5 show the candidates as a fan of dashed rays and the winner turning green. The title card is the standard VID.titleCard ('Convex Hulls' fits its 116 px headline).",
+  "titleCard": {
+    "kicker": "Algorithms · Phase 5",
+    "title": "Convex Hulls",
+    "sub": "How to wrap a set of points",
+    "who": "byte",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-band.js",
+      "kicker": "THE CONVEX HULL",
+      "title": [
+        "Stretch a rubber band",
+        "round the pins"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          1.3,
+          3.5,
+          "Stretch a rubber band round every pin."
+        ],
+        [
+          3.7,
+          6,
+          "Let go. It snaps onto the outer pins."
+        ],
+        [
+          6.2,
+          8.4,
+          "The pins it touches are the hull corners."
+        ],
+        [
+          8.6,
+          11.6,
+          "A convex shape keeps every segment inside."
+        ]
+      ],
+      "spec": "IDEA: seven pins on a board; a rubber band stretched round them all snaps tight onto the outer pins. The pins it touches are the corners of the CONVEX HULL (the smallest convex shape holding every pin); pins inside never touch it. 'Convex' means a segment between any two points of the shape stays inside it. Shown on the example points (the app's A..G, unlettered here).\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const P = A5.pos({x: 118, y: 100, s: 1.55}) = A (118,387) B (273,294) C (320,410) D (537,356) E (661,216) F (413,247) G (382,100); const pins = A5.plot(stage, {pos: P, r: 20, letters: false, polys: 2, segs: 4, tags: 4}) (grey pins; r 20 with no letters). The loose band is pins.update({polys: [{pts: A5.HULL, tone, fill, spread, k}]}). Bottom band: corners = A5.counter(stage, {x: 12, y: 500, w: 290, label: 'corners', tone: 'green'}), inside = A5.counter(stage, {x: 322, y: 500, w: 270, label: 'inside', tone: 'grey'}), convex = A5.tag(stage, {x: 640, y: 508, text: 'convex', tone: 'green', solid: true, fs: 34}). Pictograms from const svg = L5.svg(stage): three L5.tick(x, y, 44, 'green') for the segment test at (327,336), (503,200) and (343,236). The loose band reaches 40 px outside the pins (G's mitre goes to y 42, A's to x 62): everything stays inside the stage.\n\nDATA (assert at build time with A5.same): A5.HULL = ['A','C','D','E','G'] (five corners), A5.INSIDE = ['B','F'] (two inside pins). Segment test pairs (all of them stay inside the hull): A-D, G-D, B-F (B-F joins the two INSIDE pins).\n\nTIMELINE (local seconds). 0.2-1.2 the seven pins pop in, 0.12 s apart in the order A B C D E F G (points[x] = {s: E.pop(k), o: min(1, 4k)}, k = ramp(t, 0.2 + 0.12 i, 0.6 + 0.12 i)). 1.3-2.0 the LOOSE band draws on round them: polys[0] = {pts: A5.HULL, tone: 'orange', fill: 0.3, dash: true, spread: 1, w: 0.9} (a dashed orange outline 40 px outside the pins; k grows the outline from the first corner, k = ramp(t, 1.3, 2.0, lin)). 2.0-3.6 it hangs loose (hold; a very small breathing of spread 1 -> 0.9 -> 1 is fine). 3.6-4.6 it SNAPS tight: spread = 1 - ramp(t, 3.6, 4.6, E.out) (E.out, never a spring: a real band cannot go inside the pins); at 4.5 it switches to tone 'green', dash false, fill 0.5, w 1. 4.6-5.4 the five corners turn solid green one after another, 0.15 s apart in the order A C D E G, each with a small pop (s 1.2), B and F stay grey. 5.8-6.4 the counters pop in: corners 5 (green), inside 2 (grey, text '2'). 6.4-6.8 two grey plot tags 'inside' at B and F (anchor 'c', dy 46). 8.6-11.0 THE SEGMENT TEST, three blue segments, each growing in 0.4 s: A-D at 8.8, G-D at 9.8, B-F at 10.8 (segs {a, b, tone: 'blue', k, w: 1}); 0.2 s after a segment is complete it turns green and its tick draws on (L5.drawOn(tick, ramp(...)), 0.3 s); the first two segments dim to o 0.55 when the next starts. 11.0-11.5 the 'convex' tag pops in. 11.5-12 hold.\n\nEND STATE: green band tight round the five solid green corners, B and F grey with 'inside' tags, counters corners 5 / inside 2, three green segments with ticks, a green 'convex' tag. CAPTIONS: [[1.3,3.5,'Stretch a rubber band round every pin.'],[3.7,6.0,'Let go. It snaps onto the outer pins.'],[6.2,8.4,'The pins it touches are the hull corners.'],[8.6,11.6,'A convex shape keeps every segment inside.']]"
+    },
+    {
+      "n": 3,
+      "file": "scene-03-turn.js",
+      "kicker": "THE TURN TEST",
+      "title": [
+        "Which way does",
+        "the path turn?"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.6,
+          3.2,
+          "Walk from p to a to b. Left or right?"
+        ],
+        [
+          3.4,
+          5.8,
+          "The cross product: positive means a left turn."
+        ],
+        [
+          6.2,
+          8.1,
+          "Now try a different path."
+        ],
+        [
+          8.3,
+          9.9,
+          "Negative means a right turn."
+        ],
+        [
+          10,
+          11.9,
+          "And one more path."
+        ],
+        [
+          12.1,
+          13.6,
+          "Zero means a straight line."
+        ]
+      ],
+      "spec": "IDEA: every hull algorithm rests on one tiny test: walk from p to a, then on to b; does the path turn LEFT, RIGHT or go STRAIGHT? One cross product answers it: subtract p from a and from b, multiply across, subtract; positive = left, negative = right, zero = straight (lesson 5.2's own three triples, maths orientation: y up).\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). g = A5.grid(stage, {x: 48, y: 56, cols: 7, rows: 5, u: 72}) (pale grid x 48..552, y 56..416, no numbers); g.xy(gx, gy) puts grid point (gx, gy) on the stage, y UP. THREE plots, one per triple (positions are fixed when a plot is built): q[i] = A5.plot(stage, {pos: {p: g.xy(...T.p), a: g.xy(...T.a), b: g.xy(...T.b)}, tags: 2, segs: 3}) with T = A5.TRIPLES[i]: triple 1 p (192,416) a (408,344) b (264,128); triple 2 p (120,200) a (336,128) b (480,344); triple 3 p (48,272) a (192,200) b (480,56). The letters 'p', 'a', 'b' are the point names (30 px). Right column: sheet = A5.sheet(stage, {x: 560, y: 56, w: 364, rows: 4, rowH: 58, fs: 30}) (one sheet reused by the three triples; x 560..924, y 56..328). Its rows for triple i with T = A5.TRIPLES[i]: row 0 'a − p = (3, 1)', row 1 'b − p = (1, 4)', row 2 '3 × 4 − 1 × 1' (build it as `${T.va[0]} × ${T.vb[1]} − ${T.va[1]} × ${T.vb[0]}` and put a minus sign in brackets for negatives: '3 × (−2) − 1 × 5'), row 3 '= 11' (bold, tone = verdict colour; 'tone' of rows 0-2 stays ink). Triple 2 reads (3, 1), (5, −2), '3 × (−2) − 1 × 5', '= −11'; triple 3 reads (2, 1), (6, 3), '2 × 3 − 1 × 6', '= 0'. Use A5.sheet's set(i, {text, k, tone, bold}) and card({tone, k}); the real minus sign is \\u2212. A turn arrow per triple, from const svg = L5.svg(stage): A5.turnIcon('left', 472, 292, 64, 'green') for triple 1, A5.turnIcon('right', 268, 76, 64, 'red') for triple 2, A5.turnIcon('straight', 236, 268, 64, 'orange') for triple 3 (drawn on with L5.drawOn, popped with V.place), and a 56 px copy inside the sheet card at (884, sheet.rowY(3)) of the same kind and tone. Bottom legend: leg = A5.tiles(stage, {x: 12, y: 470, items: [{text: 'positive: left', tone: 'green'}, {text: 'negative: right', tone: 'red'}, {text: 'zero: straight', tone: 'orange'}], w: 282, h: 70, gap: 14, fs: 30}) (x 12..886).\n\nDATA (assert with A5.same): A5.TRIPLES[i].cross = 11, -11, 0 and .turn = 'left', 'right', 'straight'; .terms = [12, 1], [-6, 5], [6, 6]; .va / .vb as above. Triple start times T0 = [0.3, 5.9, 9.7] (u = t - T0); triple 1 lasts 5.6 s, the others 3.8 s.\n\nTIMELINE (per triple, u = seconds into it). u 0-0.5 the grid draws on (only at triple 1: g.update({k: ramp(u, 0, 0.6)}); later triples keep it) and the plot of this triple pops in, p then a then b 0.1 s apart (the previous plot fades out o 1 -> 0 over u 0-0.3). u 0.6-1.4 the path draws: p -> a (segs {a: 'p', b: 'a', tone: 'blue', arrow: true, k}) 0.6-1.0, a -> b 1.0-1.4; the three discs turn blue. SUM ROWS: triple 1 at u 1.2 / 1.8 / 2.4 (rows 0, 1, 2, k ramp 0.4 s), triple 2 and 3 at u 0.9 / 1.3 / 1.7. VERDICT at u 2.9 (triple 1) / u 2.3 (triples 2 and 3): row 3 appears (bold, verdict colour), the sheet card tints in the verdict colour (card({tone})), the path turns the verdict colour (green, red, orange), the turn arrow draws on at its place and a copy in the card (0.4 s), the matching legend tile pops solid (s 1.08 pop) while the earlier legend tiles stay solid (tiles not reached yet are hidden: set({o: 0}) until their triple's verdict; at the end all three are visible and solid: a calm closing frame). Triple 1 holds to u 5.6; triples 2 and 3 to u 3.8 (their verdicts are at global 8.2 and 12.0).\nGlobal times: triple 1 0.3-5.9 (verdict 3.2), triple 2 5.9-9.7 (verdict 8.2), triple 3 9.7-13.5 (verdict 12.0), hold to 14.\n\nEND STATE: triple 3's orange straight path p, a, b with sum '2 x 3 - 1 x 6 = 0' in an orange tinted card with an orange straight arrow; the three legend tiles (green, red, orange) all solid. CAPTIONS: [[0.6,3.2,'Walk from p to a to b. Left or right?'],[3.4,5.8,'The cross product: positive means a left turn.'],[6.2,8.1,'Now try a different path.'],[8.3,9.9,'Negative means a right turn.'],[10.0,11.9,'And one more path.'],[12.1,13.6,'Zero means a straight line.']]"
+    },
+    {
+      "n": 4,
+      "file": "scene-04-dent.js",
+      "kicker": "WHY TURNS MATTER",
+      "title": [
+        "A convex shape always",
+        "turns the same way"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          1,
+          3.2,
+          "Walk round the hull, one corner at a time."
+        ],
+        [
+          3.4,
+          5.5,
+          "Every turn is a left turn."
+        ],
+        [
+          6.3,
+          8.4,
+          "Go through F and you turn right."
+        ],
+        [
+          8.6,
+          10.8,
+          "A right turn marks a dent, not a corner."
+        ]
+      ],
+      "spec": "IDEA: walk round the hull of the example points and every turn is a left turn (anticlockwise). Detour through the inside point F and the walk turns RIGHT there: a right turn means a dent, so F cannot be a hull corner. This is exactly the test Graham scan will use to pop F.\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const pl = A5.plot(stage, {polys: 2, segs: 8, tags: 3}) at A5.pos() (A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60), r 26). Walker = A5.token(stage, {tone: 'blue', size: 34}). TURN LOG (a row of five arrows with the corner letters under them): const svg = L5.svg(stage); icons[i] = svg.appendChild(A5.turnIcon('left', 90 + 110 i, 520, 60, 'green')) for i = 0..4 (centres x 90, 200, 310, 420, 530, y 520), and five grey plot tags or v-text letters 'C', 'D', 'E', 'G', 'A' at (90 + 110 i, 580) (28 px). The detour's red arrow: A5.turnIcon('right', 312, 190, 60, 'red') (left of F, inside the shape). A red tag 'dent' = plot tag {at: 'F', dx: 62, dy: 38, text: 'dent', tone: 'red', solid: true}.\n\nDATA (assert with A5.same): A5.HULL = ['A','C','D','E','G']; the five turns of the closed walk A C D E G (A5.turnKind on A5.PTS) are all 'left'; A5.DENT.path = ['A','C','D','E','F','G'] and A5.DENT.turns kinds are left at A, C, D, E, G and RIGHT at F.\n\nTIMELINE. 0.2-1.0 the seven points pop in (grey, letters on). 1.0-1.4 the walker pops on A (A turns solid green, s 1.2 pop). THE WALK: five edges of 0.65 s from 1.4, edge i going HULL[i] -> HULL[(i+1) % 5]: A->C 1.4-2.05, C->D 2.05-2.7, D->E 2.7-3.35, E->G 3.35-4.0, G->A 4.0-4.65; the walker moves with ease inOut along each edge, the hull edge behind it draws on in solid green (segs {a, b, tone: 'green', k, w: 1.2}), and when it ARRIVES at a corner (C 2.05, D 2.7, E 3.35, G 4.0, A 4.65) that corner turns solid green with a pop and log arrow i draws on (L5.drawOn over 0.4 s; arrow 0 = the turn at C, 1 = D, 2 = E, 3 = G, 4 = A) with its letter fading in under it. 4.7-5.3 the hull tint fades in (polys[0] = {pts: A5.HULL, tone: 'green', fill: 0.4, w: 0.01 (outline off: the edges are the segs), o: ramp}). 5.5-5.9 the walker (resting on A) pops out (s 1 -> 0.6, o -> 0) and pops in again on E (s 0.6 -> 1, o 0 -> 1), a hop, not a walk; the five log arrows and their letters fade (o -> 0.35, they stay as a pale record). 5.8-6.0 the edge E->G turns dashed grey (o 0.55). THE DETOUR 5.9-6.9: blue segments E->F (5.9-6.4) and F->G (6.4-6.9) draw on (arrow true on F->G), the walker follows E -> F -> G; it ARRIVES at F at 6.4: F turns solid red with a pop, the red 'right' arrow (312,190) draws on 6.4-6.8. 6.9-7.5 the dent triangle E-F-G tints red (polys[1] = {pts: ['E','F','G'], tone: 'red', fill: 0.5, w: 0.01}). 7.6 the red 'dent' tag pops at F. 8.6-9.2 F fades to a pale grey disc (o 0.5) with a red L5.cross (size 40, at F) drawn on; 8.8-9.4 the blue detour fades, the dent triangle and arrow fade, E->G turns solid green again (k 0.55 -> 1 solid); the walker fades. 9.4-11 hold: the green hull with tint, F crossed out.\n\nEND STATE: calm: green hull A C D E G with a pale green tint, B grey, F pale with a red cross, the five pale left-turn arrows in the log. CAPTIONS: [[1.0,3.2,'Walk round the hull, one corner at a time.'],[3.4,5.5,'Every turn is a left turn.'],[6.3,8.4,'Go through F and you turn right.'],[8.6,10.8,'A right turn marks a dent, not a corner.']]"
+    },
+    {
+      "n": 5,
+      "file": "scene-05-wrap.js",
+      "kicker": "GIFT WRAPPING",
+      "title": [
+        "Wrap the outside,",
+        "one corner at a time"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          1,
+          3,
+          "The leftmost point must be on the hull."
+        ],
+        [
+          3.2,
+          5.6,
+          "Swing a line clockwise until it touches a point."
+        ],
+        [
+          5.8,
+          7.6,
+          "Smallest angle wins: A to G."
+        ],
+        [
+          7.8,
+          10,
+          "Repeat from each new point."
+        ],
+        [
+          12.9,
+          14.7,
+          "Back at A. The loop closes."
+        ]
+      ],
+      "spec": "IDEA: gift wrapping (the Jarvis march). Start at the leftmost point, which must be on the hull. Swing a line clockwise round the current point until it touches a point: the smallest clockwise angle wins and that point is the next corner. Repeat from each new corner until you are back at the start: one sweep per hull corner. Run for real (A5.WRAP) on the example points, as the lesson and the app's 'Watch it run' do.\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const pl = A5.plot(stage, {segs: 14, arcs: 2, tags: 10, polys: 1}) at A5.pos(): A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60). Reference: a made-up point r straight above A at (50,192) (reference ray = seg {a: 'A', b: [50, 200], tone: 'purple', dash: true, trimB: 0}; plot tag {at: [50,176], text: 'r', disc: 46, tone: 'purple', solid: true}). Sweeping line: a ray from A at screen angle -90 + theta (theta = degrees clockwise from straight up) clipped to the stage: seg {a: 'A', b: A5.rayEnd(P.A, -90 + theta), tone: 'purple', w: 0.8} with P = pl.pos; the angle arc arcs[0] = {c: 'A', r: 100, from: -90, to: -90 + theta, tone: 'purple'}. 'leftmost' tag: plot tag {at: 'A', dx: -26, dy: 62, anchor: 'l', text: 'leftmost', tone: 'green', solid: true}. Right column: sweeps = A5.counter(stage, {x: 716, y: 40, w: 208, label: 'sweeps', tone: 'blue'}). Bottom: hullTag = A5.tag(stage, {x: 12, y: 556, text: 'hull', tone: 'grey'}) and tiles = A5.tiles(stage, {x: 112, y: 548, items: ['A','G','E','D','C'], w: 80, h: 60, gap: 12, fs: 32, tone: 'green'}) (the output list H, x 112..560; tiles appear one by one).\n\nDATA (A5.WRAP; assert with A5.same): hull order A G E D C; rounds[0] = from A with ref 'up', cands B C D E F G, deg {B: 59, C: 97, D: 86, E: 73, F: 65, G: 43} (exact G 42.6, A5.sweepDeg('A','G') = 42.6), best G; rounds[1] from G best E; rounds[2] from E best D; rounds[3] from D best C; rounds[4] from C best A (the start: the loop closes); candidates per round 6, 6, 5, 4, 3. Badge offsets from each candidate for round 1 (plot tags 'NN\\u00b0' 28 px, tone purple, G's solid orange): B (-66,-6), C (0,52), D (0,50), E (0,-50), F (0,-50), G (+70,-8).\n\nTIMELINE. 0.2-1.0 the seven points pop in (grey). ROUND 1 (the detailed one): 0.9-1.3 A turns solid green with a pop and the 'leftmost' tag pops; 1.5-2.1 the dashed purple reference ray and the 'r' tag appear (ray k 0 -> 1 upwards from A, then the tag pops); 3.0-4.1 THE SWEEP: theta = 42.6 * ramp(t, 3.0, 4.1, E.inOut): the purple ray swings clockwise from the reference and the arc grows with it; it touches G at 4.1: G gets an orange ring (ringK pop) and the badge '43\\u00b0' (solid orange, k pop) appears at G; the sweeping ray turns orange. 3.0 the 'sweeps' counter pops in showing 0. 4.3-5.7 THE OTHER CANDIDATES: thin dashed grey rays A -> B, C, D, E, F draw in (0.15 s apart, w 0.5, dash) each with its purple angle badge (59, 97, 86, 73, 65 degrees), all bigger than 43 (G's badge is the smallest: it pulses once, flash 5.3-5.7). 5.8-6.4 the edge A->G turns solid green (seg {a: 'A', b: 'G', tone: 'green', w: 1.3}, drawn on from A in 0.4 s), G turns solid green with a pop, the other rays, the other badges, the ring, the arc and the reference ray fade out (0.3 s), hull tile 'A' pops at 1.0 and tile 'G' at 6.2; the counter counts to 1 at 6.3 (bump). ROUNDS 2-5 (1.6 s each from 6.6, 8.2, 9.8, 11.4; u = seconds into the round; h = rounds[k].h, cands = rounds[k].cands, winner = rounds[k].best): u 0-0.3 h gets a blue ring (pop); u 0.2-0.8 a FAN of dashed grey rays from h to each candidate (0.06 s apart, w 0.5); u 0.8-1.0 the winner's ray turns orange; u 1.0-1.4 it becomes the solid green hull edge (grown from h, w 1.3) and the winner turns solid green with a pop (round 5: the winner is A, already green: the edge C->A closes the loop and A bumps), the other rays and the blue ring fade; u 1.3-1.6 the next hull tile pops (E at 8.0, D at 9.6, C at 11.2) and the counter bumps to 2, 3, 4, 5 (at 8.0, 9.6, 11.2, 12.8). No degrees in rounds 2-5. 12.6-13.2 the hull tint fades in (polys[0] = {pts: A5.HULL, tone: 'green', fill: 0.4, w: 0.01}), the counter turns solid green. 13.2-15 hold.\n\nEND STATE: calm: the green hull A G E D C (five corners, tinted), B and F grey inside, tiles A G E D C, counter sweeps 5. CAPTIONS: [[1.0,3.0,'The leftmost point must be on the hull.'],[3.2,5.6,'Swing a line clockwise until it touches a point.'],[5.8,7.6,'Smallest angle wins: A to G.'],[7.8,10.0,'Repeat from each new point.'],[12.9,14.7,'Back at A. The loop closes.']]"
+    },
+    {
+      "n": 6,
+      "file": "scene-06-sort.js",
+      "kicker": "GRAHAM SCAN: SORT",
+      "title": [
+        "Sort the points",
+        "round the lowest one"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.8,
+          2.8,
+          "The lowest point is always on the hull."
+        ],
+        [
+          3,
+          5.8,
+          "Sort the rest by angle, sweeping anticlockwise."
+        ],
+        [
+          7.6,
+          9.6,
+          "The path still has dents."
+        ]
+      ],
+      "spec": "IDEA: Graham scan, step 1. The lowest point is certainly on the hull (nothing is lower), so use it as the anchor. Sweep a line round it anticlockwise from the horizontal: the points are numbered in the order the line touches them. Joined in that order they make a closed path that visits every point, but with dents (F and B) that the scan will remove in the next scene. A5.SORT = the app's own sort.\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const pl = A5.plot(stage, {segs: 10, arcs: 1, tags: 10, polys: 1}) at A5.pos(): A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60). Pivot tag: plot tag {at: 'C', dx: -36, dy: 8, anchor: 'r', text: 'lowest', tone: 'green', solid: true}. Sweeping line: a ray from C at screen angle -theta, theta = anticlockwise degrees from east (0..173.4), clipped to the stage: seg {a: 'C', b: A5.rayEnd(P.C, -theta), tone: 'purple', w: 0.8} (P = pl.pos). Number badges: plot tags {at: name, dx: 38, dy: -38, text: String(i + 1), disc: 46, tone: 'purple', solid: true} for order[i] (only G differs: dx 42, dy 4, so its badge stays on the stage). Rays kept after a touch: seg {a: 'C', b: name, tone: 'purple', dash: true, w: 0.55, o: 0.7}. Bottom: sortedTag = A5.tag(stage, {x: 12, y: 556, text: 'sorted', tone: 'grey'}) and tiles = A5.tiles(stage, {x: 150, y: 548, items: A5.SORT.order, w: 84, h: 60, gap: 12, fs: 32, tone: 'purple'}) (D E F G B A, x 150..714).\n\nDATA (A5.SORT; assert with A5.same): pivot 'C'; order ['D','E','F','G','B','A']; anticlockwise angles D 14, E 29.6, F 60.3, G 78.7, B 111.8, A 173.4 degrees. A5.sortedPath = ['C','D','E','F','G','B','A'] (closed back to C); its right turns are at F and B (A5.turnKind), every other turn is left.\n\nTIMELINE. 0.2-0.8 the seven points pop in (grey). 0.8-1.5 C turns solid green (pop) and the 'lowest' tag pops. 1.7-5.7 THE SWEEP: the purple ray starts at 0 degrees (east, pointing right) and swings anticlockwise through the points; theta(t) is piecewise linear through (1.7, 0), (2.2, 14), (2.9, 29.6), (3.6, 60.3), (4.3, 78.7), (5.0, 111.8), (5.7, 173.4) (so each point is touched 0.7 s after the previous one; build it from A5.SORT.ccw and the touch times 2.2 + 0.7 i); the arc is not used. At each touch (i = 0..5 at 2.2, 2.9, 3.6, 4.3, 5.0, 5.7) the point gets its numbered purple badge (pop, 0.3 s) and keeps a dashed purple ray from C, the point turns soft purple (tone 'purple', not solid) and tile i pops into the bottom row (purple, solid false) with a small bounce. 5.7-6.4 the ray rests on A, then fades (o -> 0). 6.4-7.5 THE SORTED PATH: polys[0] = {pts: A5.sortedPath, tone: 'purple', fill: 0.15, w: 0.9, k: ramp(t, 6.4, 7.5, lin)} draws the closed path C D E F G B A C round the points (the dashed rays fade to o 0.3 meanwhile). 7.4-7.9 F and B get red rings (ring: 'red', ringK pop) and red plot tags 'dent' (dx 0, dy -52 above F, dy +50 below B). 7.9-10 hold.\n\nEND STATE: calm: green pivot C, soft purple points with numbers 1-6, the purple closed path with red dent rings on F and B, the row D E F G B A. CAPTIONS: [[0.8,2.8,'The lowest point is always on the hull.'],[3.0,5.8,'Sort the rest by angle, sweeping anticlockwise.'],[7.6,9.6,'The path still has dents.']]"
+    },
+    {
+      "n": 7,
+      "file": "scene-07-stack.js",
+      "kicker": "GRAHAM SCAN: THE STACK",
+      "title": [
+        "A stack pops",
+        "every dent"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          0.8,
+          3,
+          "Keep a stack. Push the first two points."
+        ],
+        [
+          3.2,
+          5.4,
+          "Test the turn. Left keeps the point."
+        ],
+        [
+          6,
+          8.2,
+          "A right turn is a dent: pop it."
+        ],
+        [
+          10.5,
+          12.7,
+          "Pop until the turn is left, then push."
+        ],
+        [
+          13.3,
+          14.9,
+          "The stack is the hull."
+        ]
+      ],
+      "spec": "IDEA: Graham scan, step 2. Walk the sorted points with a STACK. For each new point p look at the top two stack points a, t and p: a left turn a -> t -> p keeps t, so push p; a right turn (or straight) means t is a dent, so POP it and test again. F is popped when G arrives, B when A arrives; what is left, C D E G A, is the hull. Run for real (A5.SCAN) on the example points.\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const pl = A5.plot(stage, {segs: 12, polys: 1, tags: 2}) at A5.pos(): A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60). Stack: const st = A5.stack(stage, {x: 730, y: 30, w: 170, h: 60, gap: 10, slots: 5}) (cup x 714..916, y 22..386, the label 'stack' under it; slot 0 = bottom tile at y 310, slot 4 = top at y 30; the stack never holds more than five). Queue: q = A5.tiles(stage, {x: 12, y: 556, items: A5.SORT.order, w: 84, h: 60, gap: 10, fs: 32, tone: 'purple'}) (D E F G B A, x 12..566). Verdict card: const card = V.h('div', {class: 'v-card plain c-green' | 'c-red', style: {left: 12, top: 444, width: 340, height: 88}}) holding a 60 px turn arrow from const svg = L5.svg(stage): A5.turnIcon('left' | 'right', 60, 488, 60, tone) and a 38 px bold text at x 112 'left: keep' / 'right: pop' (class v-text big; swap tone and text by the verdict). The chain of kept points: green segs between consecutive stack points (w 1.2); the test path: blue seg a -> t (w 1) and blue seg t -> p with an arrow.\n\nDATA (A5.SCAN; assert with A5.same): pivot C, order D E F G B A; start stack [C, D]; rounds (p = E F G B A): E: test C D E left -> stack C D E; F: D E F left -> C D E F; G: E F G RIGHT (pop F), D E G left -> C D E G; B: E G B left -> C D E G B; A: G B A RIGHT (pop B), E G A left -> C D E G A. 7 turn tests, popped F and B, final stack = A5.HULL from C = C D E G A. Draw each round from A5.SCAN.rounds[i] (tests[j] = {a, t, p, kind, pop}).\n\nTIMELINE. 0.2-0.8 the seven points pop in (grey); C turns solid green; the queue tiles pop in (all purple, solid false). 1.0-2.0 INIT: stack tile C (slot 0) and tile D (slot 1) pop in (green, 0.3 s apart), D turns solid green, the seg C-D draws green; queue tile D turns grey ghost. ROUND START TIMES: E 2.6, F 3.9, G 5.2 (3.2 s), B 8.4, A 9.7 (3.3 s); u = t - start. A SIMPLE PUSH (rounds E, F, B; 1.3 s): u 0-0.3 the point turns solid blue and its queue tile turns blue solid; u 0.3-0.8 the test path draws: blue seg a -> t, then blue seg t -> p (arrow) (the stack's top two tiles get a blue edge, tone 'blue' solid false); u 0.8-1.0 the verdict card pops green 'left: keep' with its arrow drawing on; u 1.0-1.3 p turns solid green, its tile pops into the next stack slot (green), the new chain seg t -> p turns green, the test path and card fade, the queue tile goes grey ghost. A POP ROUND (G and A, 3.2 / 3.3 s). First test (E F G for G; G B A for A): u 0.1-0.6 blue test path, u 0.8-1.1 the verdict card pops RED 'right: pop' (right arrow); u 1.1-1.7 the middle point (F, or B) turns solid red, its stack tile turns red, slides 30 px to the right and fades out, its green chain seg turns red and fades; u 1.7-2.0 the card and test path fade, the popped point rests as a pale disc (o 0.5) with a red ring; second test (D E G for G; E G A for A): u 2.0-2.5 blue test path, u 2.5-2.8 the card pops green 'left: keep', u 2.8-3.3 the new point turns solid green, its tile pops into the freed slot, the chain seg turns green. 13.1-13.6 THE LOOP CLOSES: the green seg A -> C draws on; 13.4-14.0 the hull tint fades in (polys[0] = {pts: ['C','D','E','G','A'], tone: 'green', fill: 0.4, w: 0.01}); all five stack tiles turn solid green. 14-15 hold.\n\nEND STATE: calm: tinted green hull C D E G A, F and B pale with red rings, the full stack C D E G A (all solid green, A on top), queue tiles all grey. CAPTIONS: [[0.8,3.0,'Keep a stack. Push the first two points.'],[3.2,5.4,'Test the turn. Left keeps the point.'],[6.0,8.2,'A right turn is a dent: pop it.'],[10.5,12.7,'Pop until the turn is left, then push.'],[13.3,14.9,'The stack is the hull.']]"
+    },
+    {
+      "n": 8,
+      "file": "scene-08-cost.js",
+      "kicker": "WRAP OR SCAN?",
+      "title": [
+        "The cost depends on",
+        "the size of the hull"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          1,
+          3,
+          "1,024 points, and only 4 are corners."
+        ],
+        [
+          3.2,
+          5,
+          "Wrapping: 4,096 steps. Scan: 10,240."
+        ],
+        [
+          5.1,
+          6.6,
+          "A small hull favours wrapping."
+        ],
+        [
+          7,
+          8.9,
+          "Now every point is a corner."
+        ],
+        [
+          9.3,
+          11.6,
+          "Wrapping explodes. The scan stays at 10,240."
+        ]
+      ],
+      "spec": "IDEA: the two methods are paid for differently. Gift wrapping makes one sweep of all n points per hull corner, about n x h steps; Graham scan sorts then scans once, about n log2 n whatever the hull. With n = 1,024 (log2 n = 10): a blob with only 4 corners costs wrapping 4,096 against the scan's 10,240 (wrapping wins); a ring where every point is a corner costs wrapping 1,048,576 (about 100 times more) against the scan's still 10,240 (the scan wins). Lesson 5.6's own numbers.\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px; two rows, each a dot cloud on the left and two bars on the right). Header tags: A5.tag(stage, {x: 300, y: 12, text: 'wrap: n \\u00d7 h'}) and A5.tag(stage, {x: 560, y: 12, text: 'scan: n log n'}) (grey, they explain the bars). CLOUDS: A5.BLOB (60 dots) and A5.RING (48 dots) are unit-square coordinates; build each as const mk = (cloud, y0) => A5.plot(stage, {pos: Object.fromEntries(cloud.map((c, i) => ['p' + i, [24 + c[0] * 220, y0 + c[1] * 220]])), r: 6, letters: false, segs: 2, polys: 2, tags: 1}) with y0 = 76 (blob, box x 24..244, y 76..296) and y0 = 360 (ring, y 360..580). Blob: the first four dots (indices 0-3) are the hull corners: solid green (r 6 stays), the other 56 grey; hull outline polys[0] = {pts: [0,1,2,3].map((i) => [24 + A5.BLOB[i][0] * 220, 76 + A5.BLOB[i][1] * 220]), tone: 'green', fill: 0.3, w: 0.6}. Ring: all 48 dots solid green and polys[0] through all 48 (w 0.6). Tags per row: A5.tag(stage, {x: 300, y: 76 | 360, text: 'n = 1,024'}) (grey) and A5.tag(stage, {x: 470, y: 76 | 360, text: 'h = 4' | 'h = 1,024', tone: 'green' | 'red', solid: true}). Bars (A5.bar, x 420, h 56, full length 380 = 10,240 steps, so 1 step = 380 / 10240 px): row 1 wrap y 136 (4,096 -> 152 px, text '4,096' with textOut: true), scan y 206 (10,240 -> 380 px, text '10,240', textOut); row 2 wrap y 420 (1,048,576 is far too long: draw it at the full 380 px with over: 1 (the break mark) and the text '1,048,576' INSIDE the bar, textOut false), scan y 490 (10,240 -> 380 px, textOut). Method labels: v-text 'wrap' / 'scan' (28 px) at x 300, top = bar y + 12. Verdict tags: A5.tag(stage, {x: 300, y: 272, text: 'wrap wins', tone: 'green', solid: true}) and A5.tag(stage, {x: 300, y: 556, text: 'scan wins', tone: 'green', solid: true}).\n\nDATA (assert with A5.same): A5.COST = {n: 1024, scan: 10240, tie: 10, cases: [{h: 4, wrap: 4096, scan: 10240, winner: 'wrap'}, {h: 1024, wrap: 1048576, scan: 10240, winner: 'scan'}]}; A5.cloudHull(A5.BLOB).length = 4 and A5.cloudHull(A5.RING).length = 48 (the clouds are drawn with fewer dots than 1,024: they are a picture of the SHAPE, the tags carry the numbers). Use A5.commas for the numbers.\n\nTIMELINE. 0.2-0.7 the two header tags pop. 0.4-1.4 the blob's 60 dots pop in (0.015 s apart, grey, s E.pop), 1.4-2.0 its four corners turn solid green and the green hull outline draws on (k); 1.6-2.0 the tags 'n = 1,024' and 'h = 4' pop. ROW 1 BARS: 2.2-3.0 the wrap bar grows to 152 px (grey solid) with '4,096' after it; 3.0-3.8 the scan bar grows to 380 px (grey) with '10,240'; 4.0-4.6 the verdict: the wrap bar turns green, the scan bar red, the tag 'wrap wins' pops. 5.8-6.8 the ring's 48 dots pop in round the circle (0.02 s apart, grey) and turn solid green with the outline drawing round (6.4-7.0); 7.0-7.4 the tags 'n = 1,024' and 'h = 1,024' (red) pop. ROW 2 BARS: 7.6-8.6 the wrap bar grows to the full 380 px with the break mark (over ramps 0 -> 1 at the end) and '1,048,576' inside; 8.6-9.2 the scan bar grows to 380 px with '10,240'; 9.4-10.0 the verdict: the wrap bar turns red, the scan bar green, the tag 'scan wins' pops. 10-12 hold.\n\nEND STATE: calm: both rows complete: blob row with a green short wrap bar and a red scan bar ('wrap wins'), ring row with a red broken wrap bar and a green scan bar ('scan wins'). CAPTIONS: [[1.0,3.0,'1,024 points, and only 4 are corners.'],[3.2,5.0,'Wrapping: 4,096 steps. Scan: 10,240.'],[5.1,6.6,'A small hull favours wrapping.'],[7.0,8.9,'Now every point is a corner.'],[9.3,11.6,'Wrapping explodes. The scan stays at 10,240.']]"
+    },
+    {
+      "n": 9,
+      "file": "scene-09-pairs.js",
+      "kicker": "WHAT HULLS ARE FOR",
+      "title": [
+        "The farthest pair is",
+        "always on the hull"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          1,
+          3.2,
+          "Try every pair: 21 of them."
+        ],
+        [
+          3.6,
+          5.5,
+          "Drop pairs with an inside point."
+        ],
+        [
+          5.8,
+          7.8,
+          "The farthest pair is two hull corners."
+        ],
+        [
+          8.4,
+          10.9,
+          "1,000 points, 10 corners: 45 pairs, not 499,500."
+        ]
+      ],
+      "spec": "IDEA: a payoff of the hull. Which two points are farthest apart? Trying every pair is slow, but the farthest pair is always two hull corners, so only pairs of corners need checking: 21 pairs of the example points shrink to 10; for 1,000 points with a 10-corner hull, 499,500 pairs shrink to 45 (lesson 5.8).\nCOLOURS (whole video): green = on the hull / kept / a left turn / the cheaper method; red = a right turn / a dent / popped / the dearer method; blue = what we look at right now (the current point, the walker, the test path); purple = angles (the reference line, the sweeping line, angle badges, the sorted order); orange = attention / the one chosen (first point touched, the loose band, the farthest pair); grey = neutral (a point not decided yet, an inside point, a candidate ray). All text on the stage is 28 px or more.\n\nLAYOUT (stage px). const pl = A5.plot(stage, {segs: 26, tags: 2}) at A5.pos(): A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60). The 21 pair segments are A5.FAR.pairs.map((q) => ({a: q.a, b: q.b, tone: 'grey', w: 0.45, k, o})) in the order of A5.FAR.pairs (alphabetical keys AB AC AD AE AF AG BC ... FG); pairs with an INSIDE point (B or F; 11 of them, q.corner === false) fade out, the 10 corner pairs stay. Pair counter: pairs = A5.counter(stage, {x: 716, y: 40, w: 208, label: 'pairs', tone: 'grey'}). Tag 'farthest pair' (orange solid) = plot tag {at: [336, 346], text: 'farthest pair', tone: 'orange', solid: true}. Bottom band: sizeTag = A5.tag(stage, {x: 12, y: 448, text: 'n = 1,000 points \\u00b7 10 corners', tone: 'grey'}); allC = A5.counter(stage, {x: 12, y: 524, w: 400, label: 'all pairs', tone: 'red'}); cornC = A5.counter(stage, {x: 432, y: 524, w: 330, label: 'corner pairs', tone: 'green'}).\n\nDATA (A5.FAR; assert with A5.same): all 21 pairs; 10 are between hull corners (A5.HULL) and 11 involve B or F; the longest of all 21 is A5.FAR.longest.key = 'AE' (366.9 app units; the second longest is AD) and it is a corner pair. A5.FAR.big = {n: 1000, hull: 10, all: 499500, corners: 45}.\n\nTIMELINE. 0.2-1.0 the seven points pop in (grey); 1.0-3.2 the 21 pair segments draw on one after another, 0.1 s apart (k ramp 0.25 s each, grey) and the counter counts 0 -> 21 in step (pops in at 1.0). 3.4-4.4 the pairs that involve B or F fade out (o 1 -> 0 over 0.6 s, staggered 0.05 s), B and F fade to o 0.5, the counter counts 21 -> 10; 4.0-4.6 the five corners turn solid green. 4.6-5.6 hold (ten corner pairs among five green corners). 5.6-6.4 the longest pair A-E turns orange (w 1.6, halo 1) while the other nine corner pairs dim to o 0.35; 6.2 the 'farthest pair' tag pops. 8.0-8.4 sizeTag pops; 8.4-9.0 allC pops and counts up 0 -> 499,500 (counting with A5.commas; ease out); 9.2-9.8 cornC pops and counts 0 -> 45. 9.8-11 hold.\n\nEND STATE: calm: green corners with the ten faint corner pairs, the orange A-E segment tagged 'farthest pair', B and F pale, counters pairs 10, all pairs 499,500 (red), corner pairs 45 (green). CAPTIONS: [[1.0,3.2,'Try every pair: 21 of them.'],[3.6,5.5,'Drop pairs with an inside point.'],[5.8,7.8,'The farthest pair is two hull corners.'],[8.4,10.9,'1,000 points, 10 corners: 45 pairs, not 499,500.']]"
+    }
+  ],
+  "recap": {
+    "file": "scene-10-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "One cross product\ntells left from right",
+        "tone": "green",
+        "pictogram": "340 x 140 drawing area. A tiny path p -> a -> b: three small discs and two blue segments (L5.svg, own pixel coordinates). Loop of 4.4 s. 0-0.5 p and a at (70,110) and (160,80) pop with the first segment; 0.5-1.0 b pops at (130,20) (a LEFT bend) and the second segment draws; 1.0-1.6 a green turn arrow (A5.turnIcon('left', 250, 70, 60, 'green')) draws on and the path turns green; 2.4-3.0 b slides to (250,100) so the path bends the other way (a RIGHT bend), the path turns red and the green arrow is replaced by a red right arrow (A5.turnIcon('right', 250, 70, 60, 'red')); 3.8-4.4 everything fades and restarts. The LAST cycle (see timing below) ends on the green left bend."
+      },
+      {
+        "head": "Wrapping: swing a line\ncost n × h",
+        "tone": "purple",
+        "pictogram": "The seven points of the video as small dots (A5.plot with pos: A5.pos({x: 50, y: 8, s: 0.62}), r 7, letters: false; they fit 340 x 140: A (50,123) B (112,85) C (130,132) D (219,112) E (267,54) F (167,70) G (155,8)). Loop of 5 s. A solid green dot at A (0.0); a purple ray from A swings clockwise to G (0.3-1.0, A5.rayEnd clipped to the box) and A-G turns green (1.0-1.3); then G-E, E-D, D-C and C-A turn green one per 0.6 s (1.3-3.7, each preceded by a quick purple flicker at the swing); the tint fades in (3.7-4.2); hold; fade and restart at 4.7. The last cycle ends on the finished green hull."
+      },
+      {
+        "head": "Scan: sort, pop dents\ncost n log n",
+        "tone": "blue",
+        "pictogram": "The same small dots (A5.plot, pos: A5.pos({x: 8, y: 8, s: 0.62}), r 7, letters: false; the points span x 8..225, y 8..132) on the left and a tiny stack cup on the right (A5.stack-like: a grey U at x 270..330 with up to four tiles of 44 x 22 px; no letters needed, just coloured slabs). Loop of 5.4 s. Green chain C-D-E-F grows with a slab pushed per point (0.4 s each, 0.2-1.8); at 2.0 the chain E-F-G turns right: the F slab turns red, slides out and F dims (2.0-2.6) and G is pushed (2.6-3.0); then B pushed (3.2-3.5) and popped when A arrives (3.6-4.2), A pushed (4.2-4.6): the green hull closes (4.6-5.0) with a tick (L5.tick); hold; restart at 5.4. The last cycle ends on the closed hull with the tick."
+      }
+    ],
+    "cta": "Next: Workshop 5.C",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js: kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), the Byte mascot (V.mascot('byte', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours green / purple / blue), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, plots and L5.svg drawn into it in its own pixel coordinates) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 5.C'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row. A CALM FINISH: each pictogram loops with its own period P but only while t < 6.4; its LAST cycle is the one that is running at 6.4 and it plays to its end and HOLDS its finished frame (local = t < 6.4 ? (t - start) % P : (cycle end, i.e. the pictogram's own 'done' time) so nothing restarts or fades in the last 2 s. 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Only Byte's bob moves in the last 2 s. No captions.\nROWS (head | tone | pictogram): [{\"head\":\"One cross product\\\\ntells left from right\",\"tone\":\"green\"},{\"head\":\"Wrapping: swing a line\\\\ncost n × h\",\"tone\":\"purple\"},{\"head\":\"Scan: sort, pop dents\\\\ncost n log n\",\"tone\":\"blue\"}]. See the 'points' entries for the three pictograms. Use the same green / red / blue / purple / orange roles as the rest of the video (A5.plot, A5.turnIcon, A5.tiles, A5.stack, L5.tick are available; the helpers read the same A5 data, so the little hulls are the real ones)."
+  },
+  "helpers": "HELPER FILES: videos/a5/common.js (pure data and algorithms, no DOM), videos/a5/common-2.js (A5.pos, A5.plot, A5.polyPath), videos/a5/common-3.js (A5.tag, A5.tiles, A5.counter, A5.bar, A5.token, A5.stack, A5.turnIcon), videos/a5/common-4.js (A5.grid, A5.sheet). Everything hangs off window.VID.a5. Scenes start with const V = window.VID, A5 = V.a5, L5 = V.l5 and const {ramp, flash, lerp, clamp, ease: E} = V. videos/algo-5.html loads engine.js, cards.js, l5/common.js, then a5/common.js, common-2.js, common-3.js, common-4.js, then scene-01 ... scene-10, audio/algo-5.js. l6 is not loaded. Every file starts with a long API comment: READ THEM FIRST, they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers (A5.rng(seed) is seeded).\n\nA. DATA (common.js, all asserted at load): A5.PTS {A..G} (the app's seven points, screen coordinates y down), A5.NAMES, A5.HULL / A5.HULL_CW / A5.INSIDE, A5.turnValue(o, a, b) / A5.turnKind(o, a, b) ('left' | 'right' | 'straight' as seen), A5.TRIPLES (the three lesson triples: p a b va vb terms cross turn), A5.DENT (path, turns), A5.wrap(P) / A5.WRAP (rounds: n h ref cands deg exact best; hull; checks), A5.sweepDeg(h, p), A5.scan(P) / A5.SCAN (pivot order ccw rounds[{p, tests[{a,t,p,value,kind,pop}], popped, before, after}] stack popped tests), A5.SORT {pivot, order, ccw}, A5.sortedPath, A5.cost(n, h) / A5.COST, A5.cloud(kind, seed) / A5.BLOB / A5.RING / A5.cloudHull(points), A5.FAR (pairs, longest, all, corners, big), geometry (A5.angle, cwFromUp, ccwFromEast, polar, rayEnd, dist, hullOf, crossUp), A5.rng, A5.num, A5.commas, A5.same, A5.close.\n\nB. THE PLOT (common-2.js): A5.pos({x, y, s}) -> {A: [x, y], ...} the seven points (default x 50, y 60, s 1.75); p = A5.plot(parent, {pos, r: 26, font: 30, letters: true, hidden: false, segs: 26, polys: 4, arcs: 6, tags: 16}); p.update({points: {A: 'green' | {tone, solid, s, o, dx, dy, ring, ringK, ringDash, text}}, polys: [{pts, tone, fill, w, dash, o, k, spread, amount}], segs: [{a, b, tone, k, w, dash, o, arrow, halo, rev, trimA, trimB}], arcs: [{c, r, from, to, tone, w, k, o, dash}], tags: [{at, dx, dy, text, tone, solid, k, o, fs, disc, anchor, h}], base: {...}, o}); p.pt(name), p.xy(name), p.r, p.pos. a / b / at / pts / c may be a point name or [x, y]. A loose rubber band is a poly with spread 1 -> 0.\n\nC. SMALL PIECES (common-3.js, common-4.js): A5.tag(parent, {x, y, text, tone, solid, h, fs}) -> .set({text, tone, solid, k, x, y, s, o}); A5.tiles(parent, {x, y, items, w, h, gap, dir: 'row' | 'col' | 'up', fs, tone}) -> .set(i, {tone, solid, ghost, text, x, y, s, o}), .all(fn), .pos(i), .mid(i); A5.counter(parent, {x, y, w, h, label, tone}) -> .set({text, tone, solid, bump, k, o, label}); A5.bar(parent, {x, y, w, h, tone, solid, text, fs}) -> .set({k, tone, solid, text, textOut, o, over}), .end(k); A5.token(parent, {tone, size}) -> .set({x, y, s, o, tone}); A5.stack(parent, {x, y, w, h, gap, slots, label, fs}) -> .set(i, {...}), .all(fn), .slotPos(i), .mid(i), .cup(o); A5.turnIcon(kind: 'left' | 'right' | 'straight', x, y, size, tone, opt) -> SVG g (L5.drawOn(g, k), V.place); A5.grid(parent, {x, y, cols, rows, u}) -> .xy(gx, gy), .update({o, k}); A5.sheet(parent, {x, y, w, rows, rowH, fs, pad, tone}) -> .set(i, {text, tone, k, o, bold}), .card({tone, solid, o, k}), .rowY(i).\n\nD. REUSED FROM videos/l5/common.js (V.l5): L5.tone(name), L5.tick(x, y, size, tone, opt), L5.cross(...), L5.arrow(x1, y1, x2, y2, tone, o, {w, head, bow}), L5.drawOn(g, k), L5.svg(parent) (a full-stage SVG), L5.badge. Do NOT use L5.tourMap / L5.chromosome.\n\nE. RULES: no white colours (var(--panel) / var(--bg)); labels >= 28 px (the plot, tag, tile and counter helpers already keep 28 px or more); everything >= 12 px inside the 936 x 640 stage; update(t) pure; assert every number in the scene file against the storyboard with A5.same(...) when the scene is built; each file < 500 code lines (split a long scene into helpers in the same file or a second part named scene-NN-<slug>-b.js listed in algo-5.html); run npx prettier --write and npx eslint on every file you touch; captions never run ahead of the picture (they start at or just after the event they name); end on a calm finished frame; show on screen anything a caption claims. Stills: node tools/video-still.js algo-5 s5@6,s5@12 /tmp/<your folder> (scene number @ local seconds)."
+}

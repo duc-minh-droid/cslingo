@@ -21,6 +21,9 @@
   };
   const TONES = ["green", "blue", "red"];
   const LETTERS = ["B", "G", "W"];
+  const WORDS = ["best", "good", "worst"]; // round 1 spells the letters out: "B best 11.09"
+  /** the corner tag: letter and f (round 1 adds the word, so B, G and W are explained where they first appear) */
+  const cornerText = (first, rank, p) => `${LETTERS[rank]}${first ? ` ${WORDS[rank]}` : ""} ${fv(p)}`;
   const mix = (a, b, q) => [lerp(a[0], b[0], q), lerp(a[1], b[1], q)];
   const pk = (t, a, d = 0.3) => ramp(t, a, a + d, E.lin);
   const popS = (k) => 0.8 + 0.2 * E.pop(k);
@@ -54,16 +57,18 @@
   // ---------- timeline (local seconds) ----------
   // C: centre appears, a1: flip arrow grows, R: flip appears, vR: its verdict, a2: stretch arrow, E / M1 / M2: further candidates,
   // g: the worst corner glides to the winner
+  // a failed candidate (the stretch of round 3, the overshoot of round 4) stays up with its red cross for about a second
   const SCH = [
-    { C: 2.1, a1: [2.4, 3.0], R: 3.0, vR: 3.3, a2: [3.5, 4.0], E: 4.0, vE: 4.05, g: [4.3, 5.0] },
-    { C: 5.1, a1: [5.3, 5.6], R: 5.6, vR: 5.75, a2: [5.7, 6.0], E: 6.0, vE: 6.05, g: [6.1, 6.6] },
-    { C: 6.9, a1: [7.1, 7.5], R: 7.5, vR: 7.6, a2: [7.6, 8.0], E: 8.0, vE: 8.05, dropE: 8.2, g: [8.3, 8.8] },
-    { C: 9.1, a1: [9.3, 9.7], R: 9.7, vR: 9.8, M1: 10.0, M2: 10.2, vM: 10.6, dropR: 10.0, g: [10.8, 11.4] },
+    { C: 2.6, a1: [2.85, 3.4], R: 3.4, vR: 3.65, a2: [3.9, 4.35], E: 4.35, vE: 4.45, g: [4.7, 5.3] },
+    { C: 5.4, a1: [5.5, 5.8], R: 5.8, vR: 5.9, a2: [5.95, 6.2], E: 6.2, vE: 6.25, g: [6.35, 6.8] },
+    { C: 7.0, a1: [7.15, 7.55], R: 7.55, vR: 7.65, a2: [7.7, 8.1], E: 8.1, vE: 8.2, dropE: 9.2, g: [9.4, 9.9] },
+    { C: 10.0, a1: [10.15, 10.55], R: 10.55, vR: 10.65, M1: 11.5, M2: 11.7, vM: 12.1, dropR: 11.7, g: [12.3, 12.9] },
   ];
-  const SHR_T = [12.0, 12.9];
+  const WHATIF = 13.0; // "what if nothing works?" appears, then the shrink demo runs
+  const SHR_T = [13.3, 14.1];
   const TAGS_END = SCH[3].g[1]; // the number tags give way to plain letters once the last glide lands
   const CHOSEN = { expand: "E", reflect: "R", in: "M1", out: "M2" };
-  const PULSE_AT = [2.4, 4.1, 6.0, 8.2, 10.6, 11.8];
+  const PULSE_AT = [2.85, 4.4, 6.25, 9.2, 12.1, SHR_T[0]];
 
   /** the three corners (slot order) at t, gliding while a round moves one; settled = the corners that have landed */
   function cornersAt(t, settled) {
@@ -151,7 +156,7 @@
           id: `c${i}`,
           at,
           pref: [at[0] - cen[0], at[1] - cen[1]],
-          w: tagW(`${rl.letters[i]} ${fv(r.from[i])}`),
+          w: tagW(cornerText(k === 0, rl.rank[i], r.from[i])),
           h: TAG_H,
         }),
       );
@@ -186,13 +191,14 @@
   V.scene({
     kicker: "NELDER–MEAD",
     title: ["A triangle flips", "its worst corner"],
-    dur: 14,
+    dur: 15,
     caps: [
-      [0.4, 3.0, "Keep a triangle. Flip its worst corner through the middle."],
-      [3.2, 6.4, "A great flip? Stretch even further."],
-      [6.6, 8.8, "Stretched too far? Keep the plain flip."],
-      [9.0, 11.4, "Flip overshoots? Pull the corner in instead."],
-      [11.6, 13.6, "Nothing works? Shrink towards the best."],
+      [0.4, 2.4, "Two numbers, no slopes: keep a triangle."],
+      [2.6, 4.5, "Flip the worst corner through the middle."],
+      [4.6, 6.9, "A great flip? Stretch even further."],
+      [7.0, 9.3, "Stretched too far? Keep the plain flip."],
+      [9.9, 12.9, "Flip overshoots? Pull the corner in instead."],
+      [13.0, 14.6, "If every try fails: shrink towards the best."],
     ],
     build(stage) {
       const P = A3.plot(stage, {
@@ -206,7 +212,7 @@
         pad: { l: 12, r: 12, t: 12, b: 12 },
       });
       P.view([-0.6, 7.2, -0.7, 3.3]);
-      const legendBox = { x0: 24, y0: 24, x1: 24 + 260, y1: 24 + TAG_H };
+      const legendBox = { x0: 24, y0: 24, x1: 24 + 310, y1: 24 + 2 * TAG_H + 8 };
       const LAY = planLayouts(P, legendBox);
 
       // ---------- handles (they stack in creation order) ----------
@@ -232,8 +238,9 @@
         badges[id] = A3.badge(P.html, { size: 44, icon: "tick" });
       });
       const midTag = A3.tag(P.html, { anchor: "m", text: "middle", tone: "grey" });
-      const legend = A3.tag(P.html, { x: 24, y: 24, text: "lower f is better", tone: "grey" });
-      const lastTag = A3.tag(P.html, { anchor: "m", text: "last resort", tone: "grey" });
+      const legend = A3.tag(P.html, { x: 24, y: 24, text: "rings: same f", tone: "grey" });
+      const legend2 = A3.tag(P.html, { x: 24, y: 24 + TAG_H + 8, text: "lower f is better", tone: "grey" });
+      const lastTag = A3.tag(P.html, { anchor: "m", text: "what if nothing works?", tone: "grey" });
       const mv = A3.moves(stage, { x: 12, y: 548, w: 912, h: 60 }); // 12 px in: a pulse or a pop never leaves the stage
 
       // where the last-resort tag goes: beside the triangles of the shrink demo
@@ -245,7 +252,7 @@
         [AFTER, SHRUNK].forEach((tr) => tr.forEach((p, i) => circles.push(...samples(pt(p), pt(tr[(i + 1) % 3]), 8))));
         const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
         const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-        const best = placeOne({ at: [cx, cy], pref: [1, 1], w: 184, h: TAG_H }, circles, [legendBox], P.area);
+        const best = placeOne({ at: [cx, cy], pref: [1, 1], w: tagW("what if nothing works?"), h: TAG_H }, circles, [legendBox], P.area);
         A3.need(best.hits === 0, "scene 8: no free spot for the last-resort tag");
         return [best.cx, best.cy];
       })();
@@ -271,10 +278,12 @@
 
         P.set({ o: ramp(t, 0, 0.4, E.lin) });
         rings.set({ o: ramp(t, 0, 1.0, E.lin) });
-        const kS = pk(t, 0.6);
+        // the minimum is not known to the algorithm: the star only appears once the last move has landed
+        const kS = pk(t, SCH[3].g[1] + 0.1, 0.4);
         star.set({ x: P.px(MIN[0]), y: P.py(MIN[1]), s: popS(kS), o: op(kS) });
-        const kL = pk(t, 1.0);
+        const kL = pk(t, 0.8);
         legend.set({ s: popS(kL), o: op(kL) });
+        legend2.set({ s: popS(kL), o: op(kL) });
 
         // ---------- the triangle, its ghost and the corner tags ----------
         const kT = pk(t, 1.0, 0.5);
@@ -285,6 +294,7 @@
           labels: late ? rl.letters : [],
           fillO: kT,
           dotO: ramp(t, 1.0, 1.3, E.lin),
+          o: ramp(t, 0.95, 1.2, E.lin), // nothing of the triangle (not even its outline) shows before it arrives
         });
         let gp = RD[0].from;
         let go = 0;
@@ -313,7 +323,7 @@
           const anchor = px(from);
           const here = px(pts[i]);
           tg.set({
-            text: `${rl.letters[i]} ${fv(pts[i])}`,
+            text: cornerText(n === 0, rl.rank[i], pts[i]),
             tone: rl.tones[i],
             dx: here[0] + (off[0] - anchor[0]),
             dy: here[1] + (off[1] - anchor[1]),
@@ -341,7 +351,7 @@
           dx: (LAY[0].mid || [0, 0])[0],
           dy: (LAY[0].mid || [0, 0])[1],
           s: popS(kM),
-          o: kk === 0 && LAY[0].mid ? op(kM) * (1 - ramp(t, 2.95, 3.2, E.lin)) : 0,
+          o: kk === 0 && LAY[0].mid ? op(kM) * (1 - ramp(t, 3.95, 4.2, E.lin)) : 0,
         });
 
         const W = r.W.p;
@@ -385,7 +395,7 @@
           });
           const off = LAY[k][id] || [here[0], here[1]];
           kTags[id].set({
-            html: id.startsWith("M") ? `M<sub>${id[1]}</sub> ${fv(p)}` : `${id} ${fv(p)}`,
+            text: `${id} ${fv(p)}`,
             dx: off[0],
             dy: off[1],
             s: popS(kd),
@@ -404,16 +414,16 @@
         });
 
         // ---------- the move chips and the last-resort tag ----------
-        const act =
-          t < 2.4 ? null : t < 4.1 ? "reflect" : t < 8.2 ? "expand" : t < 10.6 ? "reflect" : t < 11.8 ? "in" : "shrink";
+        const [aR, aE, aB, aM] = [SCH[0].a1[0], SCH[0].E, SCH[2].dropE, SCH[3].vM];
+        const act = t < aR ? null : t < aE ? "reflect" : t < aB ? "expand" : t < aM ? "reflect" : t < SHR_T[0] ? "in" : "shrink";
         const used = [];
-        if (t >= 2.4) used.push("reflect");
-        if (t >= 4.1) used.push("expand");
-        if (t >= 10.6) used.push("contract");
-        if (t >= 11.8) used.push("shrink");
+        if (t >= aR) used.push("reflect");
+        if (t >= aE) used.push("expand");
+        if (t >= aM) used.push("contract");
+        if (t >= SHR_T[0]) used.push("shrink");
         const pulse = Math.max(...PULSE_AT.map((a) => flash(t, a, a + 0.45)));
         mv.set({ active: act, used, pop: pk(t, 1.0, 0.35), pulse });
-        const kR = pk(t, 11.7);
+        const kR = pk(t, WHATIF);
         lastTag.set({ dx: lastAt[0], dy: lastAt[1], s: popS(kR), o: op(kR) });
       };
     },
