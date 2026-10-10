@@ -49,13 +49,13 @@
   const waveT = (i, j) => T.wave + T.waveDt * j + 0.05 * i;
 
   // ---- layout (stage px)
-  const WEB_BOX = { x: 20, y: 90, w: 330, h: 300, r: 30 };
+  const WEB_BOX = { x: 36, y: 90, w: 322, h: 300, r: 30 };
   const MAT = { x: 364, y: 70, cellW: 100, cellH: 62, headW: 60, headH: 60 };
   const CHIP_Y = 556;
   const CHIPS = [
     { text: "links", n: 1, tone: "blue", w: 164, x: 428, on: [T.link[0], T.repair] },
     { text: "repair", n: 2, tone: "purple", w: 184, x: 610, on: [T.repair, T.tele] },
-    { text: "teleport", n: 3, tone: "purple", w: 216, x: 816, on: [T.tele, T.done] },
+    { text: "teleport", n: 3, tone: "purple", w: 208, x: 810, on: [T.tele, T.done] },
   ];
   /* a small numbered circle that sits in a chip (it takes the chip's colour through the c-* variables) */
   const badge = (n) =>
@@ -85,7 +85,7 @@
   V.scene({
     kicker: "THE MATRIX",
     title: ["Links become", "a matrix"],
-    dur: 13,
+    dur: 12.6,
     caps: [
       [0.4, 4.6, "Each column is where one page sends its rank."],
       [5.2, 8.2, "T's column sums to 0, so T pours 0.2 to all."],

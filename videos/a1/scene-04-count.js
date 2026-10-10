@@ -23,7 +23,7 @@
   const POP = 0.12; // a cell takes this long to pop in
   const [PITCH, CELL] = [32, 26];
   const COL = [0, 324, 648];
-  const [Y_CODE, CODE_H, Y_GRID, Y_STAT, Y_LEGEND] = [0, 128, 146, 410, 556];
+  const [Y_CODE, CODE_H, Y_GRID, Y_STAT, Y_LEGEND] = [8, 128, 148, 410, 556];
   const GRID_X = (x0) => x0 + (288 - ((N - 1) * PITCH + CELL)) / 2;
 
   // ---------- when every work() call lights up (local seconds), in the order the loops really run ----------
@@ -84,7 +84,7 @@
 
   /* a code card: a few lines of pseudo-code; `hot` marks one word (the bound that changes) */
   function codeCard(stage, P) {
-    const el = h("div", { class: "v-card plain c-grey", style: { left: `${P.x0}px`, top: `${Y_CODE}px`, width: "288px", height: `${CODE_H}px` } }); // prettier-ignore
+    const el = h("div", { class: "v-card plain c-grey", style: { left: `${P.x0 + 12}px`, top: `${Y_CODE}px`, width: "264px", height: `${CODE_H}px` } }); // prettier-ignore
     const top = (CODE_H - 6 - P.code.length * 36) / 2;
     let hot;
     P.code.forEach((line, k) => {
@@ -171,7 +171,7 @@
 
       // the legend: n = 8, one square = one call
       const legend = h("div", {
-        style: { position: "absolute", left: "0px", top: `${Y_LEGEND}px`, width: "420px", height: "52px" },
+        style: { position: "absolute", left: "12px", top: `${Y_LEGEND}px`, width: "420px", height: "52px" },
       });
       const nTag = A1.tag(legend, { text: "n = 8", tone: "blue" });
       nTag.set({ x: 0, y: 0 });
@@ -193,7 +193,7 @@
         ];
         panels.forEach((P, p) => {
           const a = 0.3 + 0.15 * p;
-          const bump = 1 + 0.08 * flash(t, P.fillAt - 0.15, P.fillAt + 0.25);
+          const bump = 1 + 0.03 * flash(t, P.fillAt - 0.15, P.fillAt + 0.25);
           const active = t >= P.fillAt - 0.1 && t < lastTime[p] + 0.3;
           P.card.el.className = `v-card plain c-${active ? "blue" : "grey"}`;
           place(P.card.el, { s: (0.8 + 0.2 * pop(t, a)) * bump, o: fade(t, a, 0.15) });

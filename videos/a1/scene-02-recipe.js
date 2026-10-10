@@ -22,13 +22,13 @@
   const DY = 24; // the whole pipeline sits a little low, so the figure is centred in the stage
   const YC = 286 + DY; // centre line of the list, the first machine slot and the output
   const TAG_Y = 176 + DY; // the row of question pills
-  const LIST = { x: 0, y: YC - 25, size: 50, gap: 6, w: 386 };
-  const FIN_X = 394; // the finish line (a pole) just after the last tile
-  const ARROW_X = [412, 722];
-  const SLOT_A = { x: 468, y: YC - 50, w: 240, h: 100 }; // STEPS
-  const SLOT_B = { x: 468, y: 410 + DY, w: 240, h: 100 }; // COMPARE
+  const LIST = { x: 12, y: YC - 24, size: 48, gap: 6, w: 372 };
+  const FIN_X = 390; // the finish line (a pole) just after the last tile
+  const ARROW_X = [404, 712];
+  const SLOT_A = { x: 458, y: YC - 50, w: 240, h: 100 }; // STEPS
+  const SLOT_B = { x: 458, y: 410 + DY, w: 240, h: 100 }; // COMPARE
   const MACH_CX = SLOT_A.x + SLOT_A.w / 2;
-  const OUT = { x: 780, y: YC - 44, size: 88 };
+  const OUT = { x: 770, y: YC - 44, size: 88 };
   const OUT_CX = OUT.x + OUT.size / 2;
   const EDGE_Y = 372 + DY;
 
@@ -62,11 +62,11 @@
   V.scene({
     kicker: "WHAT IS AN ALGORITHM?",
     title: ["A wish is not", "an algorithm"],
-    dur: 10.5,
+    dur: 10.3,
     caps: [
       [0.4, 2.2, "“Find the biggest” is only a wish."],
       [2.5, 7.8, "An algorithm answers every question in advance."],
-      [8.0, 10.2, "Even: what if the list is empty?"],
+      [8.0, 10.0, "Even: what if the list is empty?"],
     ],
     build(stage) {
       // ----- the wish skeleton: dashed empty slots -----
@@ -149,12 +149,12 @@
       }); // prettier-ignore
       const pills = PARTS.map((p) => askPill(p.text));
       const pillAt = [
-        { x: 0, y: TAG_Y },
+        { x: 12, y: TAG_Y },
         { x: MACH_CX, y: TAG_Y + 26, center: true },
         { x: MACH_CX, y: SLOT_B.y - 32, center: true },
-        { x: 345, y: TAG_Y + 26, center: true },
+        { x: 335, y: TAG_Y + 26, center: true },
         { x: OUT_CX, y: TAG_Y + 26, center: true },
-        { x: 0, y: EDGE_Y },
+        { x: 12, y: EDGE_Y },
       ];
 
       // ----- copies of the list tiles that hop into the machine -----
@@ -185,7 +185,7 @@
         const all = answered === PARTS.length;
         const lastAns = Math.max(0, ...PARTS.map((p) => flash(t, p.ans, p.ans + 0.35)));
         count.set({
-          x: 652,
+          x: 640,
           y: 30,
           text: `${answered} of 6 answered`,
           tone: all ? "green" : "orange",

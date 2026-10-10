@@ -64,15 +64,17 @@
     pull: 4.4, // the detour pulls back
     settle: 4.6, // C settled
     out: 5.0, // the panel fades away
-    swap: 5.9, // the negative triangle fades in over the first
-    bPick: 7.0,
-    bSettle: 7.6,
-    cPick: 8.0,
-    cSettle: 8.6,
-    check: 8.7, // road C->B is checked
-    strike: 9.2, // B's 4 is struck and B shakes
-    wrong: 9.5, // the tick turns into a cross, the road goes red
-    verdict: 10.0,
+    swap: 5.6, // the negative triangle fades in over the first
+    news: 6.1, // a tag says what changed: a negative road
+    list: 7.0, // the settled list (right half) opens
+    bPick: 6.8,
+    bSettle: 7.4,
+    cPick: 7.8,
+    cSettle: 8.4,
+    check: 8.5, // road C->B is checked
+    strike: 9.0, // B's 4 is struck and B shakes
+    wrong: 9.3, // the tick turns into a cross, the road goes red
+    verdict: 9.7, // held for two seconds
   };
   const PASS = T.go + 0.5 * (SAFE.d / RIVAL.first); // the first segment of the detour bar passes the marker line
 
@@ -82,11 +84,12 @@
   V.scene({
     kicker: "WHY IT WORKS",
     title: ["Why settled means final,", "and when it breaks"],
-    dur: 11,
+    dur: 12,
     caps: [
       [0.4, 4.6, "Any other way to C goes via B, and B is already further."],
-      [4.8, 6.8, "So the smallest waiting node is final."],
-      [7.0, 10.6, "A negative road can undercut a node that was settled."],
+      [4.8, 6.4, "So the smallest waiting node is final."],
+      [6.8, 9.6, "A negative road can undercut a node that was settled."],
+      [9.8, 11.6, "So Dijkstra needs roads with no negative cost."],
     ],
     build(stage) {
       const sides = { A: "tl", B: "tr", C: "tr" };
@@ -131,6 +134,9 @@
       const tDetour = A2.tag(stage, { x: 655, y: 292, text: `detour via ${RIVAL.via}`, tone: "blue" });
       const tSum = A2.tag(stage, { x: 735, y: 420, text: SUM_A, tone: "blue" });
       const tTrue = A2.tag(stage, { x: 612, y: P.y, text: String(A2.NEG.trueB), tone: "red", solid: true });
+      const tNew = A2.tag(stage, { x: 780, y: 100, text: "new: a \u22123 road", tone: "grey" });
+      // the settle order of the negative map (right half): A, B, C, then B struck and corrected
+      const order = A2.list(stage, { x: 650, y: 140, head: "settled", headTone: "green", keys: ["A", "B", "C", "T"] });
       const tVerdict = A2.tag(stage, {
         x: 468,
         y: 602,
@@ -275,6 +281,17 @@
         V.place(crossB, { s: 0.7 + 0.3 * pop(t, T.wrong), o: cb > 0 ? 1 : 0 });
         tTrue.set({ s: 0.8 + 0.2 * pop(t, T.wrong + 0.1), o: fade(t, T.wrong + 0.1, 0.2) });
         tVerdict.set({ s: 0.8 + 0.2 * pop(t, T.verdict), o: fade(t, T.verdict, 0.2) });
+        tNew.set({ s: 0.8 + 0.2 * pop(t, T.news), o: fade(t, T.news, 0.2) * (1 - lin(t, T.list - 0.2, T.list + 0.1)) });
+        const row = (a) => ({ s: 0.8 + 0.2 * pop(t, a), o: fade(t, a, 0.2) });
+        order.update({
+          k: pop(t, T.list),
+          items: {
+            A: { text: `A = ${E.A}`, tone: "green", slot: 0, ...row(T.list + 0.1) },
+            B: { text: `B = ${E.B}`, tone: t >= T.strike ? "red" : "green", strike: lin(t, T.strike, T.strike + 0.3), slot: 1, ...row(T.bSettle) },
+            C: { text: `C = ${E.C}`, tone: "green", slot: 2, ...row(T.cSettle) },
+            T: { text: `true B = ${A2.NEG.trueB}`, tone: "red", solid: true, slot: 3, ...row(T.wrong + 0.1) },
+          },
+        }); // prettier-ignore
       };
     },
   });

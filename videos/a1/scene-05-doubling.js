@@ -267,9 +267,17 @@
             cy: Y_CNT,
             from: inner ? TRI0 : q.w0,
             to: inner ? TRI1 : done ? q.w1 : undefined,
-            w: done ? 268 : 150,
+            w: done ? 248 : 150,
             ...popAt(t, T.cnt[i]),
-            s: popAt(t, T.cnt[i]).s * bump(t, i === 1 && inner ? T.stairFlip : flips[i]),
+            s:
+              popAt(t, T.cnt[i]).s *
+              (1 +
+                0.07 *
+                  flash(
+                    t,
+                    i === 1 && inner ? T.stairFlip : flips[i],
+                    (i === 1 && inner ? T.stairFlip : flips[i]) + 0.35,
+                  )),
           });
         });
 

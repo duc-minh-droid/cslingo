@@ -1,8 +1,10 @@
 /* Algorithms phase 2, scene 03-dijkstra: Dijkstra's whole run on the five-node road map.
    Every number (distances, candidate sums, shortcuts, settle order) is read ONCE from A2.DIJ_RUN; only the times are typed
    here. Per round: the pick (smallest waiting node, orange) settles (green, its row slides from the waiting room to the
-   settled list), then each road out of it is relaxed (road draws on in blue, the pill shows the candidate sum). A shortcut
-   strikes out the old badge number and the new one pops in orange. At the end the shortest-path tree is outlined in green. */
+   settled list), then each road out of it is relaxed (road draws on in blue, the pill shows the candidate sum). A shortcut holds
+   still long enough to read: the pill turns into the comparison ("3 < 4", orange), the old badge number is struck out for about
+   half a second and the new one pops in orange before the next road is checked. The times are generated below from a few gaps
+   and the window of each relaxation. At the end the shortest-path tree is outlined in green. */
 (function () {
   const V = window.VID;
   const A2 = V.a2;
@@ -12,17 +14,48 @@
   const NAMES = A2.DIJ.names;
   const INF = A2.INF;
   const DRAW = 0.35; // a checked road draws on in this long
-  const SWAP = 0.45; // after a shortcut is found: the old number is struck, then the new one swaps in
-  const PICK = [[1.4, 2.0], [4.3, 4.9], [8.0, 8.5], [10.3, 10.8], [12.2, 12.7]]; // prettier-ignore
-  const RELAX = [[[2.6, 3.2], [3.2, 3.8]], [[5.5, 6.4], [6.4, 7.0], [7.0, 7.6]], [[9.1, 9.9]], [[11.0, 11.8]], []]; // prettier-ignore
-  const FIN0 = 13.2; // the final tree starts to draw
-  const FINSTEP = 0.3;
+  const STRIKE = 0.25; // the old number is struck out in this long
+  const PICK_DUR = 0.55; // a pick turns orange, then settles (its row slides to the settled list)
+  const GAP_SETTLE = 0.45; // settled -> the first road of that node is checked
+  const GAP_PICK = 0.35; // the last road checked -> the next pick
+  const FIRST_WIN = 0.55; // a road that gives a node its first distance
+  // a shortcut (a shorter way replaces the old number): when the comparison shows, when the strike starts, when the new number
+  // lands and how long the whole window is, all counted from the moment the road starts to draw
+  const SHORTS = [
+    { cmp: 0.65, strike: 0.95, eff: 1.5, win: 1.85 },
+    { cmp: 0.55, strike: 0.8, eff: 1.25, win: 1.55 },
+    { cmp: 0.55, strike: 0.8, eff: 1.25, win: 1.55 },
+  ];
   const SLIDE = 0.5; // a settled row slides to the settled list
   const LIST_Y = [20, 262]; // waiting room, settled list (stage y of their headers' top)
 
   // ---------- the run, read once from the real algorithm ----------
   A2.need(RUN.settled.join("") === "ACBDE", "scene 3: settle order must be A C B D E");
-  A2.need(RUN.rounds.length === PICK.length, "scene 3: five rounds");
+  A2.need(RUN.rounds.length === 5, "scene 3: five rounds");
+  const PICK = []; // [pick starts, settled] per round
+  const RELAX = []; // per round: [start, end] window of each road checked
+  const SHORT_OF = {}; // "round-index" -> the shortcut timing of that relaxation
+  {
+    let clock = 1.4;
+    let nShort = 0;
+    RUN.rounds.forEach((rd, r) => {
+      PICK.push([clock, clock + PICK_DUR]);
+      clock += PICK_DUR + GAP_SETTLE;
+      const wins = [];
+      rd.relax.forEach((x, j) => {
+        const sc = x.old === INF ? null : SHORTS[nShort++];
+        if (sc) SHORT_OF[`${r}-${j}`] = sc;
+        wins.push([clock, clock + (sc ? sc.win : FIRST_WIN)]);
+        clock = wins[j][1];
+      });
+      RELAX.push(wins);
+      clock += GAP_PICK; // after the last road of a node the next pick follows
+    });
+  }
+  const FIN0 = PICK[PICK.length - 1][1] + 0.35; // the final tree starts to draw
+  const FINSTEP = 0.3;
+  const RES = FIN0 + 1.6; // the answer pops in
+  A2.need(Object.keys(SHORT_OF).length === SHORTS.length, "scene 3: three shortcuts");
   const INFO = A2.obj(NAMES, (n, i) => ({
     n,
     appear: n === "A" ? 0.9 : null, // the badge and row get a number
@@ -37,16 +70,17 @@
     INFO[rd.node].pick = PICK[r][0];
     INFO[rd.node].settle = PICK[r][1];
     rd.relax.forEach((x, j) => {
-      const [a, b] = RELAX[r][j];
+      const [a, end] = RELAX[r][j];
       const c = a + DRAW;
       const first = x.old === INF;
+      const sc = SHORT_OF[`${r}-${j}`];
       A2.need(x.better, "scene 3: every relaxation of the lesson graph improves a distance");
       const to = INFO[x.to];
-      to.steps.push({ t: c, eff: first ? c : c + SWAP, v: x.cand, short: !first });
+      to.steps.push({ t: first ? c : a + sc.strike, eff: first ? c : a + sc.eff, v: x.cand, short: !first });
       if (first) to.appear = c;
-      else EDGES.find((e) => e.from === rd.before.parent[x.to] && e.to === x.to).gone = c; // the old way in is dropped
-      EDGES.push({ key: `${rd.node}-${x.to}`, from: rd.node, to: x.to, a, b, c, short: !first, gone: INF,
-        R: PICK[r + 1][0], sum: `${rd.d} + ${x.w} = ${x.cand}` }); // prettier-ignore
+      else EDGES.find((e) => e.from === rd.before.parent[x.to] && e.to === x.to).gone = a + sc.eff; // the old way in is dropped
+      EDGES.push({ key: `${rd.node}-${x.to}`, from: rd.node, to: x.to, a, b: first ? end : a + sc.eff, c, short: !first, gone: INF,
+        cmpAt: first ? INF : a + sc.cmp, cmp: `${x.cand} < ${x.old}`, R: PICK[r + 1][0], sum: `${rd.d} + ${x.w} = ${x.cand}` }); // prettier-ignore
     });
   });
   A2.need(EDGES.length === 7 && EDGES.filter((e) => e.short).length === 3, "scene 3: 7 relaxations, 3 shortcuts");
@@ -95,8 +129,8 @@
     const b = { text: "∞", tone: "grey", k: A2.lin(t, I.pop, I.pop + 0.45), strike: 0, s: 1 };
     I.steps.forEach((s) => {
       if (t < s.t) return;
-      if (s.short && t < s.eff) Object.assign(b, { strike: A2.lin(t, s.t, s.t + 0.3), text: valAt(n, s.t - 0.01), tone: "purple" });
-      else Object.assign(b, { text: s.v, tone: s.short && t < s.eff + 0.4 ? "orange" : "purple", s: 1 + 0.25 * A2.bump(t, s.eff, 0.4) });
+      if (s.short && t < s.eff) Object.assign(b, { strike: A2.lin(t, s.t, s.t + STRIKE), text: valAt(n, s.t - 0.01), tone: "purple" });
+      else Object.assign(b, { text: s.v, tone: s.short && t < s.eff + 0.5 ? "orange" : "purple", s: 1 + 0.25 * A2.bump(t, s.eff, 0.4) });
     }); // prettier-ignore
     if (t >= FIN[n]) return { ...b, tone: "green", solid: true };
     if (t >= I.settle) b.tone = "green";
@@ -105,7 +139,14 @@
   }
   function edgeState(e, t) {
     const sumOn = t >= e.a && t < e.R;
-    const base = { w: 12, from: e.from, text: sumOn ? e.sum : null, ps: 1 + 0.2 * A2.bump(t, e.a, 0.35) };
+    const cmpOn = sumOn && t >= e.cmpAt; // a shortcut: the pill turns into the comparison, new < old
+    const base = {
+      w: 12,
+      from: e.from,
+      text: sumOn ? (cmpOn ? e.cmp : e.sum) : null,
+      pill: cmpOn ? "orange" : undefined,
+      ps: 1 + 0.2 * (A2.bump(t, e.a, 0.35) + (e.short ? A2.bump(t, e.cmpAt, 0.35) : 0)),
+    };
     if (t < e.a) return {};
     if (t < e.b) return { ...base, tone: "blue", k: A2.io(t, e.a, e.a + DRAW) };
     const k = 1 - A2.io(t, e.gone, e.gone + 0.3); // a dropped road retracts towards the settled node
@@ -116,12 +157,12 @@
   V.scene({
     kicker: "DIJKSTRA",
     title: ["Settle the closest node,", "then relax its roads"],
-    dur: 17,
+    dur: Math.round((RES + 2.1) * 2) / 2,
     caps: [
-      [0.4, 2.5, "Settle the node with the smallest distance."],
-      [2.7, 8.0, "Then check its roads. A shorter way replaces the old distance."],
-      [8.2, 12.4, "Repeat. The smallest waiting distance is always final."],
-      [12.8, 16.4, "The green roads are the shortest routes: A to E costs 8."],
+      [0.4, RELAX[0][0][0] - 0.1, "Distance from A. Settle the smallest first."],
+      [RELAX[0][0][0], PICK[2][0] - 0.2, "Then check its roads. A shorter way replaces the old distance."],
+      [PICK[2][0], PICK[4][1] + 0.1, "Repeat. The smallest waiting (tentative) distance is always final."],
+      [FIN0 - 0.1, RES + 2.4, "The green roads are the shortest routes: A to E costs 8."],
     ],
     build(stage) {
       const G = A2.graph(stage, {
@@ -138,6 +179,7 @@
         G.under.appendChild(path);
         return { path, p: G.pt(p), q: G.pt(q), a: FIN0 + FINSTEP * i };
       });
+      const start = A2.tag(stage, { x: 62, y: 430, text: "start", tone: "blue", solid: true });
       const result = A2.tag(stage, { x: 822, y: 100, text: `A to E: ${TOTAL}`, tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = L5.tick(0, 0, 52, "green", { w: 10 });
@@ -188,14 +230,14 @@
             };
           }
         });
-        waiting.update({ k: A2.pop(t, 0.4) * (1 - A2.fade(t, 13.0, 0.3)), items: wItems });
+        waiting.update({ k: A2.pop(t, 0.4) * (1 - A2.fade(t, FIN0 - 0.2, 0.3)), items: wItems });
+        start.set({ s: 0.8 + 0.2 * A2.pop(t, 0.9), o: A2.fade(t, 0.9, 0.2) * (1 - A2.fade(t, PICK[1][0] - 0.3, 0.3)) });
         settled.update({ k: A2.pop(t, 0.6), items: sItems });
 
         // the answer
-        const rk = A2.fade(t, 14.8);
-        result.set({ s: 0.8 + 0.2 * A2.pop(t, 14.8), o: rk });
-        L5.drawOn(tick, A2.io(t, 15.2, 15.6));
-        V.place(tick, { x: 698, y: 100, s: 0.7 + 0.3 * A2.pop(t, 15.2), o: A2.fade(t, 15.2, 0.1) });
+        result.set({ s: 0.8 + 0.2 * A2.pop(t, RES), o: A2.fade(t, RES) });
+        L5.drawOn(tick, A2.io(t, RES + 0.4, RES + 0.8));
+        V.place(tick, { x: 698, y: 100, s: 0.7 + 0.3 * A2.pop(t, RES + 0.4), o: A2.fade(t, RES + 0.4, 0.1) });
       };
     },
   });

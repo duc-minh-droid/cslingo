@@ -26,7 +26,7 @@
 
    ───────────────────────────── A2.list(parent, {x, y, w = 260, head, headTone = "grey", keys, rowH = 46, pitch = 54, fs = 28}) -> Ls ─────────────────────────────
      A titled column of pills (the "waiting room" and the "settled" list). The header pill (text `head`) is w wide at (x, y); row slot i
-     has its centre at y + 78 + i * pitch.   Ls.update({k: 1, items: {B: {text: "B = 4", slot: 0, tone: "purple", solid: false, o: 1, s: 1, dx: 0, dy: 0}}})
+     has its centre at y + 78 + i * pitch.   Ls.update({k: 1, items: {B: {text: "B = 4", slot: 0, tone: "purple", solid: false, strike: 0, o: 1, s: 1, dx: 0, dy: 0}}})
         k      0..1 pop of the header      items   one entry per key (keys: the names you may use); keys left out are hidden
         slot   row index, FRACTIONAL is fine (slide a pill from one row to another)
      Ls.slotY(i) -> stage y of the centre of slot i     Ls.slotX -> stage x of the centre     Ls.head the header tag
@@ -104,7 +104,12 @@
           style: { fontFamily: "var(--sans)", fontWeight: "900", fontSize: `${fs}px` },
         });
         const inner = V.s("g", {}, halo, lipR, face, text);
-        const under = V.s("g", {}, rect(lip, { style: { fill: "var(--line)" } }), rect(0, { "stroke-width": 3, style: { fill: "var(--panel-2)", stroke: "var(--line)" } }));
+        const under = V.s(
+          "g",
+          {},
+          rect(lip, { style: { fill: "var(--line)" } }),
+          rect(0, { "stroke-width": 3, style: { fill: "var(--panel-2)", stroke: "var(--line)" } }),
+        );
         const g = V.s("g", { transform: `translate(${f1(cx * pitch)} ${f1(cy * pitch)})` }, under, inner);
         svg.append(g);
         cells[`${cx},${cy}`] = { g, inner, under, halo, lipR, face, text, sig: "" };
@@ -240,6 +245,7 @@
           text: it.text,
           tone: it.tone || "grey",
           solid: it.solid,
+          strike: it.strike,
           y: slotY(dflt(it.slot, 0)),
           dx: it.dx,
           dy: it.dy,

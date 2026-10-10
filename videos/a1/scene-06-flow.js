@@ -116,14 +116,14 @@
   V.scene({
     kicker: "PAGERANK",
     title: ["Rank flows along", "the links"],
-    dur: 15,
+    dur: 14.7,
     caps: [
       [0.4, 2.2, "Pages link to pages."],
       [2.3, 4.2, "Give every page 25 tokens of rank."],
       [4.3, 6.5, "Each page pours its tokens down its links."],
       [6.6, 8.7, "D has no links, so its 25 tokens vanish."],
       [8.9, 12.0, "Fix: a dead end pours to every page."],
-      [12.2, 14.6, "Now nothing is lost: the total is 100 again."],
+      [12.2, 14.4, "Now nothing is lost: the total is 100 again."],
     ],
     build(stage) {
       const g = A1.web(stage, {
@@ -159,7 +159,7 @@
       );
       stage.append(tokenRow);
 
-      const stat = A1.stat(stage, { x: 704, y: 380, w: 220, h: 140, label: "total tokens", text: "100", tone: "blue" });
+      const stat = A1.stat(stage, { x: 696, y: 380, w: 220, h: 140, label: "total tokens", text: "100", tone: "blue" });
       const lost = A1.tag(stage, { text: `−${fmt(T0.lost)} lost`, tone: "red", solid: true, fs: 32 });
       const dtag = A1.tag(stage, { solid: true });
       const tick = A1.icon("tick", 44, "green");
@@ -260,9 +260,9 @@
           o: clamp(k0 * 4),
         });
         const kl = ramp(t, SUM75, SUM75 + 0.4, E.lin) * (1 - ramp(t, REW, REW + 0.3, E.lin));
-        lost.set({ x: 814, y: 568, center: true, s: 0.7 + 0.3 * E.pop(kl), o: clamp(kl * 4) });
+        lost.set({ x: 806, y: 568, center: true, s: 0.7 + 0.3 * E.pop(kl), o: clamp(kl * 4) });
         const kk = ramp(t, GREEN + 0.2, GREEN + 0.7, E.lin);
-        V.place(tick, { x: 864, y: 334, s: 0.8 + 0.2 * E.back(kk), o: clamp(kk * 4) });
+        V.place(tick, { x: 852, y: 334, s: 0.8 + 0.2 * E.back(kk), o: clamp(kk * 4) });
         A1.drawOn(tick, kk);
       };
     },

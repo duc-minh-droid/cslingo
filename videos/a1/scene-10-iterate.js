@@ -274,7 +274,7 @@
       const again = chip(stage, { text: "repeat", icon: "loop", tone: "purple", w: 196 });
       // the matrix of scene 9 as a thumbnail: blue = a link, purple = the repair and the teleport floor
       const MH = A1.matrices(WEB, A1.D).H;
-      const THUMB = { x: 262, y: CHIP_Y - 53, pitch: 22, cell: 18 };
+      const THUMB = { x: 274, y: CHIP_Y - 53, pitch: 22, cell: 18 };
       const thumb = A1.grid(stage, { ...THUMB, rows: NAMES.length, cols: NAMES.length });
       const first = A1.tag(stage, { text: "R first", tone: "orange", solid: true });
       const total = A1.tag(stage, {
@@ -390,9 +390,9 @@
         });
         const ruleO = Math.min(chipIn, ramp(FF[0] - t, 0, 0.3, E.lin));
         const roundGlow = Math.max(...RS.map((a) => flash(t, a, a + FLY + TWEEN)));
-        times.set({ x: 112, y: CHIP_Y, tone: on ? "purple" : "grey", solid: on === 1, ...popT(ruleO), o: ruleO });
+        times.set({ x: 124, y: CHIP_Y, tone: on ? "purple" : "grey", solid: on === 1, ...popT(ruleO), o: ruleO });
         const ffIn = ramp(t, FF[0], FF[0] + 0.4) * ramp(SET - 0.2 - t, 0, 0.3, E.lin);
-        again.set({ x: 112, y: CHIP_Y, tone: "purple", solid: true, ...popT(ffIn), o: ffIn });
+        again.set({ x: 124, y: CHIP_Y, tone: "purple", solid: true, ...popT(ffIn), o: ffIn });
         V.place(again.icon, { r: -360 * 1.4 * (t - FF[0]) });
         const thumbO = Math.min(chipIn, ramp(SET - 0.2 - t, 0, 0.3, E.lin));
         thumb.update((r, c) => ({ k: 1, tone: MH[r][c] > 0 ? "blue" : "purple" }));

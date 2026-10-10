@@ -5,7 +5,7 @@
    updates and a green tick lands under the tile (the promise held after this step). Three chips name the three parts of the
    promise: "starts true" lights after the first step, "stays true" after the second (and pulses every step), "ends useful" at
    the end. Every number comes from A1.maxRun(). Times are local seconds:
-   0.3-1.5 tiles, stats and chips pop in, step s starts at 1.6 + 1.35 s (last step ends 11.05), 11.3-11.9 the answer. */
+   0.3-1.5 tiles, stats and chips pop in, step s starts at 1.6 + 1.25 s (last step ends 10.35), 10.4-11.0 the answer. */
 (function () {
   const V = window.VID;
   const A1 = V.a1;
@@ -24,21 +24,21 @@
   const DY = 22; // the whole figure sits a little lower than the storyboard's y values, to centre it in the stage
   const Y = (y) => y + DY;
   const T0 = 1.6;
-  const DT = 1.35;
+  const DT = 1.25;
   const ts = (s) => T0 + DT * s;
-  const [FLY, ARRIVE, CHECK, FINAL] = [0.85, 1.2, 1.15, 11.5]; // chip leaves / lands / second box updates / answer, in seconds
+  const [FLY, ARRIVE, CHECK, FINAL] = [0.85, 1.2, 1.15, 10.6]; // chip leaves / lands / second box updates / answer, in seconds
   const compareText = (s) => (s === 0 ? "first item" : `${steps[s].x} > ${steps[s - 1].best}?`);
   const tagW = (s) => Math.ceil(A1.textW(compareText(s), 28) + 44);
 
   VID.scene({
     kicker: "THE LOOP INVARIANT",
     title: ["A promise that", "stays true"],
-    dur: 13,
+    dur: 12.3,
     caps: [
       [0.4, 2.6, "Scan once and keep the biggest so far."],
       [2.8, 6.2, "After k items, best is the biggest of those k."],
-      [6.6, 10.6, "It stays true after every step: the invariant."],
-      [10.9, 12.8, "At the end the promise is the answer: 9."],
+      [6.0, 10.0, "It stays true after every step: the invariant."],
+      [10.3, 12.0, "At the end the promise is the answer: 9."],
     ],
     build(stage) {
       const row = A1.row(stage, { x: 62, y: Y(120), values: A1.LIST, size: 104, gap: 14, tone: "grey" });
@@ -122,7 +122,7 @@
 
         // --- the ring slides from tile to tile, and leaves at the end ---
         const ringI = s === 0 ? 0 : s - 1 + E.inOut(clamp(u / 0.3));
-        const ringOut = 1 - ramp(t, 11.3, 11.9, E.lin);
+        const ringOut = 1 - ramp(t, FINAL - 0.2, FINAL + 0.4, E.lin);
         row.ring({ i: ringI, k: started ? ramp(t, T0, T0 + 0.3, E.lin) : 0, tone: "blue", o: ringOut });
 
         // --- the compare tag and its verdict icon: the previous one fades while the ring moves ---
