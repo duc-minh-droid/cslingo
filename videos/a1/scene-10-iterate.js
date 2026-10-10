@@ -1,5 +1,6 @@
 /* Algorithms Phase 1 (video algo-1), scene 10 "Repeat until the ranks settle": power iteration on the five-page web.
-   Start at 0.2 each, then repeat "pour along the links, add the teleport floor" (p <- G p, d = 0.85). Rounds 1 to 3 are slow
+   Start at 0.2 each, then repeat "multiply by the matrix" (p <- G p, d = 0.85: the matrix of scene 9, drawn as a small blue and
+   purple thumbnail; blue = the links, purple = the repair and the teleport floor). Rounds 1 to 3 are slow
    (blue dots run along the links, a purple dot fans out from the dead end T, the bars and the circles then change, the
    purple floor of 0.03 appears at the foot of every bar), then the counter runs on to round 20, the change per round
    flattens, and the settled ranks are ticked: R first, total 1.00.
@@ -34,14 +35,14 @@
   const TWEEN = 0.5; // bars and circles change after the dots arrive
   const FF = [5.4, 8.4]; // fast forward: the counter runs on to round 20
   const SET = 8.8; // settled
-  const ROUND3_END = RS[2] + FLY + TWEEN;
 
   // ---- layout (stage px)
-  const WEB_BOX = { x: 0, y: 30, w: 430, h: 380 };
-  const BARS = { x: 470, y: 30, w: 466, rowH: 52, max: 0.5 };
-  const STAT = { x: 470, y: 384, w: 180, h: 128 };
-  const SPARK = { x: 664, y: 370, w: 260, h: 180 };
-  const CHIP_Y = 480;
+  const DY = 24; // the whole figure sits a little lower, so it is centred in the stage
+  const WEB_BOX = { x: 0, y: 30 + DY, w: 430, h: 380 };
+  const BARS = { x: 470, y: 30 + DY, w: 466, rowH: 52, max: 0.5 };
+  const STAT = { x: 470, y: 384 + DY, w: 180, h: 128 };
+  const SPARK = { x: 664, y: 370 + DY, w: 260, h: 180 };
+  const CHIP_Y = 504;
   const WEB_CX = WEB_BOX.w / 2;
   const RAD = (p) => 30 * (0.8 + 2.4 * p); // circle radius from rank
 
@@ -258,23 +259,26 @@
     dur: 12,
     caps: [
       [0.4, 2.0, "Start with equal rank on every page."],
-      [2.2, 5.4, "Each round: pour along the links, add the teleport floor."],
-      [5.8, 8.6, "The first rounds swing, then the ranks settle."],
-      [9.0, 11.5, "R ranks first. The same loop ranks billions of pages."],
+      [2.2, 5.4, "Each round: multiply by the matrix."],
+      [5.8, 8.6, "Early rounds swing, then the ranks settle."],
+      [9.0, 11.5, "R ranks first. The same loop ranks billions."],
     ],
     build(stage) {
       const g = rankWeb(stage);
       const bars = A1.bars(stage, { ...BARS, names: NAMES });
       const floor = floorLayer(stage, bars);
       const stat = A1.stat(stage, { ...STAT, label: "round", text: "0", tone: "blue" });
-      const sp = A1.spark(stage, { ...SPARK, n: 20 });
-      const tab = A1.tag(stage, { text: "change", tone: "grey", ghost: true });
-      const pour = chip(stage, { text: "pour", icon: "arrow", tone: "blue", w: 150 });
-      const plus = chip(stage, { text: "floor", icon: "plus", tone: "purple", w: 150 });
+      const sp = A1.spark(stage, { ...SPARK, n: 20, dot: 4.5 });
+      const tab = A1.tag(stage, { text: "biggest change", tone: "grey", ghost: true });
+      const times = chip(stage, { text: "the matrix", icon: "cross", tone: "purple", w: 216 });
       const again = chip(stage, { text: "repeat", icon: "loop", tone: "purple", w: 196 });
+      // the matrix of scene 9 as a thumbnail: blue = a link, purple = the repair and the teleport floor
+      const MH = A1.matrices(WEB, A1.D).H;
+      const THUMB = { x: 262, y: CHIP_Y - 53, pitch: 22, cell: 18 };
+      const thumb = A1.grid(stage, { ...THUMB, rows: NAMES.length, cols: NAMES.length });
       const first = A1.tag(stage, { text: "R first", tone: "orange", solid: true });
       const total = A1.tag(stage, {
-        text: "sum = 1.00",
+        text: "settled, sum = 1.00",
         tone: "green",
         solid: true,
         icon: A1.icon("tick", 30, "green", { flow: true, on: true }),
@@ -354,7 +358,7 @@
         );
         bars.update({
           vals: st.p,
-          text: Object.fromEntries(NAMES.map((k) => [k, to2(st.p[k])])),
+          text: Object.fromEntries(NAMES.map((k) => [k, to2(PR.p[st.shown][k])])), // the printed numbers are the real round's
           hi: lead ? [lead] : [],
           ticks: ticked,
           tickTone: "green",
@@ -377,26 +381,31 @@
         V.place(sp.svg, pop(ramp(t, POP + 0.6, POP + 1.0), 12));
         tab.set({ x: SPARK.x + SPARK.w / 2, y: SPARK.y - 30, center: true, ...popT(ramp(t, POP + 0.7, POP + 1.1), 8) });
 
-        // ---- the rule chips under the web: pour, then floor, three times; then repeat
+        // ---- the rule under the web: "multiply by [the matrix]" lights up in every round; then "repeat"
         const chipIn = ramp(t, POP + 0.6, POP + 1.0);
-        let lit = [0, 0]; // 0 = not yet, 1 = on now, 2 = done
+        let on = 0; // 0 = not yet, 1 = on now, 2 = done
         RS.forEach((a) => {
-          if (t >= a && t < a + FLY) lit = [1, 2 * (t >= RS[0] + FLY ? 1 : 0)];
-          else if (t >= a + FLY && t < a + FLY + TWEEN) lit = [2, 1];
-          else if (t >= a + FLY + TWEEN && t < ROUND3_END + 1) lit = [2, 2];
+          if (t >= a && t < a + FLY + TWEEN) on = 1;
+          else if (t >= a + FLY + TWEEN && on !== 1) on = 2;
         });
         const ruleO = Math.min(chipIn, ramp(FF[0] - t, 0, 0.3, E.lin));
-        const tone = (k, base) => (lit[k] ? base : "grey");
-        pour.set({ x: WEB_CX - 87, y: CHIP_Y, tone: tone(0, "blue"), solid: lit[0] === 1, ...popT(ruleO), o: ruleO });
-        plus.set({ x: WEB_CX + 87, y: CHIP_Y, tone: tone(1, "purple"), solid: lit[1] === 1, ...popT(ruleO), o: ruleO });
+        const roundGlow = Math.max(...RS.map((a) => flash(t, a, a + FLY + TWEEN)));
+        times.set({ x: 112, y: CHIP_Y, tone: on ? "purple" : "grey", solid: on === 1, ...popT(ruleO), o: ruleO });
         const ffIn = ramp(t, FF[0], FF[0] + 0.4) * ramp(SET - 0.2 - t, 0, 0.3, E.lin);
-        again.set({ x: WEB_CX, y: CHIP_Y, tone: "purple", solid: true, ...popT(ffIn), o: ffIn });
+        again.set({ x: 112, y: CHIP_Y, tone: "purple", solid: true, ...popT(ffIn), o: ffIn });
         V.place(again.icon, { r: -360 * 1.4 * (t - FF[0]) });
+        const thumbO = Math.min(chipIn, ramp(SET - 0.2 - t, 0, 0.3, E.lin));
+        thumb.update((r, c) => ({ k: 1, tone: MH[r][c] > 0 ? "blue" : "purple" }));
+        V.place(thumb.svg, {
+          y: (1 - E.out(chipIn)) * 10,
+          s: (0.8 + 0.2 * E.pop(chipIn)) * (1 + 0.08 * roundGlow),
+          o: clamp(chipIn * 3) * thumbO,
+        });
 
         // ---- settled: ticks, R first, total
         const kFirst = ramp(t, SET + 0.7, SET + 1.2);
         const kTot = ramp(t, SET + 1.1, SET + 1.6);
-        first.set({ x: BARS.x, y: 304, ...popT(kFirst, 8) });
+        first.set({ x: BARS.x, y: 304 + DY, ...popT(kFirst, 8) });
         total.set({ x: WEB_CX, y: CHIP_Y, center: true, ...popT(kTot, 8) });
         css(outline, { strokeDasharray: "1 1", strokeDashoffset: String(1 - ramp(t, SET + 0.6, SET + 1.3)) });
         V.show(outline, ramp(t, SET + 0.6, SET + 0.7, E.lin));

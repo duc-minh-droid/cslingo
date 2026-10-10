@@ -32,7 +32,7 @@
             cell default = "empty" (a faint dashed outline, no text). Text is 28 px, so up to 5 characters ("0.455") fit a 96 px cell.
         m.cellAt(to, from) -> { x, y } centre in stage px, m.colX(name), m.rowY(name), m.sumY, m.width, m.height (without the sums row)
    6. SPARK  (a framed line chart of a series, e.g. the biggest change per round)
-        const sp = A1.spark(stage, { x, y, w: 360, h: 200, ymax: 0.3, n: 20 })
+        const sp = A1.spark(stage, { x, y, w: 360, h: 200, ymax: 0.3, n: 20, dot: 7 (dot radius) })
         sp.update({ data: [0.29, 0.13, ...], upto: 5.5 (draw points 0..upto, fractions draw part of a segment), tone: "purple", o: 1 })
         sp.toPx(i, v) -> { x, y }
    7. DOT and SURFER  (the blue surfer token, and where it is at fractional hop number u)
@@ -450,7 +450,7 @@
 
   // ================= 6. spark =================
   function spark(parent, o = {}) {
-    const { x = 0, y = 0, w = 360, h = 200, ymax = 0.3, n = 20 } = o;
+    const { x = 0, y = 0, w = 360, h = 200, ymax = 0.3, n = 20, dot = 7 } = o;
     const [pl, pr, pt, pb] = [26, 26, 26, 26];
     const [cw, ch] = [w - pl - pr, h - pt - pb];
     const toPx = (i, v) => ({ x: x + pl + (i / n) * cw, y: y + pt + (1 - clamp(v / ymax)) * ch });
@@ -473,7 +473,7 @@
       dots,
     );
     parent.append(svg);
-    const dotEls = Array.from({ length: n + 1 }, () => dots.appendChild(S("circle", { r: 7, "stroke-width": 3 })));
+    const dotEls = Array.from({ length: n + 1 }, () => dots.appendChild(S("circle", { r: dot, "stroke-width": 3 })));
     return {
       svg,
       toPx,

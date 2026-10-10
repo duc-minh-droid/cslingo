@@ -30,17 +30,17 @@
 
   // ---- timeline (local seconds)
   const T = {
-    link: [1.4, 2.2, 2.9, 3.6], // the source page whose column is being filled
-    sums: 4.4, // the column sums (0.1 apart)
-    zero: 4.95, // T's sum is 0
-    repair: 5.4, // chip 2
-    pour: 5.5, // T's dashed pour edges draw on
-    send: 5.9, // the 0.2 packets leave T (0.15 apart, 0.6 s on the way)
-    fixed: 7.4, // T's sum becomes 1
-    tele: 8.2, // chip 3
-    wave: 8.5, // the teleport wave reaches column P ...
+    link: [1.4, 2.2, 3.0, 3.8], // the source page whose column is being filled (0.8 s each)
+    sums: 4.6, // the column sums (0.1 apart)
+    zero: 5.15, // T's sum is 0
+    repair: 5.6, // chip 2
+    pour: 5.7, // T's dashed pour edges draw on
+    send: 6.1, // the 0.2 packets leave T (0.15 apart, 0.6 s on the way)
+    fixed: 7.6, // T's sum becomes 1
+    tele: 8.4, // chip 3
+    wave: 8.7, // the teleport wave reaches column P ...
     waveDt: 0.4, // ... and a new column every 0.4 s
-    done: 11.2, // the chips make way for the closing tag
+    done: 11.4, // the chips make way for the closing tag
   };
   const LIFE = 0.62; // how long one edge weight lives before it lands in its cell
   const cellT = (j, rank) => T.link[j] + 0.5 + 0.06 * rank; // a link cell pops as its weight lands
@@ -53,10 +53,28 @@
   const MAT = { x: 364, y: 70, cellW: 100, cellH: 62, headW: 60, headH: 60 };
   const CHIP_Y = 556;
   const CHIPS = [
-    { text: "1 links", tone: "blue", w: 150, x: 439, on: [T.link[0], T.repair] },
-    { text: "2 repair", tone: "purple", w: 170, x: 623, on: [T.repair, T.tele] },
-    { text: "3 teleport", tone: "purple", w: 190, x: 826, on: [T.tele, T.done] },
+    { text: "links", n: 1, tone: "blue", w: 164, x: 428, on: [T.link[0], T.repair] },
+    { text: "repair", n: 2, tone: "purple", w: 184, x: 610, on: [T.repair, T.tele] },
+    { text: "teleport", n: 3, tone: "purple", w: 216, x: 816, on: [T.tele, T.done] },
   ];
+  /* a small numbered circle that sits in a chip (it takes the chip's colour through the c-* variables) */
+  const badge = (n) =>
+    V.h("div", {
+      text: String(n),
+      style: {
+        width: "36px",
+        height: "36px",
+        flexShrink: "0",
+        boxSizing: "border-box",
+        borderRadius: "50%",
+        border: "3px solid var(--c-lip)",
+        background: "var(--c)",
+        color: "var(--c-on)",
+        fontSize: "28px",
+        lineHeight: "30px",
+        textAlign: "center",
+      },
+    });
   // the web is the shared five-page web, with T and S nudged apart so T's two-word tag fits under it
   const WEB9 = { ...WEB, pos: { ...WEB.pos, S: [290, 320], T: [110, 285] } };
   const POUR = NAMES.slice(0, 4).map((to) => ["T", to]); // T pours to every page (its own cell is the matrix's 0.2)
@@ -69,9 +87,9 @@
     title: ["Links become", "a matrix"],
     dur: 13,
     caps: [
-      [0.4, 4.4, "Each column is where one page sends its rank."],
-      [4.6, 7.8, "T has no links, so it pours 0.2 into every page."],
-      [8.2, 11.9, "Damping adds a teleport floor of 0.03 to every cell."],
+      [0.4, 4.6, "Each column is where one page sends its rank."],
+      [5.2, 8.2, "T's column sums to 0, so T pours 0.2 to all."],
+      [8.5, 12.4, "Teleport: × 0.85, then add 0.15 ÷ 5 = 0.03."],
     ],
     build(stage) {
       const g = A1.web(stage, { ...WEB_BOX, web: WEB9, extra: POUR, tags: { T: "below" } });
@@ -83,7 +101,9 @@
       stage.append(fly);
       const pills = [A1.svgPill(fly), A1.svgPill(fly)];
 
-      const chips = CHIPS.map((c) => A1.tag(stage, { text: c.text, tone: c.tone, w: c.w, fs: 28, h: 52 }));
+      const chips = CHIPS.map((c) =>
+        A1.tag(stage, { text: c.text, tone: c.tone, w: c.w, fs: 28, h: 52, icon: badge(c.n) }),
+      );
       const finish = A1.tag(stage, {
         text: "no empty cell, no trap",
         tone: "green",
@@ -108,6 +128,18 @@
       });
       const dice = A1.icon("dice", 44, "purple");
       stage.append(dice);
+      const floorNote = A1.tag(stage, { text: "0.15 shared by 5", tone: "purple", ghost: true });
+      const sumLabel = V.h("div", {
+        class: "v-text dim",
+        text: "sum",
+        style: {
+          left: "372px",
+          top: `${MAT.y + MAT.headH + 5 * MAT.cellH + 34 - 17}px`,
+          fontSize: "28px",
+          lineHeight: "34px",
+        },
+      });
+      stage.append(sumLabel);
 
       return (t) => {
         // ================= the web =================
@@ -180,7 +212,10 @@
             if (t >= s0) colHead[k] = "blue";
           } else {
             o.push({ tone: "red", k: flash(t, T.zero, T.zero + 0.8) });
-            o.push({ tone: "purple", k: ramp(t, 6.3, 6.6) * (1 - ramp(t, 7.5, 7.8)) });
+            o.push({
+              tone: "purple",
+              k: ramp(t, T.repair + 0.9, T.repair + 1.2) * (1 - ramp(t, T.fixed + 0.1, T.fixed + 0.4)),
+            });
             if (t >= T.zero) colHead[k] = t >= T.repair ? "purple" : "red";
           }
           const w = T.wave + T.waveDt * j;
@@ -276,6 +311,9 @@
         times.set({ x: 80, y: 520, center: true, s: 0.8 + 0.2 * E.pop(rb), o: Math.min(1, rb * 4) });
         plus.set({ x: 222, y: 520, center: true, s: 0.8 + 0.2 * E.pop(rc), o: Math.min(1, rc * 4) });
         const dk = rk(0.45);
+        floorNote.set({ x: 170, y: 584, center: true, s: 0.8 + 0.2 * E.pop(rk(0.6)), o: Math.min(1, rk(0.6) * 4) });
+        const sl = ramp(t, T.sums, T.sums + 0.3, E.lin);
+        V.place(sumLabel, { s: 0.85 + 0.15 * E.pop(sl), o: Math.min(1, sl * 4) });
         V.place(dice, {
           x: 290,
           y: 498,
