@@ -67,7 +67,7 @@
         B via B 3, C via B 5, D via D 2, E via D 5, F via D 7
      A2.hops(src, dst) -> [{at, next, dest, cost (from at to dest)}]:  A2.hops("A","F") = A->D (cost 7), D->E (5), E->F (2);
         the route is A D E F, total 7. Tree of A: D 2 (A-D), B 3 (A-B), C 5 (B-C), E 5 (D-E), F 7 (E-F).
-     (App note: if D-E fails, A reaches F by A B C E F at cost 8, not 9 as the lesson text says.)
+     (If D-E fails, A reaches F by A B C E F at cost 8; the lesson text now says the same.)
 
    ───────────────────────────── 6. DISTANCE VECTORS (scenes 8 and 9; lessons 2.10, 2.11) ─────────────────────────────
      A2.BF = {router: "A", dest: "F", links: {B: 3, C: 6, D: 2}, says: {B: 5, C: 3, D: 5}, totals: {B: 8, C: 9, D: 7},

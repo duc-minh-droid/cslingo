@@ -2,7 +2,9 @@
    Line A - B - C, every road costs 1, destination C. A reaches C through B (2), B reaches it directly (1). The B-C road breaks:
    B still remembers A's old "C: 2", installs "C: 3 via A", tells A (A: 4), A tells B (B: 5) ... until RIP's 16 = unreachable.
    With poisoned reverse A has always told B "C: infinity" (its route goes through B), so after the cut B has no way in and both
-   agree at once. Every number comes from A2.CTI / A2.ctiAt / A2.CTI_POISON / A2.poisonAt and the graph's own road costs. */
+   agree at once. The switch between the two stories is announced: the red state drains, a purple "same story again" tag with a
+   rewind sign shows, then the green beliefs return and A's "C: infinity" leaves. The tag then says what poisoned reverse can do
+   (it stops loops between TWO routers). Every number comes from A2.CTI / A2.ctiAt / A2.CTI_POISON / A2.poisonAt and the road costs. */
 (function () {
   const V = window.VID;
   const A2 = V.a2;
@@ -49,12 +51,14 @@
     rip: 8.6,
     packet0: 4.6, // the looping packet: one hop per 0.5 s
     dropped: 9.0,
-    mend: 9.5, // the cure starts: the road mends, tags go back
-    poison: 10.0, // A tells B "C: infinity"
-    cut2: 10.9,
-    bGives: 11.4, // B has no way in
-    back: 11.7, // B tells A
-    agree: 12.4,
+    mend: 9.5, // the reset starts: the road mends, the red cost drains, the looping packet goes
+    rewind: 9.7, // the tag "same story again" with a rewind sign
+    tagsBack: 10.3, // the green beliefs return (after the red has gone)
+    poison: 11.0, // A tells B "C: infinity"; the tag now names the cure
+    cut2: 11.9,
+    bGives: 12.4, // B has no way in
+    back: 12.7, // B tells A
+    agree: 13.4,
   };
   const SLOW = 4; // messages 1..4 are slow
   const LAND = {}; // message k lands at LAND[k]
@@ -107,7 +111,7 @@
     if (start > last + 1e-6) RULER.push([start, prev]);
     RULER.push([LAND[m.k], val(m.dist)]);
   });
-  RULER.push([T.mend, CAP], [T.mend + 0.5, PRE.A.d], [T.back + 0.6, PRE.A.d], [T.back + 1.0, CAP]);
+  RULER.push([T.mend, CAP], [T.mend + 0.6, 0], [T.tagsBack + 0.1, 0], [T.tagsBack + 0.5, PRE.A.d], [T.back + 0.6, PRE.A.d], [T.back + 1.0, CAP]); // prettier-ignore
 
   const str = (s) => `C: ${A2.fmt(s.d)}${s.via ? ` via ${s.via}` : ""}`;
 
@@ -126,20 +130,21 @@
     const after = A2.poisonAt(1);
     const cut = A2.poisonAt(0);
     return {
-      A: t >= T.back + 0.6 ? { text: str(after.A), tone: "red", strike: 0, pulse: bump(t, T.back + 0.6, 0.35) } : { text: str(PRE.A), ...green, pulse: bump(t, T.mend, 0.35) },
-      B: t >= T.bGives ? { text: str(cut.B), tone: "red", strike: 0, pulse: bump(t, T.bGives, 0.35) } : { text: str(PRE.B), ...green, strike: lin(t, 11.1, 11.3), pulse: bump(t, T.mend, 0.35) },
+      A: t >= T.back + 0.6 ? { text: str(after.A), tone: "red", strike: 0, pulse: bump(t, T.back + 0.6, 0.35) } : { text: str(PRE.A), ...green, pulse: Math.max(bump(t, T.tagsBack, 0.35), bump(t, T.poison, 0.45)) },
+      B: t >= T.bGives ? { text: str(cut.B), tone: "red", strike: 0, pulse: bump(t, T.bGives, 0.35) } : { text: str(PRE.B), ...green, strike: lin(t, T.cut2 + 0.2, T.cut2 + 0.4), pulse: bump(t, T.tagsBack, 0.35) },
     }; // prettier-ignore
   }
 
   V.scene({
     kicker: "BAD NEWS",
     title: ["When a road breaks,", "the gossip can loop"],
-    dur: 14,
+    dur: 15,
     caps: [
       [0.4, 3.0, "A reaches C through B. B reaches C directly."],
       [3.0, 6.6, "The B to C road breaks. B hears A's old news."],
       [6.8, 9.6, "The cost creeps up, one step at a time."],
-      [10.0, 13.4, "Poisoned reverse: A says C is unreachable, because its route goes through B."],
+      [9.7, 10.9, "Same story again, with one change."],
+      [11.0, 14.4, "Poisoned reverse: A says C is unreachable, because its route goes through B."],
     ],
     build(stage) {
       const G = A2.graph(stage, { nodes: POS, edges: ROADS });
@@ -149,7 +154,7 @@
       };
       const msg = A2.tag(stage, { x: POS.A[0], y: BUBBLE_Y, text: "", tone: "blue", solid: true });
       const packetX = [POS.A[0] + G.r + 30, POS.B[0] - G.r - 30];
-      const packet = A2.token(stage, { size: 44, tone: "blue", text: "C" });
+      const packet = A2.token(stage, { size: 44, tone: "blue", text: "C", fs: 28 });
       // the ruler: an empty track with a mark for every unit, then the bar that fills it
       const track = L5.svg(stage);
       track.append(
@@ -159,14 +164,29 @@
         ),
       ); // prettier-ignore
       const bar = A2.bar(stage, { x: RULER_X, y: RULER_Y, unit: UNIT, segs: [{ v: CAP, tone: "red", text: "" }] });
-      const costLabel = A2.tag(stage, { x: 150, y: 440, text: "cost of C", tone: "grey" });
-      const rip = A2.tag(stage, { x: 700, y: 552, text: `RIP: ${CAP} = unreachable`, tone: "red" });
-      const poison = A2.tag(stage, { x: POS.B[0], y: 100, text: "poisoned reverse", tone: "purple" });
-      const note = A2.tag(stage, { x: POS.B[0], y: 398, text: `A says C: ${A2.fmt(INF)}`, tone: "purple" }); // what B remembers
+      const costLabel = A2.tag(stage, { x: 175, y: 440, text: "latest cost of C", tone: "grey" });
+      const rip = A2.tag(stage, { x: 700, y: 552, text: `count of ${CAP} = unreachable`, tone: "red" });
+      const poison = A2.tag(stage, { x: POS.B[0], y: 48, text: "poisoned reverse: two-router loops", tone: "purple" });
+      const note = A2.tag(stage, { x: POS.B[0], y: 106, text: `A says C: ${A2.fmt(INF)}`, tone: "purple" }); // what B remembers
+      // the rewind cue: a sign (two triangles pointing back) and a tag
+      const rewind = A2.tag(stage, { x: 496, y: 48, text: "same story again", tone: "purple" });
+      const sign = V.s("g", {});
+      const vio = L5.tone("purple");
+      [0, 1].forEach((i) => {
+        const x = 318 + 18 * i;
+        const tri = V.s("path", {
+          d: `M${x + 12} 36L${x - 8} 48L${x + 12} 60Z`,
+          "stroke-width": 3,
+          "stroke-linejoin": "round",
+        });
+        tri.style.fill = vio.c;
+        tri.style.stroke = vio.lip;
+        sign.append(tri);
+      });
       const agreed = A2.tag(stage, { x: 500, y: 596, text: "agreed at once", tone: "green", solid: true });
       const svg = L5.svg(stage);
       const tick = L5.tick(332, 596, 52, "green");
-      svg.append(tick);
+      svg.append(tick, sign);
 
       return (t) => {
         // ---- the routers and the roads ----
@@ -190,6 +210,8 @@
         // ---- what A and B believe about C ----
         V.place(track, { o: fade(t, T.ruler, 0.3) });
         const bl = beliefs(t);
+        // the beliefs go out while the red state drains, and come back (green) once it has gone
+        const bo = 1 - lin(t, T.mend - 0.2, T.mend + 0.1) + lin(t, T.tagsBack, T.tagsBack + 0.25);
         NAMES.slice(0, 2).forEach((n, i) => {
           const a = i ? T.tagB : T.tagA;
           const b = bl[n];
@@ -198,7 +220,7 @@
             tone: b.tone,
             strike: b.strike,
             s: (0.8 + 0.2 * pop(t, a)) * (1 + 0.15 * b.pulse),
-            o: fade(t, a, 0.2),
+            o: fade(t, a, 0.2) * bo,
           });
         });
 
@@ -227,7 +249,7 @@
         const x1 = packetX[(hop.i + 1) % 2];
         packet.set({
           x: x0 + (x1 - x0) * V.ease.inOut(hop.k),
-          y: POS.A[1],
+          y: POS.A[1] + 48, // below the road, clear of its cost pill
           tone: t >= T.dropped ? "red" : "blue",
           s: 0.7 + 0.3 * pop(t, T.packet0, 0.3),
           o: Math.min(fade(t, T.packet0, 0.15), 1 - lin(t, T.mend, T.mend + 0.4)),
@@ -235,13 +257,20 @@
 
         // ---- the ruler of the cost of C ----
         const v = curve(t, RULER);
-        const red = (t >= T.msg0 && t < T.mend + 0.5) || t >= T.back + 0.6;
+        const red = (t >= T.msg0 && t < T.mend + 0.6) || t >= T.back + 0.6;
         bar.update({ k: v / CAP, tones: [red ? "red" : "green"] });
         costLabel.set({ s: 0.8 + 0.2 * pop(t, T.ruler), o: fade(t, T.ruler, 0.2) });
         rip.set({ s: 0.8 + 0.2 * pop(t, T.rip), o: Math.min(fade(t, T.rip, 0.2), 1 - lin(t, T.mend, T.mend + 0.4)) });
 
         // ---- the cure ----
-        poison.set({ s: 0.8 + 0.2 * pop(t, T.mend + 0.45), o: fade(t, T.mend + 0.45, 0.2) });
+        const rw = fade(t, T.rewind, 0.2) * (1 - lin(t, T.poison - 0.2, T.poison + 0.05));
+        rewind.set({ s: 0.8 + 0.2 * pop(t, T.rewind), o: rw });
+        V.place(sign, {
+          s: 0.8 + 0.2 * pop(t, T.rewind),
+          o: rw,
+          x: -8 * Math.sin(lin(t, T.rewind, T.poison) * Math.PI * 3),
+        });
+        poison.set({ s: 0.8 + 0.2 * pop(t, T.poison + 0.05), o: fade(t, T.poison + 0.05, 0.2) });
         note.set({ s: 0.8 + 0.2 * pop(t, T.poison + 0.7), o: fade(t, T.poison + 0.7, 0.2) });
         agreed.set({ s: 0.8 + 0.2 * pop(t, T.agree), o: fade(t, T.agree, 0.2) });
         L5.drawOn(tick, lin(t, T.agree + 0.15, T.agree + 0.55));

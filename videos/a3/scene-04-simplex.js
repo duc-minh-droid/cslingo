@@ -1,6 +1,9 @@
 /* Algorithms Phase 3 · scene 04-simplex: the simplex walk on the lesson's LP (a3-simplex).
    Stand on a corner, ask two questions, walk, repeat: (0,0) -> (5,0) -> (4,3), never (0,5).
-   Question 1 "which direction gains most?" is a signed bar card (gain of z per unit of each non-basic variable, A3.SIMPLEX).
+   Question 1 "which direction gains most?" is a signed bar card (z gained per unit of each non-basic variable, A3.SIMPLEX); every
+   row is also drawn as a short arrow from the corner (green gains, red loses, the chosen one orange and thick) so the card and the
+   plot say the same thing. The two slack variables are defined on screen when they first appear: s1 = machine hours left over,
+   s2 = material left over (moving off a rule line leaves some of it over, which costs profit); the rules are named on their lines.
    Question 2 "how far can it grow?" is the ratio test card (the smallest limit wins and that rule leaves). The walk follows
    the real pivots; at (4,3) both gains are negative, so it stops. Every number comes from A3.SIMPLEX (exact fractions) and is
    asserted when the scene is built. update(t) is a pure function of t. */
@@ -40,7 +43,7 @@
     "no gain left at the end",
   );
 
-  const VAR = { x: "x", y: "y", s1: "s<sub>1</sub>", s2: "s<sub>2</sub>" };
+  const VAR = { x: "x", y: "y", s1: "s1", s2: "s2" };
   const gainState = (nb, gains, order) => ({
     labels: order.map((i) => VAR[nb[i]]),
     vals: order.map((i) => qv(gains[i])),
@@ -53,32 +56,74 @@
     gainState(FIN.nb, FIN.gains, [0, 1]),
   ];
   need(
-    GAINS.map((g) => g.labels.join("|") + g.texts.join("|")).join(" ") ===
-      "x|y+3|+2 y|s<sub>2</sub>+1|−1 s<sub>2</sub>|s<sub>1</sub>−4/5|−3/5",
+    GAINS.map((g) => g.labels.join("|") + g.texts.join("|")).join(" ") === "x|y+3|+2 y|s2+1|−1 s2|s1−4/5|−3/5",
     "gain rows",
   );
   const ratioState = (st) => {
     const vals = st.ratios.map((r) => qv(r.val));
     const hi = vals.indexOf(Math.min(...vals));
     need(st.ratios[hi].row === st.leave, "the smallest ratio is the row that leaves");
-    return { labels: st.ratios.map((r) => A3.ROW_NAME[r.row]), vals, texts: vals.map((v) => A3.fmt(v)), hi };
+    return { labels: st.ratios.map((r) => A3.ROW_NAME[r.row].replace("-", " ")), vals, texts: vals.map((v) => A3.fmt(v)), hi };
   };
   const RATIOS = [ratioState(S0), ratioState(S1)];
   need(
     RATIOS.map((r) => `${r.labels.join("|")} ${r.texts.join("|")} ${r.hi}`).join(" ; ") ===
-      "machine|material 10|5 1 ; machine|y-axis 3|15 0",
+      "machine|material 10|5 1 ; machine|y axis 3|15 0",
     "ratio rows",
   );
 
+  // ---------- the candidate directions: one short arrow per row of the gain card (same order as GAINS) ----------
+  // from = the corner, to = the arrow tip (data coordinates), tag = where the variable's name sits (stage px from the tip)
+  const DIRS = [
+    {
+      from: S0.from,
+      c: [
+        { to: [1.7, 0], tag: [40, 2] }, // x grows: along the x-axis
+        { to: [0, 1.7], tag: [2, -36] }, // y grows: along the y-axis
+      ],
+    },
+    {
+      from: S1.from,
+      c: [
+        { to: pt(S1.from, S1.to, 0.45), tag: [-36, -34] }, // y grows: up the material edge (s2 stays 0)
+        { to: [3.3, 0], tag: [-46, 2] }, // s2 grows: back along the x-axis (material left over)
+      ],
+    },
+    {
+      from: FIN.at,
+      c: [
+        { to: pt(FIN.at, [0, 5], 0.35), tag: [-38, -26] }, // s2 grows: along the machine edge towards (0,5)
+        { to: pt(FIN.at, S1.from, 0.45), tag: [46, 20] }, // s1 grows: along the material edge towards (5,0)
+      ],
+    },
+  ];
+  need(
+    DIRS[1].c[1].to[1] === 0 && S1.from[1] === 0 && Math.abs(3 * DIRS[1].c[0].to[0] + DIRS[1].c[0].to[1] - 15) < 1e-9,
+    "arrows: s2 stays on the x-axis, y stays on the material line",
+  );
+  need(
+    Math.abs(DIRS[2].c[0].to[0] + 2 * DIRS[2].c[0].to[1] - 10) < 1e-9 &&
+      Math.abs(3 * DIRS[2].c[1].to[0] + DIRS[2].c[1].to[1] - 15) < 1e-9,
+    "arrows at (4,3): s2 along the machine line, s1 along the material line",
+  );
+  const CHOSEN = [0, 0, null]; // x enters, then y; nothing at the end
+
   // ---------- timings (local seconds) ----------
   const T = {
-    ring0: 2.6, // x enters: highlight + ring
-    walk1: [4.8, 5.9],
-    walk2: [8.9, 10.0],
-    swap1: 6.2, // gains card empties, refills for (5,0)
-    swap2: 10.4, // and again for (4,3)
+    arrows: [2.0, 7.2, 12.2], // the candidate arrows grow (0.4 s each, 0.2 s apart)
+    enter: [2.9, 8.0], // the entering variable is chosen: orange row, arrow and ring
+    ratio: [3.6, 8.6], // the ratio card pops
+    stop: [4.6, 9.5], // the blocking rule turns orange
+    walk1: [4.9, 6.0],
+    walk2: [9.8, 10.9],
+    swap1: 6.3, // gains card empties, refills for (5,0)
+    swap2: 11.2, // and again for (4,3)
+    s2: 6.7, // slack definitions pop (s2 when it first appears, s1 when the machine rule starts to block)
+    s1: 9.6,
   };
-  const pt = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+  function pt(a, b, k) {
+    return [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+  }
   const pop = (t, a, d = 0.5) => {
     const k = ramp(t, a, a + d, lin);
     return { k, s: 0.8 + 0.2 * E.pop(k), o: Math.min(1, k * 4) };
@@ -100,20 +145,21 @@
     const rows = (a, d) => [0, 1].map((i) => ramp(t, a + 0.2 * i, a + d + 0.2 * i));
     if (t < T.swap1) return { st: 0, g: [0, 1].map((i) => ramp(t, 1.6 + 0.3 * i, 2.1 + 0.3 * i)) };
     if (t < T.swap1 + 0.3) return { st: 0, g: Array(2).fill(1 - ramp(t, T.swap1, T.swap1 + 0.3, E.inOut)) };
-    if (t < T.swap2) return { st: 1, g: rows(6.5, 0.4) };
+    if (t < T.swap2) return { st: 1, g: rows(6.8, 0.4) };
     if (t < T.swap2 + 0.3) return { st: 1, g: Array(2).fill(1 - ramp(t, T.swap2, T.swap2 + 0.3, E.inOut)) };
-    return { st: 2, g: rows(10.7, 0.4) };
+    return { st: 2, g: rows(11.8, 0.4) };
   }
 
   V.scene({
     kicker: "SIMPLEX",
     title: ["Walk corner to corner,", "never the middle"],
-    dur: 15,
+    dur: 16,
     caps: [
       [0.4, 3.4, "Start at a corner. Which direction gains most?"],
-      [3.6, 7.6, "Walk until the nearest rule blocks the way."],
-      [7.8, 10.4, "Repeat from the new corner."],
-      [10.6, 14.2, "No direction gains: the corner is optimal."],
+      [3.6, 6.2, "Walk until the nearest rule blocks the way."],
+      [6.6, 8.8, "Repeat. s = what a rule has left over."],
+      [9.0, 11.0, "Leftovers cost profit, so only y gains."],
+      [11.8, 15.6, "No direction gains: the corner is optimal."],
     ],
     build(stage) {
       // ----- the plot -----
@@ -121,7 +167,7 @@
         x: 0,
         y: 0,
         w: 480,
-        h: 560,
+        h: 500,
         view: [-0.6, 7, -0.6, 7],
         equal: true,
         axes: "origin",
@@ -134,27 +180,38 @@
       const l2 = P.eq(3, 1, 15, { w: 5 });
       const trail = P.path({ tone: "blue", w: 8 });
       const dots = A3.CORNERS.map(() => P.dot({ tone: "grey", r: 9 }));
-      const arrow = P.arrow({ tone: "orange", w: 6 });
+      const thin = [0, 1].map(() => P.arrow({ tone: "green", w: 5 }));
+      const thick = [0, 1].map(() => P.arrow({ tone: "orange", w: 9 }));
+      const names = [0, 1].map(() => A3.tag(P.html, { anchor: "m", text: "x", tone: "green" }));
       const token = P.dot({ tone: "blue", r: 15 });
       const star = A3.star(P.over, { size: 52 });
       const xName = P.text({ tone: "grey" });
       const yName = P.text({ tone: "grey" });
+      const machine = P.text({ tone: "purple" });
+      const material = P.text({ tone: "purple", anchor: "start" });
+      const yAxis = P.text({ tone: "grey" });
+      const leg = [
+        A3.tag(stage, { x: 0, y: 520, anchor: "l", html: "", tone: "purple" }),
+        A3.tag(stage, { x: 0, y: 574, anchor: "l", html: "", tone: "purple" }),
+      ];
+      const LEG = ["s2 = material left over", "s1 = machine hours left over"];
 
-      // ----- the right column -----
+      // ----- the right column: profit on top, then question 1, then question 2 -----
+      const zStat = A3.stat(stage, { x: 504, y: 0, w: 432, label: "profit z", tone: "orange" });
       const gain = card(stage, {
         x: 504,
-        y: 0,
+        y: 128,
         w: 432,
         rows: [{ label: "x" }, { label: "y" }],
         min: -1,
         max: 3,
         labelW: 64,
         valW: 70,
-        title: "gain per unit of z",
+        title: "z gained per unit",
       });
       const ratio = card(stage, {
         x: 504,
-        y: 228,
+        y: 356,
         w: 432,
         rows: [
           { label: "machine", tone: "grey" },
@@ -166,10 +223,9 @@
         valW: 50,
         title: "how far can it grow?",
       });
-      const zStat = A3.stat(stage, { x: 504, y: 456, w: 432, label: "profit z", tone: "orange" });
       const done = A3.sticker(stage, {
         x: 504,
-        y: 228,
+        y: 356,
         w: 432,
         h: 64,
         text: "no gain left: optimal",
@@ -189,8 +245,8 @@
         P.set({ o: ramp(t, 0, 0.8, lin) });
         poly.set({ pts: A3.CORNERS });
         // the rule that blocks the way turns orange while its ratio row is the smallest
-        const stop1 = ramp(t, 4.6, 4.9, lin) * (1 - ramp(t, T.swap1, T.swap1 + 0.3, lin));
-        const stop2 = ramp(t, 8.7, 9.0, lin) * (1 - ramp(t, T.swap2, T.swap2 + 0.3, lin));
+        const stop1 = ramp(t, T.stop[0], T.stop[0] + 0.3, lin) * (1 - ramp(t, T.swap1, T.swap1 + 0.3, lin));
+        const stop2 = ramp(t, T.stop[1], T.stop[1] + 0.3, lin) * (1 - ramp(t, T.swap2, T.swap2 + 0.3, lin));
         l1.set({ tone: stop2 > 0.5 ? "orange" : "purple" });
         l2.set({ tone: stop1 > 0.5 ? "orange" : "purple" });
         trail.set({ pts: trailPts });
@@ -202,39 +258,67 @@
             (same(c, S1.to) && t >= T.walk2[1]);
           d.set({ x: c[0], y: c[1], tone: seen ? "blue" : "grey" });
         });
-        // arrows: first along the x-axis (x enters), then up the material edge (y enters)
-        const a1 = ramp(t, 3.0, 3.5);
-        const a2 = ramp(t, 7.2, 7.8);
-        const fade1 = 1 - ramp(t, T.walk1[0], T.walk1[0] + 0.5, lin);
-        const fade2 = 1 - ramp(t, T.walk2[0], T.walk2[0] + 0.5, lin);
-        const dir1 = pt(S0.from, S0.to, 0.48);
-        const dir2 = pt(S1.from, S1.to, 0.45);
-        if (t < 6.2) arrow.set({ x1: S0.from[0], y1: S0.from[1], x2: dir1[0], y2: dir1[1], k: a1, o: fade1 });
-        else arrow.set({ x1: S1.from[0], y1: S1.from[1], x2: dir2[0], y2: dir2[1], k: a2, o: fade2 });
         const born = pop(t, 0.6, 0.4);
         const ringK = Math.max(
-          ramp(t, T.ring0, T.ring0 + 0.3, lin) * (1 - ramp(t, T.walk1[1], T.walk1[1] + 0.3, lin)),
-          ramp(t, 7.1, 7.4, lin) * (1 - ramp(t, T.walk2[1], T.walk2[1] + 0.3, lin)),
+          ramp(t, T.enter[0], T.enter[0] + 0.3, lin) * (1 - ramp(t, T.walk1[1], T.walk1[1] + 0.3, lin)),
+          ramp(t, T.enter[1], T.enter[1] + 0.3, lin) * (1 - ramp(t, T.walk2[1], T.walk2[1] + 0.3, lin)),
         );
         token.set({
           x: tok[0],
           y: tok[1],
           s: born.s,
           o: born.o,
-          tone: t >= 11.0 ? "green" : "blue",
+          tone: t >= 12.8 ? "green" : "blue",
           ring: "orange",
           ringK,
         });
-        const sp = ramp(t, 11.0, 11.5, lin);
+        const sp = ramp(t, 12.8, 13.3, lin);
         star.set({ x: P.px(4), y: P.py(3) - 44, s: sp > 0 ? E.pop(sp) : 0, o: Math.min(1, sp * 5) });
         xName.set({ text: "x", x: 6.75, y: 0, dy: -16 });
         yName.set({ text: "y", x: 0, y: 7.3, dx: 26, dy: 8 });
+        // the rules are named on their lines (the ratio rows use the same words)
+        const kn = ramp(t, 0.5, 0.9, lin);
+        machine.set({ text: "machine", x: 5.6, y: 2.2, dy: -22, r: 26.6, o: kn });
+        material.set({ text: "material", x: 3.3, y: 5.8, o: kn });
+        const kya = ramp(t, T.ratio[1] + 0.3, T.ratio[1] + 0.6, lin) * (1 - ramp(t, T.swap2, T.swap2 + 0.3, lin));
+        yAxis.set({ text: "y axis", x: 0, y: 2.5, dx: 30, r: -90, o: kya });
 
-        // ----- question 1: which direction gains most? -----
+        // ----- the candidate directions: one arrow per row of the gain card -----
         const gp = gainPhase(t);
         const gs = GAINS[gp.st];
+        const dir = DIRS[gp.st];
+        const walkFade = [
+          1 - ramp(t, T.walk1[0], T.walk1[0] + 0.4, lin),
+          1 - ramp(t, T.walk2[0], T.walk2[0] + 0.4, lin),
+          1,
+        ][gp.st];
+        [0, 1].forEach((i) => {
+          const ka = ramp(t, T.arrows[gp.st] + 0.2 * i, T.arrows[gp.st] + 0.2 * i + 0.4, lin);
+          const chosen = CHOSEN[gp.st] === i && t >= T.enter[gp.st];
+          const base = { x1: dir.from[0], y1: dir.from[1], x2: dir.c[i].to[0], y2: dir.c[i].to[1], k: ka };
+          thin[i].set({ ...base, tone: gs.tones[i], o: (gp.g[i] > 0.01 ? walkFade : 0) * (chosen ? 0 : 1) });
+          thick[i].set({ ...base, o: chosen ? walkFade : 0 });
+          const tip = P.pt(dir.c[i].to[0], dir.c[i].to[1]);
+          names[i].set({
+            text: gs.labels[i],
+            tone: chosen ? "orange" : gs.tones[i],
+            solid: chosen,
+            s: 0.8 + 0.2 * E.pop(ka),
+            o: Math.min(1, ka * 4) * walkFade * (gp.g[i] > 0.01 ? 1 : 0),
+            dx: tip[0] + dir.c[i].tag[0],
+            dy: tip[1] + dir.c[i].tag[1],
+          });
+        });
+
+        // ----- slack: what a rule leaves over, defined when it first matters -----
+        leg.forEach((tg, i) => {
+          const p = pop(t, i ? T.s1 : T.s2, 0.4);
+          tg.set({ html: LEG[i], s: p.s, o: p.o });
+        });
+
+        // ----- question 1: which direction gains most? -----
         const gPop = pop(t, 1.3, 0.4);
-        const hiG = gp.st === 0 && t >= T.ring0 ? 0 : gp.st === 1 && t >= 7.1 ? 0 : null;
+        const hiG = gp.st < 2 && t >= T.enter[gp.st] ? 0 : null;
         V.place(gain.h, { s: gPop.s, o: gPop.o });
         gain.B.set({
           vals: gs.vals.map((v, i) => v * gp.g[i]),
@@ -247,15 +331,13 @@
         });
 
         // ----- question 2: how far can it grow? (the ratio test) -----
-        const second = t >= 7;
+        const second = t >= 6.6;
         const rs = RATIOS[second ? 1 : 0];
-        const rPop = second ? pop(t, 8.0, 0.4) : pop(t, 3.6, 0.4);
-        const rOut = second ? 1 - ramp(t, 10.8, 11.2, lin) : 1 - ramp(t, T.swap1, T.swap1 + 0.3, lin);
-        const rStart = second ? 8.1 : 3.9;
-        const rG = [0, 1].map((i) =>
-          ramp(t, rStart + (second ? 0.2 : 0.3) * i, rStart + (second ? 0.4 : 0.45) + (second ? 0.2 : 0.3) * i),
-        );
-        const lit = t >= (second ? 8.7 : 4.6);
+        const rPop = second ? pop(t, T.ratio[1], 0.4) : pop(t, T.ratio[0], 0.4);
+        const rOut = second ? 1 - ramp(t, T.swap2, T.swap2 + 0.4, lin) : 1 - ramp(t, T.swap1, T.swap1 + 0.3, lin);
+        const rStart = second ? T.ratio[1] + 0.3 : T.ratio[0] + 0.3;
+        const rG = [0, 1].map((i) => ramp(t, rStart + 0.25 * i, rStart + 0.5 + 0.25 * i));
+        const lit = t >= T.stop[second ? 1 : 0] + 0.1;
         V.place(ratio.h, { s: rPop.s, o: Math.min(rPop.o, rOut) });
         ratio.B.set({
           vals: rs.vals.map((v, i) => v * rG[i]),
@@ -274,9 +356,9 @@
           text: String(z),
           s: zp.s,
           o: zp.o,
-          bump: 0.5 * Math.max(flash(t, 5.8, 6.3), flash(t, 10.0, 10.5)),
+          bump: 0.5 * Math.max(flash(t, T.walk1[1], T.walk1[1] + 0.5), flash(t, T.walk2[1], T.walk2[1] + 0.5)),
         });
-        done.set({ k: ramp(t, 11.4, 11.9, lin) });
+        done.set({ k: ramp(t, 13.2, 13.7, lin) });
       };
     },
   });

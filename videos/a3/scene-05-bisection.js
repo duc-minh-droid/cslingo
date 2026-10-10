@@ -34,7 +34,7 @@
   A3.need(rows.map((r) => r.width).join() === "0.5,0.25,0.125,0.0625", "scene 05: widths");
 
   // ---------- timing (local seconds) ----------
-  const T0 = 3.4; // the four halvings start here, one every ROUND seconds
+  const T0 = 4.5; // the four halvings start here, one every ROUND seconds
   const ROUND = 1.7;
   const CUT = 0.8; // the thrown-away half tints red and the old end fades
   const HAND = 1.1; // m takes over the role of the end that was cut
@@ -45,14 +45,15 @@
   const WHAT = ["falling", "rising"]; // the end a falls, the end b rises
 
   V.scene({
-    kicker: "BRACKETING",
+    kicker: "BISECTION",
     title: ["A slope that flips", "traps the minimum"],
-    dur: 12,
+    dur: 13,
     caps: [
-      [0.4, 3.4, "Falling left, rising right: a minimum is trapped."],
-      [3.6, 6.4, "Test the middle: is the slope still falling?"],
-      [6.6, 9.8, "Keep the half where the slope flips."],
-      [10.0, 11.6, "Each step halves the bracket."],
+      [0.4, 2.5, "New problem: one number. Find the lowest point."],
+      [2.7, 4.4, "Falling, then rising: a minimum is trapped."],
+      [4.6, 7.0, "Bisection: test the middle. Still falling?"],
+      [7.2, 9.8, "Keep the half where the slope flips."],
+      [10.0, 12.6, "Each step halves the bracket."],
     ],
     build(stage) {
       const P = A3.plot(stage, {
@@ -86,6 +87,8 @@
       const ends = [part("blue"), part("blue")];
       const mid = part("orange");
       const star = A3.star(P.over, { size: 52 });
+      const fName = P.text({ tone: "grey" });
+      const method = A3.tag(P.html, { x: 24, y: 24, anchor: "l", text: "bisection", tone: "purple" });
       const y0 = P.cur.y0;
       const [areaL, areaR] = [P.area.x + TAG_W / 2, P.area.x + P.area.w - TAG_W / 2];
 
@@ -127,6 +130,9 @@
 
         // ---------- the card and the curve ----------
         P.set({ o: ramp(t, 0, 0.5, lin) });
+        fName.set({ text: "f(x)", x: 1.17, y: 1.1, o: ramp(t, 0.9, 1.3, lin) });
+        const km = ramp(t, T0 - 0.1, T0 + 0.3, lin);
+        method.set({ s: 0.8 + 0.2 * E.pop(km), o: Math.min(1, km * 4) });
         curve.set({ k: ramp(t, 0.1, 1.1, lin), fillO: ramp(t, 0.8, 1.2, lin) });
 
         // ---------- the thrown-away half ----------
@@ -146,8 +152,8 @@
           const moving = !!row && row.keep === role; // this end is the one that gets cut away
           const after = moving && u >= HAND; // m has taken over its role
           const cutF = moving && !after ? ramp(u, CUT, HAND, lin) : 0;
-          const k = rd ? 1 : ramp(t, 1.2 + 0.4 * i, 1.6 + 0.4 * i, lin); // dot, guide and letter appear
-          const kT = rd ? 1 : ramp(t, 2.0 + 0.6 * i, 2.4 + 0.6 * i, lin); // tangent and tag appear
+          const k = rd ? 1 : ramp(t, 1.6 + 0.4 * i, 2.0 + 0.4 * i, lin); // dot, guide and letter appear
+          const kT = rd ? 1 : ramp(t, 2.6 + 0.6 * i, 3.0 + 0.6 * i, lin); // tangent and tag appear
           // the tag of an end that m has just replaced starts where m's tag was and slides to its place
           const gT = after ? ramp(u, HAND, HAND + 0.4, E.inOut) : 1;
           showPart(h, {
@@ -157,7 +163,7 @@
             kT,
             s: (1 - 0.4 * cutF) * (after ? 1 + 0.3 * (1 - ramp(u, HAND, HAND + 0.3)) : 1),
             text: WHAT[i],
-            letter: role,
+            letter: rd ? role : `${role} = ${pre[i]}`,
             tagPos: after ? [lerp(mPos[0], tags[i][0], gT), lerp(mPos[1], tags[i][1], gT)] : tags[i],
             tagO: 1 - cutF,
             len,
@@ -184,18 +190,20 @@
         });
 
         // ---------- the bracket bar and its width ----------
-        const drawK = ramp(t, 2.8, 3.3, E.out);
-        span.set({ x0: xd[0], x1: rd ? xd[1] : lerp(xd[0], xd[1], drawK), o: ramp(t, 2.8, 3.0, lin) });
-        const kS = ramp(t, 2.8, 3.2, lin);
+        const drawK = ramp(t, 3.6, 4.1, E.out);
+        span.set({ x0: xd[0], x1: rd ? xd[1] : lerp(xd[0], xd[1], drawK), o: ramp(t, 3.6, 3.8, lin) });
+        const kS = ramp(t, 3.6, 4.0, lin);
+        // the card shows the real widths only: it snaps to the new width when the bar has glided
+        const width = row && u >= 1.25 ? row.width : pre[1] - pre[0];
         stat.set({
-          text: A3.fmt(xd[1] - xd[0], 4),
+          text: A3.fmt(width, 4),
           s: 0.8 + 0.2 * E.pop(kS),
           o: Math.min(1, kS * 4),
           bump: row ? flash(u, 1.25, 1.6) : 0,
         });
 
         // ---------- the minimum, found at last ----------
-        const kStar = ramp(t, 10.2, 10.7, lin);
+        const kStar = ramp(t, T0 + 4 * ROUND + 0.1, T0 + 4 * ROUND + 0.6, lin);
         star.set({ x: P.px(XMIN), y: P.py(f(XMIN)) - 58, s: E.pop(kStar), o: Math.min(1, kStar * 4) });
       };
     },

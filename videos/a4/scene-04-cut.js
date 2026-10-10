@@ -1,10 +1,12 @@
 /* Phase 4 · scene 04-cut: the cut property, shown on the example network.
-   Split the towns into {A} and the rest (a purple cut). The cables that cross it turn orange and are listed as tiles; the cheapest
-   (AC 3) turns green: it is safe. Then the proof by swapping, on a real tree T = AB BC BD DE (cost 12) that uses the dearer
-   crossing cable AB: add AC, a loop A-B-C appears (cost 15), drop AB, and the tree costs 11.
-   Two graphs share the stage so a cable can grow in colour over its own grey line: `base` (under everything: the cut blobs and the
-   grey cables) and `top` (the coloured cables, all five towns and their pills). Every number comes from A4.CUTS / A4.EXCHANGE and is
-   asserted when the scene is built. update(t) is a pure function of t. */
+   Split the towns into X = {A} and the rest (a purple cut). The cables that cross it turn orange and are listed as tiles; the
+   cheapest (AC 3) turns green: it is safe. Then the proof by swapping, on a real tree T = AB BC BD DE (cost 12) that uses the
+   dearer crossing cable AB, with the cut still drawn faintly so the viewer sees that AB and AC both cross it: add AC, a loop
+   A-B-C appears (red outline round its three cables, cost 15), drop AB (the other cable across the cut) and the tree costs 11
+   (BC stays: it does not cross the cut). A tag says 'was 12, saves 1'.
+   Three graphs share the stage so a cable can grow in colour over its own grey line: `base` (under everything: the cut blobs and
+   the grey cables), `alarm` (the red outline of the loop) and `top` (the coloured cables, all five towns and their pills). Every
+   number comes from A4.CUTS / A4.EXCHANGE and is asserted when the scene is built. update(t) is a pure function of t. */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -43,17 +45,23 @@
   const REACH = { A: TREE.AB, B: DONE.AB, C: DONE.BC, D: DONE.BD, E: DONE.DE }; // when a town joins T
   const AC_ADD = 7.4; // AC grows into T
   const AC_DONE = AC_ADD + 0.5;
-  const ALARM = 8.3;
-  const SWAP = 9.8;
-  const GREEN = { AC: 9.9, BC: 10.0, BD: 10.1, DE: 10.2 }; // the swap turns T2 green, one cable after another
-  const TOWN_GREEN = { A: 9.9, C: 9.9, B: 10.0, D: 10.1, E: 10.2 };
+  const ALARM = 8.0; // the loop is outlined in red, the cost is 15
+  const CROSSING = 9.0; // AB and AC wear the orange pills of the cables that cross the cut
+  const SWAP = 10.4;
+  const GREEN = { AC: 10.5, BC: 10.6, BD: 10.7, DE: 10.8 }; // the swap turns T2 green, one cable after another
+  const TOWN_GREEN = { A: 10.5, C: 10.5, B: 10.6, D: 10.7, E: 10.8 };
+  const COUNT = [SWAP + 0.2, SWAP + 0.8]; // the cost runs down from 15 to 11
+  const SAVED = 11.4; // the tag 'was 12, saves 1' and the tick
+  const CUT_OUT = 11.6; // the cut finally fades
   const W = 1.3; // width of cables that belong to a tree
 
   function build(stage) {
     const base = A4.net(stage, { x: 24, y: 20, s: 1 });
+    const alarmG = A4.net(stage, { x: 24, y: 20, s: 1, pills: false, hidden: true });
     const top = A4.net(stage, { x: 24, y: 20, s: 1, hidden: true });
     const xTag = A4.tag(stage, { x: 20, y: 142, text: "X", tone: "purple", solid: true });
     const crossTag = A4.tag(stage, { x: 650, y: 104, text: "across the cut", tone: "orange" });
+    const safeTag = A4.tag(stage, { x: 650, y: 322, text: "AC is safe", tone: "green", solid: true });
     const tiles = A4.tiles(stage, {
       x: 650,
       y: 176,
@@ -65,9 +73,10 @@
       tone: "orange",
     });
     const tot = A4.total(stage, { x: 650, y: 40, w: 270, h: 80, label: "tree cost", tone: "blue" });
-    const cheaper = A4.tag(stage, { x: 650, y: 136, text: "one cheaper", tone: "green" });
+    const saved = A4.tag(stage, { x: 650, y: 140, text: `was ${EX.total}, saves ${EX.total - EX.total2}`, tone: "green" });
     const ov = L5.svg(stage);
     const loopX = L5.cross(172, 250, 64, "red", { w: 9 });
+    A4.same("the swap saves", EX.total - EX.total2, 1);
     const mid = top.mid(EX.f);
     const swapX = L5.cross(mid.x, mid.y, 46, "red", { w: 8 });
     const tick = L5.tick(780, 250, 70, "green");

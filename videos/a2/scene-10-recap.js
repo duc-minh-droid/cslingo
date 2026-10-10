@@ -195,16 +195,6 @@
         style: { stroke: "var(--line-2)" },
       }),
     );
-    // the packet runs under the routers, so it slides out of one and into the next
-    const blue = L5.tone("blue");
-    const packet = svg.appendChild(
-      V.s(
-        "g",
-        {},
-        rect(-12, -9, 24, 24, 7, { "stroke-width": 2.5, style: { fill: blue.lip, stroke: blue.lip } }),
-        rect(-12, -12, 24, 24, 7, { "stroke-width": 2.5, style: { fill: blue.c, stroke: blue.lip } }),
-      ),
-    );
     // routers: a sticker box with two aerials and three lights; the last one has a green copy on top
     const green = L5.tone("green");
     const router = (cx) => {
@@ -237,6 +227,17 @@
       return { g, on };
     };
     const rs = XS.map(router);
+    // the packet rides the road ON TOP of the routers, so it is never hidden: it leaves router 1, crosses router 2 and stops just
+    // short of router 3 (which turns green as it arrives)
+    const blue = L5.tone("blue");
+    const packet = svg.appendChild(
+      V.s(
+        "g",
+        {},
+        rect(-12, -9, 24, 24, 7, { "stroke-width": 2.5, style: { fill: blue.lip, stroke: blue.lip } }),
+        rect(-12, -12, 24, 24, 7, { "stroke-width": 2.5, style: { fill: blue.c, stroke: blue.lip } }),
+      ),
+    );
     // the message tag: a purple sticker with two short lines in it
     const vio = L5.tone("purple");
     const tag = svg.appendChild(
@@ -254,8 +255,12 @@
       const u = t < START[2] ? -1 : (t - START[2]) % GP;
       const born = A2.pop(t, START[2] - 0.1);
       V.show(roads, A2.fade(t, START[2] - 0.1));
-      // packet: out of router 1, into router 2, out again, into router 3
-      const x = XS[0] + (XS[1] - XS[0]) * A2.io(q, ...T.hop1) + (XS[2] - XS[1]) * A2.io(q, ...T.hop2);
+      // packet: out of router 1, across router 2, on to router 3
+      const gap = 34; // clear of a router's body
+      const x =
+        XS[0] + gap + (XS[1] - XS[0] - 2 * gap) * A2.io(q, ...T.hop1) +
+        2 * gap * A2.io(q, T.hop1[1], T.hop2[0]) +
+        (XS[2] - XS[1] - 2 * gap) * A2.io(q, ...T.hop2); // prettier-ignore
       V.place(packet, {
         x,
         y: Y,

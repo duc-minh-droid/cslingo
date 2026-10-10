@@ -1,7 +1,9 @@
 /* Algorithms phase 2 (algo-2), scene 08: routing without a map (distance vectors, lesson 2.10).
    Router A cannot see the network. Its neighbours B, C and D each report how far THEY are from the destination F; A adds the
    cost of its own road to that neighbour and keeps the smallest total. The neighbour behind the minimum is the next hop.
-   Every number (road costs, reports, sums, the winner and its cost) comes from A2.BF, asserted below; only the times are typed. */
+   The reports are drawn as "says N" pills on dotted trails (not roads: scene 7's network has no B-F or D-F road; these are the
+   neighbours' distances through the rest of the network). Every number (road costs, reports, sums, the winner and its cost) comes
+   from A2.BF, asserted below; only the times are typed. */
 (function () {
   const V = window.VID;
   const A2 = V.a2;
@@ -55,7 +57,7 @@
     title: ["Routing without a map:", "ask your neighbours"],
     dur: 12,
     caps: [
-      [0.4, 4.0, "A has no map. Each neighbour says how far F is."],
+      [0.4, 4.0, "A sees only its neighbours. Each one says how far F is."],
       [4.2, 7.0, "A adds its own road cost to each answer."],
       [7.4, 11.4, "It keeps the smallest total, and the next hop: D."],
     ],
@@ -118,17 +120,19 @@
         return st;
       }
 
-      /* a dashed road beyond a neighbour: drawn blue from F back to the neighbour, its pill carries the report */
+      /* a dotted trail beyond a neighbour (the part of the network A cannot see: it is NOT a road with a cost): drawn blue from F back
+         to the neighbour, its pill carries the neighbour's report ("says 5") */
       function reportState(n, t) {
         const a = T.rep[n];
         const fadeOut = n === BF.best || t < T.min ? 0 : 0.55 * io(t, T.min, T.min + 0.4);
         return {
           tone: "blue",
-          dash: true,
+          dash: "dots",
+          w: 7,
           base: false,
           from: BF.dest,
           k: io(t, a, a + DRAW),
-          text: String(BF.says[n]),
+          text: `says ${BF.says[n]}`,
           pill: "blue",
           pk: lin(t, a + 0.25, a + 0.7),
           o: 1 - fadeOut,
@@ -151,6 +155,7 @@
           const gone = lin(t, sumAt(n) - 0.04, sumAt(n) + 0.08);
           tokens[n].set({
             ...p,
+            dy: -50 * f, // it lands just above the sum, never on top of it
             s: (0.7 + 0.3 * pop(t, T.add[n], 0.35)) * (1 - 0.35 * gone),
             o: fade(t, T.add[n], 0.1) * (1 - gone),
           });

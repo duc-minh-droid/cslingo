@@ -164,7 +164,13 @@
           const n = Math.min(L2.length, Math.floor((t - T.r2) / DR2) + 1);
           const done = t >= waveAt(L2.length - 1) + 0.05;
           const s2 = (0.8 + 0.2 * pop(t, T.r2)) * (1 + 0.1 * bump(t, waveAt(L2.length - 1) + 0.05, 0.4));
-          st = { text: sumText(R2, n, t >= T.r2end), tone: done ? "green" : "blue", solid: done, s: s2, o: fade(t, T.r2, 0.2) };
+          st = {
+            text: sumText(R2, n, t >= T.r2end),
+            tone: done ? "green" : "blue",
+            solid: done,
+            s: s2,
+            o: fade(t, T.r2, 0.2),
+          };
           rd = { text: roadsText(n), tone: done ? "green" : "blue", s: s2, o: fade(t, T.r2, 0.2) };
         }
         sum.set(st);

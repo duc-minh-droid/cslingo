@@ -45,6 +45,10 @@
      Br.update({k: 1, o: 1, tones: [tone per segment]})   k 0..1 reveals the bar from the left (the segments are clipped as it grows)
      Br.xAt(v) -> stage x of value v along the bar    Br.endX -> x after the last segment    Br.h, Br.total (sum of the values)
 
+   ───────────────────────────── A2.compass(x, y, r = 24, tone = "purple") -> {g, dial, needle} ─────────────────────────────
+     A compass pictogram (dial plus a needle that points right at rotation 0) centred on (x, y), for SVG layers (L5.svg).
+     V.place(g, {s, o}) pops and fades the whole icon; V.place(needle, {r: degrees}) swings the needle.
+
    ───────────────────────────── A2.mapIcon(x, y, size, tone = "blue") -> <g> ─────────────────────────────
      A small map-card pictogram (four dots joined by lines on a sticker card) centred on (x, y); V.place(g, {x, y, s, o}) moves it.
      Use inside SVG (G.over, L5.svg) .   A2.dot(x, y, r, tone = "blue") -> <g> a small solid disc with a lip. */
@@ -406,5 +410,22 @@
     return V.s("g", {}, c(r * 0.25, tn.lip), c(0, tn.c));
   }
 
-  Object.assign(A2, { grid, gridPaint, list, table, bar, mapIcon, dot });
+  function compass(x, y, r = 24, tone = "purple") {
+    const tn = L5.tone(tone);
+    const tri = (dir, fill) =>
+      V.s("path", {
+        d: `M ${f1(x + dir * r * 0.88)} ${f1(y)} L ${f1(x - dir * r * 0.1)} ${f1(y - r * 0.36)} L ${f1(x - dir * r * 0.1)} ${f1(y + r * 0.36)} Z`,
+        style: { fill },
+      });
+    const dial = V.s(
+      "g",
+      {},
+      V.s("circle", { cx: f1(x), cy: f1(y + 4), r: f1(r), style: { fill: tn.edge } }),
+      V.s("circle", { cx: f1(x), cy: f1(y), r: f1(r), "stroke-width": 3, style: { fill: tn.dim, stroke: tn.edge } }),
+    );
+    const needle = V.s("g", {}, tri(-1, "var(--line-2)"), tri(1, tn.c), V.s("circle", { cx: f1(x), cy: f1(y), r: f1(r * 0.15), style: { fill: tn.on } }));
+    return { g: V.s("g", {}, dial, needle), dial, needle };
+  } // prettier-ignore
+
+  Object.assign(A2, { grid, gridPaint, list, table, bar, mapIcon, dot, compass });
 })();

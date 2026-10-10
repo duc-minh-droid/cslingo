@@ -162,7 +162,7 @@
       [0.4, RELAX[0][0][0] - 0.1, "Distance from A. Settle the smallest first."],
       [RELAX[0][0][0], PICK[2][0] - 0.2, "Then check its roads. A shorter way replaces the old distance."],
       [PICK[2][0], PICK[4][1] + 0.1, "Repeat. The smallest waiting (tentative) distance is always final."],
-      [FIN0 - 0.1, RES + 2.4, "The green roads are the shortest routes: A to E costs 8."],
+      [FIN0 - 0.1, RES + 1.8, "The green roads are the shortest routes: A to E costs 8."],
     ],
     build(stage) {
       const G = A2.graph(stage, {

@@ -39,7 +39,9 @@
          halo   0..1 a pale band in the tone behind the cable (a highlight)
          pill   0..1 pop-in of the weight pill (default follows k: it pops in as the cable passes its midpoint; 0 hides it)
          pillTone  colour of the pill (the cable's tone)
-         solid  true = a solid sticker pill (tone fill, dark text), false = tinted;  pillO  opacity of the pill (the cable's o)
+         solid  true = a solid sticker pill (tone fill, dark text), false = tinted;  pillO  opacity of the pill (the cable's o).
+                The drawn pill opacity is raised so that a faded pill never reads below 0.8 (3:1 contrast) unless the cable
+                is nearly gone (pillO < 0.2 fades it out).
        TOWN state
          tone   A4.TONES (grey: white town with a grey rim);  solid  true = filled in the tone (use for "in the tree")
          s  scale (1)   o  opacity (1)   dx, dy  offset in px (hop / shake)
@@ -221,7 +223,10 @@
       });
       e.lip.style.fill = solid ? "var(--c-lip)" : "var(--c-edge)";
       e.txt.style.fill = solid ? "var(--c-on)" : pt_ === "grey" ? "var(--ink)" : "var(--c-ink)";
-      V.place(e.pill, { x: e.pos.x, y: e.pos.y, s: 0.6 + 0.4 * E.pop(pk), o: Math.min(1, pk * 4) * (st.pillO ?? op) });
+      // a pill of a dimmed cable stays readable: its opacity never falls below 0.8 until the cable itself is nearly gone
+      const pillO = st.pillO ?? op;
+      const readable = pillO < 0.2 ? pillO * 4 : 0.8 + (pillO - 0.2) * 0.25;
+      V.place(e.pill, { x: e.pos.x, y: e.pos.y, s: 0.6 + 0.4 * E.pop(pk), o: Math.min(1, pk * 4) * readable });
     }
     function paintTown(t, st) {
       const tone = st.tone || "grey";

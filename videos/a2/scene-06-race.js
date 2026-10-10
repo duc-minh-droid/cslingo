@@ -1,6 +1,7 @@
 /* Algorithms phase 2 (algo-2), scene 06: the race. The same 10 x 7 grid and wall, searched twice side by side at the same
-   speed (one cell per 0.09 s): Dijkstra (h = 0) floods 59 cells, A* (h = Manhattan distance) expands 20, both find cost 11 along
-   the same path. Then the rule that keeps A* honest: its guess h must never be higher than the true cost still to go.
+   speed (one cell per 0.08 s): Dijkstra (h = 0) floods 59 cells, A* (h = Manhattan distance) expands 20, both find cost 11 along
+   the same path. The counters say "N expanded" (cells looked at). Then the rule that keeps A* honest: its guess h must never be
+   higher than the true cost still to go, and a held tag says what goes wrong when it is (A* may miss the best route).
    Every number comes from A2.RUNS and A2.HONEST (asserted below), nothing is typed by hand. */
 (function () {
   const V = window.VID;
@@ -35,18 +36,19 @@
     headR: 0.8,
     count: 1.0, // the two counters
     go: 1.4, // the race starts: one expansion per `per` seconds
-    per: 0.09,
-    pathA: 3.7, // the A* route lights up 3.7 - 4.4
-    doneA: 4.0, // its counter turns solid green
-    costA: 4.2,
-    redD: 6.9, // Dijkstra's counter turns solid red
-    pathD: 7.0, // its route lights up 7.0 - 7.7
-    costD: 7.5,
-    dim: 8.0, // both grids dim 8.0 - 8.6
-    r1: 8.4, // rule: the true cost, then an honest guess, then a doubled guess; 0.6 s each
-    r2: 9.2,
-    r3: 10.0,
-    cross: 10.6,
+    per: 0.08,
+    pathA: 3.3, // the A* route lights up 3.3 - 4.0
+    doneA: 3.1, // its counter turns solid green
+    costA: 3.8,
+    redD: 6.2, // Dijkstra's counter turns solid red
+    pathD: 6.3, // its route lights up 6.3 - 7.0
+    costD: 6.8,
+    dim: 7.3, // both grids dim 7.3 - 7.9
+    r1: 7.7, // rule: the true cost, then an honest guess, then a doubled guess; 0.7 s each
+    r2: 8.4,
+    r3: 9.1,
+    cross: 9.7,
+    why: 10.2, // what goes wrong when the guess is too high: held for two seconds
   };
   const endA = T.go + AS.count * T.per;
   const endD = T.go + DJ.count * T.per;
@@ -54,28 +56,40 @@
   const done = (run, t) => Math.min(run.count, Math.max(0, (t - T.go) / T.per));
 
   // ---------- layout ----------
-  const GRID = { y: 66, cell: 38, gap: 4, fs: 28 };
-  const BAR = { x: 330, unit: 38, h: 44, ys: [450, 508, 566] };
+  const GRID = { y: 66, cell: 40, gap: 4, fs: 28 }; // each grid is 436 px wide
+  const BAR = { x: 330, unit: 38, h: 42, ys: [462, 514, 566] };
+  const [XL, XR] = [16, 484]; // left grid (Dijkstra) and right grid (A*)
 
   V.scene({
     kicker: "A* VS DIJKSTRA",
     title: ["Same route,", "far less work"],
-    dur: 12,
+    dur: 12.4,
     caps: [
-      [0.4, 3.4, "Same grid, same wall. Dijkstra looks everywhere."],
-      [3.6, 7.4, "A* aims at the goal and expands far fewer cells."],
-      [7.8, 11.6, "But its guess must never be higher than the true cost."],
+      [0.4, 3.2, "Same grid, same wall. Dijkstra looks everywhere."],
+      [3.4, 7.1, "A* aims at the goal and expands far fewer cells."],
+      [7.5, 10.0, "But its guess must never be higher than the true cost left."],
+      [10.2, 12.0, "A guess that is too high can fool A*."],
     ],
     build(stage) {
-      const GL = A2.grid(stage, { x: 20, ...GRID }); // Dijkstra
-      const GR = A2.grid(stage, { x: 500, ...GRID }); // A*
+      const GL = A2.grid(stage, { x: XL, ...GRID }); // Dijkstra
+      const GR = A2.grid(stage, { x: XR, ...GRID }); // A*
+      const [cL, cR] = [XL + GL.w / 2, XR + GR.w / 2]; // grid centres
 
-      const headL = A2.tag(stage, { x: 228, y: 34, text: "Dijkstra: h = 0", tone: "grey" });
-      const headR = A2.tag(stage, { x: 708, y: 34, text: "A*: h = guess", tone: "purple" });
-      const countL = A2.tag(stage, { x: 150, y: 392, text: "0 cells", tone: "blue", fs: 36, minW: 190 });
-      const countR = A2.tag(stage, { x: 630, y: 392, text: "0 cells", tone: "blue", fs: 36, minW: 190 });
-      const costL = A2.tag(stage, { x: 345, y: 392, text: `cost ${DJ.cost}`, tone: "green" });
-      const costR = A2.tag(stage, { x: 825, y: 392, text: `cost ${AS.cost}`, tone: "green" });
+      const headL = A2.tag(stage, { x: cL, y: 34, text: "Dijkstra: h = 0", tone: "grey" });
+      const headR = A2.tag(stage, { x: cR, y: 34, text: "A*: h = guess", tone: "purple" });
+      // under each grid: the count of cells expanded (250 px wide) and the cost found (about 145 px), centred as a pair
+      const [dxCount, dxCost] = [-(250 + 14 + 145) / 2 + 125, (250 + 14 + 145) / 2 - 72.5];
+      const countL = A2.tag(stage, { x: cL + dxCount, y: 412, text: "0 expanded", tone: "blue", fs: 36, minW: 250 });
+      const countR = A2.tag(stage, { x: cR + dxCount, y: 412, text: "0 expanded", tone: "blue", fs: 36, minW: 250 });
+      const costL = A2.tag(stage, { x: cL + dxCost, y: 412, text: `cost ${DJ.cost}`, tone: "green" });
+      const costR = A2.tag(stage, { x: cR + dxCost, y: 412, text: `cost ${AS.cost}`, tone: "green" });
+      const why = A2.tag(stage, {
+        x: 468,
+        y: 215,
+        text: "too high: A* may miss the best route",
+        tone: "red",
+        solid: true,
+      });
 
       // the rule: three bars, a label for each, and a marker at the true cost
       const bars = [
@@ -123,12 +137,11 @@
       const cross = L5.cross(bars[2].endX + 30, BAR.ys[2] + BAR.h / 2, 44, "red");
       svg.append(mark, cross);
 
-      /* a grid paint with the column-by-column pop-in of the start. A cell that is about to open is hidden by gridPaint until
-         its pop starts: keep the empty cell in place meanwhile, so the grid never shows a hole. */
-      const wave = (paint, t, base) => (cx, cy, key) => {
+      /* a grid paint with the column-by-column pop-in of the start (A2.gridPaint keeps the empty cell under a cell that is
+         about to open, so the grid never shows a hole) */
+      const wave = (paint, t) => (cx, cy, key) => {
         const a = T.grid + 0.04 * cx;
-        let st = paint(cx, cy, key);
-        if (st.look === "soft" && st.tone === "purple" && (st.o ?? 1) < base - 1e-6) st = { o: base };
+        const st = paint(cx, cy, key);
         return { ...st, o: (st.o ?? 1) * fade(t, a, 0.2), s: (st.s ?? 1) * (0.7 + 0.3 * pop(t, a)) };
       };
 
@@ -136,8 +149,8 @@
         // ---- the two searches, side by side at the same speed ----
         const [nD, nA] = [done(DJ, t), done(AS, t)];
         const dim = 1 - 0.65 * lin(t, T.dim, T.dim + 0.6);
-        GL.update({ cells: wave(A2.gridPaint(DJ, nD, { pathK: lin(t, T.pathD, T.pathD + 0.7), o: dim }), t, dim) });
-        GR.update({ cells: wave(A2.gridPaint(AS, nA, { pathK: lin(t, T.pathA, T.pathA + 0.7), o: dim }), t, dim) });
+        GL.update({ cells: wave(A2.gridPaint(DJ, nD, { pathK: lin(t, T.pathD, T.pathD + 0.7), o: dim }), t) });
+        GR.update({ cells: wave(A2.gridPaint(AS, nA, { pathK: lin(t, T.pathA, T.pathA + 0.7), o: dim }), t) });
 
         // ---- headers, counters, costs ----
         const show = (tag, a, extra = {}) => tag.set({ s: 0.8 + 0.2 * pop(t, a), o: fade(t, a, 0.2), ...extra });
@@ -146,7 +159,7 @@
         const counter = (tag, n, at, tone) => {
           const finished = t >= at;
           show(tag, T.count, {
-            text: `${Math.floor(n + 1e-9)} cells`,
+            text: `${Math.floor(n + 1e-9)} expanded`,
             tone: finished ? tone : "blue",
             solid: finished,
             s: (0.8 + 0.2 * pop(t, T.count)) * (1 + 0.12 * bump(t, at, 0.4)),
@@ -169,6 +182,7 @@
           o: fade(t, T.r3, 0.2),
         });
         V.place(mark, { o: fade(t, T.r1 + 0.6, 0.3) });
+        why.set({ s: (0.8 + 0.2 * pop(t, T.why)) * (1 + 0.06 * bump(t, T.why + 0.3, 0.4)), o: fade(t, T.why, 0.2) });
         const ck = lin(t, T.cross, T.cross + 0.4);
         L5.drawOn(cross, ck);
         V.place(cross, { s: 0.7 + 0.3 * pop(t, T.cross), o: ck > 0 ? 1 : 0 });
