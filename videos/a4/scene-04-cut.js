@@ -241,14 +241,14 @@
   V.scene({
     kicker: "THE CUT PROPERTY",
     title: ["The cheapest cable", "across a cut is safe"],
-    dur: 15.8,
+    dur: 15.6,
     caps: [
       [0.4, 3.0, "Split the towns into X and the rest: a cut."],
       [3.2, 5.4, "A tree must cross it. AC is the cheapest."],
       [5.6, 7.8, "Suppose a tree uses the dearer cable AB."],
       [8.0, 10.2, "Add AC: a loop. AB also crosses the cut."],
       [10.4, 12.5, "Drop the dearer AB: the tree is cheaper."],
-      [12.7, 15.5, "The cheapest cable across a cut is safe: a cheapest tree uses it."],
+      [12.7, 15.4, "Cheapest across a cut is safe: a cheapest tree uses it."],
     ],
     build,
   });

@@ -8,10 +8,10 @@
     title: ["Repeats shrink,", "noise does not"],
     dur: 11,
     caps: [
-      [0.4, 2.6, "A GIF packs its pixel colours with LZW."],
-      [2.8, 5.0, "Flat colour: long repeats become single codes."],
-      [5.4, 8.0, "Noise has almost no repeats, so almost no saving."],
-      [8.5, 10.6, "LZW feeds on repeats."],
+      [0.4, 2.6, "A GIF packs its pixels with LZW."],
+      [3.4, 5.2, "Runs of one colour shrink into single codes."],
+      [5.8, 8.2, "Noise rarely repeats, so almost nothing shrinks."],
+      [8.4, 10.4, "LZW feeds on repeats."],
     ],
     build(stage) {
       const t = A7.tag(stage, { x: 300, y: 280, text: "scene 10 · placeholder", tone: "blue", solid: true });

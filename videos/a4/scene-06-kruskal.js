@@ -173,7 +173,7 @@
       [6.6, 8.3, "Groups merge as cables join them."],
       [8.5, 10.9, "A and B are already joined. Skip AB."],
       [11.1, 12.8, "BD joins the last two groups."],
-      [13.0, 15.0, "Four cables are enough. The rest are never read."],
+      [13.0, 15.0, "Four cables suffice. The rest are never read."],
     ],
     build(stage) {
       // the network, smaller and lower to leave room for the list on top (AB's pill sits off-centre to leave room for the cross)

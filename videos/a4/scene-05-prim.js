@@ -96,13 +96,13 @@
   V.scene({
     kicker: "PRIM'S ALGORITHM",
     title: ["Prim grows one tree,", "cheapest cable first"],
-    dur: 13.5,
+    dur: 13.4,
     caps: [
       [0.4, 2.7, "Start anywhere. List the cables leaving the tree."],
       [2.8, 6.0, "Take the cheapest one. A new town joins."],
       [6.2, 9.4, "Repeat. A cable inside the tree is ignored."],
       [9.6, 11.2, "DE 1 is the cheapest. E joins."],
-      [11.3, 13.3, "Every town is in. The cheapest tree costs 11."],
+      [11.3, 13.2, "Every town is in. The cheapest tree costs 11."],
     ],
     build(stage) {
       const g = A4.net(stage, { x: 24, y: 20, s: 1 });

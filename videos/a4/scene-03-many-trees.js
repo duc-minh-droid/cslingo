@@ -49,17 +49,17 @@
   ];
   const ROW_TONE = ["blue", "blue", "red"];
   const BAR_X = 356;
-  const barW = (text) => Math.min(924 - BAR_X, 110 + 26 * text.replace(/,/g, "").length);
+  const barW = (text) => Math.min(912 - BAR_X, 110 + 26 * text.replace(/,/g, "").length);
 
   V.scene({
     kicker: "THE GOAL",
     title: ["Many spanning trees,", "one is cheapest"],
-    dur: 11.5,
+    dur: 11.1,
     caps: [
       [0.4, 2.9, "The same five towns have 21 different spanning trees."],
       [3.0, 5.5, "Each tree has a total cost, from 11 to 22."],
-      [5.7, 7.3, "The cheapest is the minimum spanning tree."],
-      [7.5, 11.0, "Bigger networks have far too many trees to try them all."],
+      [5.7, 7.4, "The cheapest is the minimum spanning tree."],
+      [7.5, 10.8, "Bigger networks have far too many trees to try them all."],
     ],
     build(stage) {
       // the network, big enough to read each cable's weight, and the running total of the tree on show

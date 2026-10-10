@@ -6,7 +6,9 @@
           Kruskal pops DE, BC, AC, BD (from A4.KRUSKAL) as separate pieces that merge. Both end on the same tree: an equals sign.
    Row 3 (period 5, blue): the seven towns of lesson 4.9: the green tree draws (A4.TSP.mst), an orange doubled outline walks
           round it (A4.TSP.walk), then the blue shortcut tour ABCDEFG closes (A4.TSP.pre) and a green tick pops.
-   Every row fades out at the end of its lap and starts again, so the pictograms keep moving until the end. No numbers on screen. */
+   Row 1 plays two laps (its first lap fades out and starts again), rows 2 and 3 play one; the LAST lap of every row is never faded
+   out, so from about 7.6 s to the end of the scene all three pictograms show their finished drawing (the frame the video ends on).
+   No numbers on screen. */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -21,9 +23,14 @@
     width: `${f1(w)}px`,
     height: `${f1(h)}px`,
   });
-  const cyc = (t, t0, period) => (t < t0 ? -1 : (t - t0) % period); // time inside the current lap, -1 before the first
-  // opacity of a whole pictogram: in at the start of a lap, out at its end
-  const life = (q, end) => (q < 0 ? 0 : ramp(q, 0, 0.3, E.lin) * (1 - ramp(q, end, end + 0.4, E.lin)));
+  // time inside the current lap (-1 before the first) and whether it is the last lap: the last lap holds its finished state
+  const lap = (t, t0, period, laps) => {
+    if (t < t0) return { q: -1, last: false };
+    const n = Math.min(laps - 1, Math.floor((t - t0) / period));
+    return { q: t - t0 - n * period, last: n === laps - 1 };
+  };
+  // opacity of a whole pictogram: in at the start of a lap, out at its end (not in the last lap)
+  const life = (q, end, last) => (q < 0 ? 0 : ramp(q, 0, 0.3, E.lin) * (last ? 1 : 1 - ramp(q, end, end + 0.4, E.lin)));
 
   const CARD = { x: 72, w: 936, h: 180, tops: [240, 444, 648] };
   const APPEAR = [0.8, 1.9, 3.0];
@@ -79,8 +86,8 @@
     const T = { blob: [0.3, 0.8], orange: [0.9, 1.3], pick: [1.6, 2.1], end: 3.3 };
 
     return (t) => {
-      const q = cyc(t, START[0], 4);
-      const lifeK = life(q, T.end);
+      const { q, last } = lap(t, START[0], 4, 2);
+      const lifeK = life(q, T.end, last);
       const cables = ramp(q, 0.1, 0.4, E.lin); // the grey network fades in with the towns
       const blob = ramp(q, T.blob[0], T.blob[1]);
       const picked = q >= T.pick[0];
@@ -162,8 +169,8 @@
     });
 
     return (t) => {
-      const q = cyc(t, START[1], 5);
-      const lifeK = life(q, END);
+      const { q, last } = lap(t, START[1], 5, 1);
+      const lifeK = life(q, END, last);
       const cables = ramp(q, 0.1, 0.4, E.lin);
       const pk = (i) => ramp(q, 0.05 * i, 0.05 * i + 0.4, E.lin);
 
@@ -285,8 +292,8 @@
     TS.legs.forEach((l, i) => (blue[l.to] = blue[l.to] ?? T.tour + T.tourStep * i + T.tourDraw));
 
     return (t) => {
-      const q = cyc(t, START[2], 5);
-      const lifeK = life(q, T.end);
+      const { q, last } = lap(t, START[2], 5, 1);
+      const lifeK = life(q, T.end, last);
       const spare = 1 - 0.65 * ramp(q, 3.0, 3.5, E.lin); // the tree cables the tour does not use dim
       const edges = {};
       TS.mst.forEach((c, i) => {

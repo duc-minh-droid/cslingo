@@ -1,8 +1,50 @@
-/* Phase 5 · scene 02-band: PLACEHOLDER written by the architect (the scene author replaces this whole file).
-   The design is scene 2 of videos/_plan/algo-5.json ("spec"); the kicker, title, duration and captions below are final.
-   Helpers: videos/a5/common*.js (read their API comments first). */
+/* Phase 5 · scene 02-band (12 s): THE CONVEX HULL. Seven pins on a board; a rubber band is stretched loosely round them all (orange),
+   then let go: it snaps tight onto the outer pins (green). The pins it touches are the corners of the convex hull; the pins inside
+   never touch it. A convex shape keeps every segment between two of its points inside it: three segments are tried, A-D, G-D and
+   B-F (the last joins the two INSIDE pins), and every one stays inside the band. The pins are the lesson's own A..G (unlettered
+   here, they stay small so the loose band fits); the hull, the inside pins and the "segment stays inside" test all come from A5.
+   Story (local seconds): 0.2-1.3 pins, 1.3-2.2 the loose band, 3.6-4.6 snap, 4.6-5.4 corners turn green, 5.5 'convex hull' label,
+   5.8 counters, 6.4-8.4 'inside' tags, 8.7-11.5 the segment test, 11.1 'convex'. */
 (function () {
   const V = window.VID;
+  const A5 = V.a5;
+  const L5 = V.l5;
+  const { ramp, flash, clamp, lerp, ease: E } = V;
+
+  const P = A5.pos({ x: 186, y: 100, s: 1.55 });
+  const HULL = A5.HULL;
+  const INSIDE = A5.INSIDE;
+  const CHORDS = [
+    ["A", "D"],
+    ["G", "D"],
+    ["B", "F"],
+  ];
+  const AMOUNT = 40; // how far outside the pins the loose band hangs
+  A5.same("scene 2 hull", HULL, ["A", "C", "D", "E", "G"]);
+  A5.same("scene 2 inside pins", INSIDE, ["B", "F"]);
+
+  // the convexity claim, checked for real: every sampled point of every chord is on the inner side of every hull edge
+  const inside = (p) =>
+    HULL.every((n, i) => A5.turnValue(P[n], P[HULL[(i + 1) % HULL.length]], p) >= -1e-6);
+  CHORDS.forEach(([a, b]) => {
+    const ok = Array.from({ length: 21 }, (_, i) => i / 20).every((u) =>
+      inside([lerp(P[a][0], P[b][0], u), lerp(P[a][1], P[b][1], u)]),
+    );
+    A5.same(`scene 2 chord ${a}${b} stays inside the hull`, ok, true);
+  });
+
+  // chord timing: each grows in 0.4 s, 0.2 s later it turns green and its tick draws on (0.3 s)
+  const TEST = CHORDS.map((c, i) => ({ c, a: 8.7 + 0.8 * i, b: 9.1 + 0.8 * i, g: 9.3 + 0.8 * i }));
+  // a tick sits beside its chord, on the clear side (offset: along the chord's normal, in px)
+  const tickAt = ([a, b], off) => {
+    const [pa, pb] = [P[a], P[b]];
+    const len = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+    let n = [(pb[1] - pa[1]) / len, -(pb[0] - pa[0]) / len];
+    if (n[1] > 0) n = [-n[0], -n[1]]; // the normal that points up the screen
+    if (a === "G") n = [-n[0], -n[1]]; // G-D: the clear side is to the right (away from pin F)
+    return [(pa[0] + pb[0]) / 2 + n[0] * off, (pa[1] + pb[1]) / 2 + n[1] * off];
+  };
+
   V.scene({
     kicker: "THE CONVEX HULL",
     title: ["Stretch a rubber band", "round the pins"],
@@ -14,22 +56,104 @@
       [8.6, 11.6, "A convex shape keeps every segment inside."],
     ],
     build(stage) {
-      const card = V.h("div", {
-        class: "v-card plain c-green",
-        text: "scene 2 · placeholder",
-        style: {
-          left: "218px",
-          top: "250px",
-          width: "500px",
-          height: "140px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "38px",
-        },
+      const pins = A5.plot(stage, { pos: P, r: 20, letters: false, polys: 2, segs: 4, tags: 4 });
+      const corners = A5.counter(stage, { x: 70, y: 506, w: 290, label: "corners", tone: "green" });
+      const inner = A5.counter(stage, { x: 380, y: 506, w: 270, label: "inside", tone: "grey" });
+      const convex = A5.tag(stage, { x: 700, y: 520, text: "convex", tone: "green", solid: true, fs: 34 });
+      const svg = L5.svg(stage);
+      const ticks = TEST.map((q, i) => {
+        const [x, y] = tickAt(q.c, i === 1 ? 40 : 42);
+        return svg.appendChild(L5.tick(x, y, 44, "green"));
       });
-      stage.append(card);
-      return (t) => V.place(card, { s: 0.8 + 0.2 * V.ramp(t, 0.1, 0.6, V.ease.pop), o: V.ramp(t, 0.1, 0.4) });
+
+      // the label rides on the middle of the top-right edge (G to E): outside by `spread` * 40 px, always a little further out
+      const edge = ["G", "E"].map((n) => P[n]);
+      const mid = [(edge[0][0] + edge[1][0]) / 2, (edge[0][1] + edge[1][1]) / 2];
+      const el = Math.hypot(edge[1][0] - edge[0][0], edge[1][1] - edge[0][1]);
+      const nrm = [(edge[1][1] - edge[0][1]) / el, -(edge[1][0] - edge[0][0]) / el]; // points up and to the right (outside)
+      const onBand = (spread) => [mid[0] + nrm[0] * AMOUNT * spread, mid[1] + nrm[1] * AMOUNT * spread];
+
+      return (t) => {
+        // ---- the band: loose, then tight ----
+        const grow = ramp(t, 1.3, 2.2, E.lin);
+        const hang = Math.sin(Math.PI * clamp((t - 2.2) / 1.4)); // a slow, tiny sag while it hangs
+        const spread = t < 3.6 ? 1 - 0.07 * hang : 1 - ramp(t, 3.6, 4.6, E.out);
+        const snapped = t >= 4.5;
+        const band = {
+          pts: HULL,
+          tone: snapped ? "green" : "orange",
+          fill: lerp(0.3 * ramp(t, 1.7, 2.3), 0.5, ramp(t, 3.6, 5.0)),
+          w: lerp(0.8, 1, ramp(t, 3.6, 4.6)),
+          spread,
+          k: grow,
+        };
+
+        // ---- the pins ----
+        const points = {};
+        A5.NAMES.forEach((n, i) => {
+          const k = ramp(t, 0.2 + 0.12 * i, 0.6 + 0.12 * i, E.lin);
+          const j = HULL.indexOf(n);
+          const tg = 4.6 + 0.15 * j; // a corner turns solid green when the band reaches it
+          const green = j >= 0 && t >= tg;
+          points[n] = {
+            tone: green ? "green" : "grey",
+            solid: green,
+            s: E.pop(k) * (green ? 1 + 0.2 * flash(t, tg, tg + 0.35) : 1),
+            o: Math.min(1, 4 * k),
+          };
+        });
+
+        // ---- labels on the picture ----
+        const loose = onBand(spread);
+        const tags = [
+          // the loose band names itself, rides in with it as it snaps, and gives way to 'convex hull' on the tight band
+          {
+            at: loose,
+            text: "rubber band",
+            tone: "orange",
+            solid: true,
+            k: ramp(t, 2.2, 2.6, E.lin),
+            o: 1 - ramp(t, 3.6, 4.0, E.lin),
+          },
+          { at: onBand(0), text: "convex hull", tone: "green", solid: true, k: ramp(t, 5.5, 5.9, E.lin) },
+        ];
+        INSIDE.forEach((n, i) => {
+          tags.push({
+            at: n,
+            dy: 46,
+            text: "inside",
+            tone: "grey",
+            k: ramp(t, 6.4 + 0.2 * i, 6.8 + 0.2 * i, E.lin),
+            o: 1 - ramp(t, 8.2, 8.5, E.lin),
+          });
+        });
+
+        // ---- the segment test ----
+        const segs = TEST.map((q, i) => {
+          const next = TEST[i + 1];
+          const done = t >= q.g;
+          return {
+            a: q.c[0],
+            b: q.c[1],
+            tone: done ? "green" : "blue",
+            k: ramp(t, q.a, q.b),
+            w: 1,
+            o: next ? 1 - 0.45 * ramp(t, next.a, next.a + 0.3, E.lin) : 1,
+          };
+        });
+
+        pins.update({ points, polys: [band], segs, tags });
+        ticks.forEach((tk, i) => L5.drawOn(tk, ramp(t, TEST[i].g, TEST[i].g + 0.3, E.lin)));
+
+        corners.set({
+          text: String(HULL.length),
+          tone: "green",
+          bump: flash(t, 5.8, 6.2),
+          k: ramp(t, 5.8, 6.2, E.lin),
+        });
+        inner.set({ text: String(INSIDE.length), tone: "grey", bump: flash(t, 5.9, 6.3), k: ramp(t, 5.9, 6.3, E.lin) });
+        convex.set({ k: ramp(t, 11.1, 11.5, E.lin) });
+      };
     },
   });
 })();

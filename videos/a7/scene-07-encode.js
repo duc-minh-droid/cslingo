@@ -8,8 +8,8 @@
     title: ["Common letters get", "short codes"],
     dur: 12,
     caps: [
-      [0.4, 2.4, "Common B hangs one step from the root, the rest three."],
-      [2.6, 4.6, "Each step is a bit: the path spells the code."],
+      [0.8, 2.8, "Common B sits one step from the root."],
+      [2.9, 4.6, "The path down is the code."],
       [5.6, 8.6, "Spell BBADEBC with these codes."],
       [9.6, 11.6, "15 bits instead of 21."],
     ],

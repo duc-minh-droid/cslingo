@@ -1,0 +1,376 @@
+{
+ "slug": "algo-6",
+ "dir": "a6",
+ "title": "Phase 6 · Error Detection & Correction",
+ "outline": "Phase 6 video (Algorithms, ECM3428): 'Error Detection & Correction', sub line 'How data survives a noisy wire'. 11 scenes, about 124 s: title (4), noise flips bits (10.5), parity (12.5), CRC: check bits from a long division (12.5), the receiver repeats the division (11), ask again or fix it yourself (11.5), valid words must stay far apart (14), Hamming: three checks, each guards a group (12.5), Hamming: the failed checks spell the position (14), Hamming fixes one error, not two (12.2), recap (9). Story: noise flips bits on a wire and the receiver cannot tell (scene 2); the cure is redundancy, extra check bits that depend on the data. A PARITY bit (the number of 1s made even) catches one flip but is fooled by two and never says where (3). A CRC divides the message by a pattern both sides know and sends the remainder (4); the receiver divides the whole frame again and a clean frame leaves 000, while two flips or a burst of three change the remainder (5). A failed check can mean 'ask again' (a download) but a far-away probe cannot wait for the reply, so its code must repair errors itself (6). Repair is possible when valid words are far apart: on the 3-bit cube only 000 and 111 are valid, three flips apart, so one flip leaves a word nearest its true word (repaired) but two flips lead to the wrong word (7). Hamming(7,4) puts check bits at positions 1, 2, 4, each a parity bit for the group of positions whose binary number has a 1 in its digit (8); after a flip the failed checks, read as binary p4 p2 p1, spell the position of the flipped bit and it is flipped back (9); with two flips the same rule points at an innocent third position and 'repairs' it wrongly: Hamming fixes exactly one error (10). Not covered (lessons 6.4, 6.6, 6.8, 6.9 and the workshop): generator polynomials, the guessing game, the G H M matrices, SECDED, Reed-Solomon / turbo / LDPC codes; the recap points to Workshop 6.W.\n\nLESSONS the facts come from: a6-noise 6.1, a6-parity 6.2, a6-crc 6.3, a6-crcpoly 6.4, a6-distance 6.5, a6-game 6.6, a6-hamming 6.7, a6-matrix 6.8, a6-codes 6.9, a6-wire 6.W; js/content/algo/algo-p6.js, algo-p6-x-01..04.js, algo-workshops-6-03.js; bank js/bank/algo-*.js.\n\nTHE EXAMPLE DATA (all asserted when the page loads by videos/a6/common.js; a wrong number throws an Error). Bits are strings, tile index = position - 1.\n Scene 2: message 1011001 on the wire, the second bit (index 1) flips 0 -> 1: received 1111001.\n Scene 3 (lesson 6.3 strip): data 1011001 has four 1s so the even-parity bit is 0: frame 10110010. One flip (index 1): 11110010 has five 1s (odd: caught). Two flips (indices 1 and 4): 11111010 has six 1s (even: missed).\n Scenes 4-5 (lesson 6.3): message 1011, generator 1101 (degree 3: three check bits). Dividend 1011000: step 1 XOR 1101 under column 0 gives 0110000, step 2 XOR 1101 under column 1 gives 0000100: remainder 100; frame sent 1011100. The receiver divides 1011100: 0110100 then 0000000: remainder 000 (clean). Received 1111000 (flips 1 and 4, the pair that fooled parity): remainder 111. Received 1000000 (a burst of three, flips 2, 3, 4, the workshop's mission): remainder 110. Exhaustive audit of all 7-bit error patterns: 7 of 7 single flips, 21 of 21 double flips and 23 of 23 bursts of up to 3 bits change the remainder; a degree-16 generator catches every burst of 16 bits or fewer (lesson 6.4, CRC-16).\n Scene 6 (lesson 6.1 ARQ run): frame 11010010 (data 1101001 + parity 0); the fourth bit flips (11000010: three 1s, odd) so the receiver sends a NAK (here: 'send again') and the sender retransmits. A probe light-minutes away cannot wait: its code (the Hamming codeword 0110011) must repair itself.\n Scene 7 (lesson 6.5): the 3-bit cube, valid words 000 (bit 0) and 111 (bit 1), Hamming distance 3 (three flips apart: 000 -> 010 -> 011 -> 111). One flip 000 -> 010: distance to 000 is 1, to 111 is 2, so it decodes to 000 (right). Two flips 000 -> 011: distance to 000 is 2, to 111 is 1, so it decodes to 111 (wrong).\n Scenes 8-10 (lessons 6.7, 6.W): Hamming(7,4), positions 1-7, check bits p1 p2 p4 at positions 1, 2, 4, data 1011 at positions 3, 5, 6, 7, codeword 0110011. Groups: p1 = 1,3,5,7; p2 = 2,3,6,7; p4 = 4,5,6,7 (positions whose binary number ends in 1 / has a middle 1 / starts with 1; positions in binary 001 010 011 100 101 110 111). Each check bit makes its group's count of 1s even: p1 = 0 (data 1,0,1), p2 = 1 (data 1,1,1), p4 = 0 (data 0,1,1). One flip, position 6: 0110001; p4 group 0,0,0,1 (one 1) FAILS, p2 group 1,1,0,1 (three) FAILS, p1 group 0,1,0,1 (two) passes: p4 p2 p1 = 110 = 6, flip it back: 0110011. Two flips, positions 2 and 5: 0010111; every group holds three 1s so all three fail: 111 = 7, the 'repair' flips position 7 giving 0010110, which is itself a valid codeword (all three checks pass) with data 1110 instead of 1011 and three positions (2, 5, 7) wrong. Over all 16 codewords: all 112 single flips are repaired, none of the 336 double flips is (lesson 6.7 'Try every error').\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure). The bit tiles are the video's vocabulary: a data bit is a grey tile, a check bit (parity bit, CRC remainder, p1 p2 p4) is an orange tile, a flipped bit is a red tile (tiles flip edge-on, switch digit and colour at the half-way point: A6.bits row.flip), a tile being counted is blue, the generator is purple. Position / tile indices are 0-based in code; Hamming positions in captions and labels are 1-based (position 6 = tile index 5). Scenes 8-10 share ONE layout (A6.hamRig) and the same codeword so the viewer follows one word from building it, to locating a flip, to the two-flip failure. The same two flips (the second and the fifth bit) fool parity in scene 3, are caught by the CRC in scene 5 and defeat Hamming in scene 10. Captions: one plain sentence each (at most 8 words, about 4 words per second at the fastest), and each caption starts only when the picture it describes is on screen. Words defined on screen before they are used: 'parity bit' (tag, scene 3), 'XOR' (tag 'XOR: differ = 1', scene 4), 'generator' and 'message' and 'remainder' (tags, scene 4), 'burst' (tag '3 in a row', scene 5), 'valid words' / '3 steps apart' (scene 7). The word 'syndrome' is never used: the failed checks 'spell the position'. scene-01-title.js is finished (a copy of the title card with a two-line 92 px headline because 'Error Detection & Correction' does not fit one line): do not replace it by VID.titleCard.",
+ "titleCard": {
+  "kicker": "Algorithms · Phase 6",
+  "title": "Error Detection & Correction",
+  "sub": "How data survives a noisy wire",
+  "who": "byte",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-noise.js",
+   "kicker": "THE PROBLEM",
+   "title": [
+    "Noise flips bits,",
+    "and nobody tells you"
+   ],
+   "dur": 10.5,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "A message travels as bits."
+    ],
+    [
+     3.5,
+     5.5,
+     "Noise on the wire flips a bit."
+    ],
+    [
+     6,
+     8,
+     "The receiver cannot tell."
+    ],
+    [
+     8.7,
+     10.3,
+     "Fix: add a check bit."
+    ]
+   ],
+   "spec": "IDEA: bits travelling along a wire can be flipped by noise, and the receiver sees only what arrives, so it cannot tell that anything changed. The cure (the rest of the video) is to send extra check bits that depend on the data. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px; sent word above, received word below, seven lanes between; a tag is about 58 px high). const sent = A6.bits(stage, {x: 150, y: 72, bits: A6.PARITY.frame, size: 84, gap: 12, tones: ['grey','grey','grey','grey','grey','grey','grey','orange']}): tile i at x = 150 + 96 i, y 72-156; tiles 0-6 are the message 1011001 (A6.WIRE.msg), tile 7 (x 822-906) is the orange check-bit slot: until 8.7 draw it as sent.set(7, {ghost: true, text: ''}) (dashed outline, empty). Tag A6.tag(stage, {x: 150, y: 0, text: 'sent', tone: 'grey'}) above the row. const received = A6.bits(stage, {x: 150, y: 388, bits: A6.WIRE.recv, size: 84, gap: 12}) (7 tiles, y 388-472, same x as the sent tiles above them) and A6.tag(stage, {x: 150, y: 486, text: 'received', tone: 'grey'}) under it. Lanes: const svg = L5.svg(stage); for i = 0..6 a grey arrow g_i = svg.appendChild(L5.arrow(192 + 96 i, 168, 192 + 96 i, 376, 'grey', 1, {w: 6, head: 18})) from the middle of sent tile i down to received tile i; L5.drawOn(g_i, k) draws it from the top. Noise: bolt = svg.appendChild(A6.bolt(288, 272, 130, 'orange')) on lane 1 (V.place(bolt, {s, o}) pops and fades it). Receiver's doubt: qmark = svg.appendChild(A6.qmark(470, 556, 96, 'orange')) and an orange tag A6.tag(stage, {x: 530, y: 536, text: 'any flips?', tone: 'orange'}). Final tag: A6.tag(stage, {x: 724, y: 166, text: 'check bit', tone: 'orange', solid: true}) under tile 7 (the lanes are gone by then).\n\nDATA (assert with A6.same): sent word A6.PARITY.frame = '10110010' (message A6.WIRE.msg = '1011001' plus the parity bit 0, which scene 3 explains: here it is only 'the check bit'); the wire flips index A6.WIRE.flip = 1 (0 -> 1) so received = A6.WIRE.recv = '1111001'.\n\nTIMELINE. 0.2-0.5 the 'sent' tag pops; 0.3-0.9 sent tiles 0-6 pop in one after another (0.08 s apart, E.pop, grey); 0.8-1.1 the ghost slot fades in. 1.3-2.4 the seven lanes draw on (0.07 s apart, L5.drawOn, grey). 2.4-3.5 the bolt pops on lane 1 (s 0.5 -> 1.1 with E.pop over 0.5 s) and fades out 3.2-3.5; lane 1 shakes sideways +-4 px while it is hit (2.5-3.1). 3.0-3.6 the 'received' tag and the received tiles pop in (0.07 s apart); received tile 1 pops showing '0' (grey) and flips at 3.5-3.9 to '1' in RED with a small hop (received.flip(1, k, {from: '0', to: '1', tone: 'grey', toTone: 'red', hop: 14})); the other six stay grey. 5.4-5.9 the sent row, the 'sent' tag and the lanes fade out (o 1 -> 0): the receiver sees none of that; at 5.6 received tile 1 turns grey (no red: from here the received row looks like any word). 5.9-6.4 the orange qmark and the 'any flips?' tag pop in under the received row. 7.6-8.0 the received row, its tag, the qmark and the tag fade out. 8.0-8.5 the sent row and its tag fade back in (all eight slots, tile 7 still the ghost slot, no lanes). 8.7-9.4 the ghost slot becomes the orange check bit: sent.set(7, {text: '0', tone: 'orange', solid: true, s: E.pop(k)}); 9.1 the orange 'check bit' tag pops (k ramp). 9.4-10.5 hold.\n\nEND STATE: the message with one orange check bit and its tag, calm. Scene 3 starts from exactly this word. CAPTIONS: [[0.5,2.7,'A message travels as bits.'],[3.5,5.5,'Noise on the wire flips a bit.'],[6,8,'The receiver cannot tell.'],[8.7,10.3,'Fix: add a check bit.']]"
+  },
+  {
+   "n": 3,
+   "file": "scene-03-parity.js",
+   "kicker": "PARITY",
+   "title": [
+    "One check bit",
+    "catches one flip"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     1.1,
+     2.9,
+     "Count the 1s in the message."
+    ],
+    [
+     3.1,
+     5.2,
+     "Add a bit that makes the total even."
+    ],
+    [
+     6.1,
+     8,
+     "One flip makes the total odd: caught."
+    ],
+    [
+     8.2,
+     9.9,
+     "But which bit? Parity cannot say."
+    ],
+    [
+     10.7,
+     12.4,
+     "Two flips cancel out: missed."
+    ]
+   ],
+   "spec": "IDEA: a parity bit makes the number of 1s even. One flip makes it odd, so the receiver sees an alarm, but it cannot say which bit; a second flip makes it even again and parity is fooled. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px; a tag is about 58 px high). const row = A6.bits(stage, {x: 42, y: 150, bits: A6.PARITY.frame, size: 96, gap: 12, tones: ['grey' x7, 'orange']}) (tile i at x = 42 + 108 i, y 150-246; tile 7 at x 798-894 is the parity bit, orange; tiles 0-6 the message 1011001). Tag A6.tag(stage, {x: 724, y: 264, text: 'parity bit', tone: 'orange', solid: true}) under tile 7. Counter const ones = A6.stat(stage, {x: 42, y: 400, w: 270, h: 80, label: 'ones', tone: 'blue'}); verdict const badge = L5.badge(stage, {x: 330, y: 406, w: 420, h: 68, valid: 'even: looks fine', invalid: 'odd: alarm'}) (badge('valid' | 'invalid' | 'none', k)); a red tag A6.tag(stage, {x: 770, y: 411, text: 'missed', tone: 'red', solid: true}). Question marks: eight A6.qmark(row.mid(i).x, 102, 60, 'orange') in an L5.svg layer, one above every tile (y 72-132).\n\nDATA: frame A6.PARITY.frame = '10110010'; the 1s of the message are tiles 0, 2, 3, 6 (A6.PARITY.ones = 4, even, so the parity bit is 0). One flip: A6.PARITY.one = {flips: [1], recv: '11110010', ones: 5, caught: true}. Two flips: A6.PARITY.two = {flips: [1, 4], recv: '11111010', ones: 6, caught: false}. The counter always shows ones(current word) (A6.ones), including the parity bit.\n\nTIMELINE. 0.2-0.9 tiles 0-6 pop (0.07 s apart, grey); tile 7 is the ghost slot (dashed orange, empty text) from 0.8. 1.0-1.4 the 'ones' counter pops reading 0. Counting: at 1.2, 1.6, 2.0, 2.4 the four 1s (tiles 0, 2, 3, 6) turn blue (tone 'blue', s bump 1.12 over 0.3 s via V.flash) and the counter reads 1, 2, 3, 4 (bump each time). 2.9-3.5 tile 7 becomes the orange solid parity bit '0' (E.pop) and the 'parity bit' tag pops at 3.3; 3.6-4.0 the counter turns green (tone 'green') and the badge pops 'valid' (green tick, 'even: looks fine'). ONE FLIP: 5.4-5.9 tile 1 flips '0' -> '1' to RED with a hop (row.flip(1, k, {from: '0', to: '1', tone: 'grey', toTone: 'red', hop: 14})); 5.9 the counter reads 5 and turns red (bump); 6.0-6.4 the badge switches to 'invalid' (red cross, 'odd: alarm'). WHICH BIT: 8.0-8.6 the eight orange question marks pop over the tiles (0.05 s apart); 9.7-10.0 they fade out. SECOND FLIP: 10.0-10.5 tile 4 flips '0' -> '1' red (hop 14) while tile 1 stays red; 10.5 the counter reads 6 and turns green; 10.6-11.0 the badge goes back to 'valid' (green, 'even: looks fine') even though two tiles are red; 11.1-11.5 the red 'missed' tag pops. 11.5-12.5 hold.\n\nEND STATE: two red tiles, a green 'even: looks fine' badge and the red 'missed' tag: parity was fooled. CAPTIONS: [[1.1,2.9,'Count the 1s in the message.'],[3.1,5.2,'Add a bit that makes the total even.'],[6.1,8,'One flip makes the total odd: caught.'],[8.2,9.9,'But which bit? Parity cannot say.'],[10.7,12.4,'Two flips cancel out: missed.']]"
+  },
+  {
+   "n": 4,
+   "file": "scene-04-crc.js",
+   "kicker": "THE CRC",
+   "title": [
+    "Check bits come from",
+    "a long division"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     1.2,
+     3,
+     "Pick a pattern both sides know."
+    ],
+    [
+     3.3,
+     5.3,
+     "Add zeros to the message, then divide."
+    ],
+    [
+     5.6,
+     7.6,
+     "Line the pattern up under the next 1."
+    ],
+    [
+     8,
+     9.7,
+     "What is left over is the remainder."
+    ],
+    [
+     9.9,
+     11.9,
+     "Send the message plus the remainder."
+    ]
+   ],
+   "spec": "IDEA: a CRC check is the remainder of a long division of the message by a pattern (the generator) both sides know, where 'subtract' is XOR (no borrowing). The sender appends zeros, divides, and sends the message followed by the remainder. Run for real on message 1011, generator 1101. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px; a tag is about 58 px high). THE DIVISION on the left: const d = A6.division(stage, {x: 80, y: 76, dividend: A6.CRC.padded, gen: A6.CRC.gen, size: 60, gap: 8, rowGap: 14, padFrom: 4}) (five rows at y 76, 150, 224, 298, 372, each 60 high; tile columns x 80, 148, ..., 488; XOR signs at x 50; d.update({p, padK, msgK, remK})). Tag A6.tag(stage, {x: 352, y: 10, text: 'add 000', tone: 'orange'}) above the three orange zero tiles. RIGHT COLUMN (x 600-924): A6.tag(stage, {x: 600, y: 8, text: 'message', tone: 'grey'}) and msg = A6.bits(stage, {x: 600, y: 76, bits: A6.CRC.msg, size: 60, gap: 8}); A6.tag(stage, {x: 600, y: 150, text: 'generator', tone: 'purple'}) and gen = A6.bits(stage, {x: 600, y: 218, bits: A6.CRC.gen, size: 60, gap: 8, tone: 'purple'}); A6.tag(stage, {x: 590, y: 300, text: 'XOR: differ = 1', tone: 'purple'}). Tag A6.tag(stage, {x: 562, y: 378, text: 'remainder', tone: 'orange', solid: true}) beside the last row. THE FRAME at the bottom: const out = A6.bits(stage, {x: 186, y: 520, bits: A6.CRC.frame, size: 72, gap: 10, tones: ['grey','grey','grey','grey','orange','orange','orange']}) (tile i at x = 186 + 82 i) with A6.tag(stage, {x: 186, y: 456, text: 'frame sent', tone: 'green'}) above it.\n\nDATA (assert with A6.same): A6.CRC.padded = '1011000', gen '1101', steps: col 0 '1011000' xor '1101000' = '0110000'; col 1 '0110000' xor '0110100' = '0000100'; A6.CRC.rem = '100' (the last three tiles of the last row); A6.CRC.frame = '1011100'. d.update draws exactly these rows.\n\nTIMELINE. 0.2-1.1 the 'message' tag and msg tiles pop (0.08 s apart); 0.7-1.6 the 'generator' tag and the purple gen tiles pop. 1.9-2.5 d.update({msgK}) pops the four message tiles of row 0 (msgK 0 -> 1); 2.5-3.0 padK 0 -> 1 pops the three orange zeros; the 'add 000' tag pops at 2.6. STEP 1: p = (t - 3.2) / 2.2 over 3.2-5.4 (3.2-4.3 the first four bits of row 0 are ringed purple and the generator row slides in under them with its XOR sign; 4.3-5.4 the result row flips in); the 'XOR: differ = 1' tag pops at 3.6. STEP 2: p = 1 + (t - 5.5) / 2.2 over 5.5-7.7 (the generator now sits one column further right, under the next 1). 7.9-8.6 d.update({remK: 0 -> 1}) turns the last three tiles of the last row solid orange with a bounce; the 'remainder' tag pops at 8.1. 8.9-9.8 the frame row: tiles 0-3 fly from the message tiles at the right (msg.mid(i)) and tiles 4-6 from the remainder tiles (d.mid(d.last, i)) to their slots (offset = start - end shrinking to 0 with E.inOut, scale 0.83 -> 1, o 0 -> 1 over the first 0.2 s); the 'frame sent' tag pops at 9.6. 10.0-12.5 hold (everything stays; calm).\n\nEND STATE: the division stack with the orange remainder 100, the frame 1011 + 100 below it. Scene 5 re-uses this frame. CAPTIONS: [[1.2,3,'Pick a pattern both sides know.'],[3.3,5.3,'Add zeros to the message, then divide.'],[5.6,7.6,'Line the pattern up under the next 1.'],[8,9.7,'What is left over is the remainder.'],[9.9,11.9,'Send the message plus the remainder.']]"
+  },
+  {
+   "n": 5,
+   "file": "scene-05-check.js",
+   "kicker": "CHECKING",
+   "title": [
+    "The receiver repeats",
+    "the division"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     1.1,
+     2.9,
+     "Divide the frame by the same pattern."
+    ],
+    [
+     4,
+     5.6,
+     "Even two flips change the remainder."
+    ],
+    [
+     7.1,
+     8.7,
+     "A burst of three is caught too."
+    ],
+    [
+     9,
+     10.8,
+     "More check bits catch longer bursts."
+    ]
+   ],
+   "spec": "IDEA: the receiver divides what arrives by the same pattern. A clean frame leaves remainder 000; the two flips that fooled parity, and a burst of three bits in a row, both change the remainder. More check bits catch longer bursts. The long division itself was shown in scene 4: here only its result is shown (the remainder tiles flip to the computed values). COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px). const frame = A6.bits(stage, {x: 138, y: 80, bits: A6.CRC.frame, size: 84, gap: 12, tones: ['grey','grey','grey','grey','orange','orange','orange']}) (tile i at x = 138 + 96 i, y 80-164). Purple arrow const svg = L5.svg(stage); svg.appendChild(L5.arrow(468, 176, 468, 292, 'purple', 1, {w: 8, head: 24})) with the purple tag A6.tag(stage, {x: 496, y: 214, text: 'divide by 1101', tone: 'purple'}). const rem = A6.bits(stage, {x: 330, y: 304, bits: '000', size: 84, gap: 12}) (x 330-606, y 304-388) with the orange tag A6.tag(stage, {x: 100, y: 322, text: 'remainder', tone: 'orange'}). const badge = L5.badge(stage, {x: 640, y: 312, w: 280, h: 68, valid: 'clean', invalid: 'error found'}). Red tag A6.tag(stage, {x: 368, y: 14, text: '3 in a row', tone: 'red', solid: true}) above tiles 2-4 (centred on tile 3, x 468). Bottom: A6.tag(stage, {x: 138, y: 450, text: '3 check bits: every burst up to 3', tone: 'green'}) and A6.tag(stage, {x: 138, y: 514, text: '16 check bits: every burst up to 16', tone: 'green', solid: true}).\n\nDATA (assert with A6.same): A6.CRC.cases = clean {recv '1011100', rem '000'}, two {flips [1, 4], recv '1111000', rem '111'}, burst {flips [2, 3, 4], recv '1000000', rem '110'}; A6.CRC.audit = {singles: [7, 7], doubles: [21, 21], bursts: [23, 23]} (assert; the bottom tags state this rule: the burst length caught is the number of check bits; '16 check bits: every burst up to 16' is lesson 6.4's CRC-16). The frame row always shows the current received word (A6.CRC.cases[i].recv; a flipped tile is red, a tile that is back to normal keeps its grey / orange tone).\n\nTIMELINE. 0.2-1.0 the frame tiles pop (0.07 s apart). 0.8-1.4 the purple arrow draws on (L5.drawOn); 1.0 the 'divide by 1101' tag pops; 1.2 the 'remainder' tag pops; 1.5-2.0 the remainder tiles pop (0.1 s apart) as solid GREEN '000'; 2.2-2.6 the badge pops 'valid' ('clean'). TWO FLIPS: 3.0-3.5 frame tile 1 flips to red (row.flip hop 12), 3.3-3.8 tile 4 flips to red; 3.8-4.4 the three remainder tiles flip (0.1 s apart) to '1 1 1' in solid RED (rem.flip); 4.5-4.9 the badge switches to 'invalid' ('error found'). RESET: 5.4-5.9 tiles 1 and 4 flip back to their normal look, the remainder tiles flip back to green '000' and the badge shows 'valid' again. BURST: 6.0-6.6 frame tiles 2, 3, 4 flip red one after another (0.2 s apart); the red '3 in a row' tag pops at 6.5; 6.9-7.5 the remainder tiles flip to '1 1 0' in solid red; 7.7-8.1 the badge switches to 'invalid'. 8.4 the green '3 check bits: every burst up to 3' tag pops and 9.2 the solid green '16 check bits: every burst up to 16' tag pops. 9.6-11 hold.\n\nEND STATE: burst of three flagged, remainder 110 in red, the two green rule tags. CAPTIONS: [[1.1,2.9,'Divide the frame by the same pattern.'],[4,5.6,'Even two flips change the remainder.'],[7.1,8.7,'A burst of three is caught too.'],[9,10.8,'More check bits catch longer bursts.']]"
+  },
+  {
+   "n": 6,
+   "file": "scene-06-resend.js",
+   "kicker": "TWO WAYS TO COPE",
+   "title": [
+    "Ask again,",
+    "or fix it yourself"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.4,
+     2.3,
+     "A download checks every frame."
+    ],
+    [
+     2.9,
+     5,
+     "Check fails, so ask for a resend."
+    ],
+    [
+     6.4,
+     8.3,
+     "A probe far away cannot wait."
+    ],
+    [
+     9.5,
+     11.2,
+     "So it must repair errors itself."
+    ]
+   ],
+   "spec": "IDEA: detection alone works when the receiver can ask for the frame again (a download); when it cannot wait for the answer (a probe light-minutes away) the code must repair errors by itself, which is what the rest of the video builds. Two stacked panels, played one after the other. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px; a tag is about 58 px high). Two panels, A at y 0-280 and B at y 330-610; oy = 0 for A and 330 for B. const pa = A6.card(stage, {x: 0, y: 0, w: 936, h: 280, tone: 'grey', plain: true}) and pb = A6.card(stage, {x: 0, y: 330, w: 936, h: 280, ...}) (set({k}) pops them; they carry no text). Inside each panel: title tag A6.tag(stage, {x: 24, y: oy + 14, text: 'download' | 'far-away probe', tone: 'grey'}); a centre tag at x 400, y oy + 14 (A: 'send again', orange solid; B: 'minutes away', grey, which later changes (set({text, tone, solid})) to 'too slow', red solid); sender and receiver stubs A6.card(stage, {x: 16, y: oy + 110, w: 130, h: 100, text: 'sender', tone: 'grey', plain: false}) and {x: 790, y: oy + 110, ..., text: 'receiver'}; the wire between them at y oy + 154-166: panel A a grey bar V.h('div', {style: {position: 'absolute', left: '146px', top: '154px', width: '644px', height: '12px', borderRadius: '6px', background: 'var(--line-2)'}}), panel B an SVG dashed line in an L5.svg layer V.s('line', {x1: 146, y1: 490, x2: 790, y2: 490, 'stroke-width': 12, 'stroke-linecap': 'round', 'stroke-dasharray': '2 22', style: {stroke: 'var(--line-2)'}}) (a long way); the return arrow at y oy + 100: L5.arrow(790, oy + 100, 150, oy + 100, 'orange', 1, {w: 8, head: 24}) (draw it with L5.drawOn(g, k) from the right); the verdict icon above the receiver at (851, oy + 60): L5.cross(851, oy + 60, 64, 'red', {w: 9, ink: true}) and L5.tick(851, oy + 60, 64, 'green', {w: 9, ink: true}) (both in an L5.svg layer; show one at a time); the verdict tag at the bottom right: A6.tag(stage, {x: 700 (A) / 640 (B), y: oy + 214, ...}) whose text and tone change ('check fails' red -> 'check passes' green in A; 'check fails' red -> 'fixed on arrival' green solid in B). PACKETS (tile digits 30 px): const pkA = A6.bits(stage, {x: 164, y: 134, bits: A6.ARQ.frame, size: 52, gap: 4, fs: 30, tones: [grey x7, 'orange']}) (width 444, y 134-186; slide it with V.place(pkA.el, {x: dx}) from dx = 0 to dx = 166 so it ends at x 330, just left of the receiver); const pkB = A6.bits(stage, {x: 164, y: 464, bits: A6.HAM.cw, size: 52, gap: 4, fs: 30, tones: ['orange','orange','grey','orange','grey','grey','grey']}) (width 388, y 464-516; slide to dx = 222, x 386). Small bolts in an L5.svg layer: A6.bolt(440, 112, 70, 'orange') (panel A) and A6.bolt(500, 442, 70, 'orange') (panel B).\n\nDATA (assert with A6.same): A6.ARQ = {frame: '11010010', hit: 3, bad: '11000010', ones: 3} (three 1s: odd, the check fails); panel B uses the Hamming codeword A6.HAM.cw = '0110011' and the flip of position 6 (tile index 5): A6.HAM.one.recv = '0110001'.\n\nTIMELINE (local seconds). PANEL A: 0.2-0.9 panel card, title tag, stubs and wire pop. 1.0 the packet pops at the sender and 1.2-2.4 slides to dx 166 (E.inOut). 1.7-2.3 the bolt pops over it; tile 3 flips '1' -> '0' to RED (hop 8) at 1.9-2.3. 2.5-2.9 the red cross draws on above the receiver; 2.7 the 'check fails' tag pops. 3.0-3.8 the orange return arrow draws on (right to left, L5.drawOn); 3.1 the 'send again' tag pops above it. 3.9-4.0 the damaged packet fades out; 4.1 a clean packet (all grey/orange, tile 3 = '1') pops at the sender again and slides 4.2-5.2 to dx 166. 5.2-5.5 the cross fades, the green tick draws on, the verdict tag becomes 'check passes' (green) and the arrow and 'send again' tag fade out (5.0-5.3). PANEL B: 5.9-6.5 panel B, its title, stubs and the dashed wire pop; 6.3 the grey 'minutes away' tag pops above the wire. 6.6 the codeword packet pops at the sender and 6.6-7.8 slides to dx 222. 7.0-7.4 the bolt; tile 5 flips '1' -> '0' RED (hop 8) at 7.1-7.5. 7.9-8.3 the red cross draws on; 8.1 the tag 'check fails' (red). 8.3-9.4 the orange return arrow in B starts to draw but only reaches 22 percent of its length (L5.drawOn(g, 0.22 * ramp(t, 8.3, 9.4))); 9.2 the 'minutes away' tag changes into the red solid 'too slow' tag (same place, above the stalled arrow). 9.6-10.4 the receiver repairs the packet: tile 5 flips back '0' -> '1' in solid GREEN (row.flip, hop 8), the cross becomes the green tick and the verdict tag becomes 'fixed on arrival' (green, solid); the arrow and the 'too slow' tag fade. 10.4-11.5 hold.\n\nEND STATE: panel A resolved (resent frame passes) and panel B resolved (repaired on arrival, no resend). CAPTIONS: [[0.4,2.3,'A download checks every frame.'],[2.9,5,'Check fails, so ask for a resend.'],[6.4,8.3,'A probe far away cannot wait.'],[9.5,11.2,'So it must repair errors itself.']]"
+  },
+  {
+   "n": 7,
+   "file": "scene-07-distance.js",
+   "kicker": "FIXING A BIT",
+   "title": [
+    "Valid words must",
+    "stay far apart"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     2.1,
+     3.7,
+     "One flip is one step."
+    ],
+    [
+     3.95,
+     5.65,
+     "Only 000 and 111 are valid words."
+    ],
+    [
+     6.1,
+     7.7,
+     "They are three steps apart."
+    ],
+    [
+     9.2,
+     10.8,
+     "Nearest valid word is 000: fixed."
+    ],
+    [
+     11.8,
+     13.5,
+     "Two flips lead to the wrong word."
+    ]
+   ],
+   "spec": "IDEA: a code can repair a flipped bit only if its valid words are far apart. Drawn on the cube of 3-bit words: one flip moves a word one step along an edge; the valid words 000 (meaning bit 0) and 111 (meaning bit 1) are three steps apart; a word one flip from 000 is still nearest to 000 and is repaired, but two flips leave it nearest to 111 and the repair is wrong. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px; a tag is about 58 px high). THE CUBE: const cube = A6.cube(stage, {x: 14, y: 56, w: 540, h: 430, pillW: 92, pillH: 54}); word centres (cube.pt): 000 (60, 459), 001 (358, 459), 010 (60, 203), 011 (358, 203), 100 (210, 339), 101 (508, 339), 110 (210, 83), 111 (508, 83). cube.update({nodes: {'000': {tone: 'green', solid: true}, ...}, edges: {'000-010': {tone: 'orange', k}, ...}}); edge keys are A6.ek(a, b) = the two words, smaller first, joined with '-'. A blue marker const tok = A6.token(stage, {tone: 'blue', size: 34}) that rests 50 px above the pill of its word (tok.set({x: cube.pt(w).x, y: cube.pt(w).y - 50})) and moves along an edge by interpolating between two such rest positions. Step numbers: three A6.disc(stage, {x, y, size: 44, text: '1' | '2' | '3', tone: 'orange'}) at cube.mid('000-010'), cube.mid('010-011'), cube.mid('011-111'). RIGHT COLUMN (x 610-924): A6.tag(stage, {x: 610, y: 40, text: 'valid words', tone: 'grey'}), A6.tag(stage, {x: 610, y: 104, text: '0 = 000', tone: 'green'}) and {x: 610, y: 164, text: '1 = 111', ...}; the step tag A6.tag(stage, {x: 610, y: 250, text: '1 flip = 1 step', tone: 'grey'}) and, at the same place, A6.tag(stage, {x: 610, y: 250, text: '3 steps apart', tone: 'orange'}); the two decoder tags A6.tag(stage, {x: 610, y: 330, text: 'to 000: 1 step', ...}) and {x: 610, y: 392, text: 'to 111: 2 steps', ...} (their texts and tones change with set({text, tone, solid})). Bottom left: A6.tag(stage, {x: 14, y: 536, text: '3 apart fixes one flip', tone: 'green', solid: true}).\n\nDATA (assert with A6.same): A6.CODE = {words: ['000','111'], d: 3, path: ['000','010','011','111'], one: {recv: '010', d0: 1, d1: 2, fix: '000', right: true}, two: {recv: '011', d0: 2, d1: 1, fix: '111', right: false}}; A6.dist(a, b); the 12 edges A6.CUBE_EDGES. The path 000-010-011-111 is also the walk of the token in the two demos, so the geometry tells one story.\n\nTIMELINE. 0.2-1.2 the twelve edges draw on in grey (0.04 s apart, k) and the eight words pop (0.05 s apart). 1.4 the token pops at 000; 2.1-2.8 it hops to 010 (E.inOut) while edge '000-010' grows orange with it (k = hop progress); 2.5 the '1 flip = 1 step' tag pops. 3.6-4.0 the token and the edge go back (token fades, edge grey) and the step tag fades. 3.8-4.6 words 000 and 111 pop solid green (s 1.15 -> 1, E.pop); 4.4 the 'valid words' tag and 4.6 and 4.9 the tags '0 = 000' and '1 = 111' pop. 4.8-6.2 the path draws on in orange, edge by edge (k ramps 4.8-5.3, 5.3-5.8, 5.8-6.3) with a step disc '1', '2', '3' popping on each edge as it completes; 6.2 the '3 steps apart' tag pops. 7.9-8.2 the path edges, the discs and that tag fade out (words 000 and 111 stay green). ONE FLIP: 8.3 the token pops at 000; 8.4-8.9 it hops to 010 (orange edge as before); word 010 turns red (tone 'red', ring 'red' ringK pop) at 8.9; 9.0-9.4 the two decoder tags pop: 'to 000: 1 step' (green, solid) and 'to 111: 2 steps' (grey); 9.6-10.2 the token hops back to 000 (the repair), word 010 returns to grey and word 000 shows a green ring; 10.4 the decoder tags dim to grey. TWO FLIPS: 10.6 the token pops at 000 (ring off), 10.6-11.1 hops to 010, 11.1-11.6 hops on to 011 (edges '000-010', '010-011' orange); word 011 turns red; 11.7 the decoder tags change: 'to 000: 2 steps' (grey) and 'to 111: 1 step' (red, solid); 12.0-12.5 the token hops to 111 along the last edge and word 111 gets a red ring (the wrong repair); 13.0 the green '3 apart fixes one flip' tag pops. 13.0-14.0 hold.\n\nEND STATE: the cube with the two valid words in green, the wrong repair marked red and the green rule tag. CAPTIONS: [[2.1,3.7,'One flip is one step.'],[3.95,5.65,'Only 000 and 111 are valid words.'],[6.1,7.7,'They are three steps apart.'],[9.2,10.8,'Nearest valid word is 000: fixed.'],[11.8,13.5,'Two flips lead to the wrong word.']]"
+  },
+  {
+   "n": 8,
+   "file": "scene-08-groups.js",
+   "kicker": "HAMMING CODE",
+   "title": [
+    "Three checks,",
+    "each guards a group"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.9,
+     2.8,
+     "Check bits sit at positions 1, 2, 4."
+    ],
+    [
+     3,
+     4.6,
+     "Write each position in binary."
+    ],
+    [
+     4.9,
+     6.5,
+     "p4 guards positions starting with 1."
+    ],
+    [
+     6.7,
+     8.5,
+     "p2 guards positions with a middle 1."
+    ],
+    [
+     8.8,
+     10.4,
+     "p1 guards positions ending in 1."
+    ],
+    [
+     10.6,
+     12.3,
+     "Every group now has an even count."
+    ]
+   ],
+   "spec": "IDEA: Hamming(7,4) sends 4 data bits with 3 check bits. The check bits sit at positions 1, 2 and 4; each guards the group of positions whose binary number has a 1 in its own digit (p4 the first digit, p2 the middle, p1 the last) and is set so the group's count of 1s is even. Building the codeword 0110011 from data 1011. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px): ONE rig, const H = A6.hamRig(stage, {x: 118, y: 56, size: 88, gap: 14, rowH: 78, word: A6.HAM.cw}) (read the header of videos/a6/common-4.js: tiles at x = 118 + 102 i, y 56-144; position numbers at y 152; binary numbers at y 196; check bands p4, p2, p1 at y 248, 326, 404 with discs showing the bits of the watched positions, label tags at x 14, verdict icons at x 876). Tile texts you draw every frame: check tiles (positions 1, 2, 4) show 'p1', 'p2', 'p4' until their value is computed, data tiles show A6.HAM.cw[i] (positions 3, 5, 6, 7 = 1, 0, 1, 1). Use H.all((i) => ({text, tone: i + 1 in [1,2,4] ? 'orange' : 'grey', ring, ringK, ...})) and H.bits.flip(i, k, {from: 'p4', to: '0', tone: 'orange', toTone: 'orange', hop: 10}) for the reveals. Groups: A6.HAM.groups = {p1: [1,3,5,7], p2: [2,3,6,7], p4: [4,5,6,7]}; H.cover('p4') tells which tiles to ring (ring: 'purple', ringK: k). For each band H.row(name, {k, dots, vals, own, tone, verdict, vk}): vals = the 7-character current word (the discs show its digits at the watched positions) with own: '?' while the check bit is unknown, tone 'purple' while that band is being read and 'grey' afterwards.\n\nDATA (assert with A6.same): A6.HAM.encode = [{name: 'p1', pos: [3,5,7], vals: [1,0,1], bit: 0}, {name: 'p2', pos: [3,6,7], vals: [1,1,1], bit: 1}, {name: 'p4', pos: [5,6,7], vals: [0,1,1], bit: 0}]; each bit makes the group's count of 1s even (p1: 1+0+1 = 2, p2: 1+1+1 = 3 plus its own 1 = 4, p4: 0+1+1 = 2). A6.HAM.cw = '0110011'. While a check bit is unknown draw its disc and tile with 'p4' / 'p2' / 'p1' (tile) and '?' (disc); the word used for vals before its reveal can hold 0 for the unknown check bits.\n\nTIMELINE (order p4, p2, p1: the bands read top to bottom). 0.2-1.3 the seven tiles pop (0.08 s apart, E.pop); 0.8-1.4 H.nums(k) fades the position numbers in. 3.0-3.9 H.bin(k) fades the binary numbers in. p4: 4.8-5.2 band p4 pops (H.row k, tone 'purple'), H.bin hot 'p4' (the first digit of 100 101 110 111 turns bold purple), tiles 4-7 get purple rings (ringK 5.0-5.4), the discs pop with the own disc showing '?'; 6.0-6.5 the own disc and tile 4 reveal '0' (flip 'p4' -> '0'); 6.6 the band goes grey, rings off. p2: 6.7-7.1 band p2 pops, H.bin hot 'p2' (middle digit), rings on tiles 2, 3, 6, 7; 7.9-8.4 reveal tile 2 '1' (flip 'p2' -> '1'); 8.5 band grey. p1: 8.8-9.2 band p1 pops, H.bin hot 'p1' (last digit), rings on tiles 1, 3, 5, 7; 9.8-10.3 reveal tile 1 '0' (flip 'p1' -> '0'); 10.4 band grey, hot null. 10.5-11.1 the three bands get verdict 'ok' (vk 0 -> 1, 0.15 s apart: green bands with ticks): the codeword 0110011 passes every check. 11.1-12.5 hold.\n\nEND STATE: codeword 0110011 (orange check bits 0 1 0 at positions 1, 2, 4), three green bands with ticks: scene 9 starts from this exact picture. CAPTIONS: [[0.9,2.8,'Check bits sit at positions 1, 2, 4.'],[3,4.6,'Write each position in binary.'],[4.9,6.5,'p4 guards positions starting with 1.'],[6.7,8.5,'p2 guards positions with a middle 1.'],[8.8,10.4,'p1 guards positions ending in 1.'],[10.6,12.3,'Every group now has an even count.']]"
+  },
+  {
+   "n": 9,
+   "file": "scene-09-locate.js",
+   "kicker": "HAMMING CODE",
+   "title": [
+    "The failed checks",
+    "spell the position"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.7,
+     2.5,
+     "A clean word passes all three checks."
+    ],
+    [
+     3.3,
+     4.9,
+     "Noise flips position 6."
+    ],
+    [
+     5,
+     6.9,
+     "Recount each group: odd means failed."
+    ],
+    [
+     8.8,
+     10.4,
+     "p4 and p2 fail; p1 passes."
+    ],
+    [
+     10.6,
+     12.2,
+     "Failures read as binary: 110 is 6."
+    ],
+    [
+     12.3,
+     13.9,
+     "Flip position 6 back: fixed."
+    ]
+   ],
+   "spec": "IDEA: after a flip, exactly the checks whose group contains the flipped bit fail. Read the failures as a binary number, p4 p2 p1, and you get the position of the flipped bit; flip it back. Run on the codeword 0110011 with position 6 flipped. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px): the same rig as scene 8, const H = A6.hamRig(stage, {x: 118, y: 56, size: 88, gap: 14, rowH: 78, word: A6.HAM.cw}) (see scene 8 and videos/a6/common-4.js): tiles y 56-144, position numbers, binary numbers (kept on screen for the whole scene), bands p4 / p2 / p1, verdict icons, and the readout H.syn (three small tiles p4 p2 p1, an equals sign, an orange number disc) at y 500-600. Noise: const svg = L5.svg(stage); bolt = svg.appendChild(A6.bolt(H.mid(5).x, 100, 100, 'orange')) over tile 5 (position 6). Pointer: the syndrome disc flies up to a landing point above tile 5 (x H.mid(5).x, y 20): H.syn.set({num: '6', numK: 1, numX: (landing.x - home.x) * f, numY: (landing.y - home.y) * f, numS}) with home = H.syn.numHome(), f = E.inOut(ramp(t, 10.9, 11.6)); at the landing the tile gets a pulsing orange ring (H.set(5, {ring: 'orange', ringK})) and, under it, the orange binary label (H.bin(1, {at: 6})).\n\nDATA (assert with A6.same): A6.HAM.one = {flip: 6, recv: '0110001', checks: [p4: pos [4,5,6,7] vals [0,0,0,1] ones 1 FAIL, p2: pos [2,3,6,7] vals [1,1,0,1] ones 3 FAIL, p1: pos [1,3,5,7] vals [0,1,0,1] ones 2 ok], syn: '110', at: 6, fixed: '0110011'}. word0 = A6.HAM.cw (before 3.0), word1 = A6.HAM.one.recv (3.0-12.3), word2 = A6.HAM.cw again after the repair. The discs of each band show the digits of the current word (H.row vals, bad: [6] draws the flipped bit's disc red). Verdicts come from A6.HAM.one.checks[i].fail ('bad' / 'ok').\n\nTIMELINE. 0.2-1.2 the tiles pop (0.07 s apart); 0.4-1.0 H.nums and H.bin(1) fade in; 0.6-1.1 the three bands pop (0.1 s apart) with their discs (word0) and 0.9-1.5 verdict 'ok' (green ticks, vk 0 -> 1, 0.1 s apart). FLIP: 2.5-3.2 the bolt pops over tile 5 and fades; 3.0-3.5 tile 5 flips '1' -> '0' RED with a hop (H.bits.flip(5, k, {from: '1', to: '0', tone: 'grey', toTone: 'red', solid: true, hop: 10})). RECOUNT: 4.0-4.4 the three bands reset (verdict null, tone 'grey', discs now showing word1 with bad: [6]). p4: 4.6-5.6 band p4 turns purple, tiles 4-7 get purple rings (ringK 4.7-5.1), H.bin hot 'p4'; its discs read 0 0 0 1 (one 1: odd); 5.4-5.8 verdict 'bad' (red band, cross draws on), rings off. p2: 6.0-7.0 band p2 purple, rings on tiles 2, 3, 6, 7, H.bin hot 'p2'; 6.9-7.3 verdict 'bad'. p1: 7.4-8.4 band p1 purple, rings on 1, 3, 5, 7, H.bin hot 'p1'; 8.3-8.7 verdict 'ok' (green band, tick). READ: 9.0-9.8 H.syn.set({vals: [1, 1, 0], k}) pops the readout tiles 1 1 0 (red red green, 0.1 s apart); 9.8-10.1 eqK pops the equals sign; 10.1-10.5 the orange disc '6' pops (numK); 10.2 the binary label under position 6 turns bold orange (H.bin at 6). FIX: 10.9-11.6 the disc flies up to above tile 5 (numX / numY as above) and an orange L5.arrow(landing.x, 54, landing.x, 80, 'orange', 1, {w: 7, head: 18}) points at the tile; 11.6 tile 5 gets the orange ring; 12.3-12.8 tile 5 flips back '0' -> '1' in solid GREEN (hop 10), the ring goes; 12.6-13.0 the readout and the disc fade out (H.syn.set({o})); 12.9-13.4 the three bands return to verdict 'ok' (word2, discs updated, tones green). 13.4-14 hold.\n\nEND STATE: the repaired codeword 0110011 (position 6 green), three green bands with ticks. CAPTIONS: [[0.7,2.5,'A clean word passes all three checks.'],[3.3,4.9,'Noise flips position 6.'],[5,6.9,'Recount each group: odd means failed.'],[8.8,10.4,'p4 and p2 fail; p1 passes.'],[10.6,12.2,'Failures read as binary: 110 is 6.'],[12.3,13.9,'Flip position 6 back: fixed.']]"
+  },
+  {
+   "n": 10,
+   "file": "scene-10-limit.js",
+   "kicker": "THE LIMIT",
+   "title": [
+    "Hamming fixes one",
+    "error, not two"
+   ],
+   "dur": 12.2,
+   "caps": [
+    [
+     2.2,
+     3.9,
+     "Two bits flip: positions 2 and 5."
+    ],
+    [
+     5.5,
+     7.2,
+     "All fail: 111 means position 7."
+    ],
+    [
+     7.6,
+     9,
+     "The repair flips an innocent bit."
+    ],
+    [
+     9.1,
+     10.7,
+     "Checks pass, yet the data is wrong."
+    ],
+    [
+     10.8,
+     12,
+     "Hamming fixes exactly one error."
+    ]
+   ],
+   "spec": "IDEA: Hamming(7,4) assumes ONE flip. With two flips the failed checks still spell a position, but it is a third, innocent bit; the 'repair' flips it and leaves three bits wrong, and now every check passes, so nothing warns the receiver. Over all 16 codewords: every one of the 112 single flips is repaired, none of the 336 double flips is. COLOURS (whole video): green = good (a clean word, a passed check, remainder 000, a repaired bit, a tick); red = bad (a flipped bit, a failed check, a wrong word, an alarm); blue = what is being counted or looked at; orange = a check bit / redundancy / attention (the parity bit, the CRC remainder, p1 p2 p4, a pointer); purple = the rule applied (the generator 1101, XOR, the group a check is reading); grey = neutral (data bits, things not in play). Every digit and label is 28 px or more; symbols (tick, cross, arrow, bolt, XOR sign, question mark) are SVG pictograms (L5.tick / L5.cross / L5.arrow, A6.bolt / A6.xorIcon / A6.qmark), never glyphs. Pass everything to every draw call every frame (pure).\n\nLAYOUT (stage px): the same rig as scenes 8 and 9: const H = A6.hamRig(stage, {x: 118, y: 56, size: 88, gap: 14, rowH: 78, word: A6.HAM.cw}), bolts A6.bolt(H.mid(1).x, 100, 100, 'orange') and A6.bolt(H.mid(4).x, 100, 100, 'orange') in an L5.svg layer, the readout H.syn with its disc flying to above tile 6 (position 7), and the two stat tags A6.tag(stage, {x: 292, y: 500, text: '1 flip: 112 of 112 fixed', tone: 'green'}) and A6.tag(stage, {x: 299, y: 566, text: '2 flips: 0 of 336 fixed', tone: 'red', solid: true}) (centred on x 468; they appear where the readout was).\n\nDATA (assert with A6.same): A6.HAM.two = {flips: [2, 5], recv: '0010111', checks: all three ones 3 FAIL, syn: '111', at: 7, fixed: '0010110', wrong: [2, 5, 7], data: '1110'}; A6.HAM.every = {one: [112, 112], two: [336, 0]} (the stat tags show these numbers: format them from A6.HAM.every). word0 = A6.HAM.cw, word1 = A6.HAM.two.recv ('0010111'), word2 = A6.HAM.two.fixed ('0010110', which passes all three checks: A6.hChecks(word2) has no failure: assert it). Disc digits come from the current word; bad: [2, 5] (and 7 after the repair) draw the wrong bits' discs red.\n\nTIMELINE. 0.2-1.1 the rig pops as in scene 9 (tiles, numbers, binary, three bands with green ticks, word0), no caption. FLIPS: 1.3-1.9 bolt over tile 1 (position 2), 1.6-2.0 tile 1 flips '1' -> '0' RED (hop 10); 1.7-2.3 bolt over tile 4 (position 5), 2.0-2.4 tile 4 flips '0' -> '1' RED. RECOUNT: 3.1-3.3 bands reset (verdict null, tone grey, discs on word1). p4: 3.3-3.8 purple, rings on 4-7, verdict 'bad' at 3.7-4.1; p2: 3.9-4.3 purple, rings 2, 3, 6, 7, 'bad' at 4.3-4.7; p1: 4.5-4.9 purple, rings 1, 3, 5, 7, 'bad' at 4.9-5.3 (every band ends red). READ: 5.4-6.0 H.syn tiles '1 1 1' (all red) pop; 6.0-6.3 equals sign; 6.3-6.7 the orange disc '7' pops and the binary label under position 7 turns bold orange (H.bin at 7). 6.7-7.4 the disc flies to above tile 6 (position 7) and an orange arrow points at it; tile 6 gets the orange ring. REPAIR: 7.5-8.0 tile 6 flips '1' -> '0' RED (hop 10): three red tiles (positions 2, 5, 7); 7.6-8.0 the readout and disc fade out; 8.3-8.9 all three bands recount to verdict 'ok' (green ticks, 0.15 s apart, word2) while the three tiles stay red. STATS: 9.4 the green '1 flip: 112 of 112 fixed' tag pops and 10.1 the red '2 flips: 0 of 336 fixed' tag pops. 10.8-12.2 hold.\n\nEND STATE: three red tiles, three green ticks (fooled checks), the two stat tags: one error is repaired, two are not. CAPTIONS: [[2.2,3.9,'Two bits flip: positions 2 and 5.'],[5.5,7.2,'All fail: 111 means position 7.'],[7.6,9,'The repair flips an innocent bit.'],[9.1,10.7,'Checks pass, yet the data is wrong.'],[10.8,12,'Hamming fixes exactly one error.']]"
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Check bits catch\nflips: parity, CRC",
+    "tone": "orange",
+    "pictogram": "A strip of five bit tiles (A6.bits with bits '10110', size 44, gap 6, fs 28, last tile orange, drawn at x 8, y 48 inside the 340 x 140 area). Pass: tiles pop (0.1-0.6, 0.06 s apart), tile 1 flips '0' -> '1' in red (1.2-1.7), a red L5.cross (size 44) draws on at x 306, y 70 (1.8-2.2), hold to 3.0, fade out (3.0-3.3)."
+   },
+   {
+    "head": "Far-apart valid words\nlet us fix a flip",
+    "tone": "purple",
+    "pictogram": "Four round markers on a horizontal grey line at y 74 (x 40, 125, 215, 300; A6.token size 34 and an SVG line): the two ends solid green (valid words), the middle two grey. Pass: markers pop (0.1-0.6); a RED token pops on the second marker (1.0-1.4, the flipped word); it hops left onto the first (green) marker (2.0-2.6) turning green; an L5.tick (size 40) draws on at x 170, y 26 (2.7-3.1); hold to 3.6, fade out."
+   },
+   {
+    "head": "Failed checks spell\nthe error position",
+    "tone": "green",
+    "pictogram": "Three round discs A6.disc size 44 at x 36, 96, 156 (y 74) with texts '1', '1', '0' in red, red, green; an orange equals sign (two bars, as in common-4.js) at x 214; an orange disc '6' (size 64) at x 288. Pass: discs pop one after another (0.1-0.8), the equals sign at 1.0, the '6' pops with E.pop at 1.3-1.8, hold to 3.2, fade out."
+   }
+  ],
+  "cta": "Next: Workshop 6.W",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/a4/scene-11-recap.js and videos/l5/scene-10-recap.js: kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), the Byte mascot (V.mascot('byte', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours orange / purple / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, SVG drawn into it with L5.svg(pic, 340, 140) in its own pixel coordinates; the A6 helpers can draw into that div too: A6.bits / A6.disc / A6.token take any parent) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 6.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row; each pictogram plays once, then a second pass that begins at 5.2 / 5.6 / 6.0 and has finished by 8.4 (every pass is at most 3.6 s with its fade-out), and the SECOND pass does NOT fade out: it stays on its finished state until 9.0, so the video ends on a calm, finished frame (a lesson from the earlier phases). 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else moves in the last second but Byte's bob. No captions. Use A6.same-checked data where a number appears (none: the recap shows no numbers except the digits 1 1 0 and 6 of the third pictogram, which are A6.HAM.one.syn and A6.HAM.one.at)."
+ },
+ "helpers": "FILES: videos/a6/common.js (pure data and algorithms, no DOM, every number asserted at load), common-2.js (tiles, labels, tags, counters, icons), common-3.js (the long-division widget), common-4.js (the Hamming rig, the syndrome readout, the cube). Everything hangs off window.VID.a6; scenes start with const V = window.VID, A6 = V.a6, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/algo-6.html loads engine.js, cards.js, l5/common.js, then a6/common.js ... common-4.js, then scene-01 ... scene-11, audio/algo-6.js. l6 is not loaded. Every helper file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers.\n\nA. DATA (common.js): A6.bitsOf / str / ones / parityOf / flipAt(s, ...idx) / diffAt / dist / polyMod / divide(bits, gen) -> {rows, steps, rem}; A6.WIRE, A6.PARITY {data, p, frame, ones, one, two}, A6.CRC {msg, gen, padded, steps, rem, frame, cases [clean, two, burst], audit, div, recvDiv(case)}, A6.ARQ, A6.CUBE_NODES / CUBE_EDGES / CODE {words, d, path, one, two} / dist / nearest / RATE, A6.HAM {data, cw, checkPos, dataPos, groups, bin, encode, one, two, every} with A6.hEnc / hCheck / hChecks / hSyn / hFix / hData; A6.same / A6.close (build-time asserts that throw clear Errors), A6.rng, A6.pos(i) / A6.idx(p). Tile index = bit index (0-based); Hamming positions are 1-based.\n\nB. DRAWING BASICS (common-2.js): A6.bits(parent, {x, y, bits, size, gap, tone, tones, fs, radius, labels}) -> row {set(i, {text, tone, solid, ghost, x, y, s, sx, r, o, ring, ringK, ringDash}), flip(i, k, {from, to, tone, toTone, hop, ...}), all(fn), pos, mid, top, bottom, labels(k), el, tiles, n, size, gap, width}; A6.labelRow(parent, {x, y, texts, size, gap, mono}) -> {set(i, {k, tone, text, bold}), all(fn), pos}; A6.tag(parent, {x, y, text, tone, solid, h, fs}) -> {set({text, tone, solid, k, x, y, s, o}), el}; A6.tagW(text) width estimate; A6.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, o}); A6.disc(parent, {x, y, size, text, tone}) -> set({text, tone, k, x, y, s, o}) (x, y = centre); A6.token(parent, {tone, size}) -> set({x, y, s, o, tone}); A6.card(parent, {x, y, w, h, text, tone, plain, fs}) -> set({text, tone, plain, k, x, y, s, o}); SVG icons (centre x, y): A6.bolt(x, y, size, tone), A6.xorIcon(x, y, size, tone), A6.qmark(x, y, size, tone) (plus VID.l5.tick / cross / arrow / drawOn / badge / svg / tone); A6.seq(t, t0, step, dur, i) staggered ramp; A6.TONES; A6.tone(name).\n\nC. DIVISION (common-3.js): A6.division(parent, {x, y, dividend, gen, size, gap, rowGap, padFrom}) -> d {update({p, padK, msgK, remK, o}), mid(r, c), rowY(r), colX(c), remMid(), xorMid(i), last, rem, steps, width, height}: a mod-2 long division as rows of tiles (progress p 0..2 for the two steps).\n\nD. HAMMING RIG, SYNDROME, CUBE (common-4.js): A6.hamRig(parent, {x, y, size, gap, rowH, word}) -> H {bits, set, all, mid, top, bottom, nums(k, {hot, tone}), bin(k, {hot, at}), row(name, {k, dots, vals, own, bad, tone, verdict, vk, o}), cover(name), rowMid, rowY, verdictAt, syn: {set({vals, k, eqK, num, numK, numX, numY, numS, o}), numHome()}, left, width}; A6.cube(parent, {x, y, w, h, pillW, pillH}) -> {update({nodes, edges, base, o}), pt(word), mid(edgeKey, f), edgeKeys}; A6.ek(a, b) edge key."
+}

@@ -1,9 +1,10 @@
-/* Phase 4 · scene 10-guarantee: why the shortcut tour of scene 9 is never worse than twice the best tour.
-   (1) Cut one cable out of the BEST round trip (purple, dashed: the benchmark) and a spanning tree is left (blue); no spanning
-   tree costs less than the minimum one, W, so W <= best. (2) Our tour is no longer than the walk, which is 2W. So
-   tour <= 2W <= 2 x best. A number line collects the five totals (W, best, tour, 2W, twice best); only totals are shown,
-   never single cable lengths. The way home of our tour (G to A) would run straight through D, so it bows underneath it,
-   as it does in scene 9. */
+/* Phase 4 · scene 10-guarantee: why the shortcut tour of scene 9 is never worse than twice the best tour (same map, same place).
+   (1) Cut one cable out of the BEST round trip (purple, dashed: the benchmark) and a spanning tree is left (blue, 79.6); no
+   spanning tree costs less than the minimum one, W, so W <= 79.6 <= best: a chain of three chips says it, and W <= best.
+   (2) Our tour is no longer than the walk, which is 2W. So tour <= 2W <= 2 x best. A number line collects the five totals (W,
+   best, tour, 2W, twice best; labelled "cost"); only totals are shown, never single cable lengths. The way home of our tour
+   (G to A) would run straight through D, so it bows a little underneath it, as it does in scene 9. A tag says the distances are
+   straight lines (the guarantee needs that). */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
@@ -47,6 +48,11 @@
 
   // ---------- the number line ----------
   const LINE_Y = 540;
+  A4.same(
+    "the left-over tree is between W and best",
+    [T.W <= T.cut.pathLen, T.cut.pathLen <= T.best.len],
+    [true, true],
+  );
   const X = (v) => 24 + (v - 50) * 5.573;
   const POS = { W: X(T.W), best: X(T.best.len), tour: X(T.tourLen), walk: X(T.walkLen), twice: X(T.twiceBest) };
   A4.same("guarantee: marker positions", Object.values(POS).map(Math.round), [167, 289, 441, 589, 833]);
@@ -59,26 +65,30 @@
   const CUT_RED = 2.6; // ... turns red and fades
   const TREE0 = 2.8; // the six left over turn solid blue
   const TREE_TAG = 3.0;
-  const W_MARK = 3.4;
-  const TOUR0 = 4.6; // leg i of our tour draws at TOUR0 + 0.1 i
-  const TOUR_MARK = 5.6;
-  const WALK_MARK = 6.0;
-  const TWICE_MARK = 7.0;
-  const BRACKET0 = 7.2;
-  const BRACKET1 = 8.4;
-  const TICK0 = 8.6;
+  const CHIP_TREE = 3.2; // the chain W <= tree <= best: 'tree' first (best came with its marker), then W
+  const W_MARK = 3.9;
+  const CHAIN_OUT = 5.9; // the chain makes way for the second half
+  const TOUR0 = 6.2; // leg i of our tour draws at TOUR0 + 0.1 i
+  const TOUR_MARK = 7.2;
+  const WALK_MARK = 7.6;
+  const TWICE_MARK = 8.6;
+  const BRACKET0 = 8.8;
+  const BRACKET1 = 9.7;
+  const TICK0 = 9.8;
+  const BOW = 92; // the way home G to A would run through D: a gentle bow clears the town (the curve dips about BOW / 2 px)
 
   V.scene({
     kicker: "THE GUARANTEE",
     title: ["The tour is never worse", "than twice the best"],
-    dur: 10,
+    dur: 10.9,
     caps: [
-      [0.4, 3.8, "Cut one cable from the best tour: a spanning tree is left."],
-      [4.0, 6.8, "So the best tour costs at least W. Ours costs at most 2W."],
-      [7.0, 9.6, "Our tour is never worse than twice the best."],
+      [0.4, 3.4, "Cut one cable from the best tour: a spanning tree is left."],
+      [3.6, 6.0, "W is the cheapest tree, so best is at least W."],
+      [6.2, 8.4, "Our tour costs at most the walk, 2W."],
+      [8.6, 10.7, "So it is never worse than twice the best."],
     ],
     build(stage) {
-      const m = A4.tspMap(stage, { x: -35, y: -15, s: 1.35 });
+      const m = A4.tspMap(stage, { x: -40, y: -32 }); // the map of scene 9, in the same place
       const P = (c) => {
         const p = m.pt(c);
         return [p.x, p.y];
@@ -87,7 +97,6 @@
       // blue cables (the spanning tree, then our tour): between the cables and the towns, so the towns stay on top
       const lay = V.s("g");
       m.el.insertBefore(lay, m.el.children[2] || null);
-      const BOW = 150; // the way home G to A would run straight through D, so it bows underneath it
       const paths = {};
       const addPath = (from, to, bowed, extra) => {
         const [p, q] = [P(from), P(to)];
@@ -164,10 +173,28 @@
       const mTour = mk("blue", "tour", num(T.tourLen), "tour");
       const mWalk = mk("orange", "2W", num(T.walkLen), "walk");
       const mTwice = mk("purple", "twice best", num(T.twiceBest), "twice", "right");
-      const tagAt = { x: 620, y: 120, solid: true };
+      const tagAt = { x: 650, y: 92, solid: true };
       const tagBest = A4.tag(stage, { ...tagAt, text: "best tour", tone: "purple" });
       const tagTree = A4.tag(stage, { ...tagAt, text: "a spanning tree", tone: "blue" });
       const tagTour = A4.tag(stage, { ...tagAt, text: "our tour", tone: "blue" });
+      // the distances are straight lines: the guarantee needs that (a detour is never shorter than the straight leg)
+      const straight = A4.tag(stage, { x: 650, y: 30, text: "straight lines" });
+      const axisName = V.h("div", {
+        class: "v-text dim",
+        text: "cost",
+        style: { left: "24px", top: `${LINE_Y - 56}px` },
+      });
+      stage.append(axisName);
+      // the chain W <= tree <= best: the tree that is left after the cut sits between the cheapest tree and the best tour
+      const CHAIN_Y = 384;
+      const chip = (x, label, tone) => A4.total(stage, { x, y: CHAIN_Y, w: 230, h: 64, label, tone });
+      const [chipW, chipTree, chipBest] = [
+        chip(24, "W", "green"),
+        chip(314, "tree", "blue"),
+        chip(604, "best", "purple"),
+      ];
+      const svgChain = L5.svg(stage);
+      const [leq1, leq2] = [284, 574].map((x) => svgChain.appendChild(A4.leq(x, CHAIN_Y + 30, 44)));
 
       const lin = E.lin;
       return (t) => {
@@ -211,14 +238,23 @@
         const pop = (a, d = 0.4) => ramp(t, a, a + d, lin);
         mBest.set({ k: pop(BEST_MARK) });
         mW.set({ k: pop(W_MARK), bump: flash(t, W_MARK + 0.3, W_MARK + 0.6) });
-        mTour.set({ k: pop(TOUR_MARK), bump: flash(t, 7.5, 7.9) });
-        mWalk.set({ k: pop(WALK_MARK), bump: flash(t, 7.9, 8.3) });
+        mTour.set({ k: pop(TOUR_MARK), bump: flash(t, TWICE_MARK + 0.3, TWICE_MARK + 0.7) });
+        mWalk.set({ k: pop(WALK_MARK), bump: flash(t, WALK_MARK + 0.3, WALK_MARK + 0.7) });
+        axisName.style.opacity = String(ramp(t, LINE0 + 0.4, LINE0 + 0.8, lin));
         mTwice.set({ k: pop(TWICE_MARK) });
 
         // --- tags: they name what the map shows ---
         tagBest.set({ k: pop(1.2) * (1 - ramp(t, CUT_RED, CUT_RED + 0.3, lin)) });
-        tagTree.set({ k: pop(TREE_TAG) * (1 - ramp(t, 4.4, 4.7, lin)) });
+        tagTree.set({ k: pop(TREE_TAG) * (1 - ramp(t, TOUR0, TOUR0 + 0.3, lin)) });
         tagTour.set({ k: pop(TOUR0 + 0.3) });
+        straight.set({ k: pop(0.6) });
+
+        // --- the chain W <= tree <= best, built from the right ---
+        const out = 1 - ramp(t, CHAIN_OUT, CHAIN_OUT + 0.4, lin);
+        chipBest.set({ text: num(T.best.len), k: pop(BEST_MARK), o: out });
+        chipTree.set({ text: num(T.cut.pathLen), k: pop(CHIP_TREE), o: out });
+        chipW.set({ text: num(T.W), k: pop(W_MARK), o: out, bump: flash(t, W_MARK + 0.3, W_MARK + 0.6) });
+        [[leq2, CHIP_TREE], [leq1, W_MARK]].forEach(([g, a]) => V.place(g, { s: 0.7 + 0.3 * E.pop(pop(a)), o: Math.min(1, pop(a) * 4) * out })); // prettier-ignore
 
         // --- the cross on the longest cable ---
         const ck = ramp(t, CROSS0, CROSS0 + 0.4);
@@ -226,8 +262,8 @@
         V.show(cross, 1 - ramp(t, CUT_RED + 0.4, CUT_RED + 0.7, lin));
 
         // --- arrows along the line, the bracket and the tick ---
-        L5.drawOn(toBest, ramp(t, 4.0, 4.5));
-        L5.drawOn(toWalk, ramp(t, 6.3, 6.8));
+        L5.drawOn(toBest, ramp(t, W_MARK + 0.5, W_MARK + 1.0));
+        L5.drawOn(toWalk, ramp(t, WALK_MARK + 0.2, WALK_MARK + 0.7));
         const bk = ramp(t, BRACKET0, BRACKET1, E.inOut);
         bracket.style.strokeDasharray = `${bk.toFixed(3)} 2`;
         V.show(bracket, bk < 0.003 ? 0 : 1);

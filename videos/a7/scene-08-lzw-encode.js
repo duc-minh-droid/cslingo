@@ -9,10 +9,11 @@
     dur: 13,
     caps: [
       [0.4, 2.4, "LZW starts with a tiny dictionary: A and B."],
-      [2.6, 4.8, "If the longer phrase is new, send a code and learn it."],
+      [2.6, 4.8, "A new longer phrase: send a code, learn it."],
       [5.2, 6.8, "Known? Keep growing."],
-      [7.0, 10.0, "Longer phrases get one code each."],
-      [11.0, 12.8, "Nine letters became five codes."],
+      [7.2, 8.7, "Still known: grow again."],
+      [8.9, 10.4, "Longer phrases get one code each."],
+      [11.4, 12.9, "Nine letters became five codes."],
     ],
     build(stage) {
       const t = A7.tag(stage, { x: 300, y: 280, text: "scene 8 · placeholder", tone: "blue", solid: true });

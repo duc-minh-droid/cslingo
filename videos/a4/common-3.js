@@ -28,6 +28,9 @@
    A4.equals(x, y, size, tone = "green") -> SVG <g> of an equals sign centred on x, y (append it to your own <svg>, e.g. from
        L5.svg(stage); V.place(g, {s, o}) animates it).
 
+   A4.leq(x, y, size, colour = "var(--ink)") -> SVG <g> of a "less than or equal" sign centred on x, y (a chevron over a bar; colour is
+       any CSS colour; append it to your own <svg>, V.place(g, {s, o}) animates it).
+
    GEOMETRY (pure)
    A4.along(points, f) -> {x, y, dx, dy, i}   the point at fraction f (0..1) of the length of a polyline [[x, y], ...], its unit
                           heading (dx, dy) and the index of the segment it is on.
@@ -278,6 +281,26 @@
     return V.s("g", {}, bar_(-size * 0.17), bar_(size * 0.17));
   }
 
+  // ---------- less-than-or-equal sign ----------
+  function leq(x, y, size, colour = "var(--ink)") {
+    const a = size * 0.3;
+    const stroke = (d) =>
+      V.s("path", {
+        d,
+        fill: "none",
+        "stroke-width": f1(size * 0.14),
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        style: { stroke: colour },
+      });
+    return V.s(
+      "g",
+      {},
+      stroke(`M${f1(x + a)} ${f1(y - a * 1.1)}L${f1(x - a)} ${f1(y - a * 0.1)}L${f1(x + a)} ${f1(y + a * 0.9)}`),
+      stroke(`M${f1(x - a)} ${f1(y + a * 1.6)}H${f1(x + a)}`),
+    );
+  }
+
   // ---------- geometry ----------
   const lerpPt = (p, q, f) => [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f];
   function along(points, f) {
@@ -306,5 +329,5 @@
     ];
   }
 
-  Object.assign(A4, { tag, tiles, total, bar, token, marker, equals, lerpPt, along, offsetLine });
+  Object.assign(A4, { tag, tiles, total, bar, token, marker, equals, leq, lerpPt, along, offsetLine });
 })();

@@ -36,7 +36,7 @@
    3. TAGS AND COUNTERS
         const t = A6.tag(parent, {x, y, text, tone: "grey", solid: false, h, fs: 28});   a pill sticker (x, y = top-left)
             t.set({text, tone, solid, k: 1, x, y, s, o})  k 0..1 pops it in; x, y = offset from where it was placed
-            t.el;  t.w, t.h are NOT known before layout: use A6.tagW(text, fs) for an estimate of the width.
+            t.el;  t.w, t.h are NOT known before layout: use A6.tagW(text, fs) for an estimate of the width (about 13 px per character plus 40; a tag is about 58 px high).
         const c = A6.stat(parent, {x, y, w: 270, h: 80, label: "ones", tone: "blue"});   label on the left, a big number right
             c.set({text, tone, solid, bump: 0..1 (one pulse: V.flash(t, a, b)), k, o})
         const o = A6.disc(parent, {x, y, size: 64, text: "6", tone: "orange"});   a round solid sticker with a number inside
@@ -83,7 +83,7 @@
     if (el.className !== cls) el.className = cls;
   };
   A6.seq = (t, t0, step, dur, i) => clamp((t - t0 - i * step) / dur);
-  A6.tagW = (text, fs = 28) => Math.round(String(text).length * fs * 0.56 + 42);
+  A6.tagW = (text, fs = 28) => Math.round(String(text).length * fs * 0.465 + 40);
 
   // ---------- 1. a row of bit tiles ----------
   function bits(parent, opt = {}) {

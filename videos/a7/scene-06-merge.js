@@ -9,9 +9,9 @@
     dur: 14,
     caps: [
       [0.4, 2.7, "Each letter has a chance. Join the two smallest."],
-      [3.3, 5.3, "The new node adds its chance to the bits per letter."],
+      [3.3, 5.3, "Its chance adds to the bits per letter."],
       [5.5, 8.0, "Repeat with the two smallest left."],
-      [9.0, 11.0, "One node left: the tree is done."],
+      [9.4, 11.0, "One node left: the tree is done."],
       [11.1, 13.6, "1.98 bits a letter, just above the 1.96 floor."],
     ],
     build(stage) {

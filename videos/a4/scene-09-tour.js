@@ -105,13 +105,13 @@
   V.scene({
     kicker: "FROM TREE TO TOUR",
     title: ["Walk round the tree,", "skip the repeats"],
-    dur: 13.8,
+    dur: 13.6,
     caps: [
       [0.4, 2.7, "Goal: the shortest round trip through every town."],
       [2.9, 4.9, "A cheap start: the cheapest tree, cost W."],
       [5.0, 8.3, "Walk round it. Every cable is used twice: 2W."],
       [8.4, 11.3, "Skip towns already visited. Detours become direct legs."],
-      [11.5, 13.6, "Straight is never longer: tour at most 2W."],
+      [11.5, 13.4, "Straight is never longer: tour at most 2W."],
     ],
     build(stage) {
       const m = A4.tspMap(stage, { x: -40, y: -32 }); // scene 10 draws the same map in the same place

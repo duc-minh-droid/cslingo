@@ -88,7 +88,7 @@
   V.scene({
     kicker: "THE COST",
     title: ["Which is faster?", "It depends on the network"],
-    dur: 11,
+    dur: 10.8,
     caps: [
       [0.4, 3.6, "Prim's array version counts towns. Kruskal's counts cables."],
       [4.0, 6.4, "Few cables: Kruskal does far less."],
