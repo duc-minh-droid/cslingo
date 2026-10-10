@@ -55,7 +55,7 @@
   const STARTS = [SWEEP[0], ...ROUNDS.slice(1).map((_, i) => roundStart(i + 1))]; // a new 'from X' for each round
   const TILE_T = [T_A, ...ARRIVE.slice(0, 4)]; // the hull list grows: A, G, E, D, C
   const TRIM = 32; // the plot cuts a line 32 px short of a named point
-  const OFF = { B: [-66, -6], C: [0, 52], D: [0, 50], E: [0, -50], F: [0, -50], G: [70, -8] }; // angle badge offsets
+  const OFF = { B: [-66, -6], C: [0, 52], D: [0, 50], E: [-20, -50], F: [0, -50], G: [86, -8] }; // angle badge offsets
   const ARC_R = 100;
 
   V.scene({
@@ -205,7 +205,7 @@
         const [tx, ty] = [-Math.sin(phi), Math.cos(phi)]; // clockwise as seen
         const c = [P.A[0] + nx * ARC_R, P.A[1] + ny * ARC_R];
         const pt = (a, b) => `${(c[0] + nx * a + tx * b).toFixed(1)} ${(c[1] + ny * a + ty * b).toFixed(1)}`;
-        head.setAttribute("d", `M${pt(0, 17)}L${pt(11, 0)}L${pt(-11, 0)}Z`);
+        head.setAttribute("d", `M${pt(0, 15)}L${pt(10, 0)}L${pt(-10, 0)}Z`);
         head.setAttribute("class", touched ? "c-orange" : "c-purple");
         V.show(head, ramp(t, 3.05, 3.25, lin) * fade);
 

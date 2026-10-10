@@ -25,8 +25,7 @@
   A5.same("scene 2 inside pins", INSIDE, ["B", "F"]);
 
   // the convexity claim, checked for real: every sampled point of every chord is on the inner side of every hull edge
-  const inside = (p) =>
-    HULL.every((n, i) => A5.turnValue(P[n], P[HULL[(i + 1) % HULL.length]], p) >= -1e-6);
+  const inside = (p) => HULL.every((n, i) => A5.turnValue(P[n], P[HULL[(i + 1) % HULL.length]], p) >= -1e-6);
   CHORDS.forEach(([a, b]) => {
     const ok = Array.from({ length: 21 }, (_, i) => i / 20).every((u) =>
       inside([lerp(P[a][0], P[b][0], u), lerp(P[a][1], P[b][1], u)]),
@@ -72,10 +71,7 @@
       const [ea, eb] = [P.A, P.G];
       const el = Math.hypot(eb[0] - ea[0], eb[1] - ea[1]);
       const nrm = [(eb[1] - ea[1]) / el, -(eb[0] - ea[0]) / el]; // unit normal, pointing up and to the left (outside)
-      const onEdge = (f, off) => [
-        lerp(ea[0], eb[0], f) + nrm[0] * off,
-        lerp(ea[1], eb[1], f) + nrm[1] * off,
-      ];
+      const onEdge = (f, off) => [lerp(ea[0], eb[0], f) + nrm[0] * off, lerp(ea[1], eb[1], f) + nrm[1] * off];
 
       return (t) => {
         // ---- the band: loose, then tight ----
