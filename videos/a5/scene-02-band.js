@@ -10,6 +10,7 @@
   const A5 = V.a5;
   const L5 = V.l5;
   const { ramp, flash, clamp, lerp, ease: E } = V;
+  const snap = (x) => 1 - (1 - x) * (1 - x); // a band pulled tight: fast at first, no overshoot (it cannot pass the pins)
 
   const P = A5.pos({ x: 186, y: 100, s: 1.55 });
   const HULL = A5.HULL;
@@ -40,8 +41,7 @@
     const [pa, pb] = [P[a], P[b]];
     const len = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
     let n = [(pb[1] - pa[1]) / len, -(pb[0] - pa[0]) / len];
-    if (n[1] > 0) n = [-n[0], -n[1]]; // the normal that points up the screen
-    if (a === "G") n = [-n[0], -n[1]]; // G-D: the clear side is to the right (away from pin F)
+    if (n[1] > 0) n = [-n[0], -n[1]]; // the normal that points up the screen (G-D: to the right, away from pin F)
     return [(pa[0] + pb[0]) / 2 + n[0] * off, (pa[1] + pb[1]) / 2 + n[1] * off];
   };
 
@@ -66,18 +66,20 @@
         return svg.appendChild(L5.tick(x, y, 44, "green"));
       });
 
-      // the label rides on the middle of the top-right edge (G to E): outside by `spread` * 40 px, always a little further out
-      const edge = ["G", "E"].map((n) => P[n]);
-      const mid = [(edge[0][0] + edge[1][0]) / 2, (edge[0][1] + edge[1][1]) / 2];
-      const el = Math.hypot(edge[1][0] - edge[0][0], edge[1][1] - edge[0][1]);
-      const nrm = [(edge[1][1] - edge[0][1]) / el, -(edge[1][0] - edge[0][0]) / el]; // points up and to the right (outside)
-      const onBand = (spread) => [mid[0] + nrm[0] * AMOUNT * spread, mid[1] + nrm[1] * AMOUNT * spread];
+      // the two labels sit on the left edge (A to G): the loose band's label rides in with it, the hull's label rests near G
+      const [ea, eb] = [P.A, P.G];
+      const el = Math.hypot(eb[0] - ea[0], eb[1] - ea[1]);
+      const nrm = [(eb[1] - ea[1]) / el, -(eb[0] - ea[0]) / el]; // unit normal, pointing up and to the left (outside)
+      const onEdge = (f, off) => [
+        lerp(ea[0], eb[0], f) + nrm[0] * off,
+        lerp(ea[1], eb[1], f) + nrm[1] * off,
+      ];
 
       return (t) => {
         // ---- the band: loose, then tight ----
         const grow = ramp(t, 1.3, 2.2, E.lin);
         const hang = Math.sin(Math.PI * clamp((t - 2.2) / 1.4)); // a slow, tiny sag while it hangs
-        const spread = t < 3.6 ? 1 - 0.07 * hang : 1 - ramp(t, 3.6, 4.6, E.out);
+        const spread = t < 3.6 ? 1 - 0.07 * hang : 1 - ramp(t, 3.6, 4.6, snap);
         const snapped = t >= 4.5;
         const band = {
           pts: HULL,
@@ -104,7 +106,7 @@
         });
 
         // ---- labels on the picture ----
-        const loose = onBand(spread);
+        const loose = onEdge(0.62, AMOUNT * spread);
         const tags = [
           // the loose band names itself, rides in with it as it snaps, and gives way to 'convex hull' on the tight band
           {
@@ -115,12 +117,12 @@
             k: ramp(t, 2.2, 2.6, E.lin),
             o: 1 - ramp(t, 3.6, 4.0, E.lin),
           },
-          { at: onBand(0), text: "convex hull", tone: "green", solid: true, k: ramp(t, 5.5, 5.9, E.lin) },
+          { at: onEdge(0.72, 0), text: "convex hull", tone: "green", solid: true, k: ramp(t, 5.5, 5.9, E.lin) },
         ];
         INSIDE.forEach((n, i) => {
           tags.push({
             at: n,
-            dy: 46,
+            dy: 52,
             text: "inside",
             tone: "grey",
             k: ramp(t, 6.4 + 0.2 * i, 6.8 + 0.2 * i, E.lin),

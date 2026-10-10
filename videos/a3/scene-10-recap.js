@@ -223,10 +223,10 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["blue", "The best is a corner:\nsimplex walks there", simplexRow],
-        ["purple", "Trap the minimum,\nthen shrink the trap", bowlRow],
-        ["green", "No gradient needed:\nflip the worst corner", triangleRow],
-      ].map(([tone, text, make], i) => {
+        ["blue", "The best is a corner:\nsimplex walks there", "simplex", simplexRow],
+        ["purple", "Trap the minimum,\nthen shrink the trap", "bisection · golden · Brent", bowlRow],
+        ["green", "No slope needed:\nflip the worst corner", "Nelder-Mead", triangleRow],
+      ].map(([tone, text, method, make], i) => {
         const card = V.h("div", { class: `v-card plain c-${tone}`, style: box(CARD.x, CARD.tops[i], CARD.w, CARD.h) });
         const pic = V.h("div", {
           style: { ...box(PIC.x, PIC.y, PIC.w, PIC.h), transform: `scale(${PIC.zoom})`, transformOrigin: "0 0" },
@@ -236,8 +236,8 @@
           text,
           style: {
             left: "440px",
-            top: "0",
-            height: "174px",
+            top: "12px",
+            height: "90px",
             display: "flex",
             alignItems: "center",
             whiteSpace: "pre",
@@ -245,9 +245,10 @@
             lineHeight: "1.2",
           },
         });
+        const name = A3.tag(card, { x: 440, y: 114, anchor: "l", text: method, tone }); // the method's name, under the line
         card.append(pic, label);
         stage.append(card);
-        return { card, label, update: make(pic) };
+        return { card, label, name, update: make(pic) };
       });
 
       const cta = A3.tag(stage, {
@@ -276,6 +277,7 @@
           V.place(r.card, { y: (1 - k) * 36, o: k });
           const kl = ramp(t, APPEAR[i] + 0.15, APPEAR[i] + 0.65);
           V.place(r.label, { x: (1 - kl) * 24, o: kl });
+          r.name.set({ dx: (1 - kl) * 24, o: kl });
           r.update(t);
         });
         const c = ramp(t, 5.4, 6.0, E.pop);

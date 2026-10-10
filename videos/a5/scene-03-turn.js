@@ -53,17 +53,20 @@
     [0.9, 1.3, 1.7],
     [0.9, 1.3, 1.7],
   ];
+  const POP_U = [0.3, 0.15, 0.15]; // the points pop in once the grid is drawn / the previous path has faded
   const VERDICT_U = [2.9, 2.3, 2.3]; // the sign decides: 3.2, 8.2 and 12.0 on the video clock
   const TONE = { left: "green", right: "red", straight: "orange" };
   const ICON = [
     [472, 292], // beside a, in the free space of each plot
-    [268, 76],
-    [236, 268],
+    [252, 92],
+    [252, 296],
   ];
 
   function build(host) {
     // everything sits 20 px lower than the helpers' own coordinates, so the figure is centred between the headline and the caption
-    const stage = V.h("div", { style: { position: "absolute", left: "0px", top: "20px", width: "936px", height: "640px" } });
+    const stage = V.h("div", {
+      style: { position: "absolute", left: "0px", top: "20px", width: "936px", height: "640px" },
+    });
     host.append(stage);
     const g = A5.grid(stage, { x: 48, y: 56, cols: 7, rows: 5, u: 72 });
     const plots = TR.map((T) =>
@@ -74,6 +77,15 @@
         tags: 2,
         segs: 3,
       }),
+    );
+    A5.same(
+      "plot positions",
+      plots.map((pl) => ["p", "a", "b"].map((n) => pl.xy(n))),
+      [
+        [[192, 416], [408, 344], [264, 128]],
+        [[120, 200], [336, 128], [480, 344]],
+        [[48, 272], [192, 200], [480, 56]],
+      ], // prettier-ignore
     );
     const sheets = TR.map(() => A5.sheet(stage, { x: 560, y: 56, w: 364, rows: 4, rowH: 58, fs: 30 }));
     const label = A5.tag(stage, { x: 584, y: 28, text: "cross product", tone: "blue", solid: true });
@@ -110,9 +122,14 @@
       const reach = [0.6, 1.0, 1.4];
       const points = {};
       ["p", "a", "b"].forEach((name, j) => {
-        const k = ramp(u, 0.1 * j, 0.1 * j + 0.3, E.pop);
+        const k = ramp(u, POP_U[i] + 0.1 * j, POP_U[i] + 0.1 * j + 0.3, E.pop);
         const col = decided ? tone : u >= reach[j] ? "blue" : "grey";
-        points[name] = { tone: col, solid: col !== "grey", s: lerp(0.5, 1, k) * (1 + 0.12 * bump), o: Math.min(1, k * 4) };
+        points[name] = {
+          tone: col,
+          solid: col !== "grey",
+          s: lerp(0.5, 1, k) * (1 + 0.12 * bump),
+          o: Math.min(1, k * 4),
+        };
       });
 
       // the walk p -> a -> b; the first leg flashes while 'a - p' is written, a dashed arrow p -> b shows 'b - p'
@@ -130,7 +147,7 @@
 
       // the card with the sum, row by row
       const sh = sheets[i];
-      const cardK = ramp(u, rowAt[0] - 0.4, rowAt[0], E.pop);
+      const cardK = i === 0 ? ramp(u, rowAt[0] - 0.4, rowAt[0], E.pop) : ramp(u, 0.3, 0.7, E.pop); // the next card pops as the old one is gone
       sh.card({ tone: decided ? tone : "grey", k: cardK, o: out });
       const rows = rowsOf(T);
       rows.forEach((text, r) => {

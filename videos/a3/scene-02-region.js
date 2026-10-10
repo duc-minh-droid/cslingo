@@ -96,8 +96,8 @@
       const xName = P.text({ tone: "grey", anchor: "end" });
       const yName = P.text({ tone: "grey", anchor: "start" });
       const lineBadge = [
-        A3.badge(P.html, { x: P.px(6.8), y: P.py(1.6), size: 44, text: "1", tone: "purple" }),
-        A3.badge(P.html, { x: P.px(3.1), y: P.py(5.7), size: 44, text: "2", tone: "purple" }),
+        A3.badge(P.html, { x: P.px(6.8), y: P.py(1.6), size: 48, text: "1", tone: "purple" }),
+        A3.badge(P.html, { x: P.px(3.1), y: P.py(5.7), size: 48, text: "2", tone: "purple" }),
       ];
       const legal = A3.tag(P.html, {
         x: P.px(2.1),
@@ -115,7 +115,7 @@
       stage.append(rulesCard);
       const ruleRows = RULES.map(([name, math], i) => {
         const top = 14 + 68 * i;
-        const badge = A3.badge(rulesCard, { x: 38, y: top + 30, size: 44, text: String(i + 1), tone: "purple" });
+        const badge = A3.badge(rulesCard, { x: 38, y: top + 30, size: 48, text: String(i + 1), tone: "purple" });
         const nameEl = V.h("div", {
           class: "v-text big",
           text: name,
@@ -138,7 +138,7 @@
       const rows = [0, 1].map((i) => {
         const top = 76 + 82 * i;
         return {
-          num: A3.badge(card, { x: 38, y: top + 36, size: 44, text: String(i + 1), tone: "purple" }),
+          num: A3.badge(card, { x: 38, y: top + 36, size: 48, text: String(i + 1), tone: "purple" }),
           put: V.h("div", { class: "v-text dim", style: { left: "78px", top: `${top}px`, fontSize: "28px" } }),
           sum: V.h("div", {
             class: "v-text big",

@@ -183,7 +183,11 @@
   same("DH shared secret", [DH.sA, DH.sB], [2, 2]);
   same("DH 5^6 = 679 x 23 + 8", [DH.powA, DH.quot, DH.rem, DH.quot * 23 + DH.rem], [15625, 679, 8, 15625]);
   same("DH table", DH.table, [5, 2, 10, 4, 20, 8, 17, 16, 11, 9, 22, 18]);
-  same("DH search", DH.search.map((s) => s.y), [5, 2, 10, 4, 20, 8]);
+  same(
+    "DH search",
+    DH.search.map((s) => s.y),
+    [5, 2, 10, 4, 20, 8],
+  );
   same("DH search hit", [DH.tries, DH.search[DH.tries - 1].hit], [6, true]);
   same("DH 8^15 mod 23", Number(8n ** 15n % 23n), 2);
   same("DH 19^6 mod 23", Number(19n ** 6n % 23n), 2);
@@ -215,7 +219,7 @@
       M,
       powE: M ** e,
       quotE: Math.floor(M ** e / n),
-      remE: (M ** e) % n,
+      remE: M ** e % n,
       C,
       back: modpow(C, d, n),
       attack: { tries, found, other: n / found, z: (found - 1) * (n / found - 1), d },
@@ -329,17 +333,34 @@
       rows.push({ n, hash, ok });
       if (ok) break;
     }
-    return { data: "block 7", text: "cat pays dan 4", target: "0", win: rows.length - 1, tries: rows.length, chance: 16, rows, checkCost: 1 };
+    return {
+      data: "block 7",
+      text: "cat pays dan 4",
+      target: "0",
+      win: rows.length - 1,
+      tries: rows.length,
+      chance: 16,
+      rows,
+      checkCost: 1,
+    };
   })();
   same("mining wins at nonce 14 after 15 hashes", [MINE.win, MINE.tries, MINE.rows[14].hash], [14, 15, "0d84059e"]);
-  same("mining misses", MINE.rows.slice(0, 14).every((r) => !r.ok), true);
+  same(
+    "mining misses",
+    MINE.rows.slice(0, 14).every((r) => !r.ok),
+    true,
+  );
   same(
     "mining first hashes",
     MINE.rows.slice(0, 4).map((r) => r.hash),
     ["cfc7cb5a", "7d987054", "66de0aae", "72030365"],
   );
   const ZEROS = [1, 2].map((z) => ({ zeros: z, odds: 16 ** z, cells: 16 ** z }));
-  same("zeros", ZEROS.map((z) => z.odds), [16, 256]);
+  same(
+    "zeros",
+    ZEROS.map((z) => z.odds),
+    [16, 256],
+  );
 
   // ---------- 8. rewriting ----------
   const SEAL = (() => {

@@ -58,8 +58,8 @@
       const xName = P.text({ tone: "grey", anchor: "end" });
       const yName = P.text({ tone: "grey", anchor: "start" });
       const lineBadge = [
-        A3.badge(P.html, { x: P.px(6.8), y: P.py(1.6), size: 44, text: "1", tone: "purple" }),
-        A3.badge(P.html, { x: P.px(3.1), y: P.py(5.7), size: 44, text: "2", tone: "purple" }),
+        A3.badge(P.html, { x: P.px(6.8), y: P.py(1.6), size: 48, text: "1", tone: "purple" }),
+        A3.badge(P.html, { x: P.px(3.1), y: P.py(5.7), size: 48, text: "2", tone: "purple" }),
       ];
       const dots = CORNERS.map(() => P.dot({ tone: "blue", r: 12 }));
       const tags = CORNERS.map(([cx, cy], i) =>

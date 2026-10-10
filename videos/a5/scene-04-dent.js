@@ -33,7 +33,8 @@
   const arrive = (i) => EDGE0 + EDGE * (i + 1); // the walker reaches corner H[(i + 1) % N]
   const LOG = { x: 90, gap: 110, y: 520, size: 60, letterY: 580 };
   const TRIM = 32; // the plot cuts an edge 32 px short of a named point
-  const REST = 40; // the walker stands this far from a corner centre, so the letter stays visible
+  const REST = 46; // the walker stands this far from a corner centre, so the letter stays visible
+  const HEAD = 28.6; // arrowhead length of a 1.2-wide edge in the plot (3.4 x 8.4 px)
   const FADE = 0.4; // opacity of the pale record of the five left turns
   const smooth = (x) => 0.5 * x + 0.5 * E.inOut(x); // a walk that slows at corners but never stops dead
 
@@ -81,7 +82,7 @@
       stage.append(...letters);
       const allLeft = A5.tag(stage, { x: 596, y: LOG.y - 27, text: "all left turns", tone: "green", solid: true });
       // the right turn at the dent: a red arrow in the free space left of F
-      const turnArrow = svg.appendChild(A5.turnIcon(DENT_KIND, 312, 190, 60, "red"));
+      const turnArrow = svg.appendChild(A5.turnIcon(DENT_KIND, 306, 178, 72, "red"));
       const cross = L5.cross(P[DENT][0], P[DENT][1], 52, "red");
       svg.append(cross);
       const walker = A5.token(stage, { tone: "blue", size: 30 });
@@ -111,12 +112,12 @@
         const p = along(a, b, d);
         const out = ramp(t, 5.5, 5.7, lin);
         const into = ramp(t, 5.7, 5.9, lin);
-        const gone = ramp(t, 8.8, 9.4, lin);
+        const gone = ramp(t, 7.1, 7.5, lin);
         const grow = ramp(t, 1.0, 1.4, E.pop);
         const [s, o] =
           t < 5.7
             ? [lerp(0.4 + 0.6 * grow, 0.6, out), Math.min(1, grow * 4) * (1 - out)]
-            : [lerp(0.6, 1, into), into * (1 - gone)];
+            : [lerp(0.6, 1, into) * (1 - 0.4 * gone), into * (1 - gone)];
         return { x: p[0], y: p[1], s, o };
       };
 
@@ -169,28 +170,36 @@
           };
         });
         const dashO = ramp(t, 5.8, 6.0, lin) * (1 - ramp(t, 8.8, 9.4, lin));
-        segs.push({ a: "E", b: "G", tone: "grey", dash: true, o: 0.55 * dashO });
+        segs.push({ a: "E", b: "G", tone: "grey", dash: true, o: 0.85 * dashO });
         // ---- the detour: E -> F -> G in blue
         const d0 = lerp(detour[0].from, detour[0].to, smooth(ramp(t, detour[0].t0, detour[0].t0 + EDGE * 0.77, lin)));
         const d1 = lerp(detour[1].from, detour[1].to, smooth(ramp(t, detour[1].t0, detour[1].t0 + EDGE * 0.77, lin)));
         const dFade = 1 - ramp(t, 8.8, 9.4, lin);
-        segs.push({ a: "E", b: DENT, tone: "blue", w: 1.2, k: t < 5.9 ? 0 : drawK(d0, "E", DENT), o: dFade });
+        segs.push({
+          a: "E",
+          b: DENT,
+          tone: "blue",
+          w: 1.2,
+          arrow: true,
+          k: t < 5.9 ? 0 : drawK(d0, "E", DENT, HEAD),
+          o: dFade,
+        });
         segs.push({
           a: DENT,
           b: "G",
           tone: "blue",
           w: 1.2,
           arrow: true,
-          k: t < 6.4 ? 0 : drawK(d1, DENT, "G", 28),
+          k: t < 6.4 ? 0 : drawK(d1, DENT, "G", HEAD),
           o: dFade,
         });
 
         const polys = [
           { pts: H, tone: "green", fill: 0.4, w: 0.01, o: ramp(t, 4.7, 5.3, lin) },
-          { pts: ["E", DENT, "G"], tone: "red", fill: 0.5, w: 0.01, o: ramp(t, 6.9, 7.5, lin) * dFade },
+          { pts: ["E", DENT, "G"], tone: "red", fill: 1, w: 0.01, o: ramp(t, 6.9, 7.5, lin) * dFade },
         ];
         const tags = [
-          { at: DENT, dx: 80, dy: 40, text: "dent", tone: "red", solid: true, k: ramp(t, 7.6, 8.0, lin), o: dFade },
+          { at: DENT, dx: 76, dy: -58, text: "dent", tone: "red", solid: true, k: ramp(t, 7.6, 8.0, lin), o: dFade },
         ];
         pl.update({ points, polys, segs, tags });
 

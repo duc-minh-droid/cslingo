@@ -63,7 +63,12 @@
     const vals = st.ratios.map((r) => qv(r.val));
     const hi = vals.indexOf(Math.min(...vals));
     need(st.ratios[hi].row === st.leave, "the smallest ratio is the row that leaves");
-    return { labels: st.ratios.map((r) => A3.ROW_NAME[r.row].replace("-", " ")), vals, texts: vals.map((v) => A3.fmt(v)), hi };
+    return {
+      labels: st.ratios.map((r) => A3.ROW_NAME[r.row].replace("-", " ")),
+      vals,
+      texts: vals.map((v) => A3.fmt(v)),
+      hi,
+    };
   };
   const RATIOS = [ratioState(S0), ratioState(S1)];
   need(
@@ -191,8 +196,8 @@
       const material = P.text({ tone: "purple", anchor: "start" });
       const yAxis = P.text({ tone: "grey" });
       const leg = [
-        A3.tag(stage, { x: 0, y: 520, anchor: "l", html: "", tone: "purple" }),
-        A3.tag(stage, { x: 0, y: 574, anchor: "l", html: "", tone: "purple" }),
+        A3.tag(stage, { x: 12, y: 520, anchor: "l", html: "", tone: "purple" }),
+        A3.tag(stage, { x: 12, y: 574, anchor: "l", html: "", tone: "purple" }),
       ];
       const LEG = ["s2 = material left over", "s1 = machine hours left over"];
 
@@ -275,7 +280,7 @@
         const sp = ramp(t, 12.8, 13.3, lin);
         star.set({ x: P.px(4), y: P.py(3) - 44, s: sp > 0 ? E.pop(sp) : 0, o: Math.min(1, sp * 5) });
         xName.set({ text: "x", x: 6.75, y: 0, dy: -16 });
-        yName.set({ text: "y", x: 0, y: 7.3, dx: 26, dy: 8 });
+        yName.set({ text: "y", x: 0, y: 7.1, dx: 26, dy: 8 });
         // the rules are named on their lines (the ratio rows use the same words)
         const kn = ramp(t, 0.5, 0.9, lin);
         machine.set({ text: "machine", x: 5.6, y: 2.2, dy: -22, r: 26.6, o: kn });
