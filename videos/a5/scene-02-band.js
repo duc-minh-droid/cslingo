@@ -4,7 +4,7 @@
    B-F (the last joins the two INSIDE pins), and every one stays inside the band. The pins are the lesson's own A..G (unlettered
    here, they stay small so the loose band fits); the hull, the inside pins and the "segment stays inside" test all come from A5.
    Story (local seconds): 0.2-1.3 pins, 1.3-2.2 the loose band, 3.6-4.6 snap, 4.6-5.4 corners turn green, 5.5 'convex hull' label,
-   5.8 counters, 6.4-8.4 'inside' tags, 8.7-11.5 the segment test, 11.1 'convex'. */
+   5.8 counters, 6.4-8.4 'inside' tags, 8.6 'convex?', 8.7-11.3 the segment test, 11.1 'convex'. */
 (function () {
   const V = window.VID;
   const A5 = V.a5;
@@ -57,9 +57,11 @@
     ],
     build(stage) {
       const pins = A5.plot(stage, { pos: P, r: 20, letters: false, polys: 2, segs: 4, tags: 4 });
-      const corners = A5.counter(stage, { x: 70, y: 506, w: 290, label: "corners", tone: "green" });
-      const inner = A5.counter(stage, { x: 380, y: 506, w: 270, label: "inside", tone: "grey" });
-      const convex = A5.tag(stage, { x: 700, y: 520, text: "convex", tone: "green", solid: true, fs: 34 });
+      // the bottom row is laid out for its final three items (x 91..845), so it is centred once 'convex' arrives
+      const corners = A5.counter(stage, { x: 91, y: 506, w: 270, label: "corners", tone: "green" });
+      const inner = A5.counter(stage, { x: 377, y: 506, w: 250, label: "inside", tone: "grey" });
+      const convex = A5.tag(stage, { x: 661, y: 514, text: "convex?", tone: "grey", fs: 34 });
+      convex.el.style.minWidth = "184px";
       const svg = L5.svg(stage);
       const ticks = TEST.map((q, i) => {
         const [x, y] = tickAt(q.c, i === 1 ? 40 : 42);
@@ -106,18 +108,17 @@
         });
 
         // ---- labels on the picture ----
-        const loose = onEdge(0.62, AMOUNT * spread);
+        // one label rides on the left edge: it names the loose band, follows it in as it snaps, then gives way to 'convex hull'
+        const side = (off) => ({ at: onEdge(0.66, off + 22), anchor: "r", solid: true });
         const tags = [
-          // the loose band names itself, rides in with it as it snaps, and gives way to 'convex hull' on the tight band
           {
-            at: loose,
+            ...side(AMOUNT * spread),
             text: "rubber band",
-            tone: "orange",
-            solid: true,
+            tone: snapped ? "green" : "orange",
             k: ramp(t, 2.2, 2.6, E.lin),
-            o: 1 - ramp(t, 3.6, 4.0, E.lin),
+            o: 1 - ramp(t, 5.2, 5.5, E.lin),
           },
-          { at: onEdge(0.72, 0), text: "convex hull", tone: "green", solid: true, k: ramp(t, 5.5, 5.9, E.lin) },
+          { ...side(0), text: "convex hull", tone: "green", k: ramp(t, 5.5, 5.9, E.lin) },
         ];
         INSIDE.forEach((n, i) => {
           tags.push({
@@ -154,7 +155,15 @@
           k: ramp(t, 5.8, 6.2, E.lin),
         });
         inner.set({ text: String(INSIDE.length), tone: "grey", bump: flash(t, 5.9, 6.3), k: ramp(t, 5.9, 6.3, E.lin) });
-        convex.set({ k: ramp(t, 11.1, 11.5, E.lin) });
+        // 'convex?' is asked when the caption names it; the three green ticks answer it
+        const yes = t >= 11.1;
+        convex.set({
+          text: yes ? "convex" : "convex?",
+          tone: yes ? "green" : "grey",
+          solid: yes,
+          k: ramp(t, 8.6, 8.9, E.lin),
+          s: 1 + 0.15 * flash(t, 11.1, 11.5),
+        });
       };
     },
   });

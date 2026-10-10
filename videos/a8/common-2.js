@@ -503,6 +503,7 @@
   }
 
   Object.assign(A8, {
+    kit: { anchor, SHIFT, appear, css, px, f1, flex, tn, esc },
     TONES,
     tag,
     person,
