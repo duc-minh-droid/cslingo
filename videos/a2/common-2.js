@@ -11,7 +11,7 @@
         strike   0..1 draws a line through the text, left to right (an old number that is replaced)
      t.el the positioning holder (never move it), t.box the visible pill (V.place-able), t.w nothing: measure with getBoundingClientRect only in tests.
 
-   ───────────────────────────── A2.token(parent, {size = 44, tone = "blue", text = "", fs = 26, round = false}) -> k ─────────────────────────────
+   ───────────────────────────── A2.token(parent, {size = 44, tone = "blue", text = "", fs = 28, round = false}) -> k ─────────────────────────────
      A solid sticker square (a packet, optionally with a letter such as "F" for the destination) or a disc (round: true), centred on (x, y).
      k.set({x, y, s, o, r, tone, text, dx, dy}). Move it along roads with A2.along(points, k) or G.edgePt.
 
@@ -179,7 +179,7 @@
 
   // ---------- token (a packet or a disc) ----------
   function token(parent, opt = {}) {
-    const { size = 44, tone = "blue", text = "", fs = 26, round = false } = opt;
+    const { size = 44, tone = "blue", text = "", fs = 28, round = false } = opt;
     const holder = V.h("div", { style: centred(0, 0) });
     const box = V.h("div", {
       class: `v-gene solid c-${tone}`,

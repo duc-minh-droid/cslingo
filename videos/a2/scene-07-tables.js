@@ -113,7 +113,7 @@
         edges: A2.NET.edges,
         x: 0,
         y: 40,
-        at: { "A-C": 0.25, "B-D": 0.3, "C-D": 0.55 },
+        at: { "A-C": 0.25, "B-D": 0.62, "C-D": 0.55 },
         badge: { B: "t", C: "t", D: "bl", E: "br", F: "tr" },
       });
       const names = A2.NET.names;

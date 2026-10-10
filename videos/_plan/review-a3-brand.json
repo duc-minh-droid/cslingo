@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "scene": "scene-08-moves.js",
+      "severity": "should",
+      "problem": "A bare purple triangle outline is on screen from the very first frame of the scene (about 0.15 s) and stays alone for about 1 s, before its fill, corner dots, labels and f tags arrive at 1.0 s. For that second it reads as a stray artefact floating on the contour card (the star pops at 0.6 s and the contours fade in 0 to 1 s, but the outline is already at full strength). The storyboard says the polygon fades in at 1.0 s. Only fillO and dotO are gated; the stroke is not.",
+      "fix": "Gate the whole triangle on the 1.0 s entrance, for example add o: ramp(t, 0.9, 1.3, E.lin) (or pop it with kT) to the tri.set({...}) call around line 282 of scene-08-moves.js, so nothing of the triangle shows before 1.0 s.",
+      "evidence": "node tools/video-still.js algo-3 s8@0.15, s8@0.3 and s8@0.7 (abs 81.15, 81.3 and 81.7 s): a lone purple outline at the lower left with no dots, fill, labels or caption context; the dots only appear in s8@2."
+    },
+    {
+      "scene": "scene-08-moves.js",
+      "severity": "nit",
+      "problem": "The candidate labels \"M₁ 1.465\" and \"M₂ 5.165\" are built with a <sub> digit, and the subscript renders at 23.3 px, below the 28 px minimum for labels. Everything else in the scene (and the video) is 28 px or more; the s₁ / s₂ subscripts in scene 4 stay at 28.3 px only because their label is 34 px.",
+      "fix": "Give the subscript an explicit size, for example html: 'M<sub style=\"font-size:28px\">1</sub> 1.465', or label the candidates \"M1\" / \"M2\" with a full-size digit. Keep the tag height unchanged.",
+      "evidence": "Computed-style scan across the video: the only HTML text under 28 px is the 23.33 px subscript digit in these tags (shown in s8@11, abs 92 s, and s8@10.5)."
+    },
+    {
+      "scene": "scene-07-brent.js",
+      "severity": "nit",
+      "problem": "The step chips read \"1 parabola\", \"2 parabola\", \"3 parabola\", \"4 golden\". A number before a noun looks like a count (\"1 parabola, 2 parabola\") rather than a step number, and the plural pattern reads oddly. The same pattern was raised for algo-1 (\"1 links\").",
+      "fix": "Write the step number after the name (\"parabola 1\", \"parabola 2\", \"parabola 3\", \"golden 4\") or drop the numbers and rely on the order and the colours. The chip width (210 px) already fits either.",
+      "evidence": "node tools/video-still.js algo-3 s7@3, s7@6.5 and s7@10 (abs 71, 74.5 and 78 s): chip row under the card."
+    },
+    {
+      "scene": "scene-03-corner.js",
+      "severity": "nit",
+      "problem": "Scene 3 reuses scene 2's plot, but the \"x\" and \"y\" axis names that scene 2 and scene 4 show are missing here, so the only scene in the linear programming run without them is the one that introduces the profit score. A first-time learner sees four bare numbered axes. The storyboard says scene 3 makes the identical plot call, which implies the names carry over.",
+      "fix": "Add the same two grey P.text axis names as scene 2 (\"x\" at the right end of the x axis, \"y\" at the top of the y axis), fading in with the plot.",
+      "evidence": "Compare node tools/video-still.js algo-3 s2@6.5, s3@4 and s4@3.4 (abs 10.5, 20 and 31.4 s)."
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Several layouts run to the very edge of the 936 x 640 stage, so they have 0 px margin instead of the 12 px the rules ask for: the right-hand column cards and verdict sticker in scenes 2, 3 and 4 (right edge 936, top edge 0), and the full-width chip rows in scenes 7, 8 and 9 (left 0, right 936). The pop-in overshoot also pushes them past the edge for a few frames (scene 4 'no gain left' sticker to 939.8 px, scene 7 chips to -6.7 px, scene 9 chips to -3.1 px). On screen the 72 px canvas margin hides this, so it looks fine; it only breaks the written rule.",
+      "fix": "Either accept it as the series' house layout and note the exception in ALGO_RULES.md, or inset the right column and chip rows by 12 px (width 912, x starting at 12) in the three affected scene groups.",
+      "evidence": "DOM bounding-box scan every 0.2 s over scenes 2 to 9 (text and tags only): margin 0 for s2 'legal' / 'not allowed' stickers [624..936], s7 chips [0..210] and [726..936], s9 chips [0..222]; margin -3.8 for the s4 sticker at abs 39.5 s."
+    }
+  ]
+}

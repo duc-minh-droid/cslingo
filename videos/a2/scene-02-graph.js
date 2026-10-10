@@ -1,5 +1,6 @@
 /* Algorithms phase 2 (algo-2), scene 02: a map is a graph. Places are nodes, roads are edges with a cost, a route adds its roads up.
    Route A-C-E has the fewest roads (2) but costs 9; route A-C-B-D-E has four roads and costs 8; there are 7 routes in all.
+   Road counts sit beside each sum (a grey "2 roads: 9" stays for the comparison); the routes counter ticks 1..7 with the dots.
    Every number comes from A2.ROUTES (asserted below); the road keys come from the route paths. */
 (function () {
   const V = window.VID;
@@ -72,6 +73,8 @@
       const names = A2.DIJ.names;
 
       const sum = A2.tag(stage, { x: 468, y: 40, text: "", tone: "blue", fs: 30 });
+      const roads = A2.tag(stage, { x: 770, y: 40, text: "", tone: "blue" }); // how many roads the route has so far
+      const ghost = A2.tag(stage, { x: 150, y: 40, text: `${R1.hops} roads: ${R1.cost}`, tone: "grey" }); // route 1, kept for the comparison
       const start = A2.tag(stage, { x: 166, y: 254, text: "start", tone: "blue", solid: true });
       const goal = A2.tag(stage, { x: 835, y: 580, text: "goal", tone: "orange", solid: true });
       const seven = A2.tag(stage, { x: 150, y: 596, text: `${A2.ROUTES.length} routes in all`, tone: "grey" });
@@ -148,28 +151,25 @@
         mk(start);
         mk(goal);
 
-        // ---- the running cost of the route being tried ----
+        // ---- the running cost of the route being tried, and how many roads it uses ----
+        const roadsText = (n) => `${n} road${n > 1 ? "s" : ""}`;
         let st = { o: 0 };
+        let rd = { o: 0 };
         if (t >= T.r1 && t < T.retract + 0.4) {
           const n = t >= legStart1(1) ? 2 : 1;
-          st = {
-            text: sumText(R1, n, t >= T.r1end),
-            tone: "blue",
-            s: 0.8 + 0.2 * pop(t, T.r1),
-            o: Math.min(fade(t, T.r1, 0.2), 1 - lin(t, T.retract, T.retract + 0.4)),
-          };
+          const o = Math.min(fade(t, T.r1, 0.2), 1 - lin(t, T.retract, T.retract + 0.4));
+          st = { text: sumText(R1, n, t >= T.r1end), tone: "blue", s: 0.8 + 0.2 * pop(t, T.r1), o };
+          rd = { text: roadsText(n), tone: "blue", s: 0.8 + 0.2 * pop(t, T.r1), o };
         } else if (t >= T.r2) {
           const n = Math.min(L2.length, Math.floor((t - T.r2) / DR2) + 1);
           const done = t >= waveAt(L2.length - 1) + 0.05;
-          st = {
-            text: sumText(R2, n, t >= T.r2end),
-            tone: done ? "green" : "blue",
-            solid: done,
-            s: (0.8 + 0.2 * pop(t, T.r2)) * (1 + 0.1 * bump(t, waveAt(L2.length - 1) + 0.05, 0.4)),
-            o: fade(t, T.r2, 0.2),
-          };
+          const s2 = (0.8 + 0.2 * pop(t, T.r2)) * (1 + 0.1 * bump(t, waveAt(L2.length - 1) + 0.05, 0.4));
+          st = { text: sumText(R2, n, t >= T.r2end), tone: done ? "green" : "blue", solid: done, s: s2, o: fade(t, T.r2, 0.2) };
+          rd = { text: roadsText(n), tone: done ? "green" : "blue", s: s2, o: fade(t, T.r2, 0.2) };
         }
         sum.set(st);
+        roads.set(rd);
+        ghost.set({ s: 0.8 + 0.2 * pop(t, T.retract + 0.1), o: fade(t, T.retract + 0.1, 0.2) }); // prettier-ignore
 
         // ---- the tick, and the count of all routes ----
         const tk = lin(t, waveAt(3) + 0.15, waveAt(3) + 0.55);
@@ -179,7 +179,12 @@
           const a = T.seven + 0.1 * i;
           V.place(d, { s: 0.6 + 0.4 * pop(t, a, 0.4), o: fade(t, a, 0.15) });
         });
-        seven.set({ s: 0.8 + 0.2 * pop(t, T.seven + 0.7), o: fade(t, T.seven + 0.7, 0.2) });
+        const shown = dots.filter((_, i) => t >= T.seven + 0.1 * i).length; // the counter ticks up with the dots
+        seven.set({
+          text: shown >= dots.length ? `${dots.length} routes in all` : `${shown} route${shown > 1 ? "s" : ""}`,
+          s: 0.8 + 0.2 * pop(t, T.seven),
+          o: fade(t, T.seven, 0.2),
+        });
       };
     },
   });

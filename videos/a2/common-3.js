@@ -5,17 +5,18 @@
    ───────────────────────────── A2.grid(parent, {x, y, cols = 10, rows = 7, cell = 76, gap = 6, fs = 28}) -> Gd ─────────────────────────────
      A sticker grid (SVG), top-left corner at (x, y). Its size is cols * (cell + gap) - gap by rows * (cell + gap) - gap.
      Gd.update({o: 1, s: 1, cells: (cx, cy, key) => state | undefined})     cells may also be an object {"1,3": state}
-        state = {look: "empty" | "soft" | "solid" | "wall", tone, text, s: 1, o: 1, ring, ringK: 1, pulse: 0, dx: 0, dy: 0}
+        state = {look: "empty" | "soft" | "solid" | "wall", tone, text, s: 1, o: 1, ring, ringK: 1, pulse: 0, dx: 0, dy: 0, under: 0}
         empty (default) quiet grey cell, soft = tinted in the tone, solid = filled, wall = dark blocked cell (no text)
         text   28 px bold (a cell of 76 px fits "11"; with cell < 50 do not use text)      ring   tone: a thick ring, ringK 0..1 grows it
         pulse  0..1 one scale bump (A2.bump)       o 0 hides the cell
+        under  0..1 opacity of a plain empty cell drawn beneath this one (so a cell that fades or pops in never leaves a hole)
      Gd.centre(cx, cy) -> {x, y} stage centre of a cell     Gd.w, Gd.h, Gd.x, Gd.y     Gd.el root
    A2.gridPaint(run, n, opt) -> (cx, cy, key) => state       the standard picture of a search on A2.GRID, for Gd.update({cells})
         run   A2.RUNS.astar or A2.RUNS.dijkstra          n   expansions done, FRACTIONAL: the expansion floor(n) + 1 is "in
         progress" while 0 < fraction < 1: its cell is solid orange; at the whole number it turns soft green
         opt   {nums: false (write each cell's f: open cells their current f, expanded cells the f they had), pathK: 0 (0..1 of the
               final path turned solid green from S towards G, one cell after the other), o: 1}
-        look  wall: dark; S and G: solid blue with the letters "S" / "G"; open (seen, not expanded): soft purple; expanded: soft
+        look  wall: dark; S: solid blue "S"; G: solid orange "G" (the goal, as in scenes 2 and 8); open (seen, not expanded): soft purple; expanded: soft
               green; the cell being expanded: solid orange; path: solid green.
         A whole number n is a STABLE picture (hold it as long as you like). Between whole numbers the next expansion is in
         progress: its cell is solid orange (the ring on S / G) and the cells it opens pop in during the second half of the step.
@@ -103,9 +104,10 @@
           style: { fontFamily: "var(--sans)", fontWeight: "900", fontSize: `${fs}px` },
         });
         const inner = V.s("g", {}, halo, lipR, face, text);
-        const g = V.s("g", { transform: `translate(${f1(cx * pitch)} ${f1(cy * pitch)})` }, inner);
+        const under = V.s("g", {}, rect(lip, { style: { fill: "var(--line)" } }), rect(0, { "stroke-width": 3, style: { fill: "var(--panel-2)", stroke: "var(--line)" } }));
+        const g = V.s("g", { transform: `translate(${f1(cx * pitch)} ${f1(cy * pitch)})` }, under, inner);
         svg.append(g);
-        cells[`${cx},${cy}`] = { g, inner, halo, lipR, face, text, sig: "" };
+        cells[`${cx},${cy}`] = { g, inner, under, halo, lipR, face, text, sig: "" };
       }
     parent.append(svg);
     function paint(c, st) {
@@ -123,6 +125,7 @@
       const rk = clamp(dflt(st.ringK, 1));
       c.halo.style.stroke = st.ring ? L5.tone(st.ring).c : "none";
       V.show(c.halo, st.ring ? clamp(rk * 3) : 0);
+      V.show(c.under, clamp(dflt(st.under, 0)));
       V.place(c.inner, {
         x: st.dx || 0,
         y: st.dy || 0,
@@ -178,7 +181,7 @@
         return {
           ...base,
           look: "solid",
-          tone: "blue",
+          tone: key === SK ? "blue" : "orange",
           text: key === SK ? "S" : "G",
           ring: busy ? "orange" : null,
           ringK: busy ? clamp(frac * 3) : 1,
@@ -213,6 +216,7 @@
           text: txt(curOpen[key].f),
           s: 0.7 + 0.3 * E.pop(born),
           o: o * clamp(born * 5),
+          under: o, // the empty cell stays in place while the purple one grows in
         };
       }
       return base;

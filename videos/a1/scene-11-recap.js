@@ -1,11 +1,12 @@
-/* Algorithms Phase 1 (algo-1), scene 11-recap: three rows, each a small looping pictogram and one bold line.
+/* Algorithms Phase 1 (algo-1), scene 11-recap: three rows, each a small pictogram and one bold line. Each pictogram plays
+   ONCE and then holds its finished state, so the last seconds of the scene are calm (nothing restarts).
    Story (local seconds): 0.1 title and Byte, rows slide in at 0.8 / 1.9 / 3.0 (the pictogram starts 0.4 s later), 5.4 the call to action.
-   Row 1 (period 4.8): a blue ring checks 3 8 1 9 4 one tile at a time; the tile holding the best turns orange and a green tick bumps
-          after every hop (the promise holds). Numbers from A1.maxRun.
-   Row 2 (period 4.5): a strip, a square and a halving chain at n = 4 double to n = 8: new cells pop orange, then the tags x2, x4, +1.
+   Row 1: a blue ring checks 3 8 1 9 4 9 2 one tile at a time; the tile holding the best turns orange and a green tick bumps after
+          every step (the promise holds); it ends on 9. Numbers from A1.maxRun.
+   Row 2: a strip, a square and a halving chain at n = 4 double to n = 8: new cells pop orange, then the tags x2, x4, +1 stay.
           Cells come from A1.calls / A1.halving.
-   Row 3 (period 4.5): a five-node web (the web of A1.WEBS.web5); blue packets run along the links, R swells and turns orange,
-          a purple dashed arc teleports the surfer from P to T, then a green tick pops. */
+   Row 3: a five-node web (the web of A1.WEBS.web5); blue packets run along the links, R swells and turns orange, a purple
+          dashed arc teleports the surfer from P to T, then a green tick pops and stays. */
 (function () {
   const V = window.VID;
   const A1 = V.a1;
@@ -20,7 +21,7 @@
     width: `${f1(w)}px`,
     height: `${f1(h)}px`,
   });
-  const cyc = (t, t0, period) => (t < t0 ? -1 : (t - t0) % period); // time inside the current lap, -1 before the first
+  const cyc = (t, t0) => (t < t0 ? -1 : t - t0); // time since the pictogram started, -1 before it; it plays once and holds
   const bumps = (q, times, len = 0.35) => times.reduce((a, b) => a + flash(q, b, b + len), 0);
   const out = (q, a, b) => 1 - ramp(q, a, b, E.lin); // 1 -> 0 between a and b (the end of a lap)
 
@@ -31,29 +32,29 @@
 
   // ---------- row 1: the loop invariant ----------
   function loopRow(pic) {
-    const LIST = A1.LIST.slice(0, 5);
+    const LIST = A1.LIST;
     const run = A1.maxRun(LIST);
     A1.must(
       run.answer === 9 &&
-        run.steps.map((s) => s.best).join() === "3,8,8,9,9" &&
-        run.steps.map((s) => +s.beat).join("") === "11010" &&
+        run.steps.map((s) => s.best).join() === "3,8,8,9,9,9,9" &&
+        run.steps.map((s) => +s.beat).join("") === "1101000" &&
         run.steps.every((s) => s.holds),
-      "recap row 1: the run of 3 8 1 9 4 is not what the storyboard says",
+      "recap row 1: the run of 3 8 1 9 4 9 2 is not what the storyboard says",
     );
-    const [SIZE, GAP] = [46, 10];
+    const [SIZE, GAP] = [40, 8];
     const row = A1.row(pic, { x: 4, y: 18, values: LIST, size: SIZE, gap: GAP, tone: "grey" });
     row.tiles.forEach((tile) => (tile.style.fontSize = "28px"));
     pic.lastElementChild.style.borderWidth = "4px"; // the ring is the last element A1.row appended: a slimmer ring for small tiles
     const best = A1.tag(pic, { text: "best 3", tone: "orange", fs: 28, w: 126, h: 42 });
     const tick = A1.icon("tick", 38, "green");
     pic.append(tick);
-    const s0 = (s) => 0.3 + 0.8 * s; // step s starts here: the ring arrives at +0.3, the verdict comes at +0.45
+    const s0 = (s) => 0.3 + 0.55 * s; // step s starts here: the ring arrives at +0.3, the verdict comes at +0.45
     const verdict = (s) => s0(s) + 0.45;
-    const END = 4.35; // the lap resets here
+    const LAST = verdict(LIST.length - 1); // the last verdict: the ring leaves
 
     return (t) => {
-      const q = cyc(t, START[0], 4.8);
-      const live = q >= 0 && q < END;
+      const q = cyc(t, START[0]);
+      const live = q >= 0;
       let bestAt = -1;
       run.steps.forEach((st, s) => {
         if (live && st.beat && q >= verdict(s)) bestAt = s;
@@ -67,14 +68,14 @@
         return {
           tone: !done ? "grey" : isBest ? "orange" : "blue",
           solid: done && isBest,
-          s: E.pop(pop) * (1 + 0.12 * bumps(q, [verdict(i)]) - 0.1 * flash(q, END, END + 0.35)),
+          s: E.pop(pop) * (1 + 0.12 * bumps(q, [verdict(i)])),
           y: -(1 - E.out(pop)) * 14,
           o: clamp(pop * 4),
         };
       });
-      row.ring({ i: ringAt, k: ramp(q, 0.3, 0.6, E.lin) * out(q, END, END + 0.3), tone: "blue", pad: 4 });
+      row.ring({ i: ringAt, k: ramp(q, 0.3, 0.6, E.lin) * out(q, LAST + 0.1, LAST + 0.4), tone: "blue", pad: 4 });
 
-      const shown = live ? ramp(q, verdict(0), verdict(0) + 0.25, E.lin) * out(q, END - 0.05, END) : 0;
+      const shown = live ? ramp(q, verdict(0), verdict(0) + 0.25, E.lin) : 0;
       const [bx, by] = [4 + (LIST.length * SIZE + (LIST.length - 1) * GAP) / 2, 106];
       best.set({
         x: bx,
@@ -86,8 +87,8 @@
       });
       A1.drawOn(tick, live ? ramp(q, verdict(0), verdict(0) + 0.3, E.lin) : 0);
       V.place(tick, {
-        x: 288,
-        y: 22,
+        x: 246,
+        y: 88,
         s:
           1 +
           0.3 *
@@ -158,17 +159,16 @@
     A1.must(A1.DOUBLE.map((d) => d.sig).join() === "×2,×4,+1", "recap row 2: the signatures");
 
     const T = { strip: 0.5, sq: 1.5, chain: 2.9, tags: [1.25, 2.65, 3.6] };
-    const END = 4.1;
-    // one cell: base cells are always lit; new cells pop orange at `at`, turn blue 0.35 s later and vanish at the lap's end
+    // one cell: base cells are always lit; new cells pop orange at `at` and turn blue 0.35 s later (and stay)
     const cellState = (isBase, isNew, at, q) => {
       if (isBase) return { k: 1, tone: "blue" };
       if (!isNew) return undefined;
-      const k = Math.min(ramp(q, at, at + 0.25, E.lin), out(q, END, END + 0.3));
+      const k = ramp(q, at, at + 0.25, E.lin);
       return k > 0 ? { k, tone: q < at + 0.55 ? "orange" : "blue" } : undefined;
     };
 
     return (t) => {
-      const q = cyc(t, START[1], 4.5);
+      const q = cyc(t, START[1]);
       const intro = ramp(t, START[1], START[1] + 0.5, E.lin);
       V.show(strip.svg, intro);
       V.show(square.svg, intro);
@@ -182,14 +182,14 @@
       slots.forEach((sl, k) => {
         const isNew = k === 0;
         const at = T.chain;
-        const born = isNew ? Math.min(ramp(q, at, at + 0.3, E.lin), out(q, END, END + 0.3)) : E.pop(intro);
+        const born = isNew ? ramp(q, at, at + 0.3, E.lin) : E.pop(intro);
         paint(sl.box, isNew && q < at + 0.55 ? "orange" : "blue");
         V.place(sl.box.g, { s: 0.7 + 0.3 * E.pop(born), o: clamp(born * 3) });
         if (sl.arrow) V.place(sl.arrow, { o: isNew ? clamp(born * 3) : E.pop(intro) });
       });
 
       tags.forEach(([tag, cx], i) => {
-        const k = Math.min(ramp(q, T.tags[i], T.tags[i] + 0.4, E.lin), out(q, END, END + 0.3));
+        const k = ramp(q, T.tags[i], T.tags[i] + 0.4, E.lin);
         tag.set({ x: cx, y: 118, center: true, s: 0.8 + 0.2 * E.pop(k), o: clamp(k * 3) });
       });
     };
@@ -213,8 +213,8 @@
 
     // links: straight lines (two lanes when both directions exist) with a small head; their ends follow the node sizes
     const links = web.edges.map(([a, b]) => {
-      const line = gLinks.appendChild(V.s("line", { "stroke-width": 4, "stroke-linecap": "round", style: { stroke: grey.edge } }));
-      const head = gLinks.appendChild(V.s("path", { "stroke-width": 2, "stroke-linejoin": "round", style: { fill: grey.edge, stroke: grey.edge } }));
+      const line = gLinks.appendChild(V.s("line", { "stroke-width": 4, "stroke-linecap": "round", style: { stroke: grey.c } }));
+      const head = gLinks.appendChild(V.s("path", { "stroke-width": 2, "stroke-linejoin": "round", style: { fill: grey.c, stroke: grey.c } }));
       const dot = gDots.appendChild(V.s("circle", { r: 5.5, "stroke-width": 2, style: { fill: blue.c, stroke: blue.lip } }));
       return { a, b, line, head, dot, off: web.edges.some(([x, y]) => x === b && y === a) ? 5 : 0 };
     }); // prettier-ignore
@@ -267,13 +267,11 @@
     pic.append(tick);
 
     const ROUNDS = [0.2, 1.1, 2.7]; // packets leave every link together and take 0.7 s
-    const END = 4.2;
     return (t) => {
-      const q = cyc(t, START[2], 4.5);
+      const q = cyc(t, START[2]);
       const intro = (i) => ramp(t, START[2] + 0.07 * i, START[2] + 0.07 * i + 0.45, E.lin);
-      const reset = 1 - ramp(q, END, END + 0.3, E.inOut); // 1 during the lap, 0 at its end
-      const grow = (0.26 * ramp(q, 0.9, 1.2) + 0.2 * ramp(q, 1.8, 2.1) + 0.1 * ramp(q, 3.4, 3.7)) * (q < 0 ? 0 : reset);
-      const orangeK = ramp(q, 1.8, 2.2, E.lin) * (q < 0 ? 0 : reset);
+      const grow = q < 0 ? 0 : 0.26 * ramp(q, 0.9, 1.2) + 0.2 * ramp(q, 1.8, 2.1) + 0.1 * ramp(q, 3.4, 3.7);
+      const orangeK = q < 0 ? 0 : ramp(q, 1.8, 2.2, E.lin);
       web.names.forEach((k, i) => {
         const pop = intro(i);
         rad[k] = R0 * E.pop(pop) * (k === "R" ? 1 + grow + 0.07 * bumps(q, [0.9, 1.8, 3.4], 0.3) : 1);
@@ -309,7 +307,7 @@
       V.show(jump, q < 0 ? 0 : Math.min(ramp(q, 2.0, 2.1, E.lin), out(q, 2.5, 2.6)));
       V.show(halo, q < 0 ? 0 : Math.min(ramp(q, 2.5, 2.65, E.lin), out(q, 2.95, 3.3)));
 
-      const k = q < 0 ? 0 : ramp(q, 3.7, 4.0, E.lin) * reset;
+      const k = q < 0 ? 0 : ramp(q, 3.7, 4.0, E.lin);
       A1.drawOn(tick, k);
       V.place(tick, { x: 296, y: 51, s: 0.7 + 0.3 * E.pop(k), o: k });
     };
