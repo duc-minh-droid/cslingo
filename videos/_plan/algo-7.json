@@ -1,0 +1,366 @@
+{
+ "slug": "algo-7",
+ "dir": "a7",
+ "title": "Phase 7 · Information Theory & Compression",
+ "outline": "Phase 7 video (Algorithms, ECM3428): 'Information Theory & Compression', sub line 'How files get smaller'. 11 scenes, 120 s: title (4), fixed codes waste bits (10), information is surprise (11), entropy is the average surprise and the floor (12), prefix-free codes (12), Huffman merging (14), reading the codes and encoding (12), LZW encoding (13), LZW decoding (12), GIF payoff (11), recap (9). Story: a fixed code spends the same bits on every letter, so the message BBADEBC costs 21 bits. Information is surprise (halve the chance, add a bit); entropy is the average surprise and no lossless code beats it. A code must be readable without gaps: codewords are the leaves of a tree. Huffman builds the best such tree by merging the two rarest nodes again and again (BBADEBC becomes 15 bits, average 1.98 bits a letter against a floor of 1.96). LZW needs no table: it learns phrases while it reads, and the decoder rebuilds the same dictionary from the codes alone (with the one trick, the entry that arrives early). GIF shows where it pays: runs of one colour shrink, noise does not. Not covered (lessons and workshop): Kraft's inequality (7.4), the cost of a wrong model / KL divergence (7.5), the coin curve H(p) (7.3), Huffman pseudocode, O(n log n) cost and bit-error limits (7.8), lossy compression and rate-distortion (7.12), the lessons' BANANABANDANA demo; the recap points to Workshop 7.W (build the tree).\n\nLESSONS the facts come from: a7-redundancy 7.1 (fixed 3-bit code, BBADEBC, 21 bits), a7-entropy 7.2 (surprise, entropy, the loaded die), a7-binary-entropy 7.3, a7-source-coding 7.4, a7-kl 7.5, a7-huffman 7.6 (prefix-free codes, the greedy merge), a7-huffman-worked 7.7 (the lecture source, codes, 15 bits), a7-huffman-algo 7.8, a7-lzw 7.9 (the shared dictionary), a7-lzw-decode 7.10 (ABABABABA, codes 0 1 2 4 3, the missing entry), a7-gif 7.11 (the pixel row), a7-rate-distortion 7.12, a7-build 7.W (workshop: weather station, build the tree); js/content/algo/algo-p7-*.js, algo-p7-x-*.js, algo-workshops-7-0*.js; bank js/bank/algo-*.js.\n\nTHE DATA (all computed and asserted in videos/a7/common.js). SURPRISE: -log2 p for p = 1, 1/2, 1/4, 1/8, 1/16 is 0, 1, 2, 3, 4 bits. ENTROPY: the loaded die A 1/2, B 1/4, C 1/8, D 1/8 has surprises 1, 2, 3, 3 and H = .5 + .5 + .375 + .375 = 1.75 bits; a fixed code needs 2. The 8-symbol sample ABAACABD (A 4, B 2, C 1, D 1 = 8 x the chances) costs 14 surprise-bits against 16 fixed: 14 / 8 = 1.75. LECTURE SOURCE: A .16, B .51, C .09, D .13, E .11 (percent weights 16, 51, 9, 13, 11). Fixed 3-bit code C 000, E 001, D 010, A 011, B 100 (the video numbers the letters rarest first so that B = 1 is legal; the lesson's alphabetical table also gives 21 bits): BBADEBC = 100 100 011 010 001 100 000 = 21 bits. Huffman: merge C .09 + E .11 = CE .20; D .13 + A .16 = DA .29; CE .20 + DA .29 = CEDA .49; CEDA .49 + B .51 = 1.00; the bigger branch is 1 (the lecture's convention): B = 1, A = 011, D = 010, E = 001, C = 000; BBADEBC = 1 1 011 010 001 1 000 = 110110100011000 = 15 bits. Average length L = .51 x 1 + .49 x 3 = 1.98 = .20 + .29 + .49 + 1.00 (the sum of the merge weights); entropy H = 1.964; L - H = 0.016; fixed = 3. PREFIX: bad code A 0, B 1, C 01 (the bits 01 = AB or C); good code A 0, B 10, C 110, D 111 (010110 = A B C). LZW: ABABABABA with A = 0, B = 1: emits 0, 1, 2, 4, 3 and adds AB = 2, BA = 3, ABA = 4, ABAB = 5 (9 letters, 5 codes); the decoder (codes 0 1 2 4 3) outputs A, B (adds AB), AB (adds BA), code 4 unknown -> AB + A = ABA (adds ABA), BA (adds ABAB) = ABABABABA. GIF: AAAAAABBBCCCCCDDDD -> 11 codes (A|AA|AAA|B|BB|C|CC|CC|D|DD|D); the noisy row DBCBAABDADDCDDACCA -> 17 codes.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a sent or decoded letter, a matched codeword, the Huffman bar); red = waste or ambiguity (bits thrown away, a code with two readings, the noisy row); blue = what we look at now (the current letter or phrase w, the prefix being read, tree branches while they are built, the surprise-source tiles); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a freshly added dictionary entry, the unknown code and the '?' chip); purple = the rulebook and the limit (the entropy floor and its tags, the dictionary chips); grey = neutral (fixed-code cells and bars, waiting nodes, labels, plain letter tiles). Message letters are plain white tiles (A7.tiles default). One exception, scene 10 only: the four palette colours (A green, B blue, C purple, D orange), always with their letter on the tile. SHARED LAYOUT: figures fill the stage 936 x 640 with at least 12 px margin; the caption sits under the stage and never overlaps it; text is 28 px or more everywhere (A7 helpers refuse smaller); tiles and strips are aligned to the 12 px grid used in the specs; the code tree puts the root on top and leaves at the bottom. REUSE OF DATA: scene 2, 6, 7 share the lecture source and the message BBADEBC (21 bits in scene 2 -> 15 bits in scene 7; B = 1 is the same shortening in both); scene 3 and 4 share the chances 1/2, 1/4, 1/8 (the legend of scene 4 repeats the ladder of scene 3); scene 5 uses its own small code to show prefix-freeness and decoding; scenes 8 and 9 share ABABABABA and the codes 0 1 2 4 3 (9 learns the same dictionary 8 built); scene 10 uses the lesson's pixel row. WORDS defined on screen before use: 'bit' (one yes-or-no answer, scene 3), 'entropy' (scene 4 title + counter), 'floor' (scene 4 tag, reused in scene 6), 'prefix-free' (a tag in scene 5 after the picture), 'dictionary' (a purple tag in scene 8). Symbols (ticks, crosses, plus, equals) are SVG (L5.tick / L5.cross / A7.sym), never glyphs. Every scene's numbers come from the logs in videos/a7/common.js (A7.REDUNDANCY, LADDER, DIE, SAMPLE, BAD, PREFIX, HUFF, ENCODE, LZW, LZW_DEC, GIF), which assert every value when the page loads and throw a clear Error if one differs from this storyboard. The title card (scene-01-title.js) is finished (a copy of VID.titleCard with a two-line 80 px headline, because 'Information Theory & Compression' does not fit one line) and must not be replaced.",
+ "titleCard": {
+  "kicker": "Algorithms · Phase 7",
+  "title": "Information Theory & Compression",
+  "sub": "How files get smaller",
+  "who": "byte",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-fixed.js",
+   "kicker": "REDUNDANCY",
+   "title": [
+    "Every letter costs",
+    "the same bits"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     3.6,
+     "A fixed code spends 3 bits on every letter."
+    ],
+    [
+     3.8,
+     5.6,
+     "That is 21 bits for BBADEBC."
+    ],
+    [
+     5.8,
+     7.8,
+     "But B turns up three times."
+    ],
+    [
+     7.9,
+     9.7,
+     "Common letters get short codes: 15 bits."
+    ]
+   ],
+   "spec": "IDEA: a fixed-length code gives every letter the same 3 bits, so the message BBADEBC (7 letters) costs 21 bits although B is three of the seven. Give B a one-bit code, keep the others, and the total drops to 15. The viewer meets the question the rest of the video answers: how short can the codes get, and how do we build them?\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars).\n\nLAYOUT (stage px; const R = A7.REDUNDANCY): book = A7.tiles(stage, {x: 65, y: 20, items: A7.ORDER.map((c) => ({text: `${c} ${A7.FIXED[c]}`})), w: 150, h: 64, fs: 32, gap: 14}) is the code book, five plain tiles C 000, E 001, D 010, A 011, B 100 (x 65-871; B is tile 4). msg = A7.tiles(stage, {x: 44, y: 170, items: [...A7.MSG], w: 104, h: 100, gap: 20, fs: 56}) is the message B B A D E B C (tile i is centred at x = 96 + 124 i). strip = A7.bits(stage, {x: 42, y: 320, groups: R.fixed, cell: 34, h: 56, gap: 3, groupGap: 16, fs: 30}) is the fixed code of every letter in one strip of 21 cells (852 px wide); its group g is 108 px wide and sits centred under tile g. cnt = A7.counter(stage, {x: 330, y: 450, w: 276, label: 'bits', tone: 'grey'}). saved = A7.tag(stage, {x: 345, y: 548, text: 'saved 6 bits', tone: 'green', solid: true}). Nothing else: the scene is calm, the figure fills x 42-894, y 20-620.\n\nDATA (assert in build): R.fixed = ['100','100','011','010','001','100','000'] (21 bits), R.short = ['1','1','011','010','001','1','000'] (15), R.saved 6, R.counts.B 3. The fixed code numbers the letters rarest first (C 000, E 001, D 010, A 011, B 100) so that shortening B to '1' is a legal code (no other code starts with 1); the lesson's alphabetical table gives the same 21 bits. The 15-bit string is exactly what scene 7 encodes with the Huffman code.\n\nTIMELINE (local s). 0.2-1.1 the five book tiles pop one by one (book.all((i) => ({k: ramp(t, 0.2 + 0.1 i, 0.7 + 0.1 i)}))). 1.0-2.4 the message tiles pop left to right, 0.12 s apart. 1.8-2.2 the counter pops in (text '0', tone grey). 1.9-3.7 the strip fills: strip.set({k: ramp(t, 1.9, 3.7, E.lin)}) pops cells left to right and the counter text is Math.round(21 * that k). 3.7-4.1 the counter bumps at 21 (flash). 5.8-6.6 the three B tiles (0, 1, 5) get a blue ring (ring: 'blue', ringK = ramp, 0.1 s apart) and stay ringed. 6.9-7.9 the shrink, for each B group g in {0, 1, 5}: cells 3g+1 and 3g+2 (the two trailing zeros) turn red (cells patch tone: 'red' from 6.9), fall 40 px (y: 40 * ramp(t, 7.1, 7.9, E.inOut)) and fade (o: 1 - ramp(t, 7.3, 7.9)); cell 3g (the leading 1) slides 37 px right to centre under its tile and turns solid green (cells patch x: 37 * ramp(t, 7.1, 7.9, E.inOut), tone 'green', solid true from 7.5). At 7.5 the book tile B becomes 'B 1' with tone 'green'. 7.4-8.4 the counter counts down 21 -> 15 (text = Math.round(21 - 6 * ramp(t, 7.4, 8.4))), turns solid green at 8.0 and bumps at 8.4-8.8. 8.5-9.0 the 'saved 6 bits' tag pops. 9.0-10.0 hold still.\n\nCAPTION SYNC: [0.4-3.6] while the book and strip build; [3.8-5.6] after the counter shows 21 (3.7); [5.8-7.8] the B rings (5.8-6.6); [7.9-9.7] the counter reaches 15 at 8.4 and the tag at 8.5.\nEND STATE: three green one-bit B codes, the other four codes unchanged, counter 15 (green), 'saved 6 bits', blue rings on the three B tiles. DO NOT leave the red cells on screen after 7.9; keep every label at o = 1."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-surprise.js",
+   "kicker": "SURPRISE",
+   "title": [
+    "Rare news carries",
+    "more information"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.3,
+     "News we expect tells us nothing: 0 bits."
+    ],
+    [
+     2.8,
+     5.0,
+     "Half the chance: one yes-or-no answer, 1 bit."
+    ],
+    [
+     5.1,
+     7.9,
+     "Each time the chance halves, one more bit."
+    ],
+    [
+     8.8,
+     10.4,
+     "Rarer news tells us more."
+    ]
+   ],
+   "spec": "IDEA: information is surprise, measured in bits. A ladder of five rows: the chance of the news halves from row to row (certain, 1 in 2, 1 in 4, 1 in 8, 1 in 16) and each halving adds exactly one bit (0, 1, 2, 3, 4). A bit is one yes-or-no answer. Rare news carries more information.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: blue bars = the chance, orange cells and tags = the bits of surprise, grey = labels and tracks.\n\nLAYOUT (stage px; rows y_k = 76 + 108 k for k = 0..4, i.e. 76, 184, 292, 400, 508; each row is 56 px high and ends at y 564 + 6). Column headers: A7.tag(stage, {x: 40, y: 6, text: 'chance', tone: 'grey'}) and A7.tag(stage, {x: 540, y: 6, text: 'surprise', tone: 'orange'}). For each row k (A7.LADDER[k]): label = A7.tag(stage, {x: 0, y: y_k + 4, text: A7.LADDER[k].say, tone: 'grey'}) ('certain', '1 in 2', '1 in 4', '1 in 8', '1 in 16'); track = A7.bar(stage, {x: 170, y: y_k, w: 300, h: 56, tone: 'grey', solid: false}) shown at k 1 (the whole width = everything that could happen); fill = A7.bar(stage, {x: 170, y: y_k, w: 300, h: 56, tone: 'blue', solid: true}) whose k is the chance p (width 300 p: 300, 150, 75, 37.5, 18.75 px); for rows 1-4 cells = A7.bits(stage, {x: 540, y: y_k + 2, groups: '1'.repeat(k), cell: 40, h: 52, gap: 8, digits: false, tone: 'orange', solid: true}) (k cells, no digits); bitsTag = A7.tag(stage, {x: 740, y: y_k + 4, text: ['0 bits', '1 bit', '2 bits', '3 bits', '4 bits'][k], tone: 'orange', solid: true}). Row 0 has no cells.\n\nDATA: A7.LADDER = [{k, p, frac, say, bits}] with p = 1, 1/2, 1/4, 1/8, 1/16 and bits = -log2 p = 0, 1, 2, 3, 4 (asserted in common.js). Use p for the fill width and bits for the number of cells.\n\nTIMELINE (local s). Row k appears at T = [0.4, 2.4, 4.1, 5.8, 7.5]. Row 0: header tags pop at 0.2-0.6; label, track and a full fill (k 1) pop 0.4-0.9; the '0 bits' tag pops at 1.2. Rows 1-4 (u = t - T_k): u 0-0.3 label and track pop; the fill starts at the previous row's width and HALVES: fill k = lerp(p_{k-1}, p_k, ramp(u, 0.2, 0.9, E.inOut)); u 0.9-1.2 the orange cells pop (bits k = ramp(u, 0.9, 1.2)); u 1.1-1.4 the bits tag pops. Nothing moves after 9.0; at 9.0-9.8 the five orange tags pulse once in order (tag.set({s: 1 + 0.08 * V.flash(t, a, a + 0.4)}) with a = 9.0 + 0.15 k), then hold still to 11.\n\nCAPTION SYNC: [0.4-2.3] row 0 (certain, 0 bits) is complete at 1.2; [2.8-5.0] row 1 complete at 3.8; [5.1-7.9] rows 2 and 3 (complete 5.7 and 7.1); [8.8-10.4] row 4 complete at 8.9.\nEND STATE: five aligned rows, bars 300 / 150 / 75 / 37.5 / 18.75 px, 0 / 1 / 2 / 3 / 4 orange cells with their tags. Keep text at o = 1. The fill of row 4 is 18.75 px wide: that is the point (rare = tiny sliver), do not enlarge it."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-entropy.js",
+   "kicker": "ENTROPY",
+   "title": [
+    "Average surprise",
+    "is the entropy"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "A source sends four symbols with these chances."
+    ],
+    [
+     2.8,
+     4.4,
+     "Here are eight symbols it sent."
+    ],
+    [
+     4.6,
+     6.4,
+     "Each one costs its surprise in bits."
+    ],
+    [
+     8.0,
+     9.8,
+     "Fixed: 16 bits. Surprise: only 14."
+    ],
+    [
+     9.8,
+     11.6,
+     "1.75 bits a symbol is the floor."
+    ]
+   ],
+   "spec": "IDEA: entropy is the AVERAGE surprise, and it is the floor for compression. A source sends A, B, C or D with chances 1/2, 1/4, 1/8, 1/8 (surprise 1, 2, 3, 3 bits from scene 3). A sample of eight symbols that has exactly those chances (ABAACABD: A four times, B twice, C and D once) costs 1+2+1+1+3+1+2+3 = 14 bits of surprise; a fixed 2-bit code needs 16. 14 / 8 = 1.75 bits a symbol is the entropy: no lossless code averages less.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here the four symbol tiles are blue; the surprise cells are solid orange; the fixed code is grey; the entropy counter and the floor tag are purple.\n\nLAYOUT (stage px; D = A7.DIE, S = A7.SAMPLE). legend = A7.tiles(stage, {x: 38, y: 14, items: D.letters.map((c, i) => ({text: c, sub: `${D.frac[i]}: ${D.bits[i]} bit${D.bits[i] > 1 ? 's' : ''}`, tone: 'blue'})), w: 200, h: 96, gap: 20, fs: 40}) (four tiles: A 1/2: 1 bit, B 1/4: 2 bits, C 1/8: 3 bits, D 1/8: 3 bits). samp = A7.tiles(stage, {x: 28, y: 142, items: [...S.msg], w: 96, h: 96, gap: 16, fs: 48}) (eight plain tiles A B A A C A B D, tile j centred at x = 76 + 112 j). Source cells: one A7.bits per symbol j (8 of them), each with groups '1'.repeat(S.bits[j]), cell 32, h 44, gap 4, digits false, tone 'orange', solid true, centred under its tile: x = 76 + 112 j - width_j / 2 where width_j = n 32 + (n - 1) 4 = 32, 68, 32, 32, 104, 32, 68, 104; y = 258. Target strip tgt = A7.bits(stage, {x: 40, y: 350, groups: S.bits.map((n) => '1'.repeat(n)), cell: 32, h: 44, gap: 4, groupGap: 12, digits: false, tone: 'orange', solid: true}) (14 cells, 556 px wide; tgt.group(j) gives the landing slot of symbol j). fix = A7.bits(stage, {x: 40, y: 420, groups: Array(8).fill('11'), cell: 32, h: 44, gap: 4, groupGap: 12, digits: false, tone: 'grey'}) (16 grey cells, 628 px wide). Tags: A7.tag(stage, {x: 612, y: 352, text: 'surprise: 14 bits', tone: 'orange', solid: true}) and A7.tag(stage, {x: 684, y: 422, text: 'fixed: 16 bits', tone: 'grey'}). Result: ent = A7.counter(stage, {x: 40, y: 510, w: 380, label: 'entropy', tone: 'purple'}) with text '1.75' and solid true; A7.tag(stage, {x: 440, y: 508, text: 'bits per symbol', tone: 'purple'}); floor = A7.tag(stage, {x: 440, y: 566, text: 'the floor: none can beat it', tone: 'purple', solid: true}).\n\nDATA (asserted): D.bits [1,2,3,3], D.H 1.75, S.bits [1,2,1,1,3,1,2,3], S.total 14, S.fixedTotal 16, S.perSymbol 1.75. The sample's symbol counts are exactly 8 x the chances (4, 2, 1, 1), which is why the average of the sample equals the entropy.\n\nTIMELINE (local s). 0.2-1.2 legend tiles pop, 0.15 s apart. 2.8-3.9 sample tiles pop left to right, 0.1 s apart. 4.2-5.4 each symbol's orange cells pop under its tile (bits k = ramp(t, 4.2 + 0.1 j, 4.6 + 0.1 j)). 5.8-7.2 GATHER: for symbol j, e_j = ramp(t, 5.8 + 0.08 j, 6.8 + 0.08 j, E.inOut); its source strip moves by (dx_j, dy_j) e_j, where dx_j = tgt.group(j).x - sourceX_j and dy_j = 350 - 258; at e_j = 1 the source strip hides (o 0) and the target group j shows (tgt.set({groupK: (g) => (e_g >= 1 ? 1 : 0)})): same cell size and same position, so the swap is invisible. 7.4 the 'surprise: 14 bits' tag pops. 7.8-8.5 the grey fixed strip pops (k ramp, left to right) and 8.5 its 'fixed: 16 bits' tag pops. 9.0-9.5 the entropy counter pops (text '1.75', solid, tone purple) with the 'bits per symbol' tag; 9.8 the floor tag pops. Hold still from 10.2.\n\nCAPTION SYNC: [0.4-2.6] legend; [2.8-4.4] sample; [4.6-6.4] cells; [8.0-9.8] both strips and their tags (7.4-8.5); [9.8-11.6] counter (9.0) and floor tag (9.8).\nEND STATE: legend, eight tiles, a 14-cell orange strip above a 16-cell grey strip (two cells shorter), counter 1.75, floor tag. DO NOT dim the surprise cells while gathering; the source strips are hidden, never left behind."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-prefix.js",
+   "kicker": "DECODING",
+   "title": [
+    "Codes you can read",
+    "without any gaps"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "Codes sit side by side, with no gaps."
+    ],
+    [
+     2.4,
+     3.8,
+     "01 could be A then B…"
+    ],
+    [
+     3.8,
+     5.3,
+     "…or C. Two readings!"
+    ],
+    [
+     5.7,
+     7.6,
+     "Put every code at a branch end."
+    ],
+    [
+     7.6,
+     10.2,
+     "Follow the bits down. A leaf means a letter is done."
+    ],
+    [
+     10.5,
+     11.9,
+     "No code starts another."
+    ]
+   ],
+   "spec": "IDEA: without gaps between codewords the decoder must know where one ends. A code is only readable if no codeword starts another. Part 1 shows a bad code (A=0, B=1, C=01: the bits 01 read as A then B, or as C). Part 2 puts the good code A=0, B=10, C=110, D=111 on a tree: every codeword is a LEAF, so a walk from the root that reaches a leaf has finished a letter, and the stream 010110 reads A B C in only one way.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: blue = the bits / path being read, green = a finished letter and the prefix-free verdict, red = the two readings of the bad code.\n\nPART 1 (0.3-5.6; everything in it fades out 5.2-5.6 with o = 1 - ramp(t, 5.2, 5.6)). book1 = A7.tiles(stage, {x: 316, y: 24, items: [{text: 'A', sub: '0'}, {text: 'B', sub: '1'}, {text: 'C', sub: '01'}], w: 88, h: 104, gap: 20, fs: 44}); rec = A7.tag(stage, {x: 180, y: 222, text: 'received', tone: 'grey'}); bitsRow = A7.bits(stage, {x: 400, y: 204, groups: '01', cell: 72, h: 72, gap: 8, fs: 44, tone: 'blue'}) (two cells, x 400-552); reading 1: A7.tiles(stage, {x: 400, y: 320, items: ['A', 'B'], w: 72, h: 80, gap: 8, fs: 44}) with tone blue (each tile under its bit cell) plus a grey tag 'reading 1' at (180, 336); reading 2: A7.tiles(stage, {x: 400, y: 440, items: ['C'], w: 152, h: 80, fs: 44}) (one tile spanning both cells) plus a grey tag 'reading 2' at (180, 456); verdict: A7.tag(stage, {x: 620, y: 388, text: 'two readings!', tone: 'red', solid: true}) and a red L5.cross(580, 420, 70, 'red', {w: 12}) from L5.svg(stage) drawn on beside it. Timeline: 0.3-1.0 book tiles pop; 1.3-1.9 the received cells pop; 2.3-3.0 reading 1 pops (A under the first cell, B under the second); 3.6-4.3 reading 2 pops (C spanning both); 4.5-5.0 the red tag pops and the cross draws on (L5.drawOn). Data: A7.BAD = {codes {A:'0', B:'1', C:'01'}, stream '01', readings [['A','B'], ['C']]}.\n\nPART 2 (5.7-12). P = A7.PREFIX; pos = A7.treePos(P.tree, {x0: 150, slot: 130, top: 30, dy: 130}); T = A7.tree(stage, {tree: P.tree, pos, leafH: 80}). Node centres: root (329, 30), leaf A (215, 160), inner '1' (443, 160), leaf B (345, 290), inner '11' (540, 290), leaf C (475, 420), leaf D (605, 420); leaf tiles show the letter and its codeword (A 0, B 10, C 110, D 111); inner nodes are small dots. stream = A7.bits(stage, {x: 40, y: 520, groups: P.stream, cell: 56, h: 56, gap: 6, fs: 36, tone: 'grey'}) (six cells '010110', x 40-412); out = A7.tiles(stage, {x: 520, y: 516, items: [...P.out], w: 72, h: 64, gap: 12, fs: 40}) (the decoded letters A B C appear one by one, tone green); tok = A7.token(stage, {tone: 'blue'}); verdict = A7.tag(stage, {x: 690, y: 190, text: 'prefix-free', tone: 'green', solid: true}).\nTimeline: 5.7-6.8 the tree builds top-down: nodes pop 0.12 s apart (T.update nodes k), each branch grows (edge k) and its 0 / 1 sticker pops (edge bit) 0.1 s later; 6.9-7.4 the stream cells pop; the token pops on the root at 7.3. WALK: bit i (P.walk[i] = {i, bit, from, to, leaf, out, start, end}) starts at 7.5 + 0.5 i and takes 0.4 s: the token goes from T.pt(from) to T.pt(to) (E.inOut) but STOPS AT THE TOP EDGE of a leaf (y - T.size(id).h / 2) so the letter stays readable; stream cell i turns blue (cells patch tone 'blue') while it belongs to the current codeword (cells start..i). When the walk reaches a leaf (walk[i].leaf): the leaf turns solid green (nodes patch solid true, tone 'green') with a ring pulse, the codeword's cells turn green, the letter pops into out (tile index out.length - 1), and the token hops back to the root (fade out 0.15 s, pop at the root 0.15 s) before the next bit. Arrival times: A 7.9, B 8.9, C 10.4. 10.5 the green 'prefix-free' tag pops.\nData: P.walk[i].to = ['0','1','10','1','11','110'], P.out = 'ABC'. Do NOT draw the part 1 and part 2 figures at the same time (part 1 is gone at 5.6).\n\nCAPTION SYNC: [0.4-2.2] book + cells (0.3-1.9); [2.4-3.8] reading 1 (2.3-3.0); [3.8-5.3] reading 2 and the verdict (3.6-5.0); [5.7-7.6] the tree; [7.6-10.2] the walk; [10.5-11.9] the tag (10.5).\nEND STATE: the tree with three green leaves (A, B, C) and a white D, stream 010110 with cells green, 'A B C' decoded, green 'prefix-free' tag."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-merge.js",
+   "kicker": "HUFFMAN CODING",
+   "title": [
+    "Merge the two rarest,",
+    "again and again"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     2.7,
+     "Each letter has a chance. Join the two smallest."
+    ],
+    [
+     3.3,
+     5.3,
+     "Its chance adds to the bits per letter."
+    ],
+    [
+     5.5,
+     8.0,
+     "Repeat with the two smallest left."
+    ],
+    [
+     9.4,
+     11.0,
+     "One node left: the tree is done."
+    ],
+    [
+     11.1,
+     13.6,
+     "1.98 bits a letter, just above the 1.96 floor."
+    ]
+   ],
+   "spec": "IDEA: Huffman coding. Keep a pool of nodes, each with a chance. Merge the two SMALLEST into a new node whose chance is their sum, put it back, repeat until one node (the root) is left. The lecture source: C .09, E .11, D .13, A .16, B .51. Each merge also adds its weight to the average code length, so the four merges (.20 + .29 + .49 + 1.00) add up to 1.98 bits per letter: just above the entropy floor of 1.96 and far below the fixed 3.00. The tree is the code (scene 7 reads it).\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: grey = waiting nodes, orange = the two smallest picked (tone + ring), blue = the new node and its branches while it is made, green = the finished tree, the flying weight and the Huffman bar, purple = the floor.\n\nLAYOUT (stage px). pos = A7.treePos(A7.HUFF, {x0: 20, slot: 120, top: 70, dy: 140, flat: 1}); T = A7.tree(stage, {tree: A7.HUFF, pos}). Node centres: leaves (tiles 100 x 92 with letter and weight) C (80, 490), E (200, 490), D (320, 490), A (440, 490), B (560, 490); merged nodes (circles r 38 with the weight): CE (140, 350), DA (380, 350), CEDA (260, 210), root CEDAB (410, 70). The leaves never move; a merged node appears centred above its two kids, so the picture is the final tree filling in from the bottom. Right column x 680-920: hdr = A7.tag(stage, {x: 680, y: 20, text: 'bits per letter', tone: 'grey'}); fixedLbl = A7.tag(stage, {x: 680, y: 100, text: 'fixed: 3.00', tone: 'grey'}) and fixedBar = A7.bar(stage, {x: 680, y: 160, w: 240, h: 48, tone: 'grey'}) at k 1 (80 px per bit); huffLbl = A7.tag(stage, {x: 680, y: 250, text: 'Huffman: 0.00', tone: 'green'}) and huffBar = A7.bar(stage, {x: 680, y: 310, w: 240, h: 48, tone: 'green'}) with k = cost / 300; floorLbl = A7.tag(stage, {x: 680, y: 400, text: 'floor: 1.96', tone: 'purple'}) and floorBar = A7.bar(stage, {x: 680, y: 460, w: 240, h: 48, tone: 'purple'}) at k = 1.964 / 3 (157 px: practically as long as the green bar, 158 px, which is the point). A flying chip fly = A7.tag(stage, {text: '.20', tone: 'green', solid: true}) (one per merge, or one reused).\n\nDATA (asserted): A7.HUFF.merges[n-1] = {n, a, b, id, w, cost, roots}: 1 C .09 + E .11 -> CE .20 (cost 20); 2 D .13 + A .16 -> DA .29 (49); 3 CE .20 + DA .29 -> CEDA .49 (98); 4 CEDA .49 + B .51 -> CEDAB 1.00 (198). A7.HUFF.smallest[n-1] = [a, b] (the pair merged at step n: [C,E], [D,A], [CE,DA], [CEDA,B]); A7.HUFF.roots[s] = the roots standing after s merges. Label text from A7.fmtW(w) ('.20', '1.00') and A7.fmtBits(cost) ('0.20', '0.49', '0.98', '1.98'). A7.HUFF.L = 1.98, A7.HUFF.H = 1.964 (floor text '1.96').\n\nTIMELINE (local s). 0.3-1.4 the five leaves pop (k ramp 0.5 s, 0.12 s apart, left to right C E D A B, weights .09 .11 .13 .16 .51 visible). 0.6-1.2 hdr, fixedLbl and fixedBar pop. 2.0 huffLbl and an empty huffBar pop. MERGE n (n = 1..4) starts at T0 = [2.2, 4.6, 6.7, 8.6]; u = t - T0: u 0-0.3 the two ids in A7.HUFF.smallest[n-1] turn tone 'orange' with ring 'orange' (ringK pops); u 0.6-1.1 the new node (A7.HUFF.merges[n-1].id) pops (k) with tone 'blue' while the two branches A7.ek(id, a) and A7.ek(id, b) grow downward (edge k, tone 'blue') and the picked nodes go back to grey (ring off at u 0.7); u 1.2-1.8 the flying chip (text = A7.fmtW(w)) flies from the new node centre (T.pt(id), chip top-left = centre - (30, 23)) to the Huffman label (offset = (680, 250) - home, E.inOut) and disappears on arrival; u 1.8-2.2 huffBar.k eases to cost / 300 (from the previous cost), huffLbl.text = 'Huffman: ' + A7.fmtBits(cost) and the label bumps; the new node turns grey again (waiting in the pool) unless it is the root. After merge 4 (T0 8.6: ring on CEDA and B at 8.6, root pops 9.3, chip flies 9.8-10.4, bar reaches 158 px at 10.6): 10.6-11.0 every node turns tone 'green' (root solid) and every branch green. 11.0-11.6 floorLbl and floorBar pop (purple). Hold still 11.6-14.\nPitfalls: the 0 / 1 branch stickers are NOT drawn in this scene (scene 7 adds them). Only the two smallest roots are orange at a time. The huffBar numbers sit in the label (28 px), not inside the bar (too short to hold text for most of the scene). Keep every label at o = 1.\n\nCAPTION SYNC: [0.4-2.7] leaves (0.3-1.4) and the first orange rings (2.2); [3.3-5.3] first node (2.8-3.3), flying chip (3.4-4.0), bar (4.0-4.4); [5.5-8.0] merges 2 and 3; [9.4-11.0] root pops 9.3, tree green 10.6; [11.1-13.6] floor bar pops 11.0-11.6.\nEND STATE: complete green tree, root 1.00, Huffman bar 1.98 (158 px) right above the floor bar 1.96 (157 px), fixed bar 3.00 (240 px)."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-encode.js",
+   "kicker": "CODEWORDS",
+   "title": [
+    "Common letters get",
+    "short codes"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.8,
+     2.8,
+     "Common B sits one step from the root."
+    ],
+    [
+     2.9,
+     4.6,
+     "The path down is the code."
+    ],
+    [
+     5.6,
+     8.6,
+     "Spell BBADEBC with these codes."
+    ],
+    [
+     9.6,
+     11.6,
+     "15 bits instead of 21."
+    ]
+   ],
+   "spec": "IDEA: read the codes off the finished tree and use them. A walk from the root writes the code: left branch 0, right branch 1 (the bigger side is 1), so B = 1, A = 011, D = 010, E = 001, C = 000. The common letter B hangs ONE step from the root, the rest three. Then spell BBADEBC: 1 1 011 010 001 1 000 = 15 bits, against 21 with the fixed code.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: green = the codes and the short strip, grey = the fixed 21-bit strip, blue ring = the letter being encoded, orange ring = its code in the code book.\n\nPHASE A, the tree (0-5.5). T = A7.tree(stage, {tree: A7.HUFF, pos: A7.treePos(A7.HUFF, {x0: 100, slot: 120, top: 52, dy: 140, flat: 1})}); every frame T.update({nodes, edges, pos: A7.treePos(A7.HUFF, {x0: 100, slot: 120, top: 52, dy: 140, flat: f}), o}) with f = 1 - ramp(t, 0.9, 1.7, E.inOut). Final centres (flat 0): C (160, 472), E (280, 472), D (400, 472), A (520, 472), B (640, 192); CE (220, 332), DA (460, 332), CEDA (340, 192), root (490, 52). At flat 1 B starts on the baseline (640, 472), exactly like the end of scene 6.\nTimeline: 0.1-0.9 all nodes and branches are drawn, grey (nodes pop top-down 0.05 s apart; branch k 1; leaves show letter + weight). 0.9-1.7 B glides UP to (640, 192) along its branch (f 1 -> 0): it now hangs one step from the root; the other four stay three steps down. 1.8-2.6 the 0 / 1 stickers pop on the eight branches (edge bit, 0.06 s apart, in A7.HUFF.edges order; bigger kid = 1). 2.7-4.4 READING, one letter at a time in the order B, C, E, D, A at 2.7, 3.1, 3.45, 3.8, 4.15: the branches on the path from the root (follow A7.HUFF.nodes[id].parent upward) turn green (edge tone 'green', width 1.4 -> 1 over 0.4 s), the inner nodes on the path turn tone 'green', the leaf turns solid green and its second line changes from the weight to the code (nodes patch sub: A7.HUFF.codes[id]: '1', '000', '001', '010', '011'). 4.6-5.5 CHANGE: inner nodes and all branches fade (o: 1 - ramp(t, 4.6, 5.1) in their node / edge patches); the five leaf tiles (letter + code, green) glide (pos overrides, E.inOut over 4.7-5.5) into a code book row at y 62: centres x = 128 (C), 298 (E), 468 (D), 638 (A), 808 (B).\nPHASE B, encoding (5.3-12). msg = A7.tiles(stage, {x: 84, y: 160, items: [...A7.MSG], w: 96, h: 96, gap: 16, fs: 48}) (tile j centred at x = 132 + 112 j); huffStrip = A7.bits(stage, {x: 110, y: 330, groups: A7.ENCODE.codes, cell: 40, h: 52, gap: 4, groupGap: 14, fs: 30, tone: 'green'}) (15 cells, 716 px); fixStrip = A7.bits(stage, {x: 54, y: 480, groups: A7.ENCODE.fixed, cell: 34, h: 52, gap: 3, groupGap: 12, fs: 30, tone: 'grey'}) (21 cells, 828 px); huffTag = A7.tag(stage, {x: 110, y: 276, text: 'Huffman: 15 bits', tone: 'green', solid: true}); fixTag = A7.tag(stage, {x: 54, y: 426, text: 'fixed: 21 bits', tone: 'grey'}).\nTimeline: 5.3-5.9 the message tiles pop (0.07 s apart). ENCODE letter j (j = 0..6, A7.MSG[j]) at u_j = 5.8 + 0.45 j: its message tile gets a blue ring (the previous ring goes), the code-book leaf of that letter gets an orange ring for 0.4 s, and its codeword appears in huffStrip as a whole (groupK: (g) => ramp(t, 5.8 + 0.45 g + 0.1, 5.8 + 0.45 g + 0.4)): B -> 1, B -> 1, A -> 011, D -> 010, E -> 001, B -> 1, C -> 000. The last group lands at 8.9. 9.0 huffTag pops. 9.2-9.8 the grey fixed strip pops (k left to right) and 9.8 fixTag pops. Hold still 10.2-12 (the two strips stay, 15 cells above 21).\nDATA (asserted): A7.ENCODE = {codes ['1','1','011','010','001','1','000'], bits '110110100011000' (15), fixed ['100','100','011','010','001','100','000'], fixedBits (21), saved 6}; A7.HUFF.codes = {C:'000', E:'001', D:'010', A:'011', B:'1'}. The fixed strip is the one of scene 2 (the same 21 bits).\nPitfalls: stay inside the stage (root circle top = 52 - 38 = 14); the 0 / 1 stickers must not touch the leaf tiles (dy 140 is enough); the leaf tiles keep their letter readable while they glide (no overlap with the message tiles: the code book row ends at y 113, the message row starts at 160).\n\nCAPTION SYNC: [0.8-2.8] B glides up 0.9-1.7 and the stickers pop 1.8-2.6; [2.9-4.6] the reading 2.7-4.4; [5.6-8.6] the encoding 5.8-8.9; [9.6-11.6] both strips and tags (9.0-9.8).\nEND STATE: code book row (green tiles C 000, E 001, D 010, A 011, B 1), message BBADEBC with a blue ring on the last C, the 15-cell green strip over the 21-cell grey strip with their tags."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-lzw-encode.js",
+   "kicker": "LZW",
+   "title": [
+    "LZW learns phrases",
+    "as it reads"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "LZW starts with a tiny dictionary: A and B."
+    ],
+    [
+     2.6,
+     4.8,
+     "A new longer phrase: send a code, learn it."
+    ],
+    [
+     5.2,
+     6.8,
+     "Known? Keep growing."
+    ],
+    [
+     7.2,
+     8.7,
+     "Still known: grow again."
+    ],
+    [
+     8.9,
+     10.4,
+     "Longer phrases get one code each."
+    ],
+    [
+     11.4,
+     12.9,
+     "Nine letters became five codes."
+    ]
+   ],
+   "spec": "IDEA: LZW (Lempel-Ziv-Welch) learns repeated phrases while it reads. The lecture's example: message ABABABABA, alphabet A = 0, B = 1. Keep a phrase w (blue) and look at the next letter c (orange). If w + c is already in the dictionary, w just grows. If it is new: send the code of w, add w + c to the dictionary, and start again from c. Result: codes 0 1 2 4 3, nine letters become five codes, and the dictionary grew to AB = 2, BA = 3, ABA = 4, ABAB = 5.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: blue = the phrase w, orange = the next letter c and a freshly added entry, green = letters already sent and the codes sent, purple = the dictionary.\n\nLAYOUT (stage px; Z = A7.LZW). tape = A7.tiles(stage, {x: 42, y: 24, items: [...Z.text], w: 84, h: 84, gap: 12, fs: 48}) (nine plain tiles A B A B A B A B A; tile i spans x 42 + 96 i .. +84; x 42-894). wSpan = A7.span(stage, {x: 42, y: 122, w: 72, tone: 'blue'}) under the tiles of the phrase w: x = 42 + 96 wFrom, w = 96 (wTo - wFrom) - 12. Legend (static, pop at 0.8-1.2): A7.tag(stage, {x: 42, y: 164, text: 'phrase so far', tone: 'blue'}) and A7.tag(stage, {x: 300, y: 164, text: 'next letter', tone: 'orange'}). Sent row: A7.tag(stage, {x: 42, y: 246, text: 'sent', tone: 'green'}) and sent = A7.tiles(stage, {x: 140, y: 232, items: Z.codes.map(String), w: 72, h: 72, gap: 12, fs: 40}) (five tiles 0 1 2 4 3, tone green, slot m centred at x = 176 + 84 m, y 268). Dictionary: A7.tag(stage, {x: 42, y: 336, text: 'dictionary', tone: 'purple'}) and dict = A7.chips(stage, {x: 42, y: 386, cols: 3, items: Z.dict.map((d) => ({idx: d.idx, text: d.text}))}) (six chips 0 A, 1 B, 2 AB, 3 BA, 4 ABA, 5 ABAB, each 180 x 60; row 1 y 386, row 2 y 458; x 42-618). End tag A7.tag(stage, {x: 650, y: 430, text: '9 letters, 5 codes', tone: 'green', solid: true}).\n\nDATA (asserted): Z.steps[k] = {k, i (index of c), w, c, act: 'grow' | 'emit' | 'final', code, add: {idx, text} | null, wFrom, wTo (w = text[wFrom..wTo) before the step), wTo2 (end of w after a grow), codes (sent so far)}. The nine steps: 0 w A, c B: AB new -> emit 0, add AB = 2; 1 w B, c A: BA new -> emit 1, add BA = 3; 2 w A, c B: AB known -> grow to AB; 3 w AB, c A: ABA new -> emit 2, add ABA = 4; 4 w A, c B: grow to AB; 5 w AB, c A: ABA known -> grow to ABA; 6 w ABA, c B: ABAB new -> emit 4, add ABAB = 5; 7 w B, c A: BA known -> grow to BA; 8 w BA, end of text -> final emit 3. Z.codes [0,1,2,4,3], Z.chunks A | B | AB | ABA | BA.\n\nTIMELINE (local s). 0.2-1.0 the tape pops (0.08 s apart); 0.8-1.2 the legend, the 'sent' and 'dictionary' tags and the two start chips (0 A, 1 B, purple) pop; the first phrase w = A (span under tile 0) and the orange ring on tile 1 are there from 1.0. Step k runs from STEP_T[k], STEP_T = [2.5, 3.9, 5.1, 6.1, 7.3, 8.1, 8.9, 10.1, 10.9] (the last step ends 12.0); u = t - STEP_T[k], scale the two phases below to the step length for the short steps. ASK (first 40-50 %): the span covers w (tiles wFrom..wTo-1 tone 'blue'), tile i has a ring 'orange' (ringK pops; none on the final step). ACT (the rest): GROW: the span widens to wTo2 (w = 96 (wTo2 - wFrom) - 12, E.inOut), tile i turns blue, the ring goes. EMIT / FINAL: the code tile m = step.codes.length - 1 pops in the sent row flying from the span centre to its slot (offset (1 - e) x (from - slot), e = ramp(u, 0.45 x len, 0.9 x len, E.inOut)); the tiles wFrom..wTo-1 turn green; for EMIT the new chip step.add.idx pops (tone 'orange', solid, ring 'orange') 0.2 s later and settles to purple (soft) by the next step; then the span restarts on tile i (x = 42 + 96 i, w = 72, pops back with k). After the final step all tiles are green. 11.9-12.4 the '9 letters, 5 codes' tag pops. Hold still to 13.\nPitfalls: never show the missing-entry case here (scene 9). Keep tile text at o = 1; use tone 'grey' for tiles not yet reached, never opacity. The dictionary never loses a chip. Letters are 48 px, chip text 34 px mono, index 28 px.\n\nCAPTION SYNC: [0.4-2.4] tape + start chips; [2.6-4.8] steps 0-1 (two emits: AB, BA added); [5.2-6.8] step 2 (grow); [7.2-8.7] steps 4-5 (grow, grow); [8.9-10.4] step 6 (emit 4 = ABA) and 7; [11.4-12.9] final emit lands ~11.3, tag 11.9.\nEND STATE: tape green, sent row 0 1 2 4 3, dictionary of six chips (0 A ... 5 ABAB), '9 letters, 5 codes'."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-lzw-decode.js",
+   "kicker": "LZW",
+   "title": [
+    "The decoder rebuilds",
+    "the same dictionary"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "Only codes arrive, plus the A, B start."
+    ],
+    [
+     4.0,
+     6.2,
+     "Each code adds one entry to the table."
+    ],
+    [
+     6.4,
+     9.0,
+     "Code 4 is unknown: it is AB plus its first letter."
+    ],
+    [
+     10.0,
+     11.8,
+     "Same text back. No dictionary sent."
+    ]
+   ],
+   "spec": "IDEA: the decoder gets only the codes 0 1 2 4 3 and the start dictionary (A = 0, B = 1), yet it rebuilds exactly the dictionary the encoder had, because each code adds one entry (the previous chunk + the first letter of this chunk). It trails the encoder by one entry, so when code 4 arrives the entry 4 does not exist yet: it must be the previous chunk AB plus its OWN first letter A = ABA (the encoder had just made it and used it at once). Output ABABABABA = the original text; no dictionary was ever sent.\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here: green = received codes and decoded letters, purple = the dictionary, blue = the code being read, orange = the entry just added and the unknown code.\n\nLAYOUT (stage px; D = A7.LZW_DEC, Z = A7.LZW). Received: A7.tag(stage, {x: 42, y: 28, text: 'received', tone: 'green'}) and rec = A7.tiles(stage, {x: 200, y: 14, items: Z.codes.map(String), w: 72, h: 72, gap: 12, fs: 40}) (tiles 0 1 2 4 3, tone green, x 200-608). Dictionary: A7.tag(stage, {x: 42, y: 112, text: 'dictionary', tone: 'purple'}) and dict = A7.chips(stage, {x: 42, y: 158, cols: 3, items: Z.dict.map((d) => ({idx: d.idx, text: d.text}))}) (six chips, rows y 158 and 230; only 0 A and 1 B exist at the start). Formula row (only for code 4): fAB = A7.tiles(stage, {x: 200, y: 330, items: ['AB'], w: 110, h: 76, fs: 44}), plus sign A7.sym('plus', 352, 368, 44) and fA = A7.tiles(stage, {x: 392, y: 330, items: ['A'], w: 76, h: 76, fs: 44}), equals sign A7.sym('equals', 514, 368, 44, 'green') and fABA = A7.tiles(stage, {x: 556, y: 330, items: ['ABA'], w: 130, h: 76, fs: 44}) (signs are SVG <g> appended to an L5.svg(stage)); labels A7.tag(stage, {x: 190, y: 410, text: 'previous'}), A7.tag(stage, {x: 345, y: 410, text: 'its first letter'}), A7.tag(stage, {x: 560, y: 410, text: 'new entry'}) (grey). Output: A7.tag(stage, {x: 42, y: 474, text: 'decoded', tone: 'green'}) and out = A7.tiles(stage, {x: 42, y: 534, items: [...D.out], w: 84, h: 80, gap: 12, fs: 48}) (nine tiles, filled from the left as chunks arrive; x 42-894; tile row ends at y 620 with its lip).\n\nDATA (asserted): D.steps[k] = {k, code, prev, known, entry, added: {idx, text} | null, out, outFrom, outTo, missing, rule}: k0 code 0 -> A (adds nothing, out A); k1 code 1 -> B (adds AB = 2, out AB); k2 code 2 -> AB (adds BA = 3, out ABAB); k3 code 4 -> NOT KNOWN: rule = {prev 'AB', first 'A', text 'ABA'} (adds ABA = 4, out ABABABA); k4 code 3 -> BA (adds ABAB = 5, out ABABABABA). Output tiles filled per step: outFrom..outTo.\n\nTIMELINE (local s). 0.2-1.0 the received tiles pop (0.1 s apart), 0.8-1.2 chips 0 A and 1 B pop (purple). Step k starts at S = [2.6, 3.8, 5.0, 6.2, 9.0]; u = t - S[k]. KNOWN steps (0, 1, 2, 4): u 0-0.4 received tile k gets a blue ring (the previous ring goes), u 0.2-0.7 the chip D.steps[k].code gets a blue ring pulse (the lookup), u 0.5-0.9 the entry's output tiles (outFrom..outTo) pop, tone green, u 0.8-1.2 the new chip (D.steps[k].added.idx; none for step 0) pops with tone 'orange', solid, ring 'orange' and settles to purple (soft) 0.6 s later. MISSING step 3 (S 6.2): u 0-0.4 received tile 3 gets an ORANGE ring and chip slot 4 appears as a dashed ghost with '?' (dict.set(4, {ghost: true, text: '?', tone: 'orange', ring: 'orange', k})), u 0.7-1.5 the formula row pops in order [AB] (tone 'blue'), plus, [A] (tone 'orange'), equals, [ABA] (tone 'green'), u 1.2-1.6 its three labels pop; u 1.8-2.3 chip 4 turns into 4 | ABA (ghost off, solid orange, ring) and u 2.1-2.6 the output tiles for ABA (outFrom 4 .. outTo 7) pop; u 2.8-3.2 (9.0-9.4) the formula row fades. Step 4 (S 9.0): BA pops at 9.5-9.9, chip 5 ABAB pops 9.8-10.2. 10.3-10.8 all nine output tiles turn green (tone) and a green tick L5.tick(240, 497, 44, 'green') draws on beside 'decoded'. Hold still to 12.\nPitfalls: a decoded chunk is the tile group outFrom..outTo, never a single tile; do not show the encoder here; the '?' chip and the formula are the only orange 'unknown' items; keep labels at o = 1 (fade whole groups out completely instead).\n\nCAPTION SYNC: [0.4-2.4] intro; [4.0-6.2] steps 1-2 (new chips 4.8 and 6.0); [6.4-9.0] the missing step (ghost 6.4, formula 6.9-7.7, chip 8.1, ABA output 8.3-8.8); [10.0-11.8] the last step and the tick (10.3).\nEND STATE: six chips (0 A ... 5 ABAB), received tiles all read, output ABABABABA in green with a tick."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-gif.js",
+   "kicker": "GIF IMAGES",
+   "title": [
+    "Repeats shrink,",
+    "noise does not"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "A GIF packs its pixels with LZW."
+    ],
+    [
+     3.4,
+     5.2,
+     "Runs of one colour shrink into single codes."
+    ],
+    [
+     5.8,
+     8.2,
+     "Noise rarely repeats, so almost nothing shrinks."
+    ],
+    [
+     8.4,
+     10.4,
+     "LZW feeds on repeats."
+    ]
+   ],
+   "spec": "IDEA: the real-world payoff. A GIF stores each pixel as a palette colour (a letter here) and packs the rows with LZW. Runs of one colour are repeats, so they shrink; noise has almost no repeats, so almost nothing shrinks. The lesson row AAAAAABBBCCCCCDDDD (6 A, 3 B, 5 C, 4 D) parses into 11 pieces (A | AA | AAA | B | BB | C | CC | CC | D | DD | D) = 11 codes for 18 pixels; a noisy row DBCBAABDADDCDDACCA of the same 18 pixels needs 17 codes (my own example: the lesson only says noise saves little).\nCOLOURS (whole video): green = the short / compressed / valid result (a short code, the saved bits, a finished tree, a decoded letter, a matched codeword); red = waste or ambiguity (bits we throw away, a code with two readings, the noisy row); blue = what we are looking at now (the current letter, the phrase w, a prefix being read, tree branches while they are built); orange = attention and choices (surprise cells, the two smallest nodes picked, the next letter c, a new dictionary entry, the unknown code); purple = the rulebook and the limit (the entropy floor, the dictionary chips); grey = neutral (fixed-code cells, waiting nodes, baseline bars). Here the four palette colours are the only exception: tiles A green, B blue, C purple, D orange (solid, with their letter in the -on shade, A7.GIF.tones), always labelled with the letter so no meaning is carried by colour alone. The parse spans are blue, the verdict tags green (flat) and red (noisy).\n\nLAYOUT (stage px; G = A7.GIF). Two rows: flat (y 24) and noisy (y 300). For each row (text = G.flat.text / G.noisy.text, chunks = G.flat.chunks / G.noisy.chunks): label = A7.tag(stage, {x: 20, y, text: 'a GIF row: flat colour' | 'a GIF row: noisy', tone: 'grey'}); px = A7.tiles(stage, {x: 20, y: y + 58, items: [...text].map((c) => ({text: c, tone: G.tones[c]})), w: 46, h: 46, gap: 4, fs: 28}) with solid true on every tile (18 tiles, x 20-916; tile j spans x 20 + 50 j .. +46); one A7.span(stage, {x: 20 + 50 c.from, y: y + 120, w: 50 (c.to - c.from) - 4, h: 14, tone: 'blue'}) per chunk (flat 11, noisy 17); count = A7.tag(stage, {x: 20, y: y + 148, text: '18 pixels, 0 codes', tone: 'grey'}). Rows: flat label y 24, tiles y 82, spans y 144, count y 172; noisy label y 300, tiles y 358, spans y 420, count y 448. Footer: A7.tag(stage, {x: 20, y: 548, text: 'GIF stores its pixels this way', tone: 'purple'}).\n\nDATA (asserted): G.flat.count 11 (chunks A|AA|AAA|B|BB|C|CC|CC|D|DD|D; with palette numbers from 1 the codes are 1,5,6,2,8,3,10,10,4,13,4 as in lesson 7.11; do not print code numbers), G.noisy.count 17 (chunks: 16 single pixels and one DD). Show only the COUNT of codes.\n\nTIMELINE (local s). 0.2-0.5 the flat label pops; 0.3-1.3 its 18 tiles pop (0.04 s apart, solid); 1.3 the count tag pops ('18 pixels, 0 codes'). PARSE flat: chunk c appears at 1.5 + 0.27 c (11 chunks, last at 4.2): its span grows over its tiles (k 0.2 s) and the count text becomes `18 pixels, ${c + 1} codes`; 4.6-4.9 the count tag turns solid green. Noisy row: label and tiles pop 5.0-6.0, count tag 6.0; PARSE noisy: chunk c at 6.1 + 0.12 c (17 chunks, last at 8.0), count counts up the same way; 8.2-8.5 the count tag turns solid red. 8.8-9.2 the footer tag pops. Hold still to 11.\nPitfalls: both rows must stay inside x 20-916; labels are 28 px; use the tone of a tag for emphasis, never opacity below 1; the spans of neighbouring chunks are separated by a 4 px gap so the pieces read as separate.\n\nCAPTION SYNC: [0.4-2.6] the label 'a GIF row' and the pixel tiles; [3.4-5.2] the flat parse (1.5-4.5) and its green count (4.6); [5.8-8.2] the noisy parse (6.1-8.0); [8.4-10.4] the red count (8.2) and the footer.\nEND STATE: two rows, 11 blue spans under the flat row (green '18 pixels, 11 codes'), 17 spans under the noisy row (red '18 pixels, 17 codes'), purple footer tag."
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Entropy is the floor\nfor any lossless code",
+    "tone": "purple",
+    "pictogram": "Two strips of empty cells (A7.bits, digits false, cell 18, h 24, gap 4; drawing area 340 x 140). A grey strip of 8 cells at x 20, y 28 (172 px wide) is the fixed code; below it, at y 76, a green solid strip of 8 cells. A purple dashed vertical line (a 4 px wide div, dashed border, 60 px high) pops at x 20 + 7 x 22 + 2 (just after the 7th cell), y 66 (0.4-0.8). Then the last green cell shrinks away (0.9-1.4): the strip stops exactly at the line and a green tick (L5.tick) pops at x 280, y 88 (1.6-2.1). Plays once, then holds."
+   },
+   {
+    "head": "Huffman merges the\ntwo rarest, repeat",
+    "tone": "green",
+    "pictogram": "The five-leaf Huffman tree as dots: T = A7.tree(pic, {tree: A7.HUFF, pos: A7.treePos(A7.HUFF, {x0: 14, slot: 62, top: 22, dy: 34, flat: 1}), ew: 5, label: () => ({kind: 'dot', text: '', sub: ''})}) in a 340 x 140 area (dots r 18, so the leaves C E D A B at y 124, root at y 22). The five leaves pop (0-0.6); then the four merges of A7.HUFF.merges, one every 0.8 s from 0.7 (the two smallest turn orange 0.0-0.3 of each, the new dot pops and its two branches grow in blue 0.4-0.7); at 3.9 the whole tree turns green (root solid) and a green tick pops at x 300, y 40 (4.0-4.5). Plays once, then holds."
+   },
+   {
+    "head": "LZW learns repeated\nphrases as it goes",
+    "tone": "blue",
+    "pictogram": "Hand-drawn (V.h divs with class 'v-gene c-grey', radius 8): a tape of 9 small squares (26 x 26, gap 4, x 20-290, y 20) standing for ABABABABA, a blue strip (A7.span, h 10) under the current phrase hopping over the chunks of A7.LZW.chunks (A | B | AB | ABA | BA: widths 30, 30, 60, 90, 60 px from x 20) one every 0.55 s from 0.3 (each emitted chunk turns its squares green), and below, at y 84, small purple chips (60 x 26, rounded, no text) appearing one per learned entry (A7.LZW.entries: 4 chips, left to right with 8 px gaps) as the strip passes. At 3.5 a green tick pops at x 300, y 100. Plays once, then holds."
+   }
+  ],
+  "cta": "Next: Workshop 7.W",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js and videos/a4/scene-11-recap.js: kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), the Byte mascot (V.mascot('byte', {size: 168, mood: 'love'}), x 840, y 38) bobbing gently, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / green / blue), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, helpers drawn into it in their own pixel coordinates) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 7.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), each pictogram starts 0.4 s after its row. LESSON FROM EARLIER PHASES: end on a CALM FINISHED FRAME. The pictograms play ONCE (about 3-4 s each) and then hold their finished state (green tick shown); they do NOT loop, so by about 7.5 s everything is still except Byte's slow bob. 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). The finished frame must show all three pictograms in their final state at 7.5-9. No captions. Pictogram labels contain no text (shapes only) so the 28 px rule is not in play; the row labels are 36 px."
+ },
+ "helpers": "FILES: videos/a7/common.js (data and algorithms, pure, no DOM, 364 code lines), videos/a7/common-2.js (A7.tag, tiles, chips, bits, counter, bar, span, token, sym), videos/a7/common-3.js (A7.treePos, A7.tree). Everything hangs off window.VID.a7; scenes start with const V = window.VID, A7 = V.a7, L5 = V.l5 and const {ramp, flash, lerp, ease: E} = V. videos/algo-7.html loads engine.js, cards.js, l5/common.js, then a7/common.js, common-2.js, common-3.js, then scene-01 ... scene-11, audio/algo-7.js. l6 is not loaded. EVERY helper file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract (they were tested with throw-away prototypes of scenes 2, 4, 5, 6, 7 and 8, see the coordinates in the specs). All draw calls are PURE: create each piece once in build(stage), call its set / update every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers (A7.rng(seed) is seeded). Never dim text below opacity 1 once it is on screen: switch the TONE (grey) instead, or fade the whole group out.\n\nA. DATA (common.js): A7.LETTERS, PCT, MSG, ORDER, FIXED, REDUNDANCY {fixed, short, fixedTotal 21, shortTotal 15, saved 6, counts}; LADDER (p, frac, say, bits); DIE {letters, p, frac, bits, share, H 1.75}; SAMPLE {msg, bits, total 14, fixedTotal 16, perSymbol 1.75}; BAD {codes, stream, readings}; PREFIX {codes, stream, out, tree, walk}; codeTree(codes); HUFF {nodes, merges, roots, smallest, edges, codes, order, L 1.98, H 1.964, costs}; huffman(items); ENCODE {codes, bits, count 15, fixed, fixedBits, fixedCount 21, saved 6}; LZW {text, alpha, steps, codes, chunks, dict, entries}; LZW_DEC {steps, out}; lzwEncode / lzwDecode; GIF {alpha, tones, flat, noisy}; ek(parent, child); fmtW(percent) -> '.20'; fmtBits(percent) -> '1.98'; entropy(ps); surprise(p); rng, same, close, sum, mix, cyc, TONES.\n\nB. SMALL PIECES (common-2.js): A7.tag(parent, {x, y, text, tone, solid, fs, h}) -> t.set({text, tone, solid, k, x, y, s, o}); A7.tiles(parent, {x, y, items, w, h, gap, dir, fs, subFs}) -> row.set(i, {text, sub, tone, solid, ghost, plain, ring, ringK, k, x, y, s, o}), row.all(fn), row.pos(i), row.mid(i) (a tile with no tone is a plain white tile); A7.chips(parent, {x, y, items: [{idx, text}], cols, w 180, h 60, ...}) -> board.set(i, {...}) the same way (dictionary entries 'idx | text'); A7.bits(parent, {x, y, groups, cell, h, gap, groupGap, fs, digits, tone}) -> b.set({k, groupK, tone, tones, solid, cells: {i: patch}, o, x, y, s}), b.cell(i), b.group(g), b.width (a bit strip, one group per codeword; per-cell patches carry offsets for flying or falling cells); A7.counter(parent, {x, y, w, h, label, tone}) -> c.set({text, tone, solid, bump, k, o}); A7.bar(parent, {x, y, w, h, tone, solid, text, fs}) -> b.set({k, tone, solid, text, textOut, o}), b.end(k); A7.span(parent, {x, y, w, h, tone}) -> s.set({x, w, k, tone, dash, o}) (a rounded line under tiles); A7.token(parent, {tone, size}) -> m.set({x, y, s, o, tone}) (centre coordinates); A7.sym(kind, x, y, size, tone) -> SVG <g> for 'plus' | 'minus' | 'equals'. Tones: grey, green, red, orange, blue, purple. k 0..1 pops a piece in (0 = hidden); x, y in set() are offsets from the piece's slot.\n\nC. THE TREE (common-3.js): A7.treePos(tree, {x0, slot, top, dy, flat}) -> {id: [x, y]} node centres (tree = A7.HUFF or a tree from A7.codeTree; flat 0..1 slides leaves from their own depth to the bottom row); T = A7.tree(parent, {tree, pos, r, leafW, leafH, ew, label}); T.update({nodes: {id: tone | {tone, solid, k, o, s, dx, dy, ring, ringK, ringDash, text, sub}}, edges: {'p>c': tone | {tone, k, o, w, bit, bitTone, bitSolid, dash}}, pos: {id: [x, y]} (moving nodes, branches follow), base: {node, edge} (state of unlisted ones; default hidden), o}); T.pt(id), T.mid(p, c, f), T.size(id), T.ids, T.keys. Default labels: A7.HUFF leaf = letter + weight, inner = weight; a code tree leaf = letter + codeword, inner = a dot. Tested positions are in the specs of scenes 5, 6 and 7 (keep top >= 52 for r 38 circles; dy >= 140 with leafH 92).\n\nD. L5 (l5/common.js) pictograms: L5.tick(x, y, size, tone, {w, on, ink}), L5.cross(...), L5.arrow(x1, y1, x2, y2, tone, o, {w, head, bow}), L5.drawOn(g, k) (draw-on 0..1), L5.svg(parent, w, h) (a full-stage SVG to append pictograms to), L5.tone(name) (CSS var strings for your own SVG)."
+}

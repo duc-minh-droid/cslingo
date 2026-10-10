@@ -5,7 +5,8 @@
    is checked against the storyboard when the scene is built. The walker rests a little way along an edge, never on a letter.
    Story (local seconds): 0.2-1.0 the points pop in, 1.0-1.4 the walker and the start A, five edges of 0.65 s from 1.4 (a corner
    turns green and its log arrow draws on as the walker arrives), 4.7-5.3 hull tint, 5.5-5.9 the walker hops to E, 5.9-6.9 the
-   detour (F red, right arrow), 6.9-8.0 the dent triangle and the 'dent' tag, 8.6-9.4 F is crossed out, 9.4-11 hold. */
+   detour (F red, right arrow), 6.9-8.0 the dent triangle and the 'dent' tag (the walker leaves at 7.1-7.5 so it never hides
+   the arrowhead into G), 8.6-9.4 F is crossed out, 9.4-11 hold. */
 (function () {
   const V = window.VID;
   const A5 = V.a5;
@@ -103,7 +104,11 @@
         if (t < 5.7) {
           const i = clamp(Math.floor((t - EDGE0) / EDGE), 0, N - 1);
           const sp = walkSpan(i);
-          [a, b, d] = [sp.a, sp.b, lerp(sp.from, sp.to, smooth(ramp(t, EDGE0 + EDGE * i, EDGE0 + EDGE * (i + 1), lin)))];
+          [a, b, d] = [
+            sp.a,
+            sp.b,
+            lerp(sp.from, sp.to, smooth(ramp(t, EDGE0 + EDGE * i, EDGE0 + EDGE * (i + 1), lin))),
+          ];
         } else {
           const j = t < 6.4 ? 0 : 1;
           const sp = detour[j];
@@ -134,7 +139,12 @@
           points[name] = { s: E.pop(k), o: Math.min(1, k * 4) };
         });
         const green = (name, tA) => {
-          points[name] = { ...points[name], tone: "green", solid: true, s: points[name].s * (1 + 0.25 * flash(t, tA, tA + 0.4)) };
+          points[name] = {
+            ...points[name],
+            tone: "green",
+            solid: true,
+            s: points[name].s * (1 + 0.25 * flash(t, tA, tA + 0.4)),
+          };
         };
         if (t >= 1.0) green("A", 1.0);
         H.forEach((name, i) => {

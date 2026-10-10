@@ -11,7 +11,7 @@
   const V = window.VID;
   const A5 = V.a5;
   const L5 = V.l5;
-  const { ramp, flash, lerp, clamp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
   const lin = E.lin;
 
   const { pivot: PIVOT, order: ORDER, ccw: CCW } = A5.SORT;
@@ -35,7 +35,7 @@
   const TOUCH = (i) => 2.2 + 0.7 * i; // the line reaches ORDER[i]
   const T_END = TOUCH(ORDER.length - 1); // 5.7
   const smooth = (x) => 0.5 * x + 0.5 * E.inOut(x); // slows at each touch, never stops dead
-  const OFF = { G: [42, 4] }; // badge offsets: the default sits up and to the right of a point
+  const OFF = { G: [52, 2] }; // badge offsets: the default sits up and to the right of a point
   const BADGE = [38, -38];
   const R_ARC = 84;
 
@@ -100,7 +100,7 @@
         const lineIn = ramp(t, 1.2, 1.6, lin); // the level line grows out from C
         const lineOut = 1 - ramp(t, 5.9, 6.4, lin); // and fades once it has rested on the last point
         const touched = ORDER.map((_, i) => t >= TOUCH(i));
-        const fadeRays = lerp(0.7, 0.3, ramp(t, 6.4, 7.5, lin));
+        const fadeRays = lerp(0.7, 0.25, ramp(t, 6.4, 7.5, lin));
         const segs = [
           { a: PIVOT, b: A5.rayEnd(P[PIVOT], -th), tone: "purple", w: 0.8, k: lineIn, o: lineOut },
           ...ORDER.map((name, i) => ({
@@ -126,7 +126,7 @@
           [tip[0] - nrm[0] * 10, tip[1] - nrm[1] * 10],
         ];
         head.setAttribute("d", `M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("L")}Z`);
-        V.show(head, th < 4 ? 0 : arcO);
+        V.show(head, arcO * V.clamp((th - 10) / 14));
 
         // ---- numbered badges, the sorted path and the dent triangles
         const tags = ORDER.map((name, i) => {
@@ -146,8 +146,8 @@
           const tD = 7.4 + 0.25 * j;
           tags.push({
             at: name,
-            dx: name === "F" ? 74 : 0,
-            dy: name === "F" ? 36 : 54,
+            dx: name === "F" ? 74 : 66,
+            dy: name === "F" ? 36 : 46,
             text: "dent",
             tone: "red",
             solid: true,
@@ -159,7 +159,7 @@
           ...NOTCH.map((tri, j) => ({
             pts: tri,
             tone: "red",
-            fill: 0.5,
+            fill: 0.7,
             w: 0.01,
             o: ramp(t, 7.4 + 0.25 * j, 7.9 + 0.25 * j, lin),
           })),

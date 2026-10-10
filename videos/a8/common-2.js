@@ -300,6 +300,7 @@
     let g = null;
     return {
       el: svg,
+      outer,
       set(s = {}) {
         const tone = tn(s.tone || o.tone || "grey");
         if (mem.tone !== tone) {
