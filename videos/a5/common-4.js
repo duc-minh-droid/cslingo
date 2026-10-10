@@ -36,10 +36,17 @@
     const svg = V.s("svg", { width: 936, height: 640 });
     Object.assign(svg.style, { position: "absolute", left: "0px", top: "0px", overflow: "visible" });
     const lines = [];
-    for (let i = 0; i <= cols; i++) lines.push({ x0: x + i * u, y0: y, x1: x + i * u, y1: y + rows * u, axis: i === 0 });
-    for (let j = 0; j <= rows; j++) lines.push({ x0: x, y0: y + j * u, x1: x + cols * u, y1: y + j * u, axis: j === rows });
+    for (let i = 0; i <= cols; i++)
+      lines.push({ x0: x + i * u, y0: y, x1: x + i * u, y1: y + rows * u, axis: i === 0 });
+    for (let j = 0; j <= rows; j++)
+      lines.push({ x0: x, y0: y + j * u, x1: x + cols * u, y1: y + j * u, axis: j === rows });
     const els = lines.map((l) => {
-      const e = V.s("path", { d: `M${f1(l.x0)} ${f1(l.y0)}L${f1(l.x1)} ${f1(l.y1)}`, fill: "none", "stroke-linecap": "round", pathLength: "1" });
+      const e = V.s("path", {
+        d: `M${f1(l.x0)} ${f1(l.y0)}L${f1(l.x1)} ${f1(l.y1)}`,
+        fill: "none",
+        "stroke-linecap": "round",
+        pathLength: "1",
+      });
       e.style.stroke = l.axis ? "var(--line-2)" : "var(--line)";
       e.style.strokeWidth = l.axis ? "5px" : "3px";
       svg.append(e);
@@ -66,7 +73,10 @@
   function sheet(parent, o = {}) {
     const { x = 0, y = 0, w = 360, rows = 3, rowH = 58, fs = 32, pad = 20, tone: base = "grey" } = o;
     const height = rows * rowH + 2 * pad;
-    const el = V.h("div", { class: `v-card plain c-${tn(base)}`, style: { ...abs(x, y, w, height), borderRadius: "22px" } });
+    const el = V.h("div", {
+      class: `v-card plain c-${tn(base)}`,
+      style: { ...abs(x, y, w, height), borderRadius: "22px" },
+    });
     const lines = Array.from({ length: rows }, (_, i) =>
       V.h("div", {
         class: "v-text",

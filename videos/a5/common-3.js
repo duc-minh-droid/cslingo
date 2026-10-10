@@ -64,7 +64,12 @@
     const el = V.h("div", {
       class: "v-tag",
       text: o.text || "",
-      style: { ...abs(o.x || 0, o.y || 0), ...flex, fontSize: `${o.fs || 28}px`, ...(o.h ? { height: `${o.h}px` } : {}) },
+      style: {
+        ...abs(o.x || 0, o.y || 0),
+        ...flex,
+        fontSize: `${o.fs || 28}px`,
+        ...(o.h ? { height: `${o.h}px` } : {}),
+      },
     });
     parent.append(el);
     const base = { tone: o.tone || "grey", solid: !!o.solid };
@@ -72,11 +77,16 @@
       el,
       set(st = {}) {
         const tone = tn(st.tone || base.tone);
-        const cls = `v-tag c-${tone}${st.solid ?? base.solid ? " solid" : ""}`;
+        const cls = `v-tag c-${tone}${(st.solid ?? base.solid) ? " solid" : ""}`;
         if (el.className !== cls) el.className = cls;
         setText(el, st.text);
         const k = clamp(st.k ?? 1);
-        V.place(el, { x: st.x || 0, y: st.y || 0, s: (st.s ?? 1) * (0.8 + 0.2 * E.pop(k)), o: Math.min(1, k * 4) * (st.o ?? 1) });
+        V.place(el, {
+          x: st.x || 0,
+          y: st.y || 0,
+          s: (st.s ?? 1) * (0.8 + 0.2 * E.pop(k)),
+          o: Math.min(1, k * 4) * (st.o ?? 1),
+        });
       },
     };
   }
@@ -86,7 +96,8 @@
     const { x = 0, y = 0, w = 118, h = 56, gap = 12, dir = "row", fs = 30, tone: base = "grey" } = o;
     const items = (o.items || []).map((it) => (typeof it === "string" ? { text: it } : it));
     const n = items.length;
-    const slot = (i) => (dir === "row" ? [i * (w + gap), 0] : dir === "up" ? [0, (n - 1 - i) * (h + gap)] : [0, i * (h + gap)]);
+    const slot = (i) =>
+      dir === "row" ? [i * (w + gap), 0] : dir === "up" ? [0, (n - 1 - i) * (h + gap)] : [0, i * (h + gap)];
     const width = dir === "row" ? n * w + (n - 1) * gap : w;
     const height = dir === "row" ? h : n * h + (n - 1) * gap;
     const el = V.h("div", { style: abs(x, y, width, height) });
@@ -164,7 +175,10 @@
         transformOrigin: "0 50%",
       },
     });
-    const out = V.h("div", { class: "v-text", style: { ...abs(0, 0), fontSize: `${fs}px`, fontWeight: "900", lineHeight: `${h}px` } });
+    const out = V.h("div", {
+      class: "v-text",
+      style: { ...abs(0, 0), fontSize: `${fs}px`, fontWeight: "900", lineHeight: `${h}px` },
+    });
     const mark = V.h("div", { style: { ...abs(0, y, 0, h), pointerEvents: "none" } });
     const slash = [0, 1].map((i) =>
       V.h("div", { style: { ...abs(i * 22, -4, 10, h + 8), background: "var(--bg)", transform: "skewX(-22deg)" } }),
@@ -181,7 +195,10 @@
         const k = clamp(st.k ?? 0);
         const op = k < 0.003 ? 0 : (st.o ?? 1);
         el.className = `v-card c-${tone}`;
-        Object.assign(el.style, solidStyle(solid), { width: `${f1(Math.max(14, w * k))}px`, padding: st.textOut ? "0" : "0 18px" });
+        Object.assign(el.style, solidStyle(solid), {
+          width: `${f1(Math.max(14, w * k))}px`,
+          padding: st.textOut ? "0" : "0 18px",
+        });
         V.show(el, op);
         setText(el, st.textOut ? "" : st.text);
         out.className = `v-text c-${tone}`;
@@ -232,7 +249,11 @@
     });
     cup.style.stroke = "var(--line-2)";
     svg.append(cup);
-    const name = V.h("div", { class: "v-text dim", text: label, style: { ...abs(x - 16, y + inner + 30, w + 32), textAlign: "center", fontSize: "30px" } });
+    const name = V.h("div", {
+      class: "v-text dim",
+      text: label,
+      style: { ...abs(x - 16, y + inner + 30, w + 32), textAlign: "center", fontSize: "30px" },
+    });
     parent.append(svg, name);
     const t = tiles(parent, { x, y, items, w, h, gap, dir: "up", fs, tone: "grey" });
     return {

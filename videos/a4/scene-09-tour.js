@@ -1,11 +1,18 @@
-/* Phase 4 · scene 09-tour: from tree to tour. The seven towns of lesson 4.9. The minimum spanning tree is laid (green, W), the
-   walk goes all the way round it (every cable twice, orange, 2W), the towns it visits a second time are flagged, and skipping
-   them turns the walk into a shortcut tour (blue) that is no shorter than the best but never longer than the walk.
-   Only running totals are shown (tree, walk, tour), never single cable lengths. Under the map a strip of tiles carries the
-   walk's letters: they light up as the walker passes, the repeats turn red and drop out, the rest close up into the tour. */
+/* Phase 4 · scene 09-tour: from tree to tour. The seven towns of lesson 4.9 (a NEW map: straight-line distances).
+   Set-up first: the goal is the shortest round trip through every town (the best tour, purple and dashed: the same benchmark as in
+   scene 10). That is hard to find, so start from the cheapest tree: the minimum spanning tree is laid (green, W), the walk goes
+   all the way round it (every cable twice, orange, 2W), the towns it visits a second time are flagged, and skipping them turns the
+   walk into a shortcut tour (blue) that is no shorter than the best but never longer than the walk (straight lines are never
+   longer than a detour).
+   Only running totals are shown (tree W, 2W the walk, tour), never single cable lengths. Under the map a strip of tiles carries the
+   walk's letters: they light up as the walker (a ring, so no letter is hidden) passes, the repeats turn red and drop out, the rest
+   close up into the tour.
+   Story (local seconds): 0.2-1.0 towns, 1.0-2.6 the best round trip (purple dashes), 3.0-4.3 the tree, 5.0-8.2 the walk,
+   8.4-9.2 the repeats, 9.4-11.5 the tour, 11.6 'never longer'. */
 (function () {
   const V = window.VID;
   const A4 = V.a4;
+  const L5 = V.l5;
   const { ramp, flash, clamp, ease: E } = V;
   const T = A4.TSP;
   const num = (x) => A4.num(x);
@@ -47,20 +54,24 @@
   );
 
   // ---------- timeline (local seconds) ----------
-  const TREE0 = 1.1; // cable i of the tree starts here + 0.22 i and draws for 0.3 s
-  const TREE_STEP = 0.22;
+  const BEST0 = 1.0; // the best round trip: cable i fades in at BEST0 + 0.1 i, all gone by BEST_OUT
+  const BEST_OUT = 2.7;
+  const TREE0 = 3.0; // cable i of the tree starts here + 0.2 i and draws for 0.3 s
+  const TREE_STEP = 0.2;
   const DRAW = 0.3;
-  const WALK0 = 3.0; // leg i of the walk runs from here + 0.27 i for 0.27 s
+  const WALK0 = 5.0; // leg i of the walk runs from here + 0.27 i for 0.27 s
   const LEG = 0.27;
   const WALK_END = WALK0 + LEG * (WALK.length - 1);
-  const RING0 = 6.4; // the repeats are flagged (0.1 s apart)
-  const LET_GO = 7.3; // the walk, its lanes and the red rings fade
-  const TOUR0 = 7.5; // tour leg i starts here + 0.33 i and draws for 0.3 s
-  const TOUR_STEP = 0.33;
-  const DROP0 = 9.9; // the repeats drop out first (0.35 s), then the tour tiles close up (0.6 s)
-  const DROP1 = 10.25;
-  const CLOSE0 = 10.25;
-  const CLOSE1 = 10.85;
+  const RING0 = 8.4; // the repeats are flagged (0.1 s apart)
+  const LET_GO = 9.2; // the walk, its lanes and the red rings fade
+  const TOUR0 = 9.4; // tour leg i starts here + 0.3 i and draws for 0.3 s
+  const TOUR_STEP = 0.3;
+  const TOUR_END = TOUR0 + TOUR_STEP * (T.legs.length - 1) + DRAW;
+  const DROP0 = TOUR_END + 0.1; // the repeats drop out first (0.35 s), then the tour tiles close up (0.6 s)
+  const DROP1 = DROP0 + 0.35;
+  const CLOSE0 = DROP1;
+  const CLOSE1 = CLOSE0 + 0.6;
+  const BOW = 92; // the way home G to A would run through D: a gentle bow clears the town (the curve dips about BOW / 2 px)
 
   // when each town turns green (the tree reaches it) and blue (the tour reaches it)
   const GREEN_AT = { A: TREE0 };
@@ -94,15 +105,16 @@
   V.scene({
     kicker: "FROM TREE TO TOUR",
     title: ["Walk round the tree,", "skip the repeats"],
-    dur: 12,
+    dur: 13.8,
     caps: [
-      [0.4, 2.8, "Start with the minimum spanning tree. Its cost is W."],
-      [3.0, 6.3, "Walk round it. Every cable is used twice: 2W."],
-      [6.5, 9.8, "Skip towns already visited. Detours become direct legs."],
-      [10.0, 11.6, "A round trip, no longer than the walk."],
+      [0.4, 2.7, "Goal: the shortest round trip through every town."],
+      [2.9, 4.9, "A cheap start: the cheapest tree, cost W."],
+      [5.0, 8.3, "Walk round it. Every cable is used twice: 2W."],
+      [8.4, 11.3, "Skip towns already visited. Detours become direct legs."],
+      [11.5, 13.6, "Straight is never longer: tour at most 2W."],
     ],
     build(stage) {
-      const m = A4.tspMap(stage);
+      const m = A4.tspMap(stage, { x: -40, y: -32 }); // scene 10 draws the same map in the same place
       const P = (c) => {
         const p = m.pt(c);
         return [p.x, p.y];
@@ -119,10 +131,9 @@
         el.setAttribute("x2", f1(b[0]));
         el.setAttribute("y2", f1(b[1]));
       };
-      const lanes = WALK.slice(0, LAST).map((_, i) => A4.offsetLine(P(WALK[i]), P(WALK[i + 1]), 8));
-      const laneEls = lanes.map(() => line("var(--amber)", 5));
-      // a leg is a straight cable, except the way home: G to A would run straight through D, so it bows underneath it
-      const BOW = 150; // how far the control point of the way home sits below the straight line
+      const lanes = WALK.slice(0, LAST).map((_, i) => A4.offsetLine(P(WALK[i]), P(WALK[i + 1]), 11));
+      const laneEls = lanes.map(() => line("var(--amber)", 6));
+      // a leg is a straight cable, except the way home: G to A would run straight through D, so it bows a little underneath it
       const tourEls = T.legs.map((l) => {
         const [p, q] = [P(l.from), P(l.to)];
         const mid = A4.lerpPt(p, q, 0.5);
@@ -142,19 +153,40 @@
         );
       });
 
-      const tree = A4.total(stage, { x: 650, y: 40, w: 270, h: 80, label: "tree", tone: "green" });
-      const walk = A4.total(stage, { x: 650, y: 140, w: 270, h: 80, label: "walk", tone: "orange" });
-      const tour = A4.total(stage, { x: 650, y: 240, w: 270, h: 80, label: "tour", tone: "blue" });
-      const twice = A4.tag(stage, { x: 24, y: 420, text: "visited twice", tone: "red", solid: true });
-      const never = A4.tag(stage, { x: 650, y: 346, text: "never longer", tone: "green" });
-      const strip = A4.tiles(stage, { x: 56, y: 520, items: WALK, w: 56, h: 52, gap: 8, fs: 28 });
-      const walker = A4.token(stage, { tone: "orange", size: 34 });
+      // the three totals: W (the tree), 2W (the walk: an arrow says "twice"), the tour
+      const tree = A4.total(stage, { x: 650, y: 30, w: 270, h: 80, label: "tree W", tone: "green" });
+      const walk = A4.total(stage, { x: 650, y: 176, w: 270, h: 80, label: "2W", tone: "orange" });
+      const tour = A4.total(stage, { x: 650, y: 276, w: 270, h: 80, label: "tour", tone: "blue" });
+      const svg = L5.svg(stage);
+      const down = svg.appendChild(L5.arrow(686, 122, 686, 168, "orange", 1, { w: 6, head: 20 }));
+      const twoX = A4.tag(stage, { x: 716, y: 121, text: "twice", tone: "orange" });
+      const bestTag = A4.tag(stage, { x: 650, y: 30, text: "best round trip", tone: "purple" });
+      const again = A4.tag(stage, { x: 24, y: 420, text: "visited again", tone: "red", solid: true });
+      const straight = A4.tag(stage, { x: 650, y: 376, text: "straight lines" });
+      const never = A4.tag(stage, { x: 650, y: 436, text: "never longer", tone: "green" });
+      const strip = A4.tiles(stage, { x: 56, y: 540, items: WALK, w: 56, h: 52, gap: 8, fs: 28 });
+      // the walker is a ring, so the letter of the town it stands on stays readable
+      const walker = A4.token(stage, { tone: "orange", size: 44 });
+      Object.assign(walker.el.style, {
+        background: "transparent",
+        border: "6px solid var(--amber)",
+        boxShadow: "none",
+      });
 
       return (t) => {
         // --- the map: towns, then the tree cables ---
-        const dim = 1 - 0.5 * ramp(t, 2.9, 3.2);
-        const unused = ramp(t, 9.5, 9.9);
+        const dim = 1 - 0.5 * ramp(t, WALK0 - 0.1, WALK0 + 0.2);
+        const unused = ramp(t, TOUR_END - 0.2, TOUR_END + 0.2);
         const edges = {};
+        // set-up: the best round trip, purple and dashed, fades in cable by cable and out again
+        T.best.legs.forEach((l, i) => {
+          const a = BEST0 + 0.1 * i;
+          edges[A4.key(l.from, l.to)] = {
+            tone: "purple",
+            dash: true,
+            o: ramp(t, a, a + 0.3) * (1 - ramp(t, BEST_OUT, BEST_OUT + 0.4)),
+          };
+        });
         T.mst.forEach((c, i) => {
           const a = TREE0 + TREE_STEP * i;
           const spare = c.key === "AC" || c.key === "DF";
@@ -191,7 +223,7 @@
         });
         const j = clamp(Math.floor((t - WALK0) / LEG), 0, LAST - 1);
         const at = A4.lerpPt(P(WALK[j]), P(WALK[j + 1]), clamp((t - WALK0 - j * LEG) / LEG));
-        const wk = ramp(t, 2.9, 3.1) * (1 - ramp(t, WALK_END + 0.05, WALK_END + 0.35, E.lin));
+        const wk = ramp(t, WALK0 - 0.1, WALK0 + 0.1) * (1 - ramp(t, WALK_END + 0.05, WALK_END + 0.35, E.lin));
         walker.set({ x: at[0], y: at[1], s: 0.6 + 0.4 * E.pop(wk), o: Math.min(1, wk * 4) });
 
         // --- the tour legs, drawn on in blue ---
@@ -206,14 +238,17 @@
         const walkEnds = lanes.map((_, i) => WALK0 + LEG * (i + 1));
         const tourEnds = T.legs.map((_, i) => legStart(i) + DRAW);
         tree.set({ ...counter(t, treeEnds, T.runW), k: ramp(t, TREE0, TREE0 + 0.3) });
-        walk.set({
-          ...counter(t, walkEnds, T.runWalk),
-          k: ramp(t, 2.9, 3.2),
-          o: 1 - 0.4 * ramp(t, 10, 10.3, E.lin),
-        });
+        walk.set({ ...counter(t, walkEnds, T.runWalk), k: ramp(t, WALK0 - 0.1, WALK0 + 0.2) });
         tour.set({ ...counter(t, tourEnds, T.runTour), k: ramp(t, TOUR0, TOUR0 + 0.3) });
-        twice.set({ k: ramp(t, RING0, RING0 + 0.3) * (1 - ramp(t, LET_GO, LET_GO + 0.3, E.lin)) });
-        never.set({ k: ramp(t, 10, 10.4) });
+        again.set({ k: ramp(t, RING0, RING0 + 0.3) * (1 - ramp(t, LET_GO, LET_GO + 0.3, E.lin)) });
+        // "twice": the walk costs 2W, twice the tree (it pops as the walk total settles)
+        const tk = ramp(t, WALK_END, WALK_END + 0.4);
+        twoX.set({ k: tk });
+        L5.drawOn(down, tk);
+        V.show(down, tk > 0 ? 1 : 0);
+        bestTag.set({ k: ramp(t, BEST0, BEST0 + 0.3) * (1 - ramp(t, BEST_OUT, BEST_OUT + 0.3)) });
+        straight.set({ k: ramp(t, 1.8, 2.2) });
+        never.set({ k: ramp(t, TOUR_END + 0.1, TOUR_END + 0.5) });
 
         // --- the strip: the walk's letters, the repeats drop out, the rest close up into the tour ---
         const drop = ramp(t, DROP0, DROP1, E.inOut);

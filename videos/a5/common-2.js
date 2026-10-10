@@ -63,7 +63,10 @@
   };
   const css = (e, o) => (Object.assign(e.style, o), e);
   const spec = (v) => (typeof v === "string" ? { tone: v } : v || {});
-  const mean = (pts) => [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length];
+  const mean = (pts) => [
+    pts.reduce((a, p) => a + p[0], 0) / pts.length,
+    pts.reduce((a, p) => a + p[1], 0) / pts.length,
+  ];
   const zero = { position: "absolute", left: "0px", top: "0px", width: "0px", height: "0px" };
 
   const pos = ({ x = 50, y = 60, s: k = 1.75 } = {}) =>
@@ -113,7 +116,9 @@
     // polygons: a tint and an outline
     const polys = Array.from({ length: opts.polys ?? 4 }, () => {
       const fill = css(s("path", {}), { stroke: "none", fill: "var(--c-dim)" });
-      const line = css(s("path", { fill: "none", "stroke-linejoin": "round", pathLength: "1" }), { stroke: "var(--c)" });
+      const line = css(s("path", { fill: "none", "stroke-linejoin": "round", pathLength: "1" }), {
+        stroke: "var(--c)",
+      });
       gPolys.append(fill, line);
       return { fill, line };
     });
@@ -121,7 +126,10 @@
     const segs = Array.from({ length: opts.segs ?? 26 }, () => {
       const halo = css(s("path", { fill: "none", "stroke-linecap": "round" }), { stroke: "var(--c-dim)" });
       const line = css(s("path", { fill: "none", "stroke-linecap": "round" }), { stroke: "var(--c)" });
-      const head = css(s("path", { "stroke-linejoin": "round", "stroke-width": "3" }), { fill: "var(--c)", stroke: "var(--c)" });
+      const head = css(s("path", { "stroke-linejoin": "round", "stroke-width": "3" }), {
+        fill: "var(--c)",
+        stroke: "var(--c)",
+      });
       gSegs.append(halo, line, head);
       return { halo, line, head };
     });
@@ -132,8 +140,15 @@
     });
     // tags: a zero-size box on the point, the pill centred (or anchored) on it
     const tags = Array.from({ length: opts.tags ?? 16 }, () => {
-      const pill = h("div", { class: "v-tag", style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" } });
-      const box = h("div", { style: { ...zero, display: "flex", alignItems: "center", justifyContent: "center" } }, pill);
+      const pill = h("div", {
+        class: "v-tag",
+        style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" },
+      });
+      const box = h(
+        "div",
+        { style: { ...zero, display: "flex", alignItems: "center", justifyContent: "center" } },
+        pill,
+      );
       tagLayer.append(box);
       return { box, pill };
     });
@@ -187,7 +202,8 @@
         e.setAttribute("class", tone);
       });
       el.line.style.strokeWidth = `${f1(7 * w)}px`;
-      el.line.setAttribute("pathLength", st.dash ? "" : "1");
+      if (st.dash) el.line.removeAttribute("pathLength");
+      else el.line.setAttribute("pathLength", "1");
       el.line.style.strokeDasharray = st.dash ? `${f1(14 * w)} ${f1(11 * w)}` : k >= 0.999 ? "" : `${k.toFixed(4)} 2`;
       V.show(el.line, k < 0.003 ? 0 : o);
       V.show(el.fill, k < 0.003 ? 0 : (st.fill ?? 0.5) * o);
@@ -290,7 +306,9 @@
       Object.entries(kinds).forEach(([kind, [els, paint]]) => {
         const items = st[kind] || [];
         if (items.length > els.length)
-          throw new Error(`VID.a5.plot: ${items.length} ${kind} in one frame, the pool holds ${els.length} (raise the ${kind} option)`);
+          throw new Error(
+            `VID.a5.plot: ${items.length} ${kind} in one frame, the pool holds ${els.length} (raise the ${kind} option)`,
+          );
         els.forEach((el, i) => (items[i] ? paint(el, items[i]) : hideAll[kind](el)));
       });
       V.show(root, st.o ?? 1);

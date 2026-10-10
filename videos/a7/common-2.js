@@ -91,7 +91,12 @@
   // a ring round a sticker (attention), popping in with ringK
   function ringOf(parent, w, h, r) {
     const el = V.h("div", {
-      style: { ...abs(-9, -9, w + 18, h + 18), boxSizing: "border-box", border: "6px solid var(--c)", borderRadius: `${r + 9}px` },
+      style: {
+        ...abs(-9, -9, w + 18, h + 18),
+        boxSizing: "border-box",
+        border: "6px solid var(--c)",
+        borderRadius: `${r + 9}px`,
+      },
     });
     parent.append(el);
     return (tone, k) => {
@@ -105,11 +110,16 @@
     const el = V.h("div", {
       class: "v-tag",
       text: o.text || "",
-      style: { ...abs(o.x || 0, o.y || 0), ...flex, fontSize: `${fsOk(o.fs ?? 28, "tag")}px`, height: o.h ? `${o.h}px` : "" },
+      style: {
+        ...abs(o.x || 0, o.y || 0),
+        ...flex,
+        fontSize: `${fsOk(o.fs ?? 28, "tag")}px`,
+        height: o.h ? `${o.h}px` : "",
+      },
     });
     parent.append(el);
     const set = (st = {}) => {
-      setCls(el, `v-tag c-${tn(st.tone || o.tone || "grey")}${st.solid ?? o.solid ? " solid" : ""}`);
+      setCls(el, `v-tag c-${tn(st.tone || o.tone || "grey")}${(st.solid ?? o.solid) ? " solid" : ""}`);
       setText(el, st.text);
       place(el, st);
     };
@@ -129,12 +139,20 @@
     const cells = items.map((it, i) => {
       const p = slot(i);
       const main = V.h("div", { text: it.text ?? "", style: { fontSize: `${fs}px`, lineHeight: "1" } });
-      const sub = V.h("div", { text: it.sub ?? "", style: { fontSize: `${subFs}px`, lineHeight: "1", marginTop: "6px", display: it.sub ? "" : "none" } });
-      const box = V.h("div", {
-        class: "v-gene c-grey",
-        "data-cls": "v-gene",
-        style: { ...abs(p.x, p.y, w, h), flexDirection: "column", borderRadius: "20px", fontSize: `${fs}px` },
-      }, main, sub);
+      const sub = V.h("div", {
+        text: it.sub ?? "",
+        style: { fontSize: `${subFs}px`, lineHeight: "1", marginTop: "6px", display: it.sub ? "" : "none" },
+      });
+      const box = V.h(
+        "div",
+        {
+          class: "v-gene c-grey",
+          "data-cls": "v-gene",
+          style: { ...abs(p.x, p.y, w, h), flexDirection: "column", borderRadius: "20px", fontSize: `${fs}px` },
+        },
+        main,
+        sub,
+      );
       const ring = ringOf(box, w, h, 20);
       el.append(box);
       return { box, main, sub, ring };
@@ -154,7 +172,15 @@
     };
     const pos = (i) => ({ x: x + slot(i).x, y: y + slot(i).y });
     return {
-      el, set, pos, w, h, width, height, left: x, top: y,
+      el,
+      set,
+      pos,
+      w,
+      h,
+      width,
+      height,
+      left: x,
+      top: y,
       mid: (i) => ({ x: pos(i).x + w / 2, y: pos(i).y + h / 2 }),
       all: (fn) => cells.forEach((_, i) => set(i, fn(i) || {})),
     };
@@ -173,10 +199,40 @@
     const el = V.h("div", { style: abs(x, y, width, height) });
     const cells = items.map((it, i) => {
       const p = slot(i);
-      const idx = V.h("span", { text: String(it.idx), style: { fontSize: `${idxFs}px`, fontWeight: "800", minWidth: "40px", textAlign: "center", fontFamily: "var(--sans)" } });
-      const bar = V.h("span", { style: { width: "3px", alignSelf: "stretch", margin: "10px 14px", background: "var(--c-edge)", borderRadius: "2px" } });
-      const text = V.h("span", { text: it.text, style: { fontSize: `${fs}px`, fontWeight: "900", fontFamily: "var(--mono)", letterSpacing: "0.02em" } });
-      const box = V.h("div", { class: "v-gene c-grey", "data-cls": "v-gene", style: { ...abs(p.x, p.y, w, h), borderRadius: "16px", padding: "0 6px" } }, idx, bar, text);
+      const idx = V.h("span", {
+        text: String(it.idx),
+        style: {
+          fontSize: `${idxFs}px`,
+          fontWeight: "800",
+          minWidth: "40px",
+          textAlign: "center",
+          fontFamily: "var(--sans)",
+        },
+      });
+      const bar = V.h("span", {
+        style: {
+          width: "3px",
+          alignSelf: "stretch",
+          margin: "10px 14px",
+          background: "var(--c-edge)",
+          borderRadius: "2px",
+        },
+      });
+      const text = V.h("span", {
+        text: it.text,
+        style: { fontSize: `${fs}px`, fontWeight: "900", fontFamily: "var(--mono)", letterSpacing: "0.02em" },
+      });
+      const box = V.h(
+        "div",
+        {
+          class: "v-gene c-grey",
+          "data-cls": "v-gene",
+          style: { ...abs(p.x, p.y, w, h), borderRadius: "16px", padding: "0 6px" },
+        },
+        idx,
+        bar,
+        text,
+      );
       const ring = ringOf(box, w, h, 16);
       el.append(box);
       return { box, idx, text, ring };
@@ -193,7 +249,13 @@
     };
     const pos = (i) => ({ x: x + slot(i).x, y: y + slot(i).y });
     return {
-      el, set, pos, width, height, left: x, top: y,
+      el,
+      set,
+      pos,
+      width,
+      height,
+      left: x,
+      top: y,
       mid: (i) => ({ x: pos(i).x + w / 2, y: pos(i).y + h / 2 }),
       all: (fn) => cells.forEach((_, i) => set(i, fn(i) || {})),
     };
@@ -225,7 +287,12 @@
         class: "v-gene c-grey",
         "data-cls": "v-gene",
         text: digits ? c.ch : "",
-        style: { ...abs(c.x, 0, cell, h), borderRadius: `${Math.min(12, cell / 3)}px`, fontSize: `${fs}px`, fontFamily: "var(--mono)" },
+        style: {
+          ...abs(c.x, 0, cell, h),
+          borderRadius: `${Math.min(12, cell / 3)}px`,
+          fontSize: `${fs}px`,
+          fontFamily: "var(--mono)",
+        },
       });
       el.append(box);
       return box;
@@ -245,7 +312,14 @@
     };
     const cellAt = (i) => ({ x: x + homes[i].x, y, w: cell, h, cx: x + homes[i].x + cell / 2, cy: y + h / 2 });
     return {
-      el, set, n, width, height: h, left: x, top: y, cell: cellAt,
+      el,
+      set,
+      n,
+      width,
+      height: h,
+      left: x,
+      top: y,
+      cell: cellAt,
       group: (g) => ({ x: x + gpos[g].x, y, w: gpos[g].w, h }),
     };
   }
@@ -255,10 +329,22 @@
     const { x = 0, y = 0, w = 270, h = 80 } = o;
     const label = V.h("span", { text: o.label || "total", style: { fontSize: "28px", fontWeight: "900" } });
     const num = V.h("span", { text: "0", style: { fontSize: "50px", fontWeight: "900", lineHeight: "1" } });
-    const el = V.h("div", {
-      class: "v-card",
-      style: { ...abs(x, y, w, h), display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", borderRadius: "22px" },
-    }, label, num);
+    const el = V.h(
+      "div",
+      {
+        class: "v-card",
+        style: {
+          ...abs(x, y, w, h),
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          borderRadius: "22px",
+        },
+      },
+      label,
+      num,
+    );
     parent.append(el);
     const set = (st = {}) => {
       const solid = st.solid ?? false;
@@ -280,9 +366,22 @@
     fsOk(fs, "bar");
     const el = V.h("div", {
       class: "v-card",
-      style: { ...abs(x, y, w, h), display: "flex", alignItems: "center", padding: "0 18px", fontSize: `${fs}px`, fontWeight: "900", borderRadius: "16px", whiteSpace: "nowrap", overflow: "hidden" },
+      style: {
+        ...abs(x, y, w, h),
+        display: "flex",
+        alignItems: "center",
+        padding: "0 18px",
+        fontSize: `${fs}px`,
+        fontWeight: "900",
+        borderRadius: "16px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+      },
     });
-    const out = V.h("div", { class: "v-text", style: { ...abs(x, y + (h - fs * 1.2) / 2), fontSize: `${fs}px`, fontWeight: "900" } });
+    const out = V.h("div", {
+      class: "v-text",
+      style: { ...abs(x, y + (h - fs * 1.2) / 2), fontSize: `${fs}px`, fontWeight: "900" },
+    });
     parent.append(el, out);
     const end = (k) => x + Math.max(14, w * clamp(k));
     const set = (st = {}) => {
@@ -309,7 +408,9 @@
   // ---------- span ----------
   function span(parent, o = {}) {
     const { x = 0, y = 0, w = 100, h = 14 } = o;
-    const el = V.h("div", { style: { ...abs(x, y, w, h), boxSizing: "border-box", borderRadius: `${h / 2}px`, transformOrigin: "0 50%" } });
+    const el = V.h("div", {
+      style: { ...abs(x, y, w, h), boxSizing: "border-box", borderRadius: `${h / 2}px`, transformOrigin: "0 50%" },
+    });
     parent.append(el);
     const set = (st = {}) => {
       const tone = tn(st.tone || o.tone || "blue");
@@ -329,7 +430,14 @@
   function token(parent, o = {}) {
     const size = o.size ?? 34;
     const el = V.h("div", {
-      style: { ...abs(-size / 2, -size / 2, size, size), boxSizing: "border-box", borderRadius: "50%", border: "3px solid var(--c-lip)", background: "var(--c)", boxShadow: "0 4px 0 var(--c-lip)" },
+      style: {
+        ...abs(-size / 2, -size / 2, size, size),
+        boxSizing: "border-box",
+        borderRadius: "50%",
+        border: "3px solid var(--c-lip)",
+        background: "var(--c)",
+        boxShadow: "0 4px 0 var(--c-lip)",
+      },
     });
     parent.append(el);
     const set = (st = {}) => {
@@ -343,11 +451,34 @@
   const sym = (kind, x, y, size = 40, tone = "grey") => {
     const a = size / 2;
     const bar1 = [x - a, y, x + a, y];
-    const lines = { plus: [bar1, [x, y - a, x, y + a]], minus: [bar1], equals: [[x - a, y - a * 0.42, x + a, y - a * 0.42], [x - a, y + a * 0.42, x + a, y + a * 0.42]] };
+    const lines = {
+      plus: [bar1, [x, y - a, x, y + a]],
+      minus: [bar1],
+      equals: [
+        [x - a, y - a * 0.42, x + a, y - a * 0.42],
+        [x - a, y + a * 0.42, x + a, y + a * 0.42],
+      ],
+    };
     if (!lines[kind]) throw new Error(`VID.a7.sym: unknown symbol "${kind}" (plus, minus, equals)`);
-    const colour = tone === "grey" ? "var(--text-dim)" : `var(--${{ green: "teal", red: "rose", orange: "amber", blue: "blue", purple: "violet" }[tn(tone)]}-ink)`;
-    return V.s("g", {}, ...lines[kind].map(([x1, y1, x2, y2]) =>
-      V.s("line", { x1: f1(x1), y1: f1(y1), x2: f1(x2), y2: f1(y2), "stroke-width": f1(Math.max(6, size * 0.2)), "stroke-linecap": "round", style: { stroke: colour } })));
+    const colour =
+      tone === "grey"
+        ? "var(--text-dim)"
+        : `var(--${{ green: "teal", red: "rose", orange: "amber", blue: "blue", purple: "violet" }[tn(tone)]}-ink)`;
+    return V.s(
+      "g",
+      {},
+      ...lines[kind].map(([x1, y1, x2, y2]) =>
+        V.s("line", {
+          x1: f1(x1),
+          y1: f1(y1),
+          x2: f1(x2),
+          y2: f1(y2),
+          "stroke-width": f1(Math.max(6, size * 0.2)),
+          "stroke-linecap": "round",
+          style: { stroke: colour },
+        }),
+      ),
+    );
   };
 
   Object.assign(A7, { tag, tiles, chips, bits, counter, bar, span, token, sym });

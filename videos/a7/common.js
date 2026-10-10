@@ -112,7 +112,15 @@
     const fixed = [...MSG].map((c) => FIXED[c]);
     const short = [...MSG].map((c) => (c === "B" ? "1" : FIXED[c]));
     const len = (xs) => sum(xs.map((s) => s.length));
-    return { msg: MSG, counts, fixed, fixedTotal: len(fixed), short, shortTotal: len(short), saved: len(fixed) - len(short) };
+    return {
+      msg: MSG,
+      counts,
+      fixed,
+      fixedTotal: len(fixed),
+      short,
+      shortTotal: len(short),
+      saved: len(fixed) - len(short),
+    };
   })();
 
   // ---------- surprise (scene 3) and entropy (scene 4) ----------
@@ -139,7 +147,14 @@
   const SAMPLE = (() => {
     const msg = "ABAACABD";
     const bits = [...msg].map((c) => DIE.bits[DIE.letters.indexOf(c)]);
-    return { msg, bits, total: sum(bits), fixedTotal: msg.length * DIE.fixedBits, perSymbol: sum(bits) / msg.length, fixedPerSymbol: 2 };
+    return {
+      msg,
+      bits,
+      total: sum(bits),
+      fixedTotal: msg.length * DIE.fixedBits,
+      perSymbol: sum(bits) / msg.length,
+      fixedPerSymbol: 2,
+    };
   })();
 
   // ---------- code trees (scenes 5 and 7) ----------
@@ -224,7 +239,17 @@
     let leafNo = 0;
     (function build(n, parent, depth, path) {
       const id = idOf(n);
-      const rec = { id, w: n.w, leaf: !!n.leaf, kids: n.leaf ? null : n.kids.map(idOf), parent, depth, path, lo: leafNo, hi: 0 };
+      const rec = {
+        id,
+        w: n.w,
+        leaf: !!n.leaf,
+        kids: n.leaf ? null : n.kids.map(idOf),
+        parent,
+        depth,
+        path,
+        lo: leafNo,
+        hi: 0,
+      };
       nodes[id] = rec;
       if (n.leaf) leafNo++;
       else n.kids.forEach((k, bit) => build(k, id, depth + 1, path + bit));
@@ -233,7 +258,10 @@
     const height = (id) => (nodes[id].kids ? 1 + Math.max(...nodes[id].kids.map(height)) : 0);
     Object.keys(nodes).forEach((id) => (nodes[id].height = height(id)));
     const rootId = idOf(root);
-    const order = [...Object.values(nodes)].filter((n) => n.leaf).sort((a, b) => a.lo - b.lo).map((n) => n.id);
+    const order = [...Object.values(nodes)]
+      .filter((n) => n.leaf)
+      .sort((a, b) => a.lo - b.lo)
+      .map((n) => n.id);
     const byPos = (ids) => ids.sort((a, b) => nodes[a].lo - nodes[b].lo);
     let cost = 0;
     const log = merges.map((m, i) => {
@@ -256,13 +284,37 @@
     const total = sum(items.map(([, w]) => w));
     const L = sum(order.map((id) => (nodes[id].w / total) * codes[id].length));
     const H = entropy(items.map(([, w]) => w / total));
-    return { items, nodes, root: rootId, order, maxDepth: Math.max(...order.map((id) => nodes[id].depth)), merges: log, roots, smallest, edges, codes, L, H, fixedBits: Math.ceil(lg(items.length)), costs: log.map((m) => m.cost) };
+    return {
+      items,
+      nodes,
+      root: rootId,
+      order,
+      maxDepth: Math.max(...order.map((id) => nodes[id].depth)),
+      merges: log,
+      roots,
+      smallest,
+      edges,
+      codes,
+      L,
+      H,
+      fixedBits: Math.ceil(lg(items.length)),
+      costs: log.map((m) => m.cost),
+    };
   }
   const HUFF = huffman(ORDER.map((c) => [c, PCT[c]]));
   const ENCODE = (() => {
     const codes = [...MSG].map((c) => HUFF.codes[c]);
     const fixed = [...MSG].map((c) => FIXED[c]);
-    return { msg: MSG, codes, bits: codes.join(""), count: codes.join("").length, fixed, fixedBits: fixed.join(""), fixedCount: fixed.join("").length, saved: fixed.join("").length - codes.join("").length };
+    return {
+      msg: MSG,
+      codes,
+      bits: codes.join(""),
+      count: codes.join("").length,
+      fixed,
+      fixedBits: fixed.join(""),
+      fixedCount: fixed.join("").length,
+      saved: fixed.join("").length - codes.join("").length,
+    };
   })();
 
   // ---------- LZW (scenes 8, 9 and 10) ----------
@@ -281,18 +333,53 @@
       const c = text[i];
       const last = i === text.length;
       if (!last && d.has(w + c)) {
-        steps.push({ k: steps.length, i, w, c, act: "grow", add: null, wFrom, wTo: i, wTo2: i + 1, codes: codes.slice() });
+        steps.push({
+          k: steps.length,
+          i,
+          w,
+          c,
+          act: "grow",
+          add: null,
+          wFrom,
+          wTo: i,
+          wTo2: i + 1,
+          codes: codes.slice(),
+        });
         w += c;
       } else if (!last) {
         const add = { idx: d.size, text: w + c };
         emit(d.get(w), wFrom, i);
-        steps.push({ k: steps.length, i, w, c, act: "emit", code: d.get(w), add, wFrom, wTo: i, wTo2: i + 1, codes: codes.slice() });
+        steps.push({
+          k: steps.length,
+          i,
+          w,
+          c,
+          act: "emit",
+          code: d.get(w),
+          add,
+          wFrom,
+          wTo: i,
+          wTo2: i + 1,
+          codes: codes.slice(),
+        });
         d.set(w + c, d.size);
         w = c;
         wFrom = i;
       } else {
         emit(d.get(w), wFrom, i);
-        steps.push({ k: steps.length, i, w, c: null, act: "final", code: d.get(w), add: null, wFrom, wTo: i, wTo2: i, codes: codes.slice() });
+        steps.push({
+          k: steps.length,
+          i,
+          w,
+          c: null,
+          act: "final",
+          code: d.get(w),
+          add: null,
+          wFrom,
+          wTo: i,
+          wTo2: i,
+          codes: codes.slice(),
+        });
       }
     }
     const dict = [...d].map(([t, idx]) => ({ idx, text: t })).sort((a, b) => a.idx - b.idx);
@@ -324,41 +411,130 @@
       const r = lzwEncode(text, alpha);
       return { text, count: r.codes.length, chunks: r.chunks, codes: r.codes };
     };
-    return { alpha, tones: { A: "green", B: "blue", C: "purple", D: "orange" }, flat: mk("AAAAAABBBCCCCCDDDD"), noisy: mk("DBCBAABDADDCDDACCA") };
+    return {
+      alpha,
+      tones: { A: "green", B: "blue", C: "purple", D: "orange" },
+      flat: mk("AAAAAABBBCCCCCDDDD"),
+      noisy: mk("DBCBAABDADDCDDACCA"),
+    };
   })();
 
   // ---------- assert every number the storyboard quotes ----------
   same("letters rarest first", ORDER, ["C", "E", "D", "A", "B"]);
   same("fixed code", FIXED, { C: "000", E: "001", D: "010", A: "011", B: "100" });
-  same("redundancy", [REDUNDANCY.fixedTotal, REDUNDANCY.shortTotal, REDUNDANCY.saved, REDUNDANCY.counts.B], [21, 15, 6, 3]);
-  same("ladder bits", LADDER.map((r) => r.bits), [0, 1, 2, 3, 4]);
+  same(
+    "redundancy",
+    [REDUNDANCY.fixedTotal, REDUNDANCY.shortTotal, REDUNDANCY.saved, REDUNDANCY.counts.B],
+    [21, 15, 6, 3],
+  );
+  same(
+    "ladder bits",
+    LADDER.map((r) => r.bits),
+    [0, 1, 2, 3, 4],
+  );
   same("die bits", DIE.bits, [1, 2, 3, 3]);
   close("die entropy", DIE.H, 1.75);
   same("die shares", DIE.share, [0.5, 0.5, 0.375, 0.375]);
-  same("sample", [SAMPLE.bits, SAMPLE.total, SAMPLE.fixedTotal, SAMPLE.perSymbol], [[1, 2, 1, 1, 3, 1, 2, 3], 14, 16, 1.75]);
+  same(
+    "sample",
+    [SAMPLE.bits, SAMPLE.total, SAMPLE.fixedTotal, SAMPLE.perSymbol],
+    [[1, 2, 1, 1, 3, 1, 2, 3], 14, 16, 1.75],
+  );
   same("bad code readings", BAD.readings, [["A", "B"], ["C"]]);
   same("prefix decode", [PREFIX.out, PREFIX.walk.map((s) => s.to)], ["ABC", ["0", "1", "10", "1", "11", "110"]]);
   same("huffman codes", HUFF.codes, { C: "000", E: "001", D: "010", A: "011", B: "1" });
-  same("huffman merges", HUFF.merges.map((m) => [m.a, m.b, m.id, m.w, m.cost]), [["C", "E", "CE", 20, 20], ["D", "A", "DA", 29, 49], ["CE", "DA", "CEDA", 49, 98], ["CEDA", "B", "CEDAB", 100, 198]]);
-  same("huffman roots", HUFF.roots, [["C", "E", "D", "A", "B"], ["CE", "D", "A", "B"], ["CE", "DA", "B"], ["CEDA", "B"], ["CEDAB"]]);
+  same(
+    "huffman merges",
+    HUFF.merges.map((m) => [m.a, m.b, m.id, m.w, m.cost]),
+    [
+      ["C", "E", "CE", 20, 20],
+      ["D", "A", "DA", 29, 49],
+      ["CE", "DA", "CEDA", 49, 98],
+      ["CEDA", "B", "CEDAB", 100, 198],
+    ],
+  );
+  same("huffman roots", HUFF.roots, [
+    ["C", "E", "D", "A", "B"],
+    ["CE", "D", "A", "B"],
+    ["CE", "DA", "B"],
+    ["CEDA", "B"],
+    ["CEDAB"],
+  ]);
   same("huffman order", HUFF.order, ["C", "E", "D", "A", "B"]);
   close("huffman L", HUFF.L, 1.98, 1e-9);
   close("huffman H", HUFF.H, 1.964, 0.0006);
   same("encode", [ENCODE.bits, ENCODE.count, ENCODE.fixedCount, ENCODE.saved], ["110110100011000", 15, 21, 6]);
   same("short codes match huffman", REDUNDANCY.short, ENCODE.codes);
   same("lzw codes", LZW.codes, [0, 1, 2, 4, 3]);
-  same("lzw acts", LZW.steps.map((s) => s.act), ["emit", "emit", "grow", "emit", "grow", "grow", "emit", "grow", "final"]);
-  same("lzw dictionary", LZW.dict.map((e) => `${e.idx}${e.text}`), ["0A", "1B", "2AB", "3BA", "4ABA", "5ABAB"]);
-  same("lzw chunks", LZW.chunks.map((c) => c.text), ["A", "B", "AB", "ABA", "BA"]);
-  same("lzw decode", [LZW_DEC.out, LZW_DEC.steps.map((s) => s.entry), LZW_DEC.steps.map((s) => s.missing)], ["ABABABABA", ["A", "B", "AB", "ABA", "BA"], [false, false, false, true, false]]);
-  same("lzw decode adds", LZW_DEC.steps.map((s) => (s.added ? `${s.added.idx}${s.added.text}` : "")), ["", "2AB", "3BA", "4ABA", "5ABAB"]);
-  same("gif flat", [GIF.flat.count, GIF.flat.chunks.map((c) => c.text).join("|")], [11, "A|AA|AAA|B|BB|C|CC|CC|D|DD|D"]);
-  same("gif flat codes (the lesson counts palette entries from 1)", GIF.flat.codes.map((c) => c + 1), [1, 5, 6, 2, 8, 3, 10, 10, 4, 13, 4]);
+  same(
+    "lzw acts",
+    LZW.steps.map((s) => s.act),
+    ["emit", "emit", "grow", "emit", "grow", "grow", "emit", "grow", "final"],
+  );
+  same(
+    "lzw dictionary",
+    LZW.dict.map((e) => `${e.idx}${e.text}`),
+    ["0A", "1B", "2AB", "3BA", "4ABA", "5ABAB"],
+  );
+  same(
+    "lzw chunks",
+    LZW.chunks.map((c) => c.text),
+    ["A", "B", "AB", "ABA", "BA"],
+  );
+  same(
+    "lzw decode",
+    [LZW_DEC.out, LZW_DEC.steps.map((s) => s.entry), LZW_DEC.steps.map((s) => s.missing)],
+    ["ABABABABA", ["A", "B", "AB", "ABA", "BA"], [false, false, false, true, false]],
+  );
+  same(
+    "lzw decode adds",
+    LZW_DEC.steps.map((s) => (s.added ? `${s.added.idx}${s.added.text}` : "")),
+    ["", "2AB", "3BA", "4ABA", "5ABAB"],
+  );
+  same(
+    "gif flat",
+    [GIF.flat.count, GIF.flat.chunks.map((c) => c.text).join("|")],
+    [11, "A|AA|AAA|B|BB|C|CC|CC|D|DD|D"],
+  );
+  same(
+    "gif flat codes (the lesson counts palette entries from 1)",
+    GIF.flat.codes.map((c) => c + 1),
+    [1, 5, 6, 2, 8, 3, 10, 10, 4, 13, 4],
+  );
   same("gif noisy", GIF.noisy.count, 17);
 
   Object.assign(A7, {
-    TONES, rng, same, close, sum, mix, cyc, fmtW, fmtBits, entropy, surprise, ek,
-    LETTERS, PCT, MSG, ORDER, FIXED, REDUNDANCY, LADDER, DIE, SAMPLE, BAD, PREFIX, HUFF, ENCODE, LZW, LZW_DEC, GIF,
-    codeTree, huffman, lzwEncode, lzwDecode,
+    TONES,
+    rng,
+    same,
+    close,
+    sum,
+    mix,
+    cyc,
+    fmtW,
+    fmtBits,
+    entropy,
+    surprise,
+    ek,
+    LETTERS,
+    PCT,
+    MSG,
+    ORDER,
+    FIXED,
+    REDUNDANCY,
+    LADDER,
+    DIE,
+    SAMPLE,
+    BAD,
+    PREFIX,
+    HUFF,
+    ENCODE,
+    LZW,
+    LZW_DEC,
+    GIF,
+    codeTree,
+    huffman,
+    lzwEncode,
+    lzwDecode,
   });
 })();

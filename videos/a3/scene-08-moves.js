@@ -21,9 +21,8 @@
   };
   const TONES = ["green", "blue", "red"];
   const LETTERS = ["B", "G", "W"];
-  const WORDS = ["best", "good", "worst"]; // round 1 spells the letters out: "B best 11.09"
-  /** the corner tag: letter and f (round 1 adds the word, so B, G and W are explained where they first appear) */
-  const cornerText = (first, rank, p) => `${LETTERS[rank]}${first ? ` ${WORDS[rank]}` : ""} ${fv(p)}`;
+  /** the corner tag: the rank letter and f (a legend at the top left spells B, G and W out) */
+  const cornerText = (rank, p) => `${LETTERS[rank]} ${fv(p)}`;
   const mix = (a, b, q) => [lerp(a[0], b[0], q), lerp(a[1], b[1], q)];
   const pk = (t, a, d = 0.3) => ramp(t, a, a + d, E.lin);
   const popS = (k) => 0.8 + 0.2 * E.pop(k);
@@ -151,12 +150,14 @@
       Object.values(cands).forEach((p) => circles.push([...pt(p), 17]));
       const rects = [legend];
       const items = [];
+      // round 1 names the middle first, so it gets the best free spot (the other tags then keep clear of it)
+      if (k === 0) items.push({ id: "mid", at: C, pref: [0, -1], w: tagW("middle"), h: TAG_H, optional: true });
       cor.forEach((at, i) =>
         items.push({
           id: `c${i}`,
           at,
           pref: [at[0] - cen[0], at[1] - cen[1]],
-          w: tagW(cornerText(k === 0, rl.rank[i], r.from[i])),
+          w: tagW(cornerText(rl.rank[i], r.from[i])),
           h: TAG_H,
         }),
       );
@@ -171,7 +172,6 @@
         const w = tagW(label[id]);
         items.push({ id, at, pref: [at[0] - cen[0], at[1] - cen[1]], w: w + 50, h: TAG_H, tagW: w });
       });
-      if (k === 0) items.push({ id: "mid", at: C, pref: [0, -1], w: tagW("middle"), h: TAG_H, optional: true });
       const out = {};
       items.forEach((it) => {
         const best = placeOne(it, circles, rects, P.area);
@@ -212,7 +212,7 @@
         pad: { l: 12, r: 12, t: 12, b: 12 },
       });
       P.view([-0.6, 7.2, -0.7, 3.3]);
-      const legendBox = { x0: 24, y0: 24, x1: 24 + 310, y1: 24 + 2 * TAG_H + 8 };
+      const legendBox = { x0: 24, y0: 24, x1: 24 + 500, y1: 24 + 2 * TAG_H + 8 };
       const LAY = planLayouts(P, legendBox);
 
       // ---------- handles (they stack in creation order) ----------
@@ -238,8 +238,8 @@
         badges[id] = A3.badge(P.html, { size: 44, icon: "tick" });
       });
       const midTag = A3.tag(P.html, { anchor: "m", text: "middle", tone: "grey" });
-      const legend = A3.tag(P.html, { x: 24, y: 24, text: "rings: same f", tone: "grey" });
-      const legend2 = A3.tag(P.html, { x: 24, y: 24 + TAG_H + 8, text: "lower f is better", tone: "grey" });
+      const legend = A3.tag(P.html, { x: 24, y: 24, text: "rings: same f, lower is better", tone: "grey" });
+      const legend2 = A3.tag(P.html, { x: 24, y: 24 + TAG_H + 8, text: "B best · G good · W worst", tone: "grey" });
       const lastTag = A3.tag(P.html, { anchor: "m", text: "what if nothing works?", tone: "grey" });
       const mv = A3.moves(stage, { x: 12, y: 548, w: 912, h: 60 }); // 12 px in: a pulse or a pop never leaves the stage
 
@@ -252,7 +252,12 @@
         [AFTER, SHRUNK].forEach((tr) => tr.forEach((p, i) => circles.push(...samples(pt(p), pt(tr[(i + 1) % 3]), 8))));
         const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
         const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-        const best = placeOne({ at: [cx, cy], pref: [1, 1], w: tagW("what if nothing works?"), h: TAG_H }, circles, [legendBox], P.area);
+        const best = placeOne(
+          { at: [cx, cy], pref: [1, 1], w: tagW("what if nothing works?"), h: TAG_H },
+          circles,
+          [legendBox],
+          P.area,
+        );
         A3.need(best.hits === 0, "scene 8: no free spot for the last-resort tag");
         return [best.cx, best.cy];
       })();
@@ -323,7 +328,7 @@
           const anchor = px(from);
           const here = px(pts[i]);
           tg.set({
-            text: cornerText(n === 0, rl.rank[i], pts[i]),
+            text: cornerText(rl.rank[i], pts[i]),
             tone: rl.tones[i],
             dx: here[0] + (off[0] - anchor[0]),
             dy: here[1] + (off[1] - anchor[1]),
@@ -415,7 +420,8 @@
 
         // ---------- the move chips and the last-resort tag ----------
         const [aR, aE, aB, aM] = [SCH[0].a1[0], SCH[0].E, SCH[2].dropE, SCH[3].vM];
-        const act = t < aR ? null : t < aE ? "reflect" : t < aB ? "expand" : t < aM ? "reflect" : t < SHR_T[0] ? "in" : "shrink";
+        const act =
+          t < aR ? null : t < aE ? "reflect" : t < aB ? "expand" : t < aM ? "reflect" : t < SHR_T[0] ? "in" : "shrink";
         const used = [];
         if (t >= aR) used.push("reflect");
         if (t >= aE) used.push("expand");

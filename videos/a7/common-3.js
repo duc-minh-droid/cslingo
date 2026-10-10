@@ -10,8 +10,11 @@
        + dy * depth. flat 0..1 slides every leaf down to the deepest row (1 = all leaves on one baseline, like the growing forest of
        scene 6; 0 = each leaf at its own depth, like a code tree). Because the leaves never move, a node keeps its place while the
        forest grows, so the same pos serves every step; animate flat (or pass pos overrides to update) to move leaves.
-       Good sizes: the Huffman tree  A7.treePos(A7.HUFF, {x0: 20, slot: 120, top: 70, dy: 140, flat: 1})  (leaf centres y 490, root y 70,
-       the five leaves fill x 20..620); the prefix tree (4 leaves, depth 3)  A7.treePos(A7.PREFIX.tree, {x0: 120, slot: 140, top: 50, dy: 130}).
+       Good sizes (tested): the growing forest of scene 6  A7.treePos(A7.HUFF, {x0: 20, slot: 120, top: 70, dy: 140, flat: 1})  (leaf
+       centres y 490, root y 70, the five leaves fill x 20..620); the finished tree of scene 7  {x0: 100, slot: 120, top: 52, dy: 140,
+       flat}  (leaves y 472 at flat 1, B at y 192 at flat 0); the prefix tree of scene 5 (4 leaves, depth 3, drawn with leafH: 80)
+       A7.treePos(A7.PREFIX.tree, {x0: 150, slot: 130, top: 30, dy: 130}).  Keep top >= 52 with r 38 circles (top >= 30 for dots) so
+       nothing leaves the stage, and dy >= 140 (leafH 92) or dy >= 130 (leafH 80) so the 0 / 1 stickers do not touch a leaf tile.
 
    THE DRAWER
    const T = A7.tree(parent, {tree, pos, r = 38, leafW = 100, leafH = 92, ew = 8, label});
@@ -41,7 +44,14 @@
   const A7 = V.a7;
   const { clamp, ease: E } = V;
   const f1 = (n) => n.toFixed(1);
-  const TONE_INK = { grey: "text-dim", green: "teal-ink", red: "rose-ink", orange: "amber-ink", blue: "blue-ink", purple: "violet-ink" };
+  const TONE_INK = {
+    grey: "text-dim",
+    green: "teal-ink",
+    red: "rose-ink",
+    orange: "amber-ink",
+    blue: "blue-ink",
+    purple: "violet-ink",
+  };
   const tn = (t) => {
     if (!A7.TONES.includes(t)) throw new Error(`VID.a7: unknown tone "${t}" (use ${A7.TONES.join(", ")})`);
     return t;
@@ -110,10 +120,26 @@
           : V.s("circle", { cx: 0, cy: f1(dy), r: rr, ...ex });
       const lip = shape(5, {});
       const face = shape(0, { "stroke-width": 4 });
-      const text = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: lab.text || "" }), { fontSize: `${leaf ? 40 : 30}px`, fontWeight: "900" });
-      const sub = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: lab.sub || "" }), { fontSize: "28px", fontWeight: "800" });
+      const text = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: lab.text || "" }), {
+        fontSize: `${leaf ? 40 : 30}px`,
+        fontWeight: "900",
+      });
+      const sub = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: lab.sub || "" }), {
+        fontSize: "28px",
+        fontWeight: "800",
+      });
       const ring = css(
-        leaf ? V.s("rect", { x: f1(-w / 2 - 9), y: f1(-h / 2 - 9), width: w + 18, height: h + 18, rx: 30, fill: "none", "stroke-width": 6 }) : V.s("circle", { cx: 0, cy: 0, r: rr + 13, fill: "none", "stroke-width": 6 }),
+        leaf
+          ? V.s("rect", {
+              x: f1(-w / 2 - 9),
+              y: f1(-h / 2 - 9),
+              width: w + 18,
+              height: h + 18,
+              rx: 30,
+              fill: "none",
+              "stroke-width": 6,
+            })
+          : V.s("circle", { cx: 0, cy: 0, r: rr + 13, fill: "none", "stroke-width": 6 }),
         { stroke: "var(--c)" },
       );
       const g = V.s("g", { class: "c-grey" }, lip, face, text, sub);
@@ -128,7 +154,11 @@
       const line = css(V.s("path", { fill: "none", "stroke-linecap": "round" }), { stroke: "var(--c)" });
       const face = V.s("circle", { r: 22, "stroke-width": 3 });
       const lip = V.s("circle", { r: 22, cy: 3 });
-      const txt = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: String(bit) }), { fontSize: "28px", fontWeight: "900", fontFamily: "var(--mono)" });
+      const txt = css(V.s("text", { "text-anchor": "middle", dy: ".36em", text: String(bit) }), {
+        fontSize: "28px",
+        fontWeight: "900",
+        fontFamily: "var(--mono)",
+      });
       const bg = V.s("g", {}, lip, face, txt);
       gEdges.append(line);
       gBits.append(bg);
@@ -155,7 +185,10 @@
         const tone = tn(s.tone || "grey");
         const solid = !!s.solid;
         n.g.setAttribute("class", `c-${tone}`);
-        css(n.face, { fill: solid ? "var(--c)" : tone === "grey" ? "var(--panel)" : "var(--c-dim)", stroke: solid ? "var(--c-lip)" : "var(--c-edge)" });
+        css(n.face, {
+          fill: solid ? "var(--c)" : tone === "grey" ? "var(--panel)" : "var(--c-dim)",
+          stroke: solid ? "var(--c-lip)" : "var(--c-edge)",
+        });
         n.lip.style.fill = solid ? "var(--c-lip)" : "var(--c-edge)";
         const [tx, sb] = [s.text ?? n.lab.text ?? "", s.sub ?? n.lab.sub ?? ""];
         if (n.text.textContent !== tx) n.text.textContent = tx;
@@ -165,11 +198,21 @@
         n.text.setAttribute("y", sb ? "-12" : "0");
         n.sub.setAttribute("y", "26");
         const k = clamp(s.k ?? 1);
-        V.place(n.g, { x: at[n.id].x + (s.dx || 0), y: at[n.id].y + (s.dy || 0), s: (s.s ?? 1) * (0.6 + 0.4 * E.pop(k)), o: Math.min(1, k * 4) * (s.o ?? 1) * (st.o ?? 1) });
+        V.place(n.g, {
+          x: at[n.id].x + (s.dx || 0),
+          y: at[n.id].y + (s.dy || 0),
+          s: (s.s ?? 1) * (0.6 + 0.4 * E.pop(k)),
+          o: Math.min(1, k * 4) * (s.o ?? 1) * (st.o ?? 1),
+        });
         const rk = s.ring ? clamp(s.ringK ?? 1) : 0;
         if (s.ring) n.rg.setAttribute("class", `c-${tn(s.ring)}`);
         n.ring.style.strokeDasharray = s.ringDash ? "14 10" : "";
-        V.place(n.rg, { x: at[n.id].x + (s.dx || 0), y: at[n.id].y + (s.dy || 0), s: 0.92 + 0.08 * E.out(rk), o: Math.min(1, rk * 3) * (s.o ?? 1) * (st.o ?? 1) });
+        V.place(n.rg, {
+          x: at[n.id].x + (s.dx || 0),
+          y: at[n.id].y + (s.dy || 0),
+          s: 0.92 + 0.08 * E.out(rk),
+          o: Math.min(1, rk * 3) * (s.o ?? 1) * (st.o ?? 1),
+        });
       });
       Object.values(E_).forEach((e) => {
         const s = { k: 0, ...base.edge, ...spec((st.edges || {})[e.key]) };
@@ -191,7 +234,10 @@
         const bt = tn(s.bitTone || tone);
         const solid = !!s.bitSolid;
         e.bg.setAttribute("class", `c-${bt}`);
-        css(e.face, { fill: solid ? "var(--c)" : bt === "grey" ? "var(--panel)" : "var(--c-dim)", stroke: solid ? "var(--c-lip)" : "var(--c-edge)" });
+        css(e.face, {
+          fill: solid ? "var(--c)" : bt === "grey" ? "var(--panel)" : "var(--c-dim)",
+          stroke: solid ? "var(--c-lip)" : "var(--c-edge)",
+        });
         e.lip.style.fill = solid ? "var(--c-lip)" : "var(--c-edge)";
         e.txt.style.fill = solid ? "var(--c-on)" : bt === "grey" ? "var(--ink)" : `var(--${TONE_INK[bt]})`;
         const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
