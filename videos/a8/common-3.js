@@ -48,10 +48,15 @@
   const marksOf = (m) =>
     typeof m === "function" ? m : Array.isArray(m) ? (i) => m[i] || null : m ? (i) => m[i] || null : () => null;
   /* a string drawn as one inline cell per character; marks colour single characters */
-  function chars(parent, n, extra = {}) {
+  function chars(parent, n, tight = false) {
     const cells = Array.from({ length: n }, () =>
       V.h("span", {
-        style: { display: "inline-block", padding: "0 1px", margin: "0 1px", borderRadius: "6px", ...extra },
+        style: {
+          display: "inline-block",
+          padding: tight ? "0" : "0 1px",
+          margin: tight ? "0" : "0 1px",
+          borderRadius: "5px",
+        },
       }),
     );
     parent.append(...cells);
@@ -163,7 +168,7 @@
       if (label) strip.append(label);
       strip.append(value);
       card.append(strip);
-      strips[f] = { strip, value, put: f === "data" ? null : chars(value, f === "nonce" ? 3 : 8), mem: {} };
+      strips[f] = { strip, value, put: f === "data" ? null : chars(value, f === "nonce" ? 3 : 8, true), mem: {} };
     });
     const mem = {};
     const rowY = (f) => y0 + 3 + 52 + fields.indexOf(f) * 54 + 23;
@@ -259,16 +264,17 @@
       root.append(el);
       return { el, ic, mem: "" };
     });
+    const scrollOf = (upto) => Math.min(Math.max(0, upto - nRows), Math.max(0, o.count - nRows));
     return {
       el: root,
       height: nRows * rowH,
       rowY(i, upto) {
-        const scroll = Math.max(0, upto - nRows);
+        const scroll = scrollOf(upto);
         return (o.y || 0) + (i - scroll) * rowH + (rowH - 10) / 2;
       },
       update(u = {}) {
         const upto = u.upto || 0;
-        const scroll = Math.max(0, upto - nRows);
+        const scroll = scrollOf(upto);
         const hiK = u.hi == null ? 0 : clamp(u.hiK == null ? 1 : u.hiK);
         items.forEach((it, i) => {
           const e = clamp(upto - i);

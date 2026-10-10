@@ -87,7 +87,7 @@
   };
   /* base^exp as html, the exponent raised and 28 px at least */
   const pow = (base, exp, fs = 44) =>
-    `${esc(base)}<span style="font-size:${Math.max(28, Math.round(fs * 0.64))}px;vertical-align:${Math.round(fs * 0.42)}px;line-height:0">${esc(exp)}</span>`;
+    `${esc(base)}<span style="font-size:${Math.max(28, Math.round(fs * 0.64))}px;vertical-align:${Math.round(fs * 0.42)}px;line-height:0;margin:0 0.12em 0 0.03em">${esc(exp)}</span>`;
 
   // ---------- tag ----------
   function tag(parent, o = {}) {
