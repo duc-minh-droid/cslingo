@@ -22,9 +22,10 @@
     gen: [0.45, 0.8], // the 'generator' tag; its tiles follow from 0.6
     both: [0.9, 1.2], // 'both sides know it'
     both2: [3.1, 3.3], // ... which makes way for the XOR tag
-    copy: [2.1, 2.9], // the message tiles pop into the division row (and pulse on the right)
-    pad: [2.9, 3.3], // the three zeros
-    padTag: [2.95, 3.25],
+    copy: [1.5, 2.5], // the message tiles pop into the division row (and pulse on the right)
+    pad: [2.8, 3.2], // the three zeros
+    padTag: [2.85, 3.15],
+    dim: [8.6, 8.9], // the generator is used up: its block steps back while the frame forms
     s1: [3.35, 5.05], // step 1: p 0 -> 1
     s2: [5.2, 6.9], // step 2: p 1 -> 2
     xor: [3.6, 3.9],
@@ -39,6 +40,7 @@
     pulseChk: 10.9,
   };
   const lin = E.lin;
+  const pulseAt = (i) => T.copy[0] + (i * (T.copy[1] - T.copy[0])) / (C.msg.length + 1);
   const popIn = (k) => ({ s: E.pop(k), o: clamp(k * 5) });
 
   function build(stage) {
@@ -83,16 +85,18 @@
       msgTag.set({ k: ramp(t, ...T.msg, lin) });
       msg.all((i) => ({
         ...popIn(A6.seq(t, 0.3, 0.07, 0.3, i)),
-        s: E.pop(A6.seq(t, 0.3, 0.07, 0.3, i)) * (1 + 0.12 * flash(t, T.copy[0] + i * 0.16, T.copy[0] + i * 0.16 + 0.3)),
+        s: E.pop(A6.seq(t, 0.3, 0.07, 0.3, i)) * (1 + 0.12 * flash(t, pulseAt(i), pulseAt(i) + 0.3)),
       }));
-      genTag.set({ k: ramp(t, ...T.gen, lin) });
-      gen.all((i) => ({
-        ...popIn(A6.seq(t, 0.6, 0.07, 0.3, i)),
-        s: E.pop(A6.seq(t, 0.6, 0.07, 0.3, i)) * (1 + 0.1 * Math.max(flash(t, T.s1[0], T.s1[0] + 0.4), flash(t, T.s2[0], T.s2[0] + 0.4))),
-      }));
+      const dim = 1 - 0.7 * ramp(t, ...T.dim, lin);
+      genTag.set({ k: ramp(t, ...T.gen, lin), o: dim });
+      gen.all((i) => {
+        const k = A6.seq(t, 0.6, 0.07, 0.3, i);
+        const use = Math.max(flash(t, T.s1[0], T.s1[0] + 0.4), flash(t, T.s2[0], T.s2[0] + 0.4));
+        return { s: E.pop(k) * (1 + 0.1 * use), o: clamp(k * 5) * dim };
+      });
       const bothOut = ramp(t, ...T.both2, lin);
       bothTag.set({ k: ramp(t, ...T.both, lin), o: 1 - bothOut });
-      xorTag.set({ k: ramp(t, ...T.xor, lin) });
+      xorTag.set({ k: ramp(t, ...T.xor, lin), o: dim });
       remTag.set({ k: ramp(t, ...T.remTag, lin) });
 
       // the division: the message and zeros go in, then two steps, then the remainder lights up

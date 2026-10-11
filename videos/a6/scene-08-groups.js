@@ -4,8 +4,9 @@
    Story (local seconds): 0.2-1.0 the seven tiles pop (check tiles p1 p2 p4 orange, data grey) and the position numbers fade in;
    1.3-2.9 the numbers 1, 2, 4 turn orange and the check tiles pulse; 2.6-3.5 the binary numbers fade in. Then one band per check,
    in the order p4, p2, p1 (each 2 s): the band and its purple rings pop, the discs of the watched positions pop in while a blue
-   counter tallies the 1s among the data bits, the check bit's own disc shows ?, then the tile and the disc reveal the bit that makes
-   the total even (the counter turns green). 10.35-11.0 the three bands pass their check (green, ticks); 11.0-12.5 hold. */
+   counter tallies the 1s among the data bits, the check bit's own disc shows ?, the counter says odd (orange) or even (green), then
+   the tile and the disc reveal the bit that makes the total even (the counter turns green). 10.35-11.0 the three bands pass their
+   check (green, ticks); 11.0-12.5 hold. Legend tags (check bit / data bit) sit under the tiles 1.1-4.2, where the first band pops. */
 (function () {
   const V = window.VID;
   const A6 = V.a6;
@@ -42,7 +43,18 @@
   const B = Object.fromEntries(
     ORDER.map((n, k) => {
       const s = 4.4 + 2 * k;
-      return [n, { s, pop: [s, s + 0.4], ring: [s + 0.15, s + 0.55], dots: [s + 0.3, s + 1.1], rev: [s + 1.4, s + 1.9], off: s + 1.95 }];
+      return [
+        n,
+        {
+          s,
+          pop: [s, s + 0.4],
+          ring: [s + 0.15, s + 0.55],
+          dots: [s + 0.25, s + 1.05],
+          settle: s + 0.95, // the count is complete: the group says odd or even
+          rev: [s + 1.45, s + 1.9],
+          off: s + 1.95,
+        },
+      ];
     }),
   );
   const T = {
@@ -54,7 +66,8 @@
     legendOut: [3.9, 4.2],
     ok: 10.35, // the bands pass, one after the other
   };
-  const revealed = (n, t) => t >= B[n].rev[0] + 0.25; // the tile is edge-on half way through its flip
+  const flipMid = (n) => (B[n].rev[0] + B[n].rev[1]) / 2; // the tile is edge-on half way through its flip
+  const revealed = (n, t) => t >= flipMid(n);
   const bandAt = (t) => ORDER.find((n) => t >= B[n].s && t < B[n].off) || null;
   const okAt = (n) => T.ok + 0.13 * ORDER.indexOf(n);
 
@@ -69,19 +82,27 @@
   }
   const countBumps = (n, t) => {
     const b = B[n];
-    const hits = HM.groups[n].flatMap((p, j) => (p !== OWN[n] && HM.cw[p - 1] === "1" ? [b.dots[0] + 0.16 * j + 0.1] : []));
-    return Math.max(...hits.map((h) => flash(t, h, h + 0.3)), flash(t, b.rev[0] + 0.25, b.rev[0] + 0.7));
+    const hits = HM.groups[n].flatMap((p, j) =>
+      p !== OWN[n] && HM.cw[p - 1] === "1" ? [b.dots[0] + 0.16 * j + 0.1] : [],
+    );
+    return Math.max(
+      ...hits.map((h) => flash(t, h, h + 0.3)),
+      flash(t, b.settle, b.settle + 0.4),
+      flash(t, flipMid(n), flipMid(n) + 0.45),
+    );
   };
 
   function build(stage) {
     const H = A6.hamRig(stage, { x: 118, y: 56, size: 88, gap: 14, rowH: 78, word: HM.cw });
     const statX = (k) => 54 + 286 * k;
-    const stats = ORDER.map((n, k) => A6.stat(stage, { x: statX(k), y: 520, w: 262, h: 80, label: `${n} ones`, tone: "blue" }));
+    const stats = ORDER.map((n, k) =>
+      A6.stat(stage, { x: statX(k), y: 520, w: 262, h: 80, label: `${n} ones`, tone: "blue" }),
+    );
     const legW = [A6.tagW("check bit"), A6.tagW("data bit")];
     const legX = (936 - (legW[0] + legW[1] + 28)) / 2;
     const legend = [
-      A6.tag(stage, { x: legX, y: 536, text: "check bit", tone: "orange", solid: true }),
-      A6.tag(stage, { x: legX + legW[0] + 28, y: 536, text: "data bit", tone: "grey" }),
+      A6.tag(stage, { x: legX, y: 272, text: "check bit", tone: "orange", solid: true }),
+      A6.tag(stage, { x: legX + legW[0] + 28, y: 272, text: "data bit", tone: "grey" }),
     ];
 
     return (t) => {
@@ -121,12 +142,15 @@
           verdict: t >= okAt(n) ? "ok" : null,
           vk: ramp(t, okAt(n), okAt(n) + 0.35, lin),
         });
-        // the tally of 1s: blue while counting, green once the group is even
+        // the tally of 1s: blue while counting, then the group says odd (orange) or even (green); the check bit makes it even
+        const c = countAt(n, t);
+        const word = t < b.settle ? "ones" : c % 2 === 0 ? "even" : "odd";
+        A6.setText(stats[k].el.firstChild, `${n} ${word}`);
         stats[k].set({
-          text: String(countAt(n, t)),
-          tone: done ? "green" : "blue",
+          text: String(c),
+          tone: word === "ones" ? "blue" : word === "odd" ? "orange" : "green",
           bump: countBumps(n, t),
-          k: ramp(t, b.s + 0.2, b.s + 0.5, lin),
+          k: ramp(t, b.s + 0.15, b.s + 0.45, lin),
         });
       });
 

@@ -31,7 +31,15 @@
         A8.icon(p, "qmark", { x: 860, y: 370, tone: "orange", size: 56 }).set({});
         A8.tag(p, { x: 600, y: 258, text: "key 5", tone: "purple", fs: 36 }).set({});
         A8.tag(p, { x: 468, y: 420, text: "key 5", tone: "red", solid: true, fs: 36 }).set({});
-        A8.link(p, { pts: [[600, 295], [600, 340], [468, 340], [468, 390]], tone: "red" }).set({});
+        A8.link(p, {
+          pts: [
+            [600, 295],
+            [600, 340],
+            [468, 340],
+            [468, 390],
+          ],
+          tone: "red",
+        }).set({});
         A8.icon(p, "eye", { x: 468, y: 495, tone: "red" }).set({});
         A8.person(p, { who: "eve", x: 468, y: 578 }).set({});
         A8.icon(p, "qmark", { x: 700, y: 420, tone: "red", size: 50 }).set({});
@@ -68,24 +76,68 @@
         A8.wire(p, { x: 150, y: 190, w: 636, h: 120 }).set({});
         A8.tag(p, { x: 110, y: 190, text: "B = 19", tone: "blue", fs: 40, solid: true }).set({});
         A8.tag(p, { x: 826, y: 190, text: "A = 8", tone: "blue", fs: 40, solid: true }).set({});
-        A8.tag(p, { x: 170, y: 330, html: A8.pow("19", "6", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
-        A8.tag(p, { x: 766, y: 330, html: A8.pow("8", "15", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
+        A8.tag(p, {
+          x: 170,
+          y: 330,
+          html: A8.pow("19", "6", 40) + " mod 23 = 2",
+          tone: "green",
+          fs: 40,
+          box: true,
+        }).set({});
+        A8.tag(p, {
+          x: 766,
+          y: 330,
+          html: A8.pow("8", "15", 40) + " mod 23 = 2",
+          tone: "green",
+          fs: 40,
+          box: true,
+        }).set({});
         A8.icon(p, "equals", { x: 468, y: 330, tone: "green", disc: true, size: 64 }).set({});
         A8.tag(p, { x: 130, y: 430, text: "a = 6", tone: "purple", fs: 36 }).set({});
         A8.icon(p, "lock", { x: 46, y: 430, tone: "purple", size: 50 }).set({});
         A8.tag(p, { x: 806, y: 430, text: "b = 15", tone: "purple", fs: 36 }).set({});
         A8.icon(p, "lock", { x: 890, y: 430, tone: "purple", size: 50 }).set({});
-        A8.tag(p, { x: 468, y: 520, html: A8.pow("5", "6") + " = 15625 = 679 × 23 + 8", tone: "orange", fs: 40, box: true }).set({});
+        A8.tag(p, {
+          x: 468,
+          y: 520,
+          html: A8.pow("5", "6") + " = 15625 = 679 × 23 + 8",
+          tone: "orange",
+          fs: 40,
+          box: true,
+        }).set({});
         A8.tag(p, { x: 468, y: 590, text: "mod 23 = the remainder 8", tone: "orange", solid: true }).set({});
       });
       // ---- scene 4 key frame (Eve's search)
       mk((p) => {
         stage.append(p);
         A8.person(p, { who: "eve", x: 52, y: 48 }).set({});
-        [["p = 23", 300], ["g = 5", 420], ["A = 8", 530], ["B = 19", 650]].forEach(([t, x]) => A8.tag(p, { x, y: 48, text: t, tone: "blue", fs: 36 }).set({}));
+        [
+          ["p = 23", 300],
+          ["g = 5", 420],
+          ["A = 8", 530],
+          ["B = 19", 650],
+        ].forEach(([t, x]) => A8.tag(p, { x, y: 48, text: t, tone: "blue", fs: 36 }).set({}));
         A8.tag(p, { x: 820, y: 48, text: "a = ?", tone: "purple", ghost: true, fs: 36 }).set({});
-        A8.tag(p, { x: 468, y: 150, html: A8.pow("5", "x") + " mod 23 = 8, so x = ?", tone: "orange", fs: 40, box: true }).set({});
-        A8.DH.search.forEach((s, i) => A8.tag(p, { x: 178 + i * 116, y: 280, text: `x = ${s.x}\n${s.y}`, box: true, w: 104, h: 96, tone: s.hit ? "green" : "orange", fs: 30 }).set({}));
+        A8.tag(p, {
+          x: 468,
+          y: 150,
+          html: A8.pow("5", "x") + " mod 23 = 8, so x = ?",
+          tone: "orange",
+          fs: 40,
+          box: true,
+        }).set({});
+        A8.DH.search.forEach((s, i) =>
+          A8.tag(p, {
+            x: 178 + i * 116,
+            y: 280,
+            text: `x = ${s.x}\n${s.y}`,
+            box: true,
+            w: 104,
+            h: 96,
+            tone: s.hit ? "green" : "orange",
+            fs: 30,
+          }).set({}),
+        );
         A8.tag(p, { x: 468, y: 375, text: "6 tries", tone: "green", solid: true, fs: 36 }).set({});
         A8.tag(p, { x: 300, y: 500, text: A8.BIG.lead, tone: "blue", mono: true, fs: 36 }).set({});
         A8.tag(p, { x: 690, y: 500, text: "a real p: 617 digits", tone: "blue", solid: true, fs: 32 }).set({});
@@ -125,12 +177,37 @@
         A8.tag(p, { x: 830, y: 300, text: "(55, 3)", tone: "blue", fs: 36 }).set({});
         A8.icon(p, "key", { x: 730, y: 390, tone: "purple", size: 64 }).set({});
         A8.tag(p, { x: 820, y: 390, text: "27", tone: "purple", solid: true, fs: 36 }).set({});
-        A8.tag(p, { x: 468, y: 320, text: A8.pow("7", "3", 40) + " = 343\n= 6 × 55 + 13", tone: "blue", fs: 40, box: true }).set({});
-        A8.tag(p, { x: 468, y: 420, html: A8.pow("13", "27", 40) + " mod 55 = 7", tone: "green", fs: 40, box: true }).set({});
+        A8.tag(p, {
+          x: 468,
+          y: 320,
+          text: A8.pow("7", "3", 40) + " = 343\n= 6 × 55 + 13",
+          tone: "blue",
+          fs: 40,
+          box: true,
+        }).set({});
+        A8.tag(p, {
+          x: 468,
+          y: 420,
+          html: A8.pow("13", "27", 40) + " mod 55 = 7",
+          tone: "green",
+          fs: 40,
+          box: true,
+        }).set({});
         A8.person(p, { who: "eve", x: 52, y: 520 }).set({});
         A8.tag(p, { x: 240, y: 520, text: "(55, 3)", tone: "red", solid: true, fs: 36 }).set({});
         A8.tag(p, { x: 340, y: 520, text: "13", tone: "red", solid: true, fs: 36 }).set({});
-        [2, 3, 4, 5].forEach((f, i) => A8.tag(p, { x: 470 + i * 104, y: 520, text: `÷ ${f}`, box: true, w: 92, h: 70, tone: f === 5 ? "green" : "red", fs: 36 }).set({}));
+        [2, 3, 4, 5].forEach((f, i) =>
+          A8.tag(p, {
+            x: 470 + i * 104,
+            y: 520,
+            text: `÷ ${f}`,
+            box: true,
+            w: 92,
+            h: 70,
+            tone: f === 5 ? "green" : "red",
+            fs: 36,
+          }).set({}),
+        );
         A8.tag(p, { x: 300, y: 595, text: "55 = 5 × 11, so d = 27", tone: "red", fs: 32 }).set({});
         A8.tag(p, { x: 730, y: 595, text: "a real n: 617 digits", tone: "blue", solid: true, fs: 32 }).set({});
       });
@@ -159,13 +236,29 @@
         const v = A8.CHAIN.view(2);
         const blocks = [0, 1, 2].map((i) => A8.block(p, { x: i * 333, y: 20, w: 270 }));
         blocks.forEach((b, i) =>
-          b.set({ title: `Block ${i + 1}`, data: v[i].data, prev: v[i].prev, hash: v[i].hash, dataTone: v[i].edited ? "orange" : "grey", prevTone: v[i].linkOk ? "blue" : "red", hashTone: "blue", mark: v[i].linkOk ? null : "bad", tone: v[i].linkOk ? "grey" : "red" }),
+          b.set({
+            title: `Block ${i + 1}`,
+            data: v[i].data,
+            prev: v[i].prev,
+            hash: v[i].hash,
+            dataTone: v[i].edited ? "orange" : "grey",
+            prevTone: v[i].linkOk ? "blue" : "red",
+            hashTone: "blue",
+            mark: v[i].linkOk ? null : "bad",
+            tone: v[i].linkOk ? "grey" : "red",
+          }),
         );
         [0, 1].forEach((i) => {
           const pts = A8.elbow(blocks[i].pt("hash", "r"), blocks[i + 1].pt("prev", "l"));
           A8.link(p, { pts, tone: v[i + 1].linkOk ? "blue" : "red" }).set({});
-          const mid = { x: (pts[1][0] + 0), y: (pts[1][1] + pts[2][1]) / 2 };
-          A8.icon(p, v[i + 1].linkOk ? "tick" : "cross", { x: mid.x, y: mid.y, size: 40, disc: true, tone: v[i + 1].linkOk ? "green" : "red" }).set({});
+          const mid = { x: pts[1][0] + 0, y: (pts[1][1] + pts[2][1]) / 2 };
+          A8.icon(p, v[i + 1].linkOk ? "tick" : "cross", {
+            x: mid.x,
+            y: mid.y,
+            size: 40,
+            disc: true,
+            tone: v[i + 1].linkOk ? "green" : "red",
+          }).set({});
         });
         const bd = L5.badge(p, { x: 20, y: 400, w: 330, h: 68, valid: "valid chain", invalid: "broken chain" });
         bd("invalid", 1);
@@ -175,8 +268,24 @@
       mk((p) => {
         stage.append(p);
         const blk = A8.block(p, { x: 0, y: 10, w: 300, fields: ["data", "nonce", "hash"], title: "Block 7" });
-        blk.set({ data: "cat pays dan 4", nonce: 14, hash: "0d84059e", hashTone: "green", hashMarks: (i) => (i === 0 ? "green" : null), mark: "ok" });
-        const tr = A8.tries(p, { x: 340, y: 10, w: 590, rows: 5, rowH: 62, count: A8.MINE.rows.length, lead: true, row: (i) => ({ a: `nonce ${A8.MINE.rows[i].n}`, b: A8.MINE.rows[i].hash, ok: A8.MINE.rows[i].ok }) });
+        blk.set({
+          data: "cat pays dan 4",
+          nonce: 14,
+          hash: "0d84059e",
+          hashTone: "green",
+          hashMarks: (i) => (i === 0 ? "green" : null),
+          mark: "ok",
+        });
+        const tr = A8.tries(p, {
+          x: 340,
+          y: 10,
+          w: 590,
+          rows: 5,
+          rowH: 62,
+          count: A8.MINE.rows.length,
+          lead: true,
+          row: (i) => ({ a: `nonce ${A8.MINE.rows[i].n}`, b: A8.MINE.rows[i].hash, ok: A8.MINE.rows[i].ok }),
+        });
         tr.update({ upto: 15, hi: 14 });
         A8.tag(p, { x: 150, y: 285, text: "hash starts with 0", tone: "orange", fs: 28 }).set({});
         A8.tag(p, { x: 640, y: 350, text: "found after 15 hashes", tone: "green", solid: true }).set({});
@@ -193,11 +302,31 @@
       mk((p) => {
         stage.append(p);
         const v = A8.SEAL.view(3);
-        const blocks = [0, 1, 2].map((i) => A8.block(p, { x: i * 333, y: 10, w: 270, fields: ["data", "prev", "nonce", "hash"] }));
-        blocks.forEach((b, i) =>
-          b.set({ title: `Block ${i + 1}`, data: v[i].data, prev: v[i].prev, nonce: v[i].nonce, hash: v[i].hash, dataTone: v[i].edited ? "orange" : "grey", prevTone: v[i].linkOk ? "blue" : "red", hashTone: "blue", hashMarks: (j) => (j === 0 ? (v[i].sealOk ? "green" : "red") : null), mark: v[i].sealOk && v[i].linkOk ? "ok" : "bad", tone: v[i].linkOk ? "grey" : "red" }),
+        const blocks = [0, 1, 2].map((i) =>
+          A8.block(p, { x: i * 333, y: 10, w: 270, fields: ["data", "prev", "nonce", "hash"] }),
         );
-        [0, 1, 2].forEach((i) => A8.bar(p, { x: 130, y: 330 + i * 64, w: 360, tone: "orange", text: `${[15, 5, 30][i]} tries` }).set({ k: [15, 5, 30][i] / 30, text: `${[15, 5, 30][i]} tries`, textOut: i === 1 }));
+        blocks.forEach((b, i) =>
+          b.set({
+            title: `Block ${i + 1}`,
+            data: v[i].data,
+            prev: v[i].prev,
+            nonce: v[i].nonce,
+            hash: v[i].hash,
+            dataTone: v[i].edited ? "orange" : "grey",
+            prevTone: v[i].linkOk ? "blue" : "red",
+            hashTone: "blue",
+            hashMarks: (j) => (j === 0 ? (v[i].sealOk ? "green" : "red") : null),
+            mark: v[i].sealOk && v[i].linkOk ? "ok" : "bad",
+            tone: v[i].linkOk ? "grey" : "red",
+          }),
+        );
+        [0, 1, 2].forEach((i) =>
+          A8.bar(p, { x: 130, y: 330 + i * 64, w: 360, tone: "orange", text: `${[15, 5, 30][i]} tries` }).set({
+            k: [15, 5, 30][i] / 30,
+            text: `${[15, 5, 30][i]} tries`,
+            textOut: i === 1,
+          }),
+        );
         [0, 1, 2].forEach((i) => A8.tag(p, { x: 20, y: 354 + i * 64, text: `block ${i + 1}`, anchor: "l" }).set({}));
         A8.tag(p, { x: 700, y: 440, text: "50 tries", tone: "orange", solid: true, fs: 44 }).set({});
       });
