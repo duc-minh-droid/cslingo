@@ -1,10 +1,10 @@
 /* Phase 6 · scene 09-locate (14 s): after a flip, exactly the checks whose group holds the flipped bit fail. Read the failures as
    a binary number, p4 p2 p1, and you get the POSITION of the flipped bit; flip it back. Runs on the codeword 0110011 (scene 8)
    with position 6 flipped. Every number comes from A6.HAM (common.js); nothing is typed here.
-   Story (local seconds): 0.2-1.4 the rig pops in, a clean word, three green ticks; 2.5-3.4 noise flips position 6 (red);
+   Story (local seconds): 0.2-1.0 the rig pops in, a clean word, three green ticks; 2.5-3.4 noise flips position 6 (red);
    4.0-8.7 each group is recounted in turn (rings on its tiles, a "ones" counter, odd = failed): p4 and p2 fail, p1 passes;
-   9.0-10.5 the failures read 1 1 0 = 6 and the binary label under position 6 lights up; 10.9-11.9 the answer flies up to the
-   tile; 12.1-12.6 the tile flips back (green); 12.7-13.4 the checks pass again. */
+   9.0-10.5 the failures read 1 1 0 = 6 and the binary label under position 6 lights up; 10.9-11.9 a copy of the answer flies up to the
+   tile (there is no room above the tile row for a separate arrow, so the disc sits on the ring); 12.1-12.6 the tile flips back (green); 12.7-13.4 the checks pass again. */
 (function () {
   const V = window.VID;
   const A6 = V.a6;
@@ -23,15 +23,31 @@
   const ONES = ONE.checks.map((c) => c.ones);
   A6.same("locate: words", [W0, W1, W2, ONE.flip, ONE.at, ONE.syn], ["0110011", "0110001", "0110011", 6, 6, "110"]);
   A6.same("locate: the flip is one tile", [A6.diffAt(W0, W1), FI, W0[FI], W1[FI]], [[5], 5, "1", "0"]);
-  A6.same("locate: bands", [NAMES, ONE.checks.map((c) => c.fail), ONES], [["p4", "p2", "p1"], [true, true, false], [1, 3, 2]]);
-  A6.same("locate: the clean word passes every check", A6.hChecks(W0).map((c) => c.fail), [false, false, false]);
-  A6.same("locate: the repair passes every check", A6.hChecks(W2).map((c) => c.fail), [false, false, false]);
+  A6.same(
+    "locate: bands",
+    [NAMES, ONE.checks.map((c) => c.fail), ONES],
+    [
+      ["p4", "p2", "p1"],
+      [true, true, false],
+      [1, 3, 2],
+    ],
+  );
+  A6.same(
+    "locate: the clean word passes every check",
+    A6.hChecks(W0).map((c) => c.fail),
+    [false, false, false],
+  );
+  A6.same(
+    "locate: the repair passes every check",
+    A6.hChecks(W2).map((c) => c.fail),
+    [false, false, false],
+  );
 
   const T = {
-    tile: 0.2, // the first tile pops here, then one every 0.06 s
-    nums: [0.35, 0.85], // position numbers and binary numbers
-    band: 0.45, // the first band pops here, then one every 0.08 s
-    tick: 0.75, // the first tick draws here, then one every 0.1 s
+    tile: 0.2, // the first tile pops here, then one every 0.05 s
+    nums: [0.3, 0.75], // position numbers and binary numbers
+    band: 0.35, // the first band pops here, then one every 0.06 s
+    tick: 0.55, // the first tick draws here, then one every 0.08 s
     bolt: [2.5, 2.95],
     boltOut: [2.9, 3.25],
     flip: [3.0, 3.4],
@@ -85,7 +101,7 @@
     return (t) => {
       // ---- the seven tiles; the flipped one goes red, and back to green ----
       for (let i = 0; i < 7; i++) {
-        const st = { ...popIn(A6.seq(t, T.tile, 0.06, 0.3, i)), text: W0[i], ...ringFor(t, i) };
+        const st = { ...popIn(A6.seq(t, T.tile, 0.05, 0.3, i)), text: W0[i], ...ringFor(t, i) };
         if (i !== FI) H.set(i, st);
         else if (t < T.back[0]) {
           const k = ramp(t, ...T.flip, lin);
@@ -111,16 +127,18 @@
       NAMES.forEach((name, b) => {
         const fail = ONE.checks[b].fail;
         const st = {
-          k: ramp(t, T.band + 0.08 * b, T.band + 0.08 * b + 0.4, lin),
+          k: ramp(t, T.band + 0.06 * b, T.band + 0.06 * b + 0.35, lin),
           vals: word,
           bad: word === W1 ? [ONE.flip] : [],
           tone: "grey",
         };
         const t0 = band0(b);
-        if (t < T.reset[0]) Object.assign(st, { verdict: "ok", vk: ramp(t, T.tick + 0.1 * b, T.tick + 0.1 * b + 0.4, lin) });
+        if (t < T.reset[0])
+          Object.assign(st, { verdict: "ok", vk: ramp(t, T.tick + 0.08 * b, T.tick + 0.08 * b + 0.35, lin) });
         else if (t < T.reset[1]) Object.assign(st, { verdict: "ok", vk: 1 - ramp(t, ...T.reset, lin) });
         else if (t < t0 + 0.85) st.tone = t >= t0 ? "purple" : "grey";
-        else if (t < T.mend || !fail) Object.assign(st, { verdict: fail ? "bad" : "ok", vk: ramp(t, t0 + 0.85, t0 + 1.25, lin) });
+        else if (t < T.mend || !fail)
+          Object.assign(st, { verdict: fail ? "bad" : "ok", vk: ramp(t, t0 + 0.85, t0 + 1.25, lin) });
         else if (t < T.mend + 0.3) Object.assign(st, { verdict: "bad", vk: 1 - ramp(t, T.mend, T.mend + 0.3, lin) });
         else Object.assign(st, { verdict: "ok", vk: ramp(t, T.mend + 0.3, T.mend + 0.7, lin) });
         H.row(name, st);

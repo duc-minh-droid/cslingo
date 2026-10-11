@@ -12,7 +12,7 @@
   card.build = (stage, V) => {
     const update = build(stage, V);
     stage.querySelectorAll(".v-title-line").forEach((e) => {
-      e.style.fontSize = "72px";
+      e.style.fontSize = "68px";
       e.style.whiteSpace = "nowrap";
     });
     return update;

@@ -33,8 +33,10 @@
          hi    index of a row to highlight in green (the winner), hiK 0..1 how far;
        t.rowY(i, upto) -> y (parent px) of the middle of row i at that moment; t.height = rows x rowH.
    A8.cells(parent, {x, y, cols, rows = 1, size = 16, gap = 4}) -> g       a grid of small square cells (a chance of 1 in 16).
-       g.update((r, c) => undefined | {k, tone, ghost}, {o})   undefined = an idle pale cell; k 0..1 pops a solid cell in the
-       tone; ghost = dashed outline only.   g.cellAt(r, c) -> {x, y} centre in parent px, g.width, g.height, g.el.
+       g.update((r, c) => undefined | {k, tone, ghost}, {o, rows, cols})   undefined = an idle pale cell; k 0..1 pops a solid
+       cell in the tone; ghost = dashed outline only. rows / cols = how many rows / columns are shown (default all; fractional
+       pops the last one in: rows: 1 shows just the first row, rows: 5.4 shows five and pops in the sixth), so a strip of 16
+       can grow into a 16 x 16 square.   g.cellAt(r, c) -> {x, y} centre in parent px, g.width, g.height, g.el.
    A8.bar(parent, {x, y, w, h = 48, tone = "grey", solid = true, text = "", fs = 28}) -> b     a horizontal sticker bar growing
        from x to the right, full length w at k = 1 (never shorter than 14 px once visible).
        b.set({k, tone, solid, text, textOut, o})   text sits inside the bar (left, 16 px padding) or, with textOut, just right
@@ -221,7 +223,14 @@
   function tries(parent, o = {}) {
     const [w, nRows, rowH] = [o.w || 600, o.rows || 5, o.rowH || 62];
     const root = V.h("div", {
-      style: { position: "absolute", left: px(o.x || 0), top: px(o.y || 0), width: px(w), height: px(nRows * rowH) },
+      style: {
+        position: "absolute",
+        left: px(o.x || 0),
+        top: px(o.y || 0),
+        width: px(w),
+        height: px(nRows * rowH),
+        overflow: "hidden", // rows that scroll out at the top (or wait below) are clipped to the window
+      },
     });
     parent.append(root);
     const items = Array.from({ length: o.count }, (_, i) => {
@@ -332,29 +341,27 @@
       height,
       cellAt: (r, c) => ({ x: (o.x || 0) + c * (size + gap) + size / 2, y: (o.y || 0) + r * (size + gap) + size / 2 }),
       update(fn, u = {}) {
+        const [rs, cs] = [u.rows == null ? rows : u.rows, u.cols == null ? cols : u.cols];
         els.forEach((e, idx) => {
-          const st = fn(Math.floor(idx / cols), idx % cols);
+          const [r, c] = [Math.floor(idx / cols), idx % cols];
+          const vis = clamp(rs - r) * clamp(cs - c); // rows / cols not shown yet are hidden; a fractional one pops in
+          const st = fn(r, c);
+          const k = Math.min(vis, st && st.k != null ? clamp(st.k) : 1);
+          V.show(e, vis > 0.001 ? 1 : 0);
+          e.className = `c-${tn((st && st.tone) || "grey")}`;
+          const pop = `scale(${f1(0.6 + 0.4 * E.pop(k))})`;
           if (!st)
-            return void css(e, {
+            css(e, {
               background: "var(--panel-2)",
               borderColor: "var(--line-2)",
               borderStyle: "solid",
-              transform: "",
+              transform: pop,
             });
-          const k = st.k == null ? 1 : clamp(st.k);
-          e.className = `c-${tn(st.tone || "green")}`;
-          css(
-            e,
-            st.ghost
-              ? { background: "transparent", borderColor: "var(--c)", borderStyle: "dashed", transform: "" }
-              : {
-                  background: "var(--c)",
-                  borderColor: "var(--c-lip)",
-                  borderStyle: "solid",
-                  transform: `scale(${f1(0.6 + 0.4 * E.pop(k))})`,
-                  opacity: String(clamp(k * 4)),
-                },
-          );
+          else if (st.ghost)
+            css(e, { background: "transparent", borderColor: "var(--c)", borderStyle: "dashed", transform: pop });
+          else css(e, { background: "var(--c)", borderColor: "var(--c-lip)", borderStyle: "solid", transform: pop });
+          e.style.opacity = k < 1 ? String(clamp(k * 4)) : "";
+          if (vis <= 0.001 || k <= 0.001) e.style.visibility = "hidden";
         });
         V.show(root, u.o == null ? 1 : u.o);
       },
