@@ -113,7 +113,7 @@
     const mem = {};
     const base = { tone: o.tone || "grey", solid: !!o.solid };
     const put = (html) => {
-      if (mem.html !== html) el.innerHTML = mem.html = html;
+      if (mem.html !== html) el.innerHTML = `<span>${(mem.html = html)}</span>`; // one flex item, so spaces next to a raised exponent survive
     };
     put(o.html != null ? o.html : lines(o.text || ""));
     return {

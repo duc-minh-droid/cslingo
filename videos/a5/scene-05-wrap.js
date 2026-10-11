@@ -72,8 +72,18 @@
     build(stage) {
       const pl = A5.plot(stage, { segs: 16, arcs: 2, tags: 12, polys: 1 });
       const P = pl.pos;
-      const want = { A: [50, 384], B: [225, 279], C: [277, 410], D: [522, 349], E: [662, 191], F: [382, 226], G: [347, 60] };
-      Object.keys(want).forEach((n) => [0, 1].forEach((k) => A5.close(`scene 5: ${n} position`, P[n][k], want[n][k], 1)));
+      const want = {
+        A: [50, 384],
+        B: [225, 279],
+        C: [277, 410],
+        D: [522, 349],
+        E: [662, 191],
+        F: [382, 226],
+        G: [347, 60],
+      };
+      Object.keys(want).forEach((n) =>
+        [0, 1].forEach((k) => A5.close(`scene 5: ${n} position`, P[n][k], want[n][k], 1)),
+      );
       const REF_TOP = 200; // the dashed reference ray runs up from A to y 200; the tag r sits on its end
       const R_TAG = [P.A[0], 176];
 
@@ -119,6 +129,11 @@
         if (touched) {
           points.G = { ...points.G, ring: "orange", ringK: ramp(t, SWEEP[1], SWEEP[1] + 0.3, E.pop) * fade };
         }
+        if (t >= ARRIVE[4]) {
+          // back at A: a ring on the start says the loop is closed
+          const k = ramp(t, ARRIVE[4], ARRIVE[4] + 0.3, E.pop) * (1 - ramp(t, 13.8, 14.3, lin));
+          points.A = { ...points.A, ring: "green", ringK: k };
+        }
         for (let i = 1; i < ROUNDS.length; i++) {
           const u = t - roundStart(i);
           if (u < 0 || u > 1.4) continue;
@@ -161,12 +176,24 @@
           trimB: TRIM * retract,
           o: ramp(t, 2.8, 3.0, lin) * (1 - ramp(t, 6.2, 6.5, lin)),
         });
-        HULL.forEach((n, i) => add({ a: n, b: HULL[(i + 1) % HULL.length], tone: "green", w: 1.3, k: ramp(t, EDGE[i][0], EDGE[i][1], lin) }));
+        HULL.forEach((n, i) =>
+          add({ a: n, b: HULL[(i + 1) % HULL.length], tone: "green", w: 1.3, k: ramp(t, EDGE[i][0], EDGE[i][1], lin) }),
+        );
 
         // ---- tags: the reference r, 'leftmost', and the angles
         const tags = [
           { at: R_TAG, text: "r", disc: 46, tone: "purple", solid: true, k: ramp(t, 1.9, 2.2, E.pop), o: fade },
-          { at: "A", dx: -26, dy: 62, anchor: "l", text: "leftmost", tone: "green", solid: true, k: ramp(t, 1.0, 1.4, E.pop), o: fade },
+          {
+            at: "A",
+            dx: -26,
+            dy: 62,
+            anchor: "l",
+            text: "leftmost",
+            tone: "green",
+            solid: true,
+            k: ramp(t, 1.0, 1.4, E.pop),
+            o: fade,
+          },
         ];
         ["B", "C", "D", "E", "F"].forEach((n, i) => {
           tags.push({
@@ -206,7 +233,9 @@
           points,
           segs,
           tags,
-          arcs: [{ c: "A", r: ARC_R, from: -90, to: -90 + theta, tone: touched ? "orange" : "purple", w: 0.7, o: fade }],
+          arcs: [
+            { c: "A", r: ARC_R, from: -90, to: -90 + theta, tone: touched ? "orange" : "purple", w: 0.7, o: fade },
+          ],
           polys: [{ pts: A5.HULL, tone: "green", fill: 0.4, w: 0.01, o: ramp(t, 12.6, 13.2, lin) }],
         });
 
@@ -218,7 +247,7 @@
         const pt = (a, b) => `${(c[0] + nx * a + tx * b).toFixed(1)} ${(c[1] + ny * a + ty * b).toFixed(1)}`;
         head.setAttribute("d", `M${pt(0, 15)}L${pt(10, 0)}L${pt(-10, 0)}Z`);
         head.setAttribute("class", touched ? "c-orange" : "c-purple");
-        V.show(head, ramp(t, 3.05, 3.25, lin) * fade);
+        V.show(head, ramp(theta, 6, 12, lin) * fade); // only once the arc is long enough to carry it
 
         // ---- the right column and the hull list
         const done = ARRIVE.filter((a) => t >= a).length;

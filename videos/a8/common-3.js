@@ -170,7 +170,8 @@
       card.append(strip);
       strips[f] = { strip, value, put: f === "data" ? null : chars(value, f === "nonce" ? 3 : 8, true), mem: {} };
     });
-    const mem = {};
+    const mem = { title: o.title || "" };
+    title.textContent = mem.title;
     const rowY = (f) => y0 + 3 + 52 + fields.indexOf(f) * 54 + 23;
     return {
       el: outer,

@@ -25,6 +25,8 @@
   const LANE_FROM = SENT_Y + SIZE + 12; // 168
   const LANE_TO = RECV_Y - 12; // 376
   const LANE_MID = (LANE_FROM + LANE_TO) / 2; // 272
+  const RECV_RISE = 140; // the received word rises this far while the receiver looks at it
+  const END_DY = 100; // the sent word returns this far lower for the last picture
 
   V.scene({
     kicker: "THE PROBLEM",
@@ -59,8 +61,8 @@
       const checkText = "check bit";
       const checkEnd = X0 + (SIZE + GAP) * CHECK + SIZE;
       const checkTag = A6.tag(stage, {
-        x: checkEnd - A6.tagW(checkText),
-        y: 166,
+        x: checkEnd - A6.tagW(checkText) - 6, // the real pill is about 6 px wider than the estimate
+        y: 176,
         text: checkText,
         tone: "orange",
         solid: true,
@@ -69,7 +71,8 @@
       return (t) => {
         // ---- the sent word: pops in, fades while the receiver looks, comes back for the fix ----
         const sentVis = t < 7 ? 1 - ramp(t, 5.4, 5.9) : ramp(t, 8.0, 8.5);
-        V.place(sent.el, { o: sentVis });
+        const sentDy = t < 7 ? 0 : END_DY; // when it comes back it sits lower, so the final picture is not top-heavy
+        V.place(sent.el, { y: sentDy, o: sentVis });
         const popped = (i) => A6.seq(t, 0.3, 0.07, 0.28, i);
         sent.all((i) => {
           if (i === CHECK) {
@@ -80,11 +83,11 @@
           const k = popped(i);
           return { s: 0.5 + 0.5 * E.pop(k), o: Math.min(1, k * 4) };
         });
-        sentTag.set({ k: ramp(t, 0.2, 0.5, E.lin), o: sentVis });
+        sentTag.set({ k: ramp(t, 0.2, 0.5, E.lin), y: sentDy, o: sentVis });
 
         // ---- the wire: seven lanes draw on, one is hit by noise, then they fade ----
         const laneFade = 1 - ramp(t, 5.4, 5.9);
-        const hit = Math.sin(Math.PI * ramp(t, 2.5, 3.1, (x) => x)) * Math.sin(2 * Math.PI * 9 * (t - 2.5));
+        const hit = Math.sin(Math.PI * ramp(t, 2.5, 3.1, E.lin)) * Math.sin(2 * Math.PI * 9 * (t - 2.5));
         lanes.forEach((g, i) => {
           L5.drawOn(g, E.out(A6.seq(t, 1.3, 0.07, 0.6, i)));
           V.place(g, { x: i === HIT && t > 2.5 && t < 3.1 ? 4 * hit : 0, o: laneFade });
@@ -95,34 +98,33 @@
 
         // ---- the received word: arrives, the hit tile flips to red, then it looks like any word ----
         const recvVis = 1 - ramp(t, 7.6, 8.0, E.lin);
-        V.place(received.el, { o: recvVis });
-        received.all((i) => {
+        const recvDy = -RECV_RISE * ramp(t, 5.4, 6.2, E.inOut); // it moves up into the room the sent word leaves
+        V.place(received.el, { y: recvDy, o: recvVis });
+        for (let i = 0; i < RECV.length; i++) {
           const k = A6.seq(t, 3.0, 0.07, 0.25, i);
           const st = { s: 0.5 + 0.5 * E.pop(k), o: Math.min(1, k * 4) };
-          if (i === HIT) {
+          if (i !== HIT) received.set(i, st);
+          else
             received.flip(i, ramp(t, 3.5, 3.9, E.inOut), {
               ...st,
-              from: MSG[HIT],
-              to: RECV[HIT],
+              from: MSG[HIT], // the tile first shows the 0 that was sent ...
+              to: RECV[HIT], // ... then turns over to the 1 that the noise made
               tone: "grey",
               toTone: t < 5.6 ? "red" : "grey",
               hop: 14,
             });
-            return undefined;
-          }
-          return st;
-        });
-        recvTag.set({ k: ramp(t, 3.0, 3.3, E.lin), o: recvVis });
+        }
+        recvTag.set({ k: ramp(t, 3.0, 3.3, E.lin), y: recvDy, o: recvVis });
 
         // ---- the receiver's doubt ----
         const q = ramp(t, 5.9, 6.4, E.lin);
         const qOut = recvVis;
-        V.place(qmark, { s: 0.6 + 0.4 * E.pop(q), o: Math.min(1, q * 4) * qOut });
+        V.place(qmark, { y: recvDy, s: 0.6 + 0.4 * E.pop(q), o: Math.min(1, q * 4) * qOut });
         L5.drawOn(qmark, ramp(t, 5.9, 6.3));
-        doubt.set({ k: ramp(t, 6.1, 6.4, E.lin), o: qOut });
+        doubt.set({ k: ramp(t, 6.1, 6.4, E.lin), y: recvDy, o: qOut });
 
         // ---- the fix: a check bit ----
-        checkTag.set({ k: ramp(t, 9.1, 9.5, E.lin) });
+        checkTag.set({ k: ramp(t, 9.1, 9.5, E.lin), y: sentDy });
       };
     },
   });
