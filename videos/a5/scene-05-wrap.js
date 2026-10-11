@@ -70,7 +70,7 @@
       [12.9, 14.7, "Back at A. The loop closes."],
     ],
     build(stage) {
-      const pl = A5.plot(stage, { segs: 16, arcs: 2, tags: 10, polys: 1 });
+      const pl = A5.plot(stage, { segs: 16, arcs: 2, tags: 12, polys: 1 });
       const P = pl.pos;
       const want = { A: [50, 384], B: [225, 279], C: [277, 410], D: [522, 349], E: [662, 191], F: [382, 226], G: [347, 60] };
       Object.keys(want).forEach((n) => [0, 1].forEach((k) => A5.close(`scene 5: ${n} position`, P[n][k], want[n][k], 1)));
@@ -188,6 +188,17 @@
           solid: true,
           fs: 28 + 6 * flash(t, 5.3, 5.7),
           k: ramp(t, SWEEP[1], SWEEP[1] + 0.3, E.pop),
+          o: 1 - ramp(t, 6.3, 6.6, lin),
+        });
+
+        tags.push({
+          at: "G",
+          dx: 62,
+          dy: 58,
+          anchor: "l",
+          text: "smallest",
+          tone: "orange",
+          k: ramp(t, 5.1, 5.4, E.pop),
           o: 1 - ramp(t, 6.3, 6.6, lin),
         });
 
