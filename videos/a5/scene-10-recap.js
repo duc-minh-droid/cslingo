@@ -155,7 +155,7 @@
       return { h: r.h, w: r.best, hp: h, wp: w, from, to, swing, edge };
     });
     const reached = { A: 0.15 };
-    rounds.forEach((r) => (reached[r.w] = r.edge[1]));
+    rounds.forEach((r) => (reached[r.w] ??= r.edge[1])); // A stays green from the start; the last edge closes the loop onto it
     const last = rounds[rounds.length - 1].edge[1]; // C -> A closes the loop
     const TINT = [last, last + 0.5];
 
@@ -284,7 +284,7 @@
         return [name, svg.appendChild(V.s("g", {}, lip, face))];
       }),
     );
-    const badge = tickBadge(pic, 250, 28, 18);
+    const badge = tickBadge(pic, 244, 22, 17); // clear of the E dot and of the cup wall
 
     return (q) => {
       const u = q * SPEED;

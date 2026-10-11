@@ -39,6 +39,9 @@
    A8.paintRgb(drops) -> {fill, edge} CSS colours for a list of paint keys.
    A8.link(parent, {pts: [[x, y], ...], tone = "blue", w = 6, head = 18}) -> l   an arrow along a polyline with corners.
        l.set({k = 1 (0..1 how much is drawn; the head appears at the end), tone, o, dash}).   l.len its length in px.
+   A8.arc(p, q, f, bend = 0) -> {x, y}   the point at fraction f (0..1) of the way from p to q ({x, y} each), lifted by
+       bend px at the middle (bend > 0 arcs UP, bend < 0 DOWN): two things that swap places pass without touching.
+   A8.along(pts, f) -> {x, y}   the point at fraction f (0..1) of the length of a polyline [[x, y], ...] (a path with corners).
    A8.pt(x, y) -> {x, y} (just for readability). */
 (function () {
   const V = window.VID;
@@ -503,7 +506,26 @@
     };
   }
 
+  const arc = (p, q, f, bend = 0) => {
+    const k = clamp(f);
+    return { x: p.x + (q.x - p.x) * k, y: p.y + (q.y - p.y) * k - bend * Math.sin(Math.PI * k) };
+  };
+  const along = (pts, f) => {
+    const seg = pts.slice(1).map((q, i) => Math.hypot(q[0] - pts[i][0], q[1] - pts[i][1]));
+    let d = clamp(f) * seg.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < seg.length; i++) {
+      if (d <= seg[i] || i === seg.length - 1) {
+        const u = seg[i] ? Math.min(1, d / seg[i]) : 0;
+        return { x: pts[i][0] + (pts[i + 1][0] - pts[i][0]) * u, y: pts[i][1] + (pts[i + 1][1] - pts[i][1]) * u };
+      }
+      d -= seg[i];
+    }
+    return { x: pts[0][0], y: pts[0][1] };
+  };
+
   Object.assign(A8, {
+    arc,
+    along,
     kit: { anchor, SHIFT, appear, css, px, f1, flex, tn, esc },
     TONES,
     tag,
