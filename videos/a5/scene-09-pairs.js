@@ -77,7 +77,8 @@
           const c = A5.HULL.indexOf(name);
           if (c >= 0) {
             const tc = CORNER0 + 0.1 * c;
-            if (t >= tc) Object.assign(st, { tone: "green", solid: true, s: st.s * (1 + 0.25 * flash(t, tc, tc + 0.4)) });
+            if (t >= tc)
+              Object.assign(st, { tone: "green", solid: true, s: st.s * (1 + 0.25 * flash(t, tc, tc + 0.4)) });
           }
           if ((name === LONGEST.a || name === LONGEST.b) && t >= PICK0 + 0.3)
             Object.assign(st, { ring: "orange", ringK: ramp(t, PICK0 + 0.3, PICK0 + 0.7, lin) });
@@ -125,7 +126,12 @@
         sizeTag.set({ k: ramp(t, 8.0, 8.4, lin) });
         const up = (a, b, n) => String(Math.round(n * ramp(t, a, b, E.out)));
         allC.set({ text: A5.commas(up(8.4, 9.0, BIG.all)), k: ramp(t, 8.4, 8.7, lin), bump: flash(t, 9.0, 9.4) });
-        cornC.set({ text: up(9.2, 9.8, BIG.corners), solid: true, k: ramp(t, 9.2, 9.5, lin), bump: flash(t, 9.8, 10.2) });
+        cornC.set({
+          text: up(9.2, 9.8, BIG.corners),
+          solid: true,
+          k: ramp(t, 9.2, 9.5, lin),
+          bump: flash(t, 9.8, 10.2),
+        });
       };
     },
   });
