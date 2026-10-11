@@ -37,23 +37,37 @@
   const onesAt = (t) => (t < T.flip1[1] ? countAt(t) : t < T.flip2[1] ? P.one.ones : P.two.ones);
 
   const lin = E.lin;
+  const DY = 28; // the whole picture sits this far below the storyboard's y values, to centre it in the stage
   const popIn = (k) => ({ s: E.pop(k), o: clamp(k * 5) });
 
   function build(stage) {
     const row = A6.bits(stage, {
       x: 42,
-      y: 150,
+      y: 150 + DY,
       bits: P.frame,
       size: 96,
       gap: 12,
       tones: [...Array(7).fill("grey"), "orange"],
     });
-    const parityTag = A6.tag(stage, { x: 894 - A6.tagW("parity bit"), y: 264, text: "parity bit", tone: "orange", solid: true });
-    const ones = A6.stat(stage, { x: 42, y: 400, w: 270, h: 80, label: "ones", tone: "blue" });
-    const badge = L5.badge(stage, { x: 330, y: 406, w: 420, h: 68, valid: "even: looks fine", invalid: "odd: alarm" });
-    const missed = A6.tag(stage, { x: 770, y: 411, text: "missed", tone: "red", solid: true });
+    const parityTag = A6.tag(stage, {
+      x: 894 - A6.tagW("parity bit"),
+      y: 264 + DY,
+      text: "parity bit",
+      tone: "orange",
+      solid: true,
+    });
+    const ones = A6.stat(stage, { x: 42, y: 400 + DY, w: 270, h: 80, label: "ones", tone: "blue" });
+    const badge = L5.badge(stage, {
+      x: 330,
+      y: 406 + DY,
+      w: 420,
+      h: 68,
+      valid: "even: looks fine",
+      invalid: "odd: alarm",
+    });
+    const missed = A6.tag(stage, { x: 770, y: 411 + DY, text: "missed", tone: "red", solid: true });
     const svg = L5.svg(stage);
-    const qs = P.frame.split("").map((_, i) => svg.appendChild(A6.qmark(row.mid(i).x, 102, 60, "orange")));
+    const qs = P.frame.split("").map((_, i) => svg.appendChild(A6.qmark(row.mid(i).x, 102 + DY, 60, "orange")));
 
     return (t) => {
       // the message tiles (0-6), the 1s turning blue as they are counted, the two flips
@@ -67,9 +81,16 @@
           tone: counted ? "blue" : "grey",
         };
         if (j >= 0) st.s *= 1 + 0.12 * flash(t, at, at + 0.3);
-        if (i === F1) row.flip(i, ramp(t, ...T.flip1, lin), { ...st, from: P.frame[i], to: P.one.recv[i], toTone: "red", hop: 14 });
+        if (i === F1)
+          row.flip(i, ramp(t, ...T.flip1, lin), { ...st, from: P.frame[i], to: P.one.recv[i], toTone: "red", hop: 14 });
         else if (i === F2)
-          row.flip(i, ramp(t, ...T.flip2, lin), { ...st, from: P.one.recv[i], to: P.two.recv[i], toTone: "red", hop: 14 });
+          row.flip(i, ramp(t, ...T.flip2, lin), {
+            ...st,
+            from: P.one.recv[i],
+            to: P.two.recv[i],
+            toTone: "red",
+            hop: 14,
+          });
         else row.set(i, st);
       }
       // the parity bit: an empty orange slot, then the solid bit

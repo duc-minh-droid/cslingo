@@ -77,7 +77,7 @@
   const TOP = FINAL[FINAL.length - 1];
   CHAIN.push({ a: TOP, b: PIVOT, born: T_CLOSE, dies: null }); // the loop closes
   const CARDS = PLAN.flatMap(({ tests }) => tests.map((x) => ({ ...x, show: [x.verdict[0], x.fade[1]] })));
-  const LIFT = 52; // a popped tile is lifted off the top of the stack this far while it fades
+  const LIFT = 28; // a popped tile is lifted off the top of the stack this far while it fades (less at the top slot: stay on stage)
 
   // a ring on the middle point of each test (green: kept, red: popped for good)
   const RINGS = CARDS.map((x) => ({
@@ -221,8 +221,8 @@
         );
         const tags = PLAN.flatMap(({ tests }) => tests.filter((x) => x.pop)).map((x) => ({
           at: x.t,
-          dx: x.t === "F" ? 76 : 32,
-          dy: x.t === "F" ? -58 : 58,
+          dx: x.t === "F" ? 84 : 104,
+          dy: x.t === "F" ? -62 : 44,
           text: "dent",
           tone: "red",
           solid: true,
@@ -240,10 +240,10 @@
           const base = { text: en.name, y: -44 * (1 - kp), o: Math.min(1, kp * 3) };
           if (en.slide && t >= en.slide[0]) {
             const ks = ramp(t, en.slide[0], en.slide[1], E.out);
-            return { ...base, tone: "red", solid: true, y: -LIFT * ks, o: 1 - ks };
+            return { ...base, tone: "red", solid: true, y: -Math.min(LIFT, st.slotPos(slot).y - 12) * ks, o: 1 - ks };
           }
           const tS = T_TINT[0] + 0.1 * slot;
-          if (t >= tS) return { ...base, tone: "green", solid: true, s: 1 + 0.12 * flash(t, tS, tS + 0.4) };
+          if (t >= tS) return { ...base, tone: "green", solid: true, s: 1 + 0.06 * flash(t, tS, tS + 0.4) };
           return { ...base, tone: testing(en.name, t) ? "blue" : "green", solid: false };
         });
         action.set(

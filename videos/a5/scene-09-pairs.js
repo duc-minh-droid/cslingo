@@ -52,8 +52,10 @@
       [8.4, 10.9, "1,000 points, 10 corners: 45 pairs, not 499,500."],
     ],
     build(stage) {
-      const pl = A5.plot(stage, { segs: 26, polys: 1, tags: 4 });
-      const mid = [0, 1].map((k) => (pl.xy(LONGEST.a)[k] + pl.xy(LONGEST.b)[k]) / 2);
+      const pl = A5.plot(stage, { segs: 26, polys: 1, tags: 5 });
+      const between = (a, b, dx = 0, dy = 0) => [0, 1].map((k, i) => (pl.xy(a)[k] + pl.xy(b)[k]) / 2 + (i ? dy : dx));
+      const mid = between(LONGEST.a, LONGEST.b);
+      const HULL_TAG = between("D", "E", 20, 10); // just outside the edge D-E: it names the green shape
 
       const pairs = A5.counter(stage, { x: 716, y: 40, w: 208, label: "pairs", tone: "grey" });
       const seven = A5.tag(stage, { x: 716, y: 138, text: "7 points", tone: "grey" });
@@ -64,7 +66,7 @@
 
       return (t) => {
         // ---- the small example dims once the big numbers take over
-        const dim = lerp(1, 0.5, ramp(t, 7.9, 8.4, lin));
+        const dim = lerp(1, 0.6, ramp(t, 7.9, 8.4, lin));
 
         // ---- the seven points
         const points = {};
@@ -100,9 +102,10 @@
 
         const polys = [{ pts: A5.HULL, tone: "green", fill: 0.5, w: 0.01, o: ramp(t, 4.2, 4.8, lin) }];
         const tags = [
-          { at: "B", dy: 54, text: "inside", tone: "grey", k: ramp(t, 3.2, 3.5, lin), o: 1 - ramp(t, 4.6, 5.0, lin) },
-          { at: "F", dy: -54, text: "inside", tone: "grey", k: ramp(t, 3.2, 3.5, lin), o: 1 - ramp(t, 4.6, 5.0, lin) },
-          { at: mid, text: "farthest pair", tone: "orange", solid: true, k: ramp(t, 6.2, 6.6, lin) },
+          { at: "B", dy: 62, text: "inside", tone: "grey", k: ramp(t, 3.2, 3.5, lin), o: 1 - ramp(t, 4.6, 5.0, lin) },
+          { at: "F", dy: -62, text: "inside", tone: "grey", k: ramp(t, 3.2, 3.5, lin), o: 1 - ramp(t, 4.6, 5.0, lin) },
+          { at: HULL_TAG, anchor: "l", text: "hull", tone: "green", solid: true, k: ramp(t, 4.5, 4.8, lin) },
+          { at: mid, dx: 12, dy: 8, text: "farthest pair", tone: "orange", solid: true, k: ramp(t, 6.2, 6.6, lin) },
         ];
         pl.update({ points, polys, segs, tags, o: dim });
 
@@ -122,7 +125,7 @@
         sizeTag.set({ k: ramp(t, 8.0, 8.4, lin) });
         const up = (a, b, n) => String(Math.round(n * ramp(t, a, b, E.out)));
         allC.set({ text: A5.commas(up(8.4, 9.0, BIG.all)), k: ramp(t, 8.4, 8.7, lin), bump: flash(t, 9.0, 9.4) });
-        cornC.set({ text: up(9.2, 9.8, BIG.corners), k: ramp(t, 9.2, 9.5, lin), bump: flash(t, 9.8, 10.2) });
+        cornC.set({ text: up(9.2, 9.8, BIG.corners), solid: true, k: ramp(t, 9.2, 9.5, lin), bump: flash(t, 9.8, 10.2) });
       };
     },
   });

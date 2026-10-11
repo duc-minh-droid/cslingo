@@ -12,7 +12,7 @@
 (function () {
   const V = window.VID;
   const A5 = V.a5;
-  const { ramp, flash, lerp, clamp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
   const lin = E.lin;
   const com = A5.commas;
 
@@ -37,8 +37,51 @@
   const L_BIG = 520; // the broken bar is drawn longer than the scale, with its break mark
   const BAR_H = 56;
   const BOX = 220; // the dot clouds live in a 220 px box at x 24
+
+  /* The blob picture, spread out: the first four dots are the hull corners and stay put; the other dots keep inside the hull
+     (clear of its edges) and are pushed apart until none touch, so the picture reads as a cloud and not a clump. */
+  function spread(cloud) {
+    const P = cloud.map((p) => p.slice());
+    const cor = P.slice(0, 4);
+    const edge = (i) => [cor[i], cor[(i + 1) % 4]];
+    const GAP = 0.085; // unit-box distance between two dots
+    const MARGIN = 0.045; // clearance from the hull's edges
+    for (let it = 0; it < 120; it++) {
+      for (let i = 4; i < P.length; i++) {
+        for (let j = 0; j < P.length; j++) {
+          if (j === i) continue;
+          const d = Math.hypot(P[i][0] - P[j][0], P[i][1] - P[j][1]) || 1e-6;
+          if (d >= GAP) continue;
+          const push = (GAP - d) * (j < 4 ? 0.5 : 0.25); // a corner never moves: the dot moves for both
+          P[i][0] += ((P[i][0] - P[j][0]) / d) * push;
+          P[i][1] += ((P[i][1] - P[j][1]) / d) * push;
+        }
+        for (let e = 0; e < 4; e++) {
+          const [a, b] = edge(e);
+          const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+          const dist = ((b[0] - a[0]) * (P[i][1] - a[1]) - (b[1] - a[1]) * (P[i][0] - a[0])) / len; // > 0 inside
+          if (dist < MARGIN) {
+            P[i][0] += (-(b[1] - a[1]) / len) * (MARGIN - dist);
+            P[i][1] += ((b[0] - a[0]) / len) * (MARGIN - dist);
+          }
+        }
+      }
+    }
+    return P;
+  }
+  const BLOB = spread(A5.BLOB);
+  A5.same(
+    "scene 8: spread blob corners",
+    A5.cloudHull(BLOB).sort((a, b) => a - b),
+    [0, 1, 2, 3],
+  );
+  const closest = Math.min(
+    ...BLOB.flatMap((p, i) => BLOB.slice(i + 1).map((q) => Math.hypot(p[0] - q[0], p[1] - q[1]))),
+  );
+  A5.same("scene 8: no two blob dots touch", closest * BOX > 14, true);
+
   const ROWS = [
-    { y0: 76, cloud: A5.BLOB, cs: SMALL, blob: true },
+    { y0: 84, cloud: BLOB, cs: SMALL, blob: true },
     { y0: 360, cloud: A5.RING, cs: BIG, blob: false },
   ];
 
@@ -54,7 +97,8 @@
     const rank = key.map((k) => key.filter((o) => o < k).length);
     const n = R.cloud.length;
     const dotT = (i) => lerp(T.dots[0], T.dots[1] - 0.3, rank[i] / (n - 1));
-    const greenT = (i) => (R.blob ? T.green[0] + 0.1 * hull.indexOf(i) : lerp(T.green[0], T.green[1], rank[i] / (n - 1)));
+    const greenT = (i) =>
+      R.blob ? T.green[0] + 0.1 * hull.indexOf(i) : lerp(T.green[0], T.green[1], rank[i] / (n - 1));
     return (t) => {
       const points = {};
       R.cloud.forEach((_, i) => {
@@ -110,7 +154,7 @@
       bW.set({
         k: blob ? gW * (cs.wrap / C.scan) : gW,
         tone: wrapTone,
-        text: com(Math.round(cs.wrap * gW)),
+        text: com(Math.round(cs.wrap * gW)) + (blob ? " steps" : ""), // the unit, said once
         textOut: blob,
         over: blob ? 0 : ramp(gW, 0.8, 1, lin),
       });

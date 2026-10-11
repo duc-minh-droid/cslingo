@@ -21,69 +21,75 @@
         stage.append(p);
         A8.person(p, { who: "alice", x: 52, y: 48 }).set({});
         A8.person(p, { who: "bob", x: 884, y: 48, name: "left" }).set({});
-        A8.wire(p, { x: 40, y: 210, w: 856, h: 84 }).set({});
-        A8.tag(p, { x: 468, y: 134, text: "the open wire" }).set({});
-        // cipher row at Bob's end (dropped below the wire)
-        const row = L5.chromosome(p, { x: 494, y: 300, genes: "XJHWJY", size: 56, gap: 8, tone: "blue" });
-        row.all(() => ({ o: 0.5 }));
-        const key = A8.tag(p, { x: 150, y: 345, text: "key 5", tone: "purple", fs: 36 });
-        key.set({});
-        A8.icon(p, "key", { x: 72, y: 345, tone: "purple" }).set({});
-        A8.tag(p, { x: 760, y: 345, text: "key ?", ghost: true, fs: 36 }).set({});
-        A8.icon(p, "qmark", { x: 860, y: 345, tone: "orange", size: 50 }).set({});
-        // key travelling on the wire
-        const k2 = A8.tag(p, { x: 600, y: 210, text: "key 5", tone: "purple", fs: 36 });
-        k2.set({});
-        // Eve copy
+        A8.wire(p, { x: 40, y: 215, w: 856, h: 150 }).set({});
+        A8.tag(p, { x: 468, y: 112, text: "the open wire" }).set({});
+        const row = L5.chromosome(p, { x: 494, y: 162, genes: "XJHWJY", size: 56, gap: 8, tone: "blue" });
+        row.all(() => ({}));
+        A8.tag(p, { x: 150, y: 370, text: "key 5", tone: "purple", fs: 36 }).set({});
+        A8.icon(p, "key", { x: 72, y: 370, tone: "purple", size: 64 }).set({});
+        A8.tag(p, { x: 766, y: 370, text: "key ?", ghost: true, fs: 36 }).set({});
+        A8.icon(p, "qmark", { x: 860, y: 370, tone: "orange", size: 56 }).set({});
+        A8.tag(p, { x: 600, y: 258, text: "key 5", tone: "purple", fs: 36 }).set({});
         A8.tag(p, { x: 468, y: 420, text: "key 5", tone: "red", solid: true, fs: 36 }).set({});
-        A8.link(p, { pts: [[600, 256], [600, 330], [500, 400]], tone: "red" }).set({});
-        A8.icon(p, "eye", { x: 468, y: 490, tone: "red" }).set({});
-        A8.person(p, { who: "eve", x: 468, y: 580 }).set({});
-        A8.icon(p, "qmark", { x: 560, y: 150, tone: "red", size: 50 }).set({});
+        A8.link(p, { pts: [[600, 295], [600, 340], [468, 340], [468, 390]], tone: "red" }).set({});
+        A8.icon(p, "eye", { x: 468, y: 495, tone: "red" }).set({});
+        A8.person(p, { who: "eve", x: 468, y: 578 }).set({});
+        A8.icon(p, "qmark", { x: 700, y: 420, tone: "red", size: 50 }).set({});
       });
       // ---- scene 3 key frame
       mk((p) => {
         stage.append(p);
         A8.person(p, { who: "alice", x: 52, y: 48 }).set({});
         A8.person(p, { who: "bob", x: 884, y: 48, name: "left" }).set({});
-        A8.wire(p, { x: 190, y: 190, w: 556, h: 176 }).set({});
+        A8.tag(p, { x: 468, y: 66, text: "the open wire" }).set({});
+        A8.wire(p, { x: 150, y: 190, w: 636, h: 176 }).set({});
         A8.pot(p, { x: 110, y: 190, r: 40 }).set({ drops: ["P", "B", "A"] });
         A8.pot(p, { x: 826, y: 190, r: 40 }).set({ drops: ["P", "A", "B"] });
         A8.icon(p, "equals", { x: 468, y: 190, tone: "green", disc: true, size: 64 }).set({});
-        A8.pot(p, { x: 110, y: 370, r: 40 }).set({ drops: ["A"], frame: "purple" });
-        A8.pot(p, { x: 826, y: 370, r: 40 }).set({ drops: ["B"], frame: "purple" });
-        A8.tag(p, { x: 110, y: 450, text: "secret", tone: "purple" }).set({});
-        A8.tag(p, { x: 826, y: 450, text: "secret", tone: "purple" }).set({});
+        A8.pot(p, { x: 110, y: 380, r: 40 }).set({ drops: ["A"], frame: "purple" });
+        A8.pot(p, { x: 826, y: 380, r: 40 }).set({ drops: ["B"], frame: "purple" });
+        A8.tag(p, { x: 110, y: 455, text: "secret", tone: "purple" }).set({});
+        A8.tag(p, { x: 826, y: 455, text: "secret", tone: "purple" }).set({});
         A8.pot(p, { x: 400, y: 410, r: 32 }).set({ drops: ["P", "A"] });
         A8.pot(p, { x: 536, y: 410, r: 32 }).set({ drops: ["P", "B"] });
         A8.icon(p, "qmark", { x: 468, y: 410, tone: "red", size: 50 }).set({});
         A8.icon(p, "eye", { x: 468, y: 490, tone: "red" }).set({});
-        A8.person(p, { who: "eve", x: 468, y: 580 }).set({});
-        A8.drop(p, { x: 260, y: 300, paint: "A" }).set({});
+        A8.person(p, { who: "eve", x: 468, y: 578 }).set({});
+        A8.tag(p, { x: 110, y: 275, text: "public", tone: "blue" }).set({});
+        A8.drop(p, { x: 260, y: 330, paint: "A" }).set({});
       });
-      // ---- scene 4 key frame
+      // ---- scene 4 key frame (exchange)
       mk((p) => {
         stage.append(p);
         A8.person(p, { who: "alice", x: 52, y: 48 }).set({});
         A8.person(p, { who: "bob", x: 884, y: 48, name: "left" }).set({});
-        A8.tag(p, { x: 418, y: 48, text: "p = 23", tone: "blue", fs: 36 }).set({});
-        A8.tag(p, { x: 518, y: 48, text: "g = 5", tone: "blue", fs: 36 }).set({});
-        A8.tag(p, { x: 170, y: 150, text: "a = 6", tone: "purple", fs: 36 }).set({});
-        A8.icon(p, "lock", { x: 92, y: 150, tone: "purple", size: 44 }).set({});
-        A8.tag(p, { x: 766, y: 150, text: "b = 15", tone: "purple", fs: 36 }).set({});
-        A8.icon(p, "lock", { x: 856, y: 150, tone: "purple", size: 44 }).set({});
-        A8.tag(p, { x: 468, y: 235, html: A8.pow("5", "6") + " = 15625 = 679 × 23 + 8", tone: "orange", fs: 44, box: true }).set({});
-        A8.tag(p, { x: 468, y: 305, text: "mod 23 = the remainder 8", tone: "orange", solid: true }).set({});
-        A8.tag(p, { x: 170, y: 250, text: "A = 8", tone: "blue", solid: true, fs: 36 }).set({});
-        A8.tag(p, { x: 766, y: 250, text: "B = 19", tone: "blue", solid: true, fs: 36 }).set({});
-        A8.tag(p, { x: 170, y: 410, html: A8.pow("19", "6", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
-        A8.tag(p, { x: 766, y: 410, html: A8.pow("8", "15", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
-        A8.icon(p, "equals", { x: 468, y: 410, tone: "green", disc: true, size: 64 }).set({});
-        A8.tag(p, { x: 170, y: 340, text: "B = 19", tone: "blue", fs: 36 }).set({});
-        A8.tag(p, { x: 766, y: 340, text: "A = 8", tone: "blue", fs: 36 }).set({});
-        A8.person(p, { who: "eve", x: 52, y: 560 }).set({});
-        const xs = A8.DH.search;
-        xs.forEach((s, i) => A8.tag(p, { x: 220 + i * 100, y: 560, text: `${s.x}\n${s.y}`, box: true, w: 84, h: 84, tone: s.hit ? "green" : "orange", fs: 32 }).set({}));
+        A8.tag(p, { x: 410, y: 66, text: "p = 23", tone: "blue", fs: 36 }).set({});
+        A8.tag(p, { x: 530, y: 66, text: "g = 5", tone: "blue", fs: 36 }).set({});
+        A8.wire(p, { x: 150, y: 190, w: 636, h: 120 }).set({});
+        A8.tag(p, { x: 110, y: 190, text: "B = 19", tone: "blue", fs: 40, solid: true }).set({});
+        A8.tag(p, { x: 826, y: 190, text: "A = 8", tone: "blue", fs: 40, solid: true }).set({});
+        A8.tag(p, { x: 170, y: 330, html: A8.pow("19", "6", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
+        A8.tag(p, { x: 766, y: 330, html: A8.pow("8", "15", 40) + " mod 23 = 2", tone: "green", fs: 40, box: true }).set({});
+        A8.icon(p, "equals", { x: 468, y: 330, tone: "green", disc: true, size: 64 }).set({});
+        A8.tag(p, { x: 130, y: 430, text: "a = 6", tone: "purple", fs: 36 }).set({});
+        A8.icon(p, "lock", { x: 46, y: 430, tone: "purple", size: 50 }).set({});
+        A8.tag(p, { x: 806, y: 430, text: "b = 15", tone: "purple", fs: 36 }).set({});
+        A8.icon(p, "lock", { x: 890, y: 430, tone: "purple", size: 50 }).set({});
+        A8.tag(p, { x: 468, y: 520, html: A8.pow("5", "6") + " = 15625 = 679 × 23 + 8", tone: "orange", fs: 40, box: true }).set({});
+        A8.tag(p, { x: 468, y: 590, text: "mod 23 = the remainder 8", tone: "orange", solid: true }).set({});
+      });
+      // ---- scene 4 key frame (Eve's search)
+      mk((p) => {
+        stage.append(p);
+        A8.person(p, { who: "eve", x: 52, y: 48 }).set({});
+        [["p = 23", 300], ["g = 5", 420], ["A = 8", 530], ["B = 19", 650]].forEach(([t, x]) => A8.tag(p, { x, y: 48, text: t, tone: "blue", fs: 36 }).set({}));
+        A8.tag(p, { x: 820, y: 48, text: "a = ?", tone: "purple", ghost: true, fs: 36 }).set({});
+        A8.tag(p, { x: 468, y: 150, html: A8.pow("5", "x") + " mod 23 = 8, so x = ?", tone: "orange", fs: 40, box: true }).set({});
+        A8.DH.search.forEach((s, i) => A8.tag(p, { x: 178 + i * 116, y: 280, text: `x = ${s.x}\n${s.y}`, box: true, w: 104, h: 96, tone: s.hit ? "green" : "orange", fs: 30 }).set({}));
+        A8.tag(p, { x: 468, y: 375, text: "6 tries", tone: "green", solid: true, fs: 36 }).set({});
+        A8.tag(p, { x: 300, y: 500, text: A8.BIG.lead, tone: "blue", mono: true, fs: 36 }).set({});
+        A8.tag(p, { x: 690, y: 500, text: "a real p: 617 digits", tone: "blue", solid: true, fs: 32 }).set({});
+        A8.tag(p, { x: 468, y: 580, text: "no computer can search that", tone: "red", fs: 32 }).set({});
       });
       // ---- scene 5 key frame
       mk((p) => {
@@ -109,17 +115,24 @@
         stage.append(p);
         A8.person(p, { who: "alice", x: 52, y: 48 }).set({});
         A8.person(p, { who: "bob", x: 884, y: 48, name: "left" }).set({});
-        A8.wire(p, { x: 190, y: 190, w: 556, h: 90 }).set({});
-        A8.tag(p, { x: 150, y: 190, text: "7", tone: "grey", fs: 44, w: 70 }).set({});
-        A8.tag(p, { x: 468, y: 300, html: A8.pow("7", "3", 40) + " = 343 = 6 × 55 + 13", tone: "blue", fs: 40, box: true }).set({});
-        A8.tag(p, { x: 780, y: 190, text: "13", tone: "blue", solid: true, fs: 44, w: 80 }).set({});
-        A8.icon(p, "lock", { x: 730, y: 150, tone: "purple", size: 44 }).set({});
-        A8.tag(p, { x: 700, y: 400, html: A8.pow("13", "27", 40) + " mod 55 = 7", tone: "green", fs: 40, box: true }).set({});
-        A8.icon(p, "key", { x: 870, y: 300, tone: "purple" }).set({});
-        A8.person(p, { who: "eve", x: 52, y: 480 }).set({});
-        [2, 3, 4, 5].forEach((f, i) => A8.tag(p, { x: 260 + i * 110, y: 480, text: `÷ ${f}`, box: true, w: 92, h: 70, tone: f === 5 ? "green" : "red", fs: 36 }).set({}));
-        A8.tag(p, { x: 468, y: 570, text: "55 = 5 × 11  so  d = 27", tone: "red", fs: 32 }).set({});
-        A8.tag(p, { x: 868, y: 480, text: "617 digits", tone: "blue", fs: 32 }).set({});
+        A8.wire(p, { x: 150, y: 190, w: 636, h: 90 }).set({});
+        A8.tag(p, { x: 110, y: 190, text: "7", tone: "green", solid: true, fs: 48, box: true, w: 80, h: 80 }).set({});
+        A8.tag(p, { x: 826, y: 190, text: "13", tone: "blue", solid: true, fs: 48, box: true, w: 90, h: 80 }).set({});
+        A8.icon(p, "lock", { x: 870, y: 140, tone: "purple", size: 44 }).set({});
+        A8.icon(p, "lock", { x: 130, y: 300, tone: "blue", size: 56 }).set({});
+        A8.tag(p, { x: 230, y: 300, text: "(55, 3)", tone: "blue", fs: 36 }).set({});
+        A8.icon(p, "lock", { x: 730, y: 300, tone: "blue", size: 56 }).set({});
+        A8.tag(p, { x: 830, y: 300, text: "(55, 3)", tone: "blue", fs: 36 }).set({});
+        A8.icon(p, "key", { x: 730, y: 390, tone: "purple", size: 64 }).set({});
+        A8.tag(p, { x: 820, y: 390, text: "27", tone: "purple", solid: true, fs: 36 }).set({});
+        A8.tag(p, { x: 468, y: 320, text: A8.pow("7", "3", 40) + " = 343\n= 6 × 55 + 13", tone: "blue", fs: 40, box: true }).set({});
+        A8.tag(p, { x: 468, y: 420, html: A8.pow("13", "27", 40) + " mod 55 = 7", tone: "green", fs: 40, box: true }).set({});
+        A8.person(p, { who: "eve", x: 52, y: 520 }).set({});
+        A8.tag(p, { x: 240, y: 520, text: "(55, 3)", tone: "red", solid: true, fs: 36 }).set({});
+        A8.tag(p, { x: 340, y: 520, text: "13", tone: "red", solid: true, fs: 36 }).set({});
+        [2, 3, 4, 5].forEach((f, i) => A8.tag(p, { x: 470 + i * 104, y: 520, text: `÷ ${f}`, box: true, w: 92, h: 70, tone: f === 5 ? "green" : "red", fs: 36 }).set({}));
+        A8.tag(p, { x: 300, y: 595, text: "55 = 5 × 11, so d = 27", tone: "red", fs: 32 }).set({});
+        A8.tag(p, { x: 730, y: 595, text: "a real n: 617 digits", tone: "blue", solid: true, fs: 32 }).set({});
       });
       // ---- scene 7 key frame
       mk((p) => {

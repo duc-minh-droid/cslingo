@@ -462,5 +462,12 @@
     ],
   );
 
-  Object.assign(A8, { CIPHER, PAINT, DH, RSA, HASH, CHAIN, MINE, ZEROS, SEAL });
+  // a number of the size of a real RSA prime: 2^2048 - 1 has 617 digits (only its leading digits are shown)
+  const BIG = (() => {
+    const s = (2n ** 2048n - 1n).toString();
+    return { digits: s.length, lead: s.slice(0, 16) };
+  })();
+  same("2^2048 - 1", [BIG.digits, BIG.lead], [617, "3231700607131100"]);
+
+  Object.assign(A8, { CIPHER, PAINT, DH, RSA, HASH, CHAIN, MINE, ZEROS, SEAL, BIG });
 })();
