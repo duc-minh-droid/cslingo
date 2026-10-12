@@ -26,7 +26,8 @@
   // ---------- layout (stage px) ----------
   const RX = 680; // the right column
   const BAR_W = 240; // 80 px per bit: the fixed 3-bit code fills it
-  const CHIP = { dx: 30, dy: 23 }; // half a chip (60 x 46)
+  const CHIP_H = 62; // a weight chip is 62 px tall and 83 px wide (100 for "1.00"): a flight starts centred on the node
+  const chipW = (text) => (text.length > 3 ? 100 : 83);
   const pos = A7.treePos(H, { x0: 20, slot: 120, top: 70, dy: 140, flat: 1 });
   const expect = {
     C: [80, 490],
@@ -149,8 +150,8 @@
         const from = T.pt(m.id);
         chips[i].set({
           k: t >= fa && t < fb ? ramp(t, fa, fa + 0.2, E.lin) : 0,
-          x: lerp(from.x - CHIP.dx, RX, p),
-          y: lerp(from.y - CHIP.dy, 250, p) - 40 * Math.sin(Math.PI * p),
+          x: lerp(from.x - chipW(A7.fmtW(m.w)) / 2, RX, p),
+          y: lerp(from.y - CHIP_H / 2, 250, p) - 40 * Math.sin(Math.PI * p),
         });
         const [ba, bb] = [fb, T0[i] + BAR_END[i]];
         const prev = i ? H.merges[i - 1].cost : 0;
