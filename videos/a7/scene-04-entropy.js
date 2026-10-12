@@ -144,7 +144,7 @@
       fixTag.set({ k: ramp(t, T0.fixTag, T0.fixTag + 0.4) });
 
       avg.set({ k: ramp(t, 9.0, 9.4) });
-      V.place(eq, { s: 0.8 + 0.2 * E.pop(ramp(t, 9.2, 9.6, lin)), o: ramp(t, 9.2, 9.4, lin) });
+      V.place(eq, { s: 0.8 + 0.2 * E.pop(ramp(t, 9.4, 9.8, lin)), o: ramp(t, 9.4, 9.6, lin) });
       ent.set({
         text: S.perSymbol.toFixed(2),
         tone: "purple",

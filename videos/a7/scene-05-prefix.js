@@ -13,21 +13,22 @@
   // ---------- part 1: a code with two readings ----------
   function part1(stage) {
     const B = A7.BAD;
+    const DY = 36; // the whole figure sits a little lower so it is centred on the stage
     const letters = Object.keys(B.codes);
     const book = A7.tiles(stage, {
       x: 316,
-      y: 24,
+      y: 24 + DY,
       items: letters.map((c) => ({ text: c, sub: B.codes[c] })),
       w: 88,
       h: 104,
       gap: 20,
       fs: 44,
     });
-    const codeTag = A7.tag(stage, { x: 180, y: 50, text: "code", tone: "grey", h: 52 });
-    const recTag = A7.tag(stage, { x: 180, y: 220, text: "received", tone: "grey", h: 52 });
+    const codeTag = A7.tag(stage, { x: 180, y: 50 + DY, text: "code", tone: "grey", h: 52 });
+    const recTag = A7.tag(stage, { x: 180, y: 220 + DY, text: "received", tone: "grey", h: 52 });
     const bitsRow = A7.bits(stage, {
       x: 400,
-      y: 204,
+      y: 204 + DY,
       groups: B.stream,
       cell: 72,
       h: 72,
@@ -36,13 +37,13 @@
       tone: "blue",
     });
     const [r1, r2] = B.readings;
-    const read1 = A7.tiles(stage, { x: 400, y: 320, items: r1, w: 72, h: 80, gap: 8, fs: 44 });
-    const read2 = A7.tiles(stage, { x: 400, y: 440, items: r2, w: 152, h: 80, fs: 44 });
-    const tag1 = A7.tag(stage, { x: 180, y: 334, text: "reading 1", tone: "grey", h: 52 });
-    const tag2 = A7.tag(stage, { x: 180, y: 454, text: "reading 2", tone: "grey", h: 52 });
-    const verdict = A7.tag(stage, { x: 620, y: 386, text: "two readings!", tone: "red", solid: true, h: 52 });
+    const read1 = A7.tiles(stage, { x: 400, y: 320 + DY, items: r1, w: 72, h: 80, gap: 8, fs: 44 });
+    const read2 = A7.tiles(stage, { x: 400, y: 440 + DY, items: r2, w: 152, h: 80, fs: 44 });
+    const tag1 = A7.tag(stage, { x: 180, y: 334 + DY, text: "reading 1", tone: "grey", h: 52 });
+    const tag2 = A7.tag(stage, { x: 180, y: 454 + DY, text: "reading 2", tone: "grey", h: 52 });
+    const verdict = A7.tag(stage, { x: 636, y: 386 + DY, text: "two readings!", tone: "red", solid: true, h: 52 });
     const svg = L5.svg(stage, 936, 640);
-    const cross = L5.cross(580, 420, 70, "red", { w: 12 });
+    const cross = L5.cross(596, 420 + DY, 70, "red", { w: 12 });
     svg.append(cross);
 
     return (t) => {
@@ -105,7 +106,7 @@
     const target = (w) => {
       const [a, b] = [T.pt(w.from), T.pt(w.to)];
       if (!P.tree.nodes[w.to].leaf) return b;
-      const top = b.y - T.size(w.to).h / 2;
+      const top = b.y - T.size(w.to).h / 2 - 8; // a little above the edge, clear of the letter
       return { x: lerp(a.x, b.x, (top - a.y) / (b.y - a.y)), y: top };
     };
 

@@ -56,8 +56,8 @@
     const T = A7.tree(stage, { tree: H, pos, leafW: 88 });
 
     // the pool's own caption: the small numbers on the leaves are chances
-    const chanceLine = A7.span(stage, { x: 30, y: 556, w: 580, h: 10, tone: "grey" });
-    const chanceTag = A7.tag(stage, { x: 159, y: 576, text: "chance of each letter", tone: "grey" });
+    const chanceLine = A7.span(stage, { x: 30, y: 550, w: 580, h: 8, tone: "grey" });
+    const chanceTag = A7.tag(stage, { x: 159, y: 566, text: "chance of each letter", tone: "grey", h: 52 });
 
     // right column: the three bars (a dashed track shows the scale: the full length is the fixed 3 bits)
     const track = (y) => {
@@ -85,6 +85,9 @@
     const floorLbl = A7.tag(stage, { x: RX, y: 400, text: `floor: ${H.H.toFixed(2)}`, tone: "purple" });
     const floorTrack = track(468);
     const floorBar = A7.bar(stage, { x: RX, y: 468, w: BAR_W, h: 48, tone: "purple" });
+
+    // a bar has no text here, so it needs no padding (the helper's 18 px padding would keep every short bar at 42 px)
+    [fixedBar, huffBar, floorBar].forEach((b) => (b.el.style.padding = "0"));
 
     // one green chip per merge: the new node's weight, flying to the Huffman label
     const chips = H.merges.map((m) => A7.tag(stage, { x: 0, y: 0, text: A7.fmtW(m.w), tone: "green", solid: true }));
@@ -155,7 +158,7 @@
         bump += flash(t, ba, bb);
       });
       const kCost = cost / (H.fixedBits * 100);
-      huffLbl.set({ k: ramp(t, 2.0, 2.4, E.lin), text: `Huffman: ${A7.fmtBits(Math.round(cost))}`, s: 1 + 0.1 * bump });
+      huffLbl.set({ k: ramp(t, 2.0, 2.4, E.lin), text: `Huffman: ${A7.fmtBits(Math.round(cost))}`, s: 1 + 0.06 * bump });
       V.show(huffTrack, ramp(t, 2.0, 2.4, E.lin));
       huffBar.set({ k: kCost });
 
