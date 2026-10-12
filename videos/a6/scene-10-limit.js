@@ -144,7 +144,7 @@
     const pointer = A6.disc(stage, { x: home.x, y: home.y, size: 84, text: String(TWO.at), tone: "orange" });
 
     // "position 7 was correct": the repair hit an innocent bit
-    const fine = A6.tag(stage, { x: TAG_X, y: 532, text: `Position ${TWO.at} was correct`, tone: "green" });
+    const fine = A6.tag(stage, { x: TAG_X, y: 520, text: `Position ${TWO.at} was correct`, tone: "green" });
 
     // the data before and after the repair, side by side
     const [DS, DG, DY] = [62, 10, 548];
@@ -165,8 +165,8 @@
       L5.arrow(dx[0] + DW + 16, DY + DS / 2, dx[1] - 16, DY + DS / 2, "orange", 1, { w: 8, head: 22 }),
     );
     const stats = [
-      A6.tag(stage, { x: TAG_X, y: 500, text: TXT.one, tone: "green" }),
-      A6.tag(stage, { x: TAG_X, y: 566, text: TXT.two, tone: "red", solid: true }),
+      A6.tag(stage, { x: TAG_X, y: 488, text: TXT.one, tone: "green" }),
+      A6.tag(stage, { x: TAG_X, y: 560, text: TXT.two, tone: "red", solid: true }),
     ];
     [fine, ...stats].forEach((g) => (g.el.style.width = `${TAG_W}px`)); // one width for all three: centred whatever the text
 
