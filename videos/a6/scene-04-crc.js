@@ -1,7 +1,7 @@
 /* Phase 6 · scene 04-crc (12.5 s): a CRC check is the remainder of a long division of the message by a pattern both sides know
    (the generator), where "subtract" is XOR. Message 1011, generator 1101, so the sender divides 1011000 and sends 1011 + 100.
    Every digit comes from A6.CRC / A6.division (common.js, common-3.js).
-   Story (local seconds): 0.15-1.2 the message and the generator appear (and "both sides know it"); 2.1-3.3 the message and three
+   Story (local seconds): 0.15-1.2 the message and the generator appear (and "both sides know it"); 1.5-3.2 the message and three
    zeros go into the division; 3.35-5.05 step 1 (generator under the first four bits, XOR); 5.2-6.9 step 2 (the generator under the
    next 1); 7.3-7.8 the last three bits turn orange: the remainder; 8.7-9.7 the frame (message + remainder) builds tile by tile
    while the tile it copies lights up; 9.7-12.5 it stays, the message and then the check bits pulse once. Each caption starts
@@ -41,7 +41,6 @@
   };
   const lin = E.lin;
   const pulseAt = (i) => T.copy[0] + (i * (T.copy[1] - T.copy[0])) / (C.msg.length + 1);
-  const popIn = (k) => ({ s: E.pop(k), o: clamp(k * 5) });
 
   function build(stage) {
     // right column: the message and the generator, each with its label
@@ -54,9 +53,23 @@
     const remTag = A6.tag(stage, { x: 562, y: 378, text: "remainder", tone: "orange", solid: true });
 
     // the long division, five rows
-    const d = A6.division(stage, { x: 80, y: 76, dividend: C.padded, gen: C.gen, size: 60, gap: 8, rowGap: 14, padFrom: 4 });
+    const d = A6.division(stage, {
+      x: 80,
+      y: 76,
+      dividend: C.padded,
+      gen: C.gen,
+      size: 60,
+      gap: 8,
+      rowGap: 14,
+      padFrom: 4,
+    });
     const addW = A6.tagW("add 000");
-    const addTag = A6.tag(stage, { x: (d.mid(0, 4).x + d.mid(0, 6).x - addW) / 2, y: 10, text: "add 000", tone: "orange" });
+    const addTag = A6.tag(stage, {
+      x: (d.mid(0, 4).x + d.mid(0, 6).x - addW) / 2,
+      y: 10,
+      text: "add 000",
+      tone: "orange",
+    });
 
     // the frame at the bottom: its label sits to the left, the check bits are named above them
     const frameW = 7 * 72 + 6 * 10;
@@ -77,26 +90,39 @@
       text: "check bits",
       tone: "orange",
     });
-    // where each frame tile starts its flight: the message tiles on the right, then the remainder tiles of the last row
-    const src = (i) => (i < C.msg.length ? msg.mid(i) : d.mid(d.last, i));
+    // an orange copy of the remainder tiles that only shows while one of them lights up (the division owns the real ones)
+    const rem0 = d.mid(d.last, d.n - C.rem.length);
+    const remCopy = A6.bits(stage, {
+      x: rem0.x - 30,
+      y: rem0.y - 30,
+      bits: C.rem,
+      size: 60,
+      gap: 8,
+      tone: "orange",
+    });
+    const frameAt = (i) => T.frame + i * T.frameStep;
+    const nMsg = C.msg.length;
 
     return (t) => {
-      // right column
+      // right column: the message (lighting up as each copy is made), the generator (lighting up in each step)
       msgTag.set({ k: ramp(t, ...T.msg, lin) });
-      msg.all((i) => ({
-        ...popIn(A6.seq(t, 0.3, 0.07, 0.3, i)),
-        s: E.pop(A6.seq(t, 0.3, 0.07, 0.3, i)) * (1 + 0.12 * flash(t, pulseAt(i), pulseAt(i) + 0.3)),
-      }));
-      const dim = 1 - 0.7 * ramp(t, ...T.dim, lin);
-      genTag.set({ k: ramp(t, ...T.gen, lin), o: dim });
+      msg.all((i) => {
+        const k = A6.seq(t, 0.3, 0.07, 0.3, i);
+        const lit = Math.max(flash(t, pulseAt(i), pulseAt(i) + 0.3), flash(t, frameAt(i), frameAt(i) + 0.45));
+        return {
+          s: E.pop(k) * (1 + 0.12 * lit),
+          o: clamp(k * 5),
+          tone: lit > 0.05 && t > T.frame - 0.1 ? "blue" : "grey",
+        };
+      });
+      genTag.set({ k: ramp(t, ...T.gen, lin) });
       gen.all((i) => {
         const k = A6.seq(t, 0.6, 0.07, 0.3, i);
         const use = Math.max(flash(t, T.s1[0], T.s1[0] + 0.4), flash(t, T.s2[0], T.s2[0] + 0.4));
-        return { s: E.pop(k) * (1 + 0.1 * use), o: clamp(k * 5) * dim };
+        return { s: E.pop(k) * (1 + 0.1 * use), o: clamp(k * 5) };
       });
-      const bothOut = ramp(t, ...T.both2, lin);
-      bothTag.set({ k: ramp(t, ...T.both, lin), o: 1 - bothOut });
-      xorTag.set({ k: ramp(t, ...T.xor, lin), o: dim });
+      bothTag.set({ k: ramp(t, ...T.both, lin), o: 1 - ramp(t, ...T.both2, lin) });
+      xorTag.set({ k: ramp(t, ...T.xor, lin) });
       remTag.set({ k: ramp(t, ...T.remTag, lin) });
 
       // the division: the message and zeros go in, then two steps, then the remainder lights up
@@ -108,20 +134,20 @@
         remK: ramp(t, ...T.rem, lin),
       });
       addTag.set({ k: ramp(t, ...T.padTag, lin) });
+      remCopy.all((j) => {
+        const f = flash(t, frameAt(nMsg + j), frameAt(nMsg + j) + 0.45);
+        return { solid: true, o: f > 0.001 ? 1 : 0, s: 1 + 0.2 * f };
+      });
 
-      // the frame: message tiles and remainder tiles fly down into their slots, then pulse once
+      // the frame: message tiles, then the remainder tiles drop into their slots, then pulse once
       out.all((i) => {
-        const k = A6.seq(t, T.fly, T.flyStep, T.flyDur, i);
-        const e = E.inOut(k);
-        const a = src(i);
-        const b = out.mid(i);
-        const tail = i < C.msg.length ? T.pulseMsg + i * 0.06 : T.pulseChk + (i - C.msg.length) * 0.06;
+        const k = ramp(t, frameAt(i), frameAt(i) + T.frameDur, lin);
+        const tail = i < nMsg ? T.pulseMsg + i * 0.06 : T.pulseChk + (i - nMsg) * 0.06;
         return {
-          x: (a.x - b.x) * (1 - e),
-          y: (a.y - b.y) * (1 - e),
-          s: (0.83 + 0.17 * e) * (1 + 0.12 * flash(t, tail, tail + 0.4)),
-          o: clamp(k * (T.flyDur / 0.2)),
-          solid: i >= C.msg.length,
+          y: -24 * (1 - E.out(k)),
+          s: (0.7 + 0.3 * E.pop(k)) * (1 + 0.12 * flash(t, tail, tail + 0.4)),
+          o: clamp(k * 5),
+          solid: i >= nMsg,
         };
       });
       frameTag.set({ k: ramp(t, ...T.frameTag, lin) });
