@@ -3,7 +3,7 @@
    Every digit comes from A6.CRC / A6.division (common.js, common-3.js).
    Story (local seconds): 0.15-1.2 the message and the generator appear (and "both sides know it"); 1.5-3.2 the message and three
    zeros go into the division; 3.35-5.05 step 1 (generator under the first four bits, XOR); 5.2-6.9 step 2 (the generator under the
-   next 1); 7.3-7.8 the last three bits turn orange: the remainder; 8.7-9.7 the frame (message + remainder) builds tile by tile
+   next 1); 7.3-7.8 the last three bits turn orange: the remainder; 8.6-9.7 the frame (message + remainder) builds tile by tile
    while the tile it copies lights up; 9.7-12.5 it stays, the message and then the check bits pulse once. Each caption starts
    only after its picture is on screen. */
 (function () {
@@ -31,11 +31,11 @@
     xor: [3.6, 3.9],
     rem: [7.3, 7.8],
     remTag: [7.45, 7.75],
-    frame: 8.7, // the frame tiles appear one after another, each lighting up the tile it copies
-    frameStep: 0.12,
+    frame: 8.6, // the frame tiles appear one after another, each lighting up the tile it copies
+    frameStep: 0.13,
     frameDur: 0.3,
     frameTag: [9.3, 9.6],
-    checkTag: [9.55, 9.85],
+    checkTag: [9.5, 9.8],
     pulseMsg: 10.2, // the message, then the check bits, pulse once
     pulseChk: 10.9,
   };
@@ -108,7 +108,7 @@
       msgTag.set({ k: ramp(t, ...T.msg, lin) });
       msg.all((i) => {
         const k = A6.seq(t, 0.3, 0.07, 0.3, i);
-        const lit = Math.max(flash(t, pulseAt(i), pulseAt(i) + 0.3), flash(t, frameAt(i), frameAt(i) + 0.45));
+        const lit = Math.max(flash(t, pulseAt(i), pulseAt(i) + 0.3), flash(t, frameAt(i), frameAt(i) + 0.3));
         return {
           s: E.pop(k) * (1 + 0.12 * lit),
           o: clamp(k * 5),
@@ -135,7 +135,7 @@
       });
       addTag.set({ k: ramp(t, ...T.padTag, lin) });
       remCopy.all((j) => {
-        const f = flash(t, frameAt(nMsg + j), frameAt(nMsg + j) + 0.45);
+        const f = flash(t, frameAt(nMsg + j), frameAt(nMsg + j) + 0.3);
         return { solid: true, o: f > 0.001 ? 1 : 0, s: 1 + 0.2 * f };
       });
 
