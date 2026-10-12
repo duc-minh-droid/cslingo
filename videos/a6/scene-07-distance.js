@@ -40,7 +40,7 @@
     [C.two.recv, C.two.fix, 12.05, 12.55], // the wrong repair
   ];
   const SPANS = [
-    [1.4, 1.8, 3.7, 4.0], // the token's lives: [pop start, pop end, fade start, fade end]
+    [1.4, 1.8, 3.6, 3.85], // the token's lives: [pop start, pop end, fade start, fade end]
     [8.15, 8.5, 10.5, 10.65],
     [10.7, 11.0, 99, 100],
   ];
@@ -48,7 +48,7 @@
   const BOLTS = { a: [HIT, [8.5, 8.95], [10.95, 11.35]], b: [[11.35, 11.7]] };
   const T = {
     edges: 0.2, // grey edges draw on, one every 0.04 s
-    words: 0.5, // the words pop, one every 0.05 s
+    words: 0.4, // the words pop, one every 0.05 s
     valid: 3.7, // 000 and 111 turn solid green
     validTag: 4.15,
     bit0: 4.4,
@@ -82,7 +82,11 @@
     const base = A6.cube(stage, { x: XL, y: 56, w: 540, h: 430, pillW: 92, pillH: 54 });
     const over = A6.cube(stage, { x: XL, y: 56, w: 540, h: 430, pillW: 92, pillH: 54 });
     stage.insertBefore(over.el, base.el.nextSibling); // the coloured edges sit above the grey ones, below the words
-    A6.same("distance: the path edges are cube edges", PE.every((e) => base.edgeKeys.includes(e)), true);
+    A6.same(
+      "distance: the path edges are cube edges",
+      PE.every((e) => base.edgeKeys.includes(e)),
+      true,
+    );
 
     const validTag = A6.tag(stage, { x: XR, y: 40, text: "valid words", tone: "grey" });
     const bit0 = A6.tag(stage, { x: XR, y: 106, text: `0 = ${W0}`, tone: "green" });
@@ -104,6 +108,7 @@
     const boltA = svg.appendChild(A6.bolt(mA.x + 54, mA.y, 60, "orange"));
     const boltB = svg.appendChild(A6.bolt(mB.x, mB.y + 56, 60, "orange"));
     const tok = A6.token(stage, { tone: "blue", size: 34 });
+    stage.insertBefore(tok.el, over.el.nextSibling); // the token passes behind a word, never over its digits
     const rest = (w) => ({ x: base.pt(w).x, y: base.pt(w).y - 50 });
 
     const tokenAt = (t) => {

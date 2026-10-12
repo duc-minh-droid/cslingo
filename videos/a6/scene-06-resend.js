@@ -8,8 +8,8 @@
    draws, 3.1 "send again"; 3.9 the damaged frame goes, 4.1-5.2 a clean frame is sent again; 5.2-5.5 the cross becomes a tick.
    Panel B (bottom): 5.9-6.5 the panel and a dotted, long wire; 6.3 "minutes away"; 6.65-7.8 the Hamming codeword travels; 7.0-7.5
    noise flips position 6; 7.9-8.3 red cross, 8.1 "check fails"; 8.3-9.4 the return arrow crawls and stalls at about a fifth of
-   the way (a dotted trail shows the long way home); 9.2 the tag becomes "too slow"; 9.6-10.05 the receiver flips the bit back itself (green), the cross becomes a tick
-   and the verdict reads "fixed on arrival". */
+   the way (a dotted trail shows the long way home); 9.2 the tag becomes "too slow"; 9.6-10.05 the receiver flips the bit
+   back itself (green), the cross becomes a tick and the verdict reads "fixed on arrival". */
 (function () {
   const V = window.VID;
   const A6 = V.a6;
@@ -185,7 +185,7 @@
       solid: true,
     });
     const verdict = A6.tag(b, { x: 700, y: VERDICT_Y, text: "check fails", h: 54, tone: "red" });
-    const tagX = PKT.x + (widthOf(ARQ.frame.length) - A6.tagW("frame")) / 2;
+    const tagX = Math.round(PKT.x + (widthOf(ARQ.frame.length) - A6.tagW("frame")) / 2);
     const frameTag = [0, 1].map(() => A6.tag(b, { x: tagX, y: PKT.y + PKT.size + 14, text: "frame", tone: "grey" }));
     const tones = [...Array(7).fill("grey"), "orange"];
     const row = () =>

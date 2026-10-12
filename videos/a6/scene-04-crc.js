@@ -3,8 +3,9 @@
    Every digit comes from A6.CRC / A6.division (common.js, common-3.js).
    Story (local seconds): 0.15-1.2 the message and the generator appear (and "both sides know it"); 2.1-3.3 the message and three
    zeros go into the division; 3.35-5.05 step 1 (generator under the first four bits, XOR); 5.2-6.9 step 2 (the generator under the
-   next 1); 7.3-7.8 the last three bits turn orange: the remainder; 8.85-9.7 the frame (message + remainder) is sent; 9.7-12.5 it
-   stays, the message and then the check bits pulse once. Each caption starts only after its picture is on screen. */
+   next 1); 7.3-7.8 the last three bits turn orange: the remainder; 8.7-9.7 the frame (message + remainder) builds tile by tile
+   while the tile it copies lights up; 9.7-12.5 it stays, the message and then the check bits pulse once. Each caption starts
+   only after its picture is on screen. */
 (function () {
   const V = window.VID;
   const A6 = V.a6;
@@ -25,16 +26,15 @@
     copy: [1.5, 2.5], // the message tiles pop into the division row (and pulse on the right)
     pad: [2.8, 3.2], // the three zeros
     padTag: [2.85, 3.15],
-    dim: [8.6, 8.9], // the generator is used up: its block steps back while the frame forms
     s1: [3.35, 5.05], // step 1: p 0 -> 1
     s2: [5.2, 6.9], // step 2: p 1 -> 2
     xor: [3.6, 3.9],
     rem: [7.3, 7.8],
     remTag: [7.45, 7.75],
-    fly: 8.85, // the frame tiles leave one after another
-    flyStep: 0.05,
-    flyDur: 0.55,
-    frameTag: [9.4, 9.7],
+    frame: 8.7, // the frame tiles appear one after another, each lighting up the tile it copies
+    frameStep: 0.12,
+    frameDur: 0.3,
+    frameTag: [9.3, 9.6],
     checkTag: [9.55, 9.85],
     pulseMsg: 10.2, // the message, then the check bits, pulse once
     pulseChk: 10.9,
