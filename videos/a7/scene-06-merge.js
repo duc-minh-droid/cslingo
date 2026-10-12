@@ -53,10 +53,11 @@
   const greenAt = (id) => GREEN + 0.1 * H.nodes[id].height;
 
   function build(stage) {
-    const T = A7.tree(stage, { tree: H, pos });
+    const T = A7.tree(stage, { tree: H, pos, leafW: 88 });
 
     // the pool's own caption: the small numbers on the leaves are chances
-    const chanceTag = A7.tag(stage, { x: 130, y: 574, text: "chance of each letter", tone: "grey" });
+    const chanceLine = A7.span(stage, { x: 30, y: 556, w: 580, h: 10, tone: "grey" });
+    const chanceTag = A7.tag(stage, { x: 159, y: 576, text: "chance of each letter", tone: "grey" });
 
     // right column: the three bars (a dashed track shows the scale: the full length is the fixed 3 bits)
     const track = (y) => {
@@ -77,13 +78,13 @@
     };
     const hdr = A7.tag(stage, { x: RX, y: 20, text: "bits per letter", tone: "grey" });
     const fixedLbl = A7.tag(stage, { x: RX, y: 100, text: `fixed: ${A7.fmtBits(H.fixedBits * 100)}`, tone: "grey" });
-    const fixedBar = A7.bar(stage, { x: RX, y: 160, w: BAR_W, h: 48, tone: "grey" });
+    const fixedBar = A7.bar(stage, { x: RX, y: 168, w: BAR_W, h: 48, tone: "grey" });
     const huffLbl = A7.tag(stage, { x: RX, y: 250, text: "Huffman: 0.00", tone: "green" });
-    const huffTrack = track(310);
-    const huffBar = A7.bar(stage, { x: RX, y: 310, w: BAR_W, h: 48, tone: "green" });
+    const huffTrack = track(318);
+    const huffBar = A7.bar(stage, { x: RX, y: 318, w: BAR_W, h: 48, tone: "green" });
     const floorLbl = A7.tag(stage, { x: RX, y: 400, text: `floor: ${H.H.toFixed(2)}`, tone: "purple" });
-    const floorTrack = track(460);
-    const floorBar = A7.bar(stage, { x: RX, y: 460, w: BAR_W, h: 48, tone: "purple" });
+    const floorTrack = track(468);
+    const floorBar = A7.bar(stage, { x: RX, y: 468, w: BAR_W, h: 48, tone: "purple" });
 
     // one green chip per merge: the new node's weight, flying to the Huffman label
     const chips = H.merges.map((m) => A7.tag(stage, { x: 0, y: 0, text: A7.fmtW(m.w), tone: "green", solid: true }));
@@ -163,7 +164,8 @@
       hdr.set({ k: intro });
       fixedLbl.set({ k: ramp(t, 0.65, 1.05, E.lin) });
       fixedBar.set({ k: ramp(t, 0.7, 1.2) });
-      chanceTag.set({ k: ramp(t, 1.0, 1.4, E.lin) });
+      chanceLine.set({ k: ramp(t, 1.0, 1.5) });
+      chanceTag.set({ k: ramp(t, 1.2, 1.6, E.lin) });
       floorLbl.set({ k: ramp(t, FLOOR, FLOOR + 0.4, E.lin) });
       V.show(floorTrack, ramp(t, FLOOR, FLOOR + 0.4, E.lin));
       floorBar.set({ k: (H.H / H.fixedBits) * ramp(t, FLOOR + 0.2, FLOOR + 0.8) });

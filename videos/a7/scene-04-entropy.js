@@ -2,11 +2,11 @@
    floor for compression. A source sends A, B, C or D with chances 1/2, 1/4, 1/8, 1/8 (surprise 1, 2, 3, 3 bits). A sample of
    eight symbols with exactly those chances (ABAACABD) costs 14 bits of surprise; a fixed 2-bit code needs 16; 14 / 8 = 1.75.
    Every number comes from A7.DIE / A7.SAMPLE (common.js) and is asserted below.
-   Story (local seconds): 0.2-1.2 the legend (symbol, chance, surprise) pops tile by tile and each tile pulses once; 2.8-3.9 the
-   eight sample tiles pop; 4.2-5.4 each symbol gets its orange surprise cells; 5.8-7.4 the cells of all eight symbols slide
-   down and close up into one 14-cell strip (the swap to the strip itself is invisible: same cells, same place); 7.8-8.9 the
-   grey fixed strip (2 bits each, 16 cells) and its tag; 9.0-10.4 the average (14 bits over 8 symbols), the entropy counter
-   1.75 and the floor tag. Nothing moves after 10.4. */
+   Story (local seconds): 0.2-1.2 the legend (symbol, chance, surprise) pops tile by tile and each tile pulses once; 2.8-3.9
+   the eight sample tiles pop; 4.2-5.4 each symbol gets its orange surprise cells (its legend tile lights up as it does);
+   5.8-7.4 the cells of all eight symbols slide down and close up into one 14-cell strip (the swap to the strip itself is
+   invisible: same cells, same place); 7.8-8.9 the grey fixed strip (2 bits each, 16 cells) and its tag; 9.0-10.4 the average
+   (14 bits over 8 symbols), the entropy counter 1.75 and the floor tag. Nothing moves after 10.4. */
 (function () {
   const V = window.VID;
   const A7 = V.a7;
@@ -111,10 +111,21 @@
     const arrive = (t, j) => ramp(t, T0.gather + 0.08 * j, T0.gather + 1 + 0.08 * j, E.inOut);
 
     return (t) => {
-      legend.all((i) => ({
-        k: ramp(t, T0.pop + 0.15 * i, T0.pop + 0.5 + 0.15 * i),
-        s: 1 + 0.06 * flash(t, T0.pulse + 0.3 * i, T0.pulse + 0.7 + 0.3 * i),
-      }));
+      legend.all((i) => {
+        // the legend tile of a symbol lights up (orange ring) each time that symbol gets its surprise cells
+        const lit = Math.max(
+          0,
+          ...[...S.msg].map((c, j) =>
+            c === D.letters[i] ? flash(t, T0.cells + 0.1 * j, T0.cells + 0.5 + 0.1 * j) : 0,
+          ),
+        );
+        return {
+          k: ramp(t, T0.pop + 0.15 * i, T0.pop + 0.5 + 0.15 * i),
+          s: 1 + 0.06 * Math.max(lit, flash(t, T0.pulse + 0.3 * i, T0.pulse + 0.7 + 0.3 * i)),
+          ring: lit > 0.01 ? "orange" : null,
+          ringK: lit,
+        };
+      });
       samp.all((j) => ({ k: ramp(t, T0.samp + 0.1 * j, T0.samp + 0.4 + 0.1 * j) }));
 
       src.forEach((s, j) => {

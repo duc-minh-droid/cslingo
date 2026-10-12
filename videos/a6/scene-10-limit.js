@@ -65,13 +65,20 @@
     [false, false, false],
   );
   A6.same("limit: position 7 was correct before the repair", [W1[AT], W0[AT], W2[AT]], ["1", "1", "0"]);
-  A6.same("limit: three bits are wrong after the repair", [A6.diffAt(W2, W0).map(A6.pos), TWO.wrong], [[2, 5, 7], [2, 5, 7]]);
   A6.same(
-    "limit: the data",
-    [HM.data, GOT, A6.hData(W2), A6.diffAt(HM.data, GOT)],
-    ["1011", "1110", "1110", [1, 3]],
+    "limit: three bits are wrong after the repair",
+    [A6.diffAt(W2, W0).map(A6.pos), TWO.wrong],
+    [
+      [2, 5, 7],
+      [2, 5, 7],
+    ],
   );
-  A6.same("limit: the audit", [EVERY, TXT.one, TXT.two], [{ one: [112, 112], two: [336, 0] }, "1 flip: 112 of 112 fixed", "2 flips: 0 of 336 fixed"]);
+  A6.same("limit: the data", [HM.data, GOT, A6.hData(W2), A6.diffAt(HM.data, GOT)], ["1011", "1110", "1110", [1, 3]]);
+  A6.same(
+    "limit: the audit",
+    [EVERY, TXT.one, TXT.two],
+    [{ one: [112, 112], two: [336, 0] }, "1 flip: 112 of 112 fixed", "2 flips: 0 of 336 fixed"],
+  );
 
   const T = {
     tile: 0.2, // the first tile pops here, then one every 0.07 s
@@ -108,12 +115,13 @@
     fine: [8.1, 8.45],
     fineOut: [8.95, 9.2],
     data: 9.1, // the data before and after
-    dataOut: [10.1, 10.35],
+    dataOut: [10.2, 10.45],
     stat: [
-      [10.5, 10.85],
-      [10.95, 11.3],
+      [10.55, 10.9],
+      [11.0, 11.35],
     ],
   };
+  const [TAG_W, TAG_X] = [360, 288]; // the stage is 936 wide: a 360 px tag at x 288 is centred
   const STEP = 0.6;
   const band0 = (j) => T.read + STEP * j;
   const popIn = (k) => ({ s: 0.5 + 0.5 * E.pop(k), o: Math.min(1, k * 4) });
@@ -136,13 +144,12 @@
     const pointer = A6.disc(stage, { x: home.x, y: home.y, size: 84, text: String(TWO.at), tone: "orange" });
 
     // "position 7 was correct": the repair hit an innocent bit
-    const fineText = `Position ${TWO.at} was correct`;
-    const fine = A6.tag(stage, { x: 468 - A6.tagW(fineText) / 2, y: 532, text: fineText, tone: "green" });
+    const fine = A6.tag(stage, { x: TAG_X, y: 532, text: `Position ${TWO.at} was correct`, tone: "green" });
 
     // the data before and after the repair, side by side
     const [DS, DG, DY] = [62, 10, 548];
     const DW = 4 * DS + 3 * DG;
-    const dx = [150, 150 + DW + 80];
+    const dx = [140, 140 + DW + 100];
     const sent = A6.bits(stage, { x: dx[0], y: DY, bits: HM.data, size: DS, gap: DG, fs: 38 });
     const got = A6.bits(stage, { x: dx[1], y: DY, bits: GOT, size: DS, gap: DG, fs: 38 });
     const dataLab = ["data sent", "data received"].map((text, k) =>
@@ -154,21 +161,25 @@
         }),
       ),
     );
-    const arrow = svg.appendChild(L5.arrow(dx[0] + DW + 16, DY + DS / 2, dx[1] - 16, DY + DS / 2, "orange", 1, { w: 8, head: 22 }));
+    const arrow = svg.appendChild(
+      L5.arrow(dx[0] + DW + 16, DY + DS / 2, dx[1] - 16, DY + DS / 2, "orange", 1, { w: 8, head: 22 }),
+    );
     const stats = [
-      A6.tag(stage, { x: 468 - A6.tagW(TXT.one) / 2, y: 500, text: TXT.one, tone: "green" }),
-      A6.tag(stage, { x: 468 - A6.tagW(TXT.two) / 2, y: 566, text: TXT.two, tone: "red", solid: true }),
+      A6.tag(stage, { x: TAG_X, y: 500, text: TXT.one, tone: "green" }),
+      A6.tag(stage, { x: TAG_X, y: 566, text: TXT.two, tone: "red", solid: true }),
     ];
+    [fine, ...stats].forEach((g) => (g.el.style.width = `${TAG_W}px`)); // one width for all three: centred whatever the text
 
     // a purple ring on the tiles of the group being read, an orange one on the tile the answer points at
     const ringFor = (t, i) => {
       let best = 0;
       NAMES.forEach((_, j) => {
         const b = band0(j);
-        if (cover[j][i]) best = Math.max(best, clamp(ramp(t, b + 0.05, b + 0.4, lin) - ramp(t, b + 0.45, b + 0.6, lin)));
+        if (cover[j][i])
+          best = Math.max(best, clamp(ramp(t, b + 0.05, b + 0.4, lin) - ramp(t, b + 0.45, b + 0.6, lin)));
       });
       if (best > 0) return { ring: "purple", ringK: best };
-      const k = clamp(ramp(t, ...T.ring, lin) - ramp(t, T.repair[1], T.repair[1] + 0.25, lin));
+      const k = clamp(ramp(t, ...T.ring, lin) - ramp(t, T.repair[0], T.repair[0] + 0.25, lin));
       return i === AT && k > 0 ? { ring: "orange", ringK: k } : {};
     };
     const tone0 = (i) => (HM.checkPos.includes(i + 1) ? "orange" : "grey");
@@ -195,10 +206,7 @@
       });
 
       // ---- position numbers (the wrong ones turn red) and their binary names ----
-      const wrong = [
-        ...TWO.flips.filter((_, h) => t >= mid(T.noise[h])),
-        ...(t >= mid(T.repair) ? [TWO.at] : []),
-      ];
+      const wrong = [...TWO.flips.filter((_, h) => t >= mid(T.noise[h])), ...(t >= mid(T.repair) ? [TWO.at] : [])];
       const nk = ramp(t, ...T.nums, lin);
       const j = reading(t);
       H.nums(nk, { hot: wrong, tone: "red" });
@@ -244,13 +252,21 @@
 
       // ---- the data before and after: two data bits differ ----
       const dOut = 1 - ramp(t, ...T.dataOut, lin);
-      sent.all((i) => ({ ...popIn(A6.seq(t, T.data, 0.05, 0.3, i)), o: popIn(A6.seq(t, T.data, 0.05, 0.3, i)).o * dOut }));
+      sent.all((i) => ({
+        ...popIn(A6.seq(t, T.data, 0.05, 0.3, i)),
+        o: popIn(A6.seq(t, T.data, 0.05, 0.3, i)).o * dOut,
+      }));
       got.all((i) => {
         const p = popIn(A6.seq(t, T.data + 0.3, 0.06, 0.3, i));
         const diff = HM.data[i] !== GOT[i];
         return { ...p, o: p.o * dOut, tone: diff ? "red" : "grey", solid: diff };
       });
-      dataLab.forEach((e, k) => V.place(e, { y: 8 * (1 - ramp(t, T.data + 0.1 + 0.3 * k, T.data + 0.4 + 0.3 * k, lin)), o: ramp(t, T.data + 0.1 + 0.3 * k, T.data + 0.4 + 0.3 * k, lin) * dOut }));
+      dataLab.forEach((e, k) =>
+        V.place(e, {
+          y: 8 * (1 - ramp(t, T.data + 0.1 + 0.3 * k, T.data + 0.4 + 0.3 * k, lin)),
+          o: ramp(t, T.data + 0.1 + 0.3 * k, T.data + 0.4 + 0.3 * k, lin) * dOut,
+        }),
+      );
       L5.drawOn(arrow, ramp(t, T.data + 0.3, T.data + 0.6, lin));
       V.show(arrow, dOut);
 
