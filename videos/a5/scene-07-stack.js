@@ -77,7 +77,7 @@
   const TOP = FINAL[FINAL.length - 1];
   CHAIN.push({ a: TOP, b: PIVOT, born: T_CLOSE, dies: null }); // the loop closes
   const CARDS = PLAN.flatMap(({ tests }) => tests.map((x) => ({ ...x, show: [x.verdict[0], x.fade[1]] })));
-  const LIFT = 28; // a popped tile is lifted off the top of the stack this far while it fades (less at the top slot: stay on stage)
+  const LIFT = 56; // a popped tile is lifted off the top of the stack this far while it fades (less at the top slot: stay on stage)
 
   // a ring on the middle point of each test (green: kept, red: popped for good)
   const RINGS = CARDS.map((x) => ({
@@ -102,15 +102,16 @@
   const RUN_LOOK = { push: ["push", "green"], pop: ["pop", "red"], hull: ["= hull", "green"] };
 
   V.scene({
-    kicker: "GRAHAM SCAN: THE STACK",
+    kicker: "METHOD 2: THE STACK",
     title: ["A stack pops", "every dent"],
     dur: 15,
     caps: [
-      [0.8, 3, "Keep a stack. Push the first two points."],
-      [3.2, 5.4, "Test the turn. Left keeps the point."],
+      [0.8, 3, "Start the stack with C and D."],
+      [3.2, 5.4, "Left turn: keep the middle point."],
       [6, 8.2, "A right turn is a dent: pop it."],
-      [10.5, 12.7, "Pop until the turn is left, then push."],
-      [13.3, 14.9, "The stack is the hull."],
+      [8.5, 10.4, "Left turn again: push B."],
+      [10.5, 13.1, "A right turn again: pop B, then push A."],
+      [13.3, 14.9, "The stack is the hull. One pass after the sort."],
     ],
     build(stage) {
       const pl = A5.plot(stage, { segs: 12, polys: 1, tags: 2 });
@@ -122,23 +123,23 @@
 
       // the verdict card: a sticker with a turn arrow and two words
       const wrap = V.h("div", {
-        style: { position: "absolute", left: "12px", top: "452px", width: "340px", height: "80px" },
+        style: { position: "absolute", left: "12px", top: "456px", width: "340px", height: "72px" },
       });
       const card = V.h("div", {
         class: "v-card plain c-green",
-        style: { left: "0px", top: "0px", width: "340px", height: "80px" },
+        style: { left: "0px", top: "0px", width: "340px", height: "72px" },
       });
       wrap.append(card); // the arrows' svg goes on top of the card, so it is added after it
-      const cardSvg = L5.svg(wrap, 340, 80);
-      const icons = { left: A5.turnIcon("left", 52, 40, 56, "green"), right: A5.turnIcon("right", 52, 40, 56, "red") };
+      const cardSvg = L5.svg(wrap, 340, 72);
+      const icons = { left: A5.turnIcon("left", 52, 36, 52, "green"), right: A5.turnIcon("right", 52, 36, 52, "red") };
       cardSvg.append(icons.left, icons.right);
       const words = V.h("div", {
         class: "v-text c-green",
         style: {
           left: "100px",
           top: "0px",
-          height: "80px",
-          lineHeight: "80px",
+          height: "72px",
+          lineHeight: "72px",
           fontSize: "38px",
           fontWeight: "900",
           color: "var(--c-ink)",
@@ -191,7 +192,7 @@
                   tone: "grey",
                   solid: false,
                   s: 1,
-                  o: lerp(1, 0.5, ramp(t, x.fade[0], x.fade[1], lin)),
+                  o: lerp(1, 0.85, ramp(t, x.fade[0], x.fade[1], lin)), // gone, but its letter stays readable
                 };
               }
             });
@@ -221,8 +222,8 @@
         );
         const tags = PLAN.flatMap(({ tests }) => tests.filter((x) => x.pop)).map((x) => ({
           at: x.t,
-          dx: x.t === "F" ? 84 : 104,
-          dy: x.t === "F" ? -62 : 44,
+          dx: x.t === "F" ? 0 : -52,
+          dy: x.t === "F" ? -62 : 56,
           text: "dent",
           tone: "red",
           solid: true,

@@ -3,7 +3,7 @@
   window.VID.titleCard({
     kicker: "Algorithms · Phase 5",
     title: "Convex Hulls",
-    sub: "How to wrap a set of points",
+    sub: "How computers find the outline of a crowd",
     who: "byte",
     dur: 4,
   });

@@ -1,7 +1,7 @@
-/* Phase 5 · Convex Hulls (algo-5), scene 10-recap: three rows, each a small animated pictogram and one bold line. Bare scene.
-   Story (local seconds): 0.1 title and Byte, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.35 s after its row, 5.4 the
-   call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no fade, no reset): row 1 is done at about 5.2,
-   row 2 at 6.1 and row 3 at 7.0, so for the last two seconds only Byte's bob moves.
+/* Phase 5 · Convex Hulls (algo-5), scene 10-recap: four rows, each a small animated pictogram and one bold line. Bare scene.
+   Story (local seconds): 0.1 title and Byte, rows slide in at 0.8 / 1.7 / 2.6 / 3.5, each pictogram starts 0.35 s after its row,
+   6.0 the call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no fade, no reset): row 1 is done at about
+   5.4, row 2 at 5.9, row 3 at 6.8 and row 4 at 6.9, so for the last three seconds only Byte's bob moves.
    Row 1 (green): a path p -> a -> b bends LEFT: the path turns green and a green left arrow draws on; b slides over to the other
           side, the bend becomes a RIGHT turn (the sign of the real turn test decides the colour: red and a red right arrow); b slides
           back and the finished frame is the green left turn.
@@ -12,6 +12,9 @@
           F, G, B, A in sorted order (A5.SORT); each touched point is pushed on the stack (a green slab); G arrives after F, the turn
           E-F-G is a right turn (red), F is popped (red slab out, F dims) and G pushed; B is pushed and popped when A arrives; the
           stack C D E G A is the hull: the closing edge, the tint and a green tick.
+   Row 4 (orange): which method is cheaper depends on the hull: a small hull (a blob with 4 green corners): a short green wrap bar
+          against a long red scan bar; a ring (every dot a corner): a long red wrap bar (with the break mark) against the same green
+          scan bar. The bars come from A5.COST (wrap = n x h, scan = n x log2 n).
    Every turn, angle and stack state comes from A5.turnKind / A5.WRAP / A5.SCAN and is asserted when the scene is built. No numbers
    on screen; the dots carry no letters (the row labels are the words). */
 (function () {
@@ -29,9 +32,9 @@
     width: `${f1(w)}px`,
     height: `${f1(h)}px`,
   });
-  const CARD = { x: 72, w: 936, h: 180, tops: [240, 444, 648] };
-  const APPEAR = [0.8, 1.9, 3.0];
-  const PIC = { x: 16, y: 10, w: 340, h: 140, zoom: 1.1 }; // pictograms are drawn at 340 x 140 and shown 10% larger
+  const CARD = { x: 72, w: 936, h: 154, tops: [208, 382, 556, 730] };
+  const APPEAR = [0.8, 1.7, 2.6, 3.5];
+  const PIC = { x: 22, y: 7, w: 340, h: 140, zoom: 1 }; // pictograms are drawn at 340 x 140
   const START = APPEAR.map((a) => a + 0.35);
   const mod360 = (d) => ((d % 360) + 360) % 360;
 
@@ -337,14 +340,94 @@
     };
   }
 
+  // ---------- row 4: which one is cheaper depends on the hull ----------
+  function chooseRow(pic) {
+    const [SM, BG] = A5.COST.cases;
+    A5.same("recap row 4: small hull, wrapping is cheaper", [SM.winner, SM.wrap < SM.scan], ["wrap", true]);
+    A5.same("recap row 4: ring, scanning is cheaper", [BG.winner, BG.wrap > BG.scan], ["scan", true]);
+    const SCALE = 120 / A5.COST.scan; // px per step: the scan bar is 120 px long, whatever the hull
+    const wrapSmall = SM.wrap * SCALE; // 48 px
+    const BAR_H = 14;
+    const svg = L5.svg(pic, PIC.w, PIC.h);
+    // the two little dot pictures: a blob with 4 corners and a ring where every dot is a corner
+    const rnd = A5.rng(4);
+    const corners = [[22, 10], [138, 14], [146, 56], [12, 60]]; // prettier-ignore
+    const inside = (p) => corners.every((c, i) => A5.crossUp(c, corners[(i + 1) % 4], p) >= 1); // the corners run clockwise on screen (y down)
+    const dots = [];
+    for (let guard = 0; dots.length < 12 && guard < 4000; guard++) {
+      const p = [14 + 134 * rnd(), 12 + 46 * rnd()];
+      if (inside(p) && dots.every((q) => Math.hypot(p[0] - q[0], p[1] - q[1]) > 20)) dots.push(p);
+    }
+    A5.same("recap row 4: twelve dots inside the blob", dots.length, 12);
+    A5.same(
+      "recap row 4: the blob's hull is its four corners",
+      A5.cloudHull(corners.concat(dots)).sort(),
+      [0, 1, 2, 3],
+    );
+    const ringDots = Array.from({ length: 16 }, (_, i) => [260 + 30 * Math.cos((2 * Math.PI * i) / 16), 36 + 30 * Math.sin((2 * Math.PI * i) / 16)]); // prettier-ignore
+    const all = corners.concat(dots);
+    const hullA = svg.appendChild(V.s("path", { d: `M${corners.map((c) => c.join(" ")).join("L")}Z`, fill: "none", "stroke-width": 5, "stroke-linejoin": "round" })); // prettier-ignore
+    hullA.style.stroke = "var(--teal)";
+    const hullB = svg.appendChild(V.s("path", { d: `M${ringDots.map((c) => c.join(" ")).join("L")}Z`, fill: "none", "stroke-width": 5, "stroke-linejoin": "round" })); // prettier-ignore
+    hullB.style.stroke = "var(--teal)";
+    const dotsA = all.map(() => disc(svg, 5, 2));
+    const dotsB = ringDots.map(() => disc(svg, 6, 2));
+    // bars: a sticker with a lip (a rounded bar that grows from its left end), and the break mark on the long one
+    const bar = (x, y, full) => {
+      const lip = V.s("rect", { x, y: y + 4, height: BAR_H, rx: 7 });
+      const face = V.s("rect", { x, y, height: BAR_H, rx: 7, "stroke-width": 3 });
+      lip.style.fill = "var(--c-lip)";
+      Object.assign(face.style, { fill: "var(--c)", stroke: "var(--c-lip)" });
+      const g = svg.appendChild(V.s("g", {}, lip, face));
+      return (k, tone) => {
+        roleOf(g, tone);
+        const w = k < 0.003 ? 0 : Math.max(10, full * k);
+        [lip, face].forEach((r) => r.setAttribute("width", w.toFixed(1)));
+        V.show(g, k < 0.003 ? 0 : 1);
+      };
+    };
+    const [wA, sA] = [bar(8, 84, wrapSmall), bar(8, 110, 120)];
+    const [wB, sB] = [bar(188, 84, 150), bar(188, 110, 120)];
+    const slash = [0, 1].map((i) => {
+      const r = V.s("rect", { x: 306 + i * 12, y: 80, width: 6, height: BAR_H + 10, transform: "skewX(-22)" });
+      r.style.fill = "var(--bg)";
+      return svg.appendChild(r);
+    });
+    const [TA, TB] = [
+      { dots: 0, green: 0.5, bars: [0.9, 1.3] },
+      { dots: 1.7, green: 2.1, bars: [2.3, 2.8] },
+    ];
+
+    return (q) => {
+      all.forEach((p, i) => {
+        const corner = i < 4;
+        const k = ramp(q, TA.dots + 0.03 * i, TA.dots + 0.03 * i + 0.3, lin);
+        const on = corner && q >= TA.green;
+        dotsA[i]({ x: p[0], y: p[1], tone: on ? "green" : "grey", k, s: on ? 1 + 0.25 * flash(q, TA.green, TA.green + 0.3) : 1 }); // prettier-ignore
+      });
+      V.show(hullA, ramp(q, TA.green, TA.green + 0.4, lin));
+      ringDots.forEach((p, i) => {
+        const k = ramp(q, TB.dots + 0.03 * i, TB.dots + 0.03 * i + 0.3, lin);
+        dotsB[i]({ x: p[0], y: p[1], tone: q >= TB.green ? "green" : "grey", k });
+      });
+      V.show(hullB, ramp(q, TB.green, TB.green + 0.4, lin));
+      wA(ramp(q, TA.bars[0], TA.bars[0] + 0.3, E.out), "green");
+      sA(ramp(q, TA.bars[0] + 0.3, TA.bars[0] + 0.7, E.out), "red");
+      const longK = ramp(q, TB.bars[0], TB.bars[0] + 0.5, E.out);
+      wB(longK, "red");
+      slash.forEach((r) => V.show(r, ramp(longK, 0.9, 1, lin)));
+      sB(ramp(q, TB.bars[1], TB.bars[1] + 0.35, E.out), "green");
+    };
+  }
+
   V.scene({
     bare: true,
-    dur: 9,
+    dur: 10,
     build(stage) {
       const head = V.h("div", {
         class: "v-title-line",
-        text: "Remember",
-        style: { position: "absolute", left: "72px", top: "108px", fontSize: "76px" },
+        text: "Four things to remember",
+        style: { position: "absolute", left: "72px", top: "108px", fontSize: "62px" },
       });
       const kicker = V.h("div", { class: "v-kicker", text: "RECAP" });
       const mascot = V.mascot("byte", { size: 168, mood: "love" });
@@ -354,8 +437,9 @@
 
       const rows = [
         ["green", "One cross product\ntells left from right", turnRow],
-        ["purple", "Wrapping: swing a line\ncost n × h", wrapRow],
-        ["blue", "Scan: sort, pop dents\ncost n log n", scanRow],
+        ["purple", "Wrap: swing a line,\ncost n × h", wrapRow],
+        ["blue", "Scan: sort, pop dents,\ncost n log₂ n", scanRow],
+        ["orange", "Few corners: wrap.\nMany corners: scan.", chooseRow],
       ].map(([tone, text, make], i) => {
         text.split("\n").forEach((line) => {
           if (line.length > 22) throw new Error(`recap: "${line}" is longer than 22 characters`);
@@ -370,7 +454,7 @@
           style: {
             left: "440px",
             top: "0",
-            height: "174px",
+            height: `${CARD.h - 6}px`,
             display: "flex",
             alignItems: "center",
             whiteSpace: "pre",
@@ -395,7 +479,7 @@
         },
       });
       const ctaBar = V.h("div", {
-        style: { ...box(0, 864, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
+        style: { ...box(0, 912, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
       });
       ctaBar.append(cta);
       stage.append(ctaBar);
@@ -417,8 +501,8 @@
           V.place(r.label, { x: (1 - kl) * 24, o: kl });
           r.update(t - START[i]);
         });
-        const c = ramp(t, 5.4, 6.0, E.pop);
-        V.place(cta, { s: 0.8 + 0.2 * c, o: ramp(t, 5.4, 5.7) });
+        const c = ramp(t, 6.0, 6.6, E.pop);
+        V.place(cta, { s: 0.8 + 0.2 * c, o: ramp(t, 6.0, 6.3) });
       };
     },
   });

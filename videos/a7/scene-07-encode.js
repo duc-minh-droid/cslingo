@@ -49,7 +49,7 @@
   };
   // reading order: the commonest letter first (the shortest walk), then the rest left to right
   const READ = [BIGGEST, ...LEAVES.slice(0, -1)];
-  const READ_T = [2.7, 3.1, 3.45, 3.8, 4.15];
+  const READ_T = [2.6, 2.98, 3.36, 3.74, 4.12]; // 0.38 s a letter
   A7.same("encode scene: reading order", READ, ["B", "C", "E", "D", "A"]);
   const PATH = Object.fromEntries(LEAVES.map((c) => [c, pathOf(c)]));
   const STEP_DT = 0.08; // every step down a path starts this much later
@@ -57,6 +57,7 @@
   // the code book row: leaf centres, one 170 px slot per letter in tree order
   const BOOK = Object.fromEntries(LEAVES.map((c, i) => [c, [128 + 170 * i, 62]]));
   const U = (j) => 5.8 + 0.45 * j; // the encoding of letter j starts here (every letter takes 0.45 s)
+  const END = U(MSG.length - 1) + 0.4; // the last codeword has landed (8.9)
 
   // ---------- part A: the tree, the glide, the stickers, the reading and the change into a code book ----------
   function treePart(stage) {
@@ -73,9 +74,9 @@
 
     // everything the tree shows at time t: {nodes, edges, pos, fade}
     const state = (t) => {
-      const fade = 1 - ramp(t, 4.6, 5.1, lin); // the inner nodes and branches leave
-      const flat = 1 - ramp(t, 0.9, 1.7, E.inOut); // B glides up to its own depth
-      const glide = ramp(t, 4.7, 5.5, E.inOut); // the leaves glide into the code book row
+      const fade = 1 - ramp(t, 4.7, 5.1, lin); // the inner nodes and branches leave
+      const flat = 1 - ramp(t, 0.7, 1.4, E.inOut); // B glides up to its own depth
+      const glide = ramp(t, 4.8, 5.5, E.inOut); // the leaves glide into the code book row
       const home = posAt(flat);
       const pos = {};
       const nodes = {};
@@ -83,11 +84,11 @@
       ids.forEach((id, k) => {
         const leaf = H.nodes[id].leaf;
         pos[id] = leaf ? [lerp(home[id][0], BOOK[id][0], glide), lerp(home[id][1], BOOK[id][1], glide)] : home[id];
-        const n0 = 0.1 + 0.06 * k;
+        const n0 = 0.05 + 0.045 * k;
         nodes[id] = { k: ramp(t, n0, n0 + 0.3, lin), o: leaf ? 1 : fade };
         const par = H.nodes[id].parent;
         if (par == null) return;
-        const bit0 = 1.8 + 0.07 * edgeNo(id); // the 0 / 1 stickers pop 0.07 s apart
+        const bit0 = 1.6 + 0.06 * edgeNo(id); // the 0 / 1 stickers pop 0.06 s apart
         edges[A7.ek(par, id)] = {
           k: ramp(t, n0 - 0.1, n0 + 0.18, lin),
           bit: ramp(t, bit0, bit0 + 0.3, lin),
@@ -114,8 +115,8 @@
           };
       });
       tags.root.set({ k: ramp(t, 0.1, 0.5, lin), o: fade });
-      tags.one.set({ k: ramp(t, 1.6, 2.0, lin), o: fade });
-      tags.three.set({ k: ramp(t, 1.7, 2.1, lin), o: fade });
+      tags.one.set({ k: ramp(t, 1.35, 1.75, lin), o: fade });
+      tags.three.set({ k: ramp(t, 1.45, 1.85, lin), o: fade });
       return { nodes, edges, pos };
     };
     return { T, state };
@@ -123,39 +124,39 @@
 
   // ---------- part B: spell the message with the code book ----------
   function spellPart(stage) {
-    const msg = A7.tiles(stage, { x: 84, y: 164, items: MSG, w: 96, h: 96, gap: 16, fs: 48 });
+    const msg = A7.tiles(stage, { x: 84, y: 172, items: MSG, w: 96, h: 96, gap: 16, fs: 48 });
     const CELL = { cell: 34, h: 52, gap: 3, groupGap: 12, fs: 30 };
-    const huff = A7.bits(stage, { x: 54, y: 330, groups: EN.codes, ...CELL, tone: "green" });
-    const fix = A7.bits(stage, { x: 54, y: 480, groups: EN.fixed, ...CELL, tone: "grey" });
+    const huff = A7.bits(stage, { x: 54, y: 366, groups: EN.codes, ...CELL, tone: "green" });
+    const fix = A7.bits(stage, { x: 54, y: 534, groups: EN.fixed, ...CELL, tone: "grey" });
     const huffTag = A7.tag(stage, {
       x: 54,
-      y: 270,
+      y: 306,
       text: `Huffman: ${EN.count} bits`,
       tone: "green",
       solid: true,
       h: 52,
     });
-    const fixTag = A7.tag(stage, { x: 54, y: 420, text: `fixed: ${EN.fixedCount} bits`, tone: "grey", h: 52 });
-    const under = A7.span(stage, { x: 0, y: 396, w: 40, h: 10, tone: "blue" });
+    const fixTag = A7.tag(stage, { x: 54, y: 474, text: `fixed: ${EN.fixedCount} bits`, tone: "grey", h: 52 });
+    const under = A7.span(stage, { x: 0, y: 432, w: 40, h: 10, tone: "blue" });
     const n = EN.codes.length;
 
     return {
       // the message tiles, the strips and their labels
       draw(t) {
         msg.all((j) => {
-          const [a, b] = [U(j), j + 1 < n ? U(j + 1) : Infinity];
+          const [a, b] = [U(j), j + 1 < n ? U(j + 1) : END + 0.1]; // the last ring leaves when its codeword has landed
           const ring = t >= a ? "blue" : undefined;
           const ringK = ramp(t, a, a + 0.15, lin) * (1 - ramp(t, b, b + 0.12, lin));
           return { k: ramp(t, 5.3 + 0.05 * j, 5.6 + 0.05 * j, lin), ring, ringK };
         });
         huff.set({ groupK: (g) => ramp(t, U(g) + 0.1, U(g) + 0.4, lin), tone: "green" });
-        // a blue line under the codeword being written (it stays under the last one until the tag comes)
+        // a blue line under the codeword being written (it waits under its slot, then the codeword fills in; it goes when the tag comes)
         const g = Math.max(0, Math.min(n - 1, Math.floor((t - U(0)) / 0.45)));
         const gp = huff.group(g);
-        under.set({ x: gp.x, w: gp.w, k: ramp(t, U(g) + 0.1, U(g) + 0.4, lin) * (1 - ramp(t, 9.0, 9.2, lin)) });
-        huffTag.set({ k: ramp(t, 9.0, 9.4, lin) });
-        fix.set({ k: ramp(t, 9.2, 9.8, lin), tone: "grey" });
-        fixTag.set({ k: ramp(t, 9.8, 10.2, lin) });
+        under.set({ x: gp.x, w: gp.w, k: ramp(t, U(g), U(g) + 0.15, lin) * (1 - ramp(t, END, END + 0.2, lin)) });
+        huffTag.set({ k: ramp(t, END, END + 0.4, lin) });
+        fix.set({ k: ramp(t, 9.0, 9.5, lin), tone: "grey" });
+        fixTag.set({ k: ramp(t, 9.4, 9.8, lin) });
       },
       // the code book tile of the letter being spelled gets an orange ring for 0.4 s
       ring(t, nodes) {
@@ -178,7 +179,7 @@
     title: ["Common letters get", "short codes"],
     dur: 12,
     caps: [
-      [0.8, 2.8, "Common B sits one step from the root."],
+      [1.4, 2.8, "Common B sits one step from the root."],
       [2.9, 4.6, "The path down is the code."],
       [5.6, 8.6, "Spell BBADEBC with these codes."],
       [9.6, 11.6, "15 bits instead of 21."],
