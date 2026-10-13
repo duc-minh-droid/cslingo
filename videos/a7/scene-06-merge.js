@@ -27,6 +27,7 @@
   const RX = 680; // the right column
   const BAR_W = 240; // 80 px per bit: the fixed 3-bit code fills it
   const CHIP_H = 62; // a weight chip is 62 px tall and 83 px wide (100 for "1.00"): a flight starts centred on the node
+  const BOW = [40, 40, -30, -30]; // how far each flight arcs up (down for the two that start high, so they miss the fixed bar)
   const chipW = (text) => (text.length > 3 ? 100 : 83);
   const pos = A7.treePos(H, { x0: 20, slot: 120, top: 70, dy: 140, flat: 1 });
   const expect = {
@@ -151,7 +152,7 @@
         chips[i].set({
           k: t >= fa && t < fb ? ramp(t, fa, fa + 0.2, E.lin) : 0,
           x: lerp(from.x - chipW(A7.fmtW(m.w)) / 2, RX, p),
-          y: lerp(from.y - CHIP_H / 2, 250, p) - 40 * Math.sin(Math.PI * p),
+          y: lerp(from.y - CHIP_H / 2, 250, p) - BOW[i] * Math.sin(Math.PI * p),
         });
         const [ba, bb] = [fb, T0[i] + BAR_END[i]];
         const prev = i ? H.merges[i - 1].cost : 0;
@@ -159,7 +160,11 @@
         bump += flash(t, ba, bb);
       });
       const kCost = cost / (H.fixedBits * 100);
-      huffLbl.set({ k: ramp(t, 2.0, 2.4, E.lin), text: `Huffman: ${A7.fmtBits(Math.round(cost))}`, s: 1 + 0.06 * bump });
+      huffLbl.set({
+        k: ramp(t, 2.0, 2.4, E.lin),
+        text: `Huffman: ${A7.fmtBits(Math.round(cost))}`,
+        s: 1 + 0.06 * bump,
+      });
       V.show(huffTrack, ramp(t, 2.0, 2.4, E.lin));
       huffBar.set({ k: kCost });
 
