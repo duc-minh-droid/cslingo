@@ -17,3 +17,7 @@ Six animated explainers (square 1080 x 1080, no audio, on-screen captions), one 
 - **How it works:** `engine.js` is a deterministic timeline: every scene is a pure function of its local time, so any frame can be drawn in any order. Scenes live in `l1/` to `l6/` (one file per scene, shared drawing helpers in `common.js`), the title and recap cards in `cards.js`, the look in `video.css` (CSLingo colour roles, sticker look, Nunito). Add a scene by creating the file and listing it in the page.
 
 `_plan/` holds the storyboards (`lecture-N.json`), the shared agent briefs and the review notes the videos were built from.
+
+## Algorithms videos (`algo-N`)
+
+One explainer per Algorithms phase, same engine and rules: page `videos/algo-N.html`, scenes and helpers in `videos/aN/`, storyboard `videos/_plan/algo-N.json`, output `videos/out/algo-N.mp4` plus `algo-N-poster.png` (a still of the title card, `node tools/video-still.js algo-N 2.2 <dir>`). Record with `FFMPEG=... node tools/render-video.js algo-N`. Phases 1 to 4 are recorded and wired into the app (`js/content/algo/videos.js`); the scene files for phases 5 to 8 are built or in progress but not recorded yet, and phases 9 to 11 are not started. `videos/narration/` and `tools/narrate.js` hold the voice-over pipeline (needs a TTS key, see its header).

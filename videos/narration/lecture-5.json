@@ -1,0 +1,80 @@
+{
+ "voice": "alice",
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture five. Encodings and representations. How do we write a solution as genes?"
+   ]
+  },
+  {
+   "lines": [
+    "A tour visits every city once.",
+    "We write it as genes, and evolution changes the genes."
+   ]
+  },
+  {
+   "lines": [
+    "Mutation picks a gene, and gives it a random new value.",
+    "Now C is visited twice, and D is never visited."
+   ]
+  },
+  {
+   "lines": [
+    "Swap mutation exchanges two genes.",
+    "Nothing is created or lost, so the tour stays valid."
+   ]
+  },
+  {
+   "lines": [
+    "Here are two parents. Cut both after gene two.",
+    "Swap the tails to make two children.",
+    "But each child repeats one city, and misses another."
+   ]
+  },
+  {
+   "lines": [
+    "Repair: find the repeated city, and the missing one.",
+    "Put the missing city where the repeat was.",
+    "Both children are valid tours again."
+   ]
+  },
+  {
+   "lines": [
+    "With a direct encoding, each gene is the slot of one exam.",
+    "Mutation moves just one exam.",
+    "But it can create a clash, so fitness must punish it."
+   ]
+  },
+  {
+   "lines": [
+    "With an indirect encoding, each gene is an instruction for a decoder.",
+    "The decoder never creates a clash.",
+    "But one early change can move several exams."
+   ]
+  },
+  {
+   "lines": [
+    "A coordinate is stored as five bits.",
+    "Flip the one-bit, and the value moves by one.",
+    "Flip the eight-bit, and it moves by eight.",
+    "Flip the sign, and plus becomes minus, a jump of four.",
+    "Which bit you flip matters."
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    3.4,
+    5.9
+   ],
+   "lines": [
+    "Remember: the encoding decides which operators are safe.",
+    "Swap mutation and repair keep a tour valid.",
+    "Direct encodings are simple, indirect ones avoid clashes."
+   ]
+  }
+ ]
+}

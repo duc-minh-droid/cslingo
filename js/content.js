@@ -229,6 +229,7 @@
       "js/content/algo/boss-algo-p7-x.js",
       "js/content/algo/boss-algo-p8-x.js",
       "js/content/algo/boss-algo-p9-x.js",
+      "js/content/algo/videos.js",
     ],
   };
 

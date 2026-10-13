@@ -1,0 +1,105 @@
+{
+ "voice": "alice",
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture one. What is nature-inspired computing? Let's see evolution as a way of solving problems."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Nature has been solving hard problems for billions of years, so we copy it. Evolution: the fitter ones survive and breed.",
+     "Evolution: the fitter ones survive and breed."
+    ],
+    "Brains: connections that are useful get stronger.",
+    "Ants: shorter trails collect more scent.",
+    "And no one is in charge. Today, we copy evolution."
+   ]
+  },
+  {
+   "lines": [
+    "Here is the goal: turn the letters Q Z T into the word C A T. The score is how many letters are right.",
+    "Change one letter at random. If it is not worse, keep it.",
+    "If it is worse, throw the change away.",
+    "Small steps add up. That is called cumulative selection."
+   ]
+  },
+  {
+   "lines": [
+    "Same target, and the same number of tries for both methods.",
+    "The monkey starts from scratch every single time.",
+    "Keep-if-better locks in each correct letter as it goes.",
+    [
+     "The monkey's best result is still only six letters out of twenty-eight.",
+     "The monkey's best is still 6 of 28."
+    ],
+    [
+     "There are twenty-seven choices for each of twenty-eight places. Multiply twenty-seven, again and again.",
+     "27 choices for each of 28 places: 27 × 27 × … × 27."
+    ],
+    [
+     "On average the monkey needs about ten to the forty tries. The keeper needs about three thousand.",
+     "Monkey: 1.2 × 10⁴⁰ tries on average. Keeper: 3,037."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    "Picture a landscape, where height means how good a solution is.",
+    "One climber keeps a step only if it is not worse.",
+    "So it gets stuck on the first hill it finds.",
+    "Now twenty climbers spread out, and compete.",
+    "Each square is one run. With more climbers, more of them find the top."
+   ]
+  },
+  {
+   "lines": [
+    "Here are four parents, with fitness nine, six, three, and one.",
+    "Fitter parents are more likely to be picked. We pick twenty times.",
+    "If we only pick the best, everyone becomes a copy of it.",
+    "If everyone has equal chances, nothing pushes us towards better.",
+    "The answer is a weak bias. Fitter is likelier, but nobody is shut out."
+   ]
+  },
+  {
+   "lines": [
+    "Mutation copies a parent, and changes one gene.",
+    "Recombination mixes pieces of two parents.",
+    "Mutation is needed. Recombination often helps."
+   ]
+  },
+  {
+   "lines": [
+    "Step one: score every dot. Its height is its fitness.",
+    "Step two: pick parents. The fitter, the likelier.",
+    "Optionally, mix two parents together.",
+    "Then mutate. Nudge each child a little.",
+    "The children become the new population.",
+    "Repeat, and the dots climb towards the star."
+   ]
+  },
+  {
+   "lines": [
+    "Here the score is the number of green boxes. An evolutionary algorithm needs only a score.",
+    "Six different areas, but one single requirement: you can score it.",
+    "So, anything you can score, you can evolve."
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    3.4,
+    5.9
+   ],
+   "lines": [
+    "Remember: evolution keeps what works, and tries again.",
+    "The loop is score, select, vary, and replace.",
+    "If you can score it, you can evolve it."
+   ]
+  }
+ ]
+}

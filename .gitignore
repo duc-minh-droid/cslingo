@@ -3,3 +3,7 @@ __pycache__/
 .DS_Store
 
 node_modules/
+
+.env
+.env.local
+videos/audio/fake/

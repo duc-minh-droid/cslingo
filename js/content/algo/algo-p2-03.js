@@ -221,7 +221,7 @@
       root.appendChild(card);
       qs("#prw", card).appendChild(
         el(
-          `<label class="field" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="pr"> Poisoned reverse (B tells A "C unreachable via me")</label>`,
+          `<label class="field" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" id="pr"> Poisoned reverse (A tells B "C unreachable via me")</label>`,
         ),
       );
       qs("#pr", card).onchange = (e) => (poison = e.target.checked);

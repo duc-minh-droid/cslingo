@@ -1,0 +1,303 @@
+{
+  "slug": "algo-3",
+  "dir": "a3",
+  "title": "Algorithms · Phase 3 · Optimisation",
+  "outline": "Phase 3 video (Algorithms, ECM3428 'Algorithms that Changed the World'): 'Optimisation: how to find the best answer'. 10 scenes, 117 s: title (4), the feasible region (12), the best point is a corner (12), simplex walk (15), bisection on the slope (12), golden section (13), Brent's parabola (13), Nelder-Mead moves (14), Nelder-Mead in a curved valley (13), recap (9). LESSONS (js/content/algo/algo-p3-*.js, all lecture 3, ids a3-*): a3-lp 3.1 (feasible region, slide the profit line, corners), a3-simplex 3.2 (enter, ratio test, stop), a3-bracket 3.3 (golden section, renumbered 3.12), a3-nm 3.4 (Nelder-Mead, renumbered 3.14); extras a3-formulate, a3-standard, a3-slack, a3-bakery, a3-implement, a3-apps, a3-convex 3.10 (one bowl), a3-bisect 3.11, a3-brent 3.13, a3-nm-ops 3.15, a3-nm-stop 3.16 and workshop a3-lab. Not shown (too detailed for 2 minutes): standard and slack form, the bakery example, the program, applications, convexity tests, Nelder-Mead stopping rules (only the end of scene 9 touches them).\n\nSTORY: optimisation = choose numbers to make a score as good as possible. (1) Linear programs: maximise z = 3x + 2y with rules x + 2y <= 10 (machine hours), 3x + y <= 15 (raw material), x, y >= 0. Each rule cuts the plane in half; the legal plans form the polygon with corners (0,0), (5,0), (4,3), (0,5). The lesson's five test plans: (2,2) legal, (4,3) legal (on both lines), (5,3) breaks both, (1,5) breaks the machine rule (11 > 10), (6,1) breaks the material rule (19 > 15). (2) Plans with equal z lie on a line 3x + 2y = z; sliding it outwards, the last touch is the corner (4,3) with z = 18; corner scores 0, 15, 18, 10, so only corners need checking. (3) Simplex walks edges: at (0,0) gains x +3, y +2 so x enters; ratio test machine 10, material 5 so material leaves; at (5,0), z 15, gains y +1 and slack s2 -1 so y enters; ratio test 3 (machine) and 15 (y-axis): machine leaves; at (4,3) the gains are -3/5 and -4/5: optimal, z 18. (4) One variable, no formula: for f(x) = e^x - 2x the slope is falling left of ln 2 = 0.6931 and rising right of it; bracket [0, 1] (f' = -1 and +0.718), bisect on the slope: m 0.5 (falling), 0.75 (rising), 0.625 (falling), 0.6875 (falling): width 1 -> 0.0625, bracket [0.6875, 0.75]. (5) Golden section on f(x) = 2.2 |x - 0.62|^1.4 + 0.25: a bracket is a triple with the lowest point in the middle, (0, 0.382, 1); one new probe per step (0.618, 0.764, 0.528, 0.674), widths 0.618, 0.382, 0.236, 0.146, 7 evaluations after 4 steps. (6) Brent on the same curve: parabola through the triple, jump to its bottom: 0.6067, 0.6408, 0.6116, then an unsafe jump (vertex 0.6207, step not shrinking) replaced by a golden probe 0.6228: bracket 0.029 wide after the same 7 evaluations (golden: 0.146). (7) Nelder-Mead: triangle B, G, W; reflect W through the centroid C; expand when R beats the best, contract when R overshoots, shrink as a last resort; example f = (x - 3.5)^2 + (y - 2.2)^2 from (0,0), (1,0), (0,1): expand, expand, reflect (expansion failed), contract inside. (8) Rosenbrock's valley from (-1, 1): 84 rounds, 198 evaluations, 29 reflect, 19 expand, 36 contract, 0 shrink, ends at (1, 1).\n\nVIDEO-WIDE CONVENTIONS: COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips). Plots are grey and calm: curves and contours grey, 6 px curves, grey fill under a curve, the optimum / minimum is an orange star that only appears once found. Scenes 2-4 (LP) share the polygon with the same corner coordinates; scenes 5-7 (one variable) share the curve style, the bracket bar (P.span) under the axis, the red band for the thrown-away part and the stat cards (evaluations, width) at the top right; scenes 8-9 (Nelder-Mead) share the triangle (corner tones by rank: green best B, blue good G, red worst W; purple outline and purple candidate points R, E, M1, M2) and the four move chips (reflect purple, expand green, contract orange, shrink red). Tick and cross badges say 'better / not allowed' wherever a candidate is judged. The title card shows Byte (the Algorithms mascot).",
+  "titleCard": {
+    "kicker": "Algorithms · Phase 3",
+    "title": "Optimisation",
+    "sub": "How to find the best answer",
+    "who": "byte",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-region.js",
+      "kicker": "THE PROBLEM",
+      "title": [
+        "Rules cut the plane,",
+        "what is left is legal"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3.2,
+          "Each rule is a line that cuts the plane in half."
+        ],
+        [
+          3.4,
+          5.5,
+          "Only the overlap passes both rules."
+        ],
+        [
+          5.7,
+          8.0,
+          "Plug a plan into every rule."
+        ],
+        [
+          8.2,
+          10.8,
+          "Pass them all and it is legal."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: a linear program in one picture. We choose two numbers, x = units of product X and y = units of product Y. Each rule is a straight line that cuts the plane in half (one side is allowed). A plan is legal only if it passes EVERY rule, so the legal plans are the overlap of all the allowed sides: a polygon, the feasible region. Then test the lesson's five candidate plans against the rules.\n\nLAYOUT (stage px; the helpers are in videos/a3, see \"helpers\"):\nPLOT (left): P = A3.plot(stage, {x: 0, y: 0, w: 600, h: 604, view: [-0.6, 7.8, -0.6, 7.4], equal: true, axes: \"origin\", xticks: [0,1,2,3,4,5,6,7], yticks: [0,1,2,3,4,5,6,7], pad: {l: 60, r: 24, t: 24, b: 60}}). Scene 3 makes the identical call, so the picture carries over. Scale is 61.4 px per unit; for orientation only the corners sit near px (97, 493) = (0,0), (404, 493) = (5,0), (342, 309) = (4,3), (97, 186) = (0,5): always use P.px / P.py. Create the handles in this order (they stack in this order): h1 = P.half(1, 2, 10) and h2 = P.half(3, 1, 15) (the NOT-allowed sides, red, they overlap darker); poly = P.poly({tone: \"green\"}) with pts A3.CORNERS; l1 = P.eq(1, 2, 10) and l2 = P.eq(3, 1, 15) (purple, 6 px). Rule labels (P.text, purple): \"1: x + 2y ≤ 10\" along line 1 with set({x: 5.7, y: 2.15, dy: -22, r: 26.6}); \"2: 3x + y ≤ 15\" horizontal, P.text({tone: \"purple\", anchor: \"start\"}).set({x: 3.0, y: 6.65}). Tag A3.tag(P.html, {anchor: \"m\", text: \"legal region\", tone: \"green\"}) centred on (P.px(2.1), P.py(0.75)). Plan dots: five P.dot({tone: \"blue\", r: 14}) at A3.PLANS, each with a P.text label \"(x, y)\" at set({x, y, dx: 44, dy: 8}) (28 px, grey).\nCHECKER (right column, x 624..936): a card = V.h(\"div\", {class: \"v-card plain\"}) at (624, 0) size 312 x 300. In it: tag A3.tag(stage, {x: 780, y: 24, anchor: \"c\", tone: \"blue\"}) \"plan (5, 3)\"; two rows centred at y 130 and y 220, each = A3.badge(stage, {x: 668, y: row, size: 48, text: \"1\" or \"2\", tone: \"purple\"}) at the left, the sum in a .v-text.big div (40 px, left 708) such as \"11 ≤ 10\", and A3.badge(stage, {x: 892, y: row, size: 48, icon: \"tick\" or \"cross\"}) at the right (tone green / red). Verdict under the card: A3.sticker(stage, {x: 624, y: 324, w: 312, h: 64}) reading \"legal\" (green, tick) or \"not allowed\" (red, cross).\n\nDATA (A3.check(plan), asserted in common.js): row 1 shows m = x + 2y against 10, row 2 shows r = 3x + y against 15.\n(2, 2): 6 ≤ 10 tick, 8 ≤ 15 tick -> legal.   (4, 3): 10 ≤ 10 tick, 15 ≤ 15 tick -> legal (exactly on both lines, it is the corner).\n(5, 3): 11 ≤ 10 cross, 18 ≤ 15 cross -> not allowed.   (1, 5): 11 ≤ 10 cross, 8 ≤ 15 tick -> not allowed.   (6, 1): 8 ≤ 10 tick, 19 ≤ 15 cross -> not allowed.\n\nTIMELINE (local seconds):\n0.0-0.8 the plot card, grid, axes and numbers fade in (P.set({o}); the grid is ready). x and y axis names: two grey P.text, \"x\" at the right end of the x axis and \"y\" at the top of the y axis (set px: true if easier).\n1.2-3.4 RULE 1: l1 draws on from its left end (k 0 -> 1 over 1 s, E.inOut); at the same time h1 fades in (o 0 -> 1 over 0.8 s, so the half that is NOT allowed turns red); its label pops at 2.4.\n3.4-5.4 RULE 2: the same for l2 and h2; label pops at 4.4. The overlap that is neither red stays white.\n4.8-5.6 the polygon: poly fades in (fillO 0 -> 1) with the four corners; the \"legal region\" tag pops at 5.2 (E.pop, s 0.8 -> 1); the checker card pops in at 5.2 (card, tag, empty rows).\n5.6-11.1 PLAN TESTS, one per 1.1 s, T = 5.6 + 1.1 i for plan i = 0..4 in the order of A3.PLANS: T+0.0-0.3 the blue plan dot pops (s = E.pop) with its label, the tag reads \"plan (x, y)\", the verdict clears; T+0.2-0.5 row 1 text fades in and its icon draws on (badge k 0 -> 1) ; T+0.5-0.8 the same for row 2; T+0.8-1.0 the dot turns green (both ticks) or red, and the verdict sticker pops. Dots stay on the plot; the checker keeps only the current plan.\n11.1-12.0 hold. The polygon does one soft pulse (V.flash on poly scale or fillO) at 11.2.\nEND STATE: green polygon between two purple lines, red tints outside, two green dots ((2,2), (4,3)) and three red dots, checker showing the last plan (6, 1): \"8 ≤ 10\" tick, \"19 ≤ 15\" cross, \"not allowed\".\nNo other text. Caption timing is final (see caps)."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-corner.js",
+      "kicker": "THE SCORE",
+      "title": [
+        "Slide the profit line",
+        "until it leaves"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Each plan earns a score: z = 3x + 2y."
+        ],
+        [
+          3.2,
+          7.2,
+          "Slide the profit line outwards until it leaves."
+        ],
+        [
+          7.4,
+          11.4,
+          "It leaves at a corner, so check only the corners."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: every plan earns a profit score z = 3x + 2y. All plans with the same z lie on one straight line. Slide that line outwards (z grows, the line stays parallel) until it is about to leave the polygon: the last point it touches is the optimum. A straight line can only leave a polygon at a corner, so the best plan is always a corner, and only the corners need checking. (Lesson a3-lp \"Slide the profit line\" and \"Why a corner always wins\".)\n\nLAYOUT: the SAME plot call as scene 2 (P = A3.plot(stage, {x: 0, y: 0, w: 600, h: 604, view: [-0.6, 7.8, -0.6, 7.4], equal: true, axes: \"origin\", xticks: [0..7], yticks: [0..7], pad: {l: 60, r: 24, t: 24, b: 60}})), so the viewer sees the same picture. It is already complete at t = 0 (no build-up, it appears with a 0.4 s fade): poly = P.poly({tone: \"green\"}) with A3.CORNERS; l1 = P.eq(1, 2, 10, {w: 5}); l2 = P.eq(3, 1, 15, {w: 5}) (purple). No red tints and no rule labels this time (keep it calm). Four corner dots P.dot({tone: \"blue\", r: 12}) at A3.CORNERS with small coordinate tags, A3.tag(P.html, {text: \"(5, 0)\", ...}) beside each (anchor \"m\", tone \"grey\"): (0,0) at px offset (+54, +32) from the dot, (5,0) at (+40, +30), (4,3) at (+54, +30), (0,5) at (+54, -26). iso = P.eq(3, 2, 6, {tone: \"orange\", w: 6, dash: \"16 10\"}) -> the profit line; call iso.set({r: z}) every frame to slide it (r is the right-hand side of 3x + 2y = z). Its label P.text({tone: \"orange\"}) \"z = 6\" placed at set({x: z / 6, y: z / 4, dx: 80, dy: -14}) (the middle of the line, moving with it). ghost = P.eq(3, 2, 21, {tone: \"red\", w: 6, dash: \"16 10\"}). star = A3.star(P.over, {size: 56}) at (P.px(4), P.py(3) - 36).\nRIGHT COLUMN (x 624..936): stat A3.stat(stage, {x: 624, y: 0, w: 312, label: \"profit z\", tone: \"orange\"}) showing z as a whole number (it counts while the line slides); bars B = A3.bars(stage, {x: 624, y: 128, w: 312, rows: A3.CORNERS.map(c => ({label: \"(\" + c.join(\",\") + \")\", tone: \"blue\"})), min: 0, max: 20, labelW: 120, valW: 56, title: \"score at each corner\"}) (card 312 x 330).\n\nDATA: z = 3x + 2y at the corners is A3.CORNER_Z = [0, 15, 18, 10] for (0,0), (5,0), (4,3), (0,5). The profit line at z has intercepts (z/3, 0) and (0, z/2) (A3.iso(z)), slope -3/2. It passes (0,5) at z = 10, (5,0) at z = 15 and touches the polygon only at (4,3) when z = 18; for z = 21 it misses the polygon completely.\n\nTIMELINE (local s):\n0.0-0.5 everything above except the profit line and the right column is simply there (fade).\n0.6-1.4 the right column pops: stat reads 6 and the bars card is HIDDEN (pop it at 8.4, see below; until then the lower right is empty).\n1.0-2.2 the profit line appears at z = 6 (o 0 -> 1, k 0 -> 1) with its label \"z = 6\" (pop at 1.4). Everything on this line earns 6: nothing else happens until 2.6 (hold).\n2.6-7.0 the line slides out: z(t) = 6 + 12 * V.ramp(t, 2.6, 7.0, E.inOut) -> 18. Call iso.set({r: z}), move the label with it (its text is \"z = \" + A3.fmt(z, 0)), and the stat counts the same integer. When z passes 10 and 15 nothing special happens (the line crosses the polygon corners at (0,5) and (5,0) but part of the polygon is still beyond it).\n7.0-7.6 z = 18: the line touches only (4,3). The corner dot (4,3) turns orange (tone \"orange\"), the star pops at 7.0 (E.pop) and the stat bumps (flash). Hold the line at z = 18.\n7.6-8.6 ghost line z = 21 fades in (o 0 -> 1, red dashed), parallel and fully outside the polygon, with a small red cross badge A3.badge(stage, {icon: \"cross\", tone: \"red\", size: 48}) at the middle of its visible part (about the data point (5.2, 2.7)): no legal plan left beyond the corner. Fades out again at 9.0-9.6.\n8.4-10.4 the bars card pops (E.pop) and its rows grow one after another 0.4 s apart: B.set({vals: A3.CORNER_Z, k, ...}) with k per row via vals = A3.CORNER_Z.map((v, i) => V.ramp(t, 8.6 + 0.4 * i, 9.2 + 0.4 * i) > 0 ? v : null) and k = V.ramp(t, 8.6, 10.2). As each row grows its corner dot pulses once (V.flash, scale 1 -> 1.35).\n10.4-11.4 the (4,3) row turns orange (tones[2] = \"orange\") with the dashed highlight (hi: 2).\nEND STATE: polygon with the orange profit line touching (4,3), star on (4,3), stat \"18\", bars 0 / 15 / 18 / 10 with the 18 row highlighted orange. Caption timing is final."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-simplex.js",
+      "kicker": "SIMPLEX",
+      "title": [
+        "Walk corner to corner,",
+        "never the middle"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          0.4,
+          3.4,
+          "Start at a corner. Which direction gains most?"
+        ],
+        [
+          3.6,
+          7.6,
+          "Walk until the nearest rule blocks the way."
+        ],
+        [
+          7.8,
+          10.4,
+          "Repeat from the new corner."
+        ],
+        [
+          10.6,
+          14.2,
+          "No direction gains: the corner is optimal."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: the simplex method never searches the inside. It stands on a corner and asks two questions: which direction gains most (the ENTERING variable, the largest gain per unit), and how far can I walk before a rule blocks me (the RATIO TEST, the smallest limit wins and that rule LEAVES). It walks to the next corner and repeats, and stops when no direction gains. On the lesson's LP it visits (0,0) -> (5,0) -> (4,3), never (0,5). (Lesson a3-simplex; the numbers come from A3.SIMPLEX, exact fractions.)\n\nLAYOUT: PLOT (left): P = A3.plot(stage, {x: 0, y: 0, w: 480, h: 560, view: [-0.6, 7, -0.6, 7], equal: true, axes: \"origin\", xticks: [0,1,2,3,4,5,6], yticks: [0,1,2,3,4,5,6], pad: {l: 52, r: 20, t: 20, b: 56}}) (53.7 px per unit). In it: poly = P.poly({tone: \"green\"}) (A3.CORNERS), the two rule lines P.eq(1, 2, 10, {w: 5}) and P.eq(3, 1, 15, {w: 5}) (purple), four grey corner dots P.dot({tone: \"grey\", r: 9}) at A3.CORNERS, the walk trail = P.path({tone: \"blue\", w: 8}), the token = P.dot({tone: \"blue\", r: 15}) (ring \"orange\" while a variable enters), a direction arrow = P.arrow({tone: \"orange\", w: 6}), star = A3.star(P.over, {size: 52}).\nRIGHT COLUMN (x 504..936, 432 wide): GAIN card g = A3.bars(stage, {x: 504, y: 0, w: 432, rows: [{label: \"x\"}, {label: \"y\"}], min: -1, max: 3, labelW: 64, valW: 70, title: \"gain per unit of z\"}) (card 432 x 204; signed bars: positive green growing right, negative red growing left of the zero line); RATIO card r = A3.bars(stage, {x: 504, y: 228, w: 432, rows: [{label: \"machine\", tone: \"grey\"}, {label: \"material\", tone: \"grey\"}], min: 0, max: 15, labelW: 160, valW: 50, title: \"how far can it grow?\"}) (card 432 x 204); z stat A3.stat(stage, {x: 504, y: 456, w: 432, label: \"profit z\", tone: \"orange\"}). Use g.set({labels: [...]}) / r.set({labels: [...]}) to relabel the same cards at each corner (html allowed: \"s<sub>2</sub>\").\n\nDATA (A3.SIMPLEX, asserted): STEP 0 at (0,0), z 0: gains x +3, y +2 (nb [\"x\",\"y\"]) -> x enters (largest gain). Ratio test rows machine (s1) 10 and material (s2) 5 -> the smaller is material, so s2 leaves; walk to (5,0), z 15. STEP 1 at (5,0), z 15: gains s2 -1 and y +1 (nb [\"s2\",\"y\"]) -> y enters. Ratio rows machine (s1) 3 and y-axis (x) 15 -> machine is smaller, so s1 leaves; walk to (4,3), z 18. FINAL at (4,3), z 18: gains s2 -4/5 and s1 -3/5, both negative -> optimal. Use vals = gains.map(A3.qv) and texts = gains.map(q => (A3.qv(q) > 0 ? \"+\" : \"\") + A3.qt(q)); ratio vals = ratios.map(x => A3.qv(x.val)), labels from A3.ROW_NAME[x.row] (s1 machine, s2 material, x y-axis); variable labels: x -> \"x\", y -> \"y\", s1 -> \"s<sub>1</sub>\", s2 -> \"s<sub>2</sub>\".\n\nTIMELINE (local s):\n0.0-1.0 plot card, polygon, rules and grey corner dots fade in; the token (blue) pops at (0,0) at 0.6; stat pops at 0.8 showing 0.\n1.3-3.6 GAINS at (0,0): the gain card pops; rows grow 0.3 s apart: x +3, y +2 (both green). At 2.6 the x row gets the orange dashed highlight (hi: 0) and the token's ring turns orange (x enters). At 3.0-3.5 the orange arrow grows from (0,0) along the x-axis towards (2.4, 0).\n3.6-6.2 RATIO TEST at (0,0): the ratio card pops (3.6); rows grow 0.3 s apart: machine 10 (grey), material 5 (orange, hi: 1 from 4.7). At 4.7-5.9 the token slides along the x-axis from (0,0) to (5,0) (E.inOut) and the blue trail follows; the stat counts 0 -> 15; the arrow fades. The corner dot (5,0) turns blue.\n6.2-8.0 GAINS at (5,0): the gain card swaps its rows (labels \"y\" and \"s2\", bars shrink to 0 and regrow, 0.4 s): y +1 (green), s2 -1 (red); highlight y (hi: 0) at 7.0; the orange arrow grows from (5,0) along the material edge towards (4.55, 1.35) (7.2-7.8).\n8.0-10.4 RATIO TEST at (5,0): ratio card relabels: machine 3 (orange, highlighted), y-axis 15 (grey). At 8.8-10.0 the token slides along the edge from (5,0) up to (4,3), the trail extends, the stat counts 15 -> 18; the corner dot (4,3) turns blue.\n10.4-12.8 STOP at (4,3): gain card swaps to s2 -4/5 and s1 -3/5 (both red, labels \"s2\", \"s1\", texts \"−4/5\" \"−3/5\") with no highlight; the ratio card fades out (10.8) and in its place a sticker A3.sticker(stage, {x: 504, y: 228, w: 432, h: 64, text: \"no gain left: optimal\", tone: \"green\", icon: \"tick\"}) pops at 11.4; the star pops at (4,3) at 11.0 and the token turns green (tone \"green\").\n12.8-14.4 hold; the finished walk (0,0) -> (5,0) -> (4,3) is the thick blue trail, the grey corner (0,5) was never visited.\nEND STATE: trail over two edges, star on (4,3), z 18, both gains red, green \"no gain left\" sticker. Caption timing is final."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-bisection.js",
+      "kicker": "BRACKETING",
+      "title": [
+        "A slope that flips",
+        "traps the minimum"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3.4,
+          "Falling left, rising right: a minimum is trapped."
+        ],
+        [
+          3.6,
+          6.4,
+          "Test the middle: is the slope still falling?"
+        ],
+        [
+          6.6,
+          9.8,
+          "Keep the half where the slope flips."
+        ],
+        [
+          10.0,
+          11.6,
+          "Each step halves the bracket."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: when the minimum cannot be found by a formula, TRAP it. For a bowl-shaped function the slope is negative (falling) left of the bottom and positive (rising) right of it. If the slope is falling at a and rising at b, a minimum is trapped between them. Test the middle m: if the slope there is still falling, a moves up to m, otherwise b moves down to m; every cut keeps the guarantee and halves the bracket. (Lessons a3-bisect \"From roots to minima\", a3-convex; bisection on f' with f(x) = e^x - 2x, minimum at ln 2 = 0.6931.)\n\nLAYOUT: P = A3.plot(stage, {x: 0, y: 0, w: 936, h: 560, view: [-0.2, 1.4, 0.45, 1.34], axes: \"bottom\", xticks: [0, 0.5, 1], grid: true, labels: false, pad: {l: 24, r: 24, t: 24, b: 80}}). curve = P.curve(A3.EXP.f, {x0: -0.2, x1: 1.4}) (grey, fillO 1). Handles: dots dA, dB = P.dot({tone: \"blue\", r: 14}), dM = P.dot({tone: \"orange\", r: 14}); three vertical guides P.vline({}) from the axis (y0 = P.cur.y0) up to the curve; letters P.text \"a\", \"m\", \"b\" at set({x, y: P.cur.y0, dy: -16}); three tangents tA, tB, tM = P.tangent({tone: \"purple\", len: 140}) with slope m = A3.EXP.df(x) at their point; three purple soft tags A3.tag(P.html, {anchor: \"c\", tone: \"purple\"}) reading \"falling\" or \"rising\", centred 60 px above their dot; band = P.band({tone: \"red\"}) (the thrown-away half); span = P.span({tone: \"purple\"}) (the bracket bar under the axis); width stat A3.stat(P.html, {x: 358, y: 24, w: 220, label: \"bracket width\"}); star = A3.star(P.over, {size: 52}).\n\nDATA (A3.EXP and A3.bisect(4).rows, asserted): f(0) = 1, f(1) = 0.718, f'(0) = -1 falling, f'(1) = +0.718 rising, minimum f(ln 2) = 0.6137 at x = 0.6931. Rounds: 1) m = 0.5, slope -0.351 falling: a moves to 0.5, cut [0, 0.5], width 0.5. 2) m = 0.75, slope +0.117 rising: b moves to 0.75, cut [0.75, 1], width 0.25. 3) m = 0.625, slope -0.132 falling: a to 0.625, cut [0.5, 0.625], width 0.125. 4) m = 0.6875, slope -0.011 falling: a to 0.6875, cut [0.625, 0.6875], width 0.0625. Final bracket [0.6875, 0.75] contains ln 2. Use the rows' m, slope, falling, cut, wa, wb, width fields; slopes for the tangent = row.slope.\n\nTIMELINE (local s):\n0.0-1.2 the card fades in and the curve draws on (k 0 -> 1 over 1.0 s, E.lin) with the grey fill (fillO from 0.8). The minimum star is NOT shown yet (we do not know where it is).\n1.2-3.4 THE TRAP: a = 0 and b = 1 pop 0.4 s apart (blue dots, guides, letters); at 2.0 the tangent at a grows (k 0 -> 1) with the tag \"falling\"; at 2.6 the tangent at b grows with the tag \"rising\"; at 2.8 the span bar draws under the axis from 0 to 1 and the width stat pops showing 1.\n3.4-10.2 FOUR HALVINGS, 1.7 s each, round k starts at T = 3.4 + 1.7 (k - 1): T+0.0-0.35 the orange dot m pops on the curve at (m, f(m)) with its guide and the letter \"m\"; T+0.3-0.8 the tangent tM grows with its tag (\"falling\" or \"rising\" from the row); T+0.8-1.1 the half that is cut (row.cut) tints red (band o 0 -> 1) and the dot / tangent / tag at the end that is cut away fade out (s -> 0.6, o -> 0); T+1.05-1.45 m becomes the new end: dM turns blue and takes over the role (a or b: the dot keeps its tangent and tag), the span glides from the old [a, b] to the new [row.wa, row.wb] (E.inOut), the width stat counts to row.width with a bump (flash) at T+1.25; T+1.45-1.7 the band fades out, the letters \"a\" and \"b\" settle on the new ends. The next round starts from the same state.\n10.2-11.6 the star pops at (0.6931, 0.6137) (E.pop) between the final ends; the width stat reads 0.0625; hold.\nEND STATE: bracket [0.6875, 0.75] (a thin purple bar), blue ends with falling / rising tangents, orange star between them, width 0.0625. Caption timing is final."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-golden.js",
+      "kicker": "BRACKETING",
+      "title": [
+        "No slope needed:",
+        "one new probe a step"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3.2,
+          "No slope? Three points can still trap a minimum."
+        ],
+        [
+          3.4,
+          7.2,
+          "Add one probe a step. The lowest stays in the middle."
+        ],
+        [
+          7.4,
+          11.0,
+          "Old probes are reused, so each cut costs one test."
+        ],
+        [
+          11.2,
+          12.8,
+          "Every step keeps 0.618 of the bracket."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: golden-section search needs no slope at all, only values. A BRACKET is a triple a < b < c with f(b) lower than both ends, so a minimum is trapped. Add ONE new probe x per step inside the larger part, evaluate it, and keep the lowest point in the middle together with its two neighbours: the bracket shrinks to 0.618 of its width every step, and the old probes are reused, so each cut costs one new evaluation. (Lesson a3-bracket, extended as 3.12; curve f(x) = 2.2 |x - 0.62|^1.4 + 0.25, a kinked dip.)\n\nLAYOUT: P = A3.plot(stage, {x: 0, y: 0, w: 936, h: 540, view: [-0.04, 1.04, 0.12, 1.5], axes: \"bottom\", xticks: [0, 0.5, 1], grid: false, labels: false, pad: {l: 24, r: 24, t: 24, b: 76}}). curve = P.curve(A3.BF, {x0: 0, x1: 1}) (grey, fillO 1). Handles: three dots for a, b, c = P.dot({r: 14}) (ends blue, the middle green) and one for the probe x (orange); vertical guides P.vline({}) from the axis to each dot; letters P.text at set({x, y: P.cur.y0, dy: -16}) (\"a\", \"b\", \"c\", and \"x\"); band = P.band({tone: \"red\"}); span = P.span({tone: \"purple\"}); two stats in the top right (clear of the curve): A3.stat(stage, {x: 484, y: 24, w: 200, label: \"evaluations\"}) and A3.stat(stage, {x: 704, y: 24, w: 220, label: \"width\", tone: \"purple\"}); a small orange tag A3.tag(stage, {anchor: \"m\", text: \"× 0.618\", tone: \"orange\", solid: true}) that pops next to the width stat each step (at about (804, 150)); star = A3.star(P.over, {size: 52}).\n\nDATA (A3.golden(4), asserted): start triple (a, b, c) = (0, 0.382, 1) with f = 1.377, 0.545, 0.818 (b is lowest). Evaluations so far 3.\nStep 1: probe x = 0.618, f 0.250, LOWER than f(b): x becomes the middle, old b becomes a; cut [0, 0.382]; new triple (0.382, 0.618, 1); width 0.618; evaluations 4.\nStep 2: x = 0.764, f 0.396, higher: x becomes c; cut [0.764, 1]; triple (0.382, 0.618, 0.764); width 0.382; evaluations 5.\nStep 3: x = 0.528, f 0.328, higher: x becomes a; cut [0.382, 0.528]; triple (0.528, 0.618, 0.764); width 0.236; evaluations 6.\nStep 4: x = 0.674, f 0.287, higher: x becomes c; cut [0.674, 0.764]; triple (0.528, 0.618, 0.674); width 0.146; evaluations 7.\n(Use steps[k].t, x, fx, lower, nt, cut, width, evals.) The minimum is at x = 0.62, f = 0.25 (the star).\n\nTIMELINE (local s):\n0.0-1.4 card, then the curve draws on (k over 1.0 s) with the grey fill.\n1.4-3.2 THE TRIPLE: the dots a (0), b (0.382), c (1) pop 0.3 s apart with guides and letters; the span bar draws from 0 to 1; b is green (lowest in the middle); stats pop: evaluations 3, width 1; at 2.8 a green tag A3.tag(P.html, {anchor: \"m\", text: \"lowest in the middle\", tone: \"green\"}) pops above b (about 70 px above its dot) and fades by 3.4.\n3.4-11.0 FOUR STEPS, 1.9 s each, step k starts at T = 3.4 + 1.9 (k - 1): T+0.0-0.4 the orange probe x pops at (x, f(x)) with guide and letter \"x\"; the evaluations stat counts up by one with a bump at T+0.3; T+0.45-0.85 hold so the viewer sees whether x is lower or higher than the green middle dot; T+0.85-1.25 the band tints the cut part (row.cut) red and the dot at the cut end fades; T+1.15-1.55 colours settle: the lowest of the three remaining points turns green and sits in the middle, the other two are blue, the old letters move to their new points; the span glides to the new [nt.a, nt.c] (E.inOut); T+1.3-1.7 the \"× 0.618\" tag pops and the width stat counts to the new width (1 -> 0.618 -> 0.382 -> 0.236 -> 0.146) with a bump; T+1.6-1.9 the band fades. At step 2 (T = 5.3) add a green ring (dot ring: \"green\") on the surviving probe b with a grey tag \"reused\" (28 px) beside it for about 1.0 s: the old probe is kept, nothing re-evaluated.\n11.2-12.8 the orange star pops at (0.62, 0.25) (about 34 px above the dot b; it sits right next to b); the stats read 7 and 0.146; hold.\nEND STATE: bracket (0.528, 0.618, 0.674) as a thin purple bar, green middle dot, blue ends, orange star, evaluations 7, width 0.146. Caption timing is final."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-brent.js",
+      "kicker": "BRACKETING",
+      "title": [
+        "Fit a parabola,",
+        "jump to its bottom"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3.2,
+          "Same curve. Fit a parabola through the three points."
+        ],
+        [
+          3.4,
+          6.2,
+          "Jump to the bottom of the parabola."
+        ],
+        [
+          6.4,
+          9.2,
+          "Repeat: it homes in much faster than golden section."
+        ],
+        [
+          9.4,
+          12.4,
+          "If a jump looks unsafe, take a golden step instead."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: same curve, faster. Three points and their heights define one parabola, and near a smooth minimum the function looks like a parabola. So fit the parabola through (a, b, c), jump to its LOWEST point, evaluate there, and keep the best three points: the bracket collapses much faster than golden section. But a parabola is only a guess: if the jump looks unsafe (the step is not shrinking fast enough) Brent's method takes a safe golden step instead. (Lesson a3-brent; same f and same start triple as scene 6.)\n\nLAYOUT: P = A3.plot(stage, {x: 0, y: 0, w: 936, h: 520, view: V0, axes: \"bottom\", xticks: [], grid: false, labels: false, pad: {l: 24, r: 24, t: 24, b: 80}}) with V0 = [-0.04, 1.04, 0.12, 1.5] (the scene 6 view), zoomed during the scene with P.view(A3.mixView(...)) (see timeline). curve = P.curve(A3.BF, {x0: 0, x1: 1}) (grey, filled); parabola = P.curve(A3.lagrange(step.t), {tone: \"purple\", w: 5, x0: 0, x1: 1}) (set({fn: A3.lagrange(t), k}) each frame; draws on left to right); the three triple dots (ends blue, middle green, r 14), a probe dot (orange) and a vertex ring P.ring({tone: \"purple\", r: 18}); a vertical guide for each dot P.vline({}); a purple dotted jump line P.vline({tone: \"purple\", dash: \"3 8\"}) from the parabola's lowest point down to the curve; letters P.text; band = P.band({tone: \"red\"}); span = P.span({tone: \"purple\"}). Stats top right (clear of the curve at the start): A3.stat(stage, {x: 484, y: 24, w: 200, label: \"evaluations\"}). STEP CHIPS under the card: four A3.chip(stage, {x: 0, 242, 484, 726 (one each), y: 548, w: 210, h: 60}) with texts \"1 parabola\", \"2 parabola\", \"3 parabola\", \"4 golden\" (tone purple, purple, purple, orange; state \"grey\" until reached, \"active\" while it runs, then \"done\"). A red cross badge and a sticker for the rejected jump: A3.badge(stage, {icon: \"cross\", tone: \"red\", size: 48}) and A3.sticker(stage, {x: 24, y: 24, w: 340, h: 64, text: \"jump too big\", tone: \"red\", icon: \"cross\"}). Final compare cards in the top centre: A3.stat(P.html, {x: 232, y: 24, w: 220, label: \"golden\", tone: \"grey\"}) and A3.stat(P.html, {x: 484, y: 24, w: 220, label: \"Brent\", tone: \"purple\"}), plus a grey tag \"same 7 evaluations\" above them (anchor \"c\", at (468, 150)).\n\nDATA (A3.brent(4) and A3.golden(4), asserted; step.t = the triple before the step, nt after):\nstart (0, 0.382, 1), f 1.377, 0.545, 0.818.\nStep 1 (P): parabola vertex x = 0.6067 (the parabola's lowest value there is 0.413), probe f(0.6067) = 0.2552 -> lower than f(b): triple (0.382, 0.6067, 1); cut [0, 0.382]; evaluations 4.\nStep 2 (P): triple (0.382, 0.6067, 1), vertex 0.6408 (parabola 0.250), f = 0.2597, higher than f(b): triple (0.382, 0.6067, 0.6408); cut [0.6408, 1]; width 0.259; evaluations 5.\nStep 3 (P): triple (0.382, 0.6067, 0.6408), vertex 0.6116, f = 0.2527, lower: triple (0.6067, 0.6116, 0.6408); cut [0.382, 0.6067]; width 0.034; evaluations 6.\nStep 4 (G, unsafe): triple (0.6067, 0.6116, 0.6408); the parabola's vertex would be 0.6207 (parabola 0.251), a jump of 0.0091 from b but the last step was only 0.0049, so it is not shrinking fast enough: golden probe x = 0.6228 instead, f = 0.2506, lower: triple (0.6116, 0.6228, 0.6408); cut [0.6067, 0.6116]; width 0.029; evaluations 7.\nAfter the same 4 steps / 7 evaluations: Brent's bracket is 0.029 wide, golden section's is 0.146 wide (A3.golden(4).steps[3].width).\n\nTIMELINE (local s):\n0.0-1.0 card, curve (draws on, 0.8 s) and the triple dots a, b, c (green middle) with guides, letters and the span [0, 1] (same state as the end of scene 6's start); stat 3. Chips pop (all grey) at 0.8.\n1.0-2.2 STEP 1: chip 1 active; the parabola (A3.lagrange(start)) draws on left to right (purple, k over 1.0 s).\n2.2-3.4 its lowest point gets a purple ring (vertex x 0.6067, y 0.413) and the dotted purple jump line drops from it to the curve; the orange probe pops at (0.6067, 0.2552) (E.pop) with letter \"x\"; evaluations 4; the band tints [0, 0.382] red; colours settle (x becomes the green middle, old b becomes a blue end, old a fades); span glides to [0.382, 1]; chip 1 done.\n3.4-5.4 STEP 2 (the same sequence in 2 s): parabola of the new triple replaces the old (cross-fade 0.3 s), vertex 0.6408 ring, jump line, probe (higher than the green middle, so it becomes the new right end), band [0.6408, 1], span [0.382, 0.6408], evaluations 5, chip 2.\n5.4-6.8 ZOOM: P.view(A3.mixView(V0, V1, V.ramp(t, 5.4, 6.8, E.lin))) with V1 = A3.viewFor(brent.steps[2].t, {padX: 0.25, top: 0.9}). The curve, dots, guides, span and band all follow the new view (call every handle's set() every frame), the kink of the curve becomes visible.\n6.8-8.6 STEP 3: parabola, vertex 0.6116, jump, probe lower than the green middle (it becomes the middle), band [0.382, 0.6067], span; evaluations 6; chip 3. Ease the view from V1 to V2 = A3.viewFor(brent.steps[3].t, {padX: 0.5, top: 0.9}) between 8.2 and 9.0.\n9.0-11.2 STEP 4, unsafe: chip 4 turns active in orange when the sticker shows. The parabola draws (purple); its vertex ring at 0.6207 appears, then at 9.8 a red cross badge on it and the red sticker \"jump too big\" pops (top left of the card); at 10.2 the vertex ring and parabola fade and the orange GOLDEN probe pops at (0.6228, 0.2506) (it becomes the new green middle); band [0.6067, 0.6116] flashes; span glides to [0.6116, 0.6408]; evaluations 7; chip 4 done.\n11.2-12.6 the compare cards pop in the top centre (the view is zoomed, the curve's arms stay below them because top: 0.9 leaves headroom): \"golden 0.146\" (grey) and \"Brent 0.029\" (purple) and the grey tag \"same 7 evaluations\"; the Brent card bumps once (flash).\nEND STATE: zoomed bracket (0.6116, 0.6228, 0.6408), chips P P P G all done, compare cards golden 0.146 vs Brent 0.029. Caption timing is final."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-moves.js",
+      "kicker": "NELDER–MEAD",
+      "title": [
+        "A triangle flips",
+        "its worst corner"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Keep a triangle. Flip its worst corner through the middle."
+        ],
+        [
+          3.2,
+          6.4,
+          "A great flip? Stretch even further."
+        ],
+        [
+          6.6,
+          8.8,
+          "Stretched too far? Keep the plain flip."
+        ],
+        [
+          9.0,
+          11.4,
+          "Flip overshoots? Pull the corner in instead."
+        ],
+        [
+          11.6,
+          13.6,
+          "Nothing works? Shrink towards the best."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: Nelder-Mead needs no gradient and no formula, only the VALUES of f. In 2-D it keeps a triangle of three points, sorted into best B, good G and worst W. Each round it replaces W: flip it through the middle C of the best side (reflect: R). A great flip (R beats the best) earns a longer try (expand: E, kept if better than R). A flip that is no better than G overshot: try the two points halfway towards C (contract: M1 inside, M2 outside, the better one wins if it beats W). If nothing works, shrink everything halfway towards B. Good news earns a bigger move, bad news a smaller one. (Lessons a3-nm, a3-nm-ops; example from the lesson's runner: f = (x - 3.5)^2 + (y - 2.2)^2, minimum 0 at (3.5, 2.2), start triangle (0,0), (1,0), (0,1).)\n\nLAYOUT: P = A3.plot(stage, {x: 0, y: 0, w: 936, h: 528, view: [-0.6, 7.2, -0.5, 3.6], equal: true, grid: false, pad: {l: 12, r: 12, t: 12, b: 12}}) (about 117 px per unit; visible y range about -0.9..3.4). Contours: P.contours(A3.contours(A3.BOWL2, [-3, 10, -3, 6], A3.BOWL_LEVELS)) (grey rings, drawn once). Star: A3.star(P.over, {size: 48}) at (P.px(3.5), P.py(2.2)). Triangle: tri = P.simplex({tone: \"purple\"}) with set({pts, tones, labels}): pass the three corners in SLOT order (A3.NM_BOWL.rounds[k].from / .to / A3.nmAt) and give tones / labels by rank of f: best \"green\" \"B\", good \"blue\" \"G\", worst \"red\" \"W\" (compute the rank from A3.BOWL2). A ghost outline of the previous triangle: another P.simplex with fillO 0, o 0.35, dotO 0, tone \"grey\". Centroid: A3.diamond(P.over, {size: 24, tone: \"grey\"}) at C. Flip arrow: arr = P.arrow({tone: \"purple\", w: 6}) from W through C to R (and on to E, a second P.arrow). Candidate dots: P.dot({tone: \"purple\", r: 12}) for R, E, M1, M2 with P.text labels \"R\", \"E\", \"M₁\", \"M₂\" (set dx/dy ~ 24 px away). f-value tags: A3.tag(P.html, {text: \"f 7.69\", tone: ...}) (28 px) beside corners / candidates (tone green / blue / red by rank, purple for candidates). Verdict badges A3.badge(stage or P.html, {size: 44, icon: \"tick\" | \"cross\"}) near a candidate. MOVE CHIPS: mv = A3.moves(stage, {x: 0, y: 548, w: 936, h: 60}) with mv.set({active: \"expand\", used: [...], pulse}); chips are reflect (purple), expand (green), contract (orange), shrink (red). A grey tag \"last resort\" for the end.\n\nDATA (A3.NM_BOWL.rounds, asserted; r.B / r.G / r.W are sorted {p, f}; r.C, r.R, r.fR, r.E, r.fE, r.M1, r.M2, r.f1, r.f2, r.op, r.tried, r.moved = slot that is replaced, r.from / r.to = the three slot points before / after the round):\nStart: B (1,0) f 11.09, G (0,1) 13.69, W (0,0) 17.09.\nRound 1: C (0.5,0.5); R (1,1) f 7.69 beats B; E (1.5,1.5) f 4.49 beats R -> EXPAND. W moves to (1.5,1.5).\nRound 2: B (1.5,1.5) 4.49, G (1,0) 11.09, W (0,1) 13.69; C (1.25,0.75); R (2.5,0.5) f 3.89 beats B; E (3.75,0.25) f 3.865 beats R -> EXPAND. W moves to (3.75,0.25).\nRound 3: B (3.75,0.25) 3.865, G (1.5,1.5) 4.49, W (1,0) 11.09; C (2.625,0.875); R (4.25,1.75) f 0.765 beats B; E (5.875,2.625) f 5.82 is WORSE than R -> expansion failed, keep REFLECT. W moves to (4.25,1.75).\nRound 4: B (4.25,1.75) 0.765, G (3.75,0.25) 3.865, W (1.5,1.5) 4.49; C (4,1); R (6.5,0.5) f 11.89 is no better than G: it overshot. M1 (2.75,1.25) f 1.465 (inside), M2 (5.25,0.75) f 5.165 (outside); M1 beats W (4.49) and M2, M2 does not beat W -> inside CONTRACTION. W moves to (2.75,1.25).\nShrink demo (hypothetical, labelled \"last resort\"): after round 4 the sorted triangle is B (4.25,1.75), G (2.75,1.25), W (3.75,0.25) (A3.NM_BOWL.rounds[3].next); A3.nmShrink(that) = {B: (4.25,1.75), G: (3.5,1.5), W: (4,1)}: G and W move halfway to B.\n\nTIMELINE (local s):\n0.0-1.0 card, contours (o 0 -> 1), star pops at 0.6.\n1.0-3.0 the start triangle: polygon fades in (1.0), the three corners pop; labels and f tags appear best to worst: B + \"f 11.09\" at 1.4, G + \"f 13.69\" at 1.7, W + \"f 17.09\" at 2.0. At 2.1 the grey diamond C pops at (0.5, 0.5) with a dashed grey line B-G (the best side); at 2.4-3.0 the purple arrow grows from W (0,0) through C to R (1,1) (k 0 -> 1); R pops at 3.0 with tag \"f 7.69\".\n3.2-4.8 ROUND 1, expand (caption 2 \"A great flip? Stretch even further.\"): at 3.3 a green tick badge pops by R (7.69 beats B 11.09); at 3.5-4.0 a second arrow grows from R on to E (1.5,1.5); E pops at 4.0 with tag \"f 4.49\" and a tick; the chip \"expand\" turns active at 4.1 (pulse); at 4.3-5.0 the corner W glides from (0,0) to E (the ghost outline of the old triangle stays 0.5 s); R, C, arrows and tags fade; corner colours and labels re-sort (B (1.5,1.5) green, G (1,0) blue, W (0,1) red) with their f tags.\n5.0-6.6 ROUND 2, expand again, quicker: C (1.25,0.75) at 5.1; arrow W (0,1) -> R (2.5,0.5) at 5.3-5.6 and R pops with \"f 3.89\"; arrow on to E (3.75,0.25) at 5.7-6.0 with \"f 3.865\" and a tick; chip expand pulses at 6.0; W glides to E (6.1-6.6); roles re-sort.\n6.8-8.8 ROUND 3, expansion fails (caption 3): C (2.625,0.875) at 6.9; arrow W (1,0) -> R (4.25,1.75) at 7.1-7.5, R pops with \"f 0.77\" and a tick; arrow on to E (5.875,2.625) at 7.6-8.0, E pops with \"f 5.82\" and a RED cross (worse than R) at 8.0; E fades at 8.2; chip reflect turns active at 8.2; W glides to R (8.3-8.8); roles re-sort.\n9.0-11.4 ROUND 4, contraction (caption 4): roles B (4.25,1.75), G (3.75,0.25), W (1.5,1.5); C (4,1) at 9.1; arrow W -> R (6.5,0.5) at 9.3-9.7, R pops with \"f 11.89\" and a red cross at 9.8 (overshot: no better than G 3.865); at 10.0-10.4 M1 (2.75,1.25) \"f 1.47\" and M2 (5.25,0.75) \"f 5.17\" pop in purple (R fades); at 10.6 M1 gets a green tick and M2 a red cross; chip contract active at 10.6; W glides to M1 (10.8-11.4).\n11.6-13.6 SHRINK (caption 5), a demo: all candidates, tags and badges clear; the tag \"last resort\" (grey) pops near the triangle at 11.7; chip shrink turns active (red) at 11.8 with a pulse; the old triangle stays as a ghost outline while G and W glide halfway to B: G (2.75,1.25) -> (3.5,1.5) and W (3.75,0.25) -> (4,1) over 12.0-12.9; the other three chips show \"done\" (soft tint). Hold to 13.6.\nEND STATE: small shrunken triangle at the lower right of the rings, ghost of the bigger one, four move chips lit (reflect, expand, contract done; shrink last). Use real positions from A3.NM_BOWL and A3.nmShrink; interpolate corners with V.lerp and E.inOut. Caption timing is final."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-valley.js",
+      "kicker": "NELDER–MEAD",
+      "title": [
+        "It crawls down",
+        "a curved valley"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3.0,
+          "Real problems have curved valleys, not simple bowls."
+        ],
+        [
+          3.2,
+          6.4,
+          "The triangle stretches along the valley."
+        ],
+        [
+          6.6,
+          9.8,
+          "Near the bottom it shrinks to a tiny triangle."
+        ],
+        [
+          10.0,
+          12.4,
+          "No derivatives needed, just comparisons."
+        ]
+      ],
+      "spec": "COLOUR ROLES (whole video): green = allowed / better / kept / the answer; red = not allowed / worse / thrown away; blue = the point we look at (current corner, a probe, the triangle's middle corner); purple = the rules and the operators (constraint lines, the parabola, flip / stretch arrows and their candidate points); orange = the goal and the chosen (profit line, optimum star, entering variable, the minimum); grey = neutral (curves, grid, contours, unlit chips).\n\nIDEA: the payoff. On a curved valley (Rosenbrock's banana, f(x, y) = 100 (y - x^2)^2 + (1 - x)^2, minimum 0 at (1, 1)) a fixed-size step would bang into the walls. Nelder-Mead's triangle changes shape: it stretches along the valley when moves work, squeezes when they do not, and ends as a tiny triangle on the minimum, using only comparisons. The real run of the lesson (a3-nm-stop): start x0 = (-1, 1) with two 10 % nudges, stop when the triangle and its values are within 1e-6.\n\nLAYOUT: P = A3.plot(stage, {x: 0, y: 0, w: 936, h: 540, view: [-1.6, 1.6, -0.4, 2.2], equal: true, grid: false, pad: {l: 12, r: 12, t: 12, b: 12}}) (198 px per unit). Contours: P.contours(A3.contours(A3.ROSEN, [-3, 3, -2, 4], A3.ROS_LEVELS, {log: true, n: 360})) (grey, drawn once; nested U-shaped rings). Star A3.star(P.over, {size: 48}) at (P.px(1), P.py(1)) with a grey tag \"minimum\" beside it (28 px, set 60 px below the star). Run: run = A3.NM_ROS; s = A3.nmAt(run, u) returns slots (the three corners, smooth), centre, centreTrail, counts, it. Draw: tri = P.simplex({tone: \"purple\"}).set({pts: s.slots, tones: [\"blue\", \"blue\", \"blue\"]}) (no labels); trail = P.path({tone: \"blue\", w: 4}).set({pts: s.centreTrail}); finder ring = P.ring({tone: \"orange\", r: 26}).set({x: s.centre[0], y: s.centre[1]}) (so the tiny triangle is always visible; the ring turns green at the end). Move chips mv = A3.moves(stage, {x: 0, y: 560, w: 936, h: 60}) with mv.set({counts: s.counts}) (live counts). Stat cards at the top centre, inside the U of the valley: A3.stat(stage, {x: 258, y: 24, w: 200, label: \"rounds\"}) and A3.stat(stage, {x: 478, y: 24, w: 220, label: \"evaluations\"}) with text String(s.it) and String(run.evAt[s.it]).\n\nDATA (A3.NM_ROS, asserted): 84 rounds, 198 evaluations in all; moves 29 reflect, 19 expand, 36 contract (26 inside + 10 outside), 0 shrink; the best corner ends at (1.0000, 1.0000) with f = 2.0e-7. Start triangle (-1,1), (-1,1.1), (-1.1,1) (size 0.14, about 28 px). It grows to about 0.33 around round 12 and about 0.27 around round 56 where it stretches (rounds 29-35 are seven expansions in a row: \"eeeeeee\"), and shrinks below 0.03 after round 76 and to 0.001 at round 84. The triangle's centre passes (-0.81, 0.62) at round 12, (-0.15, 0.01) at round 36, (0.21, 0.03) at round 48, (0.77, 0.59) at round 60 and (1, 1) at the end.\n\nTIMELINE (local s):\n0.0-1.6 card; the contours fade in (o 0 -> 1 over 1.0 s); the star pops at 1.2 with its tag.\n1.6-3.0 the start triangle pops at (-1, 1) (corners 0.15 s apart), the orange ring pulses once, a grey tag \"start\" (28 px) sits above it. The four move chips and the stat cards pop at 2.4 (counts 0, rounds 0, evaluations 3).\n3.0-10.4 THE RUN: u = run.it * V.ramp(t, 3.0, 10.4, E.inOut) (0 -> 84 rounds; the run is not uniform in distance, that is fine); every frame: s = A3.nmAt(run, u), draw the triangle at s.slots, extend the trail with s.centreTrail, move the ring to s.centre, update the chips' counts and both stats. While rounds 29-35 run (u between 28 and 35, roughly t 5.6-6.4) a purple tag \"stretch\" (28 px) rides beside the triangle; while u is above 72 (roughly t 9.2 on) a tag \"squeeze\" (orange soft) replaces it.\n10.4-12.4 the end: the triangle is a dot on the star; the ring turns green; a green sticker A3.sticker(stage, {x: 570, y: 440, w: 330, h: 64, text: \"minimum found\", tone: \"green\", icon: \"tick\"}) (or beside the star, clear of the trail) pops at 10.6; the star pulses (flash) at 10.4; the stats read 84 and 198; chips read reflect 29, expand 19, contract 36, shrink 0. Hold.\nEND STATE: the whole blue trail from (-1, 1) along the valley to the star, ring green, chips with their final counts. Caption timing is final."
+    }
+  ],
+  "recap": {
+    "file": "scene-10-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "The best is a corner:\nsimplex walks there",
+        "tone": "blue",
+        "pictogram": "A mini LP polygon (A3.plot with frame: false, 340 x 140, view [-0.5, 6.5, -0.5, 5.8], equal, no grid; A3.CORNERS polygon green, two purple rule lines): a blue token hops (0,0) -> (5,0) -> (4,3) along the edges, leaving a blue trail; the orange star pops on (4,3); then everything fades and loops."
+      },
+      {
+        "head": "Trap the minimum,\nthen shrink the trap",
+        "tone": "purple",
+        "pictogram": "A mini bowl (P.curve(A3.EXP.f), grey, filled) with a purple span bar under it that halves three times (A3.bisect(3).rows widths 0.5, 0.25, 0.125: ends marked by two blue dots), the red band flashing over each thrown-away part; the orange star appears at ln 2 at the end; loop."
+      },
+      {
+        "head": "No gradient needed:\nflip the worst corner",
+        "tone": "green",
+        "pictogram": "A mini contour map (P.contours of A3.BOWL2, 340 x 140) with a purple triangle that goes through the first rounds of A3.NM_BOWL (expand, expand, reflect, contract; use A3.nmAt(A3.NM_BOWL, u)) towards the orange star at (3.5, 2.2) and then repeats; green tick on arrival."
+      }
+    ],
+    "cta": "Beat the Phase 3 boss quiz",
+    "spec": "RECAP CARD (bare scene, 1080 x 1080 stage, no headline or caption chrome). Copy the frame of videos/l3/scene-11-recap.js (and l5/scene-10-recap.js): kicker 'RECAP' and the headline 'Remember' (76 px) at the top left, Byte (V.mascot('byte', {size: 168, mood: 'love'}), at x 840, y 38) bobbing gently, three plain sticker rows (V.h('div', {class: 'v-card plain c-<tone>'}) at x 72, width 936, height 180, tops 240 / 444 / 648, the tone colours the sticker edge: blue / purple / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger like l3: a div at card-local (16, 10) with transform scale 1.1) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440 inside the row) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, A3.tag(stage, {anchor: 'm', solid: true, tone: 'blue', fs: 34})) with the call to action 'Beat the Phase 3 boss quiz'.\nPICTOGRAMS: each is a small A3.plot(pic, {x: 0, y: 0, w: 340, h: 140, frame: false, grid: false, pad: {l: 8, r: 8, t: 8, b: 8}, view: ...}) created inside its own absolutely positioned div (pic) so every coordinate is local to the pictogram. Keep them calm and looping with a period of about 4 s starting 0.4 s after the row has slid in (use a loop time helper: u = (t - t0) % 4). Row 1 ROW LABEL 'The best is a corner:\\nsimplex walks there'; row 2 'Trap the minimum,\\nthen shrink the trap'; row 3 'No gradient needed:\\nflip the worst corner'. Use the same colour roles as the video (green allowed / better, red thrown away, blue current point, purple rules and operators, orange the goal / star).\nTIMELINE: 0.1 kicker, headline and Byte; rows slide in at 0.8 / 1.9 / 3.0 (0.5 s each, label 0.15 s later; pictograms start 0.4 s after their row); 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else happens in the last 2 s except the looping pictograms and Byte's bob. Remember: no white, no gradients, symbols as SVG."
+  },
+  "helpers": "FILES (videos/a3/, all on window.VID.a3, short name A3; every file has its API comment at the top): common.js (pure data and the real algorithms, asserted at load), common-2.js (Nelder-Mead and contour maps, pure), common-3.js (the plot panel A3.plot), common-4.js (stickers, bars, stats, chips, pictograms), common-5.js (extra plot handles). videos/algo-3.html loads engine.js, cards.js, ../videos/l5/common.js (for VID.l5.tone / tick / cross / arrow / svg), then a3/common.js ... common-5.js, then scene-01 ... scene-10, audio/algo-3.js. It does NOT load l6.\n\nA. DATA AND ALGORITHMS (common.js, common-2.js; each result is asserted against the numbers in the scene specs, a mismatch throws \"VID.a3: ...\"):\n LP: A3.LP, A3.CORNERS [[0,0],[5,0],[4,3],[0,5]], A3.CORNER_Z [0,15,18,10], A3.BEST [4,3], A3.PLANS, A3.z(p), A3.check(p) -> {m, r, okM, okR, ok}, A3.iso(z), A3.clip(poly, a, b, r).\n SIMPLEX: A3.SIMPLEX = {steps: [{from, z, nb, gains (fractions {n, d}), enter, ratios: [{row, val}], leave, to, zTo}], final: {at, z, nb, gains}}; A3.qv(q) -> number, A3.qt(q) -> \"−3/5\"; A3.ROW_NAME {s1: machine, s2: material, x: y-axis, y: x-axis}.\n BISECTION (slope of f(x) = e^x - 2x): A3.EXP {f, df, min}; A3.bisect(n) -> {rows: [{k, a, b, m, slope, falling, keep, cut, width, wa, wb}], a, b}.\n GOLDEN / BRENT (f = A3.BF, kinked dip, minimum 0.25 at 0.62): A3.golden(n) and A3.brent(n) -> {start, steps: [{k, t, x, fx, nt, cut, width, evals, (golden: lower), (brent: kind \"P\"|\"G\", why, vertex, step)}]} with triples {a, b, c, fa, fb, fc}; A3.parab(t), A3.lagrange(t) (the parabola as a function), A3.goldenX, A3.retriple; zoom helpers A3.viewFor(t, {padX, y0, y1, top}) and A3.mixView(v0, v1, k).\n NELDER-MEAD: A3.BOWL2, A3.ROSEN, A3.nmIter, A3.nmRun(f, pts, {n, stop}) -> {rounds, slots, best, centre, evAt, counts, ev, it, final}; A3.NM_BOWL (4 rounds, scene 8), A3.NM_ROS (84 rounds, scene 9); A3.nmAt(run, u) -> {slots, best, centre, trail, centreTrail, counts, it, frac} (u = fractional round, corners move smoothly, a surviving corner keeps its slot); A3.nmShrink(sortedTriangle) -> {B, G, W}; A3.contours(f, view, levels, {n, log}) -> level segments (data coords) with A3.BOWL_LEVELS and A3.ROS_LEVELS.\n SMALL: A3.fmt(v, digits) (real minus), A3.rng(seed), A3.need(ok, msg), A3.near / near2.\n\nB. DRAWING. Create handles once in build(); in update(t) call .set({...}) on EVERY handle with the full state (anything left out falls back to its default; nothing is remembered). Opacity o, draw-on k, pop s (use V.ease.pop), dx / dy in stage px (dy > 0 is down).\n A3.plot(parent, {x, y, w, h, view: [x0, x1, y0, y1], equal, pad, frame, grid, xticks, yticks, labels, axes: \"origin\" | \"bottom\" | \"none\", clip}) -> P with P.px / P.py / P.pt (data -> stage px), P.view(v) (animate the window: call it first in update), P.set({o, s, dy}), P.under / P.mid / P.over (SVG layers in stage px), P.html (HTML layer for tags). Handles: P.curve(fn, {tone, w, x0, x1, base}).set({k, o, tone, w, fillO, fn}); P.eq(a, b, r).set({k, o, tone, rev, r}) (line a x + b y = r, clipped to the window; r can slide); P.half(a, b, r).set({o}) (tints the side a x + b y >= r); P.poly().set({pts, o, fillO, strokeO, tone}); P.path().set({pts, o, k, tone}) (open polyline); P.dot({tone, r}).set({x, y, o, s, tone, dx, dy, ring, ringK}); P.ring({r}).set({x, y, r, o, tone}); P.text({fs, tone, anchor, px}).set({text, x, y, dx, dy, o, tone, s, r}) (y is the baseline; paper halo); P.vline().set({x, y0, y1, o, k, tone}); P.band().set({x0, x1, o, tone}); P.span().set({x0, x1, o, tone}) (bracket bar under the axis); P.tangent().set({x, y, m, o, k, tone, len}); P.arrow().set({x1, y1, x2, y2, k, o, tone, bow}); P.contours(levels).set({o, tone}); P.simplex().set({pts, tones, labels, o, fillO, ring, dotO}).\n Stickers (HTML, pass the stage or P.html): A3.tag(parent, {x, y, text, tone, solid, fs, anchor: \"l\"|\"c\"|\"r\"|\"m\"}) -> el.set({text, html, tone, solid, s, o, dx, dy, r}); A3.chip(parent, {x, y, w, h, text, tone}).set({state: \"grey\"|\"active\"|\"done\", pop, o, dx, dy, pulse, text}); A3.sticker(parent, {x, y, w, h, text, tone, icon: \"tick\"|\"cross\"}).set({text, tone, icon, k, o, dx, dy}); A3.badge(parent, {x, y (centre), size, icon, text, tone}).set({icon, text, tone, k, o, x, y, dx, dy, s}); A3.stat(parent, {x, y, w, h, label, tone}).set({text, o, bump, tone, dx, dy, s}); A3.bars(parent, {x, y, w, rows, min, max, labelW, valW, title, ...}).set({vals, k, tones, texts, labels, hi, rowO, o, dy}) (signed bars supported, B.h = card height); A3.moves(parent, {x, y, w, h}).set({active, used, counts, pop, o, pulse}) (the four Nelder-Mead chips); A3.star(parent, {size}) and A3.diamond(parent, {size}) -> .set({x, y, s, o, r, dx, dy}) (parent: an SVG element such as P.over, or an HTML element).\n Reused from l5: VID.l5.tone(name) -> CSS var names, VID.l5.tick / cross / arrow / drawOn, VID.l5.svg(parent).\n\nC. RULES: no white, no gradients (everything uses var(--panel) / the tone vars), symbols are SVG (ticks, crosses, arrows, stars), all labels >= 28 px, nothing outside the 936 x 640 stage (keep >= 12 px margins; the cards' 6 px lip counts), no Math.random / Date / timers. Pop-ins: s = 0.8 + 0.2 * V.ease.pop(k), o = k * 4. Check every scene with node tools/video-still.js algo-3 sN@t for the key moments (the stage shows no caption bar in the stage area; the caption sits below it). Do not edit common*.js: ask the architect if a helper is missing; own helper code inside your scene file.\n\nD. WHAT THE SCENE AUTHORS MUST KNOW: (1) Scenes 2 and 3 make the identical A3.plot call, and scenes 5, 6 and 7 share the curve / card style, so the picture carries over. (2) Scene 7 zooms with P.view(A3.mixView(V0, V1, k)); call P.view FIRST each frame, then set() every handle (the curve resamples only the visible part, so a deep zoom stays smooth); the plot's tick numbers are off there (xticks: []). (3) Scene 8 and 9 draw the triangle from A3.NM_BOWL.rounds[k].from / .to (slot order, not sorted order) or A3.nmAt; roles B / G / W are by rank of f, recomputed from A3.BOWL2 / A3.ROSEN, so colours change when the ranking does. (4) Scene 4 relabels the same A3.bars cards with set({labels}), numbers come from A3.SIMPLEX only. (5) Every scene's title, kicker, dur and caps are already in its placeholder file and are final; keep them."
+}
