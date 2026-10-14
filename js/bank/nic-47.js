@@ -1,0 +1,326 @@
+/* Revision bank, Lecture 8 (ant colony detail): l8-variants, l8-schedule, l8-wlab. */
+(function () {
+  const B = NIC.bank;
+  const M = (q, right, wrong, why, x = {}) => ({ type: "mcq", q, o: [right, ...wrong], a: 0, why, ...x });
+
+  B.add("l8-variants", [
+    M(
+      "How did the original Ant System do on small TSP problems of about 30 cities?",
+      "It found the best solutions",
+      [
+        "It always failed to find a valid tour",
+        "It was beaten by every other method",
+        "It could only solve problems with fewer than 10 cities",
+      ],
+      "On small problems the Ant System found the best solutions; on larger ones it converged to good but not the best.",
+    ),
+    M(
+      "The lecture calls ants 'dynamic' optimisers. What does that suggest about the TSP, which does not change while it is being solved?",
+      "Good static results are a bonus, not expected",
+      [
+        "Ants cannot solve static problems at all",
+        "Ants must be told whenever the map changes",
+        "It is the problem ants were designed to solve",
+      ],
+      "Ants were inspired by foraging, where the world keeps changing. Static problems like the TSP are where specialist algorithms are strongest.",
+    ),
+    M(
+      "What gave 'world class' results according to the lecture?",
+      "Coupling ants with a local optimiser",
+      ["Removing evaporation altogether", "Running with just one single ant", "Dropping the heuristic from the rule"],
+      "Ants find promising regions, and local search polishes each tour within them.",
+    ),
+    {
+      type: "slider",
+      q: "On a 50-city problem the ant colony system examined 1,830 tours and simulated annealing 68,512. About how many times more tours did annealing examine?",
+      min: 0,
+      max: 100,
+      step: 5,
+      ans: 37,
+      tol: 8,
+      unit: " times",
+      hint: "About 70,000 divided by 2,000.",
+      why: "68,512 / 1,830 is about 37.",
+    },
+    {
+      type: "slider",
+      q: "On a 75-city problem the best ACS tour was 535 and the best simulated-annealing tour was 580. By about what percentage was the annealing tour longer?",
+      min: 0,
+      max: 30,
+      step: 1,
+      ans: 8,
+      tol: 3,
+      unit: "%",
+      hint: "The gap is 45. Compare it with about 500.",
+      why: "(580 − 535) / 535 = 45 / 535, about 8%.",
+    },
+    {
+      type: "cat",
+      q: "Sort these statements by the ant algorithm they describe.",
+      buckets: ["Original Ant System", "Best-ants variants (Elitist rank, Max-Min)"],
+      items: [
+        ["All ants deposit pheromone after each iteration", 0],
+        ["Only the best ant or the best n ants deposit", 1],
+        ["Introduced by Dorigo in 1996", 0],
+        ["Proposed by Bullnheimer (1999) and by Stützle and Hoos (2000)", 1],
+        ["Poor tours still add some pheromone", 0],
+      ],
+      why: "The variants change only the update rule: who is allowed to add pheromone.",
+    },
+    M(
+      "A colony has 12 ants. The elitist rank variant lets the best 4 deposit. How many ants do not deposit?",
+      "8",
+      ["4", "12", "3"],
+      "12 − 4 = 8 ants contribute nothing to the update.",
+    ),
+    {
+      type: "multi",
+      q: "Which statements about updating with only the best ants are true?",
+      o: [
+        "It tends to concentrate the trail on one route faster",
+        "It risks the colony locking onto a poor route",
+        "Max-Min and Elitist rank both do it in some form",
+        "It stops ants from using the transition rule",
+        "It makes every ant's tour identical immediately",
+      ],
+      a: [0, 1, 2],
+      why: "Fewer depositors means a sharper trail. The cost is less exploration. The transition rule still applies, and tours differ until the trail dominates.",
+    },
+    {
+      type: "order",
+      q: "Order the update rules by how many ants deposit, from most to fewest.",
+      items: ["Ant System: every ant", "Elitist rank: the best n ants", "Max-Min style: only the best ant"],
+      why: "All ants, then the best n, then a single best ant.",
+    },
+    {
+      type: "match",
+      q: "Match each ant algorithm to its source.",
+      pairs: [
+        ["Ant System", "Dorigo, 1996"],
+        ["Ant Colony System", "Dorigo and Gambardella, 1997"],
+        ["Elitist Rank Ant System", "Bullnheimer, 1999"],
+        ["Max-Min Ant System", "Stützle and Hoos, 2000"],
+      ],
+      why: "These are the ant systems named in the lecture and its results table.",
+    },
+    M(
+      "In the lecture's comparison, 20 ants ran for 1,250 iterations. Why is the number of tours examined so much lower for the ants than for the genetic algorithm?",
+      "Trails direct later ants, so fewer tries are wasted",
+      [
+        "Ants skip evaluating the tours they have built",
+        "A genetic algorithm evaluates only a single tour",
+        "Ants are forbidden from ever repeating a tour",
+      ],
+      "The colony learns from earlier tours through the trails, so its search is more directed. Every tour still has to be evaluated.",
+    ),
+    M(
+      "Why might a colony that updates with only its single best ant get stuck on a mediocre round?",
+      "All new pheromone piles onto one route",
+      [
+        "It is unable to evaporate any pheromone",
+        "The best ant is picked at random each time",
+        "The heuristic stops having any effect",
+      ],
+      "A narrow update piles pheromone on one early tour. Other routes fade and are rarely explored.",
+    ),
+  ]);
+
+  const layerFig = NIC.qfig.graph(
+    {
+      P1: [40, 40],
+      P2: [40, 110],
+      P3: [40, 180],
+      Q1: [200, 40],
+      Q2: [200, 110],
+      Q3: [200, 180],
+      R1: [360, 40],
+      R2: [360, 110],
+      R3: [360, 180],
+    },
+    [
+      ["P2", "Q2"],
+      ["P1", "Q1"],
+      ["P3", "Q3"],
+      ["Q2", "R1"],
+      ["Q2", "R2"],
+      ["Q2", "R3"],
+      ["Q1", "R1"],
+      ["Q3", "R3"],
+    ],
+    { pick: "edges", w: 400, h: 220, r: 17, hl: { "P2-Q2": "var(--teal)" } },
+  );
+
+  B.add("l8-schedule", [
+    {
+      type: "slider",
+      q: "One machine runs three jobs in order. A takes 10 min and is due at minute 5. B takes 20 and is due at 20. C takes 30 and is due at 45. Starting at minute 0, what is the <b>average lateness</b>?",
+      min: 0,
+      max: 30,
+      step: 5,
+      ans: 10,
+      tol: 3,
+      unit: " min",
+      hint: "They finish at 10, 30 and 60.",
+      why: "Finishes are 10, 30 and 60, so lateness is 5, 10 and 15. The average is 30 / 3 = 10 minutes.",
+    },
+    {
+      type: "slider",
+      q: "Three jobs have durations 20, 10 and 20 minutes and due times 40, 10 and 30. They run in earliest-due-first order from minute 0. What is the <b>maximum lateness</b>?",
+      min: 0,
+      max: 40,
+      step: 5,
+      ans: 10,
+      tol: 3,
+      unit: " min",
+      hint: "Order: the job due at 10, then 30, then 40.",
+      why: "The finishes are 10, 30 and 50. Lateness is 0, 0 and 10, so the maximum is 10 minutes.",
+    },
+    M(
+      "A job finishes at minute 95 and was due at minute 60. What is its lateness?",
+      "35",
+      ["−35", "0", "155"],
+      "Lateness is finish − due = 35. If it had finished early the value would be 0, never negative.",
+    ),
+    M(
+      "Three jobs take 15, 25 and 35 minutes and the machine never idles. When does the last job finish, whatever the order?",
+      "Minute 75",
+      ["Minute 35", "Minute 60", "Minute 90"],
+      "The finish time of the last job is the sum of all durations, 15 + 25 + 35 = 75.",
+    ),
+    M(
+      "In the ant colony for job scheduling, a sensible heuristic η for choosing the next job is…",
+      "Larger for jobs that are due sooner",
+      [
+        "Larger for jobs with later due times",
+        "The number of jobs already scheduled",
+        "The amount of pheromone on the Start node",
+      ],
+      "A due-date heuristic such as 1/due favours urgent jobs, just as 1/d favours near towns in the TSP.",
+    ),
+    {
+      type: "cat",
+      q: "Which belong to the TSP version of ACO and which to the scheduling version?",
+      buckets: ["TSP", "Single-machine scheduling"],
+      items: [
+        ["Nodes are cities", 0],
+        ["Nodes are jobs", 1],
+        ["The ant returns to where it started", 0],
+        ["The path is complete when every job is visited", 1],
+        ["A Start node gives the first choice its own pheromone", 1],
+        ["Quality uses total tour length", 0],
+      ],
+      why: "Both use paths and the same rules. Scheduling has jobs as nodes, a Start node, no return and a lateness fitness.",
+    },
+    {
+      type: "multi",
+      q: "Which statements about lateness are true?",
+      o: [
+        "A job that finishes early has lateness 0",
+        "Lateness is finish time minus due time, never below 0",
+        "Two schedules can tie on average lateness but differ on maximum",
+        "Maximum lateness ignores the worst job",
+        "Lateness is due time minus finish time",
+      ],
+      a: [0, 1, 2],
+      why: "Lateness counts only lateness, never earliness. Average and maximum are different summaries, so they can disagree.",
+    },
+    {
+      type: "order",
+      q: "Put one scheduling ant's walk in order.",
+      items: [
+        "The ant stands on the Start node",
+        "It picks the first job using pheromone and the heuristic",
+        "It picks each later job from those not yet scheduled",
+        "Every job has been visited, so the schedule is complete",
+        "The schedule's lateness gives the ant's quality",
+      ],
+      why: "Start, first job, remaining jobs one at a time, completion, then scoring.",
+    },
+    {
+      type: "bug",
+      q: "This code should add each job's lateness to <code>total</code>. Click the faulty line.",
+      code: [
+        "t = 0",
+        "for job in order:",
+        "    t += job.duration",
+        "    late = max(0, job.due - t)",
+        "    total += late",
+      ],
+      a: 3,
+      why: "Lateness is finish minus due. As written it is due minus finish, which is positive only for jobs that finish early.",
+    },
+    {
+      type: "pick",
+      q: "A layered construction graph: the ant took the green road from layer P to Q2. Click <b>all</b> the roads it may take next.",
+      fig: layerFig,
+      a: ["Q2-R1", "Q2-R2", "Q2-R3"],
+      why: "From Q2 an ant moves forward to any node of the next layer. Roads from Q1 and Q3 start at nodes it is not standing on.",
+    },
+    M(
+      "A layered graph has 3 layers of 4 options each, and a solution picks one option per layer. How many different solutions (paths) are there?",
+      "64",
+      ["12", "16", "81"],
+      "4 choices in each of 3 layers gives 4 × 4 × 4 = 64.",
+    ),
+    M(
+      "In a layered construction graph an ant has just chosen an option in layer 2 of 4. Where can it move next?",
+      "To any node of layer 3",
+      ["To any node of layer 1", "To any other node of layer 2", "To layer 4 directly"],
+      "Ants move only forward, one layer at a time.",
+    ),
+  ]);
+
+  B.add("l8-wlab", [
+    M(
+      "In the colony lab, the update rule is set to <b>Best ant</b> and you press <b>Run 10</b>. What happens to the share of pheromone on the best round?",
+      "It climbs: one tour gets all the new pheromone",
+      [
+        "It falls, because fewer ants are depositing",
+        "It stays at about 50% whatever you change",
+        "It drops towards zero as evaporation wins",
+      ],
+      "A single depositor puts all the new pheromone on one tour, so that tour's share grows fast.",
+    ),
+    M(
+      "α is 0 in the lab. What does that do to the pheromone term τ<sup>α</sup> for every town?",
+      "It makes the term equal to 1 for all towns",
+      ["It makes the term 0 for all towns", "It doubles the term for the nearest towns", "It removes the tabu list"],
+      "Any positive number to the power 0 is 1, so the pheromone no longer affects the choice.",
+    ),
+    M(
+      "In the lab all ten ants follow the same round, and it is longer than the shortest round known. What has happened?",
+      "The colony has locked in too early",
+      ["The pheromone has evaporated completely", "The heuristic is switched off by β", "The tabu list is too short"],
+      "Strong positive feedback made one route dominant before better ones were found.",
+    ),
+    M(
+      "Two print-shop schedules both have an average lateness of 42 minutes. Their maximum lateness is 110 and 140 minutes. Which has the better worst case?",
+      "The 110-minute schedule",
+      ["The 140-minute schedule", "They are equal, since the averages match", "Neither: maximum is not a fitness"],
+      "The maximum measures the worst job, and 110 is lower than 140. Average alone hides that difference.",
+    ),
+    {
+      type: "cat",
+      q: "Which lab setting is more likely to explore, and which to lock in?",
+      buckets: ["Explores more", "Locks in sooner"],
+      items: [
+        ["Low ρ, many ants depositing", 0],
+        ["Best ant only, β = 0, α = 3", 1],
+        ["Low α, high β", 0],
+        ["High ρ, best ant only", 1],
+      ],
+      why: "Broad deposits and heuristic guidance keep the search varied. Narrow deposits and strong trails commit early.",
+    },
+    {
+      type: "match",
+      q: "Match each lab control to its effect.",
+      pairs: [
+        ["α", "How much the pheromone steers choices"],
+        ["β", "How much distance steers choices"],
+        ["ρ", "How fast old pheromone fades"],
+        ["Best ant", "Only one ant deposits each iteration"],
+      ],
+      why: "These are the dials of the colony lab.",
+    },
+  ]);
+})();

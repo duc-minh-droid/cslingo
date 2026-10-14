@@ -1,7 +1,6 @@
 (function () {
   const partScope = (NIC.shared.bossAlgo = NIC.shared.bossAlgo || {});
   const { boss, maskGrid } = partScope;
-  const N = NIC;
 
   /* ================= Phase 10 ================= */
   boss(10, {
@@ -77,123 +76,6 @@
         ],
         a: [0, 1, 3],
         why: "Attention itself ignores order, hence position vectors. Softmax rows sum to 1. Keys (via query·key scores), not values, decide the weights. Heads run in parallel with their own projections.",
-      },
-    ],
-  });
-
-  /* ================= Capstone ================= */
-  N.registerBoss({
-    id: "a11-capstone",
-    subject: "algo",
-    lecture: 11,
-    title: "Final boss: pick the algorithm",
-    blurb: "Ten mixed questions across all ten phases: choose tools, spot broken assumptions, estimate costs.",
-    lede: "Every phase in one quiz. For each scenario, find the assumption that decides which tool fits.",
-    qs: [
-      {
-        type: "cat",
-        q: "A logistics company has four problems. Which tool fits each?",
-        buckets: ["Dijkstra / A*", "MST (Prim / Kruskal)", "Linear programming", "Evolutionary search"],
-        items: [
-          ["Fastest van route from depot to one customer", 0],
-          ["Cheapest fibre network linking all 40 depots", 1],
-          ["How many of each product to ship, with linear capacity limits", 2],
-          ["Driver rosters with dozens of messy, non-linear union rules", 3],
-        ],
-        why: "Point-to-point shortest path: Dijkstra/A*. Connect everything cheaply: MST. Linear objective and constraints: LP. Messy, non-linear, hard: heuristic search.",
-      },
-      {
-        type: "mcq",
-        q: "A route planner starts giving wrong answers after the company adds <b>refund edges with negative cost</b>. Which assumption broke, and what's the fix?",
-        o: [
-          "Admissibility; use a better heuristic",
-          "Non-negative edge weights",
-          "Connectivity; add edges",
-          "Nothing broke",
-        ],
-        a: 1,
-        why: 'Dijkstra\'s "settled means final" rule needs non-negative weights. Bellman–Ford handles negative edges (and detects negative cycles).',
-      },
-      {
-        type: "match",
-        q: "Match each data problem to the right tool.",
-        pairs: [
-          ["Shrink English text with very uneven letter frequencies", "Huffman coding"],
-          ["Shrink server logs full of repeated phrases", "LZW"],
-          ["Catch accidental bit flips on a fast, retryable link", "CRC + retransmit"],
-          ["Survive bit flips where resending is impossible", "Hamming error correction"],
-        ],
-        why: "Skewed symbols: Huffman. Repeated sequences: LZW. Cheap retries: detect with CRC. No retries: correct on arrival.",
-      },
-      {
-        type: "multi",
-        q: "Which of these need a <b>secret</b> to work? Select all that apply.",
-        o: [
-          "Checking a file against its SHA-256 fingerprint",
-          "Diffie–Hellman key agreement",
-          "Signing a software update",
-          "Computing a CRC",
-        ],
-        a: [1, 2],
-        why: "DH needs each side's private exponent, and signing needs a private key. Hashes and CRCs are public calculations; anyone can compute them.",
-      },
-      {
-        type: "slider",
-        q: "Estimate: how many times slower is a direct DFT than an FFT for N = 1,048,576 (2²⁰) samples?",
-        min: 1000,
-        max: 100000,
-        step: 1000,
-        start: 10000,
-        ans: 52000,
-        tol: 6000,
-        unit: "×",
-        hint: "The ratio is N / log₂ N. Here log₂ N = 20, so it's about a million divided by 20.",
-        why: "N / log₂ N = 1,048,576 / 20 ≈ <b>52,000×</b>. That gap is the difference between real-time and hopeless.",
-      },
-      {
-        type: "order",
-        q: "A search engine's pipeline, from crawling to answering a query. Put it in order.",
-        items: [
-          "Crawl pages and record their links",
-          "Build the link matrix and repair dangling pages",
-          "Iterate PageRank until the scores settle",
-          "At query time, combine text relevance with PageRank to order the results",
-        ],
-        why: "PageRank is computed offline over the whole link graph; at query time it's one signal combined with text matching.",
-      },
-      {
-        type: "mcq",
-        q: "You need the lowest point of an expensive, noisy simulation with three continuous knobs and no gradient available. Which tool?",
-        o: ["The simplex method for LP", "Golden-section search", "Nelder–Mead", "Kruskal's algorithm"],
-        a: 2,
-        why: "No linear structure rules out LP; three knobs rules out 1-D golden-section; no gradient rules out gradient descent. Nelder–Mead only needs comparisons.",
-      },
-      {
-        type: "cat",
-        q: "What happens to each algorithm when its key assumption is removed?",
-        buckets: ["Still correct", "Can give wrong answers"],
-        items: [
-          ["A* with h = 0", 0],
-          ["A* with h = 2 × true distance", 1],
-          ["Hamming decoding with two flipped bits", 1],
-          ["Kruskal with tied edge weights", 0],
-          ["Golden-section on a function with two dips", 1],
-        ],
-        why: "h = 0 is just Dijkstra, and ties don't hurt MSTs. An overestimating heuristic, two-bit errors and a non-unimodal bracket all break the guarantee.",
-      },
-      {
-        type: "mcq",
-        q: "Which pair shares the most similar core idea?",
-        o: ["Prim and Dijkstra", "Huffman and RSA", "FFT and Kruskal", "Graham scan and PageRank"],
-        a: 0,
-        why: "Prim adds the cheapest edge leaving the tree; Dijkstra settles the closest tentative node. Same greedy pattern with a different key (edge weight vs path length).",
-      },
-      {
-        type: "mcq",
-        q: "An attention model processes 1,024 tokens. How many query–key scores does <b>one</b> attention head compute?",
-        o: ["1,024", "2,048", "about 1 million (1,024²)", "about 1 billion (1,024³)"],
-        a: 2,
-        why: "Every token scores every token: 1,024² = <b>1,048,576</b>, the quadratic cost again.",
       },
     ],
   });

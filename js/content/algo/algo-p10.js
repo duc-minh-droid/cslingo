@@ -1,4 +1,4 @@
-/* Phase 10 — Transformers & Attention + Phase 11 capstone */
+/* Phase 10 — Transformers & Attention */
 (function () {
   const N = NIC;
   const { el, qs, predict, takeaways, header } = N;
@@ -198,33 +198,4 @@
       );
     },
   });
-
-  /* ============ Phase 11 capstone ============ */
-  L["a11-capstone"] = {
-    sum: "One quiz, every phase. Each question is a scenario — pick the right algorithm and defend it. The recurring questions: what state? what invariant? how does it scale? what breaks?",
-    steps: [
-      {
-        t: "The four questions that pick an algorithm",
-        b: `<p><b>What state?</b> (sorted edge list? settled set? growing dictionary?)<br><b>What makes the next step safe?</b> (non-negative edges, admissible h, a cut, a lightest probe)<br><b>How does work scale?</b> (n² vs n log n vs n·h)<br><b>What breaks it?</b> (negative edges, inadmissible h, adversarial input, second bit flip)</p>`,
-      },
-      {
-        t: "Answer format",
-        b: `<p>Don't just name an algorithm — name the <b>assumption it exploits</b>. "A* because the heuristic is admissible", "Kruskal because the graph is sparse", "Huffman because the symbol distribution is skewed".</p>`,
-        c: {
-          q: "A scenario changes one assumption (e.g. a negative edge appears). The right response is…",
-          o: [
-            "Keep the same algorithm; it will cope",
-            "Find which guarantee broke, then pick one that survives",
-            "Start from scratch with a brand-new algorithm",
-          ],
-          a: 1,
-          why: "Every algorithm in this module is a bet on its assumptions. The bet changes → the algorithm changes.",
-        },
-      },
-    ],
-    guide: [
-      "Answer each scenario by naming the algorithm AND the assumption it needs.",
-      "≥80% = ready for the oral synthesis.",
-    ],
-  };
 })();

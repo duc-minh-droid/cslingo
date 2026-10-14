@@ -37,17 +37,25 @@
     multi: {
       label: "Select all that apply",
       render(Q, box, submit) {
+        const one = Q.a.length === 1; // a single right answer is a choose-one question: picking another option moves the selection
         box.innerHTML = `<div class="opts" role="group">${optOrder(Q)
           .map(
             (k) =>
               `<button class="opt multi" data-k="${k}" aria-pressed="false"><span class="opt-l opt-box"></span><span>${Q.o[k]}</span></button>`,
           )
           .join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
-        nameGroup(qs(".opts", box), box, Q, "Select all that apply");
+        nameGroup(qs(".opts", box), box, Q, one ? "Choose one" : "Select all that apply");
         const chk = qs("[data-check]", box);
         qsa(".opt", box).forEach(
           (b) =>
             (b.onclick = () => {
+              if (one)
+                qsa(".opt", box).forEach((x) => {
+                  if (x !== b) {
+                    x.classList.remove("sel");
+                    x.setAttribute("aria-pressed", "false");
+                  }
+                });
               b.classList.toggle("sel");
               b.setAttribute("aria-pressed", b.classList.contains("sel"));
               chk.disabled = !qs(".opt.sel", box);
@@ -253,6 +261,7 @@
             if (++done === Q.pairs.length) {
               chk.disabled = false;
               N.sfx && N.sfx.play("check");
+              setTimeout(() => chk.isConnected && !chk.disabled && chk.click(), 500); // every pair found: grade it, no Check press needed
             }
             keepFocus(box, had); // both tiles are used up: the keyboard moves on
           } else {
@@ -307,6 +316,7 @@
         box.innerHTML = `<div class="q-cat">${Q.items.map(([t], k) => `<div class="qc-row" data-k="${k}" role="group" aria-label="${esc(textOf(t))}"><span class="qc-t">${t}</span><span class="seg qc-seg">${Q.buckets.map((b, j) => `<button data-j="${j}" aria-pressed="false">${b}</button>`).join("")}</span></div>`).join("")}</div><div class="q-actions"><button class="btn primary" data-check disabled>Check</button></div>`;
         const val = Q.items.map(() => -1),
           chk = qs("[data-check]", box);
+        let auto = 0;
         qsa(".qc-row", box).forEach((r) =>
           qsa("button", r).forEach(
             (b) =>
@@ -317,6 +327,9 @@
                   x.setAttribute("aria-pressed", String(x === b));
                 });
                 chk.disabled = val.includes(-1);
+                // every row answered: grade it after a beat (a change of mind inside the beat restarts it), no Check press needed
+                clearTimeout(auto);
+                if (!chk.disabled) auto = setTimeout(() => chk.isConnected && !chk.disabled && chk.click(), 700);
               }),
           ),
         );
@@ -371,7 +384,7 @@
         if (r) focusRings.set(e, r);
       },
       render(Q, box, submit) {
-        const multi = Array.isArray(Q.a);
+        const multi = Array.isArray(Q.a) && Q.a.length > 1; // a one-element answer list is still a choose-one question
         box.innerHTML = `<div class="q-pick" role="group">${typeof Q.fig === "function" ? "" : Q.fig}</div>${multi ? `<div class="q-actions"><span class="faint" data-count></span><button class="btn primary" data-check disabled>Check</button></div>` : ""}`;
         nameGroup(qs(".q-pick", box), box, Q, multi ? "Diagram: select all that apply" : "Diagram: choose one part");
         if (typeof Q.fig === "function") Q.fig(qs(".q-pick", box));
@@ -410,7 +423,7 @@
         });
         if (multi) qs("[data-check]", box).onclick = () => submit([...sel].sort());
       },
-      grade: (Q, v) => (Array.isArray(Q.a) ? same([...v].sort(), [...Q.a].sort()) : v === Q.a),
+      grade: (Q, v) => (Array.isArray(Q.a) ? same([].concat(v).sort(), [...Q.a].sort()) : v === Q.a),
       reveal(Q, box, v) {
         const want = [].concat(Q.a),
           got = [].concat(v);

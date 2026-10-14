@@ -96,6 +96,20 @@
 .pl-back svg {
   transition: transform var(--dur-2) var(--ease-spring);
 }
+/* the shared .pl-x hover (a quarter turn) must not reach the Back arrow: it nudges left instead */
+html .pl-x.pl-back:hover {
+  transform: none;
+}
+html .pl-x.pl-back:hover svg {
+  transform: translateX(-3px);
+}
+html .pl-x.pl-back svg {
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.player.has-back .pl-back[hidden] {
+  display: grid;
+  visibility: hidden;
+}
 @media (max-width: 480px) {
   .pl-top .pl-back {
     margin-left: -6px;

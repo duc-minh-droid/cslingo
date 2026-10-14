@@ -64,7 +64,7 @@ export async function a11yChecks(page) {
       match: first("match"),
       order: first("order"),
       pick: first("pick", (q) => !Array.isArray(q.a)),
-      pickMulti: first("pick", (q) => Array.isArray(q.a)),
+      pickMulti: first("pick", (q) => Array.isArray(q.a) && q.a.length > 1),
     };
     window.__a11yQ = pick;
     return Object.fromEntries(Object.entries(pick).map(([k, v]) => [k, v && v.id]));

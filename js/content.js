@@ -40,12 +40,16 @@
     "css/aw/aw8-blockchain.css",
     "css/aw/aw9-wave-mixer.css",
     "css/aw/aw10-code-attention.css",
-    "css/aw/aw11-picker-cases.css",
-    "css/aw/aw11-picker-results.css",
     ...CODELAB,
   ];
   /* Nature-Inspired Lectures 5 and 6 workshops: the workshop engine, the code lab engine and their styles. */
-  const NIC_LABS = ["css/nw/nw5-encodings.css", "css/nw/nw6-programs.css", ...CODELAB];
+  const NIC_LABS = [
+    "css/nw/nw5-encodings.css",
+    "css/nw/nw6-programs.css",
+    "css/nw/nw7-ants.css",
+    "css/nw/nw8-aco.css",
+    ...CODELAB,
+  ];
   const GROUPS = {
     nic: [
       ...WORKSHOPS,
@@ -91,6 +95,15 @@
       "js/content/nic/boss-nic-01.js",
       "js/content/nic/boss-nic-02.js",
       "js/content/nic/boss-nic-56.js",
+      "js/content/nic/l7-01.js",
+      "js/content/nic/l7-02.js",
+      "js/content/nic/l7-03.js",
+      "js/content/nic/l7-workshop.js",
+      "js/content/nic/l8-01.js",
+      "js/content/nic/l8-02.js",
+      "js/content/nic/l8-03.js",
+      "js/content/nic/l8-workshop.js",
+      "js/content/nic/boss-nic-78.js",
       "js/content/nic/videos.js",
     ],
     ds: [
@@ -111,6 +124,21 @@
       "js/content/ds/ds-workshops-03.js",
       "js/content/ds/boss-ds.js",
       "js/content/ds/boss-ds-23.js",
+      "js/content/ds/ds-l4-01.js",
+      "js/content/ds/ds-l4-02.js",
+      "js/content/ds/ds-l4-03.js",
+      "js/content/ds/ds-l4-workshop.js",
+      "js/content/ds/boss-ds-4.js",
+      "js/content/ds/ds-l5-01.js",
+      "js/content/ds/ds-l5-02.js",
+      "js/content/ds/ds-l5-03.js",
+      "js/content/ds/ds-l5-workshop.js",
+      "js/content/ds/boss-ds-5.js",
+      "js/content/ds/ds-l6-01.js",
+      "js/content/ds/ds-l6-02.js",
+      "js/content/ds/ds-l6-03.js",
+      "js/content/ds/ds-l6-workshop.js",
+      "js/content/ds/boss-ds-6.js",
     ],
     algo: [
       ...WORKSHOPS,
@@ -214,10 +242,6 @@
       "js/content/algo/algo-workshops-9-03.js",
       "js/content/algo/algo-workshops-10-01.js",
       "js/content/algo/algo-workshops-10-02.js",
-      "js/content/algo/algo-workshops-11-01.js",
-      "js/content/algo/algo-workshops-11-02.js",
-      "js/content/algo/algo-workshops-11-03.js",
-      "js/content/algo/algo-workshops-11-04.js",
       "js/content/algo/boss-algo-01.js",
       "js/content/algo/boss-algo-02.js",
       "js/content/algo/boss-algo-03.js",
