@@ -118,16 +118,41 @@
     const n = items.length,
       bw = 132,
       gap = 34,
-      h = 74,
       w = n * bw + (n - 1) * gap + 8;
-    const box = items
-      .map((it, i) => {
-        const o = typeof it === "string" ? { t: it } : it,
-          x = 4 + i * (bw + gap),
-          c = col(o.c || (i === n - 1 ? "teal" : "dim"));
+    // box text is wrapped to the box width (13px titles ~14 chars a line, 11.5px notes ~18) and every box takes the tallest height
+    const wrap = (txt, max) => {
+      const lines = [];
+      let cur = "";
+      for (const word of String(txt).split(" ")) {
+        if (cur && (cur + " " + word).length > max) {
+          lines.push(cur);
+          cur = word;
+        } else cur = cur ? cur + " " + word : word;
+      }
+      if (cur) lines.push(cur);
+      return lines;
+    };
+    const parts = items.map((it) => {
+      const o = typeof it === "string" ? { t: it } : it;
+      return { o, tl: wrap(o.t, 14), sl: o.s ? wrap(o.s, 18) : [] };
+    });
+    const bh = Math.max(44, ...parts.map((q) => 20 + q.tl.length * 16 + q.sl.length * 14)),
+      h = bh + 20;
+    const box = parts
+      .map(({ o, tl, sl }, i) => {
+        const x = 4 + i * (bw + gap),
+          c = col(o.c || (i === n - 1 ? "teal" : "dim")),
+          top = 10 + (bh - (tl.length * 16 + sl.length * 14)) / 2;
+        const tt = tl
+          .map((l, k) => `<text x="${x + bw / 2}" y="${top + 12 + k * 16}" class="fig-box">${l}</text>`)
+          .join("");
+        const ss = sl
+          .map(
+            (l, k) => `<text x="${x + bw / 2}" y="${top + tl.length * 16 + 11 + k * 14}" class="fig-box-s">${l}</text>`,
+          )
+          .join("");
         return (
-          `<g class="fi"><rect x="${x}" y="10" width="${bw}" height="${h - 20}" rx="12" fill="color-mix(in srgb, ${c} 12%, var(--panel-2))" stroke="${c}" stroke-width="1.5"/>
-        <text x="${x + bw / 2}" y="${o.s ? 36 : 42}" class="fig-box">${o.t}</text>${o.s ? `<text x="${x + bw / 2}" y="54" class="fig-box-s">${o.s}</text>` : ""}</g>` +
+          `<g class="fi"><rect x="${x}" y="10" width="${bw}" height="${bh}" rx="12" fill="color-mix(in srgb, ${c} 12%, var(--panel-2))" stroke="${c}" stroke-width="1.5"/>${tt}${ss}</g>` +
           (i < n - 1
             ? `<path d="M${x + bw + 4} ${h / 2} L${x + bw + gap - 6} ${h / 2}" stroke="var(--text-faint)" stroke-width="2" class="draw" marker-end="url(#fa${uid})"/>${dot(`M${x + bw + 2} ${h / 2} L${x + bw + gap - 4} ${h / 2}`, "var(--blue)", { dur: 1.2, begin: 0.6 + i * 0.3, r: 3.5 })}`
             : "")
@@ -141,7 +166,7 @@
     const says =
       label ||
       `Flow of ${n} steps: ${items.map((it) => (typeof it === "string" ? it : `${it.t}${it.s ? ` (${it.s})` : ""}`)).join(", then ")}${loop ? ", then repeat from the start" : ""}.`;
-    return `<svg class="fig" viewBox="0 0 ${w} ${loop ? h + 36 : h}" style="max-height:${loop ? 150 : 110}px" ${named(says)}><defs>
+    return `<svg class="fig" viewBox="0 0 ${w} ${loop ? h + 36 : h}" style="max-height:${loop ? h + 76 : h + 36}px" ${named(says)}><defs>
       <marker id="fa${uid - 1}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-faint)"/></marker>
       <marker id="fl${uid - 1}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--violet)"/></marker></defs>${box}${back}</svg>`;
   }

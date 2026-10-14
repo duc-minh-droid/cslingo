@@ -1,0 +1,14 @@
+/* Lecture 7 workshop styles (classes prefixed nw7-). */
+.nw7-note {
+  min-height: 1.4em;
+  margin: 10px 0 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+.nw7-acts {
+  margin-top: 12px;
+}
+.nw7-acts .btn {
+  flex: 0 1 auto;
+}

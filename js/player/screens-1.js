@@ -195,6 +195,7 @@
     if (j < 0) return;
     sound("back");
     pl.S.i = j;
+    pl.S.barBack = true;
     pl.show(pl.S.kbd ? 0 : -1);
   };
   const goldRect = () => {

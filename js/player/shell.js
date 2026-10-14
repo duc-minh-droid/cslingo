@@ -25,6 +25,7 @@
     document.body.classList.add("in-lesson");
     N.shield(true);
     pl.S.root = root;
+    root.classList.toggle("has-back", pl.S.kind === "lesson"); // lessons keep the Back slot so the bar does not jump between screens
     pl.S.stage = qs(".pl-stage", root);
     pl.S.foot = qs(".pl-foot", root);
     pl.S.go = qs(".pl-go", root);
@@ -98,7 +99,9 @@
     const total = pl.S.total;
     const sc = pl.S.screens[pl.S.i] || {};
     const done = ["complete", "streak"].includes(sc.kind) ? total : pl.S.screens.slice(0, pl.S.i).filter(MAIN).length;
-    const f = Math.max(pl.S.barF || 0, Math.min(1, done / total));
+    // the bar only ever advances (queued retries never pull it back), except when the learner steps Back: then it follows them
+    const f = pl.S.barBack ? Math.min(1, done / total) : Math.max(pl.S.barF || 0, Math.min(1, done / total));
+    pl.S.barBack = false;
     const fill = qs(".pl-fill", pl.S.root),
       bar = qs(".pl-bar", pl.S.root);
     fill.style.transform = `scaleX(${f})`;

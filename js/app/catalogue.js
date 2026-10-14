@@ -21,6 +21,8 @@
         4: "Lecture 4 — Selection, operators & encodings",
         5: "Lecture 5 — Encodings & applications",
         6: "Lecture 6 — Genetic programming",
+        7: "Lecture 7 — Swarm intelligence & ant colonies",
+        8: "Lecture 8 — Ant colony detail & applications",
       },
     },
     ds: {
@@ -34,6 +36,9 @@
         1: "Lecture 1 — Reliable, scalable & maintainable systems",
         2: "Lecture 2 — Data models & NoSQL",
         3: "Lecture 3 — Storage & retrieval",
+        4: "Lecture 4 — Replication",
+        5: "Lecture 5 — Partitioning",
+        6: "Lecture 6 — Consistency & consensus",
       },
     },
     algo: {
@@ -54,7 +59,6 @@
         8: "Phase 8 — Cryptography & Blockchain",
         9: "Phase 9 — Fourier Transform & FFT",
         10: "Phase 10 — Transformers & Attention",
-        11: "Phase 11 — Synthesis",
       },
     },
   };
