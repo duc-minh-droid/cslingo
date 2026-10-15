@@ -9,8 +9,10 @@
        pos: {p: g.xy(2, 0), a: g.xy(5, 1), b: g.xy(3, 4)} (letters "p", "a", "b" are 28 px: pass letters in `pos` names).
    A5.sheet(parent, {x, y, w = 360, rows = 3, rowH = 58, fs = 32, pad = 20, tone = "grey"}) -> s     a card holding `rows` lines of text
        that appear one at a time. x, y = top-left. Height = rows * rowH + 2 * pad (s.height).
-       s.set(i, {text, tone, k = 1, o, bold})   line i (0-based): text (use "x" or the real signs: "×", "−", "="), tone = ink colour of
-                                                the text (default the card's), k 0..1 slides/fades it in, bold true = 900 weight.
+       s.set(i, {text, html, tone, k = 1, o, bold, fs})   line i (0-based): text (use "x" or the real signs: "×", "−", "="), or html
+                                                (spans like <span class="c-blue">3</span> colour single numbers), tone = ink colour of
+                                                the text (default the card's), k 0..1 slides/fades it in, bold true = 900 weight,
+                                                fs = font size in px (default the sheet's).
        s.card({tone, solid, o, k})                the card itself: tone ("grey" default; "green" tints it green), solid true fills it.
        s.el the card element  s.rowY(i) -> stage y of the middle of line i. */
 (function () {
@@ -107,7 +109,13 @@
         e.className = `v-text${tone ? ` c-${tone}` : ""}`;
         e.style.color = tone ? "var(--c-ink)" : "";
         e.style.fontWeight = st.bold ? "900" : "";
-        if (st.text != null && e.textContent !== String(st.text)) e.textContent = String(st.text);
+        e.style.fontSize = st.fs ? `${st.fs}px` : "";
+        if (st.html != null) {
+          if (e.__html !== st.html) [e.innerHTML, e.__html] = [st.html, st.html]; // coloured pieces: <span class="c-blue">3</span>
+        } else if (st.text != null && (e.__html != null || e.textContent !== String(st.text))) {
+          e.__html = null;
+          e.textContent = String(st.text);
+        }
         const k = clamp(st.k ?? 1);
         V.place(e, { y: (1 - E.out(k)) * 10, o: Math.min(1, k * 3) * (st.o ?? 1) });
       },

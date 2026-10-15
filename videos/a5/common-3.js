@@ -31,6 +31,9 @@
    A5.turnIcon(kind, x, y, size, tone = "green", opt) -> SVG <g>   a curved arrow showing a turn: kind "left" | "right" | "straight"
        (the walker comes from below; left bends left). Centred on x, y, `size` px tall. opt {w: stroke width}. Append it to your own
        <svg> (L5.svg(stage)); L5.drawOn(g, k) draws it on (0..1); V.place(g, {s, o}) pops it.  A5.turnIcon("left", 0, 0, 64) etc.
+   A5.circleArrow(parent, cx, cy, r, tone = "blue", clockwise = false) -> SVG <g>   three quarters of a circle with an arrowhead that
+       runs ANTICLOCKWISE (default) or clockwise as seen: the picture of "which way round". Append-and-return on `parent` (an <svg>);
+       L5.drawOn(g, k) draws it on, V.place(g, {o}) fades it. It fills x cx - r - 15 .. cx + r + 15.
    A5.arrowHead is not needed: use the plot's seg {arrow: true}. */
 (function () {
   const V = window.VID;
@@ -298,5 +301,37 @@
     return V.s("g", {}, path, tip);
   }
 
-  Object.assign(A5, { tag, tiles, counter, bar, token, stack, turnIcon });
+  // ---------- circular arrow ----------
+  function circleArrow(parent, cx, cy, r, tone = "blue", clockwise = false) {
+    const colour = L5.tone(tn(tone)).c;
+    const sign = clockwise ? 1 : -1; // screen angles (y down) grow clockwise
+    const a0 = clockwise ? -130 : -50;
+    const a1 = a0 + sign * 270;
+    const rad = (a) => (a * Math.PI) / 180;
+    const at = (a) => [cx + r * Math.cos(rad(a)), cy + r * Math.sin(rad(a))];
+    const [p0, p1] = [at(a0), at(a1)];
+    const dir = [-sign * Math.sin(rad(a1)), sign * Math.cos(rad(a1))]; // direction of travel at the end
+    const nrm = [-dir[1], dir[0]];
+    const tip = [p1[0] + dir[0] * 26, p1[1] + dir[1] * 26];
+    const f = (q) => `${f1(q[0])} ${f1(q[1])}`;
+    const arc = V.s("path", {
+      d: `M${f(p0)}A${r} ${r} 0 1 ${clockwise ? 1 : 0} ${f(p1)}`,
+      fill: "none",
+      pathLength: "1",
+      "data-draw": "1",
+      "stroke-width": "9",
+      "stroke-linecap": "round",
+    });
+    arc.style.stroke = colour;
+    const head = V.s("path", {
+      d: `M${f(tip)}L${f([p1[0] + nrm[0] * 15, p1[1] + nrm[1] * 15])}L${f([p1[0] - nrm[0] * 15, p1[1] - nrm[1] * 15])}Z`,
+      "data-head": "1",
+      "stroke-width": "3",
+      "stroke-linejoin": "round",
+    });
+    Object.assign(head.style, { fill: colour, stroke: colour });
+    return parent.appendChild(V.s("g", {}, arc, head));
+  }
+
+  Object.assign(A5, { tag, tiles, counter, bar, token, stack, turnIcon, circleArrow });
 })();

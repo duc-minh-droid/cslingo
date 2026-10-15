@@ -1,8 +1,10 @@
 /* Phase 5 · scene 03-turn: the turn test, the one tiny question every hull algorithm asks.
-   Three little paths p -> a -> b on a pale grid (maths orientation, y up), one per row of lesson 5.2's table. Each path is walked,
-   then a card writes the cross-product sum row by row (a - p, b - p, the two products, the difference) and its sign decides the
-   turn: positive = LEFT (green), negative = RIGHT (red), zero = STRAIGHT (orange). A turn arrow, the tinted card and the matching
-   legend tile say the verdict. The legend fills up tile by tile, so the last frame shows all three rules next to the last path.
+   Three little paths p -> a -> b on a pale grid (maths orientation, y up), one per row of lesson 5.2's table; every point carries
+   its coordinates. Each path is walked, then a card writes the cross-product sum row by row: a - p (blue, the arrow p -> a), b - p
+   (purple, the dashed arrow p -> b), the two products (the same two colours: 3 and 1 come from a - p, 4 and 1 from b - p) and the
+   difference, and its sign decides the turn: positive = LEFT (green), negative = RIGHT (red), zero = STRAIGHT (orange). A turn
+   arrow, the tinted card and the matching legend tile say the verdict. The legend (a column under the card) fills up tile by tile,
+   so the last frame shows all three rules next to the last path.
    Every number comes from A5.TRIPLES (asserted below and in common.js). update(t) is a pure function of t. */
 (function () {
   const V = window.VID;
@@ -42,6 +44,10 @@
     `${T.va[0]} ${TIMES} ${par(T.vb[1])} ${MINUS} ${T.va[1]} ${TIMES} ${par(T.vb[0])}`,
     `= ${sgn(T.cross)}`,
   ];
+  /* the products row with its four numbers in the colour of the vector they come from (a - p blue, b - p purple) */
+  const span = (tone, text) => `<span class="c-${tone}" style="color:var(--c-ink)">${text}</span>`;
+  const productsHtml = (T) =>
+    `${span("blue", T.va[0])} ${TIMES} ${span("purple", par(T.vb[1]))} ${MINUS} ${span("blue", T.va[1])} ${TIMES} ${span("purple", par(T.vb[0]))}`;
   A5.same("sum of triple 1", rowsOf(TR[0]), [`a ${MINUS} p = (3, 1)`, `b ${MINUS} p = (1, 4)`, `3 ${TIMES} 4 ${MINUS} 1 ${TIMES} 1`, "= 11"]); // prettier-ignore
   A5.same("sum of triple 2", rowsOf(TR[1]).slice(1), [`b ${MINUS} p = (5, ${MINUS}2)`, `3 ${TIMES} (${MINUS}2) ${MINUS} 1 ${TIMES} 5`, `= ${MINUS}11`]); // prettier-ignore
   A5.same("sum of triple 3", rowsOf(TR[2]).slice(2), [`2 ${TIMES} 3 ${MINUS} 1 ${TIMES} 6`, "= 0"]);
@@ -56,10 +62,11 @@
   const POP_U = [0.3, 0.15, 0.15]; // the points pop in once the grid is drawn / the previous path has faded
   const VERDICT_U = [2.9, 2.3, 2.3]; // the sign decides: 3.2, 8.2 and 12.0 on the video clock
   const TONE = { left: "green", right: "red", straight: "orange" };
-  const ICON = [
-    [472, 292], // beside a, in the free space of each plot
-    [252, 92],
-    [252, 296],
+  // where the coordinate pill of each point sits ([dx, dy, anchor]): clear of the path, inside the grid or just under it
+  const PILL = [
+    { p: [0, 62], a: [26, 62], b: [0, -62] },
+    { p: [0, 62], a: [0, -62], b: [0, 62] },
+    { p: [-26, 62, "l"], a: [0, 62], b: [6, 62] },
   ];
 
   function build(host) {
@@ -74,7 +81,7 @@
         pos: { p: g.xy(...T.p), a: g.xy(...T.a), b: g.xy(...T.b) },
         polys: 0,
         arcs: 0,
-        tags: 2,
+        tags: 4,
         segs: 3,
       }),
     );
@@ -87,25 +94,26 @@
         [[48, 272], [192, 200], [480, 56]],
       ], // prettier-ignore
     );
-    const sheets = TR.map(() => A5.sheet(stage, { x: 560, y: 56, w: 364, rows: 4, rowH: 58, fs: 30 }));
+    const sheets = TR.map(() => A5.sheet(stage, { x: 560, y: 56, w: 350, rows: 4, rowH: 58, fs: 30 }));
     const label = A5.tag(stage, { x: 584, y: 28, text: "cross product", tone: "blue", solid: true });
+    // the three rules fill a column under the card, one tile per verdict
     const legend = A5.tiles(stage, {
-      x: 48,
-      y: 470,
+      x: 560,
+      y: 356,
+      dir: "col",
       items: [
         { text: "positive: left", tone: "green" },
         { text: "negative: right", tone: "red" },
         { text: "zero: straight", tone: "orange" },
       ],
-      w: 284,
-      h: 70,
-      gap: 12,
+      w: 350,
+      h: 60,
+      gap: 14,
       fs: 30,
     });
     const ov = L5.svg(stage);
-    const bigIcons = TR.map((T, i) => A5.turnIcon(T.turn, ICON[i][0], ICON[i][1], 72, TONE[T.turn]));
-    const cardIcons = TR.map((T, i) => A5.turnIcon(T.turn, 884, sheets[i].rowY(3), 56, TONE[T.turn]));
-    ov.append(...bigIcons, ...cardIcons);
+    const cardIcons = TR.map((T, i) => A5.turnIcon(T.turn, 870, sheets[i].rowY(3), 60, TONE[T.turn]));
+    ov.append(...cardIcons);
 
     function triple(i, t) {
       const T = TR[i];
@@ -132,38 +140,41 @@
         };
       });
 
-      // the walk p -> a -> b; the first leg flashes while 'a - p' is written, a dashed arrow p -> b shows 'b - p'
+      // the walk p -> a -> b; the first leg (the vector a - p, blue) flashes while its row is written, the dashed purple arrow
+      // p -> b is the vector b - p
       const pathTone = decided ? tone : "blue";
       const second = ramp(u, rowAt[1], rowAt[1] + 0.4, lin) * (1 - ramp(u, v, v + 0.3, lin));
       const segs = [
-        { a: "p", b: "b", tone: "blue", dash: true, arrow: true, o: second * 0.85 },
+        { a: "p", b: "b", tone: "purple", dash: true, arrow: true, w: 1.1, halo: flash(u, rowAt[1], rowAt[1] + 0.6) * second, o: second }, // prettier-ignore
         { a: "p", b: "a", tone: pathTone, arrow: true, w: 1.1, k: ramp(u, 0.6, 1.0, lin), halo: Math.max(flash(u, rowAt[0], rowAt[0] + 0.6), bump) }, // prettier-ignore
         { a: "a", b: "b", tone: pathTone, arrow: true, w: 1.1, k: ramp(u, 1.0, 1.4, lin), halo: bump },
       ];
-      // the question, once, before the first sum is finished
+      // the coordinates of each point, as it pops in
+      const tags = ["p", "a", "b"].map((name, j) => {
+        const [dx, dy, anchor] = PILL[i][name];
+        const k = ramp(u, POP_U[i] + 0.1 * j + 0.15, POP_U[i] + 0.1 * j + 0.45, lin);
+        return { at: name, dx, dy, anchor, text: `(${T[name][0]}, ${T[name][1]})`, tone: "grey", k, o: k };
+      });
+      // the question, once, before the first sum is finished: right of b, clear of the path
       const ask = i === 0 && u >= 1.4 ? ramp(u, 1.4, 1.8, E.pop) * (1 - ramp(u, v - 0.1, v + 0.1, lin)) : 0;
-      const tags = ask > 0.002 ? [{ at: "a", anchor: "l", dx: 44, dy: 44, text: "left or right?", tone: "orange", k: Math.min(1, ask), o: ask }] : []; // prettier-ignore
+      if (ask > 0.002) tags.push({ at: "b", anchor: "l", dx: 44, dy: -6, text: "left or right?", tone: "orange", k: Math.min(1, ask), o: ask }); // prettier-ignore
       plots[i].update({ points, segs, tags, o: out });
 
-      // the card with the sum, row by row
+      // the card with the sum, row by row: the numbers wear the colour of the vector they come from
       const sh = sheets[i];
       const cardK = i === 0 ? ramp(u, rowAt[0] - 0.4, rowAt[0], E.pop) : ramp(u, 0.3, 0.7, E.pop); // the next card pops as the old one is gone
       sh.card({ tone: decided ? tone : "grey", k: cardK, o: out });
       const rows = rowsOf(T);
+      const look = [{ tone: "blue" }, { tone: "purple" }, { html: productsHtml(T) }, { tone, bold: true, fs: 42 }];
       rows.forEach((text, r) => {
-        const last = r === 3;
-        const at = last ? v : rowAt[r];
-        sh.set(r, { text, k: ramp(u, at, at + 0.4, lin), o: out, tone: last ? tone : undefined, bold: last });
+        const at = r === 3 ? v : rowAt[r];
+        const pop = r === 3 ? 1 + 0.1 * bump : 1;
+        sh.set(r, { text, ...look[r], k: ramp(u, at, at + 0.4, lin), o: out * pop });
       });
 
-      // the verdict arrows: big, in the free space of the plot, and small, inside the card
-      [
-        [bigIcons[i], 1],
-        [cardIcons[i], 1],
-      ].forEach(([icon]) => {
-        L5.drawOn(icon, kv);
-        V.place(icon, { s: lerp(0.7, 1, E.pop(kv)), o: kv > 0.002 ? out : 0 });
-      });
+      // the verdict arrow inside the card, next to the result
+      L5.drawOn(cardIcons[i], kv);
+      V.place(cardIcons[i], { s: lerp(0.7, 1, E.pop(kv)), o: kv > 0.002 ? out : 0 });
     }
 
     return (t) => {
@@ -183,8 +194,8 @@
     title: ["Which way does", "the path turn?"],
     dur: 14,
     caps: [
-      [0.6, 3.2, "Walk from p to a to b. Left or right?"],
-      [3.4, 5.8, "The cross product: positive means a left turn."],
+      [0.6, 2.6, "Walk from p to a to b. Left or right?"],
+      [2.8, 5.8, "Multiply across, subtract: positive means left."],
       [6.2, 8.1, "Now try a different path."],
       [8.3, 9.9, "Negative means a right turn."],
       [10, 11.9, "And one more path."],
