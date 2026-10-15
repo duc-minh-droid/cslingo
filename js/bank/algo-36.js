@@ -1,6 +1,6 @@
 /* ===== bank-x-algo-4.js ===== */
 /* Revision bank, third set of varied, visual questions (algo-4).
-   Workshops a8-chain, a9-mix, a10-code, a11-picker (6 each) and a8-hash, a8-keys, a9-dft, a9-fft, a10-attn (4 each).
+   Workshops a8-chain, a9-mix, a10-code (6 each) and a8-hash, a8-keys, a9-dft, a9-fft, a10-attn (4 each).
    Every figure is drawn here from data computed by the real algorithms (toy hash, DFT, softmax); answers were checked in node. */
 (function () {
   const partScope = (NIC.shared.bankAlgo = NIC.shared.bankAlgo || {});

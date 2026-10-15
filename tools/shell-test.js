@@ -86,8 +86,8 @@ export async function shellChecks(page) {
       const at = `${w}x${h}, scrolled to ${r.y}`;
       if (r.bar !== 0) bad(`top bar is ${r.bar}px from the top at ${at}, not 0`);
       if (r.banner < 0 || r.banner > 70) bad(`unit banner is ${r.banner}px from the top at ${at}`);
-      if (r.atBottom && !/Phase 11/.test(r.phase))
-        bad(`at the bottom of the Algorithms path the banner says "${r.phase}", not Phase 11 (${at})`);
+      if (r.atBottom && !/Phase 10/.test(r.phase))
+        bad(`at the bottom of the Algorithms path the banner says "${r.phase}", not Phase 10 (${at})`);
     }
     // every phase can be reached by scrolling: scrub the whole page and collect the banner's phases
     const all = await page.evaluate(async () => {
@@ -99,7 +99,7 @@ export async function shellChecks(page) {
       }
       return out.size;
     });
-    if (all < 11) bad(`only ${all} of 11 phases ever reach the banner at ${w}x${h}`);
+    if (all < 10) bad(`only ${all} of 10 phases ever reach the banner at ${w}x${h}`);
   }
 
   // 2. the phase picker and the guidebook
@@ -118,11 +118,11 @@ export async function shellChecks(page) {
     else {
       await page.click(".us-pick");
       const rows = await page.$$eval(".us-opt", (r) => r.length);
-      if (rows !== 11) bad(`the phase picker lists ${rows} phases, not 11`);
-      await page.click('.us-opt[data-k="9"]');
+      if (rows !== 10) bad(`the phase picker lists ${rows} phases, not 10`);
+      await page.click('.us-opt[data-k="8"]');
       await page.waitForTimeout(2500); // the path is long now: the smooth scroll takes longer
       const ph = await page.$eval(".us-t small", (e) => e.textContent);
-      if (!/Phase 10/.test(ph)) bad(`picking Phase 10 left the banner on "${ph}"`);
+      if (!/Phase 9/.test(ph)) bad(`picking Phase 9 left the banner on "${ph}"`);
     }
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.evaluate(() => {
@@ -512,6 +512,7 @@ export async function shellChecks(page) {
           boss = list.findIndex(A.isBoss),
           vid = list.findIndex((m) => m.video);
         out.lectures.push(`${lec}:${boss}/${vid}`);
+        if (vid < 0 && +lec > 6) continue; // recap videos are rendered separately (videos/README.md); lectures 7+ have none yet
         if (vid < 0) out.wrong.push(`lecture ${lec} has no recap video`);
         else if (boss < 0 || vid < boss) out.wrong.push(`lecture ${lec}: the video is not after the boss quiz`);
         else if (A.progress(list).n !== list.filter((m) => !m.video).length)

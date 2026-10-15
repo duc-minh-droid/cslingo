@@ -94,7 +94,8 @@
       // lessonPos is an ordinal among these base screens (injected hype, mistakes and recap screens never count), so it can only
       // ever point at a real screen: a stale or too-large value lands on the last one instead of starting over
       pl.S.screens.forEach((sc, k) => (sc.bi = k));
-      const pos = store.get("nic.lessonPos", {})[mod.id] || 0;
+      // reviewing a finished lesson always starts from the top; only an unfinished lesson resumes
+      const pos = pl.S.review ? 0 : store.get("nic.lessonPos", {})[mod.id] || 0;
       pl.S.i = pos > 0 ? Math.min(pos, pl.S.screens.length - 1) : 0;
       if (pl.S.i > 0 && fx())
         setTimeout(

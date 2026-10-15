@@ -409,6 +409,13 @@ npm run format         # Prettier (write); `npm run format:check` only reports
 3. `NIC.player.state()` exposes `{open, kind, Q, key, foot, goDisabled}`, which is useful for writing checks.
 4. Look at it in a real browser at desktop width (1280) and phone width (390): the path, a step, the correct and wrong sheets, the Try-it screen, and lesson complete.
 
+### Debug helper (dev only)
+
+`tools/debug-helper.js` jumps straight to any lesson, screen, boss or page without replaying from the start. `index.html` injects it only on `localhost`, `127.x` and `[::1]`, and the deploy copies only `js/`, `css/`, `vendor/` and `videos/`, so production never loads or ships it. Automated tests skip it unless the URL has `?dbg=`.
+- Deep link: `http://localhost:8650/?dbg=l1-what@3` opens that lesson at screen 3 (0 is the first); `?dbg=profile` opens any route.
+- Console: `dbg.go(id, screen)`, `dbg.step(n | "+1" | "-1" | "q")`, `dbg.screens()`, `dbg.info()`, `dbg.list("heap")`, `dbg.done("all" | id | "upto:id")`, `dbg.undone()`, `dbg.reset()`, `dbg.theme("dark")`, `dbg.store(key[, value])`.
+- Panel: the orange DEV button (bottom left) or Ctrl+Shift+D. From Playwright, load the page with `?dbg=...` so the helper is injected, then call `page.evaluate(() => dbg.go(...))`.
+
 ## 8. Publishing
 
 The vault folder is the source. The mirror clone lives at `<vault>/.publish/cslingo` (its own git repo, gitignored by the vault), with GitHub Pages serving `main` /root.

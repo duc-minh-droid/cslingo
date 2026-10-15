@@ -43,7 +43,7 @@
     const Q = sc.Q,
       type = Q.type || "mcq",
       TT = T()[type];
-    const deferred = !!SELECT[type] || (type === "pick" && !Array.isArray(Q.a));
+    const deferred = !!SELECT[type] || (type === "pick" && !(Array.isArray(Q.a) && Q.a.length > 1));
     wrap.classList.add("predict"); // reuse the answer-tile styles
     wrap.innerHTML = `${compact ? `<div class="pl-check-q"><span class="pl-tag orange">Quick check</span><div class="pl-q-text">${Q.q}</div></div>` : presenter(Q.q)}
       <div class="q-fig"></div><div class="q-body pl-body qt-${type}"></div>${Q.hint ? `<div class="q-hint"><button class="btn ghost small" data-hint>Need a nudge?</button><div class="q-hint-t" hidden>${Q.hint}</div></div>` : ""}`;
