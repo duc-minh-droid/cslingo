@@ -37,7 +37,7 @@
   const ROWS = [
     {
       data: G.flat,
-      y: 24,
+      y: 20,
       label: "a GIF row: flat colour",
       tone: "green",
       mark: L5.tick,
@@ -45,13 +45,14 @@
     },
     {
       data: G.noisy,
-      y: 300,
+      y: 288,
       label: "a GIF row: noisy",
       tone: "red",
       mark: L5.cross,
       time: { label: 5.0, tiles: 5.1, tag: 6.0, parse: 6.1, step: 0.12, verdict: 8.2 },
     },
   ];
+  const MARK_X = 366; // just right of the count tag at its widest ("18 pixels, 17 codes")
   const codesText = (n) => `18 pixels, ${n} code${n === 1 ? "" : "s"}`;
 
   function buildRow(stage, svg, r) {
@@ -60,7 +61,7 @@
     const lzw = A7.tag(stage, { x: 640, y, text: "packed with LZW", tone: "purple" });
     const px = A7.tiles(stage, {
       x: X0,
-      y: y + 58,
+      y: y + 72,
       items: [...data.text].map((c) => ({ text: c, tone: G.tones[c] })),
       w: 46,
       h: 46,
@@ -69,10 +70,10 @@
     });
     [...px.el.children].forEach((b) => (b.style.borderRadius = "12px"));
     const spans = data.chunks.map((c) =>
-      A7.span(stage, { x: X0 + PITCH * c.from, y: y + 120, w: PITCH * (c.to - c.from) - 4, h: 14, tone: "blue" }),
+      A7.span(stage, { x: X0 + PITCH * c.from, y: y + 134, w: PITCH * (c.to - c.from) - 4, h: 14, tone: "blue" }),
     );
-    const count = A7.tag(stage, { x: X0, y: y + 148, text: codesText(0), tone: "grey" });
-    const mark = r.mark(470, y + 148 + 24, 44, r.tone, { w: 9 });
+    const count = A7.tag(stage, { x: X0, y: y + 160, text: codesText(0), tone: "grey" });
+    const mark = r.mark(MARK_X, y + 160 + 31, 48, r.tone, { w: 9 });
     svg.append(mark);
     const at = (c) => T.parse + T.step * data.chunks.indexOf(c);
 
@@ -97,7 +98,7 @@
   function build(stage) {
     const svg = L5.svg(stage);
     const rows = ROWS.map((r) => buildRow(stage, svg, r));
-    const foot = A7.tag(stage, { x: X0, y: 548, text: "GIF stores its pixels this way", tone: "purple" });
+    const foot = A7.tag(stage, { x: X0, y: 556, text: "GIF stores its pixels this way", tone: "purple" });
     return (t) => {
       rows.forEach((u) => u(t));
       foot.set({ k: ramp(t, 8.8, 9.2) });
@@ -111,7 +112,7 @@
     caps: [
       [0.4, 2.6, "A GIF packs its pixels with LZW."],
       [3.4, 5.2, "Runs of one colour shrink into single codes."],
-      [5.8, 8.2, "Noise rarely repeats, so almost nothing shrinks."],
+      [6.2, 8.2, "Noise rarely repeats, so almost nothing shrinks."],
       [8.4, 10.4, "LZW feeds on repeats."],
     ],
     build,

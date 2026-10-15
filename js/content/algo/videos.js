@@ -1,4 +1,4 @@
-/* Recap videos for Algorithms phases 1 to 4: one node after each phase's boss quiz.
+/* Recap videos for Algorithms phases 1 to 5: one node after each phase's boss quiz.
    Each is a one-step lesson that plays videos/out/algo-N.mp4 (made from videos/algo-N.html, see videos/README.md).
    Same rules as the Nature-Inspired recaps (js/content/nic/videos.js): a bonus (m.video) that never counts towards
    finishing a phase or the course, and watching it keeps the streak alive and pays the review amount (5 XP).
@@ -65,6 +65,21 @@
         "Which is faster? It depends on the network",
         "Walk round the tree, skip the repeats",
         "The tour is never worse than twice the best",
+      ],
+    },
+    {
+      n: 5,
+      blurb:
+        "Phase 5 in pictures: the convex hull, the turn test, gift wrapping, the Graham scan and the farthest pair.",
+      chapters: [
+        "Stretch a rubber band round the pins",
+        "Which way does the path turn?",
+        "A convex shape always turns the same way",
+        "Wrap the outside, one corner at a time",
+        "Sort the points round the lowest one",
+        "A stack pops every dent",
+        "Which costs less? It depends on the hull",
+        "The farthest pair is always on the hull",
       ],
     },
   ];
