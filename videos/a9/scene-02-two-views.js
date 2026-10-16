@@ -79,14 +79,14 @@
         // ---- the panel, then the two waves one after the other ----
         const pop = ramp(t, 0.2, 0.6, E.lin);
         T.set({ o: pop, s: 0.96 + 0.04 * E.pop(pop) });
-        const merge = ramp(t, 3.8, 5.0, E.inOut); // the stacked waves slide onto the baseline
+        const merge = ramp(t, 4.0, 5.1, E.inOut); // the stacked waves slide onto the baseline
         const dyA = lerp(A_DY, 0, merge);
         const dyB = lerp(B_DY, 0, merge);
-        const aids = 1 - ramp(t, 3.7, 4.0, E.lin); // the crest numbers and the purple tags go before the waves merge
-        const soft = lerp(1, 0.35, ramp(t, 4.6, 5.2, E.lin)); // behind the sum the waves are faint ...
+        const aids = 1 - ramp(t, 3.9, 4.2, E.lin); // the crest numbers and the purple tags go (the two waves and the '+' sit on screen as the caption starts)
+        const soft = lerp(1, 0.35, ramp(t, 4.7, 5.3, E.lin)); // behind the sum the waves are faint ...
         cA.set({ k: ramp(t, 0.4, 1.2, E.inOut), dy: dyA, o: soft + 0.4 * flash(t, 7.1, 7.7) }); // ... and each lights up when its bar gets its ring
         cB.set({ k: ramp(t, 2.2, 3.0, E.inOut), dy: dyB, o: soft + 0.4 * flash(t, 7.35, 7.95) });
-        cS.set({ k: ramp(t, 4.4, 5.4, E.inOut) });
+        cS.set({ k: ramp(t, 4.5, 5.5, E.inOut) });
 
         // ---- counting the crests: one number above each, 0.15 s apart ----
         crest.forEach((c, i) => {
@@ -120,7 +120,7 @@
         });
 
         // ---- the sum: the one wiggle ----
-        timeTag.set({ k: ramp(t, 5.2, 5.7, E.lin) });
+        timeTag.set({ k: ramp(t, 5.3, 5.8, E.lin), y: -8 * flash(t, 8.6, 9.1) }); // hops on 'One signal,'
 
         // ---- the bars: how much of each wave is inside ----
         const fp = ramp(t, 5.8, 6.2, E.lin);
@@ -134,7 +134,7 @@
             ringK: ramp(t, 7.2 + 0.2 * i, 7.6 + 0.2 * i, E.lin),
           })),
         );
-        freqTag.set({ k: ramp(t, 8.0, 8.5, E.lin) });
+        freqTag.set({ k: ramp(t, 8.0, 8.5, E.lin), y: -8 * flash(t, 9.3, 9.8) }); // ... and this one on 'two descriptions.' (a hop, not a pulse: the tag stays 12 px inside the stage)
       };
     },
   });
