@@ -26,7 +26,6 @@
     wave: [0.4, 1.6],
     withTag: [1.4, 1.8],
     dft: [1.8, 2.4], // the DFT arrow draws on, the 'DFT' tag pops 0.2 s later
-    dftGone: [3.9, 4.2],
     freq: [2.4, 2.8],
     spikes: 2.6, // the four spikes grow 0.12 s apart, 0.64 s each
     rings: [3.6, 4.0],
@@ -42,8 +41,8 @@
     cleanTag: 9.5,
   };
   const CAPS = [
-    [2.6, 4.4, "The DFT turns the wiggle into bars."],
-    [4.4, 5.9, "The hum is one pair of bars."],
+    [2.6, 4.2, "The DFT turns the wiggle into bars."],
+    [4.2, 5.9, "The hum is one pair of bars."],
     [6.0, 7.6, "Delete both bars."],
     [8.4, 10.6, "Go back: the hum is gone."],
   ];
@@ -53,10 +52,10 @@
   // ---------- layout (stage px) ----------
   const TP = { x: 0, y: 0, w: 936, h: 256, pad: { l: 24, r: 240, t: 20, b: 20 } }; // inner y 20-236, axis at y 128, 67.5 px per unit
   const FP = { x: 0, y: 372, w: 936, h: 254, pad: { l: 24, r: 24, t: 20, b: 56 } }; // inner y 392-570, 142 px per unit
+  const SPIKE = 14; // the width of a spike, px
   const COL = 708; // the right-hand tag column of the signal panel
-  const ARROW = { x: 440, from: 274, to: 360 }; // the DFT / inverse arrows in the gap between the panels
-  const TAG_X = 470; // tags beside the arrows
-  const TAG_Y = (ARROW.from + ARROW.to) / 2 - 29; // 288
+  const ARROW = { from: 274, to: 360, dftX: 200, invX: 530 }; // the two arrows in the gap between the panels: DFT left, inverse right
+  const TAG_Y = (ARROW.from + ARROW.to) / 2 - 29; // 288, beside each arrow
   const ARCH = { rise: 40, bow: 50 }; // the arch starts 40 px above the short spikes and peaks 50 px higher
   const hum = H.bars.filter((b) => b.k === H.hum || b.k === H.mirror); // the short pair
   const humH = hum[0].h; // 0.4
@@ -128,23 +127,39 @@
         axes: "bottom",
         xticks: H.bars.map((b) => b.k),
       });
-      const bars = F.bars({ max: 6, bw: 14 });
+      const bars = F.bars({ max: 4, bw: SPIKE });
+      const barNo = F.text({ tone: "grey", px: true }); // says what the numbers under the bars are
 
       // ---- the arrows, the arch and the crosses (our own layer above both panels) ----
       const ov = A9.svg(stage);
-      const arrow = (y1, y2) => ov.appendChild(A9.arrow(ARROW.x, y1, ARROW.x, y2, "purple", 1, { w: 8, head: 22 }));
-      const down = arrow(ARROW.from, ARROW.to); // the DFT: time down to bars
-      const up = arrow(ARROW.to, ARROW.from); // the inverse DFT: bars up to time
+      const arrow = (x, y1, y2) => ov.appendChild(A9.arrow(x, y1, x, y2, "purple", 1, { w: 8, head: 22 }));
+      const down = arrow(ARROW.dftX, ARROW.from, ARROW.to); // the DFT: time down to bars
+      const up = arrow(ARROW.invX, ARROW.to, ARROW.from); // the inverse DFT: bars up to time
       const archY = F.py(humH) - ARCH.rise;
       const arch = ov.appendChild(
         A9.arrow(F.px(H.hum), archY, F.px(H.mirror), archY, "purple", 1, { w: 6, head: 18, bow: ARCH.bow }),
       );
-      const crosses = hum.map((b) => ov.appendChild(A9.cross(F.px(b.k), F.py(humH) - 16, 40, "red", { w: 8 })));
+      // the dashed outline of a spike that was there (our own, so the dashes divide the path evenly and end on a dash at both feet)
+      const ghosts = hum.map((b) => {
+        const [x, top, foot, r] = [F.px(b.k), F.py(b.h), F.py(0), SPIKE / 2];
+        const len = 2 * (foot - top - r) + Math.PI * r;
+        const dash = len / (2 * Math.round((len / 7 - 1) / 2) + 1);
+        return ov.appendChild(
+          V.s("path", {
+            d: `M${A9.f1(x - r)} ${A9.f1(foot)}L${A9.f1(x - r)} ${A9.f1(top + r)}A${r} ${r} 0 0 1 ${A9.f1(x + r)} ${A9.f1(top + r)}L${A9.f1(x + r)} ${A9.f1(foot)}`,
+            fill: "none",
+            "stroke-width": "4",
+            "stroke-dasharray": `${A9.f1(dash)} ${A9.f1(dash)}`,
+            style: { stroke: A9.tone("red").c },
+          }),
+        );
+      });
+      const crosses = hum.map((b) => ov.appendChild(A9.cross(F.px(b.k), F.py(humH) - 26, 40, "red", { w: 8 })));
 
       // ---- tags ----
       const wiggle = A9.tag(stage, { x: COL, y: T.py(0) - 29, text: "with a hum", tone: "blue" });
-      const dftTag = A9.tag(stage, { x: TAG_X, y: TAG_Y, text: "DFT", tone: "purple", solid: true });
-      const invTag = A9.tag(stage, { x: TAG_X, y: TAG_Y, text: "inverse DFT", tone: "purple", solid: true });
+      const dftTag = A9.tag(stage, { x: ARROW.dftX + 30, y: TAG_Y, text: "DFT", tone: "purple", solid: true });
+      const invTag = A9.tag(stage, { x: ARROW.invX + 30, y: TAG_Y, text: "inverse DFT", tone: "purple", solid: true });
       const humTag = A9.tag(stage, {
         x: Math.round((F.px(H.hum) + F.px(H.mirror)) / 2 - A9.tagW("the hum") / 2),
         y: Math.round(archY - ARCH.bow + 22),
@@ -162,7 +177,13 @@
         const pop = ramp(t, TL.panel[0], TL.panel[1], lin);
         T.set({ o: Math.min(1, pop * 3), s: 0.96 + 0.04 * E.pop(pop) });
         const toGreen = ramp(t, TL.green[0], TL.green[1], lin);
-        blue.set({ fn: (x) => H.at(x, g), k: ramp(t, TL.wave[0], TL.wave[1], E.inOut), o: 1 - toGreen });
+        // while the red hum is the subject the whole wave steps back (half strength), then comes forward again
+        const focus = ramp(t, TL.hum[0], TL.hum[0] + 0.4, lin) * left;
+        blue.set({
+          fn: (x) => H.at(x, g),
+          k: ramp(t, TL.wave[0], TL.wave[1], E.inOut),
+          o: (toGreen >= 1 ? 0 : 1) * (1 - 0.5 * focus), // the green wave fades in on top, so the colour changes with no pale moment
+        });
         green.set({ k: 1, o: toGreen });
         humOnly.set({ k: ramp(t, TL.hum[0], TL.hum[1], E.inOut), o: left });
         wiggle.set({
@@ -175,11 +196,7 @@
 
         // ---- the arrows: DFT down, then (later) the inverse back up ----
         A9.drawOn(down, ramp(t, TL.dft[0], TL.dft[1], E.inOut));
-        V.show(down, 1 - ramp(t, TL.dftGone[0], TL.dftGone[1], lin));
-        dftTag.set({
-          k: ramp(t, TL.dft[0] + 0.2, TL.dft[1] + 0.2, lin),
-          o: 1 - ramp(t, TL.dftGone[0], TL.dftGone[1], lin),
-        });
+        dftTag.set({ k: ramp(t, TL.dft[0] + 0.2, TL.dft[1] + 0.2, lin) });
         A9.drawOn(up, ramp(t, TL.inv[0], TL.inv[1], E.inOut));
         invTag.set({ k: ramp(t, TL.inv[0] + 0.2, TL.inv[1] + 0.2, lin) });
 
@@ -188,8 +205,9 @@
         F.set({ o: Math.min(1, fp * 3), s: 0.96 + 0.04 * E.pop(fp) });
         const ringIn = ramp(t, TL.rings[0], TL.rings[1], lin);
         const ghostO = ramp(t, TL.ghosts[0], TL.ghosts[1], lin);
-        bars.set([
-          ...H.bars.map((b, i) => {
+        ghosts.forEach((g) => V.show(g, ghostO));
+        bars.set(
+          H.bars.map((b, i) => {
             const isHum = b === hum[0] || b === hum[1];
             return {
               x: b.k,
@@ -200,8 +218,14 @@
               ringK: isHum ? (ringIn * left) / 3 : 0, // the ring's opacity is 3 x ringK, so it fades with the deletion
             };
           }),
-          ...hum.map((b) => ({ x: b.k, v: b.h, ghost: true, tone: "red", o: ghostO })),
-        ]);
+        );
+
+        barNo.set({
+          text: "bar number",
+          x: (F.px(H.hum) + F.px(H.mirror)) / 2,
+          y: F.area.y + F.area.h + 34,
+          o: ramp(t, 2.8, 3.3, lin),
+        });
 
         // ---- the pair: arch and tag, then the crosses ----
         A9.drawOn(arch, ramp(t, TL.arch[0], TL.arch[1], E.inOut));
