@@ -3,8 +3,8 @@
    pattern (orange, one list per slot) to every token makes them different (green). Every number comes from A10.TOK (common.js).
    Story (local seconds): 0.2-1.4 six word tags pop; 1.6-3.9 the meaning strips pop column by column; 4.4-5.2 the two banks get a ring
    and a "same" tag, an orange equals sign joins them; 6.3-6.9 a question mark; 8.0-8.3 all of that fades; 8.3-9.7 plus signs, the
-   position strips and their slot tags pop; 10.0-10.8 the position strips slide onto the meaning strips as the numbers flip to the
-   sums (blue -> green); 10.9-11.5 the banks ring green and read "different"; 11.6-12.1 "model input". */
+   position strips and their slot tags pop; 10.0-10.5 the position strips slide onto the meaning strips, then both squash edge-on and open
+   as the sums (blue -> green); 11.0-11.4 the banks ring green and read "different"; 11.6-12.1 "model input". */
 (function () {
   const V = window.VID;
   const A10 = V.a10;
@@ -47,12 +47,11 @@
     plus: 8.3, // plus i at 8.3 + 0.08 i
     pos: 8.3, // position column i at 8.3 + 0.1 i, cells 0.05 s apart
     slot: 8.5, // slot tag i at 8.5 + 0.1 i
-    slide: [10.0, 10.55], // the position strips slide up as one
-    absorb: [10.5, 10.78], // and shrink into the meaning strips
+    slide: [10.0, 10.5], // the position strips slide up onto the meaning strips (cell j 0.02 s later each)
     plusOut: [10.0, 10.2],
     slotOut: [10.0, 10.3],
-    flip: 10.58, // meaning cell (i, j) flips at 10.58 + 0.03 j + 0.02 i, 0.3 s
-    diff: [11.1, 11.5], // green rings and "different" tags
+    flip: 0.3, // both cells squash edge-on together, the moment the orange cell lands, and open as the green sum
+    diff: [11.0, 11.4], // green rings and "different" tags
     input: [11.6, 12.1],
   };
   const DY = (j) => 78 + 52 * j + 23 - (364 + 50 * j + 22); // strip cell j travels exactly onto meaning cell j (centres)
@@ -107,7 +106,7 @@
     const svg = A10.svg(stage);
     const equals = svg.appendChild(A10.op("equals", cx(3), 321, 44, "orange"));
     const q = svg.appendChild(A10.qmark(cx(3), 326, 54, "orange"));
-    const plus = T.words.map((_, i) => svg.appendChild(A10.op("plus", cx(i), 330, 40, "orange")));
+    const plus = T.words.map((_, i) => svg.appendChild(A10.op("plus", cx(i), 324, 40, "orange")));
     const input = A10.tag(stage, { x: 365, y: 372, text: "model input", tone: "green", solid: true });
     A10.same("tokens: the model input tag is 206 px wide", input.w, 206);
 
@@ -123,7 +122,9 @@
         for (let j = 0; j < ROWS; j++) {
           // the meaning cell: pops in, may carry a ring, flips to the sum
           const pk = A10.seq(t, TM.meaning + 0.3 * i, 0.06, 0.3, j);
-          const fk = ramp(t, TM.flip + 0.03 * j + 0.025 * i, TM.flip + 0.03 * j + 0.025 * i + 0.3, lin);
+          const land = TM.slide[1] + 0.02 * j; // the orange cell of this row lands on its partner
+          const f0 = land + 0.02 * i;
+          const fk = ramp(t, f0, f0 + TM.flip, lin);
           const ring = isBank(i) ? (ringG > 0 ? "green" : "orange") : undefined;
           meaning[i].flip(j, fk, {
             ...A10.pop(pk),
@@ -136,15 +137,15 @@
             ringK: ringG > 0 ? ringG : ringK,
           });
 
-          // the position cell: pops in, then slides up onto the meaning strip and melts into it
+          // the position cell: pops in, slides up onto its meaning cell, squashes edge-on with it and is gone
           const ak = A10.seq(t, TM.pos + 0.1 * i, 0.05, 0.3, j);
-          const s0 = TM.slide[0] + 0.03 * j;
-          const s1 = TM.slide[1] + 0.03 * j;
-          const dk = ramp(t, s0, s1, E.inOut);
-          pos[i].set(j, {
+          const dk = ramp(t, TM.slide[0] + 0.02 * j, land, E.inOut);
+          pos[i].flip(j, fk, {
             ...A10.pop(ak),
-            y: DY * dk,
-            o: Math.min(1, ak * 4) * (1 - ramp(t, s1 - 0.2, s1, lin)),
+            tone: "orange",
+            hop: 6,
+            y: DY(j) * dk,
+            o: fk >= 0.5 ? 0 : Math.min(1, ak * 4),
           });
         }
         // the slot tag and the plus sign
