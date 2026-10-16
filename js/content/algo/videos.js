@@ -1,4 +1,4 @@
-/* Recap videos for Algorithms phases 1 to 5: one node after each phase's boss quiz.
+/* Recap videos for Algorithms phases 1 to 6: one node after each phase's boss quiz.
    Each is a one-step lesson that plays videos/out/algo-N.mp4 (made from videos/algo-N.html, see videos/README.md).
    Same rules as the Nature-Inspired recaps (js/content/nic/videos.js): a bonus (m.video) that never counts towards
    finishing a phase or the course, and watching it keeps the streak alive and pays the review amount (5 XP).
@@ -80,6 +80,22 @@
         "A stack pops every dent",
         "Which costs less? It depends on the hull",
         "The farthest pair is always on the hull",
+      ],
+    },
+    {
+      n: 6,
+      blurb:
+        "Phase 6 in pictures: how noise flips bits, how parity and CRC catch it, and how Hamming codes fix a single flip.",
+      chapters: [
+        "Noise flips bits, and nobody tells you",
+        "Parity catches an odd number of flips",
+        "Check bits come from a long division",
+        "The receiver repeats the division",
+        "Ask again, or fix it yourself",
+        "Valid words must stay far apart",
+        "Three checks, each guards a group",
+        "The failed checks spell the position",
+        "Hamming fixes one error, not two",
       ],
     },
   ];

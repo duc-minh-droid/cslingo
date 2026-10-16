@@ -1,0 +1,401 @@
+{
+ "slug": "algo-10",
+ "dir": "a10",
+ "title": "Phase 10 · Transformers & Attention",
+ "outline": "Phase 10 video (Algorithms, ECM3428): 'Transformers & Attention', sub line 'How AI learned to pay attention'. 11 scenes, about 127 s: title (4), words to numbers (13), softmax (11.5), attention (12), query and key (13.5), values (12.5), several heads (13), one layer (13), the decoder (14), beyond text (12), recap (9). Story: a transformer cannot read letters, so text is cut into TOKENS, every token is looked up as a list of numbers (its embedding) and a POSITION pattern is added, otherwise the two copies of a word in 'the bank by the river bank' would get identical numbers (scene 2). Attention needs SOFTMAX, which turns any scores into shares that add up to 1: scores 2, 1, 0 become e^score = 7.39, 2.72, 1.00, total 11.11, shares 0.67, 0.24, 0.09; scores 4, 2, 0 give 0.87 for the top one (scene 3). ATTENTION: to read 'it' in 'The robot moved because it detected danger' the word looks at every word, itself included, gives each a share and rebuilds its meaning from the ones that matter (it leans on robot); every word does it at once, 7 x 7 = 49 shares (scene 4; the scores are illustrative, see below). By hand on 'the dog barked' (scenes 5 and 6): every word makes a query, a key and a value; the query of barked [1, 1] against the keys [1, 0], [1, 2], [1, 1] gives scores 1, 3, 2 (dog matches best), divided by 1.41 (the square root of 2) = 0.71, 2.12, 1.41, softmax = 0.14, 0.58, 0.28; the shares blend the values: 0.14 x [2, 1] + 0.58 x [1, 3] + 0.28 x [1, 1] = [1.14, 2.15] for barked, and doing every word at once is one 3 x 3 grid of shares times the stack of values. MULTI-HEAD (scene 7): four heads run side by side, each with its own query, key and value and its own pattern (who is 'it'?, the word before, who acts?, acts on what?), each hands back 64 / 4 = 16 numbers per word and the four are glued into 4 x 16 = 64. ONE LAYER (scene 8): attention, then a feed-forward network that treats each word alone, each wrapped in Add & Norm (a skip connection x + F(x) and layer norm): x = [1, 3, 5, 7], F(x) = [2, -1, 0.5, -2], x + F(x) = [3, 2, 5.5, 5] (mean 3.875), after layer norm [-0.61, -1.31, 1.14, 0.79] (mean 0); same shape in and out, so identical layers stack (6 in the original paper). THE DECODER (scene 9): it starts from <sos>, gives every possible next word a share, writes the likeliest, appends it and goes round again until <eos>; masked attention lets a word look only at itself and the words before it: 'Ich habe einen Apfel gegessen <eos>' (toy scores; top shares 0.74, 0.52, 0.64, 0.74, 0.71, 0.97; step 3: einen 0.64, eine 0.24, den 0.09, meinen 0.03). BEYOND TEXT (scene 10): a 224 x 224 picture cut into 16 x 16 patches = 14 x 14 = 196 tokens, 196 x 196 = 38,416 scores; 8 x 8 patches = 28 x 28 = 784 tokens (4 times) and 784 x 784 = 614,656 scores (16 times). Not covered (mention nothing about them): the causal mask as minus infinity, cross-attention from the decoder to the encoder, temperature and sampling, encoder-only / decoder-only / encoder-decoder arrangements, audio and spectrograms, the feed-forward sizes 512 and 2048, why the 1.41 matters in depth, the code lab 10.C (the recap points to it) and the course recap 10.9.\n\nLESSONS the facts come from: a10-tokens 10.1, a10-softmax 10.2, a10-attn 10.3, a10-qkv 10.4, a10-heads 10.5, a10-block 10.6, a10-decoder 10.7, a10-uses 10.8, a10-code 10.C; js/content/algo/algo-p10.js, algo-p9-x-03.js (10.1, 10.8), algo-p9-x-11.js (10.2), algo-p9-x-10.js (10.4), algo-p9-x-12.js (10.5), algo-p9-x-02.js (10.6), algo-p9-x-04.js (10.7), algo-workshops-10-01.js, boss-algo-p9-x.js; bank js/bank/algo-*.js.\n\nTHE EXAMPLE DATA (all asserted when the page loads by videos/a10/common.js; a wrong number throws an Error). Scene 2: the lesson's 6 tokens and 8-number embeddings (first 4 shown) and its sine / cosine position pattern (first 4 of 8): bank at slot 1 = 0.7 0.5 -0.4 0.3 + 0.8 0.5 0.1 1.0 = 1.5 1.0 -0.3 1.3, bank at slot 5 = 0.7 0.5 -0.4 0.3 + -1.0 0.3 0.5 0.9 = -0.3 0.8 0.1 1.2; without position the distance between the two banks (and the two thes) is 0. Scene 3: lesson 10.2's calculator defaults. Scenes 4 and 7: A10.ATT, the robot sentence with 7 words; the 7 x 7 shares are MADE-UP scores pushed through the real softmax (it -> robot 0.82, itself 0.11, the others 0.01; the four head patterns have shares 0.95 to 0.97 on their strong links, the same recipes as lesson 10.5's playground). They are illustrative: the app's own hand-tuned heatmap in lesson 10.3 gives it -> robot 0.17 (biggest of its row, but gentle), so scene 4 prints no share number and shows the shares only as arc thickness and bar length. Scenes 5 and 6: lesson 10.4's X, W_Q, W_K, W_V for 'the dog barked' (Q = [2,1] [1,2] [1,1], K = [1,0] [1,2] [1,1], V = [2,1] [1,3] [1,1], scores QK^T = [2,4,3] [1,5,3] [1,3,2], A = [0.14 0.58 0.28] [0.05 0.77 0.19] [0.14 0.58 0.28], Z = [1.14 2.15] [1.05 2.54] [1.14 2.15]). Scene 7: d_model 64, 4 heads, d_head 16. Scene 8: lesson 10.6's x and F(x), N = 6. Scene 9: lesson 10.7's toy scores (Ich [4, 2.5, 1.5, 1] ...), a mask of the 7 slots (21 masked, 28 allowed, never printed). Scene 10: lesson 10.8.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract. ONE SENTENCE, ONE LOOK: the robot sentence (scenes 4 and 7) is always drawn with A10.sentence at x 16, gap 8, so its words sit at the same x in both scenes; 'the dog barked' (scenes 5, 6, 8) is a different, tiny sentence. SHARED PICTURES: a vector is always a stack or row of small cells (A10.cells), a word is a grey tag, a share is a green tag or cell, an arc is one word looking at another (scenes 4, 7, 9), a grid has rows = the word looking and columns = the word looked at (scenes 6 and 9). Words used on screen: 'token', 'query', 'key', 'value', 'share', 'head', 'layer', 'masked'; 'embedding' and 'transformer' never appear in a caption; 'softmax' is named by the headline of scene 3 and reused in the last caption of scene 5; 'attention' and 'Add & Norm' appear as labels. Captions: one plain sentence each (6 to 10 words, about 4 words per second at the fastest), each starting only when the picture it describes is on screen. scene-01-title.js is finished (a copy of the title card with a two-line 92 px headline because 'Transformers & Attention' does not fit one line): do not replace it by VID.titleCard. A scene that shows a colour in words says green / blue / purple / red / orange (UK spelling) and never teal / violet / rose / amber.",
+ "titleCard": {
+  "kicker": "Algorithms · Phase 10",
+  "title": "Transformers & Attention",
+  "sub": "How AI learned to pay attention",
+  "who": "byte",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-tokens.js",
+   "kicker": "WORDS TO NUMBERS",
+   "title": [
+    "Words become numbers,",
+    "plus their position"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     2.3,
+     "Text is cut into tokens."
+    ],
+    [
+     2.5,
+     4.3,
+     "Each token becomes a list of numbers."
+    ],
+    [
+     4.6,
+     6.4,
+     "The two banks get exactly the same numbers."
+    ],
+    [
+     6.5,
+     8.2,
+     "Nothing says which one came first."
+    ],
+    [
+     8.5,
+     10.3,
+     "Add a position pattern to every token."
+    ],
+    [
+     11,
+     12.7,
+     "Now the two banks are different."
+    ]
+   ],
+   "spec": "IDEA: a computer cannot read words, so text is cut into TOKENS (here whole words) and every token is looked up in a table that gives it a list of numbers (its embedding, learned in training). The same word always gets the same list, wherever it sits, so on its own the model could not tell which word came first (lesson 10.1). The cure: add a POSITION PATTERN (sines and cosines of the slot number, one list of numbers per slot) to each token's numbers; after the addition two copies of the same word have different numbers. Sentence of lesson 10.1: 'the bank by the river bank'; the video shows the first 4 of the lesson's 8 numbers per token. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px; a tag is 58 px high). Six columns, column i = 0..5 holds A10.TOK.words[i]; left edge xc(i) = 18 + 150 i, centre cx(i) = xc(i) + 60 = 78, 228, 378, 528, 678, 828. For every column: word tag A10.tag(stage, {x: cx(i) - A10.tagW(word) / 2, y: 0, text: word}) (grey; widths the 87, bank 109, by 75, river 105); MEANING strip meaning[i] = A10.cells(stage, {x: xc(i) + 10, y: 78, texts: A10.TOK.embTxt[i], w: 100, h: 46, gap: 6, dir: 'col', tone: 'blue'}) (y 78 to 280); POSITION strip pos[i] = A10.cells(stage, {x: xc(i) + 10, y: 364, texts: A10.TOK.posTxt[i], w: 100, h: 44, gap: 6, dir: 'col', tone: 'orange'}) (y 364 to 558); slot tag slot[i] = A10.tag(stage, {x: cx(i) - 60, y: 572, text: 'slot ' + i}) (grey, 120 px wide, y 572 to 630: it says which slot each orange strip belongs to, so the position pattern is visibly a pattern OF THE SLOT). Plus signs: const svg = A10.svg(stage); plus[i] = svg.appendChild(A10.op('plus', cx(i), 330, 40, 'orange')). The two banks are columns 1 and 5: one tag per bank A10.tag(stage, {x: cx(b) - 81, y: 292, w: 162, text: 'same', tone: 'orange', solid: true}) (set({text: 'different', tone: 'green'}) switches it at the end; the tags sit in the free band y 292-350 under the meaning strips). Question mark q = svg.appendChild(A10.qmark(528, 334, 66, 'orange')) centred between the banks. Final tag A10.tag(stage, {x: 365, y: 372, text: 'model input', tone: 'green', solid: true}) (w 206, appears where the position strips were).\n\nDATA (all from A10.TOK, asserted when the page loads; never type a number): meaning rows are the lesson's embeddings (the = 0.2 −0.1 0.4 0.0, bank = 0.7 0.5 −0.4 0.3, by = −0.3 0.2 0.1 0.6, river = 0.6 −0.5 0.3 −0.2); position rows posTxt = 0.0 1.0 0.0 1.0 / 0.8 0.5 0.1 1.0 / 0.9 −0.4 0.2 1.0 / 0.1 −1.0 0.3 1.0 / −0.8 −0.7 0.4 0.9 / −1.0 0.3 0.5 0.9 for slots 0-5; sums (sumTxt): bank at slot 1 = 1.5 1.0 −0.3 1.3, bank at slot 5 = −0.3 0.8 0.1 1.2 (the two banks differ), the at slot 0 = 0.2 0.9 0.4 1.0 and at slot 3 = 0.3 −1.1 0.7 1.0. Every shown sum equals the sum of the shown parts (asserted).\n\nTIMELINE (local seconds, 13 s). 0.2-1.4 the six word tags pop one after another (tag.set({k: A10.seq(t, 0.2, 0.15, 0.4, i)})). 1.6-3.9 the meaning strips pop column by column (column i starts at 1.6 + 0.3 i, its four cells 0.06 s apart, ...A10.pop(k) into cells.set). 4.4-5.2 BANKS: all four cells of strips 1 and 5 get ring 'orange' (ringK 0 -> 1 over 4.4-4.9) and the two 'same' tags pop at 4.6 (k ramp over 0.4 s). 6.3-6.9 the orange question mark pops between them (V.place(q, {s: 0.5 + 0.5 * E.pop(k), o})). 8.0-8.3 the 'same' tags, rings and question mark fade out (o 1 -> 0). 8.3-9.7 the six plus signs pop (0.08 s apart) and the six position strips pop (column i starts 8.3 + 0.1 i, cells 0.05 s apart) together with their grey 'slot i' tags (start 8.5 + 0.1 i, 0.3 s each). 10.0-10.9 the position strips slide UP onto the meaning strips (dy from 0 to -286 with E.inOut, cells.set(j, {y: dy}) and they fade out over their last 0.3 s); the slot tags fade 10.0-10.3 and the plus signs fade 10.0-10.4; 10.3-11.3 the meaning cells flip to the sums (cells.flip(j, k, {from: A10.TOK.embTxt[i][j], to: A10.TOK.sumTxt[i][j], tone: 'blue', toTone: 'green', hop: 6}), cell j starts at 10.3 + 0.05 j + 0.04 i, 0.35 s each). 10.9-11.5 rings 'green' on the two bank strips and the two bank tags pop again reading 'different' (green, solid); 11.6-12.1 the 'model input' tag pops. Hold to 13.\n\nEND STATE: six green strips (every token now carries its meaning plus its position), the two banks ringed green with different numbers and a 'different' tag under each, the green 'model input' tag. Scene 3 is a new picture, nothing carries over.\nCAPTIONS: [[0.5,2.3,\"Text is cut into tokens.\"],[2.5,4.3,\"Each token becomes a list of numbers.\"],[4.6,6.4,\"The two banks get exactly the same numbers.\"],[6.5,8.2,\"Nothing says which one came first.\"],[8.5,10.3,\"Add a position pattern to every token.\"],[11,12.7,\"Now the two banks are different.\"]]"
+  },
+  {
+   "n": 3,
+   "file": "scene-03-softmax.js",
+   "kicker": "SOFTMAX",
+   "title": [
+    "Softmax turns scores",
+    "into shares"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.7,
+     2.6,
+     "Imagine three words, each with a score."
+    ],
+    [
+     2.9,
+     4.8,
+     "Stretch the scores: the biggest grows most."
+    ],
+    [
+     5,
+     7.3,
+     "Divide by the total: the shares add to 1."
+    ],
+    [
+     7.7,
+     10.4,
+     "Bigger gaps give a sharper share-out."
+    ]
+   ],
+   "spec": "IDEA: softmax turns any list of scores into shares that are positive and add up to 1: exponentiate every score (e to its power: every number becomes positive and gaps are stretched: 2, 1, 0 become 7.39, 2.72, 1.00), then divide each by the total (11.11): 0.67, 0.24, 0.09. Bigger gaps between the scores make a sharper share-out (scores 4, 2, 0 give 0.87 for the top one). It is the step attention will use to turn scores into weights. Lesson 10.2. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px). Three rows, row i = 0..2 with centre y = 92 + 84 i. Grey discs A10.disc(stage, {x: 44, y: 92 + 84 i, size: 56, text: 'A' | 'B' | 'C', tone: 'grey'}). Bars bars = A10.bars(stage, {x: 96, y: 70, n: 3, dir: 'h', unit: 56, bw: 44, gap: 40, tone: 'blue'}) (row centres 92, 176, 260; bars.set(i, {v, text})). Tag A10.tag(stage, {x: 680, y: 40, w: 238, text: 'scores', tone: 'blue'}) (set({text: 'exponentiated'}) later). Total tag tot = A10.tag(stage, {x: 700, y: 150, text: 'total ' + A10.SOFT.totalTxt, tone: 'orange', solid: true}) (w 192) and three orange funnel arrows in an A10.svg(stage) layer: L5.arrow(bars.pt(i, A10.SOFT.exps[i]).x + 92, 92 + 84 i, 696, 179, 'orange', 1, {w: 5, head: 16}) i = 0..2 (they start just right of each number). First share bar sb = A10.shareBar(stage, {x: 96, y: 396, w: 700, h: 64}); share labels A10.tag(stage, {x: sb.seg(i, A10.SOFT.shares).mid - 50, y: 332, w: 100, text: A10.SOFT.shareTxt[i], tone: 'green'}) i = 0..2 (above their segments; the three segments are all tone 'green'); green solid tag A10.tag(stage, {x: 808, y: 399, text: '= 1', tone: 'green', solid: true}) (w 84) right of the bar. Second bar sb2 = A10.shareBar(stage, {x: 96, y: 548, w: 700, h: 64}); grey tag A10.tag(stage, {x: 96, y: 486, text: 'scores 4, 2, 0'}) (w 218) and green solid tag A10.tag(stage, {x: sb2.seg(0, A10.SOFT.sharp.shares).mid - 50, y: 486, w: 100, text: A10.SOFT.sharp.topTxt, tone: 'green', solid: true}) above the big segment of the second bar (never print the other two sharper shares: 0.87 + 0.12 + 0.02 = 1.01).\n\nDATA (A10.SOFT, asserted): scores [2, 1, 0]; exps 7.39, 2.72, 1.00 (A10.SOFT.expTxt); total 11.11; shares 0.67, 0.24, 0.09 (shareTxt, add up to 1.00); sharper scores [4, 2, 0] give a top share of 0.87 (A10.SOFT.sharp.shares = 0.867, 0.117, 0.016; pass them to sb2.set as vals).\n\nTIMELINE. 0.2-0.9 the three discs pop (0.1 apart). 0.4-1.3 the score bars grow from 0 (bars.set(i, {v: A10.SOFT.scores[i], grow: ramp, text: String(score) once grow > 0.6}); the C bar has length 0, only its '0' shows); 0.8 the blue 'scores' tag pops. 2.7-4.0 EXPONENTIATE: each bar's v goes from the score to A10.SOFT.exps[i] (E.inOut), its text switches from the score to expTxt at the half way point (3.35); the tag text becomes 'exponentiated' at 2.9. 4.9-5.6 the orange 'total 11.11' tag pops and the three funnel arrows draw on (L5.drawOn, 0.15 s apart). 5.6-6.8 SHARES: sb.set({vals: A10.SOFT.shares, tones: ['green', 'green', 'green'], k: ramp(t, 5.6, 6.8)}) grows the bar from the left; 6.4-7.0 the three share labels pop (0.15 apart); 7.0 the '= 1' tag pops. 7.6-9.4 SHARPER: the grey 'scores 4, 2, 0' tag pops at 7.7, sb2.set({vals: A10.SOFT.sharp.shares, tones: green x3, k: ramp(t, 7.9, 9.0)}), the green '0.87' tag pops at 9.0. Hold 9.5-11.5 (calm).\n\nEND STATE: the exponentiated bars (7.39, 2.72, 1.00), the orange total, the share bar 0.67 / 0.24 / 0.09 with '= 1', and below it the sharper bar with its 0.87 label. Scene 4 starts from scratch.\nCAPTIONS: [[0.7,2.6,\"Imagine three words, each with a score.\"],[2.9,4.8,\"Stretch the scores: the biggest grows most.\"],[5,7.3,\"Divide by the total: the shares add to 1.\"],[7.7,10.4,\"Bigger gaps give a sharper share-out.\"]]"
+  },
+  {
+   "n": 4,
+   "file": "scene-04-attention.js",
+   "kicker": "ATTENTION",
+   "title": [
+    "Every word looks at",
+    "every other word"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     1,
+     2.6,
+     "Which noun does “it” stand for?"
+    ],
+    [
+     2.8,
+     4.6,
+     "It looks at every word in the sentence."
+    ],
+    [
+     5,
+     6.8,
+     "But some words matter more than others."
+    ],
+    [
+     7.2,
+     9,
+     "Its new meaning leans on “robot”."
+    ],
+    [
+     9.6,
+     11.6,
+     "Every word does this, all at the same time."
+    ]
+   ],
+   "spec": "IDEA: ATTENTION. To understand the word 'it' in 'The robot moved because it detected danger' the model lets 'it' LOOK at every word of the sentence, itself included, and give each a share (a weight from softmax: the shares add up to 1). The shares are very uneven: 'robot' gets by far the biggest, 'it' itself a little, the other five almost nothing, so the new meaning of 'it' leans on 'robot'. Every word does the same at the same time (7 words, 7 x 7 = 49 shares). The scores behind the shares are ILLUSTRATIVE (A10.ATT: made-up scores pushed through the real softmax, the sharp pattern of a trained model; the app's own hand-tuned heatmap in lesson 10.3 gives it -> robot 0.17, the biggest share of its row but a gentle one), so NO share number is printed anywhere in this scene: the shares are shown only as arc thickness and bar length. Lesson 10.3. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px; a tag is 58 px high). Sentence s = A10.sentence(stage, {x: 16, y: 330, words: A10.ATT.words, gap: 8}) (width 903; centres 62.5, 176, 309, 458.5, 573, 692.5, 850; word index A10.ATT.IT = 4 is 'it', A10.ATT.ROBOT = 1). const svg = A10.svg(stage). ARCS OF 'it' ABOVE THE SENTENCE: for j = 0..6 arcs[j] = A10.arc(svg, {x1: s.top(4).x, y1: 330, x2: s.top(j).x, y2: 330, lift: A10.arcLift(s.top(j).x - s.top(4).x, 40, 0.22), tone: 'grey', w: 6}) (j = 4 is the small loop over 'it'; the longest arc peaks at y 178). Purple question mark A10.qmark(573, 262, 70, 'purple') above 'it' (in the svg layer). BLEND BAR below: blend = A10.shareBar(stage, {x: 188, y: 470, w: 560, h: 56}); vals = [A10.ATT.itRow[1], A10.ATT.itRow[4], 1 - A10.ATT.itRow[1] - A10.ATT.itRow[4]], tones ['green', 'purple', 'grey']; labels above the segments: A10.tag(stage, {x: blend.seg(0, vals).mid - 59, y: 406, text: 'robot'}) and A10.tag(stage, {x: blend.seg(1, vals).mid - 31, y: 406, text: 'it', tone: 'purple'}); purple solid tag A10.tag(stage, {x: 21, y: 469, text: 'new “it”', tone: 'purple', solid: true}) (w 155) left of the bar; a purple L5.arrow(573, 392, 573, 464, 'purple', 1, {w: 6, head: 18}) from 'it' down to the bar. THE WEB below the sentence: for every link of A10.ATT.web with i != 4 (14 of them: 0>0 0>1 1>1 1>2 2>1 2>2 3>2 3>3 3>5 5>1 5>5 5>6 6>5 6>6) web[n] = A10.arc(svg, {x1: s.bottom(i).x, y1: 388, x2: s.bottom(j).x, y2: 388, lift: -A10.arcLift(dx, 24, 0.2, 140), tone: 'green', w: A10.arcW(link.w, 3, 12)}). Final tag A10.tag(stage, {x: 332, y: 560, text: '7 × 7 = 49 shares', tone: 'grey'}) (w 272).\n\nDATA (A10.ATT, asserted): row of 'it' A10.ATT.itRow = 0.01, 0.82, 0.01, 0.01, 0.11, 0.01, 0.01 (used for the arc widths and the blend bar, never printed); every row of A10.ATT.w adds up to 1; A10.ATT.links = 49. Arc widths come from A10.arcW(weight) (robot 15.4 px, itself 5.5 px, others about 4.2 px).\n\nTIMELINE. 0.2-0.9 the seven word tags pop (0.08 apart). 0.9-1.6 the 'it' tag turns purple and solid (s.set(4, {tone: 'purple', solid: true, s: bump})) and the purple question mark pops at 1.1-1.5. 2.3-2.6 the question mark fades. 2.6-4.1 ARCS: the seven grey arcs draw on in the order j = 0, 1, 2, 3, 5, 6, then the loop (j = 4), 0.16 s apart, 0.55 s each, all w 6 and grey (everything is looked at equally). 4.8-5.8 REWEIGH: for every arc w goes from 6 to A10.arcW(A10.ATT.itRow[j]) with E.inOut and the tone switches grey -> green at 4.9 for the arcs with weight >= 0.1 (robot and the loop; the five others stay grey and thin); 5.4-5.9 the 'robot' tag turns green and solid with a small bump (s 1.08 and back). 7.0-8.0 BLEND: the purple arrow draws 7.0-7.5, the 'new it' tag pops 7.2, blend.set({vals, tones, k: ramp(t, 7.0, 8.0)}) grows the bar, the labels 'robot' and 'it' pop 7.6-8.0. 9.0-9.3 the blend bar, its labels, the new-it tag, the purple arrow and the 'it' arcs fade out (o 1 -> 0; the 'it' tag keeps its purple look, the 'robot' tag goes back to grey). 9.4-11.1 THE WEB: the 14 other arcs draw on below the sentence, 0.09 s apart, 0.5 s each; 11.0-11.6 the '7 × 7 = 49 shares' tag pops. Hold to 12.\n\nEND STATE: the sentence with 'it' in purple, a web of green arcs below it (every word looking at its partners) and the grey tag '7 × 7 = 49 shares'. Calm.\nCAPTIONS: [[1,2.6,\"Which noun does “it” stand for?\"],[2.8,4.6,\"It looks at every word in the sentence.\"],[5,6.8,\"But some words matter more than others.\"],[7.2,9,\"Its new meaning leans on “robot”.\"],[9.6,11.6,\"Every word does this, all at the same time.\"]]"
+  },
+  {
+   "n": 5,
+   "file": "scene-05-query-key.js",
+   "kicker": "QUERY AND KEY",
+   "title": [
+    "A query is matched",
+    "against every key"
+   ],
+   "dur": 13.5,
+   "caps": [
+    [
+     1,
+     3.4,
+     "Each word makes a query, a key and a value."
+    ],
+    [
+     3.5,
+     5.3,
+     "Hold the query of “barked” against each key."
+    ],
+    [
+     5.4,
+     7.2,
+     "Multiply the pairs, then add them up."
+    ],
+    [
+     7.6,
+     9.4,
+     "“dog” matches best: a score of 3."
+    ],
+    [
+     9.5,
+     11.2,
+     "Divide by 1.41 to keep scores small."
+    ],
+    [
+     11.3,
+     13.1,
+     "Softmax turns them into shares."
+    ]
+   ],
+   "spec": "IDEA: how attention finds the right words, by hand on the tiny sentence 'the dog barked' (lesson 10.4): every word is turned into THREE small lists of numbers: a QUERY (what am I looking for), a KEY (what do I contain) and a VALUE (what I hand over if chosen). To update 'barked', hold its query against every key: multiply the numbers pairwise and add (the dot product): the scores are 1, 3 and 2, so 'dog' matches best. Divide by 1.41 (the square root of 2, which keeps long vectors from making huge scores), softmax turns the scores into shares 0.14, 0.58, 0.28. The values are used in the next scene. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px; one TABLE: a column per word, rows top to bottom: word, query, key, products, score, scaled score, share, and at the very bottom the value). Column centres cx = [270, 500, 730]; word tags tags[j] = A10.tag(stage, {x: cx[j] - A10.tagW(w) / 2, y: 0, text: w}) (the 87, dog 94, barked 137). Row label tags at x = 12: A10.tag(stage, {x: 12, y: 81, text: 'query', tone: 'purple'}), {y: 189, text: 'key', tone: 'blue'}, {y: 569, text: 'value', tone: 'orange'}, {y: 343, text: 'score', tone: 'blue'}, {y: 427, text: '÷ 1.41', tone: 'grey'}, {y: 499, text: 'share', tone: 'green'} (all pop with their rows). Chips: A10.cells(stage, {x: cx[j] - 87, y, texts: row.map(String), w: 84, h: 56, gap: 6, tone}) for the query row (y 82, tone 'purple', texts A10.QKV.Q[j]), the key row (y 190, 'blue', A10.QKV.K[j]) and the value row (y 570, 'orange', A10.QKV.V[j]). Purple arrows in an A10.svg(stage) layer: L5.arrow(cx[2], 144, cx[j], 186, 'purple', 1, {w: 5, head: 16, bow: 8}) j = 0, 1, 2 from the query chip of 'barked' to the three key chips. Product cells prods[j] = A10.cells(stage, {x: cx[j] - 72, y: 270, texts: A10.QKV.barked.rows[j].prods.map(String), w: 56, h: 48, gap: 32, tone: 'grey'}) with a grey A10.op('plus', cx[j], 294, 26) between the two cells. Score discs A10.disc(stage, {x: cx[j], y: 372, size: 60, text: String(A10.QKV.barked.rows[j].score), tone: 'blue'}). Scaled cells A10.cells(stage, {x: cx[j] - 50, y: 430, texts: [A10.QKV.barked.rows[j].scaledTxt], w: 100, h: 52, tone: 'blue'}). Share cells A10.cells(stage, {x: cx[j] - 50, y: 500, texts: [A10.QKV.barked.rows[j].wTxt], w: 100, h: 56, tone: 'green', solid: true}).\n\nDATA (A10.QKV, asserted): Q = [2,1] [1,2] [1,1]; K = [1,0] [1,2] [1,1]; V = [2,1] [1,3] [1,1] for the, dog, barked. Query of barked [1,1]: products with the keys [1,0], [1,2], [1,1] (A10.QKV.barked.rows[j].prods) are 1+0, 1+2, 1+1: scores 1, 3, 2; scaled 0.71, 2.12, 1.41; shares 0.14, 0.58, 0.28 (add up to 1.00).\n\nTIMELINE. 0.2-0.8 the three word tags pop; 0.5-1.0 the row labels 'query', 'key', 'value' pop. 1.0-3.0 the chips pop word by word (word j starts 1.0 + 0.55 j; its query chip first, key chip 0.15 s later, value chip 0.3 s later; ...A10.pop(k) in cells.set). 3.2-3.9 FOCUS: the 'barked' tag turns purple solid, its query chip turns solid purple, the query chips of 'the' and 'dog' and the whole value row switch to the grey tone (switch the tone, never lower the opacity of text); the keys stay blue. 4.0-7.3 SCORING, for j = 0, 1, 2 starting at t_j = 4.0 + 1.1 j: t_j to t_j + 0.5 arrow j draws on (L5.drawOn) and key chip j gets a purple ring (ringK pop); t_j + 0.35 to t_j + 0.75 the two product cells pop (grey); t_j + 0.75 to t_j + 1.1 the blue score disc pops. 7.6-8.1 the 'dog' disc turns green solid with a bump (the best match) and the three arrows fade (7.7-8.0). 9.4-10.3 the grey '÷ 1.41' tag pops (9.4) and the three scaled cells pop (0.12 apart, from 9.6). 11.1-12.0 the green 'share' tag and the three solid green share cells pop (0.15 apart); 11.8 the 'dog' share cell gets a green ring. Hold to 13.5.\n\nEND STATE: the whole table: queries, keys, values, the products, the scores 1 3 2, the scaled scores 0.71 2.12 1.41 and the green shares 0.14 0.58 0.28 under the three words (the 'dog' score and share highlighted). Scene 6 uses these shares again.\nCAPTIONS: [[1,3.4,\"Each word makes a query, a key and a value.\"],[3.5,5.3,\"Hold the query of “barked” against each key.\"],[5.4,7.2,\"Multiply the pairs, then add them up.\"],[7.6,9.4,\"“dog” matches best: a score of 3.\"],[9.5,11.2,\"Divide by 1.41 to keep scores small.\"],[11.3,13.1,\"Softmax turns them into shares.\"]]"
+  },
+  {
+   "n": 6,
+   "file": "scene-06-values.js",
+   "kicker": "VALUES",
+   "title": [
+    "The shares blend",
+    "the values"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.9,
+     2.9,
+     "Each word also carries a value: its content."
+    ],
+    [
+     3.3,
+     5,
+     "Scale each value by its share."
+    ],
+    [
+     5.6,
+     7.2,
+     "Add them up: new numbers for “barked”."
+    ],
+    [
+     7.8,
+     9.5,
+     "Do it for every word at once."
+    ],
+    [
+     10,
+     11.9,
+     "One new set of numbers per word."
+    ]
+   ],
+   "spec": "IDEA: the shares are used to BLEND the values. For 'barked': take each word's value list, scale it by its share, add the three scaled lists: 0.14 x [2,1] + 0.58 x [1,3] + 0.28 x [1,1] = [1.14, 2.15]. That is the new numbers for 'barked': built from what it paid attention to. Doing it for all three words at once is a matrix product: the 3 x 3 grid of shares times the stack of values gives the stack of new lists (lesson 10.4: softmax(Q K^T / 1.41) V). COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nBEAT 1 (0.2-7.4): a column addition. LAYOUT (stage px). Row r = 0..2 (the, dog, barked) has centre y = cy(r) = 160 + 100 r (160, 260, 360). A10.tag(stage, {x: 12, y: 40, text: 'for “barked”', tone: 'purple', solid: true}) (w 213). Row word tag A10.tag(stage, {x: 12, y: cy(r) - 29, text: word}). Share cell A10.cells(stage, {x: 164, y: cy(r) - 28, texts: [A10.QKV.barked.rows[r].wTxt], w: 92, h: 56, tone: 'green', solid: true}). Times sign A10.op('times', 284, cy(r), 34) in an A10.svg layer. Value chip A10.cells(stage, {x: 310, y: cy(r) - 28, texts: A10.QKV.V[r].map(String), w: 84, h: 56, gap: 6, tone: 'orange'}) (x 310 to 484). Equals sign A10.op('equals', 512, cy(r), 34). Scaled chip prod[r] = A10.cells(stage, {x: 540, y: cy(r) - 28, texts: A10.QKV.barked.blend.partsTxt[r], w: 84, h: 56, gap: 6, tone: 'orange', solid: true}) (x 540 to 714). Plus signs A10.op('plus', 627, 210, 30) and A10.op('plus', 627, 310, 30) between the scaled chips. The sum line: a grey rounded bar V.h('div', {style: {position: 'absolute', left: '530px', top: '404px', width: '194px', height: '6px', borderRadius: '3px', background: 'var(--line-2)'}}) (scaleX from its left edge to draw it on). Result row (centre y 466): green solid tag A10.tag(stage, {x: 164, y: 437, text: 'new “barked”', tone: 'green', solid: true}) (w 230), equals sign A10.op('equals', 512, 466, 34), green sum chip A10.cells(stage, {x: 540, y: 438, texts: A10.QKV.barked.blend.zTxt, w: 84, h: 56, gap: 6, tone: 'green', solid: true}). The whole beat lives in one wrapper div (absolute, left 0, top 0) so that it can fade as a group (V.place(wrapper, {o})); build the elements with the wrapper as their parent.\n\nDATA (A10.QKV.barked, asserted): shares 0.14, 0.58, 0.28; values [2,1] [1,3] [1,1]; scaled (blend.partsTxt) [0.28, 0.14] [0.58, 1.73] [0.28, 0.28]; sum (blend.zTxt) [1.14, 2.15] (the shown parts add up to the shown sum).\n\nBEAT 1 TIMELINE. 0.2-0.8 the purple tag and the three word tags pop. 0.9-2.0 the three value chips pop (0.2 apart). 2.4-3.3 the share cells and the times signs pop (0.15 apart). 3.4-4.8 SCALE: for each row a COPY of the value chip (the scaled chip prod[r]) starts on top of the value chip and slides right to x 540 (dx from -230 to 0, E.inOut, row r starts 3.4 + 0.2 r, 0.9 s each) while its cells flip from the value numbers to the scaled numbers (prod[r].flip(i, k, {from: valueText, to: partsTxt[r][i], tone: 'orange', toTone: 'orange', hop: 8})); the equals signs pop at 4.5. 5.0-6.6 the plus signs pop (5.0, 5.15), the grey sum line draws on (scaleX 0 -> 1, 5.4-5.9), then the result row pops: the green 'new barked' tag at 5.9, its equals sign at 6.1, the green sum chip 6.2-6.6. 7.0-7.4 EVERYTHING of beat 1 fades out (wrapper o 1 -> 0).\n\nBEAT 2 (7.4-12.5): LAYOUT. Grid g = A10.grid(stage, {x: 162, y: 160, rows: 3, cols: 3, cw: 118, ch: 64, gap: 6, radius: 14}) (x 162-528; row centres y 192, 262, 332; column centres x 221, 345, 469); g.set(r, c, {v: A10.QKV.A[r][c], text: A10.QKV.AT[r][c], k, ring}) (rows are the words asking, columns the words looked at). Row tags A10.tag(stage, {x: 12, y: g.mid(r, 0).y - 29, text: word}) and column tags A10.tag(stage, {x: g.mid(0, c).x - A10.tagW(word) / 2, y: 88, text: word}) (the 'dog' and 'barked' tags stay 8 px apart). Times sign A10.op('times', 556, 262, 38); value stack A10.cells(stage, {x: 578, y: g.mid(r, 0).y - 28, texts: A10.QKV.V[r].map(String), w: 64, h: 56, gap: 6, tone: 'orange'}) r = 0..2; equals sign A10.op('equals', 740, 262, 38); result stack A10.cells(stage, {x: 768, y: g.mid(r, 0).y - 28, texts: A10.QKV.ZT[r], w: 76, h: 56, gap: 4, tone: 'green', solid: true}) r = 0..2 (x 768-924).\nDATA: A10.QKV.AT = [0.14 0.58 0.28] [0.05 0.77 0.19] [0.14 0.58 0.28]; A10.QKV.ZT = [1.14 2.15] [1.05 2.54] [1.14 2.15] (the first and last rows are equal because the scores of 'the' and 'barked' differ by a constant: do not comment on it); the row of 'barked' is the one computed in beat 1.\nBEAT 2 TIMELINE. 7.6-8.5 the row and column tags and the 3 x 3 grid pop (rows 0.12 s apart); 8.3-8.8 the 'barked' row gets a purple ring (ringK pop on its three cells). 8.9-9.5 the times sign and the orange value stack pop. 9.9-11.0 the equals sign pops and the green result stack pops row by row (0.2 apart), the 'barked' result chip gets a purple ring at 10.8. Hold to 12.5.\n\nEND STATE: the grid of shares times the stack of values equals one new green pair of numbers per word, the 'barked' row ringed in purple. Calm.\nCAPTIONS: [[0.9,2.9,\"Each word also carries a value: its content.\"],[3.3,5,\"Scale each value by its share.\"],[5.6,7.2,\"Add them up: new numbers for “barked”.\"],[7.8,9.5,\"Do it for every word at once.\"],[10,11.9,\"One new set of numbers per word.\"]]"
+  },
+  {
+   "n": 7,
+   "file": "scene-07-heads.js",
+   "kicker": "MULTI-HEAD",
+   "title": [
+    "Several heads look",
+    "for different links"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     1.1,
+     3.1,
+     "Each head has its own query, key and value."
+    ],
+    [
+     3.3,
+     4.8,
+     "One head finds what “it” means."
+    ],
+    [
+     5.1,
+     6.7,
+     "Another looks at the word before."
+    ],
+    [
+     6.9,
+     9,
+     "Others find who acts and what is acted on."
+    ],
+    [
+     9.1,
+     10.9,
+     "Each head hands back 16 numbers per word."
+    ],
+    [
+     11.2,
+     12.8,
+     "Glued together, they make 64 numbers."
+    ]
+   ],
+   "spec": "IDEA: one attention pattern is not enough, so the model runs several HEADS side by side. Each head has its own query, key and value (smaller lists of numbers) and therefore its own pattern of shares. Four heads on the robot sentence: one finds what 'it' means (it looks at robot), one looks at the word before, one finds who acts (the verbs look at robot), one finds what is acted on (detected and danger look at each other). Nobody tells the heads what to look for: training finds useful patterns (the patterns here are made up, the same recipes as lesson 10.5's playground: pronoun to noun, previous word, verbs and their objects). Each head hands back a short list for every word (16 numbers when the model width is 64 and there are 4 heads: 64 / 4 = 16); the four short lists are glued side by side (concatenated) into 64 numbers (4 x 16 = 64). Lesson 10.5. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px; a tag is 58 px high). One sentence, four heads. const svg = A10.svg(stage). Sentence s = A10.sentence(stage, {x: 16, y: 150, words: A10.ATT.words, gap: 8}) (width 903; centres 62.5, 176, 309, 458.5, 573, 692.5, 850; the same sentence as scene 4: 'it' is word 4, 'robot' word 1). HEAD TAGS: tx = [12, 243, 483, 692]; tags[k] = A10.tag(stage, {x: tx[k], y: 270, text: A10.HEADS.patterns[k].tag}) (grey; widths 200, 209, 178, 231, so they span x 12-212, 243-452, 483-661, 692-923; centres cc[k] = tags[k].mid().x = 112, 347.5, 572, 807.5). Under each tag the head's own query, key and value as three small round chips: dots[k] = A10.cells(stage, {x: cc[k] - 49, y: 342, texts: ['', '', ''], w: 26, h: 26, gap: 10, tones: ['purple', 'blue', 'orange'], solid: true, radius: 13}) (the roles of scene 5: purple query, blue key, orange value). ARCS OVER THE SENTENCE (the strong links of the active head only): for k = 0..3 and every l of A10.HEADS.links(k) (1, 6, 2 and 2 links; see the DATA) arcs[k][n] = A10.arc(svg, {x1: s.top(l.i).x, y1: 150, x2: s.top(l.j).x, y2: 150, lift: A10.arcLift(s.top(l.j).x - s.top(l.i).x, 26, 0.16, 92), tone: 'green', w: 4 + 8 * l.w}) (l.i = the word looking, l.j = the word looked at; the dot is at the looked-at end; the longest arc, it -> robot, peaks at y 60). Weight tag wt = A10.tag(stage, {x: 0, y: 0, w: 100, text: '0.97', tone: 'green', solid: true}) placed on the it -> robot arc at arcs[0][0].at(0.5) (x = at.x - 50, y = at.y - 29). OUTPUT SLICES: sl[k] = A10.cells(stage, {x: cc[k] - 90, y: 404, texts: ['16 numbers'], w: 180, h: 60, tone: 'blue'}) (x 22-202, 257.5-437.5, 482-662, 717.5-897.5). Final tag A10.tag(stage, {x: 372, y: 496, text: A10.HEADS.n + ' × ' + A10.HEADS.dHead + ' = ' + A10.HEADS.dModel, tone: 'green', solid: true}) (w 193, centred at x 468.5 under the glued bar: '4 × 16 = 64').\n\nDATA (A10.HEADS, asserted; the weights are made-up scores through the real softmax, every row adds up to 1; the 0.97 matches the lesson's own pronoun head): A10.HEADS.links(k): head 0 'who is “it”?' it looks at robot 0.97 (4>1); head 1 'word before' every word looks at the word before it 0.96 (1>0 2>1 3>2 4>3 5>4 6>5: six arcs); head 2 'who acts?' moved and detected look at robot 0.95 (2>1 5>1); head 3 'acts on what?' detected and danger look at each other 0.95 (5>6 6>5: the two arcs lie on the same curve, one dot at each end). d_model 64, 4 heads, d_head 16 (A10.HEADS.dModel, n, dHead).\n\nTIMELINE (13 s). 0.2-0.9 the seven word tags pop (0.07 apart). 1.0-2.0 the four head tags pop (0.15 apart), each followed 0.2 s later by its three query / key / value dots (0.08 apart). HEAD 1 3.1-4.8: its tag turns green solid (a bump), the 'it' tag turns purple solid (bump), the arc it -> robot draws on 3.2-3.9 (k ramp) and the green '0.97' tag pops on it at 3.9; at 4.5-4.8 the arc, the tag and the purple 'it' fade back (arc o 1 -> 0, tag back to grey). HEAD 2 5.0-6.5: tag green solid; the six arcs draw on 0.12 s apart (0.4 s each, from 5.1); at 6.3-6.6 they fade and the tag returns to grey. HEAD 3 6.9-7.7: tag green solid, the two arcs (moved -> robot, detected -> robot) draw on 6.9-7.5, fade 7.6-7.8. HEAD 4 7.9-8.7: tag green solid, the two arcs (detected <-> danger) draw on 7.9-8.4, fade 8.6-8.8. 9.0-9.9 the four blue '16 numbers' slices pop under their head tags (0.15 apart). 10.9-12.0 GLUE: the slices slide together into one bar and turn green (cells.set(0, {x: dx_k, tone: 'green', solid: true}) with dx_k = (108 + 180 k) - (cc[k] - 90) = 86, 30.5, -14, -69.5, E.inOut, 0.1 s stagger; their tone switches at 11.6); 11.8-12.3 the green '4 × 16 = 64' tag pops. Hold to 13.\n\nEND STATE: the sentence, four grey head tags with their dots, one glued green bar of four '16 numbers' slices and the green tag '4 × 16 = 64'. Calm.\nCAPTIONS: [[1.1,3.1,\"Each head has its own query, key and value.\"],[3.3,4.8,\"One head finds what “it” means.\"],[5.1,6.7,\"Another looks at the word before.\"],[6.9,9,\"Others find who acts and what is acted on.\"],[9.1,10.9,\"Each head hands back 16 numbers per word.\"],[11.2,12.8,\"Glued together, they make 64 numbers.\"]]"
+  },
+  {
+   "n": 8,
+   "file": "scene-08-layer.js",
+   "kicker": "ONE LAYER",
+   "title": [
+    "Each layer mixes words,",
+    "then thinks about each"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.9,
+     2.4,
+     "A layer has two main parts."
+    ],
+    [
+     2.6,
+     4.2,
+     "Attention lets the words share information."
+    ],
+    [
+     4.6,
+     6.3,
+     "A skip path adds the input back."
+    ],
+    [
+     6.5,
+     8,
+     "Norm keeps the numbers steady."
+    ],
+    [
+     8.6,
+     10.2,
+     "The network then treats each word alone."
+    ],
+    [
+     10.8,
+     12.7,
+     "Same shape in and out, so layers stack."
+    ]
+   ],
+   "spec": "IDEA: ONE LAYER of the transformer (lesson 10.6): attention first (the words exchange information), then a small feed-forward network that works on each word alone; each part is wrapped in 'Add & Norm': a SKIP connection adds the input back (x + F(x): if the part adds nothing, x passes through unchanged) and a layer norm re-centres and rescales each word's numbers (mean 0, spread 1). The layer returns the same shape it received, so identical layers stack (the original paper used 6). The example numbers are the lesson's: x = [1, 3, 5, 7] and a sublayer output F(x) = [2, -1, 0.5, -2]. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px). TOP STRIP (always visible after 0.3 s): four blocks A10.card(stage, {y: 0, h: 64, text, tone, plain}) at x = 13 (w 190, 'Attention', purple), 243 (w 190, 'Add & Norm', orange), 473 (w 220, 'Feed-forward', blue), 733 (w 190, 'Add & Norm', orange); the ACTIVE block is drawn plain: false (tinted) and bumped to s 1.04, the others plain: true; grey arrows in an A10.svg(stage) layer L5.arrow(x + w + 4, 32, nextX - 4, 32, 'grey', 1, {w: 5, head: 14}); two orange skip arcs below the strip: A10.arc(svg, {x1: 108, y1: 66, x2: 338, y2: 66, lift: -34, tone: 'orange', w: 6}) (over block 1 into block 2) and A10.arc(svg, {x1: 583, y1: 66, x2: 828, y2: 66, lift: -34, tone: 'orange', w: 6}) (over block 3 into block 4). BIG CANVAS (y 120-630) shows one mini picture per beat, each in its own wrapper div (absolute, left 0, top 0, so it fades as a group: V.place(wrapper, {o}); build the beat's elements with the wrapper as parent):\n BEAT 1 (attention): three columns, centres cx = [250, 468, 686]: word tags A10.tag(wrapper, {x: cx - A10.tagW(w) / 2, y: 170, text: w}) for the, dog, barked; a word's numbers as a strip of four blank chips A10.cells(wrapper, {x: cx - 50, y: 240, texts: ['', '', '', ''], w: 100, h: 44, gap: 5, dir: 'col', tone: 'blue'}) (y 240 to 421); purple arcs below them A10.arc(svg, {x1: 250, y1: 440, x2: 468, y2: 440, lift: -50, tone: 'purple', w: 6}), the same 468 -> 686, and 250 -> 686 with lift -90 (every word linked to every word).\n BEAT 2 (add, then norm): vertical bars baseline y 420: bx = A10.bars(wrapper, {x: 286, y: 420, n: 4, dir: 'v', unit: 32, bw: 64, gap: 36, tone: 'blue'}) with v = A10.LAYER.x (bars at x 286, 386, 486, 586; NO text on the bars: the number row carries the numbers); the orange change bd = A10.bars(wrapper, {x: 286, y: 420, n: 4, dir: 'v', unit: 32, bw: 64, gap: 36, tone: 'orange'}) set as bd.set(i, {v: A10.LAYER.sum[i], from: A10.LAYER.x[i], grow}) (an orange piece from x to x + F(x), up or down); a number row nums = A10.cells(wrapper, {x: 286, y: 130, texts: A10.LAYER.x.map(String), w: 64, h: 50, gap: 36, tone: 'blue'}) (same columns as the bars; its cells flip to the sums and then to the normalised numbers); tags at the right: A10.tag(wrapper, {x: 690, y: 200, text: 'adds F(x)', tone: 'orange'}) (w 170), A10.tag(wrapper, {x: 690, y: 280, text: 'mean 0', tone: 'green', solid: true}) (w 141), A10.tag(wrapper, {x: 200, y: 380, text: 'x', tone: 'blue'}); a dashed grey mean line in the svg layer V.s('path', {d: 'M 250 Y L 650 Y', 'stroke-dasharray': '10 8'}) with Y = 420 - 32 * A10.LAYER.mean = 296 that moves to Y = 420 during the norm.\n BEAT 3 (feed-forward): three separate columns cx = [250, 468, 686]: word tag A10.tag(wrapper, {x: cx - A10.tagW(w) / 2, y: 124, text: w}); input vector A10.cells(wrapper, {x: cx - 50, y: 196, texts: ['', '', '', ''], w: 100, h: 30, gap: 4, dir: 'col', tone: 'blue'}) (y 196 to 328); grey arrow down L5.arrow(cx, 332, cx, 352, 'grey', 1, {w: 5, head: 12}); card A10.card(wrapper, {x: cx - 75, y: 358, w: 150, h: 64, text: 'network', tone: 'blue', plain: false}); arrow down (y 426-446); output vector A10.cells(wrapper, {x: cx - 50, y: 452, texts: ['', '', '', ''], w: 100, h: 30, gap: 4, dir: 'col', tone: 'green'}) (y 452 to 584). No line joins one column to another (each word is processed alone).\n BEAT 4 (stack): six grey cards A10.card(wrapper, {x: 318, y: 508 - 52 * i, w: 300, h: 44, text: 'layer', tone: 'grey'}) i = 0..5 (A10.LAYER.N = 6, built bottom first, y 508 up to 248); the SAME green row of four blank chips below and above the stack: rowIn = A10.cells(wrapper, {x: 331, y: 572, texts: ['', '', '', ''], w: 64, h: 44, gap: 6, tone: 'green'}) with the grey tag A10.tag(wrapper, {x: 236, y: 565, text: 'in'}) (w 67), rowOut = the same cells at y 150 with A10.tag(wrapper, {x: 226, y: 143, text: 'out'}) (w 88); green solid tag A10.tag(wrapper, {x: 640, y: 350, text: '× ' + A10.LAYER.N, tone: 'green', solid: true}) (w 84) beside the stack. Same size in and out is the point.\n\nDATA (A10.LAYER, asserted): x = [1, 3, 5, 7]; F(x) = [2, -1, 0.5, -2]; x + F(x) = [3, 2, 5.5, 5] with mean 3.875; layer norm of that (A10.LAYER.normTxt) = −0.61, −1.31, 1.14, 0.79 (mean 0, spread 1); N = 6 layers. For the norm view draw each bar at v = A10.LAYER.norm[i] * 60 / 32 (so it reads 60 px per unit), its number from normTxt.\n\nTIMELINE (13 s). 0.3-1.6 the four blocks pop (0.2 apart) with their arrows; the skip arcs are NOT drawn yet. BEAT 1 (1.9-4.0): block 1 active; 2.0-2.6 columns pop (0.15 apart); 2.4-3.2 the three purple arcs draw on (0.25 apart); 3.3-3.8 the strips switch blue -> green (a bump each). BEAT 2 (4.0-8.0): 3.9-4.2 beat 1 fades, block 2 active; 4.2-4.9 the first skip arc draws on; 4.3-5.0 the blue bars pop (0.1 apart), the number row and the blue 'x' tag pop; 5.0-5.9 the orange pieces grow (grow 0 -> 1) and the numbers flip to the sums 3, 2, 5.5, 5 from 5.4 (tone blue), the orange 'adds F(x)' tag pops at 5.0; 6.0-6.2 the orange pieces merge into the bars (bars v = sum, tone blue); 6.1 the dashed mean line pops at Y 296; 6.4-7.4 NORM: every bar's v goes from sum to norm * 60 / 32 (E.inOut; tone blue -> green at the half way point), the mean line slides from Y 296 to 420, the numbers flip to normTxt (6.8-7.3, tone green); 7.4 the green 'mean 0' tag pops. BEAT 3 (8.0-10.0): 7.9-8.2 beat 2 fades, block 3 active; 8.3-9.2 the three columns pop (0.2 apart): word tag, input vector, arrow, card, arrow, output vector; 9.2-9.8 the three cards pulse one after another (s bump). BEAT 4 (10.0-12.8): 10.0-10.3 beat 3 fades, block 4 active; 10.3-10.8 the second skip arc draws on; 10.8-11.3 the 'in' row and its tag pop; 11.1-11.9 the six 'layer' cards pop from the bottom (0.14 apart); 12.0-12.4 the 'out' row and its tag pop; 12.3 the green '× 6' tag pops. Hold to 13.\n\nEND STATE: the strip with block 4 active and both skip arcs, the stack of six layer cards between an 'in' row and an identical 'out' row of green chips, the green '× 6' tag. Calm.\nCAPTIONS: [[0.9,2.4,\"A layer has two main parts.\"],[2.6,4.2,\"Attention lets the words share information.\"],[4.6,6.3,\"A skip path adds the input back.\"],[6.5,8,\"Norm keeps the numbers steady.\"],[8.6,10.2,\"The network then treats each word alone.\"],[10.8,12.7,\"Same shape in and out, so layers stack.\"]]"
+  },
+  {
+   "n": 9,
+   "file": "scene-09-decoder.js",
+   "kicker": "THE DECODER",
+   "title": [
+    "The decoder writes",
+    "one word at a time"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.5,
+     2,
+     "Writing starts from a start token."
+    ],
+    [
+     2.1,
+     3.7,
+     "Every possible next word gets a share."
+    ],
+    [
+     3.9,
+     5.5,
+     "The likeliest word is written down."
+    ],
+    [
+     6.7,
+     8.7,
+     "Masked attention: no peeking at later words."
+    ],
+    [
+     9.8,
+     11.6,
+     "Append the word, then go round again."
+    ],
+    [
+     12.2,
+     13.8,
+     "The end token stops the loop."
+    ]
+   ],
+   "spec": "IDEA: the DECODER writes a sentence one word at a time (lesson 10.7), here the German translation of 'I have eaten an apple' with toy scores. It starts from a start token <sos>; at every step it gives every possible next word a share (softmax over the whole vocabulary, a few candidates shown), writes down the likeliest word, appends it to what it has written and goes round again, until it writes the end token <eos>. While it writes, masked attention stops a word from looking at words that do not exist yet: a word may look only at itself and the words before it, so in the grid of who-looks-at-whom (rows = the word looking, columns = the word looked at, as in scene 6) everything above the diagonal is masked. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px; a tag is 58 high). THE SENTENCE s = A10.sentence(stage, {x: 20, y: 120, words: [A10.DEC.sos, ...A10.DEC.out], gap: 10}) (seven slots: <sos> 121 wide at x 20, Ich 82, habe 108, einen 115, Apfel 118, gegessen 169, <eos> 122; centres 80.5, 192, 297, 418.5, 545, 698.5, 854). A written slot is a normal grey tag (s.set(i, {k})), a slot not yet written is a GHOST (s.set(i, {ghost: true, text: ''})), the end token written is green solid. CANDIDATES: next-word tag A10.tag(stage, {x: 220, y: 206, text: 'next word?', tone: 'orange'}) (w 195); four candidate tags cand[i] = A10.tag(stage, {x: 12, y: 271 + 64 i, w: 192, text: ''}) (set({text}) every step) and bars = A10.bars(stage, {x: 220, y: 278, n: 4, dir: 'h', unit: 400, bw: 44, gap: 20, tone: 'blue'}) (row centres y 300, 364, 428, 492): bars.set(i, {v: probs[i], grow, tone: i === best ? 'green' : 'blue', solid: i === best && highlighted, text}). MASK BEAT: const svg = A10.svg(stage); from the 'habe' slot (slot 2): green arcs to slots 0 and 1: A10.arc(svg, {x1: s.top(2).x, y1: 120, x2: s.top(j).x, y2: 120, lift: A10.arcLift(dx, 24, 0.12, 90), tone: 'green', w: 7}); red arcs to the four ghost slots 3..6: A10.arc(svg, {..., tone: 'red', w: 5, dot: false}) drawn only to k = 0.6 and capped by a red L5.cross(at.x, at.y, 30, 'red', {w: 6}) at arc.at(0.6); the mask grid mg = A10.grid(stage, {x: 640, y: 262, rows: 7, cols: 7, cell: 36, gap: 2, radius: 6}) (x 640-904, y 262-526) with mg.all((r, c) => ({blocked: A10.DEC.mask.cells(7)[r][c] ? 0 : 1, v: A10.DEC.mask.cells(7)[r][c] ? 0.45 : 0, k})) and the red solid tag A10.tag(stage, {x: 668, y: 548, text: 'masked', tone: 'red', solid: true}) (w 147). (No count is printed on the grid: 7 slots would give 21 masked cells and 28 allowed, A10.DEC.mask.)\n\nDATA (A10.DEC, asserted): steps[s].words (4 candidates, the first is always the likeliest and is the word written), steps[s].probs / probsTxt / topTxt. Top shares: Ich 0.74, habe 0.52, einen 0.64, Apfel 0.74, gegessen 0.71, <eos> 0.97. Step 3 (writing 'einen') shows all four labels: einen 0.64, eine 0.24, den 0.09, meinen 0.03 (add up to 1.00); in every other step label ONLY the winner's bar (steps[s].topTxt) because the rounded labels of the other bars would not add up to 1.\n\nTIMELINE (14 s). 0.2-1.2 slot 0 '<sos>' pops (written) and the six ghost slots pop (0.07 apart); the orange 'next word?' tag pops at 1.0. STEP 0 (slot 1, Ich): 1.8-2.5 the four candidate tags pop and the bars grow (E.out); 3.7-4.0 the top bar turns green and solid, the others stay blue; 4.3 slot 1 'Ich' pops (ghost off). STEP 1 (slot 2, habe): 5.0-5.5 the candidate tags change text and the bars regrow from 0 (a quick re-draw); 5.6 the top bar turns green; 5.9 slot 2 'habe' pops. MASK BEAT 6.1-9.1: 6.1-6.4 the bars, the candidate tags and the 'next word?' tag fade out (they come back with step 2); 6.5-7.2 the two green arcs draw on from 'habe' (to <sos> and Ich); 7.1-7.8 the four red arcs draw to k 0.6 and the red crosses pop 7.6-7.9; 7.4-8.2 the mask grid pops (rows 0.1 apart) and the red 'masked' tag pops at 8.0; 8.7-9.1 arcs, crosses, grid and tag fade out. STEP 2 (einen) 9.2-10.0: the candidate tags and the 'next word?' tag pop back, bars (all four labelled) 9.2-9.7, top green 9.7, slot 3 'einen' pops 9.9. STEP 3 (Apfel) 10.1-10.8: bars 10.1-10.5, green 10.5, slot 4 pops 10.7. STEP 4 (gegessen) 10.9-11.6: bars 10.9-11.3, green 11.3, slot 5 pops 11.5. STEP 5 (<eos>) 11.7-12.6: bars 11.7-12.2, green 12.2, slot 6 '<eos>' pops 12.4 (green solid). Hold to 14.\n\nEND STATE: the finished sentence 'Ich habe einen Apfel gegessen <eos>' (the end token green), the last bars (<eos> 0.97) still showing. Calm.\nCAPTIONS: [[0.5,2,\"Writing starts from a start token.\"],[2.1,3.7,\"Every possible next word gets a share.\"],[3.9,5.5,\"The likeliest word is written down.\"],[6.7,8.7,\"Masked attention: no peeking at later words.\"],[9.8,11.6,\"Append the word, then go round again.\"],[12.2,13.8,\"The end token stops the loop.\"]]"
+  },
+  {
+   "n": 10,
+   "file": "scene-10-patches.js",
+   "kicker": "BEYOND TEXT",
+   "title": [
+    "Anything can be cut",
+    "into tokens"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.9,
+     2.5,
+     "A picture can be cut into patches."
+    ],
+    [
+     3,
+     4.8,
+     "Each patch is a token: 196 in all."
+    ],
+    [
+     5,
+     6.8,
+     "Every token scores every token: 196 × 196."
+    ],
+    [
+     7.8,
+     9.5,
+     "Half-size patches: four times the tokens."
+    ],
+    [
+     10,
+     11.8,
+     "But sixteen times the scores."
+    ]
+   ],
+   "spec": "IDEA: anything that can be cut into tokens can go through a transformer, not only words: a Vision Transformer cuts a picture into square PATCHES and treats each patch as a token (lesson 10.8). A 224 x 224 picture in 16 x 16 patches is 14 x 14 = 196 tokens; every token scores every token, so the grid of scores has 196 x 196 = 38,416 cells. Halve the patch size to 8 x 8: 28 x 28 = 784 tokens (4 times as many) and 784 x 784 = 614,656 scores (16 times as many): attention costs the square of the number of tokens, and the old score grid becomes just one of 16 equal blocks of the new one. COLOURS (whole video): purple = the QUERY (the word asking, the question being put); blue = the KEYS and the numbers that describe a word (embedding, scores, a vector being worked on); orange = what is ADDED or HANDED OVER (the position pattern, the values, the skip path, a thing being compared); green = the RESULT (shares and weights, a new vector, the model input, the winner); red = BLOCKED or too costly (the masked future, a cost that explodes); grey = words (tokens) and anything neutral. Every digit and label is 28 px or more (the helpers throw otherwise); symbols (plus, times, divide, equals, tick, cross, arrow, question mark) are SVG pictograms (A10.op / A10.qmark / L5.tick / L5.cross / L5.arrow), never glyphs, but a times or divide sign INSIDE a label such as '4 × 16 = 64' or '÷ 1.41' is an ordinary character of the font and is fine. Never dim text with opacity below about 0.8: fade a whole group out instead, or switch a tile to the grey tone. Pass everything to every draw call every frame (update(t) is pure); keep 12 px between the figure and the stage edges (nothing outside x 12..924, y 12..630). const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. x, y in a tag's or cell's set() are OFFSETS from where it was built. Read the API comments at the top of videos/a10/common*.js first: they are the contract.\n\nLAYOUT (stage px). PICTURE: ph = A10.photo(stage, {x: 24, y: 40, size: 300}); two lattices over it with the same x, y, size: l14 = A10.lattice(stage, {x: 24, y: 40, size: 300, n: 14}) and l28 = A10.lattice(stage, {x: 24, y: 40, size: 300, n: 28}); size tag A10.tag(stage, {x: 46, y: 352, text: '224 × 224 pixels'}) (w 265). TOKENS: strip tok = A10.cells(stage, {x: 380, y: 70, texts: Array(10).fill(''), w: 40, h: 40, gap: 6, tone: 'grey'}) (x 380-834), ellipsis tag A10.tag(stage, {x: 842, y: 71, text: '…'}), tokens tag tk = A10.tag(stage, {x: 380, y: 126, w: 193, text: A10.VIT.coarse.tokens + ' tokens', tone: 'green', solid: true}) (later set({text: A10.VIT.fine.tokens + ' tokens', tone: 'red'})), orange tag x4 = A10.tag(stage, {x: 590, y: 126, text: '× ' + A10.VIT.tokenRatio, tone: 'orange', solid: true}) (w 84), orange arrow in an A10.svg(stage) layer: L5.arrow(332, 150, 374, 92, 'orange', 1, {w: 6, head: 16, bow: 10}). SCORES: ONE big green square big = A10.cells(stage, {x: 410, y: 340, texts: [''], w: 232, h: 232, tone: 'green', solid: true}) (x 410-642, y 340-572: the 196 x 196 grid of scores) with the tag t196 = A10.tag(stage, {x: 410 + 116 - 88, y: 340 + 116 - 29, text: '196 × 196', tone: 'green'}) (w 176, centred in it; green on its tint); a 4 x 4 block sq = A10.grid(stage, {x: 410, y: 340, rows: 4, cols: 4, cell: 58, gap: 2, radius: 8}) (x 410-648, y 340-578) that stays hidden until the end: its cell (0, 0) is never shown (k 0: it is where the big square ends up), its other 15 cells are red (v 0.6, tone 'red', k 0 until they pop); score tag sc = A10.tag(stage, {x: 668, y: 350, w: 245, text: A10.VIT.coarse.scoresTxt + ' scores', tone: 'green', solid: true}) (later set({text: A10.VIT.fine.scoresTxt + ' scores', tone: 'red'})), orange tag x16 = A10.tag(stage, {x: 668, y: 420, text: '× ' + A10.VIT.scoreRatio, tone: 'orange', solid: true}) (w 101).\n\nDATA (A10.VIT, asserted): 16 px patches: 14 x 14 = 196 tokens, 196 x 196 = 38,416 scores; 8 px patches: 28 x 28 = 784 tokens, 784 x 784 = 614,656 scores; tokenRatio 4, scoreRatio 16 (four times 4 per side: the big square is exactly the top-left 1/4 x 1/4 of the 4 x 4 block).\n\nTIMELINE (12 s). 0.2-0.8 the picture pops; 0.8-2.2 the 14 x 14 lattice draws on (l14.set({k: ramp(t, 0.8, 2.2)})); 1.0 the size tag pops. 2.5-3.5 TOKENS: the 14 patches of the top row light up orange one after another (l14.set({hot: [[0, 0], ..., [0, c]], hotTone: 'orange'}) with c = floor(14 * ramp(t, 2.5, 3.5))), the first ten token tiles pop in step with them (tile i pops when patch i lights), the orange arrow draws on at 2.6-3.2, the ellipsis pops at 3.3 and the green '196 tokens' tag at 3.4. 4.8-5.9 SCORES: the big green square pops (4.8-5.3, A10.pop) with its '196 × 196' tag, and the green '38,416 scores' tag pops at 5.5. 7.4-8.6 HALF-SIZE PATCHES: l28.set({k: ramp(t, 7.4, 8.6)}) draws the finer lattice, l14 fades out 8.6-8.9, the hot cells of the first row fade at 7.4, the tokens tag switches to a red solid '784 tokens' at 8.3 (bump), the orange '× 4' tag pops at 8.7-9.1. 9.4-10.8 SCORES GROW: the '196 × 196' tag fades 9.4-9.6; the big square shrinks to the top-left cell (big.set(0, {x: -87 * k, y: -87 * k, s: 1 - 0.75 * k}) with k = E.inOut(ramp(t, 9.5, 10.2)): its centre moves from (526, 456) to (439, 369)), the other 15 red cells of the block pop one after another (0.05 apart, from 10.0), the score tag switches to a red solid '614,656 scores' at 10.6 (bump) and the orange '× 16' tag pops at 11.0-11.4. Hold to 12.\n\nEND STATE: the picture with its fine 28 x 28 lattice, the red '784 tokens' tag with '× 4', the 4 x 4 block (the green top-left cell and fifteen red) with the red '614,656 scores' tag and '× 16'. Calm.\nCAPTIONS: [[0.9,2.5,\"A picture can be cut into patches.\"],[3,4.8,\"Each patch is a token: 196 in all.\"],[5,6.8,\"Every token scores every token: 196 × 196.\"],[7.8,9.5,\"Half-size patches: four times the tokens.\"],[10,11.8,\"But sixteen times the scores.\"]]"
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Attention weighs\nevery word",
+    "tone": "purple",
+    "pictogram": "A query looking at three keys, in the 340 x 140 area (pic = the pictogram div is the parent of everything): a purple solid disc A10.disc(pic, {x: 30, y: 70, size: 52, tone: 'purple', text: ''}) (the query); three blue discs keyDisc[i] = A10.disc(pic, {x: 150, y: 24 + 46 * i, size: 40, tone: 'blue', text: ''}) i = 0..2 (the keys of the, dog, barked); an svg layer A10.svg(pic, 340, 140) with three purple arrows L5.arrow(58, 70, 126, 24 + 46 * i, 'purple', 1, {w: 3 + 12 * A10.QKV.barked.weights[i], head: 14}) (the thickness is the share, so the arrow to 'dog' is the thickest: 4.7, 10 and 6.4 px); share tags A10.tag(pic, {x: 190, y: 4 + 46 * i, h: 42, text: A10.QKV.barked.rows[i].wTxt, tone: 'green'}) (0.14, 0.58, 0.28, each 100 px wide, x 190-290). Plays ONCE and HOLDS: q = t - (row appears + 0.4): 0.0-0.5 the query disc pops, 0.3-0.8 the key discs pop (0.1 apart), 0.9-1.7 the arrows draw on one after another (0.2 apart, L5.drawOn), 1.6-2.2 the share tags pop (0.12 apart), 2.4-2.8 the 'dog' key disc turns green and its share tag solid, with a bump. It then holds its finished frame until the end of the video."
+   },
+   {
+    "head": "Heads side by side,\nlayers in a stack",
+    "tone": "orange",
+    "pictogram": "Four heads glued, then a stack of layers, in the 340 x 140 area: four blue tiles heads = A10.cells(pic, {x: 0, y: 50, texts: ['', '', '', ''], w: 40, h: 40, gap: 8, tone: 'blue'}) (x 0-184, y 50-90) that later slide together into one green bar (heads.set(i, {x: -8 * i, tone: 'green', solid: true}): the slots are 48 apart, glued 40 apart, so the bar is 160 wide); at the right a stack of three grey cards layers[i] = A10.card(pic, {x: 210, y: 92 - 40 * i, w: 100, h: 36, text: 'layer', tone: 'grey'}) i = 0..2 (y 92, 52, 12, built bottom first; x 210-310). Plays ONCE and HOLDS: 0.0-0.5 the four tiles pop (0.08 apart), 0.8-1.6 the tiles slide together and turn green (E.inOut, tone switch at 1.2), 1.9-2.6 the three layer cards pop from the bottom (0.2 apart). It then holds."
+   },
+   {
+    "head": "The decoder writes\none word at a time",
+    "tone": "green",
+    "pictogram": "A sentence being written, in the 340 x 140 area: wr = A10.sentence(pic, {x: 0, y: 24, words: ['Ich', 'habe', 'einen'], gap: 4}) (82 + 108 + 115 + 8 = 313 px wide, y 24-82) whose slots start as ghosts (wr.set(i, {ghost: true, text: ''})), and under it a green loop arrow in an svg layer A10.svg(pic, 340, 140): L5.arrow(300, 104, 40, 104, 'green', 1, {w: 5, head: 14, bow: 20}) (from the last slot back to the first: go round again). Plays ONCE and HOLDS: 0.0-0.4 the three ghost slots pop, 0.5, 1.1 and 1.7 the words 'Ich', 'habe', 'einen' appear in turn (ghost off, A10.pop, a small bump), 2.3-2.8 the loop arrow draws on (L5.drawOn) and stays. It then holds."
+   }
+  ],
+  "cta": "Next: Workshop 10.C",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/a6/scene-11-recap.js and videos/a4/scene-11-recap.js (finished models): kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), the Byte mascot (V.mascot('byte', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / orange / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, pictogram handles created with that div as their parent in its own pixel coordinates; A10.tag / A10.cells / A10.disc / A10.card / A10.sentence / A10.svg all take any parent; KEEP EVERY PICTOGRAM INSIDE x 0..320 of its 340 px box, so it ends before the label) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 448 of the page, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 10.C'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row; EACH PICTOGRAM PLAYS ONCE and then HOLDS ITS FINISHED STATE until the end (no loop, no reset, no blank frame), so the video ends on a calm complete frame; 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else moves in the last second but Byte's bob. No captions. Colour roles as in the rest of the video (purple = query, blue = keys and numbers, orange = handed over, green = result, grey = words). Not covered in the video (mention nothing about them): the causal mask as minus infinity, cross-attention, temperature, pictures and patches, the code lab itself."
+ },
+ "helpers": "FILES: videos/a10/common.js (pure data and algorithms, no DOM; every number asserted at load), common-2.js (A10.tone, textW / tagW, tag, cells, disc, card, op, qmark, timing tools), common-3.js (A10.sentence, arc, grid, bars, shareBar, photo, lattice). Everything hangs off window.VID.a10 (alias A10); scenes start with const V = window.VID, A10 = V.a10, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/algo-10.html loads engine.js, cards.js, l5/common.js, a10/common.js, common-2.js, common-3.js, scene-01 ... scene-11, audio/algo-10.js. l6 is not loaded. Every file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. Every set() / update() is pure: call it each frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers.\n\nA. DATA (common.js): A10.TOK (words, emb / pos / sum and their 1-decimal texts embTxt / posTxt / sumTxt, pairs, dist), A10.SOFT (scores, exps, expTxt, total, shares, shareTxt, sharp {shares, topTxt}, shift), A10.ATT (words, IT, ROBOT, logits, w (7 x 7 shares), itRow, itTxt, web [{i, j, w}], links), A10.QKV (words, X, Wq / Wk / Wv, Q, K, V, S, root, A, Z, AT, ZT, barked {q, rows[{word, k, prods, score, scaledTxt, w, wTxt}], weights, blend {v, parts, partsTxt, z, zTxt}}), A10.HEADS (n, dModel, dHead, patterns[{name, tag, key, w}], links(k)), A10.LAYER (x, fx, sum, mean, variance, norm, normTxt, xNorm, N, ffn), A10.DEC (sos, out, steps[{ctx, words, logits, probs, probsTxt, best, top, topTxt}], topTxt, mask {n 7, cells(n), allowed 28, blocked 21}), A10.VIT (image, coarse / fine {patch, side, tokens, scores, scoresTxt}, tokenRatio, scoreRatio); maths A10.softmax / dot / mm / tr / sum / r / fmt (real minus sign) / commas / layerNorm / rng and the asserts A10.same / A10.close (they throw a clear Error). Real algorithms back every number.\n\nB. FLAT PIECES (common-2.js): A10.tag(parent, {x, y, text, tone, solid, ghost, fs, w, h}).set({text, tone, solid, ghost, k, x, y, s, r, o}) with mid() / top() / bottom() / left() / right() (x, y in set() are OFFSETS; k 0..1 pops it in; ghost = dashed empty slot), A10.tagW(text) / textW (exact Nunito 900 widths: a 28 px tag is text + 42), A10.cells(parent, {x, y, texts, w, h, gap, dir: 'row' | 'col', tone, tones, solid, radius}).set(i, {text, tone, solid, ghost, x, y, s, sx, r, o, ring, ringK, ringDash}) with flip(i, k, {from, to, tone, toTone, hop}), all(fn), mid(i) / top(i) ..., A10.disc(parent, {x, y, size, text, tone}) (x, y = CENTRE; 1-2 characters), A10.card(parent, {x, y, w, h, text, tone, plain}), icons A10.op('plus' | 'minus' | 'times' | 'div' | 'equals', x, y, size, tone) and A10.qmark(x, y, size, tone) (append them to A10.svg(parent), then V.place the g), A10.svg (= L5.svg), L5.tick / cross / arrow / drawOn, timing A10.seq(t, t0, step, dur, i) and A10.pop(k) -> {s, o}. A10.tone(name) -> {c, ink, dim, edge, lip, on} (CSS var strings).\n\nC. BIGGER PIECES (common-3.js): A10.sentence(parent, {x, y, words, gap, tone, tones}) (a row of word tags: set(i, st), all(fn), mid(i) / top(i) / bottom(i) ..., width) and A10.sentenceW; A10.arc(svg, {x1, y1, x2, y2, lift, tone, w, dot}).set({k, w, tone, o}) with at(f) (an arc over (lift > 0) or under (lift < 0) a sentence; x1 = x2 draws a loop; thickness = share via A10.arcW; A10.arcLift(dx, base, k, max)); A10.grid(parent, {x, y, rows, cols, cell | cw, ch, gap, radius}).set(r, c, {v, tone, blocked, text, ring, ringK, k, o, s}) with all(fn), mid(r, c) (a heat grid; blocked = red cell with a cross); A10.bars(parent, {x, y, n, dir: 'h' | 'v', unit, bw, gap, zero, tone}).set(i, {v, from, grow, tone, solid, text, k, o}) with pt(i, v) / base(i); A10.shareBar(parent, {x, y, w, h}).set({vals, tones, k, o}) with seg(i, vals) -> {x0, x1, mid}; A10.photo(parent, {x, y, size}) (the sky, sun, hill and house picture) and A10.lattice(parent, {x, y, size, n}).set({k, o, hot: [[r, c]], hotTone, hotK}) with cellMid(r, c).\n\nNOTES FOR SCENE AUTHORS. (1) x, y in a tag's or cell's set() are OFFSETS from where it was built; A10.arc and the icons use ABSOLUTE stage coordinates. (2) Create every handle in build(); A10.svg creates a full-stage svg, so create it before the tags that must sit on top of the arcs. (3) A group that must fade as a whole (a beat of scene 6 or 8) is a wrapper div (position absolute, left 0, top 0): pass it as the parent of everything in the beat and V.place(wrapper, {o}). (4) To dim something, switch its tone to grey or fade a whole group; never lower the opacity of text below about 0.8. (5) Every number you print comes from A10; assert the ones the storyboard names with A10.same / A10.close. (6) No text under 28 px, nothing outside x 12..924 or y 12..630 of the stage, never white, no gradients. (7) Scene 4 prints NO share number (the shares are illustrative, see the outline). (8) The recap keeps every pictogram inside x 0..320 of its 340 px box."
+}

@@ -7,11 +7,11 @@
     title: ["Every word looks at", "every other word"],
     dur: 12,
     caps: [
-      [1.5, 3.3, "Which noun does “it” stand for?"],
-      [3.5, 5.3, "It looks at every word in the sentence."],
-      [5.6, 7.4, "But some words matter far more than others."],
-      [7.7, 9.5, "Its new meaning is mostly “robot”."],
-      [9.8, 11.6, "Every word does this, all at the same time."],
+      [1, 2.6, "Which noun does “it” stand for?"],
+      [2.8, 4.6, "It looks at every word in the sentence."],
+      [5, 6.8, "But some words matter more than others."],
+      [7.2, 9, "Its new meaning leans on “robot”."],
+      [9.6, 11.6, "Every word does this, all at the same time."],
     ],
     build(stage) {
       const sticker = V.h("div", {

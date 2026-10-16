@@ -1,0 +1,81 @@
+{
+ "findings": [
+  {
+   "scene": "scene-10-gif.js",
+   "severity": "must",
+   "problem": "Caption 2 (3.4-5.2) says 'Runs of one colour shrink into single codes.' That is run-length behaviour, not LZW, and the picture contradicts it: no run becomes one code. The 6 A pixels take three codes (A | AA | AAA), the 3 Bs two (B | BB), the 5 Cs three (C | CC | CC), the 4 Ds three (D | DD | D); the whole row is 18 pixels in 11 codes. A first-time learner can leave thinking 'a run = one code' (RLE), which is wrong for LZW and for lesson 7.11 ('long repeats make each code cover many pixels').",
+   "fix": "Rewrite as a true sentence: 'A run of one colour needs few codes.' or 'Repeats share codes: 18 pixels, 11 codes.' Keep it timed to the parse (1.5-4.5).",
+   "evidence": "s10@5.0: blue spans under the flat row are 1,2,3 | 1,2 | 1,2,2 | 1,2,1 pixels wide, count tag '18 pixels, 11 codes'. Re-ran LZW in node: A|AA|AAA|B|BB|C|CC|CC|D|DD|D = 11 codes, codes 1,5,6,2,8,3,10,10,4,13,4 (matches lesson 7.11)."
+  },
+  {
+   "scene": "scene-10-gif.js",
+   "severity": "should",
+   "problem": "The first row is labelled 'a GIF row: flat colour', but it is the lecture row AAAAAABBBCCCCCDDDD (four colours in runs, 11 codes). In lesson 7.11 'flat colour' / 'One colour' means 18 IDENTICAL pixels, which takes only 6 codes (bar chart 'flat colour (18 same pixels)' and the 'Challenges' comparison). A learner who then opens lesson 7.11 sees 'flat colour = 6 codes' against the video's 'flat colour = 11 codes'.",
+   "fix": "Relabel the row 'a GIF row: long runs' (or 'runs of colour'); keep 'a GIF row: noisy' for the second row.",
+   "evidence": "s10@3.0 and s10@8.4 (label text). js/content/algo/algo-p7-x-04.js, steps 'What it buys you' and 'Challenges' and predict a7-gif-2 (18 identical pixels -> 6 codes; verified: lzwEnc of 18 A's gives 6 codes)."
+  },
+  {
+   "scene": "scene-10-gif.js",
+   "severity": "should",
+   "problem": "The noisy row DBCBAABDADDCDDACCA is the video's own hand-picked row (17 codes for 18 pixels), not the lesson's. The row that lesson 7.11's 'Noisy' button shows is ABCCABDCACBBCDADDB, which parses as A|B|C|C|AB|D|CA|C|B|BC|D|A|D|D|B = 15 codes (re-ran in node). So the video's '17 codes' cannot be reproduced in the app, and 'almost nothing shrinks' is stronger than the lesson's own 'barely fewer / only a little fewer' (15 of 18). The storyboard admits it is 'my own example'.",
+   "fix": "Use the lesson row ABCCABDCACBBCDADDB (update A7.GIF.noisy and the A7.same('gif noisy', ..., 17) assertion to 15; 15 spans, three of them two pixels wide) and soften caption 3 to 'Noise rarely repeats, so it saves little.' If the 17-code row is kept, keep the caption but do not present it as the lesson's noisy row.",
+   "evidence": "Node: mseed(1) from the lesson (js/content/algo/algo-p7-x-01.js) gives ABCCABDCACBBCDADDB, 15 codes; the video row gives 17 (s10@8.4: red tag '18 pixels, 17 codes'). Lesson predict a7-gif-1 answer: 'Only a little fewer'."
+  },
+  {
+   "scene": "scene-04-entropy.js",
+   "severity": "should",
+   "problem": "The scene equates 'entropy' with the average surprise of ONE sample: '14 bits / 8 symbols' = 1.75 (caption 'Here are eight symbols it sent', then 'Fixed: 16 bits. Surprise: only 14.', then entropy 1.75). That only works because this sample has exactly the source's frequencies (A 4, B 2, C 1, D 1 of 8 = 8 x the chances), which the video never says (the storyboard only notes it). A learner can conclude entropy = total surprise of any message divided by its length: for AAAAAAAA that gives 1.0, not 1.75.",
+   "fix": "Say the sample is typical: caption 2 'A typical eight: A four times, B twice.' (and optionally show the counts 4 2 1 1 under the legend tiles), keeping the picture unchanged.",
+   "evidence": "s4@8.7 and s4@11.9 (tag '14 bits / 8 symbols' = entropy 1.75). Node: surprise sum for ABAACABD = 1+2+1+1+3+1+2+3 = 14 and H = 1.75, but AAAAAAAA averages 1 bit."
+  },
+  {
+   "scene": "scene-04-entropy.js",
+   "severity": "should",
+   "problem": "The floor is stated without 'lossless': tag 'the floor: none can beat it' (9.8) and the caption '1.75 bits a symbol is the floor.' Lessons 7.2 and 7.4 say 'no LOSSLESS code beats this floor'; lossy codes (lesson 7.12, JPEG and MP3) do go below it. Read literally the video claims something false, and this is the sentence a learner will remember.",
+   "fix": "Change the tag to 'the floor for lossless codes' (28 chars, same width class as now) and caption 5 to '1.75 bits a symbol: the lossless floor.'",
+   "evidence": "s4@8.7 / s4@11.9 (tag text). js/content/algo/algo-p7-01.js ('no lossless code beats this floor'), algo-p7-x-04.js takeaway 'No lossless code beats entropy'."
+  },
+  {
+   "scene": "scene-11-recap.js",
+   "severity": "should",
+   "problem": "Recap row 1 reads 'Entropy is the floor: no code beats it'. The storyboard head was 'Entropy is the floor / for any lossless code'; the implemented label dropped 'lossless', so the last claim the learner sees is false for lossy compression (covered by lesson 7.12).",
+   "fix": "Use the storyboard text: 'Entropy is the floor\\nfor any lossless code' (20 and 21 characters, within the 22 limit).",
+   "evidence": "s11@5.5 and s11@8.5 (row 1 label); scene-11-recap.js line 229 ('Entropy is the floor:\\nno code beats it') versus videos/_plan/algo-7.json recap.points[0].head."
+  },
+  {
+   "scene": "scene-06-merge.js",
+   "severity": "should",
+   "problem": "Caption 2 (3.3-5.3) 'Its chance adds to the bits per letter.' is TRUE (the average length is the sum of the merge weights: .20 + .29 + .49 + 1.00 = 1.98, which is how the revision bank puts it) but nothing on screen says why. The '.20' chip flies into 'Huffman: 0.20' with no reason, so the green bar looks like arbitrary bookkeeping, and it is not tied to the lesson's own formula L = 1(.51) + 3(.49).",
+   "fix": "Give the reason in the caption: 'Letters under it pay one more bit: +.20.' (8 words). Optionally tag the flying chip '+.20'.",
+   "evidence": "s6@4.0 (chip in flight, label 'Huffman: 0.00', caption as above), s6@4.5 (label 'Huffman: 0.20'). Node: merge weights 20, 29, 49, 100 sum to 198 = L x 100; lesson 7.7 'Average length versus entropy'."
+  },
+  {
+   "scene": "scene-08-lzw-encode.js",
+   "severity": "should",
+   "problem": "Caption sync around step 3. 'Known? Keep growing.' (5.2-6.8) stays up through the first 0.7 s of step 3 (STEP_T[3] = 6.1), where the answer is NO: ABA is new, code 2 is sent and ABA = 4 is learned. The next caption 'Still known: grow again.' (7.2) then says 'still known' although the step before it was the new-phrase emit, and that emit (code 2 sent, entry ABA appears, 6.7-7.3) has no caption at all.",
+   "fix": "Re-time: [5.2, 6.0] 'Known? Keep growing.'; [6.3, 7.1] 'ABA is new: send 2, learn ABA.'; [7.4, 8.8] 'Known again: keep growing.' (steps 4-5 run 7.3-8.9).",
+   "evidence": "s8@6.5: w = AB (blue), next letter A ringed, dictionary 0-3 only, caption 'Known? Keep growing.'. s8@8.4: ABA chip ringed, caption 'Still known: grow again.'. Source: scene-08-lzw-encode.js caps and STEP_T."
+  },
+  {
+   "scene": "scene-09-lzw-decode.js",
+   "severity": "should",
+   "problem": "Two caption-level inaccuracies. (1) 'Each code adds one entry to the table.' (4.7-6.3) is not true of the first code, which adds nothing: five codes give four new entries (AB, BA, ABA, ABAB), because the decoder trails the encoder by one. (2) The ordinary rule (new entry = previous chunk + first letter of THIS chunk) is never stated or drawn for the known codes; it appears only in the unknown-code formula with the label 'its first letter', and the caption 'AB plus its first letter' can be read as the first letter of the received code, so a learner cannot see why the missing entry is AB + A.",
+   "fix": "Caption 2: 'Each new code adds: previous + its first letter.' (or at least 'Each code after the first adds an entry.'). In the formula row relabel 'its first letter' to 'AB's first letter' and make caption 3 'Code 4 is unknown: AB plus AB's first letter.' Best: show the same plus-row briefly for code 1 (A + B = AB) so the rule is seen once before the special case.",
+   "evidence": "s9@5.5 (chips 0-2 only, caption 'Each code adds one entry to the table.'), s9@8.6 (formula AB + A = ABA with labels 'previous', 'its first letter', 'new entry'). Node decode log: code 0 adds nothing, codes 1, 2, 4, 3 add AB, BA, ABA, ABAB."
+  },
+  {
+   "scene": "scene-02-fixed.js",
+   "severity": "nit",
+   "problem": "Storyboard-vs-lesson difference (documented in the storyboard): the video's fixed 3-bit code numbers the letters rarest first (C 000, E 001, D 010, A 011, B 100), while lesson 7.1 'The fixed-length baseline' gives A=000, B=001, C=010, D=011, E=100. Both give 21 bits for BBADEBC, but a learner comparing the book tiles sees B = 100 here and B = 001 in the lesson. (The renumbering is needed: only with B = 100 can B shorten to the legal one-bit code 1.)",
+   "fix": "No change required for correctness. Optional: add a one-line note to the lesson (not the video) that any numbering works, or keep as is.",
+   "evidence": "s2@3.5 (book tiles C 000, E 001, D 010, A 011, B 100); js/content/algo/algo-p7-x-01.js step 'The fixed-length baseline'. Node: both numberings give 21 bits."
+  },
+  {
+   "scene": "scene-11-recap.js",
+   "severity": "nit",
+   "problem": "The call to action 'Next: Workshop 7.W' is the series convention, but in the app Workshop 7.W (order 90) comes BEFORE the boss quiz (99) and the recap-video bonus node (100), so a learner who reaches the video has already passed the workshop and 'Next' points backwards.",
+   "fix": "Leave as is for series consistency (the earlier phases use the same 'Next: Workshop ...' tag), or change the series wording to 'Try: Workshop 7.W' / 'Practice: Workshop 7.W' when the video nodes are wired in.",
+   "evidence": "s11@8.5 (tag); js/content/algo/algo-workshops-7-03.js (order: 90), js/content/algo/videos.js (order: 100, 'after the boss quiz (99)')."
+  }
+ ]
+}

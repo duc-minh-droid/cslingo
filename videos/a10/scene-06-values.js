@@ -7,11 +7,11 @@
     title: ["The shares blend", "the values"],
     dur: 12.5,
     caps: [
-      [0.6, 2.4, "Each word also carries a value: its content."],
-      [2.8, 4.8, "Scale each value by its share."],
-      [5.2, 7, "Add them up: a new vector for “barked”."],
-      [7.8, 9.6, "Do it for every word at once."],
-      [10, 12, "One new vector for each word."],
+      [0.9, 2.9, "Each word also carries a value: its content."],
+      [3.3, 5, "Scale each value by its share."],
+      [5.6, 7.2, "Add them up: new numbers for “barked”."],
+      [7.8, 9.5, "Do it for every word at once."],
+      [10, 11.9, "One new set of numbers per word."],
     ],
     build(stage) {
       const sticker = V.h("div", {

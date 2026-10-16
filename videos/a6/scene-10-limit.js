@@ -26,9 +26,10 @@
   const NAMES = TWO.checks.map((c) => c.name); // p4, p2, p1: the order of the bands on screen
   const SYN = [...TWO.syn].map(Number); // failed checks as 1 / 0, in the order p4 p2 p1
   const GOT = TWO.data; // the data the receiver ends up with
+  const N_WORDS = EVERY.one[0] / HM.cw.length; // every codeword with every position flipped: 16 words x 7 = 112
   const TXT = {
-    one: `1 flip: ${EVERY.one[1]} of ${EVERY.one[0]} fixed`,
-    two: `2 flips: ${EVERY.two[1]} of ${EVERY.two[0]} fixed`,
+    one: `${N_WORDS} words, any one flip: ${EVERY.one[1]} of ${EVERY.one[0]} fixed`,
+    two: `${N_WORDS} words, any two flips: ${EVERY.two[1]} of ${EVERY.two[0]} fixed`,
   };
 
   A6.same(
@@ -76,8 +77,14 @@
   A6.same("limit: the data", [HM.data, GOT, A6.hData(W2), A6.diffAt(HM.data, GOT)], ["1011", "1110", "1110", [1, 3]]);
   A6.same(
     "limit: the audit",
-    [EVERY, TXT.one, TXT.two],
-    [{ one: [112, 112], two: [336, 0] }, "1 flip: 112 of 112 fixed", "2 flips: 0 of 336 fixed"],
+    [EVERY, N_WORDS, 2 ** HM.data.length, TXT.one, TXT.two],
+    [
+      { one: [112, 112], two: [336, 0] },
+      16,
+      16,
+      "16 words, any one flip: 112 of 112 fixed",
+      "16 words, any two flips: 0 of 336 fixed",
+    ],
   );
 
   const T = {
@@ -122,6 +129,7 @@
     ],
   };
   const [TAG_W, TAG_X] = [360, 288]; // the stage is 936 wide: a 360 px tag at x 288 is centred
+  const [STAT_W, STAT_X] = [640, 148]; // the two audit tags are longer: 640 px at x 148 is centred too
   const STEP = 0.6;
   const band0 = (j) => T.read + STEP * j;
   const popIn = (k) => ({ s: 0.5 + 0.5 * E.pop(k), o: Math.min(1, k * 4) });
@@ -144,7 +152,7 @@
     const pointer = A6.disc(stage, { x: home.x, y: home.y, size: 84, text: String(TWO.at), tone: "orange" });
 
     // "position 7 was correct": the repair hit an innocent bit
-    const fine = A6.tag(stage, { x: TAG_X, y: 520, text: `Position ${TWO.at} was correct`, tone: "green" });
+    const fine = A6.tag(stage, { x: TAG_X, y: 520, text: `Position ${TWO.at} was correct`, tone: "orange" });
 
     // the data before and after the repair, side by side
     const [DS, DG, DY] = [62, 10, 548];
@@ -165,10 +173,11 @@
       L5.arrow(dx[0] + DW + 16, DY + DS / 2, dx[1] - 16, DY + DS / 2, "orange", 1, { w: 8, head: 22 }),
     );
     const stats = [
-      A6.tag(stage, { x: TAG_X, y: 488, text: TXT.one, tone: "green" }),
-      A6.tag(stage, { x: TAG_X, y: 560, text: TXT.two, tone: "red", solid: true }),
+      A6.tag(stage, { x: STAT_X, y: 488, text: TXT.one, tone: "green" }),
+      A6.tag(stage, { x: STAT_X, y: 560, text: TXT.two, tone: "red", solid: true }),
     ];
-    [fine, ...stats].forEach((g) => (g.el.style.width = `${TAG_W}px`)); // one width for all three: centred whatever the text
+    fine.el.style.width = `${TAG_W}px`; // fixed widths: the text is centred whatever it says
+    stats.forEach((g) => (g.el.style.width = `${STAT_W}px`));
 
     // a purple ring on the tiles of the group being read, an orange one on the tile the answer points at
     const ringFor = (t, i) => {
@@ -276,7 +285,7 @@
   }
 
   V.scene({
-    kicker: "THE LIMIT",
+    kicker: "CORRECTING · THE LIMIT",
     title: ["Hamming fixes one", "error, not two"],
     dur: 12.2,
     caps: [

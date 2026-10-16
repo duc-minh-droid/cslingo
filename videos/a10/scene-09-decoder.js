@@ -5,14 +5,14 @@
   V.scene({
     kicker: "THE DECODER",
     title: ["The decoder writes", "one word at a time"],
-    dur: 13.5,
+    dur: 14,
     caps: [
       [0.5, 2, "Writing starts from a start token."],
-      [2.2, 3.8, "Every possible next word gets a share."],
-      [4, 5.6, "The likeliest word is written down."],
-      [6.4, 8.4, "Masked attention: no peeking at later words."],
-      [9.4, 11, "Append the word, then go round again."],
-      [11.2, 13, "The end token stops the loop."],
+      [2.1, 3.7, "Every possible next word gets a share."],
+      [3.9, 5.5, "The likeliest word is written down."],
+      [6.7, 8.7, "Masked attention: no peeking at later words."],
+      [9.8, 11.6, "Append the word, then go round again."],
+      [12.2, 13.8, "The end token stops the loop."],
     ],
     build(stage) {
       const sticker = V.h("div", {

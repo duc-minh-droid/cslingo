@@ -1,4 +1,4 @@
-/* Phase 6 · scene 07-distance (14 s): a code can repair a flipped bit only if its valid words are far apart. Drawn on the cube of
+/* Phase 6 · scene 07-distance (15.2 s): a code can repair a flipped bit only if its valid words are far apart. Drawn on the cube of
    3-bit words: one flip moves a word one step along an edge; the valid words 000 and 111 are three steps apart; a word one flip
    from 000 is still nearest to 000 (repaired), two flips leave it nearest to 111 (the repair is wrong). Every word, distance and
    verdict comes from A6.CODE (common.js). Two cubes share the stage: the base one holds the grey edges and the words, the overlay
@@ -22,6 +22,7 @@
   const P = C.path;
   const PE = P.slice(1).map((w, i) => A6.ek(P[i], w)); // the three edges of the path
   const steps = (n) => `${n} step${n === 1 ? "" : "s"}`;
+  A6.same("distance: repeating three times keeps one bit in three", [A6.RATE.repeat.sent, A6.RATE.repeat.data], [3, 1]);
   A6.same("distance: valid words and their distance", [C.words, C.d, A6.dist(W0, W1)], [["000", "111"], 3, 3]);
   A6.same("distance: the path is three single flips", [P.length, PE], [4, ["000-010", "010-011", "011-111"]]);
   A6.same("distance: path ends are the valid words", [P[0], P[P.length - 1]], [W0, W1]);
@@ -70,6 +71,7 @@
     swap: 11.75, // the decoder tags pop in again with the new numbers
     ring1: [12.55, 12.85],
     rule: [13.0, 13.35],
+    rate: [13.85, 14.2], // the price of repeating: the bridge to Hamming
   };
 
   const XL = 42; // left edge of the cube and the rule tag
@@ -96,7 +98,16 @@
     const recvTag = A6.tag(stage, { x: XR, y: 262, text: `sent ${W0}`, tone: "blue" });
     const dec0 = A6.tag(stage, { x: XR, y: 338, text: `to ${W0}: ${steps(C.one.d0)}`, tone: "green", solid: true });
     const dec1 = A6.tag(stage, { x: XR, y: 408, text: `to ${W1}: ${steps(C.one.d1)}`, tone: "grey" });
-    const rule = A6.tag(stage, { x: XL, y: 536, text: `${C.d} apart fixes one flip`, tone: "green", solid: true });
+    const ruleText = `${C.d} apart fixes one flip`;
+    const rule = A6.tag(stage, { x: XL, y: 536, text: ruleText, tone: "green", solid: true });
+    // repeating a bit three times works, but only one bit in three carries news (Hamming does better: scene 8)
+    const RT = A6.RATE.repeat;
+    const rate = A6.tag(stage, {
+      x: XL + A6.tagW(ruleText) + 36,
+      y: 536,
+      text: `${RT.sent} copies: ${RT.data} useful bit in ${RT.sent}`,
+      tone: "grey",
+    });
 
     const discs = PE.map((e, i) => {
       const m = base.mid(e);
@@ -245,19 +256,21 @@
       dec0.set(d0);
       dec1.set(d1);
       rule.set({ k: ramp(t, ...T.rule, lin) });
+      rate.set({ k: ramp(t, ...T.rate, lin) });
     };
   }
 
   V.scene({
-    kicker: "FIXING A BIT",
+    kicker: "CORRECTING · FIXING A BIT",
     title: ["Valid words must", "stay far apart"],
-    dur: 14,
+    dur: 15.2,
     caps: [
       [2.1, 3.7, "One flip is one step."],
       [3.95, 5.65, "Only 000 and 111 are valid words."],
-      [6.1, 7.7, "They are three steps apart."],
-      [9.2, 10.8, "Nearest valid word is 000: fixed."],
-      [11.8, 13.5, "Two flips lead to the wrong word."],
+      [6.1, 7.7, "Three steps apart: distance 3."],
+      [9.6, 11.2, "Nearest valid word is 000: fixed."],
+      [12.1, 13.8, "Two flips lead to the wrong word."],
+      [13.9, 15.1, "Repeating works but wastes bits."],
     ],
     build,
   });

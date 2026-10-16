@@ -5,14 +5,14 @@
   V.scene({
     kicker: "WORDS TO NUMBERS",
     title: ["Words become numbers,", "plus their position"],
-    dur: 12.5,
+    dur: 13,
     caps: [
-      [0.4, 2.2, "Text is cut into tokens."],
-      [2.4, 4.3, "Each token becomes a list of numbers."],
-      [4.5, 6.2, "The two banks get exactly the same numbers."],
-      [6.4, 8.2, "Nothing says which one came first."],
-      [8.4, 10.3, "Add a position pattern to every token."],
-      [10.5, 12.2, "Now the two banks are different."],
+      [0.5, 2.3, "Text is cut into tokens."],
+      [2.5, 4.3, "Each token becomes a list of numbers."],
+      [4.6, 6.4, "The two banks get exactly the same numbers."],
+      [6.5, 8.2, "Nothing says which one came first."],
+      [8.5, 10.3, "Add a position pattern to every token."],
+      [11, 12.7, "Now the two banks are different."],
     ],
     build(stage) {
       const sticker = V.h("div", {

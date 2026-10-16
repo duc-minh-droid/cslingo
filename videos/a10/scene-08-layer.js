@@ -5,14 +5,14 @@
   V.scene({
     kicker: "ONE LAYER",
     title: ["Each layer mixes words,", "then thinks about each"],
-    dur: 12.5,
+    dur: 13,
     caps: [
-      [0.5, 2, "A layer has two main parts."],
-      [2.2, 3.9, "Attention lets the words share information."],
-      [4.2, 6, "A skip path adds the input back."],
-      [6.2, 7.9, "Norm keeps the numbers steady."],
-      [8.2, 9.9, "The network then treats each word alone."],
-      [10.2, 12.1, "Same shape in and out, so layers stack."],
+      [0.9, 2.4, "A layer has two main parts."],
+      [2.6, 4.2, "Attention lets the words share information."],
+      [4.6, 6.3, "A skip path adds the input back."],
+      [6.5, 8, "Norm keeps the numbers steady."],
+      [8.6, 10.2, "The network then treats each word alone."],
+      [10.8, 12.7, "Same shape in and out, so layers stack."],
     ],
     build(stage) {
       const sticker = V.h("div", {
