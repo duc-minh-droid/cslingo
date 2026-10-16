@@ -38,12 +38,12 @@
             t.set({text, tone, solid, k: 1, x, y, s, o})  k 0..1 pops it in; x, y = offset from where it was placed
             t.el;  t.w, t.h are NOT known before layout: use A6.tagW(text, fs) for an estimate of the width (about 13 px per character plus 40; a tag is about 58 px high).
         const c = A6.stat(parent, {x, y, w: 270, h: 80, label: "ones", tone: "blue"});   label on the left, a big number right
-            c.set({text, tone, solid, bump: 0..1 (one pulse: V.flash(t, a, b)), k, o})
+            c.set({text, tone, solid, bump: 0..1 (one pulse: V.flash(t, a, b)), k, o, x, y})   x, y = offset from where it was placed
         const o = A6.disc(parent, {x, y, size: 64, text: "6", tone: "orange"});   a round solid sticker with a number inside
             (x, y = its CENTRE).  o.set({text, tone, solid: true, k, x, y, s, o})   x, y = offset
         const m = A6.token(parent, {tone: "blue", size: 30});   a round marker, m.set({x, y, s, o, tone})  x, y = its CENTRE
         const b = A6.card(parent, {x, y, w: 130, h: 100, text: "sender", tone: "grey", plain: true, fs: 28});   a sticker box with
-            centred text (a panel, the sender / receiver stubs).  b.set({text, tone, plain, k: 1, x, y, s, o})   plain = white
+            centred text (a panel, the sender / receiver stubs).  b.set({text, tone, plain, k: 1, x, y, s, o})   plain = the panel
             face with the tone's edge, false = the tone's tint
    4. SVG ICONS  (append to your own L5.svg(parent) layer; drawn at absolute coordinates, so V.place(g, {x, y, s, r, o}) moves
       and scales them; x, y = centre.  Strokes can be drawn on with VID.l5.drawOn(g, k).)
@@ -267,7 +267,12 @@
         Object.assign(el.style, solidStyle(!!st.solid));
         setText(val, st.text);
         const k = clamp(st.k ?? 1);
-        V.place(el, { s: (0.8 + 0.2 * E.pop(k)) * (1 + 0.1 * (st.bump || 0)), o: Math.min(1, k * 4) * (st.o ?? 1) });
+        V.place(el, {
+          x: st.x || 0,
+          y: st.y || 0,
+          s: (0.8 + 0.2 * E.pop(k)) * (1 + 0.1 * (st.bump || 0)),
+          o: Math.min(1, k * 4) * (st.o ?? 1),
+        });
       },
     };
   }

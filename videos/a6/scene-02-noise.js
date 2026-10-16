@@ -20,9 +20,9 @@
   const SIZE = 84;
   const GAP = 12;
   const lane = (i) => X0 + (SIZE + GAP) * i + SIZE / 2; // the middle of tile i
-  const SENT_Y = 72;
+  const SENT_Y = 86; // the sent tag sits above it, 12 px inside the stage
   const RECV_Y = 388;
-  const LANE_FROM = SENT_Y + SIZE + 12; // 168
+  const LANE_FROM = SENT_Y + SIZE + 12; // 182
   const LANE_TO = RECV_Y - 12; // 376
   const LANE_MID = (LANE_FROM + LANE_TO) / 2; // 272
   const RECV_RISE = 140; // the received word rises this far while the receiver looks at it
@@ -41,7 +41,7 @@
     build(stage) {
       const tones = [...SENT].map((_, i) => (i === CHECK ? "orange" : "grey"));
       const sent = A6.bits(stage, { x: X0, y: SENT_Y, bits: SENT, size: SIZE, gap: GAP, tones });
-      const sentTag = A6.tag(stage, { x: X0, y: 0, text: "sent", tone: "grey" });
+      const sentTag = A6.tag(stage, { x: X0, y: 14, text: "sent", tone: "grey" });
       const received = A6.bits(stage, { x: X0, y: RECV_Y, bits: RECV, size: SIZE, gap: GAP });
       const recvTag = A6.tag(stage, { x: X0, y: 486, text: "received", tone: "grey" });
 
@@ -62,7 +62,7 @@
       const checkEnd = X0 + (SIZE + GAP) * CHECK + SIZE;
       const checkTag = A6.tag(stage, {
         x: checkEnd - A6.tagW(checkText) - 6, // the real pill is about 6 px wider than the estimate
-        y: 176,
+        y: SENT_Y + SIZE + 20, // 20 px under its tile
         text: checkText,
         tone: "orange",
         solid: true,
@@ -77,7 +77,7 @@
         sent.all((i) => {
           if (i === CHECK) {
             const k = ramp(t, 8.7, 9.4, E.lin);
-            if (t < 8.7) return { ghost: true, text: "", o: ramp(t, 0.8, 1.1) };
+            if (t < 8.7) return { ghost: true, text: "", o: t < 7 ? 0 : 1 }; // the empty slot shows only when the sent word returns, a moment before it is filled
             return { text: A6.PARITY.p, tone: "orange", solid: true, s: 0.4 + 0.6 * E.pop(k), o: Math.min(1, k * 5) };
           }
           const k = popped(i);

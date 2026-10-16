@@ -8,10 +8,10 @@
     dur: 12,
     caps: [
       [0.9, 2.5, "A picture can be cut into patches."],
-      [2.8, 4.6, "Each patch is a token: 196 in all."],
+      [3, 4.8, "Each patch is a token: 196 in all."],
       [5, 6.8, "Every token scores every token: 196 × 196."],
-      [7.4, 9.4, "Half-size patches: four times the tokens."],
-      [9.6, 11.6, "But sixteen times the scores."],
+      [7.8, 9.5, "Half-size patches: four times the tokens."],
+      [10, 11.8, "But sixteen times the scores."],
     ],
     build(stage) {
       const sticker = V.h("div", {

@@ -7,8 +7,8 @@
     title: ["Softmax turns scores", "into shares"],
     dur: 11.5,
     caps: [
-      [0.5, 2.5, "Imagine three words, each with a score."],
-      [2.8, 4.8, "Exponentiating stretches the big scores most."],
+      [0.7, 2.6, "Imagine three words, each with a score."],
+      [2.9, 4.8, "Stretch the scores: the biggest grows most."],
       [5, 7.3, "Divide by the total: the shares add to 1."],
       [7.7, 10.4, "Bigger gaps give a sharper share-out."],
     ],

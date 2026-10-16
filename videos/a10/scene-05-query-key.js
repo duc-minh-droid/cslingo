@@ -7,12 +7,12 @@
     title: ["A query is matched", "against every key"],
     dur: 13.5,
     caps: [
-      [1, 3, "Every word makes a query, a key and a value."],
-      [3.4, 5.1, "Hold the query of “barked” against each key."],
-      [5.3, 7.3, "Multiply the pairs, then add them up."],
-      [7.8, 9.4, "“dog” matches best: a score of 3."],
-      [9.6, 11.2, "Divide by 1.41 to keep scores small."],
-      [11.4, 13.2, "Softmax turns them into shares."],
+      [1, 3.4, "Each word makes a query, a key and a value."],
+      [3.5, 5.3, "Hold the query of “barked” against each key."],
+      [5.4, 7.2, "Multiply the pairs, then add them up."],
+      [7.6, 9.4, "“dog” matches best: a score of 3."],
+      [9.5, 11.2, "Divide by 1.41 to keep scores small."],
+      [11.3, 13.1, "Softmax turns them into shares."],
     ],
     build(stage) {
       const sticker = V.h("div", {

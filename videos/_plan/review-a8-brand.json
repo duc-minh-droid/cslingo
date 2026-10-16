@@ -1,0 +1,53 @@
+{
+  "findings": [
+    {
+      "scene": "scene-10-rewrite.js",
+      "severity": "should",
+      "problem": "Breaks the 12 px stage margin rule: at rest the three chain blocks sit at stage x 0 / 333 / 666 (each 270 wide), so block 1's left edge and block 3's right edge are flush with the stage edges (0 px margin) and the cards start at stage y 10 (10 px from the top). Scene 8 draws the very same chain at x 12 / 333 / 654 (step 321) and y 40, so the chain also jumps 12 px sideways between scenes 8 and 10. The spring pop of the blocks overshoots even further outside the stage (-3.9 px at 0.35 s and 0.85 s).",
+      "fix": "In the BLK constants use x 12, step 321 (blocks at 12 / 333 / 654, right edge 924) and y 12, exactly as scene 8 does for x. The elbow links then span 51 px, the same gap scene 8 already fits the 40 px tick discs into; the work bars (y 330 and below) and the legend tags are unaffected.",
+      "evidence": "DOM margin scan of the hold state (local 9.0-9.8 s): left 0.0, right 0.0, top 10.0 for 'v-card plain c-green'; full-scene scan minimum -3.9 px at 0.35 s. Stills algo-8-s10-1.5.png and s10-3.0.png: block 1's left border at page x 72 and block 3's right border at x 1008 (the stage edges), against s8-11.4.png where the cards start at page x 84."
+    },
+    {
+      "scene": "common-3.js (A8.digest / chars marks, A8.block field labels; seen in scenes 7, 8, 9 and 10)",
+      "severity": "should",
+      "problem": "Marked hex digits are drawn as ink-coloured text on the saturated EDGE colour (css background var(--c-edge), color var(--c-ink)). Measured contrast is 3.36:1 for the red marks, 3.64:1 for the green and the orange marks, below the 4.5:1 the -ink shades are meant to reach (they only reach it on white and on their own light tint, not on the edge colour). The marked digits are the point of scenes 7 and 8 (which digits differ) and of the first-digit check in scenes 9 and 10, and in scenes 9 and 10 they are only about 30 px. Smaller issue: the block field labels (prev / hash / nonce, var(--text-dim)) on the red-tinted prev strip of a broken block reach only 4.28:1.",
+      "fix": "In chars() use color var(--c-on) on the var(--c-edge) mark (about 9.5:1 for red and 9.1:1 for green; the same -on rule as every solid sticker), or keep the -ink text and switch the mark background to the light var(--c-dim) tint. For the labels, take the strip's own var(--c-ink) when the strip is red.",
+      "evidence": "Computed-colour scan of every text element, sampled every 0.5 s: s8@5.9 red 'f' on rgb(255,178,178) 3.36:1; s7@3.9 green 'f' on rgb(165,237,110) 3.64:1; s7@6.9 orange 'c' on rgb(255,210,138) 3.64:1; s8@5.9 'prev' label on rgb(255,223,224) 4.28:1. Every other text/background pair in the video is at least 4.5:1."
+    },
+    {
+      "scene": "scene-05-rsa-keys.js",
+      "severity": "should",
+      "problem": "The six captions carry typed numbers ('5 and 11', 'n = 55', 'z = (5 - 1) x (11 - 1) = 40', 'e = 3 ... 40', 'd = 27, because 3 x 27 = 81 = 2 x 40 + 1', '(55, 3) ... 27') while every on-screen row of the same scene is built from A8.RSA and asserted. House rule: numbers come from the helpers and are asserted, never typed. Scenes 4, 6 and 9 already build their captions from the data (template strings over D / R / M), so this is the one scene where a changed key pair would leave the captions silently wrong.",
+      "fix": "Build the captions from R and the TX strings, e.g. `Pick two secret primes: ${R.p} and ${R.q}.`, `Multiply them: n = ${R.n} will be public.`, `Next ${TX.zHead} = ${R.z}, kept secret.` (the caption's minus sign matches TX.zHead), `Pick e = ${R.e}: it shares no factor with ${R.z}.`, `d = ${R.d}, because ${TX.relMain} ${TX.relLast}.` and `Publish (${R.n}, ${R.e}). Keep ${R.d} secret.`",
+      "evidence": "Source lines 259-264 (plain string literals) against lines 70-85 where the row texts are built from R. No visual difference today: the typed values equal the asserted ones."
+    },
+    {
+      "scene": "scene-02-key-problem.js",
+      "severity": "nit",
+      "problem": "Alice and Bob are placed at y 48 (as in the storyboard), which leaves a 10 px top margin; scenes 3-6 place the same discs at y 50 and keep the 12 px margin. Left and right margins are 14 px.",
+      "fix": "Use y: 50 for A8.person alice and bob (the wire label, wire and message row sit well below, so nothing else moves).",
+      "evidence": "DOM margin scan of the hold state: scene 2 top 10.0, scenes 3-6 top 12.0, both on the person disc 'A'. Still algo-8-s2-3.5.png."
+    },
+    {
+      "scene": "scene-09-mining.js",
+      "severity": "nit",
+      "problem": "In the odds figure the orange ring round the 16 x 16 square starts at stage y 119.0, while the 'one square, one hash' label ends at y 119.2 and its 4 px lip runs to 123.2, so the ring's top border runs through the label's lip: the label looks stuck to the ring instead of sitting above it.",
+      "fix": "Move the label up by 10 px (label y GRID.y - 46) or push the square (and its ring, and the three odds tags if you want them aligned) down by 10 px; the grid still ends well inside the stage (bottom ring at y 521 + 10).",
+      "evidence": "Measured at local 12.5 s: ring top 119.0 and bottom 521.0, label top 68.8 and bottom 119.2 (box-shadow 0 4px 0). Stills algo-8-s9-10.6.png and s9-12.5.png show the ring touching the label."
+    },
+    {
+      "scene": "scene-03-paint.js (and recap row 1 in scene-11-recap.js)",
+      "severity": "nit",
+      "problem": "The literal paint colours collide with the video's colour roles: Alice's secret rose is the exact red token that means 'Eve / broken' everywhere else and sits right beside Eve's red dashed frames and arrows; Bob's blue paint is the 'public' blue inside a purple 'secret' frame; the orange and green mixtures are the 'attention' and 'valid' colours. The tan result of the three paints is also the one colour that is not in the CSLingo palette. The storyboard accepts this exception, but a first-time learner may read the red pot as Eve's.",
+      "fix": "Optional: keep the paint story but tint the secret pots' purple frames more strongly (solid 3 px, not dashed) and put the 'secret' tag directly under each pot, which already exists, so the frame colour, not the paint colour, carries the meaning. A change of paint to non-role tokens is not possible within the palette, so documenting the exception in the scene header is enough.",
+      "evidence": "Stills algo-8-s3-4.5.png (rose and blue pots), s3-6.5.png and s3-8.6.png (red Eve frames beside the red pot), s11-8.8.png (tan pots)."
+    },
+    {
+      "scene": "scene-01-title.js",
+      "severity": "nit",
+      "problem": "The storyboard (and the earlier decision for this card) says the long headline is set to 72 px, but the code sets 68 px with white-space nowrap. The other single-line long-title cards in the series use 80 px (algo-1, algo-4), so this one is the smallest headline of the series by a visible margin. It reads fine and fits (886 px wide at 68 px).",
+      "fix": "Set the override to 72 px as in the storyboard: the line is then about 938 px wide, leaving about 71 px each side on the 1080 px card, and the sub line and pill do not move.",
+      "evidence": "Source lines 12-17 (fontSize 68px); still algo-8-s1-2.5.png (headline spans page x 97-983)."
+    }
+  ]
+}

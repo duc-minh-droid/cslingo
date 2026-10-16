@@ -5,14 +5,14 @@
   V.scene({
     kicker: "MULTI-HEAD",
     title: ["Several heads look", "for different links"],
-    dur: 12.5,
+    dur: 13,
     caps: [
-      [0.5, 2.3, "Each head has its own query, key and value."],
-      [1.7, 3.3, "One head finds what “it” means."],
-      [3.5, 5.1, "Another looks at the word before."],
-      [5.3, 7.1, "Others find who acts and what is acted on."],
-      [7.6, 9.2, "Each head hands back 16 numbers per word."],
-      [9.5, 11.5, "Glued together, they make 64 numbers again."],
+      [1.1, 3.1, "Each head has its own query, key and value."],
+      [3.3, 4.8, "One head finds what “it” means."],
+      [5.1, 6.7, "Another looks at the word before."],
+      [6.9, 9, "Others find who acts and what is acted on."],
+      [9.1, 10.9, "Each head hands back 16 numbers per word."],
+      [11.2, 12.8, "Glued together, they make 64 numbers."],
     ],
     build(stage) {
       const sticker = V.h("div", {

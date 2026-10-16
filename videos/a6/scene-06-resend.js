@@ -34,22 +34,23 @@
 
   // ---------- layout (stage px; both panels use local coordinates, y = 0 is the top of the panel) ----------
   const PANEL_H = 280;
-  const OY_A = 0; // where panel A ends up
-  const OY_B = 330;
+  const OY_A = 12; // where panel A ends up (12 px inside the stage)
+  const OY_B = 336; // panel B ends at 616, 24 px above the bottom of the stage
   const A_DROP = 170; // panel A starts this far lower, centred in the stage while it is alone
-  const SND = { x: 16, w: 130, y: 118, h: 84 }; // sender stub (centred on the wire, y 160)
-  const RCV = { x: 790, w: 130, y: 118, h: 84 }; // receiver stub
+  const SND = { x: 28, w: 130, y: 118, h: 84 }; // sender stub (centred on the wire, y 160)
+  const RCV = { x: 778, w: 130, y: 118, h: 84 }; // receiver stub
   const WIRE_Y = 160;
   const WIRE_X0 = SND.x + SND.w;
   const WIRE_LEN = RCV.x - WIRE_X0;
   const PKT = { x: 164, y: 134, size: 52, gap: 4, fs: 30 };
   const widthOf = (n) => n * PKT.size + (n - 1) * PKT.gap;
-  const DX_A = RCV.x - 16 - PKT.x - widthOf(ARQ.frame.length); // 166: the frame stops just left of the receiver
-  const DX_B = RCV.x - 16 - PKT.x - widthOf(HAM.cw.length); // 222
+  const DX_A = RCV.x - 16 - PKT.x - widthOf(ARQ.frame.length); // 154: the frame stops just left of the receiver
+  const DX_B = RCV.x - 16 - PKT.x - widthOf(HAM.cw.length); // 210
   const MID_X = (WIRE_X0 + RCV.x) / 2; // 468: the middle of the wire
+  const FAR_Y = 214; // the "minutes away" tag sits under a ruler that measures the long wire
   const ICON = { x: RCV.x + RCV.w / 2 + 1, y: 60, size: 64 };
   const VERDICT_Y = 216; // the verdict tag sits under the receiver
-  const ARROW = { y: 100, head: 24, tip0: RCV.x - 24, tip1: 150 }; // the return arrow: its head runs from tip0 to tip1
+  const ARROW = { y: 100, head: 24, tip0: RCV.x - 24, tip1: SND.x + SND.w + 4 }; // the return arrow: its head runs from tip0 to tip1
   const STALL = 0.22; // how far the return arrow gets in panel B
   const tipX = (p) => ARROW.tip0 - (ARROW.tip0 - ARROW.tip1) * p;
   const left = (centre, text) => Math.round(centre - A6.tagW(text) / 2);
@@ -69,11 +70,18 @@
     aAsk: { arrow: [3.0, 3.8], tag: [3.1, 3.35], sender: [3.8, 4.1], fade: [5.0, 5.3] },
     a2: { pop: 4.1, slide: [4.2, 5.2], tag: [4.2, 4.45] },
     aOk: { arrive: [5.2, 5.5], crossOut: [5.2, 5.4], tick: [5.25, 5.55], tag: [5.25, 5.5] },
-    b: { card: [5.9, 6.25], title: [6.0, 6.3], stubs: [6.05, 6.4], wire: [6.1, 6.5], far: [6.3, 6.55] },
+    b: {
+      card: [5.9, 6.25],
+      title: [6.0, 6.3],
+      stubs: [6.05, 6.4],
+      wire: [6.1, 6.5],
+      far: [6.3, 6.55],
+      dim: [6.4, 6.9],
+    },
     b1: { pop: 6.6, slide: [6.65, 7.8], bolt: [7.0, 7.2, 7.3, 7.5], flip: [7.1, 7.5] },
     bCheck: { arrive: [7.8, 8.1], cross: [7.9, 8.3], fails: [8.1, 8.35] },
     bAsk: { arrow: [8.3, 9.4], slow: [9.2, 9.55] },
-    bFix: { flip: [9.6, 10.05], crossOut: [9.6, 9.8], tick: [9.75, 10.15], tag: [10.05, 10.3], fade: [9.6, 10.0] },
+    bFix: { flip: [9.6, 10.05], crossOut: [9.6, 9.8], tick: [9.75, 10.15], tag: [10.05, 10.3], fade: [10.35, 10.75] },
   };
 
   // ---------- small builders shared by both panels ----------
@@ -86,8 +94,8 @@
       style: { position: "absolute", left: "0px", top: `${y}px`, width: "936px", height: `${PANEL_H}px` },
     });
     stage.append(box);
-    const card = A6.card(box, { x: 0, y: 0, w: 936, h: PANEL_H, tone: "grey", plain: true });
-    const head = A6.tag(box, { x: 24, y: 14, text: title, tone: "grey" });
+    const card = A6.card(box, { x: 12, y: 0, w: 912, h: PANEL_H, tone: "grey", plain: true });
+    const head = A6.tag(box, { x: 28, y: 14, text: title, tone: "grey" });
     const sender = A6.card(box, { ...SND, text: "sender", tone: "grey", plain: false });
     const receiver = A6.card(box, { ...RCV, text: "receiver", tone: "grey", plain: false });
     const draw = (t, tm, bump = {}) => {
@@ -264,13 +272,24 @@
     );
     const arrow = crawl(svg, ARROW.y);
     const icons = verdictIcons(svg);
-    const far = A6.tag(b, { x: left(MID_X, "minutes away"), y: 14, text: "minutes away", tone: "grey" });
+    // "minutes away" labels a ruler under the long wire; "too slow" lands over the stalled return arrow
+    const dimY = FAR_Y - 12;
+    const dim = [
+      L5.arrow(MID_X - 1, dimY, WIRE_X0 + 8, dimY, "grey", 1, { w: 6, head: 16 }),
+      L5.arrow(MID_X + 1, dimY, RCV.x - 8, dimY, "grey", 1, { w: 6, head: 16 }),
+    ].map((g) => svg.appendChild(g));
+    const far = A6.tag(b, { x: left(MID_X, "minutes away"), y: FAR_Y, h: 54, text: "minutes away", tone: "grey" });
+    const slow = A6.tag(b, {
+      x: left(tipX(STALL) + ARROW.head / 2, "too slow"),
+      y: 14,
+      text: "too slow",
+      tone: "red",
+      solid: true,
+    });
     const verdict = A6.tag(b, { x: 640, y: VERDICT_Y, text: "check fails", h: 54, tone: "red" });
     const tones = [...HAM.cw].map((_, i) => (HAM.checkPos.includes(A6.pos(i)) ? "orange" : "grey"));
     const frame = A6.bits(b, { x: PKT.x, y: PKT.y, bits: HAM.cw, size: PKT.size, gap: PKT.gap, fs: PKT.fs, tones });
     const bolt = L5.svg(b).appendChild(A6.bolt(0, 112, 70, "orange"));
-    const farLeft = left(MID_X, "minutes away");
-    const slowLeft = left(tipX(STALL) + ARROW.head / 2, "too slow"); // "too slow" sits over the stalled arrow
     const hit = { i: HIT_B, tone: "grey", from: HAM.cw[HIT_B], to: HAM.one.recv[HIT_B], toTone: "red", at: T.b1.flip };
     const fix = {
       i: HIT_B,
@@ -309,16 +328,10 @@
       const fade = 1 - ramp(t, ...T.bFix.fade, lin);
       arrow(STALL * ramp(t, ...T.bAsk.arrow, lin), fade);
       V.show(trail, ramp(t, T.bAsk.arrow[0], T.bAsk.arrow[0] + 0.3, lin) * fade);
-      const slow = t >= T.bAsk.slow[0];
-      far.set({
-        text: slow ? "too slow" : "minutes away",
-        tone: slow ? "red" : "grey",
-        solid: slow,
-        k: ramp(t, ...T.b.far, lin),
-        x: (slowLeft - farLeft) * ramp(t, ...T.bAsk.slow, E.out),
-        s: 1 + 0.12 * flash(t, ...T.bAsk.slow),
-        o: fade,
-      });
+      const dk = ramp(t, ...T.b.dim, lin);
+      dim.forEach((g) => L5.drawOn(g, dk));
+      far.set({ k: ramp(t, ...T.b.far, lin) });
+      slow.set({ k: ramp(t, ...T.bAsk.slow, lin), s: 1 + 0.12 * flash(t, ...T.bAsk.slow), o: fade });
     };
   }
 
@@ -329,8 +342,8 @@
     caps: [
       [0.4, 2.3, "A download checks every frame."],
       [2.9, 5, "Check fails, so ask for a resend."],
-      [6.4, 8.3, "A probe far away cannot wait."],
-      [9.5, 11.2, "So it must repair errors itself."],
+      [6.4, 8.3, "A probe is minutes away."],
+      [9.5, 11.2, "Too slow, so it repairs itself."],
     ],
     build(stage) {
       const a = buildA(stage);

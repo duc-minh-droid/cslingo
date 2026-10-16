@@ -356,12 +356,12 @@
    {
     "head": "Check bits catch\nflips: parity, CRC",
     "tone": "orange",
-    "pictogram": "A strip of five bit tiles (A6.bits with bits '10110', size 44, gap 6, fs 28, last tile orange, drawn at x 8, y 48 inside the 340 x 140 area). Pass: tiles pop (0.1-0.6, 0.06 s apart), tile 1 flips '0' -> '1' in red (1.2-1.7), a red L5.cross (size 44) draws on at x 306, y 70 (1.8-2.2), hold to 3.0, fade out (3.0-3.3)."
+    "pictogram": "Two strips of bit tiles, each with its check bits in orange (A6.bits, size 38, gap 4, fs 28, drawn at x 4, y 16 and y 86 inside the 340 x 140 area): an even-parity frame 10111 (message 1011 + parity bit 1) and the CRC frame 1011100 (message 1011 + remainder 100). Pass: tiles pop (0.1-0.55, 0.07 s apart), tile 1 of the first strip flips '0' -> '1' in red (1.6-2.1) and a red L5.cross draws on at x 326 (2.2-2.65), then the same flip in the CRC strip (3.3-3.8) with its own cross (3.9-4.35); both strips and crosses hold."
    },
    {
     "head": "Far-apart valid words\nlet us fix a flip",
     "tone": "purple",
-    "pictogram": "Four round markers on a horizontal grey line at y 74 (x 40, 125, 215, 300; A6.token size 34 and an SVG line): the two ends solid green (valid words), the middle two grey. Pass: markers pop (0.1-0.6); a RED token pops on the second marker (1.0-1.4, the flipped word); it hops left onto the first (green) marker (2.0-2.6) turning green; an L5.tick (size 40) draws on at x 170, y 26 (2.7-3.1); hold to 3.6, fade out."
+    "pictogram": "Four round markers on a horizontal grey line at y 70 (x 40, 126.7, 213.3, 300; A6.token size 36 and an SVG line): the two ends solid green (valid words 000 and 111), the middle two grey; three purple arcs below the line (one flip each) and the label '3 apart' (28 px, purple ink) under them. Pass: markers pop (0.1-0.6), the purple arcs draw on (0.9-1.84), the label fades in (1.9-2.2), the second marker turns red (the noisy word 010, 2.2) with a red token on it; a green arc draws from it back over the line to the first marker (2.8-3.3) while the token hops along it (3.0-3.6) and turns green; a green L5.tick (size 34) draws on over the first marker (3.7-4.15). The finished picture holds: red word, green repair arc, tick."
    },
    {
     "head": "Failed checks spell\nthe error position",

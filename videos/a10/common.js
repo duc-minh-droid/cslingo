@@ -30,6 +30,8 @@
                    itRow: w[4] = [0.01, 0.82, 0.01, 0.01, 0.11, 0.01, 0.01] (robot 0.82, itself 0.11), itTxt: {robot: "0.82", self: "0.11"},
                    web: [{i, j, w}] every link of weight >= 0.1 (the arcs of "everyone looks at everyone"; row 4 = the two arcs of "it"),
                    n: 7, links: 49 (7 x 7 shares)}
+                   ILLUSTRATIVE: the scores are made up (a trained model's sharp pattern); lesson 10.3's own hand-tuned heatmap gives it -> robot
+                   0.17. So scene 4 prints NO share number: show the shares only as arc thickness and bar length.
    4. QUERY / KEY / VALUE BY HAND (scenes 5, 6, 8; lesson 10.4 "the dog barked")
         A10.QKV = {words: ["the","dog","barked"], X: 3 x 4, Wq / Wk / Wv: 4 x 2, Q, K, V: 3 x 2 integer matrices
                      Q = [[2,1],[1,2],[1,1]]   K = [[1,0],[1,2],[1,1]]   V = [[2,1],[1,3],[1,1]],
@@ -43,7 +45,10 @@
           0 "who is it?"  (tag text: "who is “it”?")  it -> robot 0.97, every other word looks at itself 0.77   key [[4, 1]]
           1 "word before" every word looks at the word before it (the first at itself) 0.96                                key [[1,0],[2,1],[3,2],[4,3],[5,4],[6,5],[0,0]]
           2 "who acts?"   moved and detected look at robot 0.95; robot looks at both 0.47 each                              key [[2,1],[5,1],[1,2],[1,5]]
-          3 "acts on what?" detected and danger look at each other 0.95                                                      key [[5,6],[6,5]]
+          3 "acts on what?" detected and danger look at each other 0.95                                                      key [[5, 6], [6, 5]]
+        A10.HEADS.links(k) -> [{i, j, w}]: the strong links of head k that are not a word looking at itself (weight >= 0.9; i = the
+            word looking, j = the word looked at): head 0 [4>1 0.97], head 1 [1>0 2>1 3>2 4>3 5>4 6>5, 0.96], head 2 [2>1 5>1, 0.95],
+            head 3 [5>6 6>5, 0.95] (draw them as arcs over the sentence: 1, 6, 2 and 2 arcs)
    6. ONE LAYER (scene 8; lesson 10.6)  one token's vector x = [1, 3, 5, 7] and a sublayer output F(x) = [2, -1, 0.5, -2]
         A10.LAYER = {x, fx, sum: [3, 2, 5.5, 5] (x + F(x)), mean: 3.875, variance: 2.047, norm: [-0.61, -1.31, 1.14, 0.79] (layer norm of the sum),
                      normTxt, xNorm: layer norm of x alone = [-1.34, -0.45, 0.45, 1.34] (mean 4, variance 5), N: 6 layers, ffn: {in: 512, hidden: 2048}}
@@ -51,7 +56,8 @@
         A10.DEC = {out: ["Ich","habe","einen","Apfel","gegessen","<eos>"], sos: "<sos>",
                    steps: [{ctx: [words so far, starting with "<sos>"], words: [4 candidates], logits, probs, best: index, top: word, topTxt: "0.74"...}] x6,
                    topTxt: ["0.74","0.52","0.64","0.74","0.71","0.97"], step 3 (index 2) candidates einen/eine/den/meinen = 0.64/0.24/0.09/0.03,
-                   mask: {n: 6, blocked: 15, allowed: 21, cells: (n) => n x n booleans, true = allowed (row i may see column j <= i)}}
+                   mask: {n: 7, blocked: 21, allowed: 28, cells: (n) => n x n booleans, true = allowed (row i may see column j <= i)}}
+                   (n = 7 = the seven slots <sos> Ich habe einen Apfel gegessen <eos>: 21 cells above the diagonal blocked, 28 allowed)
    8. PICTURES AS TOKENS (scene 10; lesson 10.8)  a 224 x 224 picture
         A10.VIT = {image: 224, coarse: {patch: 16, side: 14, tokens: 196, scores: 38416, scoresTxt: "38,416"},
                    fine: {patch: 8, side: 28, tokens: 784, scores: 614656, scoresTxt: "614,656"}, tokenRatio: 4, scoreRatio: 16} */
@@ -419,6 +425,8 @@
       w: pat((i, j) => (i === 5 || i === 6 ? (j === 11 - i ? 5 : j === i ? 1 : 0) : diag3(i, j))),
     },
   ];
+  H.links = (k) =>
+    H.patterns[k].w.flatMap((row, i) => row.flatMap((w, j) => (w >= 0.9 && i !== j ? [{ i, j, w }] : [])));
   A10.HEADS = H;
   H.patterns.forEach((p, k) =>
     p.w.forEach((row, i) => close(`heads: head ${k} row ${i} adds up to 1`, sum(row), 1, 1e-9)),
@@ -429,6 +437,11 @@
   same("heads: who acts", [cell(2, 2, 1), cell(2, 5, 1), cell(2, 1, 2), cell(2, 1, 5)], [0.95, 0.95, 0.47, 0.47]);
   same("heads: acts on what", [cell(3, 5, 6), cell(3, 6, 5)], [0.95, 0.95]);
   same("heads: sizes", [H.dHead, H.n * H.dHead, H.dModel], [16, 64, 64]);
+  same(
+    "heads: the strong links of every head",
+    [0, 1, 2, 3].map((k) => H.links(k).map((l) => `${l.i}>${l.j}`)),
+    [["4>1"], ["1>0", "2>1", "3>2", "4>3", "5>4", "6>5"], ["2>1", "5>1"], ["5>6", "6>5"]],
+  );
 
   // ---------- 6. one layer: residual and layer norm ----------
   const LY = { x: [1, 3, 5, 7], fx: [2, -1, 0.5, -2], N: 6, ffn: { in: 512, hidden: 2048 } };
@@ -476,10 +489,10 @@
   DEC.topTxt = DEC.steps.map((s) => s.topTxt);
   const maskCells = (n) => Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => j <= i));
   DEC.mask = {
-    n: 6,
+    n: 7,
     cells: maskCells,
-    allowed: sum(maskCells(6).flat().map(Number)),
-    blocked: 36 - sum(maskCells(6).flat().map(Number)),
+    allowed: sum(maskCells(7).flat().map(Number)),
+    blocked: 49 - sum(maskCells(7).flat().map(Number)),
   };
   A10.DEC = DEC;
   same(
@@ -489,7 +502,8 @@
   );
   same("decoder: top probabilities", DEC.topTxt, ["0.74", "0.52", "0.64", "0.74", "0.71", "0.97"]);
   same("decoder: step 3 candidates", DEC.steps[2].probsTxt, ["0.64", "0.24", "0.09", "0.03"]);
-  same("decoder: the mask", [DEC.mask.allowed, DEC.mask.blocked], [21, 15]);
+  same("decoder: the mask of the seven slots", [DEC.mask.allowed, DEC.mask.blocked], [28, 21]);
+  same("decoder: one mask row per slot", [DEC.sos, ...DEC.out].length, DEC.mask.n);
 
   // ---------- 8. pictures as tokens ----------
   const vit = (patch) => {

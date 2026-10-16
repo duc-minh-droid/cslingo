@@ -2,7 +2,7 @@
    hint which bit); a second flip makes it even again and parity is fooled. Every number comes from A6.PARITY (common.js).
    Story (local seconds): 0.2-0.9 the message tiles pop, 0.8 the empty slot for the check bit; 1.0-2.8 the counter counts the four
    1s (they turn blue); 2.9-3.5 the slot becomes the orange parity bit, 3.6-4.0 the count turns green and the badge says
-   "even: looks fine"; 5.4-6.4 tile 2 flips (red), the count reads 5, the badge says "odd: alarm"; 8.0-10.0 eight question marks
+   "even: looks fine"; 5.4-6.4 tile 2 flips (red), the count reads 5, the badge says "odd: check fails"; 8.0-10.0 eight question marks
    (which bit?); 10.0-11.5 a second flip, the count is even again, the badge is back to green and a red "missed" tag lands. */
 (function () {
   const V = window.VID;
@@ -26,7 +26,7 @@
     bitTag: [3.3, 3.7],
     even: 3.6, // the count turns green and the badge appears
     flip1: [5.4, 5.9],
-    odd: 6.0, // the badge switches to "odd: alarm"
+    odd: 6.0, // the badge switches to "odd: check fails"
     qs: 8.0,
     qsOut: [9.7, 10.0],
     flip2: [10.0, 10.5],
@@ -63,7 +63,7 @@
       w: 420,
       h: 68,
       valid: "even: looks fine",
-      invalid: "odd: alarm",
+      invalid: "odd: check fails",
     });
     const missed = A6.tag(stage, { x: 770, y: 411 + DY, text: "missed", tone: "red", solid: true });
     const svg = L5.svg(stage);
@@ -126,15 +126,15 @@
   }
 
   V.scene({
-    kicker: "PARITY",
-    title: ["One check bit", "catches one flip"],
+    kicker: "DETECTING · PARITY",
+    title: ["Parity catches", "an odd number of flips"],
     dur: 12.5,
     caps: [
       [1.1, 2.9, "Count the 1s in the message."],
       [3.1, 5.2, "Add a bit that makes the total even."],
       [6.1, 8, "One flip makes the total odd: caught."],
       [8.2, 9.9, "But which bit? Parity cannot say."],
-      [10.7, 12.4, "Two flips cancel out: missed."],
+      [10.7, 12.4, "Two flips make it even again: missed."],
     ],
     build,
   });
