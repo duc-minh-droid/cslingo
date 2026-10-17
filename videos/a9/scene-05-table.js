@@ -3,8 +3,9 @@
    columns of an 8 x 8 table; row k is the test with k spins (its cell n holds the purple test arrow for sample n); each row, as it runs,
    pulses the eight stems (it reads all 8 samples) and grows one orange bar. Then every cell flashes red once (each cell is one product:
    8 x 8 = 64) and the two tall bars, 1 spin and 7 spins, are joined by a purple arrow: a real wave gives a mirror pair.
-   Timeline (local s): 0.2-1.0 stems, 0.6 '8 samples in', row k runs from 1.2 + 0.62 k (cells, purple tint, 8 stem pulses, bar 0.5 s later),
-   1.2 'row number = spins', 6.7 '8 bars out', 8.2-8.7 the red '8 x 8 = 64 products' tag replaces it, 8.35-9.1 the 64 cells flash red in
+   Timeline (local s): 0.2-1.0 stems, 0.6 '8 samples in', row k runs from 1.2 + 0.62 k (cells, purple tint, 8 stem pulses, bar 0.5 s later;
+   the two long bars write their value, 4, inside their right end, the same 4 as the total arrow of scene 4),
+   3.0 'row number = spins', 6.7 '8 bars out', 8.2-8.7 the red '8 x 8 = 64 products' tag replaces it, 8.35-9.1 the 64 cells flash red in
    reading order (the rings fade 9.35-9.75), 9.4-10.0 the mirror arrow, 9.6-10.4 rows 1 and 7 ring, 9.9 'mirror pair', then hold.
    Every number comes from A9.W8 (common.js) and is asserted below. update(t) is pure. */
 (function () {
@@ -39,7 +40,7 @@
 
   // ---- layout (stage px) ----
   const GRID = { x: 100, y: 110, cell: 50, gap: 5, unit: 70 }; // the grid ends at x 535, y 545; the bars start at x 560
-  const TAGS = { samples: [540, 24], bars: [580, 566], row: [100, 566], mirror: [680, 326] };
+  const TAGS = { samples: [540, 24], bars: [580, 564], row: [100, 564], mirror: [680, 326] };
   const BOW = 24; // how far the mirror arrow bulges to the right of the two tall bars (it ends 26 px inside the stage edge)
   const MIRROR_X = 886; // the arrow stands just right of the row rings (they end at x 871)
 
@@ -50,7 +51,7 @@
   const FRONT = {
     head: [0.2, 1.0],
     samples: [0.6, 1.1],
-    rowTag: [1.2, 1.7],
+    rowTag: [3.0, 3.5], // once four rows stand (the tag sits under the table, so it waits for the table to get there)
     barsTag: [6.7, 7.2],
     swap: [8.2, 8.7],
     products: [8.35, 9.1], // the first and the last cell start to flash
@@ -61,7 +62,7 @@
   };
   const CAPS = [
     [1.2, 3.0, "Run the test at every spin speed."],
-    [3.2, 5.0, "Each test reads all 8 samples."],
+    [3.2, 5.0, `Each test reads all ${N} samples.`],
     [6.6, 8.1, "Eight tests give eight bars."],
     [8.3, 9.8, `That is ${N} × ${N} = ${W8.products} products.`],
     [10.0, 11.6, "A real wave gives a mirror pair."],

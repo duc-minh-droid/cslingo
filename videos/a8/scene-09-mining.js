@@ -5,12 +5,15 @@
    after 15 hashes (the row and the card turn green). Two bars then compare the work: finding took 15 hashes, checking the winner
    takes 1. Colours (video-wide): orange = the target and the guesses being tried, blue = the fingerprint, red = a miss,
    green = the winner and the check.
-   Part 2 (8.8 s on). The odds. One square is one hash: a strip of 16 with a single green one (starts with 0: 1 in 16) grows into a
-   16 x 16 square of 256 with the same single green one (starts with 00: 1 in 256), so one more zero is 16 times more work.
+   Part 2 (8.1 s on). The odds. One square is one hash: 256 consecutive nonces of block 7, row by row (the window is found in code:
+   exactly 16 of them start with 0 and exactly one starts with 00, and the first row has just one 0-hit). The strip of 16 (the first
+   row) has one green square (starts with 0: 1 in 16); it grows into the 16 x 16 square, where about one square per row is green
+   (16 in all) and one of them, ringed in orange, starts with 00 (1 in 256), so one more zero is 16 times more work.
    Timeline (local seconds): 0.2 the block card pops, 0.3 the dashed log frame, 0.6 the target tag. 1.2-5.7 the hunt (15 tries,
    0.3 s each; the card follows the newest try). 5.7-6.2 the winner turns green, 6.0 the found tag, 6.4-6.9 the orange bar grows,
-   7.2 the green bar (one fifteenth of it) pops, 7.45 its tick. 8.4-8.8 the first figure fades. 8.8-9.4 the strip of 16 builds,
-   9.2 its tag, 9.7-10.6 the other 15 rows pop in, 10.6 the 1-in-256 tag, 11.3 the "16 times more work" sticker; 11.8-13.5 hold.
+   7.2 the green bar (one fifteenth of it) pops, 7.45 its tick. 8.1-8.5 the first figure fades. 8.5-9.1 the strip of 16 builds,
+   9.0 its tag, 10.0-10.9 the other 15 rows pop in, 11.0 the 1-in-256 tag and the ring round the 00 square, 11.6 the "16 times more
+   work" sticker; 12.4-13.5 hold.
    Every number comes from A8.MINE / A8.ZEROS (common.js) and is checked below against the real toy hash. */
 (function () {
   const V = window.VID;
@@ -69,16 +72,46 @@
   const COLS = ZERO1.cells; // the strip: 16 squares
   const ROWS = ZERO2.cells / ZERO1.cells; // the square: 16 strips
   A8.same("odds: a strip of 16 and a square of 256", [COLS, ROWS, COLS * ROWS], [16, 16, 256]);
-  const HIT = 5; // the one hash that passes (any square will do: it is a lottery)
+  // the 256 squares are 256 consecutive nonces of block 7: a window where exactly 16 hashes start with 0, exactly one starts with 00,
+  // and the first row (the strip) holds a single 0-hit that is not the 00 one (an honest lottery, nothing is painted by hand)
+  const PRE = Array.from({ length: 3000 }, (_, n) => hashN(n));
+  const windowAt = (s) => PRE.slice(s, s + ZERO2.cells);
+  const goodWindow = (s) => {
+    const w = windowAt(s);
+    const row0 = w.slice(0, COLS).filter((h) => h.startsWith("0"));
+    return (
+      w.length === ZERO2.cells &&
+      w.filter((h) => h.startsWith("0")).length === ZERO2.cells / ZERO1.odds &&
+      w.filter((h) => h.startsWith("00")).length === 1 &&
+      row0.length === 1 &&
+      !row0[0].startsWith("00")
+    );
+  };
+  const START = PRE.findIndex((_, s) => goodWindow(s));
+  A8.must(START >= 0, "a window of 256 nonces with 16 zero-starts and one 00 exists");
+  const SQ = windowAt(START);
+  const at = (r, c) => SQ[r * COLS + c];
+  const HITS = SQ.map((h, i) => ({ r: Math.floor(i / COLS), c: i % COLS, h })).filter((x) => x.h.startsWith("0"));
+  const HIT00 = HITS.find((x) => x.h.startsWith("00"));
+  A8.same(
+    "odds: 16 of the 256 squares start with 0, one with 00, and the first row has a single hit",
+    [
+      HITS.length,
+      HITS.filter((x) => x.h.startsWith("00")).length,
+      HITS.filter((x) => x.r === 0).length,
+      at(HIT00.r, HIT00.c),
+    ],
+    [16, 1, 1, hashN(START + HIT00.r * COLS + HIT00.c)],
+  );
 
   // ---------- layout (stage px, 12 px margins) ----------
-  const OY = 20;
+  const OY = 70; // part 1 is centred on the stage (it spans y 60..590)
   const BLK = { x: 12, y: OY, w: 300 };
   const LOG = { x: 352, y: OY, w: 560, rows: 5, rowH: 62 };
   const LOG_H = (LOG.rows - 1) * LOG.rowH + LOG.rowH - 10; // the window shows five rows
   const TARGET = { x: BLK.x + BLK.w / 2, y: OY + 276 };
   const FOUND = { x: LOG.x + LOG.w / 2, y: OY + 352 };
-  const BAR = { x: 12, w: 600, find: 450, check: 520 };
+  const BAR = { x: 12, w: 600, find: 468, check: 534 };
   const GRID = { x: 60, y: 130, size: 20, gap: 4 };
   const SIDE = 480; // the left edge of the column of odds tags
   const GRID_W = COLS * GRID.size + (COLS - 1) * GRID.gap;
@@ -102,13 +135,14 @@
     barFind: [6.4, 6.9],
     barCheck: [7.2, 7.45],
     tick: [7.45, 7.8],
-    out: [8.4, 8.8],
-    strip: [8.8, 9.4],
-    label: 8.8,
-    tag16: 9.2,
-    square: [9.7, 10.6],
-    tag256: 10.6,
-    work: 11.3,
+    out: [8.1, 8.5],
+    strip: [8.5, 9.1],
+    label: 8.4,
+    tag16: 9.0,
+    square: [10.0, 10.9],
+    tag256: 11.0,
+    ring00: 11.1,
+    work: 11.6,
   };
   const pop = (t, a, d = 0.35) => ramp(t, a, a + d, lin);
 
@@ -159,9 +193,9 @@
     // ---------- part 2: the odds ----------
     const grid = A8.cells(stage, { x: GRID.x, y: GRID.y, cols: COLS, rows: ROWS, size: GRID.size, gap: GRID.gap });
     // an orange ring round the strip (1 in 16) and a wider one round the whole square (1 in 256)
-    const ring = (pad, w, radius, wd, ht) =>
+    const ring = (tone, pad, w, radius, wd, ht) =>
       V.h("div", {
-        class: "c-orange",
+        class: `c-${tone}`,
         style: {
           position: "absolute",
           left: `${GRID.x - pad - w}px`,
@@ -173,16 +207,31 @@
           borderRadius: `${radius}px`,
         },
       });
-    const ringStrip = ring(1, 2, 9, GRID_W, GRID.size);
-    const ringSquare = ring(8, 3, 20, GRID_W, GRID_H);
-    stage.append(ringStrip, ringSquare);
-    const label = A8.tag(stage, { x: GRID.x, y: GRID.y - 36, text: "one square, one hash", tone: "grey", anchor: "l" });
+    const ringStrip = ring("green", 1, 2, 9, GRID_W, GRID.size);
+    const ringSquare = ring("orange", 8, 3, 20, GRID_W, GRID_H);
+    // the square that starts with 00: a small orange ring round it
+    const c00 = grid.cellAt(HIT00.r, HIT00.c);
+    const ring00 = V.h("div", {
+      class: "c-orange",
+      style: {
+        position: "absolute",
+        left: `${c00.x - GRID.size / 2 - 5}px`,
+        top: `${c00.y - GRID.size / 2 - 5}px`,
+        width: `${GRID.size + 10}px`,
+        height: `${GRID.size + 10}px`,
+        boxSizing: "border-box",
+        border: "3px solid var(--c)",
+        borderRadius: "9px",
+      },
+    });
+    stage.append(ringStrip, ringSquare, ring00);
+    const label = A8.tag(stage, { x: GRID.x, y: GRID.y - 46, text: "one square, one hash", tone: "grey", anchor: "l" });
     const zeros = (z) => `starts with ${"0".repeat(z.zeros)}: 1 in ${z.odds}`;
     const tag16 = A8.tag(stage, {
       x: SIDE,
       y: GRID.y + GRID.size / 2,
       text: zeros(ZERO1),
-      tone: "orange",
+      tone: "green",
       anchor: "l",
     });
     const tag256 = A8.tag(stage, { x: SIDE, y: gridMidY, text: zeros(ZERO2), tone: "orange", anchor: "l" });
@@ -234,12 +283,13 @@
       // ----- part 2 -----
       const cols = COLS * ramp(t, T.strip[0], T.strip[1], lin);
       const rows = 1 + (ROWS - 1) * ramp(t, T.square[0], T.square[1], lin);
-      grid.update((r, c) => (r === 0 && c === HIT ? { tone: "green" } : undefined), { rows, cols });
+      grid.update((r, c) => (at(r, c).startsWith("0") ? { tone: "green" } : undefined), { rows, cols });
       label.set({ k: pop(t, T.label, 0.3) });
       tag16.set({ k: pop(t, T.tag16, 0.35) });
       tag256.set({ k: pop(t, T.tag256, 0.35) });
       V.show(ringStrip, pop(t, T.tag16, 0.3));
       V.show(ringSquare, pop(t, T.tag256, 0.3));
+      V.show(ring00, pop(t, T.ring00, 0.3));
       work.set({ k: pop(t, T.work, 0.35) });
     };
   }
@@ -252,9 +302,9 @@
       [0.4, 2.4, "Try numbers (nonces) until the hash starts with 0."],
       [2.6, 5.6, "Every try gives a new, unpredictable hash."],
       [6.0, 7.2, `Found it after ${M.tries} hashes.`],
-      [7.3, 8.4, `Checking takes just ${M.checkCost}.`],
-      [8.8, 11.0, `Each extra zero makes a hit ${WORK} times rarer.`],
-      [11.2, 13.2, `So it costs about ${WORK} times more work.`],
+      [7.3, 8.4, `Checking takes just ${M.checkCost} hash.`],
+      [9.0, 10.8, `One hash in ${ZERO1.odds} starts with 0.`],
+      [11.0, 13.0, `Two zeros: 1 in ${ZERO2.odds}, so ${WORK} times more work.`],
     ],
     build,
   });

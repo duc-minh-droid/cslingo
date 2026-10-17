@@ -64,7 +64,7 @@
         gives X[k] = E[k] + W^k O[k] and X[k + 4] = E[k] - W^k O[k]; the whole network equals the direct DFT; 3 levels x 4 butterflies = 12.
         A9.FFT.rows(order) -> the row (0..7) of every sample for an arrangement: A9.FFT.rows(A9.FFT.evenOdd) = [0, 4, 1, 5, 2, 6, 3, 7].
    8. THE PAYOFF (scene 10).  1,048,576 samples (2^20) at a billion multiplications a second (lesson 9.2's table).
-        A9.COST = {n: 1048576, direct: n^2 = 1,099,511,627,776, fft: n log2 n = 20,971,520, directMin: 18.3, fftSec: 0.021,
+        A9.COST = {n: 1048576, perSec: 1e9 (the assumed speed: a billion products a second), direct: n^2 = 1,099,511,627,776, fft: n log2 n = 20,971,520, directMin: 18.3, fftSec: 0.021,
                    ratio: about 52,429}   (the bars: "18 minutes" against "0.02 seconds").
 
    SMALL TOOLS.  A9.rng(seed) -> () => 0..1 (mulberry32, seeded: the only randomness allowed). */
@@ -425,11 +425,12 @@
 
   // ---------- 8. the payoff ----------
   const n = 1048576;
-  const COST = { n, direct: n * n, fft: n * Math.log2(n) };
-  COST.directMin = COST.direct / 1e9 / 60;
-  COST.fftSec = COST.fft / 1e9;
+  const COST = { n, perSec: 1e9, direct: n * n, fft: n * Math.log2(n) };
+  COST.directMin = COST.direct / COST.perSec / 60;
+  COST.fftSec = COST.fft / COST.perSec;
   COST.ratio = COST.direct / COST.fft;
   same("cost: 2^20 samples", [COST.n, Math.log2(COST.n)], [1048576, 20]);
+  same("cost: a billion products a second (lesson 9.2's table)", COST.perSec, 1e9);
   same("cost: the direct DFT needs", commas(COST.direct), "1,099,511,627,776");
   same("cost: the FFT needs", commas(COST.fft), "20,971,520");
   close("cost: the direct DFT takes about 18 minutes", COST.directMin, 18.3, 0.05);

@@ -10,8 +10,8 @@
    fade; 6.2-7.4 the swap; 7.5 the received number and the secret flash; 7.6 / 7.8 the green sums; 8.6 the equals disc; 9.2-9.8 the
    locks pulse (the secrets never moved); 9.5 the purple key icon and "shared key = 2" (the answer to scene 2's question); 10.6-10.95
    all of it fades; 10.95 Eve and what she knows; 11.45 the question; 11.65-13.0 the six tries; 13.25 the last one is the hit: it turns
-   red (Eve's colour) and her dashed "a = ?" becomes a solid red "a = 6" (the toy secret leaks); 13.4 "6 tries"; 13.5 the long number,
-   13.65 "617 digits long", 14.2 "no computer can search that" (green: safe).
+   red (Eve's colour) and her dashed "a = ?" becomes a solid red "a = 6" (the toy secret leaks); 13.4 "6 tries" (red too); 13.5 the long
+   number, 13.65 "a 2048-bit p: 617 digits", 14.2 "no computer can search that" (green: a real exchange is safe).
    The paint colours of scene 3 are carried over as small dots: gold beside g, rose beside a, blue beside b, and A = 8 / B = 19 wear the
    orange / green mixture dots (literal paint colours, the same documented exception as scene 3).
    Every number comes from A8.DH / A8.BIG and is asserted below; the captions are built from the same numbers. */
@@ -109,7 +109,7 @@
   const RES_B = { x: 746, y: 330 };
   const PANEL = { x: 330, y: 520 }; // under Alice's secret a = 6: it is her working
   const TAG_MOD = { x: 330, y: 592 };
-  const KEY_AT = { x: 468, y: 425 }; // "shared key = 2", centred under the equals sign
+  const KEY_AT = { icon: 296, tag: 342, y: 524 }; // the key icon and "shared key = 2", a pair centred under the equals sign
   const SIDES = 44; // how far the two numbers arc apart while they swap (wide enough that they never touch)
   const TRIES = { x0: 178, dx: 116, y: 280 };
 
@@ -165,7 +165,7 @@
     title: ["The same trick", "with numbers"],
     dur: 15.65,
     caps: [
-      [1.25, 3.5, `Like the paint: public p = ${D.p} and g = ${D.g}, secret a = ${D.a} and b = ${D.b}.`],
+      [1.25, 3.5, "Like the paint: p and g are public, a and b secret."],
       [3.9, 6.0, `mod ${D.p} keeps only the remainder after dividing by ${D.p}.`],
       [6.2, 7.9, `They swap A = ${D.A} and B = ${D.B} in public.`],
       [8.0, 9.4, "Each raises what they received to their own secret."],
@@ -247,6 +247,17 @@
       const resA = A8.tag(stage, { x: RES_A.x, y: RES_A.y, html: sum(D.aliceCalc), tone: "green", fs: 40, box: true });
       const resB = A8.tag(stage, { x: RES_B.x, y: RES_B.y, html: sum(D.bobCalc), tone: "green", fs: 40, box: true });
       const equals = A8.icon(stage, "equals", { x: 468, y: RES_A.y, tone: "green", disc: true, size: 64 });
+      // the shared number IS the key of scene 2: it answers "how does Bob get the key without Eve seeing it?"
+      const shareKey = A8.icon(stage, "key", { x: KEY_AT.icon, y: KEY_AT.y, tone: "purple", size: 64 });
+      const shareTag = A8.tag(stage, {
+        x: KEY_AT.tag,
+        y: KEY_AT.y,
+        text: `shared key = ${D.shared}`,
+        tone: "purple",
+        solid: true,
+        fs: 36,
+        anchor: "l",
+      });
 
       // ---- second half: Eve's hunt ----
       const eve = A8.person(stage, { who: "eve", x: 52, y: 50 });
@@ -272,17 +283,17 @@
           tone: "orange",
         }),
       );
-      const count = A8.tag(stage, { x: 468, y: 375, text: `${D.tries} tries`, tone: "green", solid: true, fs: 36 });
+      const count = A8.tag(stage, { x: 468, y: 375, text: `${D.tries} tries`, tone: "red", solid: true, fs: 36 });
       const big = A8.tag(stage, { x: 468, y: 460, text: `${BIG.lead} ...`, tone: "blue", mono: true, fs: 36 });
       const digits = A8.tag(stage, {
         x: 468,
         y: 530,
-        text: `a real prime p: ${BIG.digits} digits`,
+        text: `a 2048-bit p: ${BIG.digits} digits`,
         tone: "blue",
         solid: true,
         fs: 32,
       });
-      const red = A8.tag(stage, { x: 468, y: 594, text: "no computer can search that", tone: "red", fs: 32 });
+      const safe = A8.tag(stage, { x: 468, y: 594, text: "no computer can search that", tone: "green", fs: 32 });
 
       return (t) => {
         const pop = (a, d = 0.3) => ramp(t, a, a + d, lin);
@@ -320,11 +331,23 @@
         resA.set({ k: pop(T.resA, 0.5), o: out1 });
         resB.set({ k: pop(T.resB, 0.5), o: out1 });
         equals.set({ k: pop(T.equals, 0.4), o: out1 });
+        const keyBump = 1 + 0.1 * flash(t, T.key + 0.3, T.key + 0.7);
+        shareKey.set({ k: pop(T.key, 0.4), o: out1, s: keyBump });
+        shareTag.set({ k: pop(T.key + 0.1, 0.4), o: out1, s: keyBump });
 
         // second half: Eve
         eve.set({ k: pop(T.eve, 0.4) });
         known.forEach((k, i) => k.set({ k: pop(T.known + 0.07 * i, 0.25) }));
-        ghost.set({ k: pop(T.known + 0.07 * known.length, 0.25), ghost: true });
+        // when Eve hits x = 6 the dashed "a = ?" becomes a solid red "a = 6": the toy secret leaks
+        const leaked = t >= T.green;
+        ghost.set({
+          k: pop(T.known + 0.07 * known.length, 0.25),
+          ghost: !leaked,
+          text: leaked ? `a = ${D.a}` : KNOWN[4].text,
+          tone: leaked ? "red" : "purple",
+          solid: leaked,
+          s: 1 + 0.14 * flash(t, T.green, T.green + 0.45),
+        });
         question.set({ k: pop(T.question, 0.35) });
         tries.forEach((tag, i) => {
           const isHit = D.search[i].hit;
@@ -332,7 +355,7 @@
           const hitK = isHit ? ramp(t, T.green, T.green + 0.35, lin) : 0;
           tag.set({
             k: pop(start, 0.3),
-            tone: hitK > 0 ? "green" : "orange",
+            tone: hitK > 0 ? "red" : "orange",
             solid: hitK > 0,
             s: 1 + (isHit ? 0.12 * flash(t, T.green, T.green + 0.4) : 0),
           });
@@ -340,7 +363,7 @@
         count.set({ k: pop(T.count, 0.3) });
         big.set({ k: pop(T.big, 0.3) });
         digits.set({ k: pop(T.digits, 0.3) });
-        red.set({ k: pop(T.red, 0.3) });
+        safe.set({ k: pop(T.red, 0.3) });
       };
     },
   });

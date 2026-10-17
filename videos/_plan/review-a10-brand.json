@@ -1,0 +1,46 @@
+{
+  "findings": [
+    {
+      "scene": "scenes 2, 5, 8 (scene-02-tokens.js line 60, scene-05-query-key.js line 106, scene-08-layer.js line 100)",
+      "severity": "should",
+      "problem": "The top row of each of these scenes sits flush against the top edge of the stage (stage y 0), so the house 12 px stage margin is broken for the whole scene, not just during a pop. Scene 2: the six word tags (the, bank, by, the, river, bank) are at y 0 to 58 from 0.5 s to the end; scene 5: the three word tags are at y 0 to 58 (barked is 0 to 58 even when it grows to the solid purple tag); scene 8: the four-block strip (Attention, Add & Norm, Feed-forward, Add & Norm) is at y 0 to 64, and y -1.3 when a block is enlarged. Because the stage starts only about 24 px under the two-line headline, the rows also look glued to the headline. Every other scene keeps 12 px at rest (a held-state scan of all scenes found nothing else outside x 12..924, y 12..630). The storyboard layout itself puts these rows at y 0, so the spec and the 12 px rule disagree.",
+      "fix": "Start each of these rows at y 12 and take the 12 px back from the gaps below, because all three scenes are nearly full (lowest visible point at rest: scene 2 y 630.7, scene 5 y 628, scene 8 y 624, lips included). Scene 2: shrink the cell gap of both strips from 6 to 4 px (3 gaps x 2 px x 2 strips = 12 px). Scenes 5 and 8: tighten three row gaps by 4 px each (or two by 6). Re-run the A10.same layout asserts after the change.",
+      "evidence": "Held-state scan (elements still for 0.5 s or more outside the 12 px margin): s2 six tags box y 0.0 to 58.0 over t 0.5 to 12.5; s5 tags the / dog / barked y 0.0 to 58.0 over 0.5 to 13; s8 cards y 0.0 to 64.0 over 0.5 to 10.75. Stills s2@5.5, s5@2, s8@2. A clarity finding already notes the 27 px gap to the headline; this is the brand-rule side of the same layout."
+    },
+    {
+      "scene": "scene-05-query-key.js, scene-07-heads.js, scene-10-patches.js (captions and one tag)",
+      "severity": "should",
+      "problem": "Numbers are typed into captions (and one on-screen tag) instead of coming from the asserted helpers, against the house rule that numbers come from the helpers and are asserted, never typed. Scene 5: caption line 231 'a score of 3', caption line 232 'Divide by 1.41 to keep scores small.', and the grey tag text '÷ 1.41' at line 111 (the divisor is A10.QKV.root, a square root of dk = 2; only the scaled scores are asserted, via scaledTxt). Scene 7: captions lines 248 and 249 'hands back 16 numbers per word' / 'make 64 numbers' (the on-screen tags are built from A10.HEADS.dHead and dModel, the captions are not). Scene 10: captions lines 244 to 247 '196 in all', '196 × 196', 'four times the tokens', 'sixteen times the scores' (the tags use A10.VIT, the captions do not). If a helper value ever changes, picture and caption would disagree and nothing would throw.",
+      "fix": "Build the caption strings from the same helpers, since they are in scope when V.scene is called: scene 5 `${A10.QKV.root.toFixed(2)}` for the divisor in both the tag and the caption and the winning score from A10.QKV.barked.rows; scene 7 `${H.dHead}` and `${H.dModel}`; scene 10 `${C.tokens}`, `${C.tokens} × ${C.tokens}`, and either digits ('4 times', '16 times' from VIT.tokenRatio / VIT.scoreRatio) or a small number-to-word map asserted against them.",
+      "evidence": "Source lines quoted above; the captions are plain string literals in each scene's caps array while every on-screen figure in the same scenes goes through A10.same / A10.close."
+    },
+    {
+      "scene": "common-3.js (A10.lattice), used by scene-10-patches.js",
+      "severity": "nit",
+      "problem": "update(t) is pixel-deterministic but not DOM-pure: A10.lattice().set() creates the orange 'hot' rect elements the first time a cell is asked for (V.s('rect') and hot.append inside set(), lines 486 to 494), so the number and order of elements in the scene depends on which times were visited before. The engine rule is to build the DOM once and have update() only set styles. Proven by rendering the same 1500 random absolute times in two orders and comparing a normalised DOM: 31 of the differing times fall in scene 10 (the first difference is an extra hidden rect where the other order has a lattice path). Pixels do not change, because unrequested rects are hidden (see determinism result below).",
+      "fix": "Create the rects for the lit row up front: have lattice() take an optional list of hot cells (or build a full first row of n rects) at build time, hide them, and let set() only restyle them.",
+      "evidence": "Normalised-DOM comparison, forward sweep versus reverse sweep with a far jump before each time: differences only in scenes 2, 5 and 10; in scenes 2 and 5 they are stale styles on hidden ring divs (visibility hidden), in scene 10 the lazily created rects. Pixel check on 110 times (including all scene boundaries) in two orders: every difference is anti-aliasing noise on text edges (max channel difference 10, a few text edges up to 88 on pop-scaled tags such as 'shares' at 62.35 s, no shape or position changes)."
+    },
+    {
+      "scene": "scene-06-values.js, beat 1 (3.4 to 4.2 s local)",
+      "severity": "nit",
+      "problem": "While the value tiles scale by their share, the tiles stack and squash: at 3.6 s a second pale tile sits behind the '2' of the 'the' row and behind the '1' of the 'dog' row (two tiles overlapping, digits partly covered), and at 3.8 s an orange tile is edge-on over the '1' with its text squashed to a sliver ('0.28' unreadable) next to a sliver '1' at the far right. The text-overlap scan reports overlapping digit pairs at 3.50 and 3.75 s. It lasts about 0.5 s and the finished row at 4.2 s is clean, but it is the one point in the video where tiles visibly pile up.",
+      "fix": "Start the scaled copy from the value tile's position but fade it in (or move it 0.1 s later than the flip) instead of overlapping the original; or keep the flip squash and hide the original tile for its first half.",
+      "evidence": "Stills s6@3.6 and s6@3.8 (crop of the first two rows); collision scan lines 's6 2 / 2 at 3.50', 's6 1 / 1 at 3.50', 's6 1 / 1 and 3 / 3 at 3.75'."
+    },
+    {
+      "scene": "scenes 3, 6, 8, 9, 10 (A10.bars, A10.shareBar, A10.grid cells)",
+      "severity": "nit",
+      "problem": "The data marks are flat: the score and exponent bars (scene 3), the share-out bar segments (scene 3), the layer bars (scene 8), the candidate bars (scene 9), the heat-grid cells (scenes 6 and 9) and the 4 x 4 score block (scene 10) have a 2 to 3 px border but no solid lip, while every tile, cell and card in the video carries one (box-shadow 0 4px 0 edge). The brand rule is borders plus a solid lip on components. The engine's own .v-tag pills are flat in the same way across the whole series, so only the data marks are worth a look.",
+      "fix": "Optional: give the large marks (the bars and the 232 px green score square) a 0 3px 0 var(--c-edge) lip like the tiles; leave the small heat and mask cells flat if a lip makes them clump.",
+      "evidence": "Scan of filled boxes with box-shadow none: s3 bars 112x44 border 3px, s4 560x56, s6 cells 118x64 border 2px, s8 bars 64x32, s9 bars 188x44 and mask cells 36x36, s10 block cells 58x58. Stills s3@6 and s8@6.5 crops."
+    },
+    {
+      "scene": "video (engine, all scenes except the title card)",
+      "severity": "nit",
+      "problem": "The kicker above every headline (WORDS TO NUMBERS, SOFTMAX, ..., RECAP) is 24 px, below the 28 px minimum for text in the house rules. It comes from .v-kicker in videos/video.css, so it is the same in lectures 1 to 6 and phases 1 to 9; the phase 10 title card overrides it to 30 px. Nothing in videos/a10 can fix it without overriding the class per scene.",
+      "fix": "No action in this phase (video.css and engine.js are off limits). If the whole series is ever re-rendered, raise .v-kicker to 28 px once in video.css.",
+      "evidence": "Scale scan of rendered text under 27.5 px at full opacity: only 'RECAP' (24 px) in the bare recap scene, where the kicker is inside the stage; the other scenes' kickers sit outside the stage element but use the same class."
+    }
+  ]
+}

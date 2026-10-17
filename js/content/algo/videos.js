@@ -1,4 +1,4 @@
-/* Recap videos for Algorithms phases 1 to 7: one node after each phase's boss quiz.
+/* Recap videos for Algorithms phases 1 to 8: one node after each phase's boss quiz.
    Each is a one-step lesson that plays videos/out/algo-N.mp4 (made from videos/algo-N.html, see videos/README.md).
    Same rules as the Nature-Inspired recaps (js/content/nic/videos.js): a bonus (m.video) that never counts towards
    finishing a phase or the course, and watching it keeps the streak alive and pays the review amount (5 XP).
@@ -111,6 +111,22 @@
         "LZW learns phrases as it reads",
         "The decoder rebuilds the same dictionary",
         "Repeats shrink, noise barely does",
+      ],
+    },
+    {
+      n: 8,
+      blurb:
+        "Phase 8 in pictures: sharing a secret in public, RSA locks and keys, hashes and how a blockchain resists rewriting.",
+      chapters: [
+        "The cipher needs a key but Eve is listening",
+        "Mix paint in public, share a secret colour",
+        "The same trick with numbers",
+        "Publish a lock, keep the key",
+        "Anyone can lock it, only Bob can unlock",
+        "A hash is a fingerprint of data",
+        "Edit one block and the break moves on",
+        "Sealing a block means guessing",
+        "Rewriting history means redoing the work",
       ],
     },
   ];
