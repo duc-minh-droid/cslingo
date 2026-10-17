@@ -1,0 +1,346 @@
+{
+ "slug": "lecture-8",
+ "dir": "l8",
+ "title": "Lecture 8 · The Ant System",
+ "outline": "Lecture 8 video (Nature-Inspired Computation, ECM3412): 'The Ant System'. 11 scenes, 120.5 s: title (4), the loop (11), one ant builds a tour (12), score every road (12.5), roll the dice (9), the dials alpha and beta (12), evaporate then deposit (12.5), positive feedback / the snowball (12.5), who deposits: Ant System, Elitist rank, Max-Min (12.5), construction graphs: scheduling (13.5), recap (9). Story: the Ant System is a loop of three steps (place ants on random towns, every ant builds a whole tour with the transition rule, update the trails), repeated until an end condition; the ants forget (tabu lists reset), the trails remember (scenes 2-3, lesson 8.1). To pick its next town an ant at town i scores every town j it may still visit with trail^alpha x closeness^beta, where closeness = 1/d; a visited town (tabu list) scores zero; the scores are divided by their total to give chances, and a roulette draw turns the chances into a choice (scenes 4-5, lesson 8.2); alpha and beta set how much the ants trust the trail and closeness: alpha 0 = nearest wins, beta 0 = strongest trail wins (scene 6). The update rule is new trail = (1 - rho) x old trail + the sum of Q/L over the ants that used the road: evaporate, then deposit, shorter tours lay more (scene 7, lesson 8.3); the positive feedback this creates snowballs a good round (scene 8, lesson 8.3). Variants change who deposits: all ants (Ant System), the best 3 (Elitist Rank), the best 1 (Max-Min): more focus, more trail on the best round, but more colonies stuck on a poor round (scene 9, lesson 8.4). The same ideas solve any problem whose solutions are paths in a graph: a one-press print shop, each job a node, the ant starts at Start, the schedule's lateness is the fitness (scene 10, lesson 8.5). Not covered: the early-results table against GA and annealing, Q as pure scale, layered graphs (the dinner menu), the boss quiz; the recap points to Workshop 8.W.\n\nLESSONS the facts come from: l8-loop 8.1, l8-transition 8.2, l8-update 8.3, l8-variants 8.4, l8-schedule 8.5, l8-wlab 8.W; js/content/nic/l8-01.js .. l8-03.js, l8-workshop.js, boss-nic-78.js; bank js/bank/nic-46.js and nic-47.js.\n\nTHE EXAMPLE DATA (all computed by running the lessons' own rules in videos/l8/common.js and common-2.js and asserted when the page loads; a wrong number throws an Error; the ports were cross-checked against the lesson code itself). Scenes 2-3, the five villages P Q R S T (lesson 8.1): distances P-Q 13, P-R 27, P-S 27, P-T 14, Q-R 14, Q-S 20, Q-T 19, R-S 14, R-T 26, S-T 19 km; the lesson's trails P-Q 3, S-T 4, R-S 2, P-T 2, the other six 1. Scene 3 is the lesson's ant (start T, alpha 1, beta 2, rng 8): tour T P Q R S then home, hops 14, 13, 14, 14, 19 = 74 km (quality Q/L = 100/74 = 1.35). Scene 2 runs three ants (alpha 1, beta 2, rho 0.5, Q 100, seed 90) on the same map from equal trails: starts P, S, Q, tours PQRST 74 km, SRPTQ 94 km, QTPSR 88 km; after the update P-T and R-S carry 4.05, Q-R 2.99, Q-T 2.70, R-T (unused) 0.50; round 2 starts T, P, S. Scenes 4-5, lesson 8.2's worked example (alpha = beta = 1): Ash 2 km trail 1 (score 0.5), Birch 4 km trail 4 (1), Cedar 5 km trail 5 (1), Dale 3 km trail 6 but tabu (would score 2, scores 0); total 2.5; chances 20 %, 40 %, 40 %, 0 %; two draws u = 0.31 (Birch) and u = 0.08 (Ash). Scene 6, lesson 8.2's courier: Kell 2 km trail 1, Marl 4/2, Pell 5/3, Rudd 8/6, Sowe 10/9; alpha 1 beta 1 gives 15, 15, 18, 23, 28 %; alpha 0 beta 3: Kell 82 %; alpha 3 beta 0: Sowe 74 %. Scene 7, lesson 8.3's ledger: trail 4, rho 0.5, Q 100, tours 25, 50, 100 km: evaporation leaves 2, deposits 4 + 2 + 1 = 7, new trail 9. Scene 8, lesson 8.1's ten villages A-J (shortest possible round 114.5 km, Held-Karp) with a colony of 10 ants, alpha 2, beta 2, rho 0.5, Q 100, every ant deposits, seed 1: round 1 best 132.98 km, ants' average 161.2, 1 of 10 ants on the best round, 40 % of the trail on it; round 2 finds the 115.13 km round JIGFEDCBAH; round 4 average 121.3, 4 of 10, 75 %; round 7 6 of 10, 86 %; round 10 average 115.1, 10 of 10, 96 %; round 14 99.6 %. Scene 9, lesson 8.4: six ants' tours 48, 52, 55, 60, 71, 80 km; 40 colonies per rule (10 villages, 20 rounds, alpha 1, beta 1): trail on the best round 53 %, 90 %, 97 % and colonies finishing above 116 km 3, 5, 17 of 40 for all ants, best 3, best 1. Scene 10, lesson 8.5's print shop: B Banner 30 min due 100, L Leaflets 30/20, P Posters 30/50, T Tickets 30/80, W Wraps 50/30; the lesson's ant (rng 2) builds W L P T B: ends 50, 80, 110, 140, 170, lateness 20, 60, 60, 60, 70, average 54, maximum 70.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. The five-village map (L8.FIVE) is the same in scenes 2 and 3; the Ash / Birch / Cedar villages are shared by scenes 4 and 5 (the strip of scene 5 is scene 4's chances); the winning idea of scene 7 (shorter tours lay more) is what scene 8 shows at scale; the red 'visited / blocked' colour is the same in scenes 3, 4 and 10. Terms are defined on screen before they are used: 'tabu list' (tag, scene 3), 'allowed' (tag, scene 3), 'trail' / 'closeness' / 'score' / 'chance' (column headers, scene 4), the dials 'α' and 'β' with their 'trail' / 'closeness' tags (scene 6), 'evaporation: ρ = 0.5' and 'deposit: Q / L, Q = 100' (tags, scene 7), 'round' (tag, scenes 2 and 8), the rule names 'Ant System' / 'Elitist rank' / 'Max-Min' (row tags, scene 9), 'ends' / 'due' / 'late' (chart lines, scene 10). Captions are plain sentences of at most 11 words (about 3.5 words per second at the fastest) and each starts only when the picture it describes is on screen. Greek letters appear only in small labels (dials, tags), never in captions (captions say 'alpha', 'beta'). scene-01-title.js is finished: do not replace it.",
+ "titleCard": {
+  "kicker": "Nature-Inspired · Lecture 8",
+  "title": "The Ant System",
+  "sub": "How ants build tours and trails learn",
+  "who": "sprout",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-loop.js",
+   "kicker": "THE LOOP",
+   "title": [
+    "Ants build tours,",
+    "then the trails learn"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     1.4,
+     3.5,
+     "Step 1: put the ants on random towns."
+    ],
+    [
+     3.8,
+     6.2,
+     "Step 2: every ant builds a whole tour."
+    ],
+    [
+     6.6,
+     8.4,
+     "Step 3: update the trails."
+    ],
+    [
+     8.9,
+     10.9,
+     "Repeat. The trails are the memory."
+    ]
+   ],
+   "spec": "IDEA: one round of the Ant System is three steps: (1) put the ants on random towns, (2) every ant builds a whole tour, (3) update the trails. Then the loop repeats: the ants start afresh but the trails stay, so the trails are the colony's memory. Run for real: three ants on the five villages P Q R S T, round 1 from equal trails, round 2 starting from the updated trails. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Map: const F = L8.FIVE; const pos = L8.fit(Object.fromEntries(F.ids.map((id) => [id, F.xy[id]])), {x: 10, y: 70, w: 560, h: 380}, 44); const net = L8.net(stage, {nodes: pos, edges: F.edges, r: 30, fs: 36, maxPaths: 16}) (ten grey roads, five towns). const svg = L5.svg(stage); const ants = [0, 1, 2].map(() => svg.appendChild(L8.ant(0, 0, 64))) (made after the net so they sit above the towns). Place an ant with V.place(ants[i], {x: p.x, y: p.y, r: p.r, o}) where p = net.rest(town) while it stands on a town and p = net.walk(a, b, f) while it walks the road a -> b; blend between the two over 0.2 s when it sets off and when it arrives. Round tag: const round = L8.tag(stage, {x: 10, y: 6, text: 'round 1', tone: 'grey'}). Step cards in the right column (x 596-886), for i = 0..2 with y = 90 + 140 i (90, 230, 370): cards[i] = L8.card(stage, {x: 596, y, w: 290, h: 96, text: '', tone: 'grey', plain: true}); L8.disc(stage, {x: 636, y: y + 48, size: 52, text: String(i + 1), tone: 'orange'}); L8.label(stage, {x: 680, y: y + 28, w: 200, text: ['place ants', 'build tours', 'update trails'][i], align: 'left', fs: 32}) (fade the disc and label in with the card via their set({k})). The active step is cards[i].set({tone: 'orange', plain: false}), the others set({tone: 'grey', plain: true}). Loop arrow: const loop = svg.appendChild(L5.arrow(888, 418, 888, 138, 'grey', 1, {w: 6, head: 20, bow: -24})) from the middle of card 3's right edge up to card 1; draw it on with L5.drawOn(loop, k).\n\nDATA (computed and asserted in videos/l8/common.js; assert again in build() with L8.same): const R = L8.LOOP.iters. R[0].starts = 'PSQ' (ant i stands on town R[0].starts[i]); R[0].ants[i].tour = 'PQRST', 'SRPTQ', 'QTPSR' (lengths R[0].ants[i].len = 74, 94, 88 km); hop j of an ant goes tour[j] -> tour[(j + 1) % 5] (five hops, the last is the way home). R[1].starts = 'TPS'. Trails: tauAt(a, b, mix) = R[0].before[L8.ek(a, b)] * (1 - mix) + R[0].after[L8.ek(a, b)] * mix. before is 1 on every road. after (round 1): P-T and R-S 4.05 (all three ants used them), Q-R 2.99, Q-T 2.70, P-Q and S-T 1.85, P-R and Q-S 1.56, P-S 1.64, R-T 0.50 (nobody used it). Pass tau: (a, b) => tauAt(a, b, mix) and tauW: [2, 4] to net.update (trail 1 = 6 px wide, 4.05 = 18 px, 0.5 = 4 px). Assert at least: R[0].starts, R[0].ants.map((a) => a.tour), R[1].starts and +R[0].after['R-S'].toFixed(2) === 4.05.\n\nTIMELINE (local seconds). 0.2-1.0 the ten roads fade in (update({roads: k})) and the five towns pop (nodes {k}, 0.08 s apart); 0.8-1.3 the trails fade in (tauK 0 -> 1) at mix 0: ten equal blue lines. 1.0-1.6 the three cards pop in plain grey (0.15 s apart); 1.2 the round tag pops. STEP 1: 1.5-1.9 card 1 turns orange; 1.6-2.3 the three ants pop onto P, S, Q (0.15 s apart, scale pop 0.5 -> 1 with E.pop and a fade); hold. STEP 2: 3.6 card 2 turns orange (card 1 back to grey); 3.8-6.3 the three ants walk their tours at the same time, five hops of 0.5 s each (hop j runs 3.8 + 0.5 j to 4.3 + 0.5 j, E.inOut, position net.walk(a, b, f)), and each road an ant has walked gets an orange path overlay (paths: for every ant and hop {a, b, k: ramp over that hop, tone: 'orange', w: 6}; 15 overlays at most); they end standing on their start towns. STEP 3: 6.6 card 3 turns orange; 6.7-7.3 the orange paths and the ants fade out; 6.8-8.0 the trails change from before to after (mix = E.inOut ramp over 6.8-8.0): the roads three ants walked swell, the road nobody walked (R-T) thins out. REPEAT: 8.4-9.0 the loop arrow draws on from card 3 up to card 1; 9.0 the round tag switches to 'round 2' (pop it again) and card 1 turns orange (card 3 grey); 9.2-9.9 the three ants pop on T, P, S (R[1].starts), standing (no tours drawn). 9.9-11.0 hold (nothing moves).\n\nEND STATE: 'round 2', ants standing on T, P, S, thick blue trails on R-S and P-T carried over from round 1, loop arrow drawn, card 1 orange: the ants started again, the trails stayed. CAPTIONS: [[1.4,3.5,'Step 1: put the ants on random towns.'],[3.8,6.2,'Step 2: every ant builds a whole tour.'],[6.6,8.4,'Step 3: update the trails.'],[8.9,10.9,'Repeat. The trails are the memory.']]"
+  },
+  {
+   "n": 3,
+   "file": "scene-03-one-ant.js",
+   "kicker": "ONE ANT",
+   "title": [
+    "One ant builds",
+    "a whole tour"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     1.4,
+     3.7,
+     "Towns it has visited go on the tabu list."
+    ],
+    [
+     3.9,
+     6.0,
+     "It picks any town that is still allowed."
+    ],
+    [
+     6.2,
+     8.4,
+     "A visited town is never picked again."
+    ],
+    [
+     8.9,
+     11.4,
+     "All towns visited: back home. Tour length 74 km."
+    ]
+   ],
+   "spec": "IDEA: one ant, step by step. It keeps a tabu list of the towns it has visited; it may only go to a town that is still allowed (not on the list); when nothing is allowed any more it goes home, and its tour length is the sum of its hops. This is the real run of lesson 8.1 (the ant starts on T). COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Map: const F = L8.FIVE; const pos = L8.fit(Object.fromEntries(F.ids.map((id) => [id, F.xy[id]])), {x: 100, y: 0, w: 700, h: 400}, 46); const net = L8.net(stage, {nodes: pos, edges: F.edges, r: 32, fs: 38, labels: true}) (labels: true for the little distance tags on roads). The roads carry the lesson's trails: net.update({tau: (a, b) => F.tau[F.key(a, b)], tauW: [2, 4]}) (S-T 18 px is the thickest, P-Q 14, R-S and P-T 10, six roads 6). const svg = L5.svg(stage); const ant = svg.appendChild(L8.ant(0, 0, 76)); place it with V.place(ant, {x: p.x, y: p.y, r: p.r, o}) using net.rest(town) while it stands and net.walk(a, b, f) while it hops (blend over 0.2 s at both ends). Two rows of chips under the map: L8.tag(stage, {x: 0, y: 425, text: 'tabu list', tone: 'red'}) and L8.tag(stage, {x: 0, y: 519, text: 'allowed', tone: 'green'}); chips 68 x 68, fs 38: the TABU row at y 416 with slot i at x = 190 + 80 i (i = 0..4), red tone; the ALLOWED row at y 510 with the four towns P Q R S in slots 0..3 (x = 190 + 80 i), green tone, one chip per town made with L8.chip(stage, {x, y, w: 68, h: 68, text: town, tone, fs: 38}); chip.set({x, y, tone, k}) takes OFFSETS from the placed spot, so a chip flies by set({x: dx, y: dy}). Stat: const total = L8.stat(stage, {x: 564, y: 450, w: 360, h: 80, label: 'tour length', tone: 'blue'}) (set({text: '14 km', bump})).\n\nDATA (L8.ONE, asserted in common.js; assert again in build()): L8.ONE.tour = 'TPQRS' (the loop T P Q R S and home to T), L8.ONE.legs = [14, 13, 14, 14, 19] (T-P 14, P-Q 13, Q-R 14, R-S 14, S-T 19 km), running totals 14, 27, 41, 55, 74 (L8.ONE.len = 74); L8.ONE.steps[k] = {at, tabu, J, to}: J = ['P','Q','R','S'], ['Q','R','S'], ['R','S'], ['S'] for k = 0..3 and the ant picks P, Q, R, S. Distance tags: net.update({labels: {[L8.ek(a, b)]: {text: String(leg), tone: 'orange', solid: true, k}}}). Do not draw probabilities in this scene (scene 4 explains how the pick is weighted).\n\nTIMELINE (local seconds). 0.2-0.9 the ten roads and the five towns pop (0.08 s apart), 0.6-1.2 the trails fade in (tauK). 0.8-1.2 the ant pops on T (net.rest('T')); T turns red (tone 'red'). 1.0-1.5 the 'tabu list' tag pops and chip T pops in tabu slot 0; 1.3-1.8 the 'allowed' tag and the four allowed chips P Q R S pop (0.1 s apart). STEPS k = 0..3 start at s = 2.3 + 1.6 k (2.3, 3.9, 5.5, 7.1): s + 0.0-0.4 every town in steps[k].J turns green with a green ring (nodes {tone: 'green', ring: 'green', ringK}); s + 0.5-0.8 the town the ant will pick (steps[k].to) gets an orange ring (ring 'orange', pop again); s + 0.8-1.4 the ant hops there (net.walk(from, to, E.inOut ramp)) and an orange path with an arrow head grows behind it (paths: [{a, b, k, tone: 'orange', w: 9, head: true}] plus every earlier hop at k 1); s + 1.3-1.6 the distance tag of that road pops and the total counts up (14 km, 27 km, 41 km, 55 km), bump it; s + 1.2-1.7 the chosen town's allowed chip flies up into the next free tabu slot (offset dx, dy, E.inOut) and turns red, the town turns red, the green rings of the other towns fade out. CLOSING LEG 8.8-9.6: the 'allowed' tag turns grey and reads 'none left' (set({text: 'none left', tone: 'grey'})), the ant hops S -> T (net.walk('S', 'T', f)) with an orange arrow and the tag '19'; 9.5 the total shows '74 km' (bump). 9.9-12.0 hold.\n\nEND STATE: all five towns red, five orange arrows making the loop T P Q R S T with distance tags, the tabu row full (T P Q R S), 'none left', '74 km'. CAPTIONS: [[1.4,3.7,'Towns it has visited go on the tabu list.'],[3.9,6.0,'It picks any town that is still allowed.'],[6.2,8.4,'A visited town is never picked again.'],[8.9,11.4,'All towns visited: back home. Tour length 74 km.']]"
+  },
+  {
+   "n": 4,
+   "file": "scene-04-score.js",
+   "kicker": "THE CHOICE",
+   "title": [
+    "Score every road:",
+    "trail times closeness"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.8,
+     2.6,
+     "Each road gets a score."
+    ],
+    [
+     3.0,
+     5.2,
+     "Closeness is 1 over the distance."
+    ],
+    [
+     5.5,
+     7.5,
+     "Score: trail times closeness."
+    ],
+    [
+     7.8,
+     9.4,
+     "A visited town scores zero."
+    ],
+    [
+     9.7,
+     12.3,
+     "Each score's share of the total is its chance."
+    ]
+   ],
+   "spec": "IDEA: how an ant weighs its roads at one town. Each road's score is its trail times its closeness (1 over the distance); a town already visited (on the tabu list) scores zero however strong its trail; the scores are added, and each score's share of the total is the chance of taking that road. Lesson 8.2's worked example, alpha = beta = 1: three allowed villages (Ash 2 km trail 1, Birch 4 km trail 4, Cedar 5 km trail 5) and one tabu village (Dale 3 km trail 6). COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px; rows have centres y = 130 + 100 i for i = 0..3). The ant: const svg = L5.svg(stage); svg.appendChild(L8.ant(52, 280, 78)) (static, facing right, V.place it for the pop). Fan roads: for each row an SVG line svg.appendChild(V.s('line', {x1: 92, y1: 280, x2: 126, y2: y, 'stroke-width': 2 + 2.5 * tau, 'stroke-linecap': 'round', style: {stroke: 'var(--blue)'}})) (the trail thickness; draw them with V.show / o). Per row (L8.HUB.rows[i]): name tag L8.tag(stage, {x: 130, y: y - 23, text: `${r.name} · ${r.d} km`, tone: 'grey'}); trail chip L8.chip(stage, {x: 350, y: y - 38, w: 80, h: 76, text: r.tau, tone: 'blue', fs: 40}); times sign svg.appendChild(L8.mark('times', 458, y, 40, 'purple')); closeness chip L8.chip(stage, {x: 486, y: y - 38, w: 104, h: 76, text: `1/${r.d}`, tone: 'purple', fs: 38}); equals sign svg.appendChild(L8.mark('equals', 618, y, 40, 'grey')); score chip L8.chip(stage, {x: 646, y: y - 38, w: 110, h: 76, text: String(+r.score.toFixed(2)), tone: 'grey', fs: 40}); chance chip L8.chip(stage, {x: 790, y: y - 38, w: 130, h: 76, text: `${L8.pct(r.p)}%`, tone: 'orange', fs: 40}). Column headers (y 10): L8.tag(stage, {x: 350, y: 10, text: 'trail', tone: 'blue'}), {x: 470, text: 'closeness', tone: 'purple'}, {x: 646, text: 'score', tone: 'grey'}, {x: 790, text: 'chance', tone: 'orange'}. Dale (row 3, y 430): its name tag turns red at the tabu beat and a red solid tag L8.tag(stage, {x: 130, y: 460, text: 'tabu', tone: 'red', solid: true}) sits under it. Total: const total = L8.stat(stage, {x: 646, y: 530, w: 274, h: 80, label: 'total', tone: 'grey'}).\n\nDATA (L8.HUB, asserted in common.js): rows Ash {d 2, tau 1, score 0.5, p 0.2}, Birch {4, 4, score 1, p 0.4}, Cedar {5, 5, score 1, p 0.4}, Dale {3, 6, tabu: true, would: 2 (the score it would have had), score 0, p 0}; L8.HUB.total = 2.5 (0.5 + 1 + 1; the tabu village adds nothing). Chip texts: score '0.5', '1', '1', and Dale first '2' (r.would) then '0' (r.score); chance '20%', '40%', '40%', '0%' (L8.pct). Assert in build(): L8.same(L8.HUB.total, 2.5, ...), L8.same(L8.HUB.rows.map((r) => L8.pct(r.p)), [20, 40, 40, 0], ...).\n\nTIMELINE. 0.2-0.8 the ant pops and the four fan roads draw (thickness shows each trail); 0.4-1.2 the four name tags pop (0.15 s apart). TRAIL: 1.4 'trail' header; 1.5-2.3 the four trail chips pop (0.15 s apart). CLOSENESS: 2.6 'closeness' header; 2.8-3.6 the four closeness chips pop (0.15 s apart) (the distance is in each name tag). SCORE: 5.2 'score' header; 5.3-5.9 the four times signs pop, 5.7-6.3 the four equals signs, 5.9-7.1 the score chips pop (0.15 s apart; Dale shows its would-be '2'). TABU: 7.7 the red 'tabu' tag pops and Dale's name tag turns red; 7.9-8.5 Dale's score chip flips edge-on (sx 1 -> 0 -> 1 at E.inOut) to a red solid '0'. CHANCE: 9.6-10.0 the total sticker pops reading '2.5' (bump); 10.0 'chance' header; 10.2-11.2 the chance chips pop (0.2 s apart) 20%, 40%, 40%, 0%. 11.2-12.5 hold.\n\nEND STATE: the full table, Dale red with score 0 and chance 0%, total 2.5, chances 20 / 40 / 40 / 0. Scene 5 reuses the three shares. CAPTIONS: [[0.8,2.6,'Each road gets a score.'],[3,5.2,'Closeness is 1 over the distance.'],[5.5,7.5,'Score: trail times closeness.'],[7.8,9.4,'A visited town scores zero.'],[9.7,12.3,\"Each score's share of the total is its chance.\"]]"
+  },
+  {
+   "n": 5,
+   "file": "scene-05-dice.js",
+   "kicker": "THE CHOICE",
+   "title": [
+    "Then roll the dice,",
+    "weighted by those shares"
+   ],
+   "dur": 9,
+   "caps": [
+    [
+     1.2,
+     3.1,
+     "The ant draws a random number."
+    ],
+    [
+     3.4,
+     5.2,
+     "The slice it lands in wins."
+    ],
+    [
+     5.9,
+     8.6,
+     "Unlikely roads can still win."
+    ]
+   ],
+   "spec": "IDEA: the chances become a choice with a roulette wheel: the ant draws a random number between 0 and 1 and takes the slice it lands in. Likely roads win more often, but a road with a small slice can still win. The same three villages and shares as scene 4 (Ash 20%, Birch 40%, Cedar 40%); two draws are shown. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Strip: const strip = L8.strip(stage, {x: 0, y: 210, w: 936, h: 100, fs: 34}); each frame const g = strip.update({parts: L8.HUB.rows.slice(0, 3).map((r, i) => ({text: `${r.name} ${L8.pct(r.p)}%`, v: r.p, tone: i === win ? 'orange' : 'grey', solid: i === win})), k, ticks, marker, markerK}) (win = the slice that has been hit, or -1); the cuts are labelled 0, 0.2, 0.6, 1 under the strip (ticks); g.markerX gives the x of the pointer. u tag: const utag = L8.tag(stage, {x: 0, y: 118, text: 'u = 0.31', tone: 'orange', solid: true}); each frame utag.set({x: g.markerX - 70, text: `u = ${u.toFixed(2)}`, k}) (x is an offset from where it was placed). Dice at the top right: const svg = L5.svg(stage); const dice = [1, 2, 3, 4, 5, 6].map((f) => svg.appendChild(L5.dice(860, 110, 90, {face: f, tone: 'orange'}))); show only dice[face - 1] (V.show the others 0) and shake it with V.place({r, s}). Mini map under the strip: const net = L8.net(stage, {nodes: {H: {x: 150, y: 505, label: ''}, Ash: {x: 700, y: 410, w: 150, label: 'Ash'}, Birch: {x: 700, y: 495, w: 150, label: 'Birch'}, Cedar: {x: 700, y: 580, w: 150, label: 'Cedar'}}, edges: [['H', 'Ash'], ['H', 'Birch'], ['H', 'Cedar']], r: 30, fs: 30}); trails net.update({tau: (a, b) => ({'Ash-H': 1, 'Birch-H': 4, 'Cedar-H': 5})[L8.ek(a, b)], tauW: [3, 4]}) (L8.ek sorts: 'Ash-H'); the ant icon L8.ant(0, 0, 70) stands on H (net.rest('H')) and walks to a village with L8.along(net.pt('H'), net.pt(v), f, 70). Chosen road: paths [{a: 'H', b: v, k, tone: 'orange', w: 10, head: true}].\n\nDATA (L8.HUB.draws, asserted in common.js): draw 1 u = 0.31 (0.314...) lands in Birch (slice 0.2-0.6), draw 2 u = 0.08 (0.078...) lands in Ash (slice 0-0.2). Use u = L8.HUB.draws[i].u and L8.HUB.draws[i].to; the slice index is L8.pick(L8.HUB.rows.slice(0, 3).map((r) => r.p), u).\n\nTIMELINE. 0.2-0.8 the strip pops (k), 0.6-1.2 the mini map pops (towns k, ant), 0.8-1.4 the tick numbers fade in. DRAW 1: 1.4-2.4 the dice rolls: face = 1 + (Math.floor((t - 1.4) * 9) % 6) while rolling, shaking r = 14 sin(24 t); 2.4 it lands on face 4; 2.4-2.9 the pointer drops onto the strip at u = 0.31 (markerK 0 -> 1) and 2.8 the 'u = 0.31' tag pops; 3.4-3.8 the Birch slice turns solid orange and the road H-Birch gets an orange path (k 0 -> 1); 3.9-4.7 the ant walks to Birch. RESET 4.8-5.2: the pointer, tag, path and the slice colour fade back (the ant fades out and pops on H again at 5.1-5.3). DRAW 2: 5.3-5.9 the dice rolls (faster, 0.6 s) and lands on face 2; 5.9-6.3 the pointer drops at u = 0.08 (inside the 20% Ash slice), tag 'u = 0.08'; 6.5-6.8 the Ash slice turns solid orange, the road H-Ash gets an orange path; 7.0-7.8 the ant walks to Ash. 7.8-9.0 hold.\n\nEND STATE: strip with Ash solid orange, pointer at 0.08, the ant at Ash, dice on face 2: the unlikely slice won. CAPTIONS: [[1.2,3.1,'The ant draws a random number.'],[3.4,5.2,'The slice it lands in wins.'],[5.9,8.6,'Unlikely roads can still win.']]"
+  },
+  {
+   "n": 6,
+   "file": "scene-06-dials.js",
+   "kicker": "TWO DIALS",
+   "title": [
+    "Two dials set what",
+    "the ants trust"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "Two dials set what the ants trust."
+    ],
+    [
+     3.0,
+     5.4,
+     "Alpha trusts the trail, beta trusts closeness."
+    ],
+    [
+     6.0,
+     8.5,
+     "Alpha 0: trails ignored, the nearest wins."
+    ],
+    [
+     9.2,
+     11.8,
+     "Beta 0: only trails count, the strongest wins."
+    ]
+   ],
+   "spec": "IDEA: the rule is trail^alpha x closeness^beta. Alpha says how much the ants trust the trail, beta how much they trust closeness. Alpha 0 ignores the trail (the nearest village wins: greedy); beta 0 ignores distance (only the trail counts, the strongest trail wins even from far away: positive feedback alone). Lesson 8.2's courier at Hob choosing among five villages. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Dials: const da = L8.dial(stage, {x: 24, y: 0, w: 400, label: 'α', min: 0, max: 3, tone: 'blue'}); const db = L8.dial(stage, {x: 500, y: 0, w: 400, label: 'β', min: 0, max: 3, tone: 'purple'}) (set({v, k}); 60 px high). Under them L8.tag(stage, {x: 94, y: 66, text: 'trail', tone: 'blue'}) and L8.tag(stage, {x: 570, y: 66, text: 'closeness', tone: 'purple'}). Setting tag (changes text): const mode = L8.tag(stage, {x: 258, y: 126, text: 'α = β = 1', tone: 'grey'}). Five rows, centres y = 214 + 84 i (214 ... 550), for L8.COURIER[i] = {name, d, tau}: name tag L8.tag(stage, {x: 0, y: y - 23, text: c.name, tone: 'grey'}); distance chip L8.chip(stage, {x: 124, y: y - 26, w: 112, h: 52, text: `${c.d} km`, tone: 'purple', fs: 30, radius: 18}); trail chip L8.chip(stage, {x: 250, y: y - 26, w: 140, h: 52, text: `trail ${c.tau}`, tone: 'blue', fs: 28, radius: 18}); bar L8.bar(stage, {x: 410, y: y - 26, w: 526, h: 52, tone: 'grey', full: 416}) with set({v: p, tone: favourite ? 'orange' : 'grey', text: favourite && settled ? '82%' : ''}). Villages: Kell 2 km trail 1, Marl 4/2, Pell 5/3, Rudd 8/6, Sowe 10/9.\n\nDATA (asserted in common.js): L8.DIAL.balanced = alpha 1, beta 1: shares 15, 15, 18, 23, 28 % (do not label them: rounded they do not add to exactly 100); L8.DIAL.greedy = alpha 0, beta 3: Kell 82 %, Marl 10, Pell 5, Rudd 1, Sowe 1 (favourite index 0); L8.DIAL.trail = alpha 3, beta 0: Sowe 74 %, Rudd 22, Pell 3, Marl 1, Kell 0 (favourite index 4). Each has .p (exact shares 0..1). A bar's v is the share; between two settings interpolate every p with E.inOut (lerp per row). Label text only on the favourite: L8.pct(L8.DIAL.greedy.p[0]) and L8.pct(L8.DIAL.trail.p[4]).\n\nTIMELINE. 0.2-0.8 the dials pop (0.1 s apart); 0.5-1.3 the five rows pop (0.1 s apart: name, distance chip, trail chip, empty bar); 0.9 the 'trail' and 'closeness' tags pop. BALANCED: 1.4-2.2 the bars grow to the balanced shares, mode tag 'α = β = 1' pops. ROLES: 3.1-4.2 the 'trail' tag and the α dial pulse (V.flash bump on scale), the trail chips pulse once (0.1 s apart); 4.2-5.2 the 'closeness' tag and the β dial pulse and the distance chips pulse. GREEDY: 5.8-7.0 the α knob slides 1 -> 0 and the β knob 1 -> 3 (E.inOut), the bars morph (5.9-7.1) to L8.DIAL.greedy.p, the Kell bar turns orange, mode tag becomes 'α = 0: trails ignored'; 7.2 the '82%' label pops at the end of Kell's bar. TRAIL: 8.9-10.1 the α knob slides 0 -> 3 and β 3 -> 0, the bars morph (9.0-10.2) to L8.DIAL.trail.p, Kell turns grey and Sowe orange, mode tag becomes 'β = 0: closeness ignored'; 10.3 the '74%' label pops on Sowe's bar. 10.5-12.0 hold.\n\nEND STATE: dials at alpha 3, beta 0; the Sowe bar long and orange with '74%'; the tag 'β = 0: closeness ignored'. CAPTIONS: [[0.5,2.7,'Two dials set what the ants trust.'],[3,5.4,'Alpha trusts the trail, beta trusts closeness.'],[6,8.5,'Alpha 0: trails ignored, the nearest wins.'],[9.2,11.8,'Beta 0: only trails count, the strongest wins.']]"
+  },
+  {
+   "n": 7,
+   "file": "scene-07-update.js",
+   "kicker": "THE UPDATE",
+   "title": [
+    "Evaporate,",
+    "then deposit"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "This road carries a trail of 4."
+    ],
+    [
+     3.0,
+     5.0,
+     "Evaporation: half of it fades."
+    ],
+    [
+     5.4,
+     8.8,
+     "Each ant adds Q over its tour length."
+    ],
+    [
+     9.1,
+     10.6,
+     "Shorter tours leave more."
+    ],
+    [
+     10.7,
+     12.3,
+     "New trail: 2 + 7 = 9."
+    ]
+   ],
+   "spec": "IDEA: the update rule for ONE road: new trail = (1 - rho) x old trail + what the ants deposit. First evaporation (rho = 0.5 keeps half of the old 4), then every ant that used the road adds Q divided by its tour length, so shorter tours lay more. Lesson 8.3's ledger: trail 4, rho 0.5, Q 100, three ants whose tours (25, 50, 100 km) all use the road. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). TANK on the right: nine unit blocks stacked from the floor; block i (0 = bottom) is L8.chip(stage, {x: 670, y: 516 - 44 * i, w: 150, h: 40, text: '', tone: 'blue', radius: 12}) (blue = old trail, green solid = a deposit); a floor line svg.appendChild(V.s('line', {x1: 650, y1: 568, x2: 840, y2: 568, 'stroke-width': 6, 'stroke-linecap': 'round', style: {stroke: 'var(--line-2)'}})); title L8.tag(stage, {x: 610, y: 96, text: 'trail on this road', tone: 'blue'}); the running total L8.disc(stage, {x: 876, y: 340, size: 76, text: '4', tone: 'blue'}). LEFT: tags L8.tag(stage, {x: 0, y: 12, text: 'evaporation: ρ = 0.5', tone: 'red'}) and L8.tag(stage, {x: 0, y: 86, text: 'deposit: Q / L, Q = 100', tone: 'green'}). Three ant rows with centres y = 210 + 110 i: an ant svg.appendChild(L8.ant(46, y, 64)); the tour chip L8.chip(stage, {x: 96, y: y - 32, w: 130, h: 64, text: `${len} km`, tone: 'grey', fs: 34, radius: 20}); a grey arrow L5.arrow(236, y, 290, y, 'grey', 1, {w: 6, head: 18}); the deposit chip L8.chip(stage, {x: 300, y: y - 32, w: 280, h: 64, text: `100 / ${len} = ${dep}`, tone: 'green', fs: 34, radius: 20}). Result sticker L8.stat(stage, {x: 0, y: 540, w: 400, h: 80, label: 'new trail', tone: 'blue'}) reading '2 + 7 = 9'.\n\nDATA (L8.LEDGER, asserted in common.js): tau 4, rho 0.5, Q 100, lens [25, 50, 100]; evap = (1 - 0.5) x 4 = 2 (lost 2); deps = [4, 2, 1] (100/25, 100/50, 100/100); delta = 7; next = 9. Blocks: slots 0-1 blue (what is left after evaporation), slots 2-5 the 4 blocks of ant 1, slots 6-7 the 2 blocks of ant 2, slot 8 the 1 block of ant 3. Assert in build(): L8.same(L8.LEDGER.next, 9, ...), L8.same(L8.LEDGER.deps, [4, 2, 1], ...).\n\nTIMELINE. 0.2-0.9 the floor, the title tag and blue blocks 0-3 pop (0.1 s apart); 0.8 the disc pops showing 4. EVAPORATION: 2.9-3.2 the red tag pops; 3.3-4.3 blocks 2 and 3 turn red (tone 'red'), then float up 30 px and fade out (E.in), the disc text changes 4 -> 2 at 4.2 (bump). DEPOSIT: 5.2-5.5 the green tag pops. Ant 1: 5.6 ant and '25 km' chip pop, 6.0-6.5 its arrow and '100 / 25 = 4' chip pop, 6.6-7.2 four green solid blocks (slots 2-5) fly from the chip to their slots (0.08 s apart; start offset x = 580 - 670, y = row y - slot y, E.out) and the disc changes to 6 at 7.1. Ant 2: 6.8 pops, 7.2 chip '100 / 50 = 2', 7.6-8.0 blocks 6-7 arrive, disc 8. Ant 3: 7.8 pops, 8.2 chip '100 / 100 = 1', 8.5-8.8 block 8 arrives, disc 9 at 8.9 (bump). 9.2-9.6 the '100 / 25 = 4' chip pulses (V.flash) then 9.6-10.0 the '100 / 100 = 1' chip pulses (shorter tours leave more). 10.7-11.3 the 'new trail 2 + 7 = 9' sticker pops (bump). 11.3-12.5 hold.\n\nEND STATE: nine blocks (2 blue, 7 green), the disc 9, the three deposit chips, the result sticker. CAPTIONS: [[0.5,2.7,'This road carries a trail of 4.'],[3,5,'Evaporation: half of it fades.'],[5.4,8.8,'Each ant adds Q over its tour length.'],[9.1,10.6,'Shorter tours leave more.'],[10.7,12.3,'New trail: 2 + 7 = 9.']]"
+  },
+  {
+   "n": 8,
+   "file": "scene-08-snowball.js",
+   "kicker": "POSITIVE FEEDBACK",
+   "title": [
+    "Good trails",
+    "snowball"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.9,
+     "At first the trails are thin and equal."
+    ],
+    [
+     3.4,
+     6.2,
+     "Short rounds leave more trail, so more ants follow."
+    ],
+    [
+     6.5,
+     9.1,
+     "More ants, more trail: it snowballs."
+    ],
+    [
+     9.6,
+     12.2,
+     "The colony settles on one short round."
+    ]
+   ],
+   "spec": "IDEA: positive feedback. Short rounds leave more trail, more ants follow that trail, so it gets even more trail. Time-lapse of a real colony on lesson 8.1's ten villages (10 ants, alpha 2, beta 2, rho 0.5, Q 100, every ant deposits, seed 1): the trails start equal and thin, one round gets thick, the ants all end up on it. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). const T = L8.TEN, ids = [...T.names]; const pos = L8.fit(Object.fromEntries(ids.map((id, i) => [id, T.xy[i]])), {x: 60, y: 0, w: 816, h: 470}, 34); const edges = ids.flatMap((a, i) => ids.slice(i + 1).map((b) => [a, b])) (45 roads); const net = L8.net(stage, {nodes: pos, edges, r: 26, fs: 30}) (towns A-J; pass roads: 0 to update: no grey base roads). Trails: net.update({roads: 0, tau: (a, b) => value, tauNorm: {min, max, w0: 2, w1: 16, o0: 0.18, o1: 0.7}, tauK}) where value interpolates the snapshots L8.tenTau(round, ia, ib) (ia = ids.indexOf(a)) and min / max are the min / max of the 45 values you pass this frame (the lesson's map is drawn the same way). Best round: paths: bestTour.map((c, k) => ({a: ids[c], b: ids[bestTour[(k + 1) % 10]], k: 1, tone: 'green', w: 6, dash: true})) (a dotted green loop; use 10 of the 14 slots). Under the map: L8.tag(stage, {x: 0, y: 494, text: 'round 7', tone: 'grey'}); L8.tag(stage, {x: 170, y: 494, text: 'best 115.1 km', tone: 'green'}); const share = L8.stat(stage, {x: 508, y: 486, w: 416, h: 72, label: 'trail on best round', tone: 'blue'}); the ant row: L8.tag(stage, {x: 580, y: 563, text: 'ants on the best round', tone: 'grey'}) and ten L8.token(stage, {tone: 'grey', size: 40}) at set({x: 40 + 54 i, y: 586, tone: i < onBest ? 'orange' : 'grey'}).\n\nDATA (L8.SNOW, a faithful port of the lesson's colony; asserted in common-2.js): H = L8.SNOW.hist (14 rounds); H[r - 1] = {best, bestTour (town indices), mean, onBest, share, tau} after round r. Round 1: best 132.98 km (CJHBAIGFED), the ants' average 161.2 km, 1 of 10 ants on the best round, trail share 40 %. Round 2: the colony finds JIGFEDCBAH, 115.13 km (shortest possible: L8.TEN.opt = 114.5), and keeps it as best to the end. Round 4: average 121.3, 4 of 10 on it, share 75 %. Round 7: 6 of 10, 86 %. Round 10: average 115.1, 10 of 10, 96 %. Round 14: share 100 % (99.6). x(t) = 14 * ramp(t, 3.3, 10.8, E.lin) is the fractional round: the shown round is r = Math.floor(x + 0.5) (0 before 3.3: tag 'start'), the trails are the linear blend of H[floor(x) - 1].tau and H[floor(x)].tau (round 0 = all 1: L8.tenTau(0, ..) is 1). Text and counts (round tag, best tag, ants, share) use the snapshot of round r: best tag text `best ${H[r - 1].best.toFixed(1)} km`, share text `${L8.pct(H[r - 1].share)}%`. Assert in build(): L8.same(L8.SNOW.hist[0].onBest, 1, ...) and L8.same(L8.SNOW.hist[9].onBest, 10, ...).\n\nTIMELINE. 0.2-1.0 the towns pop (0.06 s apart); 0.6-1.8 the trails fade in (tauK) as ten-village equal thin lines (round 0); 1.4 the 'round' tag pops reading 'start'; 1.6-2.2 the share sticker and the ten grey ant dots pop. 3.3-10.8 the time-lapse (x 0 -> 14): the round tag counts, the trails thicken on the good roads, the best tag pops at round 2 (k pop, hidden before) and the dotted green loop appears (crossfade 0.2 s when the best round changes from round 1 to 2), the ant dots turn orange one by one, the share counts up. 10.8-12.5 hold on round 14 (all ten dots orange, share 100 %, the thick loop under the dotted green one).\n\nEND STATE: round 14, best 115.1 km, ten orange dots, 100 %, one thick blue ring with the dotted green round on it. CAPTIONS: [[0.5,2.9,'At first the trails are thin and equal.'],[3.4,6.2,'Short rounds leave more trail, so more ants follow.'],[6.5,9.1,'More ants, more trail: it snowballs.'],[9.6,12.2,'The colony settles on one short round.']]"
+  },
+  {
+   "n": 9,
+   "file": "scene-09-variants.js",
+   "kicker": "VARIANTS",
+   "title": [
+    "Who gets to",
+    "add trail?"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     3.0,
+     "Six ants finish. Which of them add trail?"
+    ],
+    [
+     3.4,
+     6.6,
+     "Ant System: all. Elitist rank: best 3. Max-Min: best 1."
+    ],
+    [
+     7.0,
+     9.5,
+     "Fewer depositors pile trail on the best round."
+    ],
+    [
+     9.9,
+     12.3,
+     "But more runs get stuck on a poor round."
+    ]
+   ],
+   "spec": "IDEA: variants change who deposits. The original Ant System lets every ant add trail; Elitist Rank lets only the best 3, Max-Min only the best 1. Fewer depositors pile the trail onto the best round (focus) but make it more likely that a colony gets stuck on a poor round. Six ants' tour lengths come from the lesson; the two bar charts are 40 real simulated colonies per rule (10 villages, 20 rounds, alpha 1, beta 1). COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Three rows with centres y = 130 + 150 i (130, 280, 430). Rule tags L8.tag(stage, {x: 0, y: y - 23, text: ['Ant System · all', 'Elitist rank · best 3', 'Max-Min · best 1'][i], tone: 'grey'}). Header tag const head = L8.tag(stage, {x: 350, y: 8, text: 'tour lengths, km', tone: 'grey'}) (its text changes later). BEAT 1 chips: for each row and ant k = 0..5 (lengths L8.WHO.lens = 48, 52, 55, 60, 71, 80): L8.chip(stage, {x: 350 + 94 k, y: y - 38, w: 84, h: 76, text: String(len), tone: 'grey', fs: 38}); a depositing ant (k < L8.WHO.rules[i].n) is set({tone: 'green', solid: true}), a non-depositing one set({tone: 'grey', ghost: true}) (dashed outline). BEAT 2 bars (same rows, chips gone): trail bar L8.bar(stage, {x: 350, y: y - 52, w: 586, h: 44, tone: 'blue', full: 470}) with set({v: share, text: `${L8.pct(share)}%`}); stuck bar L8.bar(stage, {x: 350, y: y + 6, w: 586, h: 44, tone: 'red', full: 470}) with set({v: stuck / 40, text: `${stuck} of 40`}). Legend tags at the bottom: L8.tag(stage, {x: 0, y: 520, text: 'trail on the best round', tone: 'blue'}) and L8.tag(stage, {x: 380, y: 520, text: 'runs stuck on a poor round', tone: 'red'}).\n\nDATA (L8.WHO and L8.VAR, asserted in common-2.js; the lesson's figures): L8.WHO.lens = [48, 52, 55, 60, 71, 80]; rules all (6 deposit), best 3 (3), best 1 (1). L8.VAR[i] = {share, stuck} for all / best 3 / best 1: share (mean trail on the best round after 20 rounds, 40 colonies) 53 %, 90 %, 97 %; stuck (colonies whose best round is still over 116 km): 3, 5, 17 of 40. Assert in build(): L8.same(L8.VAR.map((v) => L8.pct(v.share)), [53, 90, 97], ...) and L8.same(L8.VAR.map((v) => v.stuck), [3, 5, 17], ...).\n\nTIMELINE. 0.3-1.5 the header tag and the three rows of grey chips pop (0.04 s apart, row by row; the same six lengths in every row); no rule tags yet. WHO DEPOSITS: 3.4-4.2 row 1: its rule tag pops and all six chips turn green solid (0.06 s apart); 4.6-5.4 row 2: tag pops, chips 0-2 turn green, chips 3-5 become dashed ghosts; 5.6-6.4 row 3: tag pops, chip 0 green, chips 1-5 ghosts. 6.6-7.0 the chips fade out (o 1 -> 0). SHARE: 6.9-7.2 the header tag changes to '40 runs, 20 rounds each'; 7.0 the blue legend tag pops; 7.1-8.2 the three blue bars grow (0.25 s apart) to 53 %, 90 %, 97 %. STUCK: 9.2 the red legend tag pops; 9.3-10.4 the three red bars grow (0.25 s apart) to 3 of 40, 5 of 40, 17 of 40. 10.4-12.5 hold.\n\nEND STATE: the three rule tags, blue bars 53 / 90 / 97 %, red bars 3 / 5 / 17 of 40, both legends. CAPTIONS: [[0.5,3,'Six ants finish. Which of them add trail?'],[3.4,6.6,'Ant System: all. Elitist rank: best 3. Max-Min: best 1.'],[7,9.5,'Fewer depositors pile trail on the best round.'],[9.9,12.3,'But more runs get stuck on a poor round.']]"
+  },
+  {
+   "n": 10,
+   "file": "scene-10-schedule.js",
+   "kicker": "CONSTRUCTION GRAPHS",
+   "title": [
+    "Any problem drawn",
+    "as a path"
+   ],
+   "dur": 13.5,
+   "caps": [
+    [
+     0.5,
+     2.9,
+     "Any problem drawn as a path suits ants."
+    ],
+    [
+     3.1,
+     5.6,
+     "The ant leaves Start and picks a job."
+    ],
+    [
+     5.9,
+     8.9,
+     "It picks one job at a time, never twice."
+    ],
+    [
+     9.3,
+     11.1,
+     "Lateness: finish time minus due time."
+    ],
+    [
+     11.4,
+     13.3,
+     "Average 54 minutes late, worst 70."
+    ]
+   ],
+   "spec": "IDEA: ants are not only for tours. If a solution can be drawn as a path through a graph, an ant can build it. Print shop (lesson 8.5): one press, five jobs; each job is a node, the ant starts on a Start node and the path ends when every job is visited (no return); the path IS the schedule; its quality comes from lateness = finish time minus due time. This is the real run of the lesson's ant. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Graph: const ang = (k) => ((-90 + k * 72) * Math.PI) / 180; const nodes = {Start: {x: 110, y: 150, w: 130, label: 'Start'}}; [...L8.JOB_IDS].forEach((j, k) => (nodes[j] = [590 + 190 * Math.cos(ang(k)), 150 + 120 * Math.sin(ang(k))])) (B top, then L, P, T, W clockwise; W ends up on the left near Start); const net = L8.net(stage, {nodes, edges: [], r: 34, fs: 40}) (no base roads: draw only paths). Tag L8.tag(stage, {x: 0, y: 10, text: 'one press, five jobs', tone: 'grey'}). Ant: const ant = L5.svg(stage).appendChild(L8.ant(0, 0, 70)), placed with net.rest('Start') and net.walk(from, to, f) (from / to are 'Start' or a job letter). Schedule chart: const g = L8.gantt(stage, {x: 43, y: 330, order: L8.SCHED.order}) (blocks 5 px per minute: 170 min = 850 px; under each block 'ends N', 'due N' and a late tag; total height 206). Stats: L8.stat(stage, {x: 0, y: 548, w: 440, h: 80, label: 'average lateness', tone: 'red'}) and L8.stat(stage, {x: 480, y: 548, w: 440, h: 80, label: 'maximum lateness', tone: 'red'}).\n\nDATA (L8.SCHED, L8.JOBS, L8.evalOrder, asserted in common-2.js; lesson 8.5): jobs (duration, due) B 30/100, L 30/20, P 30/50, T 30/80, W 50/30. L8.SCHED.steps[k] = {at, J, to}: the real run (rng 2, alpha = beta = 1, eta = 100 / due) picks W (from Start, J = B L P T W), then L (J = B L P T), then P (J = B P T), then T (J = B T), then B (J = B only): L8.SCHED.order = 'WLPTB' (W is picked first although L is due sooner: the choice is a weighted random draw). L8.SCHED.eval.rows: W ends 50 due 30 late 20; L ends 80 due 20 late 60; P ends 110 due 50 late 60; T ends 140 due 80 late 60; B ends 170 due 100 late 70; average lateness 54 (270 / 5), maximum 70. Assert in build(): L8.same(L8.SCHED.order, 'WLPTB', ...), L8.same(L8.SCHED.eval.avg, 54, ...), L8.same(L8.SCHED.eval.max, 70, ...).\n\nTIMELINE. 0.2-1.0 the five job nodes pop (0.1 s apart) and the Start node pops (purple: nodes {Start: {tone: 'purple'}}); 0.8 the tag pops; 1.6-2.2 the ant pops on Start (net.rest('Start')). STEPS k = 0..4 start at s = 3.2 + 1.2 k (3.2, 4.4, 5.6, 6.8, 8.0): s + 0.0-0.4 thin grey arrows pop from the current node to every job still allowed (paths: J.map((j) => ({a: from, b: j, k, tone: 'grey', w: 4, head: true}))); s + 0.4-0.7 the chosen one turns orange and thick (w 10) while the other arrows fade out (o 1 -> 0); s + 0.6-1.1 the ant hops to the chosen job (net.walk, E.inOut); s + 0.9-1.3 that job's node turns red (visited, tone 'red') and its block grows into the chart from the left (g.update({n: k + ramp}) with n counting up 0 -> 5; blocks are grey until the lateness beat). 9.3-9.9 the chart's 'ends' and 'due' lines fade in (dueK 0 -> 1): lateness = finish time minus due time can be read off each block. 10.0-11.0 the late tags pop (lateK 0 -> 1) and the blocks turn red: late 20, 60, 60, 60, 70. 11.3-12.0 the two stat stickers pop: average lateness 54, maximum lateness 70 (bump). 12.0-13.5 hold.\n\nEND STATE: five red nodes, the orange arrows of the path Start W L P T B (the last arrow drawn), the full chart with its red late tags, average 54, maximum 70. CAPTIONS: [[0.5,2.9,'Any problem drawn as a path suits ants.'],[3.1,5.6,'The ant leaves Start and picks a job.'],[5.9,8.9,'It picks one job at a time, never twice.'],[9.3,11.1,'Lateness: finish time minus due time.'],[11.4,13.3,'Average 54 minutes late, worst 70.']]"
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Build tours, then\nupdate the trails",
+    "tone": "blue",
+    "pictogram": "Three numbered discs 1 2 3 (L8.disc size 52, x 56 / 170 / 284, y 54) joined by two grey L5.arrow arrows, a grey return arrow under them from disc 3 back to disc 1 (L5.arrow(284, 96, 56, 96, 'grey', 1, {bow: 22})), and an orange ant (L8.ant size 44) that rides round once. Pass: discs pop (0.1-0.7, 0.15 s apart), the two arrows draw on (0.9-1.6), the ant pops above disc 1 (1.5), hops to disc 2 (1.8-2.3) and disc 3 (2.5-3.0), then rides the return arrow back to disc 1 (3.2-3.9) while the return arrow draws on. It ends standing above disc 1 with every arrow drawn."
+   },
+   {
+    "head": "Trail times closeness,\nthen roll the dice",
+    "tone": "orange",
+    "pictogram": "A share strip (L8.strip, x 0, y 72, w 340, h 54, fs 28, parts Ash 0.2 / Birch 0.4 / Cedar 0.4 from L8.HUB.rows, labels 'Ash' 'Birch' 'Cedar') with an orange dice (L5.dice size 52 at (36, 30), six faces made like scene 5) above its left end and the orange pointer dropping on the strip at u = L8.HUB.draws[0].u. Pass: strip pops (0.1-0.7), the dice rolls (1.0-1.7, faces cycling, shaking) and lands on 4, the pointer drops (1.7-2.3), the Birch slice turns solid orange (2.4). Holds that picture."
+   },
+   {
+    "head": "Evaporate, then add\nQ over tour length",
+    "tone": "green",
+    "pictogram": "A row of nine 28 x 56 L8.chip blocks (x 8 + 36 i, y 72, gap 8, radius 8) and a blue tag L8.tag(parent, {x: 100, y: 0, text: '2 + 7 = 9', tone: 'blue'}). Pass: four blue blocks pop (0.1-0.6); blocks 2 and 3 turn red and fade out (1.0-1.7); seven green solid blocks pop into slots 2-8, one after another (1.9-3.2, 0.18 s apart); the tag pops (3.4). Holds: two blue and seven green blocks and the tag. The numbers come from L8.LEDGER (evap 2, delta 7, next 9: assert)."
+   }
+  ],
+  "cta": "Next: Workshop 8.W",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/a6/scene-11-recap.js (and videos/l5/scene-10-recap.js): kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), Sprout (V.mascot('sprout', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours blue / orange / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, SVG drawn into it with L5.svg(pic, 340, 140) in its own pixel coordinates; L8.tag / L8.chip / L8.disc / L8.strip / L8.ant / L5.arrow all take that div or its svg as parent) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 8.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row; EVERY PICTOGRAM PLAYS ONCE AND THEN HOLDS ITS FINISHED STATE (no loop, no blank or reset frame, no fade); all three are finished by 6.0. 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing moves in the last 2.5 seconds but Sprout's bob: the video ends on a calm, complete frame. No captions. COLOURS (whole video): blue = pheromone (the trail, tau: a thick blue road is a strong trail); purple = closeness (eta = 1/d, the fixed 'near is attractive' hint); orange = the ant and what it picks (the ant icon, the current town, the random draw, a chosen road); green = good / allowed / a deposit / the best round / on time; red = blocked or lost: the tabu list (visited towns), evaporation, a late job, a colony stuck on a poor round; grey = neutral. Every label is 28 px or more; symbols (x, =, +, ticks, crosses, arrows, dice) are SVG (L8.mark, L5.tick / L5.cross / L5.arrow / L5.dice), never glyphs. Draw functions are pure: pass everything every frame. Const names in the spec: const V = window.VID, L8 = V.l8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+ },
+ "helpers": "FILES: videos/l8/common.js (pure data and algorithms, no DOM: the real rules on lecture 8's own data, every storyboard number asserted at load), common-2.js (data part 2: the ten-village colony, the three update rules, the print shop), common-3.js (drawing basics: tags, chips, stats, discs, tokens, cards, labels, the ant icon, arithmetic signs, L8.fit / L8.along / L8.seq), common-4.js (the map: L8.net), common-5.js (strip, bar, dial, gantt). Everything hangs off window.VID.l8; scenes start with const V = window.VID, L8 = V.l8, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/lecture-8.html loads engine.js, cards.js, l5/common.js (for L5: tick, cross, arrow, dice, drawOn, svg, badge, tone), then l8/common.js ... common-5.js, then scene-01 ... scene-11, audio/lecture-8.js. l6 is not loaded. Every helper file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers.\n\nA. DATA (common.js, common-2.js): L8.rng, L8.same / L8.close (throw clear Errors), L8.score / shares / pick (the transition rule and the roulette), L8.FIVE {ids, xy, d, key, edges, tau}, L8.antTour, L8.ONE (the lesson's ant, tour TPQRS, 74 km), L8.LOOP (three ants, two rounds), L8.HUB (Ash / Birch / Cedar / Dale, scores, chances, draws), L8.COURIER + L8.dials + L8.DIAL {balanced, greedy, trail}, L8.LEDGER + L8.nextTau, L8.TEN {names, xy, d, len, opt} + L8.colony(seed, P, rounds) + L8.SNOW + L8.tenTau(round, i, j), L8.WHO + L8.VAR, L8.JOBS / JOB_IDS / evalOrder / SCHED / EDD.\n\nB. DRAWING BASICS (common-3.js): L8.tag(parent, {x, y, text, tone, solid, fs, h}) -> {set({text, tone, solid, k, x, y, s, o}), el}; L8.chip(parent, {x, y, w, h, text, tone, fs, solid, radius}) -> {set({text, tone, solid, ghost, k, x, y, s, sx, o, ring, ringK}), el} (any rounded tile: a number, a letter, a unit block); L8.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, o, x, y}); L8.disc(parent, {x, y, size, text, tone}) (centre x, y); L8.token(parent, {tone, size}) -> set({x, y, s, o, tone}); L8.card(parent, {x, y, w, h, text, tone, plain, fs}); L8.label(parent, {x, y, w, text, tone, fs, align}) -> set({text, tone, k, x, y, o, bold}); SVG (append to your own L5.svg layer): L8.ant(x, y, size, tone) (an ant facing right; V.place(g, {x, y, r})), L8.mark(kind, x, y, size, tone) with kind 'times' | 'plus' | 'minus' | 'equals'; tools: L8.seq(t, t0, step, dur, i), L8.along(a, b, f, inset), L8.fit(nodes, box, pad), L8.tone(name), L8.TONES.\n\nC. THE MAP (common-4.js): const net = L8.net(parent, {nodes: {id: [x, y] | {x, y, w, label}}, edges: [[a, b]], r, fs, roadW, labels, maxPaths, w, h}); net.update({roads, roadTone, tau (fn(a, b) | object | null), tauW: [w0, w1], tauNorm: {min, max, w0, w1, o0, o1}, tauK, tauTone, paths: [{a, b, k, tone, w, head, dash, o}], labels: {'A-B': {text, tone, solid, k}}, nodes: {id: {tone, solid, ring, ringK, ringDash, text, k, o, s, dy}}, nodeK, o}); net.pt(id), net.along(a, b, f, inset), net.walk(a, b, f) (where to draw the ant icon while it walks road a -> b), net.rest(id) (where it stands on a town); L8.ek(a, b) = road key.\n\nD. CHARTS (common-5.js): const s = L8.strip(parent, {x, y, w, h, gap, max, fs}); s.update({parts: [{text, v, tone, solid}], k, ticks, marker: u, markerK, o}) -> {lefts, widths, markerX, cuts} (the share strip and roulette wheel with its random-number pointer); const b = L8.bar(parent, {x, y, w, h, tone, full}); b.set({v, tone, text, textIn, k, o, x, y}); const d = L8.dial(parent, {x, y, w, label, min, max, tone, fmt}); d.set({v, k, o, tone}) -> {knobX}; const g = L8.gantt(parent, {x, y, order, px, h}); g.update({n, dueK, lateK, tone, o}) -> {lefts, widths, rows, bottom} (the print shop's schedule: blocks, 'ends' / 'due' lines, late tags).\n\nE. TIPS FOR SCENE AUTHORS. Tags, chips and stats set() every frame: pass k (0..1) to pop them in, o to fade them; a tag that has not popped yet must be set({k: 0}) every frame (otherwise it shows at full size). Chip offsets x, y are offsets from where the chip was placed (use them to fly a chip). Ants: put the icon on net.rest(town) or net.walk(a, b, f), never on the town centre (it would hide the letter). net.update draws grey base roads at 75 % opacity: pass roads: 0 where no base roads are wanted. The 45-road ten-village map is heavy to restyle every frame but fine (about 100 elements). A throwaway test scene is easiest with node tools/video-still.js <your-test-page> s2@4 <dir>; delete test pages before you finish. The stage is 936 x 640 and text never goes below 28 px; keep a 12 px margin."
+}

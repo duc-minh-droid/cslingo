@@ -1,0 +1,366 @@
+{
+  "slug": "lecture-7",
+  "dir": "l7",
+  "title": "Lecture 7 · Swarm intelligence and ant colonies",
+  "outline": "Lecture 7 video (Nature-Inspired Computation, ECM3412): 'Swarm intelligence and ant colonies'. 11 scenes, 121.5 s: title (4), a swarm has no leader (10), many weak votes make a strong one (11), two equal bridges, one winner (12.5), the short bridge gets paid first (14), stigmergy: talking through the ground (11), a trail builds up and fades (13), an ant picks the next town (14), evaporate then deposit (11), many ants make the short tour thick (12), recap (9). Story: a swarm is many identical, simple members with local rules and no leader, and the group can do what no member can (emergent) (scene 2); the toy version is a vote: scouts that are each right 60% of the time give a colony that is right 75% (11 scouts) and 87% (31 scouts) of the time (3). In the double bridge experiment a nest and food are joined by two branches; ants lay pheromone and prefer stronger trails; with equal branches the colony still ends up on ONE of them and which one is chance (two simulated colonies side by side settle on opposite bridges) (4); with one branch twice as long the short trip ends sooner, so the short branch is paid first, more ants choose it, more pheromone is laid (positive feedback) and 85% of 200 colonies settle on the short branch, 10% on the long one (5). Stigmergy is communication through marks left in the environment: one ant leaves a mark, a later ant senses it and follows it; ants use sign-based stigmergy (scent), while sematonic stigmergy is when the work itself prompts others (6). A trail gains from the ants that walk it and loses a fraction to evaporation each step, so it levels off where gain equals loss (ants per step / evaporation: 4 / 0.2 = 20 and 2 / 0.2 = 10); a new ant picks a trail with chance equal to its share (20 of 30 = 67%); if the ants stop the trail fades away (7). ACO turns the bridge into a graph: on a four-town delivery round an ant at a town weighs each unvisited town by pheromone / distance (A: B 24/3 = 8, C 40/4 = 10, D 10/5 = 2, so 40%, 50%, 10%), picks one with the dice and keeps a tour memory so it never revisits a town (8); when its tour is finished every road keeps half of its pheromone (evaporate) and every road of the tour gains Q / length = 72 / 18 = 4 (deposit) (9); sending 24 ants one after another, the random start favours a long tour (A-C-B-D, 18), the first five ants all walk length-18 tours, then a 14-tour appears, deposits more per road (72 / 14 = 5.1 against 4) and the trail leans towards the shortest tour (10). Recap points to Workshop 7.W (ant trail sandbox). Not covered: particle swarm optimisation, the full Ant System rule with alpha and beta (lecture 8).\n\nLESSONS the facts come from: l7-swarm 7.1 (swarm, emergence by numbers), l7-bridge 7.2 (double bridge), l7-stig 7.3 (stigmergy, pheromone trails), l7-tsp 7.4 (ants on a four-town round), l7-wtrail 7.W; js/content/nic/l7-01.js, l7-02.js, l7-03.js, l7-workshop.js, boss-nic-78.js (l7-boss); bank js/bank/nic-44.js, nic-45.js.\n\nTHE EXAMPLE DATA (all computed and asserted when the page loads by videos/l7/common.js; a wrong number throws an Error that names it). VOTES (7.1): each scout right 60%; the chance the majority is right: 1 scout 60%, 11 scouts 75.35% (shown 75), 31 scouts 87.16% (shown 87); one typical vote of 11 is 7 right and 4 wrong, of 31 is 19 right and 12 wrong; coin-flip scouts (50%) stay at 50% however many there are. BRIDGE (7.2): one ant leaves the nest per tick, picks a branch with weight (2 + trail)^2, lays one unit on that branch when it ARRIVES, trails lose 1% per tick, 150 ticks; the upper branch is 5 ticks long; the lower is 5 (equal) or 10 (scene 5). Equal branches: colony 1 = seed 77 settles on the UPPER branch, colony 2 = seed 58 on the LOWER branch; both start about 50:50 (first 20 ants: 50% and 45% on the upper branch); bridgeAt(sim, T).share (percent of the last 10 ants on the upper branch) at T = 10, 20, 30, 40, 50, 60, 70, 76 is 50, 40, 90, 100, 80, 100, 100, 100 for colony 1 and 30, 50, 20, 30, 10, 10, 0, 0 for colony 2; trails at T = 76: 42.7 / 8.3 and 9.9 / 41.1. Unequal branches (5 and 10): colony seed 71: ant 0 goes LONG, ant 1 goes SHORT, so the first deposit lands at tick 6 on the short branch and at tick 10 on the long one; bridgeAt(sim, T).share (the short branch) is 70% at T = 10, 80 at 12, 70 at 16, 80 at 20, 90 at 30, 100 from T = 40 on; trails at T = 60: 37.9 (short) and 4.8 (long). 200 colonies with branches 5 and 10: 170 settle on the short branch (85%), 20 on the long one (10%), 10 stay split (5%). TRAIL (7.3): evaporation 20% per step, trail A gets 4 ants per step and trail B 2; the ants walk for 30 steps and then stop. Strengths: A 4, 7.2, 13.5 (step 5), 17.9 (10), 19.8 (20), 20.0 (30); B half of that. Gain 4 against loss 4.0 at step 30 (B: 2 against 2.0): level 4 / 0.2 = 20 and 2 / 0.2 = 10. A new ant picks A with chance 20 of 30 = 67%, B 33%. After the ants stop (step 30) the trails fall to 2.1 / 1.1 (step 40) and 0.23 / 0.12 (step 50). MAP (7.4): towns A B (top) C D (bottom); distances AB 3, AC 4, AD 5, BC 6, BD 3, CD 4; starting pheromone AB 24, AC 40, AD 10, BC 30, BD 20, CD 10; evaporation keeps 0.5, Q = 72. Three distinct tours: A-B-C-D 18, A-B-D-C 14 (the shortest), A-C-B-D 18; trails on their roads at the start 74, 94, 100 (a length-18 tour leads). The story ant (scenes 8 and 9) starts at A and walks A-C-B-D-A: step 1 at A: B 24 / 3 = 8 (40%), C 40 / 4 = 10 (50%), D 10 / 5 = 2 (10%), total 20, picks C; step 2 at C (A and C in the tour memory): B 30 / 6 = 5 (67%), D 10 / 4 = 2.5 (33%), picks B; step 3 at B: only D is left, 20 / 3 = 6.7 (100%); then home D to A. Hops 4, 6, 3, 5: length 18. Update: evaporate (x 0.5): AB 12, AC 20, AD 5, BC 15, BD 10, CD 5; deposit 72 / 18 = 4 on AC, CB, BD, DA: AB 12, AC 24, AD 9, BC 19, BD 14, CD 5. 24 ants (seed 59, same rule): tours A-C-B-D, A-C-B-D, A-B-C-D, A-C-B-D, A-C-B-D (all length 18), then A-B-D-C (14) from ant 6 to ant 24; trails on (A-B-C-D, A-B-D-C, A-C-B-D) after ant 1: 45 / 55 / 66, ant 2: 31 / 36 / 49, ant 3: 31 / 26 / 33, ant 4: 24 / 21 / 32, ant 5: 20 / 18 / 32 (leader A-C-B-D), ant 6: 20 / 30 / 26 (the 14-tour leads from here), ant 7: 20 / 35 / 23, ant 8: 20 / 38 / 22, ant 9: 21 / 40 / 21, ant 11 to 24: 21 / 41 / 21. Deposit per road: 72 / 14 = 5.1 for the short tour, 72 / 18 = 4 for the long ones.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. Every label is 28 px or more; symbols (tick, cross, arrow, dice, crown, ant) are SVG pictograms (L5.tick / L5.cross / L5.arrow / L5.dice, L7.ant / L7.crown), never glyphs; the characters x / divide / minus in numbers are plain text. Pass everything to every draw call every frame (pure). THE FIGURES ARE THE VOCABULARY: the double bridge (L7.bridge: round Nest and Food stickers, two grey roads, a blue trail whose WIDTH is the pheromone, ink dots for ants, a blue ring where an ant lands) appears in scenes 4 and 5 and, small, in the recap; the four-town map (L7.map: towns A B C D as round stickers, a grey pill with the distance on every road, trail width = pheromone) is the same figure in scenes 8, 9 and 10 at the same place (x 0, y 20, 480 x 300) so the viewer follows ONE map from the first choice to the last ant; the tour roads an ant walked are drawn ORANGE. Words defined on screen before they are used: 'pheromone' (blue tag 'pheromone: the scent trail', scene 4), 'emergent' (tag 'emergent: no ant can alone', scene 2), 'stigmergy' (banner, scene 6), 'gain' and 'loss' (legend tags, scene 7), 'tour memory' (tag, scene 8), 'evaporate' and 'deposit' (card titles, scene 9). Captions are one plain sentence each, at most about 9 words per sentence, each starting only when the picture it describes is on screen. scene-01-title.js is finished (VID.titleCard).",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 7",
+    "title": "Swarm intelligence",
+    "sub": "How simple ants find short routes together",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 2,
+      "file": "scene-02-swarm.js",
+      "kicker": "SWARMS",
+      "title": [
+        "Simple ants,",
+        "clever colony"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "A colony is many identical, simple ants."
+        ],
+        [
+          3.0,
+          5.6,
+          "Each one only reacts to its neighbours."
+        ],
+        [
+          5.8,
+          7.6,
+          "There is no leader giving orders."
+        ],
+        [
+          7.8,
+          9.6,
+          "Yet together they find the shortest route."
+        ]
+      ],
+      "spec": "IDEA: a swarm is many identical, simple members that only react to their neighbours (local rules), with NO leader, and the group can still do something no member can alone: an emergent skill (the colony finds the shortest route). A concept diagram, not a simulation: a ring of ants, local links, a crown that is crossed out. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nLAYOUT (stage px). A ring of EIGHT IDENTICAL ants, all L7.ant size 84 in ink (dark), centres at (468 + 300 cos a_k, 290 + 190 sin a_k) with a_k = -90 deg + 45 deg x k, k = 0..7 clockwise from the top: (468, 100), (680, 156), (768, 290), (680, 424), (468, 480), (256, 424), (168, 290), (256, 156). Each ant faces along the ring (clockwise): rotation r = a_k + 90 degrees. Draw each ant ONCE at (0, 0) inside one L5.svg(stage) layer with g = svg.appendChild(L7.ant(0, 0, 84)) and move it with V.place(g, {x: cx, y: cy, r, s, o}) (V.place translates from where the element is drawn). LINKS: eight grey lines in a second L5.svg layer under the ants (stroke var(--line-2), width 8, round caps), one between each pair of neighbours k and k+1, starting 52 px away from each centre so no line runs under an ant; draw them on with stroke-dasharray. A moving PULSE: a blue L7.token(stage, {tone: 'blue', size: 26}). CENTRE: tag L7.tag(stage, {x: 468 - L7.tagW('neighbours only') / 2, y: 262, text: 'neighbours only', tone: 'grey'}); the crown g = svg.appendChild(L7.crown(468, 280, 130, 'orange')); the cross c = svg.appendChild(L5.cross(468, 280, 150, 'red', {w: 12})) drawn on with L5.drawOn(c, k); tag 'no leader' (tone 'red', solid true) centred at (468, 372). BOTTOM (y 548, 58 px high): a green solid tag 'finds the shortest route' centred at x 260 with an L5.tick (green, on shade, 34 px) drawn on to its left inside the tag (use L5.drawOn), and a grey tag 'emergent: no ant can alone' centred at x 700. (Define 'emergent' on screen exactly like this.)\n\nTIMELINE (local seconds). 0.2-1.5 the ants pop one after another clockwise from the top (0.14 s apart, scale with E.pop, dropping in from 20 px above, o ramp 0.2 s). From the moment an ant has popped it bobs: y += 3 sin(2 pi (t / 1.8 + k / 8)). 1.6-2.8 the links draw on (0.12 s apart, 0.3 s each). 1.8-2.2 the 'neighbours only' tag pops in (VID k ramp) and stays until 5.3, then fades out 5.3-5.6. 3.0 to the end: the blue pulse runs round the ring along the links, one hop per 0.55 s: u = (t - 3.0) / 0.55, link j = floor(u) mod 8 from ant j to ant j + 1, fraction u - floor(u); the ant it has just reached bumps (scale 1 + 0.16 x V.flash over 0.3 s). (The pulse is information passing from neighbour to neighbour: nothing sits in the middle.) 5.6-6.2 the crown pops in the centre (E.pop). 6.3-6.8 the red cross draws on over it. 6.9-7.4 the 'no leader' tag pops. 7.8-8.4 the green sticker pops, its tick draws on 8.1-8.5. 8.5-9.0 the grey 'emergent' tag pops. 9.0-10 hold (ants still bob, the pulse still runs, calm).\n\nEND STATE: the ring with its links, the crown crossed out with 'no leader', the two bottom stickers. Scene 3 shows the same idea with numbers. Do not add any text beyond the tags above. CAPTIONS: [[0.4,2.8,'A colony is many identical, simple ants.'],[3.0,5.6,'Each one only reacts to its neighbours.'],[5.8,7.6,'There is no leader giving orders.'],[7.8,9.6,'Yet together they find the shortest route.']]"
+    },
+    {
+      "n": 3,
+      "file": "scene-03-votes.js",
+      "kicker": "EMERGENCE",
+      "title": [
+        "Many weak votes",
+        "make a strong one"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "One scout is right 60% of the time."
+        ],
+        [
+          3.0,
+          6.0,
+          "Eleven scouts vote, and the majority wins."
+        ],
+        [
+          6.2,
+          9.0,
+          "Thirty-one scouts are right 87% of the time."
+        ],
+        [
+          9.2,
+          10.8,
+          "Many weak votes make one strong choice."
+        ]
+      ],
+      "spec": "IDEA: emergence by numbers. Scouts each pick the better of two routes with probability 60%; the colony follows the MAJORITY. One scout is right 60% of the time, eleven scouts 75%, thirty-one scouts 87%. Many weak, better-than-chance votes add up. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (read from L7.VOTE, never typed): L7.VOTE.rows = [{n: 1, shown: 60}, {n: 11, shown: 75, right: 7, wrong: 4, votes: [11 booleans]}, {n: 31, shown: 87, right: 19, wrong: 12, votes: [31 booleans]}]; votes[i] true = scout i picked the better route (one typical vote, in a fixed shuffled order). Assert in the scene: rows.map(r => r.shown) equals [60, 75, 87] (L7.same). LAYOUT. Header (y 0): grey tag 'each scout is right 60%' at x 0 (put the 60 from L7.VOTE.p x 100), grey tag 'group is right' at x 650. THREE ROWS at y = 90, 250, 410 (150 px apart). Row label (L7.text, 32 px, bold, x 0, vertically centred in the row): '1 scout', '11 scouts', '31 scouts'. SCOUT TOKENS (L7.token, grey, flipping to green or red): row 1 one token size 48 at (224, rowY + 70); row 2 eleven tokens size 34, pitch 42, six in the first line and five in the second, line y = rowY + 38 and rowY + 84, first token centre x 217; row 3 thirty-one tokens size 28, pitch 32, twelve per line, line y = rowY + 24, + 58, + 92, first centre x 214 (last line has 7). BARS: L7.bar(stage, {x: 620, y: rowY + 48, w: 316, h: 56, tone: 'green'}), text '60%', '75%', '87%' inside, fill k = shown / 100. LEGEND (appears with row 2, sits in the free space of row 1): a green L7.token size 26 at (300, 112) with the 28 px text 'better route' at x 322, and a red token at (300, 156) with 'worse route' (define the colours before they are used).\n\nTIMELINE. 0.2-0.8 header tags and row labels pop (0.1 s apart). 0.9-1.3 the single scout pops (grey) and bar 1 pops empty; 1.4-2.4 bar 1 fills to 60% (E.out) with the text counting up. 3.0-3.8 the eleven tokens pop one by one (0.05 s apart, grey); 3.2 the legend pops. 3.9-5.0 the tokens FLIP to their vote one after another (0.08 s apart): green if votes[i] else red, each with a small pop (scale 1.3 -> 1, E.pop). 5.2-6.0 bar 2 fills to 75%. 6.3-7.0 the thirty-one tokens pop (0.025 s apart). 7.1-8.3 they flip to their votes (0.035 s apart). 8.4-9.2 bar 3 fills to 87%. 9.4-10.8 hold, calm (the three bars, the decided tokens).\n\nEND STATE: three rows with decided tokens (7 green 4 red, 19 green 12 red) and bars 60 / 75 / 87%. Do not mention 'coin flip' here. CAPTIONS: [[0.4,2.8,'One scout is right 60% of the time.'],[3.0,6.0,'Eleven scouts vote, and the majority wins.'],[6.2,9.0,'Thirty-one scouts are right 87% of the time.'],[9.2,10.8,'Many weak votes make one strong choice.']]"
+    },
+    {
+      "n": 4,
+      "file": "scene-04-equal.js",
+      "kicker": "THE DOUBLE BRIDGE",
+      "title": [
+        "Two equal bridges,",
+        "one winner"
+      ],
+      "dur": 12.5,
+      "caps": [
+        [
+          0.4,
+          2.8,
+          "Ants can cross by either of two equal bridges."
+        ],
+        [
+          3.0,
+          5.6,
+          "At first the ants choose at random."
+        ],
+        [
+          5.8,
+          8.6,
+          "Each ant leaves pheromone and prefers a stronger trail."
+        ],
+        [
+          8.8,
+          10.6,
+          "Soon most ants use one bridge."
+        ],
+        [
+          10.8,
+          12.2,
+          "Which one is down to chance."
+        ]
+      ],
+      "spec": "IDEA: the double bridge experiment (Deneubourg 1989), experiment 1: a nest and a food source joined by two EQUAL branches. Ants lay pheromone and prefer stronger trails, so the colony ends up on ONE branch, but which one is chance: two simulated colonies, side by side, settle on opposite bridges. Real simulations of the lesson's model. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (L7.bridgeAt / L7.EQ, asserted at load): L7.EQ.up = colony 1 (seed 77, settles on the UPPER branch), L7.EQ.down = colony 2 (seed 58, settles on the LOWER branch). Both start about 50:50; by T = 60 the share of the last 10 ants on the upper branch is 100% (colony 1) and 10% (colony 2), at T = 76 it is 100% and 0%; trails at T = 76: 42.7 / 8.3 and 9.9 / 41.1. Tick time: T(t) = clamp((t - 3.0) x 10, 0, 76): ten ticks per second, so ticks 0-76 play from 3.0 s to 10.6 s. The state at T: s1 = B1.update({sim: L7.EQ.up, T}) and s2 = B2.update({sim: L7.EQ.down, T}) return the share (percent of the last 10 ants on the UPPER branch). LAYOUT. TWO BRIDGES side by side: B1 = L7.bridge(stage, {x: 0, y: 70, w: 450, h: 340, cy: 170}) and B2 = L7.bridge(stage, {x: 486, y: 70, w: 450, h: 340, cy: 170}) (nest centre x = 40, food centre x = 410, two equal arcs bowing about 87 px up and down, so the apexes are at y about 128 and 352). Grey tags 'colony 1' at (0, 4) and 'colony 2' at (486, 4). LIVE SHARE TAGS (L7.tag, grey, text like '70% of ants', pop in at 4.0 when ten ants have left): one above each upper apex (B.apex(0) minus about 62 px in y: '<share>% of ants') and one below each lower apex (B.apex(1) plus about 8 px: '<100 - share>% of ants'). LEGEND at the bottom (y 566): blue tag 'pheromone: the scent trail' at x 100 with a short blue line sample (12 px thick) drawn on its left, pops at 0.6; grey tag 'thicker = stronger' at x 560, pops at 5.8. OUTCOME STICKERS (y 452): orange solid tags 'chose the upper bridge' centred under bridge 1 (x 225) and 'chose the lower bridge' centred under bridge 2 (x 711), with a tick pictogram, pop at 10.7 (0.3 s apart). (Orange = chance and choice. Do not call either bridge 'better'.)\n\nTIMELINE. 0.2-1.4 the two bridges build: B.update({ground: k}) grows the grey roads from the nest (k 0 -> 1 over 0.6 s, the second bridge 0.2 s later), nest and food are already there, tags 'colony 1' / 'colony 2' pop; 0.6 the pheromone legend pops. 3.0-10.6 both colonies run in lock-step from the same T (ants stream along the arcs, blue trails grow, landing rings pulse). At 4.0 the share tags pop in and then update every frame. 5.8 'thicker = stronger' pops. By about 7 s (tick 40) colony 1 is clearly on the upper bridge and colony 2 on the lower. 10.6-10.7 the dots stop: fade the ants out (B.update ants: 1 - ramp(t, 10.5, 10.9)); the trails stay. 10.7-11.3 the two outcome stickers pop. 11.3-12.5 hold, calm.\n\nEND STATE: colony 1 with a thick trail on the upper bridge and 'chose the upper bridge'; colony 2 with a thick trail on the lower bridge and 'chose the lower bridge'; share tags 100% / 0% and 0% / 100%. CAPTIONS: [[0.4,2.8,'Ants can cross by either of two equal bridges.'],[3.0,5.6,'At first the ants choose at random.'],[5.8,8.6,'Each ant leaves pheromone and prefers a stronger trail.'],[8.8,10.6,'Soon most ants use one bridge.'],[10.8,12.2,'Which one is down to chance.']]"
+    },
+    {
+      "n": 5,
+      "file": "scene-05-short.js",
+      "kicker": "THE DOUBLE BRIDGE",
+      "title": [
+        "The short bridge",
+        "gets paid first"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          2.4,
+          "Now one road is twice as long as the other."
+        ],
+        [
+          2.6,
+          4.6,
+          "Ants walk at the same speed, so the short trip ends first."
+        ],
+        [
+          4.8,
+          7.4,
+          "Its pheromone builds up first, so more ants pick it."
+        ],
+        [
+          7.6,
+          9.4,
+          "Soon almost every ant takes the short road."
+        ],
+        [
+          9.8,
+          11.8,
+          "Out of 200 colonies, 85% pick the short road."
+        ],
+        [
+          12.0,
+          13.6,
+          "A few still lock onto the long one."
+        ]
+      ],
+      "spec": "IDEA: double bridge experiment 2: one branch is twice as long. Ants walk at the same speed, so a trip on the SHORT branch ends sooner and its pheromone is laid sooner; later ants then see more pheromone there and choose it more often, which lays still more: positive feedback (a snowball). Most colonies settle on the short branch, but early luck means a few lock onto the long one. A real simulation of the lesson's model, then the tally of 200 colonies. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (asserted at load): sim = L7.SH (seed 71, branches 5 and 10): picks 1 0 1 1 0 0 0 0 0 0 1 0 0 0 1 ... so ant 0 goes LONG and ant 1 goes SHORT: the first deposit lands on the short branch at tick 6 (L7.firstLand(L7.SH, 0)) and on the long branch only at tick 10 (L7.firstLand(L7.SH, 1)), although the long ant left first. Share of the last 10 ants on the short branch (the state's share field): 70% at T = 10, 80 at 12, 70 at 16, 80 at 20, 90 at 30, 100 from T = 40 on. L7.SHT = {up: 170, down: 20, split: 10} for 200 colonies: short wins Math.round(100 x 170 / 200) = 85%, long wins 10%, split 5% (compute these from L7.SHT and assert 85 / 10 / 5). TICK TIME T(t): slow at first so the viewer can follow the first ants: T = (t - 1.0) / 0.35 for 1.0 <= t < 5.2 (ticks 0 to 12, about 3 ticks per second), then T = 12 + (t - 5.2) x 11.43 for 5.2 <= t <= 9.4 (ticks 12 to 60), then T = 60. B.update({sim: L7.SH, T}) returns {share, n, ...}. LAYOUT. BRIDGE: B = L7.bridge(stage, {x: 0, y: 40, w: 540, h: 460, cy: 100, lenU: 5, lenL: 10}) (the upper road is a straight line, the lower road a deep bowl hanging below it; its DRAWN length is twice the upper road's, so ants walk at the same speed on both). Grey tags '5 steps' centred above the straight road (centre x 270, y 64, so the tag ends 18 px above the road) and '10 steps' centred under the bowl (centre x 270, y 478). RIGHT PANEL x 580-936: stat L7.stat(stage, {x: 590, y: 30, w: 346, h: 80, label: 'step', tone: 'grey'}) showing floor(T) from 1.0 (it counts up with the ants; it gives '5 steps' and '10 steps' their meaning). From 4.8: the FEEDBACK LOOP as three L7.card chips (w 316, h 56, plain false, 28 px) stacked at x 590, y 130 / 214 / 298: 'more pheromone' (blue), 'more ants choose it' (orange: choice), 'more pheromone laid' (blue), with L5.arrow pictograms between them (grey, pointing down, about 28 px long) and a return arrow from the third chip up the right side to the first (x 920, bow), drawn on in turn; a blue pulse (L7.token size 22) runs round the loop from 5.4 on, one lap per 2.4 s. Under the loop: grey tag 'last 10 ants' at (590, 372) and L7.stat green {x: 590, y: 440, w: 346, h: 80, label: 'short road'} showing the share of those ants on the short branch ('70%' ... '100%'), both pop in at 4.5. FROM 9.8 the loop, tag and share stat are replaced by the TALLY (they fade out 9.4-9.8): grey tag '200 colonies' at (590, 140), then three stat cards stacked at y 210 / 300 / 390 (w 346, h 76): green 'short road' '85%', red 'long road' '10%', grey 'split' '5%' (pop 0.25 s apart from 9.9).\n\nTIMELINE. 0.2-1.0 the bridge builds (ground grows, nest and food visible), tags '5 steps' and '10 steps' pop (0.5 and 0.7); 1.0 the step counter pops and the ants start leaving, one per tick: the first ant walks the LONG road and the second the SHORT one. The short ant lands at T = 6 (t = 3.1): a blue ring pulses at the food and the first thin blue trail appears on the SHORT road while the long road is still bare; the long ant lands at T = 10 (t = 4.5). 4.5 the share stat pops. 4.8 the loop starts to draw. 5.2-9.4 fast forward to tick 60: the short road's trail thickens, the long one stays thin, the share climbs 70 -> 90 -> 100%. 9.4-9.8 the ants fade out (B.update ants: 1 - ramp(t, 9.4, 9.8)), the trails stay. 9.8-11.6 the tally pops; 12.0 the red 'long road' card does one pulse (stat bump with V.flash(t, 12.0, 12.4)). 12.4-14 hold, calm.\n\nEND STATE: bridge with a thick trail on the short road and a thin one on the long road; the tally 85 / 10 / 5%. CAPTIONS: [[0.4,2.4,'Now one road is twice as long as the other.'],[2.6,4.6,'Ants walk at the same speed, so the short trip ends first.'],[4.8,7.4,'Its pheromone builds up first, so more ants pick it.'],[7.6,9.4,'Soon almost every ant takes the short road.'],[9.8,11.8,'Out of 200 colonies, 85% pick the short road.'],[12.0,13.6,'A few still lock onto the long one.']]"
+    },
+    {
+      "n": 6,
+      "file": "scene-06-stigmergy.js",
+      "kicker": "STIGMERGY",
+      "title": [
+        "Ants talk through",
+        "the ground"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.8,
+          3.4,
+          "One ant leaves a scent mark on the ground."
+        ],
+        [
+          3.9,
+          6.2,
+          "A later ant senses the mark and follows it."
+        ],
+        [
+          6.4,
+          8.0,
+          "That is stigmergy: talking through the environment."
+        ],
+        [
+          8.4,
+          10.6,
+          "Scent is a sign. Building itself can also prompt others."
+        ]
+      ],
+      "spec": "IDEA: stigmergy is indirect communication through marks left in the environment (Grasse 1959): an ant changes the world and another ant later senses the change; they never need to meet. Ants use SIGN-BASED stigmergy (a scent mark that is not the work itself); SEMATONIC stigmergy is when the work itself prompts others (a growing pile draws more builders). Two beats: a two-ant story, then the two kinds side by side. Concept pictures, not simulations. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nBEAT A LAYOUT (stage px, one L5.svg(stage) layer plus HTML tags). Nest and food are L7.spot stickers appended to the svg: g = svg.appendChild(L7.spot(50, 330, 'Nest')) and L7.spot(886, 330, 'Food'). The walk is the curve p(s), s in 0..1: x = 90 + 756 s, y = 330 - 50 sin(2 pi s), heading r = atan2(-314 cos(2 pi s), 756) in degrees. TWENTY blue pheromone dots (circles r 9, fill var(--blue), stroke var(--blue-lip), width 3) at s_j = (j + 0.5) / 20, j = 0..19. TWO ants, L7.ant size 70 in ink, drawn at (0, 0) and moved with V.place(g, {x, y, r, o, s}). A GROUND band behind everything: a rounded rect (x 0, y 215, w 936, h 230, rx 30) filled var(--panel-2) with a 3 px var(--line) stroke, and a grey tag 'the ground' at (24, 456). Grey tag 'later' centred at (468, 150) (L7.tagW). A sense ring: an orange circle (r 34, stroke 6, no fill) that follows ant 2's head.\nBEAT B LAYOUT: banner L7.tag(stage, {x: 468 - L7.tagW(text) / 2, y: 0, text: 'stigmergy: talking through the environment', tone: 'purple', solid: true}) at the top. Two cards (L7.card plain, h 400, y 130): LEFT x 0 w 450 tone 'blue', RIGHT x 486 w 450 tone 'purple'. Children of each card (append to card.el, absolute px inside the card): a title (L7.text 36 px, tone 'blue' / 'purple') 'Sign-based' / 'Sematonic' at (24, 215); a 28 px dim line 'a mark, not the work' / 'the work prompts others' at (24, 270); on the left card a green solid tag 'ants use this' at (24, 322). Mini picture area: the top 190 px of each card. LEFT mini picture: a small ink ant (size 56) walks left to right along a line at y 110 from x 50 to x 400 and drops four blue dots (r 9) at x 100, 190, 280, 370 as it passes. RIGHT mini picture: three stacks of grey rounded squares (40 x 40, grey v-gene look, stacks at x 100, 220, 340 with 1, 3 and 2 squares, bottoms at y 190); an ink ant (size 48) stands above the middle stack at (220, 40) and drops a new ORANGE square onto it (it falls onto the 4th level); then two ants (size 48) walk in from x 40 and x 410 to the stack (they stop at x 140 and x 300).\n\nTIMELINE. 0.2-0.7 the ground band, its tag, nest and food pop. 0.6-0.9 ant 1 pops at the nest. 0.8-3.4 ant 1 walks s 0 -> 1 (linear); dot j pops (E.pop, 0.25 s) the moment s reaches s_j, so the trail appears BEHIND the ant; 3.4-3.8 ant 1 fades out at the food. 3.5-3.8 the 'later' tag pops (visible until 6.2, fades 6.2-6.5). 3.9-4.2 ant 2 pops at the nest, 70 px BELOW the trail line. 4.0-6.2 ant 2 walks s 0 -> 1 (linear) at offset dy(s) = 70 x (1 - ramp(s, 0.03, 0.17)) (it starts off the trail, senses the first dots and turns onto them); its heading follows its own path (finite difference). 4.2-4.8 the orange sense ring pulses around its head (V.flash). 6.4-7.0 the purple banner pops. 7.9-8.3 the whole beat A picture fades out (nest, food, dots, ant 2, tag). 8.2-8.8 the left card pops, 8.5-9.1 the right card pops (children with it). 8.8-9.8 the left mini picture plays (ant walks, dots pop behind it); 9.0-10.2 the right one plays (square falls 9.0-9.4, then the two ants walk in 9.5-10.2). 9.8 the green 'ants use this' tag pops. 10.2-11 hold, calm.\n\nEND STATE: the banner and the two cards with their finished mini pictures. CAPTIONS: [[0.8,3.4,'One ant leaves a scent mark on the ground.'],[3.9,6.2,'A later ant senses the mark and follows it.'],[6.4,8.0,'That is stigmergy: talking through the environment.'],[8.4,10.6,'Scent is a sign. Building itself can also prompt others.']]"
+    },
+    {
+      "n": 7,
+      "file": "scene-07-trail.js",
+      "kicker": "PHEROMONE TRAILS",
+      "title": [
+        "Trails build up",
+        "and fade away"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          1.4,
+          3.4,
+          "Each step, ants add pheromone to a trail."
+        ],
+        [
+          3.6,
+          6.2,
+          "Each step, a fifth of it evaporates."
+        ],
+        [
+          6.4,
+          8.0,
+          "It levels off where gain equals loss."
+        ],
+        [
+          8.2,
+          10.0,
+          "A stronger trail has a higher chance of being picked."
+        ],
+        [
+          10.2,
+          12.6,
+          "If the ants stop, the trail fades away."
+        ]
+      ],
+      "spec": "IDEA: a pheromone trail GAINS from the ants that walk it and LOSES a fraction to evaporation every step; it levels off where gain equals loss, near ants per step / evaporation (4 / 0.2 = 20 and 2 / 0.2 = 10). A new ant picks a trail with chance equal to its share of the pheromone (20 of 30 = 67%). If the ants stop, nothing refills it and it fades away. Two buckets (tanks) fill and leak. Run on the lesson's own numbers. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (read from L7.TRAIL / L7.trailAt, asserted at load): evaporation 20% per step; trail A gets 4 ants per step, trail B 2; the ants walk for 30 steps and then stop (L7.TRAIL.stop = 30, steps = 50). s = L7.trailAt(T) at continuous step T gives {step, a, b, gainA, lossA, gainB, lossB, running}: A 4.0 at step 1, 7.2 (2), 13.5 (5), 17.9 (10), 19.8 (20), 20.0 (30); B is half of A; at step 30 gain 4 and loss 4.0 for A (2 and 2.0 for B); after the stop A is 2.1 (40) and 0.23 (50), B 1.1 and 0.12. L7.TRAIL.eq = {a: 20, b: 10}, L7.TRAIL.chance = {a: 67, b: 33}. STEP TIME T(t): T = clamp((t - 1.4) x 6, 0, 30) up to t = 6.4 (6 steps per second), T = 30 until t = 10.2, then T = 30 + (t - 10.2) x 8 up to T = 50 at t = 12.7.\nLAYOUT (stage px). TWO TANKS: tankA = L7.tank(stage, {x: 40, y: 140, w: 220, h: 330, max: 24}) and tankB = L7.tank(stage, {x: 300, y: 140, w: 220, h: 330, max: 24}); tank.set({v: s.a, mark: 20}) / ({v: s.b, mark: 10}) (the dashed orange mark line shows only from 6.4). Blue tags 'trail A' and 'trail B' centred above the tanks (x 150 and 410, y 0). ANTS ABOVE THE TANKS (ink L7.ant size 42, y centre 96, drawn at (0, 0) in an L5.svg layer and placed with V.place): four ants for A at x 90, 140, 190, 240 and two for B at x 385, 435; they bob y += 5 sin(2 pi T) while the ants walk and fade out 9.8-10.2. UNDER EACH TANK at y 488 (54 px high, 30 px text): a gain pill (L7.tag, tone 'blue', solid, text '+' + s.gainA, e.g. '+4') and a loss pill (tone 'purple', solid, text '-' + s.lossA.toFixed(1), e.g. '-0.8'); A: gain at x 40, loss at x 168; B: gain at x 300, loss at x 428; between them, from 6.8, a small orange '=' (two 26 px bars, 7 px thick, centred at x 150 for A and 410 for B). RIGHT COLUMN x 560-936: L7.stat(stage, {x: 570, y: 0, w: 366, label: 'step', tone: 'grey'}) showing s.step; legend tags (pop with the tanks): blue 'gain: ants add' at (570, 110) and purple 'loss: 20% evaporates' at (570, 178); from 6.4 two plain cards (L7.card, tone 'blue', fs 32, w 366, h 64) at (570, 266) 'A: 4 ÷ 0.2 = 20' and (570, 340) 'B: 2 ÷ 0.2 = 10'; from 8.2 a grey tag 'chance a new ant picks it' at (570, 420) and two L7.bar (tone 'orange', w 366, h 56) at (570, 490) and (570, 556): 'A 67%' fill 0.67 and 'B 33%' fill 0.33 (from L7.TRAIL.chance). From 10.0 a red solid tag 'ants stop' centred at (270, 72) where the ants were.\n\nTIMELINE. 0.2-1.3 tags, tanks, ants, step card and legend pop (0.1 s apart). 1.4-6.4 steps 0 -> 30: the levels rise (A 20.0, B 10.0 at step 30), the pills read +4 / -0.8 ... +4 / -4.0 and +2 / -0.4 ... +2 / -2.0, the step card counts. 6.4-8.0 the dashed level lines pop at 20 and 10, then the equation cards (0.3 s apart), the '=' signs at 6.8. 8.2-9.4 the chance tag, then the two bars fill (0.8 s, E.out, 0.3 s apart). 9.8-10.2 the ants fade out, 10.0 the 'ants stop' tag pops. 10.2-12.7 steps 30 -> 50: both tanks drain to almost empty (0.23 and 0.12), the gain pills read +0, the loss pills fall to -0.1 and -0.0. 12.7-13 hold.\n\nEND STATE: two almost empty tanks with their dashed marks, 'ants stop', the equation cards and the chance bars. CAPTIONS: [[1.4,3.4,'Each step, ants add pheromone to a trail.'],[3.6,6.2,'Each step, a fifth of it evaporates.'],[6.4,8.0,'It levels off where gain equals loss.'],[8.2,10.0,'A stronger trail has a higher chance of being picked.'],[10.2,12.6,'If the ants stop, the trail fades away.']]"
+    },
+    {
+      "n": 8,
+      "file": "scene-08-walk.js",
+      "kicker": "ANTS ON A MAP",
+      "title": [
+        "Pick the next town",
+        "by trail and distance"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          1.0,
+          2.6,
+          "An ant starts on one town."
+        ],
+        [
+          2.8,
+          4.8,
+          "Each town left gets a weight: pheromone ÷ distance."
+        ],
+        [
+          5.0,
+          6.8,
+          "The weights become chances, and the dice picks one."
+        ],
+        [
+          7.0,
+          9.8,
+          "Visited towns go into its tour memory, so it never repeats one."
+        ],
+        [
+          10.0,
+          12.4,
+          "It carries on until every town is visited, then returns home."
+        ],
+        [
+          12.6,
+          13.8,
+          "The tour is 4 + 6 + 3 + 5 = 18 long."
+        ]
+      ],
+      "spec": "IDEA: ACO turns the bridge into a graph. On a four-town delivery round an ant at a town gives every UNVISITED town a weight = pheromone / distance, turns the weights into chances, picks with the dice, and remembers the towns it has visited (tour memory) so it never repeats one and every finished tour is valid. One worked walk, the lesson's story ant: A-C-B-D and home, length 18. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (L7.WALK, L7.MAP, asserted at load): starting pheromone AB 24, AC 40, AD 10, BC 30, BD 20, CD 10; distances AB 3, AC 4, AD 5, BC 6, BD 3, CD 4. L7.WALK.steps[0] (at A, memory A): B 24 / 3 = 8 (40%), C 40 / 4 = 10 (50%), D 10 / 5 = 2 (10%), total 20, pick C. steps[1] (at C, memory A C): B 30 / 6 = 5 (67%), D 10 / 4 = 2.5 (33%), total 7.5, pick B. steps[2] (at B, memory A C B): D 20 / 3 = 6.7 (100%), pick D. Home: D to A (5). Hops 4, 6, 3, 5, L7.WALK.len = 18. Each step has opts: [{town, road, tau, d, w, p, pct}]: print tau (blue ink), d (dim) and w with L7.fmt. LAYOUT. THE MAP at the same place in scenes 8, 9 and 10: M = L7.map(stage, {x: 0, y: 20, w: 480, h: 300}) (towns A (40, 60), B (440, 60), C (130, 280), D (350, 280); distance pills in grey on every road: M.update({tau: L7.MAP.tau0, pills: M.distPills(k)}); the blue trail width shows the pheromone). Town states: M.update({towns: {A: {tone: 'orange'} (visited, tinted), C: {tone: 'orange', solid: true} (the ant is here)}}); roads the ant has walked: tone {'A-C': 'orange'}; roads under consideration: halo {'A-B': 'orange', 'A-C': 'orange', 'A-D': 'orange'}. The ant: M.update({ant: M.antAt('A', 'C', f, 24, 40)}) (f 0..1 eased with E.inOut, a 24 px hop, lift 40 so the ant stands on top of the town and the letter stays readable; a resting ant on town X is M.antAt(X, X, 0, 0, 40)). TOUR MEMORY under the map: grey tag 'tour memory' at (0, 372); L5.chromosome(stage, {x: 0, y: 440, genes: 'ACBDA', size: 80, gap: 12, tone: 'orange'}): tile i pops (row.set(i, {s, o})) when the ant has chosen that town; the FIFTH tile ('A', home) is ghost (set {ghost: true}) until the ant returns, then it fills in. RIGHT PANEL x 520-936: grey tag 'pheromone ÷ distance' at (520, 20) (the words colour-coded in the rows below). Option rows are L7.card (plain, w 416, h 84, tone 'grey') at y 96, 192, 288; children appended to card.el: a town disc (a v-gene c-grey 56 x 56, left 14, top 14, letter 32 px), the equation as HTML at left 88 (34 px, bold): '<span style=\"color:var(--blue-ink)\">24</span> ÷ <span style=\"color:var(--text-dim)\">3</span> = 8', and at the right (left 300, top 14) an orange solid v-tag with the chance ('40%'; hidden until it pops). Under the rows a grey tag '20 in total' (7.5 / 'only D is left' in the later steps) at (520, 388). DICE: L5.dice(x, y, 64, {face}) in an svg layer at (870, 430); while rolling its face cycles 1 + floor((t - t0) x 10) % 6, then it lands (face 3). LENGTH: grey tag 'tour length' at (520, 408) and an L7.card (plain, tone 'orange', fs 44) at (520, 470, w 416, h 90) with '4 + 6 + 3 + 5 = 18'.\n\nTIMELINE. 0.2-1.0 the map builds: M.update({grow}) 0 -> 1, then the distance pills pop (0.07 s apart), towns visible. 1.0-1.5 the ant pops on A (town A solid orange); the 'tour memory' tag pops at 1.0, tile A at 1.3. 1.8-2.6 the header tag and the three rows B, C, D pop (0.2 s apart) with the halos on the three roads from A. 4.0-4.8 the chance pills pop (0.15 s apart: 40%, 50%, 10%) with the '20 in total' tag. 4.8-5.8 the dice rolls, lands on 3 at 5.8. 5.8-6.2 rows B and D fade out and row C turns solid orange; 6.5-6.9 the rows fade. 6.0-6.8 the ant hops A to C (road A-C turns orange, A tinted, C solid), tile C pops at 6.6. 7.0-7.8 step 2: rows B (30 ÷ 6 = 5, 67%) and D (10 ÷ 4 = 2.5, 33%) pop at y 96 and 192 with halos on C-B and C-D and the tag '7.5 in total' (pills pop 7.4-7.8). 8.4-9.0 dice rolls, lands on 5. 9.0-9.6 row D fades, row B turns solid orange, then both fade. 9.1-9.9 the ant hops C to B (road C-B orange), tile B pops at 9.7. 10.0-10.6 step 3: one row D (20 ÷ 3 = 6.7, 100%) pops with the grey tag 'only D is left' at (520, 200) and the halo on B-D. 10.7-11.4 the ant hops B to D (road B-D orange), tile D pops at 11.3, the row fades. 11.6-12.4 the ant hops D to A (road A-D orange, the ghost tile A fills in orange at 12.2). 12.6-13.2 the 'tour length' tag and the length card pop. 13.2-14 hold, calm.\n\nEND STATE: the map with the orange tour A-C-B-D-A, the ant on A, the tour-memory tiles A C B D A, the length card 18. Scene 9 starts from exactly this picture. CAPTIONS: [[1.0,2.6,'An ant starts on one town.'],[2.8,4.8,'Each town left gets a weight: pheromone ÷ distance.'],[5.0,6.8,'The weights become chances, and the dice picks one.'],[7.0,9.8,'Visited towns go into its tour memory, so it never repeats one.'],[10.0,12.4,'It carries on until every town is visited, then returns home.'],[12.6,13.8,'The tour is 4 + 6 + 3 + 5 = 18 long.']]"
+    },
+    {
+      "n": 9,
+      "file": "scene-09-update.js",
+      "kicker": "UPDATING TRAILS",
+      "title": [
+        "Evaporate first,",
+        "then deposit"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.4,
+          2.4,
+          "The ant has finished its tour. Now the trails update."
+        ],
+        [
+          2.6,
+          4.6,
+          "First, every road keeps only half of its pheromone."
+        ],
+        [
+          4.8,
+          7.4,
+          "Then each road on the tour gains Q ÷ length: 72 ÷ 18 = 4."
+        ],
+        [
+          7.6,
+          9.8,
+          "Roads the ant skipped only lose pheromone."
+        ]
+      ],
+      "spec": "IDEA: after a whole tour the pheromone is updated in two steps: EVAPORATE (every road keeps half) and DEPOSIT (every road of the tour gains Q / tour length = 72 / 18 = 4). Roads the ant did not use only lose. A shorter tour would deposit more per road (shown in scene 10). The same map as scene 8, starting from its end state. COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (L7.UPDATE, asserted at load): evaporation keeps rho = 0.5, Q = 72, tour length 18, deposit 4. UPDATE.roads[key] = {start, evap, add, after}: AB 24 -> 12 -> 12; AC 40 -> 20 -> 24; AD 10 -> 5 -> 9; BC 30 -> 15 -> 19; BD 20 -> 10 -> 14; CD 10 -> 5 -> 5. UPDATE.tourRoads = ['A-C', 'B-C', 'B-D', 'A-D'] (the story ant's tour A-C-B-D-A); the skipped roads are A-B and C-D. LAYOUT. M = L7.map(stage, {x: 0, y: 20, w: 480, h: 300}) exactly as in scene 8; the four tour roads orange (tone {'A-C': 'orange', 'B-C': 'orange', 'B-D': 'orange', 'A-D': 'orange'}), all towns tinted orange (tone 'orange', visited) with A solid and the ink ant on A (M.update({ant: M.antAt('A', 'A', 0, 0, 40)})). Road pills show the pheromone: M.update({tau, pills: M.tauPills(values, {tone})}) where values and tau are the SAME numbers (blue pills; a pill turns purple while it evaporates and solid blue while it gains). RIGHT PANEL x 520-936: card 1 = L7.card(stage, {x: 520, y: 40, w: 416, h: 150, tone: 'purple', plain: true}) with children: title 'Evaporate' (L7.text 36 px, tone 'purple', at (24, 16)), line 'every road keeps half' (28 px, dim, at (24, 68)), big '× 0.5' (56 px, tone 'purple', right aligned at the card's right 24 px, top 50). Card 2 = L7.card({x: 520, y: 220, w: 416, h: 210, tone: 'blue', plain: true}) with children: title 'Deposit' (36 px, 'blue', (24, 14)), 'Q = 72' (28 px, dim, right aligned at right 24, top 22), line 'tour roads gain Q ÷ length' (28 px, dim, (24, 70)), the equation '72 ÷ 18 = 4' (50 px, tone 'blue', (24, 112)). Grey tag 'skipped roads only lose' at (520, 470).\n\nTIMELINE. 0.2-1.2 the map pops with the orange tour, the ant on A, the pills with the START values (24 40 10 30 20 10). 1.4-2.0 card 1 pops. 2.6-3.8 EVAPORATE: every pill counts start -> evap (E.inOut, shown as integers: 24 -> 12 ...), the pills are purple while it happens, the trails thin out together. 4.6-5.2 card 2 pops (title, note, line and equation together). 5.8-7.4 DEPOSIT: the four tour roads in the order A-C, C-B, B-D, D-A, 0.45 s apart: the pill counts evap -> after (0.4 s) while solid blue and a '+4' (28 px, blue ink, L7.text) rises 24 px above it and fades over 0.6 s; the trail thickens (tau lerps the same way). 7.6-8.2 the 'skipped roads only lose' tag pops and the pale purple halos fade in under A-B and C-D (M.update halo {'A-B': 'purple', 'C-D': 'purple'}). 8.2-11 hold, calm.\n\nEND STATE: pills AB 12, AC 24, AD 9, BC 19, BD 14, CD 5 (assert against L7.UPDATE.roads[key].after), orange tour, purple halos under the two skipped roads, both cards visible. CAPTIONS: [[0.4,2.4,'The ant has finished its tour. Now the trails update.'],[2.6,4.6,'First, every road keeps only half of its pheromone.'],[4.8,7.4,'Then each road on the tour gains Q ÷ length: 72 ÷ 18 = 4.'],[7.6,9.8,'Roads the ant skipped only lose pheromone.']]"
+    },
+    {
+      "n": 10,
+      "file": "scene-10-colony.js",
+      "kicker": "MANY ANTS",
+      "title": [
+        "Send many ants:",
+        "the short tour wins"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          1.8,
+          3.6,
+          "Ants go round one after another."
+        ],
+        [
+          3.8,
+          6.4,
+          "A shorter tour adds more to each road."
+        ],
+        [
+          6.6,
+          9.4,
+          "So the trail leans towards the shortest tour."
+        ],
+        [
+          9.8,
+          11.6,
+          "Even though the first ants found only long tours."
+        ]
+      ],
+      "spec": "IDEA: send many ants round the same map, each using the update of scene 9 (halve every road, then add 72 / length on its tour). The random start favours a LONG tour; the first five ants all walk length-18 tours; then a length-14 tour appears, deposits more per road (72 / 14 = 5.1 against 4), takes the lead and keeps it, and the trails settle on the shortest tour. A real run of the lesson's algorithm (24 ants, seed 59). COLOURS (whole video): blue = PHEROMONE (a trail, its thickness, the numbers that count pheromone, what ants add: gain and deposit); green = good (the short road, the short tour, a right vote, a tick, the winner); red = bad (a wrong vote, a cross, 'no leader', a colony locked onto the long road); orange = chance and choice (dice, chance pills, the town or road the ant picked, the tour it walked, the leader tour); purple = the rule that fades or rewrites (evaporation, x 1/2, -20%, the 'stigmergy' banner, 'sematonic'); grey = the ground (roads, nest, food, towns, labels). Ants themselves are drawn in ink (dark), never blue. \n\nDATA (L7.RUN, L7.MAP.tours, asserted at load): L7.RUN.start = {tau: tau0, trail: [74, 94, 100], leader: 'A-C-B-D'}, the trail on the roads of the three tours in the order L7.RUN.tours = ['A-B-C-D', 'A-B-D-C', 'A-C-B-D'] with lengths L7.RUN.lens = [18, 14, 18]. L7.RUN.ants[k - 1] = {k, start, path, tour, len, edges (its 4 roads), tau (every road after this ant), trail [3 sums, integers], leader}. The first six ants walk A-C-B-D, A-C-B-D, A-B-C-D, A-C-B-D, A-C-B-D (all length 18) and A-B-D-C (14); ants 6 to 24 all walk A-B-D-C. Trails after ant 1, 2, 5, 6, 9, 24: 45 / 55 / 66, 31 / 36 / 49, 20 / 18 / 32 (A-C-B-D leads), 20 / 30 / 26 (A-B-D-C leads from ant 6 on), 21 / 40 / 21, 21 / 41 / 21. L7.RUN.firstShort = 6. L7.RUN.dep = {short: 5.1, long: 4}. After ant 24 the pheromone is 10.3 on A-B, A-C, B-D, C-D and 0 on A-D and B-C: the short tour A-B-D-C is a ring. LAYOUT. M = L7.map(stage, {x: 0, y: 20, w: 480, h: 300}) at the same place as scenes 8 and 9, NO pills (M.update({tau, ...}) with pills left out): the blue trail width shows the pheromone (tau of the current ant, lerped over 0.3 s from the previous ant's). The LEADER tour's four roads get an orange halo (halo {'A-C': 'orange', ...} from L7.MAP.tours[i].edges) and each ant's own tour flashes orange (tone) for 0.3 s while it walks. Grey stat L7.stat(stage, {x: 0, y: 380, w: 300, label: 'ants', tone: 'grey'}) counting k. RIGHT PANEL x 520-936: grey tag 'trail on each tour' at (520, 20); THREE ROWS = L7.card (plain, w 416, h 100) at y 90, 200, 310 in the order L7.RUN.tours; children appended to card.el: the tour name (a v-mono 30 px bold text 'A-B-C-D' at (20, 8)), the length as plain 28 px text at the right ('18 long', dim; the 14 one in the green ink, right aligned at the card's right 20 px, top 10), and an L7.bar (parent: card.el, w 376, h 44, tone 'blue') at (17, 50) whose fill is value / max(values) (the leader's bar is always full; the number inside is the trail sum, an integer). The LEADER row has an orange card (tone 'orange'), the others grey; at the end the 14 row is green with an L5.tick. Under the rows an L7.card (plain, tone 'blue', h 120) at (520, 430, w 416): two 28 px lines 'short tour: +5.1 per road' (tone 'green') and 'long tour: +4 per road' (dim) from L7.RUN.dep.\n\nTIMELINE. 0.2-1.4 the map and the three rows pop (0.15 s apart) with the START trails 74 / 94 / 100 and tau0 widths; the leader is the A-C-B-D row (orange card, orange halo on A-C, C-B, B-D, D-A); the ants counter pops at 0. ANT k (k = 1..24) arrives at t_k = 1.8 + 0.34 (k - 1) (ant 6 at 3.5 s, ant 24 at 9.62 s): over 0.3 s its roads flash orange, the map's tau and the bars lerp to the new values, the counter shows k; when the leader changes (ant 6) the orange card and halo move to the A-B-D-C row and its roads with one pop. 3.8-4.4 the deposit card pops. 9.8-10.4 the 14 row turns green with a tick, the short tour's roads turn green on the map (M.update tone, 8 px at least) and the halos fade. 10.4-12 hold, calm.\n\nEND STATE: the map with the green ring A-B-D-C (the two diagonals have faded away), the 14 row green with a tick and bars 51% / 100% / 51% (21 / 41 / 21), counter 24, the deposit card. CAPTIONS: [[1.8,3.6,'Ants go round one after another.'],[3.8,6.4,'A shorter tour adds more to each road.'],[6.6,9.4,'So the trail leans towards the shortest tour.'],[9.8,11.6,'Even though the first ants found only long tours.']]"
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "Simple ants, no boss:\na clever colony",
+        "tone": "purple",
+        "pictogram": "Five identical ink ants (L7.ant size 38) on a ring (centre (170, 70), rx 120, ry 48, clockwise tangent headings) linked by thin grey lines; then an orange crown (L7.crown size 56) pops in the middle and a red L5.cross draws over it. Pass (once, then it holds): ants pop (0.1-0.8, 0.12 s apart), links draw on (0.9-1.5), the crown pops (1.8-2.3), the cross draws on (2.4-2.9). The finished picture (ring, crossed crown) holds."
+      },
+      {
+        "head": "Trails build up, fade\nand guide the next ant",
+        "tone": "blue",
+        "pictogram": "Two small grey stickers (L7.spot with an empty label, r 24) at (36, 70) and (304, 70) joined by a grey road (14 px) with a blue trail on it. Pass (once): four small ink ants (L7.ant size 30) run from the left spot to the right one one after another (0.6-1.8) and the blue trail thickens from 3 to 20 px; then it thins to 12 px (2.2-2.8, the purple-ish fade is the only change, no text); a last ant (3.0-3.8) follows the trail and stops on the right spot with a green L5.tick above it (3.9-4.3). The finished picture holds."
+      },
+      {
+        "head": "Short tours get more\npheromone per road",
+        "tone": "green",
+        "pictogram": "Four small round stickers (r 15) at A (40, 30), B (300, 30), C (86, 112), D (254, 112) joined by six thin grey roads; Pass (once): the four roads of the shortest tour A-B-D-C (from L7.MAP.tours[1].path) draw on in green one after another (0.7-2.1, 0.35 s each) and thicken to 14 px while the two other roads (A-D, B-C) thin out and fade; a green L5.tick pops (2.5-2.9). The finished picture (green ring, tick) holds."
+      }
+    ],
+    "cta": "Next: Workshop 7.W",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js and videos/a6/scene-11-recap.js: kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), Sprout (V.mascot('sprout', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / blue / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger, like l5: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, SVG drawn into it with L5.svg(pic, 340, 140) in its own pixel coordinates; the L7 helpers (L7.ant, L7.crown, L7.spot, L7.token) draw into that svg or div) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 7.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later); the pictograms start 0.4 s after their row; each pictogram plays ONCE (at most 4.4 s) and then HOLDS its finished state with no loop and no blank or reset frame, so the video ends on a calm, complete frame (a lesson from the earlier phases). 5.4-6.0 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing else moves in the last 1.5 s but Sprout's bob. No captions, no numbers (nothing to assert; use L7.MAP.tours[1].path for the third pictogram's tour)."
+  },
+  "helpers": "FILES (all under videos/l7/, each under 500 code lines, each starting with a long API comment: READ THEM FIRST, they are the contract): common.js (pure data and algorithms, no DOM, every number asserted at load), common-2.js (tags, cards, counters, tokens, bars, text, the ant and crown pictograms), common-3.js (the double bridge), common-4.js (the four-town map and the tank). Everything hangs off window.VID.l7; scenes start with const V = window.VID, L7 = V.l7, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/lecture-7.html loads engine.js, cards.js, l5/common.js (for L5: tone, tick, cross, arrow, dice, drawOn, chromosome, svg), then l7/common.js ... common-4.js, then scene-01 ... scene-11, audio/lecture-7.js. l6 is not loaded. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers (use L7.rng(seed)).\n\nA. DATA (common.js). L7.same / L7.close (asserts that throw), L7.rng(seed), L7.sum. VOTES: L7.majority(n, p), L7.VOTE {p, rows: [{n, pct, shown, right, wrong, votes}], coin}. BRIDGE: L7.BR {TICKS 150, SHORT 5, LONG 10, K, EVAP}, L7.bridgeSim(seed, longLen) -> {picks, tu, tl, len, seed}, L7.bridgeAt(sim, T) -> {tauU, tauL, ants [{b, s, i}], landed [{b, age}], n, share, t}, L7.upShare, L7.outcome, L7.rolling, L7.tally, L7.firstLand, L7.EQ {up, down}, L7.SH, L7.SHT. TRAIL: L7.trailSeries, L7.TRAIL {rho, ants, stop, steps, a, b, eq, chance}, L7.trailAt(T) -> {step, a, b, gainA, lossA, gainB, lossB, running}. MAP: L7.MAP {names, roads, dist, tau0, rho, Q, tours [{name, path, len, edges}]}, L7.ek(a, b), L7.dd, L7.edgesOf, L7.tourLen, L7.tourName, L7.trailOn, L7.options, L7.sendAnt, L7.WALK {tour, len, hops, steps [{cur, visited, opts [{town, road, tau, d, w, p, pct}], pick, pickRoad, pickPct}], home}, L7.UPDATE {rho, Q, len, dep, tourRoads, roads {key: {start, evap, add, after}}}, L7.RUN {tours, lens, short, start, ants [{k, start, path, tour, len, edges, tau, trail, leader}], firstShort, dep}.\n\nB. DRAWING BASICS (common-2.js). L7.tone(name) -> {c, ink, dim, edge, lip, on}; L7.TONES; L7.tag(parent, {x, y, text, tone, solid, h, fs}) -> {set({text, tone, solid, k, x, y, s, o}), el}; L7.tagW(text, fs); L7.card(parent, {x, y, w, h, text, tone, plain, fs}) -> {set, el} (card.el is a positioned box: append absolute children); L7.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, x, y, o}); L7.disc(parent, {x, y, size, text, tone}) -> set({text, tone, solid, k, x, y, s, o}); L7.token(parent, {tone, size}) -> set({x, y, s, o, tone, ring}); L7.bar(parent, {x, y, w, h, tone}) -> set({k, text, tone, o, x, y}); L7.text(parent, {x, y, w, text, fs, tone, bold, align}) -> set({text, tone, k, o, x, y, s}); SVG pictograms (centre x, y): L7.ant(x, y, size, {tone: 'ink'}) facing right, L7.crown(x, y, size, tone), L7.spot(x, y, label, r) (the round Nest / Food sticker); L7.trailW(tau, k, max); L7.seq(t, t0, step, dur, i); plus VID.l5.tick / cross / arrow / drawOn / dice / chromosome / svg. Colour roles are listed at the top of common-2.js.\n\nC. THE DOUBLE BRIDGE (common-3.js). L7.bridge(parent, {x, y, w, h, cy, lenU, lenL, r, bow, dot}) -> B with B.update({sim, T, o, trails, ants, tone, ground, tau}) (returns the colony state), B.pt(b, s) -> {x, y, a}, B.apex(b), B.nest, B.food, B.chord, B.len, B.speed(b), B.box. Equal lengths: two arcs; lenU < lenL: a straight upper road and a bowl whose DRAWN length is lenL / lenU times as long (ants walk at the same speed on both); too small a box throws an Error that says how much room is missing (for lenL = 10, lenU = 5 and w 540, use h >= cy + 320).\n\nD. THE MAP AND THE TANK (common-4.js). L7.map(parent, {x, y, w, h, r}) -> M with M.update({tau, tone, halo, dim, grow, pills, towns, ant, o}), M.distPills(k, tone), M.tauPills(tau, {k, tone, only, o}), M.pt(town), M.road(key), M.pillAt(key), M.edgePt(a, b, f), M.antAt(a, b, f, hop), M.svgTop, M.towns, M.box; L7.fmt(v) prints integers plainly and others to one decimal. L7.tank(parent, {x, y, w, h, max, tone}) -> T with T.set({v, o, k, tone, mark, markTone, x, y}), T.yOf(v), T.inner.\n\nE. RULES. No white colours (use var(--panel) / var(--bg)); pictograms are SVG; text >= 28 px; Math.random, Date and timers are forbidden; every number a scene prints comes from a helper (assert with L7.same where a scene copies a figure); keep each scene file under 500 code lines (split into a helper file l7/common-5.js and list it in lecture-7.html if a scene needs it); run prettier and eslint on every new file."
+}
