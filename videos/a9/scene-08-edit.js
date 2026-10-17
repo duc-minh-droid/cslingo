@@ -44,7 +44,7 @@
     [2.6, 4.2, "The DFT turns the wiggle into bars."],
     [4.2, 5.9, "The hum is one pair of bars."],
     [6.0, 7.6, "Delete both bars."],
-    [8.4, 10.6, "Go back: the hum is gone."],
+    [8.4, 10.6, "Go back: the hum fades away."], // the hum drains out 8.2-9.4, so the words name what is happening, not a result still to come
   ];
   const delOf = (t) => ramp(t, TL.del[0], TL.del[1], E.inOut); // 0 -> 1: how far the pair is deleted
   const gOf = (t) => 1 - ramp(t, TL.drain[0], TL.drain[1], E.inOut); // 1 -> 0: how much hum is left in the wave
@@ -160,6 +160,14 @@
       const wiggle = A9.tag(stage, { x: COL, y: T.py(0) - 29, text: "with a hum", tone: "blue" });
       const dftTag = A9.tag(stage, { x: ARROW.dftX + 30, y: TAG_Y, text: "DFT", tone: "purple", solid: true });
       const invTag = A9.tag(stage, { x: ARROW.invX + 30, y: TAG_Y, text: "inverse DFT", tone: "purple", solid: true });
+      // the partner rule on screen: bar 15 and bar 113 add up to the 128 bars, so deleting 15 means deleting 113 too (grey: it explains, it does not compete)
+      const sum = A9.tag(stage, {
+        x: Math.round((F.px(H.hum) + F.px(H.mirror)) / 2 - A9.tagW(`${H.hum} + ${H.mirror} = ${H.n}`) / 2),
+        y: Math.round(archY - ARCH.bow + 22) + 64,
+        h: 50,
+        text: `${H.hum} + ${H.mirror} = ${H.n}`,
+        tone: "grey",
+      });
       const humTag = A9.tag(stage, {
         x: Math.round((F.px(H.hum) + F.px(H.mirror)) / 2 - A9.tagW("the hum") / 2),
         y: Math.round(archY - ARCH.bow + 22),
@@ -221,7 +229,7 @@
         );
 
         barNo.set({
-          text: "bar number",
+          text: `bar number (${H.n} in all)`,
           x: (F.px(H.hum) + F.px(H.mirror)) / 2,
           y: F.area.y + F.area.h + 34,
           o: ramp(t, 2.8, 3.3, lin),
@@ -231,6 +239,7 @@
         A9.drawOn(arch, ramp(t, TL.arch[0], TL.arch[1], E.inOut));
         V.show(arch, left);
         humTag.set({ k: ramp(t, TL.humTag[0], TL.humTag[1], lin), o: left });
+        sum.set({ k: ramp(t, TL.arch[0] + 0.2, TL.arch[1] + 0.2, lin), o: left });
         crosses.forEach((c, i) => A9.stamp(c, ramp(t, TL.crosses[0] + 0.1 * i, TL.crosses[1] + 0.1 * i, lin)));
       };
     },

@@ -42,10 +42,11 @@
     fade: [9.2, 10.4], // g: 0 -> 1 (how much window)
   };
   const CAPS = [
-    [1.9, 3.7, "Whole cycles fit the window: one clean bar."],
+    [1.5, 2.9, "The DFT repeats the window."], // says why the copy is there
+    [3.0, 4.4, "Whole cycles join: one clean bar."],
     [4.5, 6.6, "Half a cycle more: the ends do not meet."],
     [6.7, 8.6, "The jump needs many frequencies: the bars leak."],
-    [9.3, 11.4, "A window fades the ends, so the leak shrinks."],
+    [9.3, 11.4, "A smooth fade at both ends shrinks the leak."], // the fade is the Hann window, named by its tag
   ];
   const fOf = (t) => lerp(LK.whole, LK.half, ramp(t, TL.slide[0], TL.slide[1], E.inOut)); // cycles in the window
   const gOf = (t) => ramp(t, TL.fade[0], TL.fade[1], E.inOut); // how much Hann window
@@ -102,8 +103,9 @@
       if (k < 6 || k > 11) A9.same(`scene 7 Hann: bar ${k} is below 0.013`, s3[k] < 0.013, true);
     });
     A9.same("scene 7 the leak is real before the window and small after", [s2[5] > 0.05, s3[5] < 0.013], [true, true]);
+    A9.same("scene 7 the tags say the numbers of the DFT", [LK.whole, LK.half], [8, 8.5]);
     // captions follow the picture, never overlap and are short enough to read
-    const starts = [TL.bars[0], TL.half, TL.leak[0], TL.fade[0]];
+    const starts = [TL.copyLbl[0], TL.bars[1], TL.half, TL.leak[0], TL.fade[0]];
     A9.same(
       "scene 7 every caption starts after its picture does",
       CAPS.map((c, i) => c[0] >= starts[i] && c[0] - starts[i] < 0.6),
@@ -176,17 +178,18 @@
         ...FRQ,
         view: [-0.5, BARS - 0.5, 0, 1.15],
         axes: "bottom",
-        xticks: [0, 4, 8, 12, 16, 20],
+        xticks: [0, 8, 16], // few numbers, so 'bar number' fits between them
       });
       const bars = F.bars({ max: BARS, bw: 28 });
 
       // ---- tags ----
-      const main = A9.tag(stage, { x: 0, y: 0, text: "8 whole cycles", tone: "green" });
+      const barNo = F.text({ tone: "grey", px: true }); // says what the numbers under the bars are
+      const main = A9.tag(stage, { x: 0, y: 0, text: `${LK.whole} whole cycles`, tone: "green" });
       const jump = A9.tag(stage, { x: 419, y: 0, text: "jump", tone: "red", solid: true }); // centred on the seam (stage x 468)
       const leak = A9.tag(stage, { ...LEAK_TAG, text: "leak", tone: "red", solid: true });
       const STATES = [
-        { text: "8 whole cycles", tone: "green", solid: false },
-        { text: "8.5 cycles", tone: "red", solid: true },
+        { text: `${LK.whole} whole cycles`, tone: "green", solid: false },
+        { text: `${LK.half} cycles`, tone: "red", solid: true },
         { text: "Hann window", tone: "purple", solid: true },
       ];
 
@@ -232,6 +235,13 @@
             o: spec[k] > 0.004 ? 1 : 0,
           })),
         );
+
+        barNo.set({
+          text: "bar number",
+          x: F.px(4),
+          y: F.area.y + F.area.h + 34,
+          o: ramp(t, TL.freq[0], TL.freq[1], lin),
+        });
 
         // ---- the tags ----
         const phase = t < TL.half ? 0 : t < TL.hann ? 1 : 2; // 8 whole cycles, 8.5 cycles, Hann window: each pops in as it replaces the last

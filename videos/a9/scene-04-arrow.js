@@ -5,11 +5,14 @@
    the total is 0). Left column: the 8 samples (dots on the blue wave, the one in use wears a purple ring), the test tag and the wheel
    with the purple arrow. Right column: the arrow plane (the blue chain, the orange total arrow, the grey origin), the total and the verdict.
    Colours (video-wide): blue = the signal / the scaled arrows, purple = the test arrow, orange = the total, green = a match, grey = none.
+   The first two samples take a full second each (that is where the idea is taught); a small blue label above the arrow that is growing says by
+   how much the sample scales the test arrow (x 1, x 0.7, x 0 = no arrow, x -0.7 = flipped). Each verdict stays on screen for a full second
+   (with its caption) before the picture moves on.
    Every number comes from A9.chain / A9.W8 (common.js) and is asserted below. update(t) is pure. */
 (function () {
   const V = window.VID;
   const A9 = V.a9;
-  const { ramp, flash, clamp, ease: E } = V;
+  const { ramp, flash, ease: E } = V;
   const TAU = A9.TAU;
   const round6 = (v) => Math.round(v * 1e6) / 1e6;
 
@@ -20,10 +23,14 @@
   const X = A9.W8.x;
 
   // ---------- the timeline (local seconds) ----------
-  const SWEEP = [
-    { t0: 3.0, per: 0.45 }, // run 1: 3.0 to 6.6
-    { t0: 9.4, per: 0.4 }, // run 2: 9.4 to 12.6
+  // run 1 (spin once): the first two samples take 1.0 and 0.9 s (the idea is taught there), the other six 0.4 s each; run 2 (spin twice): 0.35 s each
+  const RUNS = [
+    { t0: 3.0, durs: [1.0, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] }, // run 1: 3.0 to 7.3
+    { t0: 11.1, durs: Array.from({ length: 8 }, () => 0.35) }, // run 2: 11.1 to 13.9
   ];
+  const startOf = (r, n) => RUNS[r - 1].t0 + RUNS[r - 1].durs.slice(0, n).reduce((a, b) => a + b, 0); // when the test arrow reaches sample n
+  const endOf = (r) => startOf(r, 8);
+  const DUR = 16;
   const T = {
     tag: [0.2, 0.6],
     curve: [0.4, 1.2],
@@ -32,25 +39,37 @@
     wheelArrow: [1.9, 2.3],
     plane: [2.4, 2.8],
     origin: [2.7, 3.1],
-    total: [6.8, 7.6],
-    stat1: [7.4, 7.8],
-    match: [7.8, 8.2],
-    reset: [8.2, 8.8], // the first run's chain, total, number and verdict fade out; the test arrow shrinks
-    spins2: [8.9, 9.25], // the tag becomes 'test: 2 spins' and pops again
-    wheel2: [9.0, 9.35], // the test arrow comes back
-    ring: [12.6, 13.0],
-    stat2: [12.8, 13.2],
-    nomatch: [13.0, 13.4],
+    total: [7.5, 8.3],
+    stat1: [8.1, 8.5],
+    match: [8.5, 8.9],
+    reset: [9.9, 10.5], // the first run's chain, total, number and verdict fade out (a full second after the verdict); the test arrow shrinks
+    spins2: [10.6, 10.95], // the tag becomes 'test: 2 spins' and pops again
+    wheel2: [10.7, 11.05], // the test arrow comes back
+    ring: [13.9, 14.3],
+    stat2: [14.1, 14.5],
+    nomatch: [14.3, 14.7],
   };
   const CAPS = [
-    [1.2, 2.9, "Take 8 samples of a wave."],
-    [3.2, 5.2, "Each sample scales a spinning arrow."],
-    [6.8, 8.7, "Right speed: the arrows line up and add."],
-    [9.4, 11.0, "Now spin twice instead."],
-    [11.4, 13.2, "The arrows loop back and cancel."],
+    [1.2, 2.9, `To find the bars, take ${X.length} samples.`],
+    [3.2, 5.0, "Each sample scales a spinning arrow."],
+    [5.0, 7.0, "Zero makes no arrow. Negative flips it."],
+    [7.5, 9.5, "Right speed: they all lean right and add."],
+    [11.1, 12.5, "Now spin twice instead."],
+    [12.6, 15.6, "The arrows loop back and cancel."],
   ];
   const run = (t) => (t < T.spins2[0] ? 1 : 2);
-  const curOf = (t, r) => clamp((t - SWEEP[r - 1].t0) / SWEEP[r - 1].per, 0, 8);
+  // which sample the test arrow is at (fractional: 2.5 is half way from sample 2 to sample 3); a pure function of t
+  const curOf = (t, r) => {
+    const R = RUNS[r - 1];
+    if (t <= R.t0) return 0;
+    let a = R.t0;
+    for (let n = 0; n < R.durs.length; n++) {
+      if (t < a + R.durs[n]) return n + (t - a) / R.durs[n];
+      a += R.durs[n];
+    }
+    return R.durs.length;
+  };
+  const factor = (v) => String(+v.toFixed(1)); // 1, 0.7, 0, -0.7, -1 (never '-0')
 
   function check() {
     A9.same(
@@ -95,10 +114,25 @@
       if (!(p[0] > -0.6 && p[0] < 4.6 && p[1] > -2.1 && p[1] < 1.2))
         throw new Error("VID.a9: scene 4 a corner leaves the plane");
     });
-    // the sweeps end where the storyboard says and the captions follow the picture
-    A9.close("scene 4 run 1 ends at 6.6", SWEEP[0].t0 + 8 * SWEEP[0].per, 6.6, 1e-9);
-    A9.close("scene 4 run 2 ends at 12.6", SWEEP[1].t0 + 8 * SWEEP[1].per, 12.6, 1e-9);
-    const starts = [T.dot0 + 0.1, SWEEP[0].t0 + 0.2, T.total[0], T.spins2[0], SWEEP[1].t0 + 4 * SWEEP[1].per];
+    // the labels say what each sample does to the arrow: the real sample values, rounded to one place
+    A9.same("scene 4 the scale labels", X.map(factor), ["1", "0.7", "0", "-0.7", "-1", "-0.7", "0", "0.7"]);
+    // the sweeps end where the verdicts start and the captions follow the picture
+    A9.close("scene 4 run 1 ends at 7.3", endOf(1), 7.3, 1e-9);
+    A9.close("scene 4 run 2 ends at 13.9", endOf(2), 13.9, 1e-9);
+    A9.same(
+      "scene 4 the first two samples take about a second each",
+      [RUNS[0].durs[0] >= 1.0, RUNS[0].durs[1] >= 0.9],
+      [true, true],
+    );
+    A9.same("scene 4 the total arrow starts once the sweep is over", T.total[0] >= endOf(1) - 1e-9, true);
+    A9.same("scene 4 the circle closes before its ring", T.ring[0] >= endOf(2) - 1e-9, true);
+    // every verdict stays a full second (the caption is on screen with it) before the picture moves on
+    A9.same(
+      "scene 4 the match is held for a second before the reset, the last frame for a second before the scene fades",
+      [T.reset[0] - T.match[1] >= 1 - 1e-9, DUR - 0.3 - T.nomatch[1] >= 1 - 1e-9],
+      [true, true],
+    );
+    const starts = [T.dot0 + 0.1, startOf(1, 0) + 0.2, startOf(1, 2), T.total[0], T.spins2[0], startOf(2, 4)];
     A9.same(
       "scene 4 every caption starts after its picture does (and within half a second of it)",
       CAPS.map((c, i) => c[0] >= starts[i] - 1e-9 && c[0] - starts[i] < 0.5 + 1e-9),
@@ -111,7 +145,7 @@
     );
     A9.same(
       "scene 4 the second run waits for the second tag and the test arrow",
-      T.wheel2[1] <= SWEEP[1].t0 + 1e-9,
+      T.wheel2[1] <= RUNS[1].t0 + 1e-9,
       true,
     );
   }
@@ -119,12 +153,12 @@
   V.scene({
     kicker: "THE TEST",
     title: ["Test each frequency", "with a spinning arrow"],
-    dur: 14,
+    dur: DUR,
     caps: CAPS,
     build(stage) {
       check();
       // ---- left column: the samples, the test tag, the wheel ----
-      const sTag = A9.tag(stage, { x: 0, y: 0, text: "8 samples", tone: "blue" });
+      const sTag = A9.tag(stage, { x: 0, y: 0, text: `${X.length} samples`, tone: "blue" });
       const S = A9.plot(stage, {
         x: 0,
         y: 64,
@@ -137,7 +171,8 @@
       });
       const curve = S.curve((x) => Math.cos((TAU * x) / 8), { tone: "blue", w: 4, x0: 0, x1: 8 });
       const dots = S.dots({ max: 8, r: 9 });
-      const testTag = A9.tag(stage, { x: 0, y: 292, text: "test: 1 spin", tone: "purple", solid: true });
+      const spinsText = (k) => `test: ${k} spin${k > 1 ? "s" : ""}`;
+      const testTag = A9.tag(stage, { x: 0, y: 292, text: spinsText(1), tone: "purple", solid: true });
       const W = A9.wheel(stage, { x: 0, y: 356, w: 400, h: 264 }); // ends at y 620, the lip at 626
 
       // ---- right column: the arrow plane, the total and the verdict ----
@@ -154,6 +189,7 @@
       const origin = Pl.dot({ tone: "grey", r: 9 }); // made first, so the arrows (and the head that closes the loop) draw over it
       const arrows = X.map(() => Pl.vec({ tone: "blue", w: 6, head: 20 }));
       const total = Pl.vec({ tone: "orange", w: 10, head: 28 });
+      const scale = Pl.text({ fs: 28, tone: "blue" }); // 'x 0.7': how much the sample scales the test arrow, above the arrow that is growing
       const stat = A9.stat(stage, { x: 430, y: 430, w: 300, h: 80, label: "total", tone: "orange" });
       const verdict = A9.tag(stage, { x: 430, y: 540, text: "a match", tone: "green", solid: true });
 
@@ -188,7 +224,7 @@
         // ---- the test arrow ----
         const spinsHop = flash(t, T.spins2[0], T.spins2[1]); // a hop, not a pulse: the wider tag stays 12 px inside the stage
         testTag.set({
-          text: r === 1 ? "test: 1 spin" : "test: 2 spins",
+          text: spinsText(r),
           k: ramp(t, T.wheel[0], T.wheel[0] + 0.4, E.lin),
           y: -8 * spinsHop,
         });
@@ -219,6 +255,18 @@
             k: ramp(cur, n, n + 0.9),
             o: keep,
           });
+        });
+        // the factor of the sample the test arrow is at (the first run only), above the blue arrow that grows
+        const sn = Math.min(X.length - 1, Math.floor(cur));
+        const sg = ch1.arrows[sn];
+        const here = r === 1 && going ? Math.min(1, (cur - sn) * 8) * Math.min(1, (sn + 1 - cur) * 8) : 0;
+        scale.set({
+          text: `× ${factor(X[sn])}`,
+          x: (sg.from[0] + sg.to[0]) / 2,
+          y: 0,
+          dy: -34,
+          o: here * keep,
+          s: 0.85 + 0.15 * E.pop(Math.min(1, (cur - sn) * 4)),
         });
         const kT = r === 1 ? ramp(t, T.total[0], T.total[1], E.inOut) : 0; // the orange total only exists when there is one
         total.set({ x1: 0, y1: 0, x2: ch1.sum[0], y2: ch1.sum[1], k: kT, o: keep });

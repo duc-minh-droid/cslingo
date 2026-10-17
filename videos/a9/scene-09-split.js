@@ -48,15 +48,22 @@
     ringsOut: [8.0, 8.4], // the rings and the purple glow around butterfly 1 fade as the others light up
     rest: 8.0, // butterflies 0, 2, 3 light up, 0.3 s apart
     cost2: [8.8, 9.2],
+    fft: [0.6, 1.0], // 'FFT = fast DFT' (the F is for fast), bottom right
+    fftOut: [6.0, 6.4], // ... and gone before 'a butterfly' takes its place
+    bfOut: [9.4, 9.8], // 'a butterfly' goes once the four butterflies are done and settle green
     solid: 9.0, // the answer tiles go solid (0.05 s apart)
     settle: 9.4, // the butterflies turn green (0.1 s apart)
   };
+  // every number written on the screen is the helper's own (a butterfly costs one product, so 32 + 4 = 36 products against 64)
+  const SPLIT = FF.split.products;
+  const BFS = FF.split.butterflies;
+  const SUM = SPLIT + BFS;
   const CAPS = [
-    [1.5, 3.1, "A full DFT does all 64 products."],
+    [1.5, 3.1, `A full DFT does all ${FF.products} products.`],
     [3.3, 4.8, "Split into even and odd samples."],
-    [5.0, 6.6, "Two half-size DFTs cost 16 each."],
+    [5.0, 6.6, `Two half-size DFTs cost ${FF.half} each.`],
     [6.9, 8.6, "One butterfly: one product, two answers."],
-    [9.2, 11.4, "32 products and 4 butterflies, not 64."],
+    [9.2, 11.4, `${SPLIT} plus ${BFS} is ${SUM} products, not ${FF.products}.`],
   ];
   const REST_ORDER = { 0: 0, 2: 1, 3: 2 }; // butterfly -> its turn at 8.0
   const GROUP = ["blue", "purple"]; // even / odd columns
@@ -108,6 +115,9 @@
     const { rb, re, ro, cells } = Lo;
     A9.same("scene 9 rows of the split", FF.rows(FF.evenOdd), [0, 4, 1, 5, 2, 6, 3, 7]);
     A9.same("scene 9 costs", [FF.products, FF.half, FF.split.products, FF.split.butterflies], [64, 16, 32, 4]);
+    A9.same("scene 9 the total of the split: 32 products + 4 butterflies (one product each) = 36", SUM, 36);
+    A9.same("scene 9 two halves of 16 make the 32", [2 * FF.half, SPLIT / FF.half], [SPLIT, 2]);
+    A9.same("scene 9 'FFT = fast DFT' is gone before 'a butterfly' arrives", TL.fftOut[1] <= TL.bfTag[0], true);
     A9.same(
       "scene 9 level 2 pairs",
       FF.levels[2].map((b) => [b.a, b.b]),
@@ -170,8 +180,14 @@
     );
     // the three bottom tags never touch (widest text of each)
     const w = A9.tagW;
-    const [t64, tc, tb] = [36 + w("was 64 products"), 330 + w("2 × 16 = 32 products"), 690 + w("a butterfly")];
+    const [t64, tc, tb] = [
+      36 + w(`was ${FF.products} products`),
+      330 + w(`${SPLIT} + ${BFS} = ${SUM} products`),
+      690 + w("a butterfly"),
+    ];
     if (!(t64 < 330 && tc < 690 && tb < 924)) throw new Error("VID.a9: scene 9 the bottom tags overlap");
+    if (!(330 + w(`${SPLIT / FF.half} × ${FF.half} = ${SPLIT} products`) + 8 < 670))
+      throw new Error("VID.a9: scene 9 the cost tag runs into 'FFT = fast DFT'");
     if (R.rowY(7) + 26 + 6 > 574) throw new Error("VID.a9: scene 9 the network runs into the bottom tags");
   }
 
@@ -300,9 +316,11 @@
       // ---- the cost tags ----
       // (52 px high, so the row ends at y 626: the default 62 px tag at y 574 would run 6 px past the stage margin)
       const row = { y: 574, h: 52 };
-      const tag64 = A9.tag(stage, { ...row, x: 36, text: "64 products", tone: "red", solid: true });
-      const costTag = A9.tag(stage, { ...row, x: 330, text: "2 × 16 = 32 products", tone: "green", solid: true });
+      const tag64 = A9.tag(stage, { ...row, x: 36, text: `${FF.products} products`, tone: "red", solid: true });
+      const costText = `${SPLIT / FF.half} × ${FF.half} = ${SPLIT} products`;
+      const costTag = A9.tag(stage, { ...row, x: 330, text: costText, tone: "green", solid: true });
       const bfTag = A9.tag(stage, { ...row, x: 690, text: "a butterfly", tone: "purple" });
+      const fftTag = A9.tag(stage, { ...row, x: 670, text: "FFT = fast DFT", tone: "grey" }); // what the F stands for
 
       // how far butterfly b has got (the rig's own k / lit / tone / signs)
       const bfAt = (t, b) => {
@@ -390,7 +408,7 @@
           const lit = st.k > 0.01 ? st.lit : 0;
           const cn = conn[r];
           const ck = clamp(A9.seq(t, TL.bf - 0.1, 0.1, 0.4, r % 4));
-          cn.base.style.stroke = "var(--line)";
+          cn.base.style.stroke = "var(--line-2)";
           cn.hot.style.stroke = A9.tone(st.tone).c;
           V.show(cn.base, ck * p);
           V.show(cn.hot, lit * ck * p);
@@ -406,7 +424,7 @@
         // ---- the cost tags ----
         const was = t >= TL.cost[0];
         tag64.set({
-          text: was ? "was 64 products" : "64 products",
+          text: was ? `was ${FF.products} products` : `${FF.products} products`,
           tone: was ? "grey" : "red",
           solid: !was,
           k: ramp(t, TL.tag64[0], TL.tag64[1], lin),
@@ -414,11 +432,12 @@
         });
         const now = t >= TL.cost2[0] + 0.2;
         costTag.set({
-          text: now ? "32 + 4 butterflies" : "2 × 16 = 32 products",
+          text: now ? `${SPLIT} + ${BFS} = ${SUM} products` : costText,
           k: ramp(t, TL.cost[0], TL.cost[1], lin),
           s: 1 + 0.08 * flash(t, TL.cost2[0], TL.cost2[1]),
         });
-        bfTag.set({ k: ramp(t, TL.bfTag[0], TL.bfTag[1], lin) });
+        bfTag.set({ k: ramp(t, TL.bfTag[0], TL.bfTag[1], lin), o: 1 - ramp(t, TL.bfOut[0], TL.bfOut[1], lin) });
+        fftTag.set({ k: ramp(t, TL.fft[0], TL.fft[1], lin), o: 1 - ramp(t, TL.fftOut[0], TL.fftOut[1], lin) });
       };
     },
   });

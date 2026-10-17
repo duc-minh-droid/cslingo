@@ -30,11 +30,11 @@
   const TRUE_BAR = S16[A.f]; // the green bar at 7 Hz
 
   // ---------- layout (stage px) ----------
-  const TAG_X = [0, 190, 590]; // the tag row at y 0: wave, samples, impostor
+  const TAG_X = [0, 204, 590]; // the tag row at y 0: wave, samples, impostor (the samples tag hops wider: 14 px clear of the wave tag)
   const TP = { x: 0, y: 70, w: 936, h: 262, view: [-0.03, 1.03, -1.3, 1.3] }; // the time panel, to y 332
   const FP = { x: 0, y: 362, w: 936, h: 258, view: [0, 8.6, 0, 1.75] }; // the frequency panel, to y 620 (its lip to 626)
   const PAD = { l: 24, r: 24, t: 20, b: 56 };
-  const HZ_ROW = 484; // the two red tags beside the wall, under the fold arrow
+  const HZ_ROW = 484; // the tags beside the wall and the bars, under the fold arrow
   const FIX_TAG_Y = 376; // 'limit: 8 Hz', above the green bar
   const GAP = 14; // between a tag and the wall
 
@@ -51,15 +51,17 @@
     wall: [5.5, 6.1],
     limitTag: [5.7, 6.1],
     ghost: [6.4, 7.2],
-    foldTag: [7.0, 7.4],
+    trueTag: [6.8, 7.2], // 'true' beside the dashed ghost bar
     arrow: [7.2, 8.1],
     measured: [8.0, 8.7],
+    shownTag: [8.2, 8.6], // 'DFT shows 1 Hz' beside the red bar
     gone: [9.5, 9.9], // the twin, the impostor tag, the fold arrow, the red bar and the red tags fade
     slide: [9.5, 10.3], // the wall and the red zone move from 4 Hz to 8 Hz
     dot1: 9.8, // the 8 new dots pop 0.1 s apart; the sample tag changes
     fill: [10.4, 10.9], // the ghost fills in solid green
     ring: [10.8, 11.2],
     limit8: [10.4, 10.9],
+    shows7: [10.4, 10.9], // 'DFT shows 7 Hz' beside the green bar
   };
   const CAPS = [
     [1.7, 3.2, `Take ${A.fs} samples in one second.`],
@@ -109,6 +111,7 @@
     if (!(MEASURED < FP.view[3] - 0.5)) throw new Error("VID.a9: scene 6 the bars leave the frequency panel");
     // each caption starts as the picture it names appears (never before it, and within 0.7 s of it)
     const starts = [T.dot0, T.twin[0], T.wall[0], T.arrow[0], T.dot1];
+    A9.same("scene 6 the tag texts are the DFT's own bars", [A.fold, A.fix.fold], [1, 7]);
     A9.same(
       "scene 6 every caption starts after its picture does",
       CAPS.map((c, i) => c[0] >= starts[i] - 1e-9 && c[0] - starts[i] < 0.7),
@@ -175,15 +178,25 @@
         A9.arrow(F.px(A.f), tip, F.px(A.fold), tip, "purple", 1, { w: 7, head: 22, bow: -58 }),
       );
 
-      // the tags beside the wall (their widths are estimates; the wall stays 14 px clear)
-      const limitW = A9.tagW(limitText(A.nyquist));
-      const limitTag = A9.tag(stage, {
-        x: F.px(A.nyquist) - GAP - limitW,
+      // the tags beside the wall and the bars (their widths are estimates; the wall and the bars stay 14 px clear)
+      const HALF_BAR = 20; // half the width of a bar (bw 40)
+      const limitTag = A9.tag(stage, { x: F.px(A.nyquist) + GAP, y: HZ_ROW, text: limitText(A.nyquist), tone: "red" });
+      const shownText = (hz) => `DFT shows ${hz} Hz`;
+      const shownTag = A9.tag(stage, {
+        x: F.px(A.fold) + HALF_BAR + GAP,
         y: HZ_ROW,
-        text: limitText(A.nyquist),
+        text: shownText(A.fold),
         tone: "red",
-      });
-      const foldTag = A9.tag(stage, { x: F.px(A.nyquist) + GAP, y: HZ_ROW, text: "folds back", tone: "red" });
+        solid: true,
+      }); // what the DFT reports for the eight dots (the red bar)
+      const trueTag = A9.tag(stage, { x: F.px(A.f) + HALF_BAR + 12, y: HZ_ROW, text: "true", tone: "orange" }); // the wave that was really there (the dashed bar)
+      const shows7Tag = A9.tag(stage, {
+        x: F.px(A.f) - HALF_BAR - 40 - A9.tagW(shownText(A.fix.fold)), // clear of the green ring round the bar (the width estimate is about 14 px short)
+        y: HZ_ROW,
+        text: shownText(A.fix.fold),
+        tone: "green",
+        solid: true,
+      }); // after the fix the DFT tells the truth
       const limit8Tag = A9.tag(stage, {
         x: F.px(A.fix.nyquist) - GAP - A9.tagW(limitText(A.fix.nyquist)),
         y: FIX_TAG_Y,
@@ -268,7 +281,9 @@
         A9.drawOn(fold, ramp(t, T.arrow[0], T.arrow[1], E.inOut));
         V.show(fold, gone);
         limitTag.set({ k: ramp(t, T.limitTag[0], T.limitTag[1], lin), o: gone });
-        foldTag.set({ k: ramp(t, T.foldTag[0], T.foldTag[1], lin), o: gone });
+        shownTag.set({ k: ramp(t, T.shownTag[0], T.shownTag[1], lin), o: gone });
+        trueTag.set({ k: ramp(t, T.trueTag[0], T.trueTag[1], lin), o: gone });
+        shows7Tag.set({ k: ramp(t, T.shows7[0], T.shows7[1], lin) });
         limit8Tag.set({ k: ramp(t, T.limit8[0], T.limit8[1], lin) });
       };
     },

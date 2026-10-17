@@ -135,13 +135,23 @@
       for (let c = 0; c < n; c++) {
         const th = (-A9.TAU * r * c) / n; // the wheel's angle (y up)
         A9.close(`dftGrid cell (${r}, ${c}) x like the wheel`, Math.cos(gridAngle(r, c)), Math.cos(th), 1e-9);
-        A9.close(`dftGrid cell (${r}, ${c}) y like the wheel (flipped)`, Math.sin(gridAngle(r, c)), -Math.sin(th), 1e-9);
+        A9.close(
+          `dftGrid cell (${r}, ${c}) y like the wheel (flipped)`,
+          Math.sin(gridAngle(r, c)),
+          -Math.sin(th),
+          1e-9,
+        );
         const arrow = A9.chain(r).arrows[c];
         const [dx, dy] = [arrow.to[0] - arrow.from[0], arrow.to[1] - arrow.from[1]];
         if (Math.abs(W8.x[c]) > 1e-9) {
           const f = Math.sign(W8.x[c]) * Math.hypot(dx, dy);
           A9.close(`dftGrid cell (${r}, ${c}) x like the chain arrow`, Math.cos(gridAngle(r, c)) * f, dx, 1e-9);
-          A9.close(`dftGrid cell (${r}, ${c}) y like the chain arrow (flipped)`, -Math.sin(gridAngle(r, c)) * f, dy, 1e-9);
+          A9.close(
+            `dftGrid cell (${r}, ${c}) y like the chain arrow (flipped)`,
+            -Math.sin(gridAngle(r, c)) * f,
+            dy,
+            1e-9,
+          );
         }
       }
     const stemBase = y - 50;
@@ -224,6 +234,7 @@
         }),
       ),
     );
+    nums.forEach((e) => V.show(e, 0));
     const rings = Array.from({ length: n }, () =>
       svg.appendChild(V.s("rect", { fill: "none", "stroke-width": "5", rx: 18 })),
     );
@@ -443,6 +454,7 @@
         }),
       ),
     );
+    nums.forEach((e) => V.show(e, 0)); // hidden until a bar says its number (an unplaced <text> would sit at the stage corner)
     R.bar = (k) => ({
       set({ k: kk = 1, v = FFT.bars[k], o: op = 1, tone = "orange", num = 0, ghost = 0 } = {}) {
         const stub = v === 0;

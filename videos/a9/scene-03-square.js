@@ -3,7 +3,7 @@
    sum of the first j odd sine waves (1, 3, 5, ... times as fast, 1, 1/3, 1/5, ... as strong); bottom panel: one orange bar per wave at its
    speed, as tall as its strength, with the strengths written on the first three; a purple counter says how many waves are in; the thin purple
    wave being added (waves 2 and 3) is drawn over the sum and its bar gets a purple ring. Waves 4..12 follow quickly and the corners sharpen
-   (the small ripple beside every jump stays: that is real). The tag at the end says only the odd waves are needed.
+   (the small ripple beside every jump stays: that is real). The tag and the last caption say a square wave needs only the odd waves.
    Colours (video-wide): blue = the signal in time (the sum), orange = the frequency side (bars), purple = the rule / the wave being added,
    grey = the target.
    Timeline (local seconds): 0.2 top panel, 0.3 bottom panel, 0.5-1.5 the dotted target draws on, 1.2-1.6 the (flat) sum shows,
@@ -45,10 +45,10 @@
   const CAPS = [
     [0.6, 1.9, "Target: a square wave."],
     [2.0, 3.3, "Start with one sine wave."],
-    [3.4, 5.0, "Add a weaker wave, 3 times faster."],
-    [5.2, 6.7, "Then 5 times faster, weaker still."],
+    [3.4, 5.0, `Add a weaker wave, ${SQ.freq(2)} times faster.`],
+    [5.2, 6.7, `Then ${SQ.freq(3)} times faster, weaker still.`],
     [6.9, 9.3, "Keep adding: the corners sharpen."],
-    [9.5, 11.3, "Only odd waves are needed."],
+    [9.5, 11.3, "A square wave needs only odd waves."], // true of the square wave, not of every shape (a saw tooth needs every whole number)
   ];
 
   function check() {
@@ -140,8 +140,9 @@
         view: [0, 24, 0, 1.25],
         axes: "bottom",
         pad: { l: 24, r: 24, t: 20, b: 56 },
-        xticks: js.map((j) => ({ v: SQ.freq(j), text: `${SQ.freq(j)}\u00d7` })), // 1x, 3x, ... times as fast
+        labels: false, // the 1x, 3x, ... times-as-fast labels are our own, so they can wait for the first wave
       });
+      const speeds = js.map(() => B.text({ tone: "grey", px: true }));
       const bars = B.bars({ max: WAVES, bw: 40 });
       const labels = [1, 2, 3].map((j) => B.text({ tone: "orange" }));
       const counter = A9.stat(stage, { x: 640, y: 378, w: 270, h: 80, label: "waves", tone: "purple" });
@@ -154,6 +155,12 @@
           const k = ramp(t, LIMIT.pop[i], LIMIT.pop[i] + 0.4, lin);
           P.set({ o: Math.min(1, k * 3), s: 0.94 + 0.06 * E.pop(k) });
         });
+
+        // the speed labels (1x, 3x, ... times as fast) come in with the first bar, not before there is a wave to name
+        const sk = ramp(t, START(1), START(1) + LEN(1), lin);
+        speeds.forEach((l, i) =>
+          l.set({ text: `${SQ.freq(i + 1)}\u00d7`, x: B.px(SQ.freq(i + 1)), y: B.area.y + B.area.h + 34, o: sk }),
+        );
 
         // the dotted target draws on, then waits
         target.set({ pts: partial(S, TARGET, ramp(t, LIMIT.target[0], LIMIT.target[1], E.inOut)) });
