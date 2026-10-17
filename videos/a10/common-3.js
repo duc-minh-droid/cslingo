@@ -43,7 +43,8 @@
         sb.seg(i, vals) -> {x0, x1, mid}   exact pixel span of segment i in parent coordinates (use it to place labels above it);  sb.el
    6. THE PICTURE AND ITS PATCHES  (scene 10: the 224 x 224 picture of the lesson, drawn in house style)
         const p = A10.photo(parent, {x, y, size: 320});     p.set({k: 1, o: 1, s: 1, x, y});  p.el   a sky, a sun, a hill and a house
-        const l = A10.lattice(parent, {x, y, size: 320, n: 14});   the patch lines over the picture (same x, y, size)
+        const l = A10.lattice(parent, {x, y, size: 320, n: 14, pre: [[row, col], ...]});   the patch lines over the picture (same x, y, size);
+            pre = every patch that set() will ever light (their rects are built once, hidden, so that set() only restyles: update(t) stays pure)
         l.set({k: 1, o: 1, hot: [[row, col], ...], hotTone: "orange", hotK: 1})   k 0..1 draws the lines on, hot = patches filled in the tone
         l.cellMid(r, c) -> {x, y};  l.cell (px per patch)  */
 (function () {
@@ -465,6 +466,21 @@
       }
     parent.append(svg);
     const rects = new Map();
+    const hotRect = (key, tone) => {
+      const [r, c] = key.split(",").map(Number);
+      const rect = V.s("rect", {
+        x: f1(c * cell),
+        y: f1(r * cell),
+        width: f1(cell),
+        height: f1(cell),
+        "stroke-width": 3,
+        style: { fill: tone.c, fillOpacity: "0.55", stroke: tone.lip },
+      });
+      hot.append(rect);
+      V.show(rect, 0);
+      rects.set(key, rect);
+    };
+    (o.pre || []).forEach(([r, c]) => hotRect(`${r},${c}`, A10.tone("orange")));
     return {
       el: svg,
       cell,
@@ -481,19 +497,7 @@
         const want = new Set((st.hot || []).map(([r, c]) => `${r},${c}`));
         for (const [key, rect] of rects) if (!want.has(key)) V.show(rect, 0);
         want.forEach((key) => {
-          if (!rects.has(key)) {
-            const [r, c] = key.split(",").map(Number);
-            const rect = V.s("rect", {
-              x: f1(c * cell),
-              y: f1(r * cell),
-              width: f1(cell),
-              height: f1(cell),
-              "stroke-width": 3,
-              style: { fill: tone.c, fillOpacity: "0.55", stroke: tone.lip },
-            });
-            hot.append(rect);
-            rects.set(key, rect);
-          }
+          if (!rects.has(key)) hotRect(key, tone); // only when a cell was not listed in `pre`
           const rect = rects.get(key);
           rect.style.fill = tone.c;
           rect.style.stroke = tone.lip;

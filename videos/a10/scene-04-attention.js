@@ -1,13 +1,15 @@
 /* Phase 10 · scene 04-attention (12 s): ATTENTION (lesson 10.3). To read "it" in "The robot moved because it detected danger" the word
    looks at every word of the sentence, itself included, and gives each a share. The shares are very uneven: "robot" gets by far the
    most, "it" itself a little, the rest almost nothing, so the new "it" is rebuilt mostly from "robot". Every word does the same at
-   once (7 x 7 = 49 shares). The scores behind the shares are ILLUSTRATIVE (A10.ATT: made-up scores pushed through the real softmax),
+   once (7 x 7 = 49 shares, drawn as a 7 x 7 heat grid whose cells pop together). The scores behind the shares are ILLUSTRATIVE (A10.ATT: made-up scores pushed through the real softmax),
    so no share number is printed: shares show only as arc thickness and bar length.
    Story (local seconds): 0.1-1.0 seven word tags pop; 0.8-1.2 "it" turns purple, 0.9-1.35 a purple question mark; 2.6-4.1 seven equal
    grey arcs fan out from "it" to every word (itself last, as a loop); 4.8-5.8 they reweigh: the arcs to "robot" and to "it" itself
    thicken and turn green, the rest thin out; 5.4-5.9 "robot" lights up green; 6.8-7.7 a purple arrow drops from "it" to a share bar
-   that blends robot (green) / it (purple) / the rest (grey) into the new "it"; 9.0-9.3 all of that fades; 9.4-11.1 the arcs of every
-   word draw under the sentence; 11.0-11.5 the "7 × 7 = 49 shares" tag. Hold to 12. */
+   that blends robot (green) / it (purple) / the rest (grey) into the new "it" (a grey "toy scores" tag says the shares are made up);
+   9.0-9.3 all of that fades, the sentence follows (9.1-9.5); 9.6-10.1 the 7 x 7 heat grid pops in (rows = the word looking, columns =
+   the word looked at; only the "it" row and the "robot" column carry a tag); 10.4-10.8 the "it" row is ringed; 11.0-11.5 the
+   "7 × 7 = 49 shares" tag. The grid is centred on the stage. Hold to 12. */
 (function () {
   const V = window.VID;
   const A10 = V.a10;
@@ -37,16 +39,12 @@
     [15.4, 5.5, 4.2],
   );
   A10.same("attention: the rest is a small slice", [REST > 0.05, REST < 0.1], [true, true]);
-  A10.same("attention: the strong links of every word", ATT.web.length, 16);
+  ATT.w.forEach((row, i) => A10.close(`attention: row ${i} of the grid adds up to 1`, A10.sum(row), 1, 1e-9));
   A10.same(
-    "attention: the strong links of it",
-    ATT.web.filter((l) => l.i === IT).map((l) => l.j),
-    [ROBOT, IT],
+    "attention: the brightest cell of the it row is the robot column",
+    ATT.w[IT].indexOf(Math.max(...ATT.w[IT])),
+    ROBOT,
   );
-  ATT.w.forEach((row, i) => {
-    if (!row.some((w, j) => w >= MATTERS && ATT.web.some((l) => l.i === i && l.j === j)))
-      throw new Error(`scene 04: word ${i} has no strong link to draw`);
-  });
 
   const TM = {
     words: [0.1, 0.07, 0.3], // word i pops from 0.1 + 0.07 i for 0.3 s
@@ -63,9 +61,13 @@
     blend: [6.9, 7.7],
     label: 7.2, // label i at 7.2 + 0.2 i (robot, it, others), 0.3 s each
     fade: [9.0, 9.3],
-    web: 9.4, // link n at 9.4 + 0.08 n, 0.5 s each
+    sentOut: [9.1, 9.5], // the sentence gives way to the grid
+    grid: [9.6, 10.1], // the 49 cells pop together (a 0.02 s sweep along the diagonal)
+    gridTags: [10.0, 10.35],
+    ring: [10.4, 10.8],
     total: [11.0, 11.45],
   };
+  const G = { cell: 64, gap: 4, y: 78 }; // the 7 x 7 heat grid: 472 px square, centred, a 58 px tag above it and one below
   const ORDER = [0, 1, 2, 3, 5, 6, IT]; // the fan of arcs: every word in turn, itself (the loop) last
   const DY = -40; // the whole figure sits 40 px above the storyboard's numbers, so the sentence is centred on the stage
   const SENT_Y = 330 + DY;
@@ -104,44 +106,65 @@
     const robotL = place("robot", blend.seg(0, vals).mid, 406 + DY, "grey");
     const itL = place("it", blend.seg(1, vals).mid, 406 + DY, "purple");
     const restL = place("others", blend.seg(2, vals).mid, 536 + DY, "grey");
-    const newIt = A10.tag(stage, { x: 21, y: 469 + DY, text: "new “it”", tone: "purple", solid: true });
+    const newIt = A10.tag(stage, { x: 21, y: 469 + DY, text: "new “it”", tone: "green", solid: true });
     A10.same("attention: the new-it tag is 155 px wide", newIt.w, 155);
     const down = svg.appendChild(L5.arrow(itX, SENT_Y + 62, itX, 464 + DY, "purple", 1, { w: 6, head: 18 }));
 
-    // the web: every word's strong links, drawn under the sentence (a pair that look at each other nests)
-    const mutual = (l) => ATT.web.some((m) => m.i === l.j && m.j === l.i && l.i !== l.j);
-    const web = ATT.web.map((l) => {
-      const dx = s.bottom(l.j).x - s.bottom(l.i).x;
-      const lift = A10.arcLift(dx, 24, 0.2, 140) + (mutual(l) && l.i > l.j ? 18 : 0);
-      return A10.arc(svg, {
-        x1: s.bottom(l.i).x,
-        y1: SENT_Y + 58,
-        x2: s.bottom(l.j).x,
-        y2: SENT_Y + 58,
-        lift: -lift,
-        tone: "green",
-        w: A10.arcW(l.w, 3, 12),
-      });
+    // the grid of every word's shares: rows = the word looking, columns = the word looked at (only "it" and "robot" are named)
+    const gx = (936 - (N * G.cell + (N - 1) * G.gap)) / 2;
+    const grid = A10.grid(stage, { x: gx, y: G.y, rows: N, cols: N, cell: G.cell, gap: G.gap, radius: 12 });
+    const itTag = A10.tag(stage, {
+      x: gx - 10 - A10.tagW(WORDS[IT]),
+      y: grid.mid(IT, 0).y - 29,
+      text: WORDS[IT],
+      tone: "purple",
+      solid: true,
     });
-    const total = A10.tag(stage, { x: 332, y: 560 + DY, text: `${N} × ${N} = ${ATT.links} shares`, tone: "grey" });
-    A10.same("attention: the total tag is 272 px wide", total.w, 272);
+    const robotTag = A10.tag(stage, {
+      x: grid.mid(0, ROBOT).x - A10.tagW(WORDS[ROBOT]) / 2,
+      y: G.y - 66,
+      text: WORDS[ROBOT],
+    });
+    A10.same(
+      "attention: the grid fits the stage and the robot tag clears the top margin",
+      [grid.height, robotTag.y >= 12, itTag.x >= 12],
+      [472, true, true],
+    );
+    const total = A10.tag(stage, {
+      x: 468 - A10.tagW(`${N} × ${N} = ${ATT.links} shares`) / 2,
+      y: G.y + grid.height + 10,
+      text: `${N} × ${N} = ${ATT.links} shares`,
+      tone: "grey",
+    });
+    A10.same(
+      "attention: the total tag is 272 px wide and ends inside the stage",
+      [total.w, total.y + total.h <= 630],
+      [272, true],
+    );
+    const toy = A10.tag(stage, { x: 21, y: 363, text: "toy scores", tone: "grey" });
+    A10.same(
+      "attention: the toy tag clears the blend labels",
+      [toy.w, toy.x + toy.w < blend.seg(0, vals).mid - 59],
+      [180, true],
+    );
 
     return (t) => {
       const fade = ramp(t, ...TM.fade, E.lin); // 0 -> 1: the blend and the arcs of "it" fade out
       const rw = ramp(t, ...TM.reweigh, E.inOut); // 0 -> 1: the arcs reweigh
 
       // 1. the sentence, and "it" asking
+      const sentO = 1 - ramp(t, ...TM.sentOut, E.lin); // the sentence gives way to the grid
       s.all((i) => {
         const k = A10.seq(t, TM.words[0], TM.words[1], TM.words[2], i);
         if (i === IT) {
           const on = t >= TM.it[0];
-          return { k, tone: on ? "purple" : "grey", solid: on, s: 1 + 0.1 * V.flash(t, ...TM.it) };
+          return { k, o: sentO, tone: on ? "purple" : "grey", solid: on, s: 1 + 0.1 * V.flash(t, ...TM.it) };
         }
         if (i === ROBOT) {
           const on = t >= TM.robot[0] && t < TM.robotOff;
-          return { k, tone: on ? "green" : "grey", solid: on, s: 1 + 0.08 * V.flash(t, ...TM.robot) };
+          return { k, o: sentO, tone: on ? "green" : "grey", solid: on, s: 1 + 0.08 * V.flash(t, ...TM.robot) };
         }
-        return { k };
+        return { k, o: sentO };
       });
       const qk = ramp(t, ...TM.q, E.lin);
       V.place(qm, { s: 0.5 + 0.5 * E.pop(qk), o: clamp(qk * 4) * (1 - ramp(t, ...TM.qOut, E.lin)) });
@@ -164,22 +187,31 @@
       itL.set({ k: ramp(t, TM.label + 0.2, TM.label + 0.5, E.lin), o: 1 - fade });
       restL.set({ k: ramp(t, TM.label + 0.4, TM.label + 0.7, E.lin), o: 1 - fade });
       newIt.set({ k: ramp(t, ...TM.newIt, E.lin), o: 1 - fade });
+      toy.set({ k: ramp(t, TM.blend[0], TM.blend[0] + 0.35, E.lin), o: 1 - fade });
       L5.drawOn(down, ramp(t, ...TM.arrow, E.out));
       V.show(down, 1 - fade);
 
-      // 4. every word does it: the web under the sentence
-      web.forEach((a, n) => a.set({ k: ramp(t, TM.web + 0.08 * n, TM.web + 0.08 * n + 0.5, E.out) }));
+      // 4. every word does it, all at once: the 7 x 7 grid of shares, the "it" row ringed
+      const ringK = ramp(t, ...TM.ring, E.lin);
+      grid.all((r, c) => ({
+        v: ATT.w[r][c],
+        k: ramp(t, TM.grid[0] + 0.02 * (r + c), TM.grid[1] - 0.02 * (2 * N - 2 - r - c), E.lin),
+        ring: r === IT ? "purple" : undefined,
+        ringK: r === IT ? ringK : 0,
+      }));
+      itTag.set({ k: ramp(t, ...TM.gridTags, E.lin) });
+      robotTag.set({ k: ramp(t, ...TM.gridTags, E.lin) });
       total.set({ k: ramp(t, ...TM.total, E.lin) });
     };
   }
 
   V.scene({
     kicker: "ATTENTION",
-    title: ["Every word looks at", "every other word"],
+    title: ["Every word looks at", "the whole sentence"],
     dur: 12,
     caps: [
       [1, 2.6, "Which noun does “it” stand for?"],
-      [2.8, 4.6, "It looks at every word in the sentence."],
+      [2.8, 4.6, "It looks at every word, itself included."],
       [5, 6.8, "But some words matter more than others."],
       [7.2, 9, "Its new meaning leans on “robot”."],
       [9.6, 11.6, "Every word does this, all at the same time."],

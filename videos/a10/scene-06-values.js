@@ -80,7 +80,7 @@
   const COL = { share: 156, shareW: 100, times: 284, val: 310, eq: 512, prod: 540, plus: 627 };
   const CHIP = { w: 84, gap: 6 };
   const SHIFT = 96; // beat 1 spans x 12-724, so it is moved right to sit centred on the stage
-  const G = { x: 162, y: 200, cw: 118, ch: 64, gap: 6 }; // beat 2 grid
+  const G = { x: 172, y: 200, cw: 114, ch: 64, gap: 6 }; // beat 2 grid
   const T = {
     who: 0.2, // purple tag; the three word tags at 0.35 + 0.15 r
     value: 0.9, // value chip r at 0.9 + 0.2 r
@@ -179,7 +179,7 @@
 
     // ---------- beat 2: every word at once ----------
     const g = A10.grid(stage, { x: G.x, y: G.y, rows: N, cols: N, cw: G.cw, ch: G.ch, gap: G.gap, radius: 14 });
-    const rowTags = Q.words.map((w, r) => A10.tag(stage, { x: 12, y: g.mid(r, 0).y - 29, text: w }));
+    const rowTags = Q.words.map((w, r) => A10.tag(stage, { x: 18, y: g.mid(r, 0).y - 29, text: w }));
     const colTags = Q.words.map((w, c) => A10.tag(stage, { x: g.mid(0, c).x - A10.tagW(w) / 2, y: G.y - 72, text: w }));
     const stackX = 578;
     const stack = Q.words.map((_, r) =>
@@ -312,7 +312,7 @@
   V.scene({
     kicker: "VALUES",
     title: ["The shares blend", "the values"],
-    dur: 12.5,
+    dur: 12.3,
     caps: [
       [0.9, 2.9, "Each word also carries a value: its content."],
       [3.3, 5, "Scale each value by its share."],

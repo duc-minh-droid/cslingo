@@ -71,7 +71,7 @@
       [0, 1, 2].map((i) => bars.pt(i, 0).y),
       [92, 176, 260],
     );
-    const head = A10.tag(stage, { x: 680, y: 40, w: 238, text: "scores", tone: "blue" });
+    const head = A10.tag(stage, { x: 668, y: 40, w: 238, text: "scores", tone: "blue" });
     A10.same(
       "softmax: the three header texts fit the header tag",
       ["scores", "e to the score", "all positive"].map((x) => A10.tagW(x) <= head.w),

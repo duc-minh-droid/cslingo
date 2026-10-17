@@ -59,7 +59,7 @@
 
   const SENT_Y = 150; // the sentence, in the same place as scene 4's words (x 16, gap 8)
   const TAG_Y = 270;
-  const TX = [12, 243, 483, 692]; // left edges of the four head tags
+  const TX = [18, 245, 483, 686]; // left edges of the four head tags (6 px in from the margins, so that a bump stays inside)
   const DOT_Y = 340;
   const DOT = { w: 44, gap: 10 }; // the Q K V chips
   const SLICE = { y: 404, w: 180, h: 60 };
@@ -84,7 +84,7 @@
     { on: 6.9, off: 7.75, arc: 6.9, step: 0.12, dur: 0.45, fade: [7.6, 7.85] },
     { on: 7.9, off: 8.8, arc: 7.95, step: 0, dur: 0.45, fade: [8.65, 8.9] },
   ];
-  const bump = (t, a) => 1 + 0.08 * flash(t, a, a + 0.35);
+  const bump = (t, a, amp = 0.08) => 1 + amp * flash(t, a, a + 0.35);
 
   function build(stage) {
     const s = A10.sentence(stage, { x: 16, y: SENT_Y, words: WORDS, gap: 8 });
@@ -136,7 +136,7 @@
       [200, 209, 178, 231],
     );
     const cc = tags.map((g) => g.mid().x);
-    A10.same("heads: head tag centres", cc, [112, 347.5, 572, 807.5]);
+    A10.same("heads: head tag centres", cc, [118, 349.5, 572, 801.5]);
     const dotsW = 3 * DOT.w + 2 * DOT.gap;
     const dots = cc.map((c) =>
       A10.cells(stage, {
@@ -162,7 +162,7 @@
       }),
     );
     const dxs = cc.map((c, k) => BAR_X + SLICE.w * k - (c - SLICE.w / 2));
-    A10.same("heads: how far every slice slides to join the bar", dxs, [86, 30.5, -14, -69.5]);
+    A10.same("heads: how far every slice slides to join the bar", dxs, [80, 28.5, -14, -63.5]);
     const barMid = BAR_X + (H.n * SLICE.w) / 2;
     const totalText = `${H.n} × ${H.dHead} = ${H.dModel}`;
     // under the bar: "for “it”" (these numbers belong to one word) first alone, then side by side with "4 × 16 = 64"
@@ -208,7 +208,7 @@
       tags.forEach((g, k) => {
         const on = t >= PH[k].on && t < PH[k].off;
         const st = A10.seq(t, TM.head[0], TM.head[1], TM.head[2], k);
-        g.set({ k: st, tone: on ? "green" : "grey", solid: on, s: bump(t, PH[k].on) });
+        g.set({ k: st, tone: on ? "green" : "grey", solid: on, s: bump(t, PH[k].on, 0.04) });
         [0, 1, 2].forEach((j) => dots[k].set(j, A10.pop(A10.seq(t, TM.head[0] + TM.head[1] * k + 0.2, 0.08, 0.3, j))));
       });
 
