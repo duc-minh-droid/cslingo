@@ -9,8 +9,9 @@
    leads from the picture to the tiles, the dots and the green "14 x 14 = 196 tokens" tag follow (3.1); 4.8-5.9 one big green square (the grid of
    scores) pops with its "196 x 196" tag, then the green "38,416 scores" tag; 7.4-8.9 half-size patches: the 28 x 28 lattice draws
    over the picture, the patch-size tag changes to 8 x 8, the tokens tag turns into a red "28 x 28 = 784 tokens" with an orange "x 4";
-   9.4-11.3 the big square shrinks into the corner of a 4 x 4 block, the other fifteen cells pop in red, the score tag turns into a
-   red "614,656 scores" with an orange "x 16". Hold to 12. */
+   9.4-11.3 the big square (a faint 8 x 8 table of lines on it, fading out as it shrinks) shrinks into the corner of a 4 x 4 block, the
+   other fifteen cells pop in red, the score tag turns into a red "614,656 scores" with an orange "4 × 4 = 16" (the scores grow with the
+   square of the tokens). Hold to 12. */
 (function () {
   const V = window.VID;
   const A10 = V.a10;
@@ -37,6 +38,9 @@
     [2, 4, 16],
   );
   A10.same("patches: the ratio tags", [VIT.tokenRatio, VIT.scoreRatio], [4, 16]);
+  A10.same("patches: the scores grow with the square of the tokens", VIT.tokenRatio ** 2, VIT.scoreRatio);
+  const WORD = { 4: "four", 16: "sixteen" }; // the ratios as words, for the captions
+  A10.same("patches: the ratios have caption words", [WORD[VIT.tokenRatio], WORD[VIT.scoreRatio]], ["four", "sixteen"]);
   A10.same(
     "patches: the old score grid is one block of a 4 x 4 arrangement (the tokens grow 4 times, so the grid grows 4 times per side)",
     [VIT.tokenRatio * VIT.tokenRatio, F.tokens ** 2 / C.scores, (VIT.tokenRatio * C.tokens) ** 2],
@@ -71,6 +75,7 @@
     tokensTo: 8.1, // "784 tokens"
     x4: [8.5, 8.9],
     tagOut: [9.4, 9.6], // the "196 x 196" tag leaves the big square
+    meshOut: [9.3, 9.5], // and so do the faint table lines
     shrink: [9.5, 10.2],
     cells: 10.05, // the fifteen red cells pop from here, 0.05 s apart
     scoresTo: 10.5, // "614,656 scores"
@@ -87,12 +92,12 @@
   function build(stage) {
     // the picture and its two lattices
     const ph = A10.photo(stage, PIC);
-    const l14 = A10.lattice(stage, { ...PIC, n: C.side });
+    const l14 = A10.lattice(stage, { ...PIC, n: C.side, pre: Array.from({ length: C.side }, (_, c) => [0, c]) });
     const l28 = A10.lattice(stage, { ...PIC, n: F.side });
     const size = A10.tag(stage, { x: 46, y: 352, text: `${VIT.image} × ${VIT.image} pixels` });
     A10.same("patches: the size tag is 265 px wide", size.w, 265);
     const patchTxt = (p) => `patch: ${p} × ${p} pixels`;
-    const patch = A10.tag(stage, { x: 17, y: 422, w: A10.tagW(patchTxt(C.patch)), text: patchTxt(C.patch) });
+    const patch = A10.tag(stage, { x: 24, y: 422, w: A10.tagW(patchTxt(C.patch)), text: patchTxt(C.patch) });
     A10.same(
       "patches: the patch tag is 323 px wide and its second text fits",
       [patch.w, A10.tagW(patchTxt(F.patch)) <= patch.w],
@@ -157,6 +162,32 @@
       solid: true,
       radius: Math.round(BLOCK.radius / SHRINK),
     });
+    // faint lines on the big square: it is a table of pairs (every token against every token), not one flat colour
+    const MESH = 8;
+    const meshEl = V.h("div", {
+      style: {
+        position: "absolute",
+        left: `${BIG.x}px`,
+        top: `${BIG.y}px`,
+        width: `${BIG.size}px`,
+        height: `${BIG.size}px`,
+      },
+    });
+    for (let i = 1; i < MESH; i++)
+      for (const horiz of [true, false])
+        meshEl.append(
+          V.h("div", {
+            style: {
+              position: "absolute",
+              background: A10.tone("green").lip,
+              opacity: "0.4",
+              ...(horiz
+                ? { left: "0px", right: "0px", top: `${(i * BIG.size) / MESH - 1}px`, height: "2px" }
+                : { top: "0px", bottom: "0px", left: `${(i * BIG.size) / MESH - 1}px`, width: "2px" }),
+            },
+          }),
+        );
+    stage.append(meshEl);
     const t196 = A10.tag(stage, {
       x: BIG.x + BIG.size / 2 - 88,
       y: BIG.y + BIG.size / 2 - 29,
@@ -170,8 +201,13 @@
       [A10.tagW(`${C.scoresTxt} scores`) <= sc.w, A10.tagW(`${F.scoresTxt} scores`), sc.x + sc.w <= 924],
       [true, 245, true],
     );
-    const x16 = A10.tag(stage, { x: 668, y: 420, text: `× ${VIT.scoreRatio}`, tone: "orange", solid: true });
-    A10.same("patches: the x16 tag is 101 px wide", x16.w, 101);
+    const x16Text = `${VIT.tokenRatio} × ${VIT.tokenRatio} = ${VIT.scoreRatio}`; // 4 times as many tokens, each scored by 4 times as many
+    const x16 = A10.tag(stage, { x: 668, y: 420, text: x16Text, tone: "orange", solid: true });
+    A10.same(
+      "patches: the 4 × 4 = 16 tag is 176 px wide and ends inside the stage",
+      [x16.w, x16.x + x16.w <= 924],
+      [176, true],
+    );
     A10.same(
       "patches: the block ends inside the stage",
       [BLOCK.x + sq.width <= 924, BLOCK.y + sq.height <= 630],
@@ -196,7 +232,7 @@
       patch.set({
         k: ramp(t, ...TM.patch, E.lin),
         text: patchTxt(fineP ? F.patch : C.patch),
-        s: 1 + 0.1 * flash(t, TM.patchTo, TM.patchTo + TM.bump),
+        s: 1 + 0.04 * flash(t, TM.patchTo, TM.patchTo + TM.bump),
       });
 
       // 2. every patch is a token
@@ -217,6 +253,12 @@
       const kk = E.inOut(ramp(t, ...TM.shrink, E.lin));
       const pop = A10.pop(bk);
       big.set(0, { x: -HOP * kk, y: -HOP * kk, s: pop.s * (1 - (1 - SHRINK) * kk), o: pop.o });
+      V.place(meshEl, {
+        x: -HOP * kk,
+        y: -HOP * kk,
+        s: pop.s * (1 - (1 - SHRINK) * kk),
+        o: pop.o * (1 - ramp(t, ...TM.meshOut, E.lin)),
+      });
       t196.set({ k: bk, o: 1 - ramp(t, ...TM.tagOut, E.lin) });
       const fineS = t >= TM.scoresTo;
       sc.set({
@@ -241,10 +283,10 @@
     dur: 12,
     caps: [
       [0.9, 2.5, "A picture can be cut into patches."],
-      [3, 4.8, "Each patch is a token: 196 in all."],
-      [5, 6.8, "Every token scores every token: 196 × 196."],
-      [7.8, 9.6, "Half-size patches: four times the tokens."],
-      [10.1, 11.9, "But sixteen times the scores."],
+      [3, 4.8, `Each patch is a token: ${C.tokens} in all.`],
+      [5, 6.8, `Every token scores every token: ${C.tokens} × ${C.tokens}.`],
+      [7.8, 9.6, `Half-size patches: ${WORD[VIT.tokenRatio]} times the tokens.`],
+      [10.1, 11.9, `But ${WORD[VIT.scoreRatio]} times the scores.`],
     ],
     build,
   });

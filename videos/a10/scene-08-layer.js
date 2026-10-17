@@ -5,12 +5,14 @@
    bars, brought by the orange skip arc) gives [3, 2, 5.5, 5]; layer norm then slides the mean (3.875, a dashed line) to 0 and
    rescales: [-0.61, -1.31, 1.14, 0.79].  BEAT 3 feed-forward: the same small network, applied to each word on its own.
    BEAT 4 stack: a layer hands back the same shape it received, so identical layers stack (6 in the original paper).
-   Every number comes from A10.LAYER (common.js) and is asserted again here. The strip is centred with 34 px gaps (not the storyboard's
-   40) so that the enlarged active block still keeps 12 px from the stage edges; the last caption starts at 10.9 (not 10.8) because
-   the stack is drawn a little earlier than the storyboard (rows and layers 10.4-12.2) so that "in and out" is on screen as it is read.
-   Story (local seconds): 0.3-1.6 the four blocks (0.9-1.9 the two main parts are tinted); 1.9-4.0 attention; 4.0-7.9 add then norm
-   (4.2 first skip arc, 5.0 the F(x) row and the orange pieces, 5.4 sums, 6.1 mean line, 6.4-6.9 mean slides to 0, 6.9-7.4 rescale);
-   7.9-10.0 feed-forward; 10.0-13 the second skip arc, the whole strip becomes one layer and six of them stack. */
+   Every number comes from A10.LAYER (common.js) and is asserted again here. The strip sits at y 56 (blocks 56-120) so that the two
+   skip arcs can bypass the blocks ABOVE it (apex y 20, inside the 12 px margin) and read as a detour round the part, not a connector;
+   it is centred with 34 px gaps so that the enlarged active block still keeps 12 px from the stage edges. Plain words name the rows
+   of beat 2: "input", "output" (what the part produced: F(x)) and "input + output". The norm view is held 0.5 s longer than the
+   storyboard (D), so beats 3 and 4 start 0.5 s later than in the storyboard.
+   Story (local seconds): 0.3-1.6 the four blocks (0.9-1.9 the two main parts are tinted); 1.9-4.0 attention; 4.0-8.4 add then norm
+   (4.2 first skip arc, 5.0 the output row and the orange pieces, 5.4 sums, 6.1 mean line, 6.4-6.9 mean slides to 0, 6.9-7.4 rescale,
+   held to 8.4); 8.4-10.5 feed-forward; 10.5-13.5 the second skip arc, the whole strip becomes one layer and six of them stack. */
 (function () {
   const V = window.VID;
   const A10 = V.a10;
@@ -22,6 +24,8 @@
   const SUM = LY.sum;
   const PX = 60; // px per unit once the numbers are normalised
   const UNIT = 32; // px per unit before
+  const D = 0.5; // beats 3 and 4 start this much later than in the storyboard (the norm view is held longer)
+  const STRIP_Y = 56; // the strip of four blocks (blocks 56-120); the skip arcs bypass them above
 
   A10.same("layer: the sentence", WORDS.join(" "), "the dog barked");
   A10.same(
@@ -41,7 +45,7 @@
 
   // ---------- layout (stage px) ----------
   const BLOCKS = [
-    { x: 22, w: 190, text: "Attention", tone: "purple" },
+    { x: 22, w: 190, text: "Attention", tone: "green" },
     { x: 246, w: 190, text: "Add & Norm", tone: "orange" },
     { x: 470, w: 220, text: "Feed-forward", tone: "blue" },
     { x: 724, w: 190, text: "Add & Norm", tone: "orange" },
@@ -58,22 +62,22 @@
   const ON = [
     [
       [0.9, 4.0],
-      [10.8, 99],
+      [10.8 + D, 99],
     ],
     [
-      [4.0, 7.9],
-      [10.8, 99],
+      [4.0, 7.9 + D],
+      [10.8 + D, 99],
     ],
     [
       [0.9, 1.9],
-      [8.0, 10.0],
-      [10.8, 99],
+      [8.0 + D, 10.0 + D],
+      [10.8 + D, 99],
     ],
-    [[10.0, 99]],
+    [[10.0 + D, 99]],
   ];
   const CX = [250, 468, 686]; // the three word columns of beats 1 and 3
-  const BARS = { x: 286, y: 496, bw: 64, gap: 36 };
-  const NUM = { x: 270, fy: 124, y: 196, w: 96, h: 50, gap: 4 }; // F(x) row above the x row, pitch 100 like the bars
+  const BARS = { x: 286, y: 506, bw: 64, gap: 36 };
+  const NUM = { x: 270, fy: 140, y: 212, w: 96, h: 50, gap: 4 }; // the output row above the input row, pitch 100 like the bars
   const BAR_MID = (i) => BARS.x + i * (BARS.bw + BARS.gap) + BARS.bw / 2;
   A10.same(
     "layer: number cells sit over their bars",
@@ -81,7 +85,8 @@
     [0, 1, 2, 3].map(BAR_MID),
   );
   const MEAN_Y = BARS.y - UNIT * LY.mean;
-  A10.same("layer: the mean line starts at y 372", MEAN_Y, 372);
+  A10.same("layer: the mean line starts at y 382", MEAN_Y, 382);
+  A10.same("layer: the output row clears the strip", NUM.fy >= STRIP_Y + 64 + 12 + 4, true);
   A10.same(
     "layer: the tallest bar stays under the number row",
     BARS.y - UNIT * Math.max(...LY.x, ...SUM) >= NUM.y + NUM.h + 12,
@@ -97,18 +102,30 @@
   function build(stage) {
     // ---------- the strip of four blocks, always on top ----------
     const cards = BLOCKS.map((b) =>
-      A10.card(stage, { x: b.x, y: 0, w: b.w, h: 64, text: b.text, tone: b.tone, plain: true }),
+      A10.card(stage, { x: b.x, y: STRIP_Y, w: b.w, h: 64, text: b.text, tone: b.tone, plain: true }),
     );
     const svg = A10.svg(stage);
     const links = BLOCKS.slice(0, 3).map((b, i) =>
-      svg.appendChild(L5.arrow(b.x + b.w + 4, 32, BLOCKS[i + 1].x - 4, 32, "grey", 1, { w: 5, head: 14 })),
+      svg.appendChild(
+        L5.arrow(b.x + b.w + 4, STRIP_Y + 32, BLOCKS[i + 1].x - 4, STRIP_Y + 32, "grey", 1, { w: 5, head: 14 }),
+      ),
     );
+    // the skip path: from the start of the part, over it, into the Add & Norm that follows (a bypass above the strip)
     const skips = [
       [0, 1],
       [2, 3],
     ].map(([a, b]) =>
-      A10.arc(svg, { x1: mid(BLOCKS[a]), y1: 66, x2: mid(BLOCKS[b]), y2: 66, lift: -34, tone: "orange", w: 6 }),
+      A10.arc(svg, {
+        x1: BLOCKS[a].x + 30,
+        y1: STRIP_Y - 2,
+        x2: mid(BLOCKS[b]),
+        y2: STRIP_Y - 2,
+        lift: 34,
+        tone: "orange",
+        w: 6,
+      }),
     );
+    A10.same("layer: the skip arcs peak inside the margin", STRIP_Y - 2 - 34 - 3 >= 12, true);
 
     // ---------- beat 1: attention, three words share numbers ----------
     const w1 = V.h("div", { style: { position: "absolute", left: "0px", top: "0px" } });
@@ -134,7 +151,7 @@
       [0, 2, -90],
     ];
     const arcs1 = PAIRS.map(([a, b, lift]) =>
-      A10.arc(svg1, { x1: CX[a], y1: 440, x2: CX[b], y2: 440, lift, tone: "purple", w: 6, dot: false }),
+      A10.arc(svg1, { x1: CX[a], y1: 440, x2: CX[b], y2: 440, lift, tone: "green", w: 6, dot: false }),
     );
     const packet = (tone) => {
       const c = A10.tone(tone);
@@ -186,10 +203,16 @@
       gap: NUM.gap,
       tone: "blue",
     });
-    // the row label says what the numbers are now; one tag per phase, right edge at x 250
+    // the row label says what the numbers are now; one tag per phase, right edge at x 258 (12 px before the first number)
+    const LABEL_EDGE = NUM.x - 12;
     const label = (text, tone, solid) =>
-      A10.tag(w2, { x: 250 - A10.tagW(text), y: NUM.y + NUM.h / 2 - 29, text, tone, solid });
-    const lab = [label("x", "blue"), label("x + F(x)", "blue"), label("after norm", "green", true)];
+      A10.tag(w2, { x: LABEL_EDGE - A10.tagW(text), y: NUM.y + NUM.h / 2 - 29, text, tone, solid });
+    const lab = [label("input", "blue"), label("input + output", "blue"), label("after norm", "green", true)];
+    A10.same(
+      "layer: the row labels start inside the margin",
+      lab.every((l) => l.x >= 12),
+      true,
+    );
     const fxRow = A10.cells(w2, {
       x: NUM.x,
       y: NUM.fy,
@@ -200,9 +223,9 @@
       tone: "orange",
     });
     const addTag = A10.tag(w2, {
-      x: 250 - A10.tagW("adds F(x)"),
+      x: LABEL_EDGE - A10.tagW("output"),
       y: NUM.fy + NUM.h / 2 - 29,
-      text: "adds F(x)",
+      text: "output",
       tone: "orange",
     });
     const meanTag = A10.tag(w2, { x: 690, y: MEAN_Y - 29, w: A10.tagW("mean 0"), text: "mean", tone: "grey" });
@@ -236,12 +259,12 @@
           solid: tone === "green",
         });
       return {
-        tag: A10.tag(w3, { x: cx - A10.tagW(w) / 2, y: 124, text: w }),
-        input: chips(196, "blue"),
-        down1: svg3.appendChild(L5.arrow(cx, 332, cx, 352, "grey", 1, { w: 5, head: 12 })),
-        net: A10.card(w3, { x: cx - 75, y: 358, w: 150, h: 64, text: "network", tone: "blue", plain: false }),
-        down2: svg3.appendChild(L5.arrow(cx, 426, cx, 446, "grey", 1, { w: 5, head: 12 })),
-        output: chips(452, "green"),
+        tag: A10.tag(w3, { x: cx - A10.tagW(w) / 2, y: 140, text: w }),
+        input: chips(212, "blue"),
+        down1: svg3.appendChild(L5.arrow(cx, 348, cx, 368, "grey", 1, { w: 5, head: 12 })),
+        net: A10.card(w3, { x: cx - 75, y: 374, w: 150, h: 64, text: "network", tone: "blue", plain: false }),
+        down2: svg3.appendChild(L5.arrow(cx, 442, cx, 462, "grey", 1, { w: 5, head: 12 })),
+        output: chips(468, "green"),
       };
     });
 
@@ -291,7 +314,7 @@
       });
       links.forEach((g, i) => L5.drawOn(g, ramp(t, 0.5 + 0.2 * i, 0.9 + 0.2 * i)));
       skips[0].set({ k: ramp(t, 4.2, 4.9) });
-      skips[1].set({ k: ramp(t, 10.3, 10.8) });
+      skips[1].set({ k: ramp(t, 10.3 + D, 10.8 + D) });
 
       // ----- beat 1 -----
       V.place(w1, { o: 1 - ramp(t, 3.9, 4.2, E.lin) });
@@ -318,7 +341,7 @@
       });
 
       // ----- beat 2 -----
-      V.place(w2, { o: ramp(t, 4.2, 4.3, E.lin) * (1 - ramp(t, 7.9, 8.2, E.lin)) });
+      V.place(w2, { o: ramp(t, 4.2, 4.3, E.lin) * (1 - ramp(t, 7.9 + D, 8.2 + D, E.lin)) });
       const merge = ramp(t, 6.0, 6.25, E.lin);
       const shift = ramp(t, 6.4, 6.9, E.inOut); // the mean slides to 0
       const stretch = ramp(t, 6.9, 7.4, E.inOut); // and the spread is made 1
@@ -373,39 +396,39 @@
       V.place(meanLine, { y: lineY - MEAN_Y, o: ramp(t, 6.1, 6.4, E.lin) });
 
       // ----- beat 3 -----
-      V.place(w3, { o: ramp(t, 8.1, 8.2, E.lin) * (1 - ramp(t, 10.0, 10.3, E.lin)) });
+      V.place(w3, { o: ramp(t, 8.1 + D, 8.2 + D, E.lin) * (1 - ramp(t, 10.0 + D, 10.3 + D, E.lin)) });
       cols.forEach((c, i) => {
-        const t0 = 8.3 + 0.2 * i;
+        const t0 = 8.3 + D + 0.2 * i;
         c.tag.set({ k: ramp(t, t0, t0 + 0.3, E.lin) });
         c.input.all((j) => A10.pop(A10.seq(t, t0 + 0.08, 0.05, 0.3, j)));
         L5.drawOn(c.down1, ramp(t, t0 + 0.2, t0 + 0.4));
-        c.net.set({ k: ramp(t, t0 + 0.25, t0 + 0.55, E.lin), s: bump(t, 9.25 + 0.2 * i, 0.4, 0.1) });
+        c.net.set({ k: ramp(t, t0 + 0.25, t0 + 0.55, E.lin), s: bump(t, 9.25 + D + 0.2 * i, 0.4, 0.1) });
         L5.drawOn(c.down2, ramp(t, t0 + 0.4, t0 + 0.6));
         c.output.all((j) => A10.pop(A10.seq(t, t0 + 0.45, 0.05, 0.3, j)));
       });
 
       // ----- beat 4 -----
-      V.place(w4, { o: ramp(t, 10.3, 10.4, E.lin) });
-      rowIn.all((j) => A10.pop(A10.seq(t, 10.4, 0.06, 0.3, j)));
-      tagIn.set({ k: ramp(t, 10.4, 10.75, E.lin) });
-      layers.forEach((c, i) => c.set({ k: ramp(t, 10.7 + 0.12 * i, 11.0 + 0.12 * i, E.lin) }));
-      rowOut.all((j) => A10.pop(A10.seq(t, 11.5, 0.06, 0.3, j)));
-      tagOut.set({ k: ramp(t, 11.5, 11.85, E.lin) });
-      times.set({ k: ramp(t, 11.8, 12.15, E.lin) });
+      V.place(w4, { o: ramp(t, 10.3 + D, 10.4 + D, E.lin) });
+      rowIn.all((j) => A10.pop(A10.seq(t, 10.4 + D, 0.06, 0.3, j)));
+      tagIn.set({ k: ramp(t, 10.4 + D, 10.75 + D, E.lin) });
+      layers.forEach((c, i) => c.set({ k: ramp(t, 10.7 + D + 0.12 * i, 11.0 + D + 0.12 * i, E.lin) }));
+      rowOut.all((j) => A10.pop(A10.seq(t, 11.5 + D, 0.06, 0.3, j)));
+      tagOut.set({ k: ramp(t, 11.5 + D, 11.85 + D, E.lin) });
+      times.set({ k: ramp(t, 11.8 + D, 12.15 + D, E.lin) });
     };
   }
 
   V.scene({
     kicker: "ONE LAYER",
-    title: ["Each layer mixes words,", "then thinks about each"],
-    dur: 13,
+    title: ["Each layer mixes words,", "then thinks about each one"],
+    dur: 13.5,
     caps: [
-      [0.9, 2.4, "A layer has two main parts."],
+      [0.9, 2.4, "Two parts, each with Add & Norm."],
       [2.6, 4.2, "Attention lets the words share information."],
-      [4.6, 6.3, "A skip path adds the input back."],
-      [6.5, 8, "Norm keeps the numbers steady."],
-      [8.6, 10.2, "The network then treats each word alone."],
-      [10.9, 12.8, "Same shape in and out, so layers stack."],
+      [4.6, 6.3, "A skip path adds output to input."],
+      [6.5, 8.3, "Norm re-centres the numbers around zero."],
+      [8.6 + D, 10.2 + D, "The same network treats each word alone."],
+      [10.9 + D, 12.8 + D, "Same shape in and out, so layers stack."],
     ],
     build,
   });

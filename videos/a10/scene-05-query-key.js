@@ -1,13 +1,15 @@
-/* Phase 10 · scene 05-query-key (13.5 s): how attention finds the right words, by hand on "the dog barked" (lesson 10.4). Every word
-   makes a QUERY (purple), a KEY (blue) and a VALUE (orange). To update "barked", its query [1, 1] is held against every key: pair by
+/* Phase 10 · scene 05-query-key (14.1 s): how attention finds the right words, by hand on "the dog barked" (lesson 10.4). Every word
+   makes a QUERY (purple: what I am looking for) and a KEY (blue: what I have to offer); each is defined on screen as its row pops, in
+   the caption of that moment. The VALUE (orange) is not drawn here: scene 6 introduces it where it is used. To update "barked", its
+   query [1, 1] is compared with every key: pair by
    pair the numbers are multiplied (1×1 + 1×0), then added up, which gives the scores 1, 3 and 2 ("dog" matches best). Dividing by 1.41
    (the square root of 2) gives 0.71, 2.12, 1.41 and softmax turns those into the shares 0.14, 0.58, 0.28. Every number comes from
    A10.QKV (common.js) and is asserted again here. The product cells show the multiplication itself ("1×2"), not only its result,
    because the query of "barked" is all ones and the results would just copy the key.
-   Story (local seconds): 0.2-0.8 word tags; 0.5-1.0 row labels; 1.0-3.0 chips word by word (query, key, value); 3.2-3.9 "barked" turns
-   purple and the other queries and the values go grey; 4.0-7.3 for each key: an arrow from the query, a ring on the key, the two
-   products with a plus, a blue score disc; 7.6-8.1 the "dog" disc turns green, the arrows and rings fade; 9.4-10.3 "÷ 1.41" and the
-   scaled scores; 11.1-12.0 the green shares, 11.8 a ring on the "dog" share. Hold to 13.5. */
+   Story (local seconds): 0.2-0.8 word tags; 0.7-1.5 the query row; 2.5-3.3 the key row; 3.9-4.6 "barked" turns purple and the other
+   queries go grey; 4.7-8.0 for each key: an arrow from the query, a ring on the key, the two products with a plus, a blue score disc;
+   8.3-8.8 the "dog" disc turns green, the arrows and rings fade; 10.0-10.9 "÷ 1.41" and the scaled scores; 11.7-12.6 the green shares,
+   12.5 a ring on the "dog" share. Hold to 14.1. */
 (function () {
   const V = window.VID;
   const A10 = V.a10;
@@ -65,21 +67,26 @@
   A10.same("query-key: dog matches best", BK.rows.map((r) => r.score).indexOf(3), DOG);
 
   const CX = [270, 500, 730]; // column centres
-  const Y = { query: 74, key: 180, prod: 258, disc: 366, scaled: 424, share: 494, value: 570 };
+  const Y = { word: 16, query: 96, key: 214, prod: 296, disc: 408, scaled: 466, share: 540 };
+  const ROOT = Q.root.toFixed(2); // the divisor, "1.41" (the square root of the key length 2)
+  A10.same("query-key: the divisor", [ROOT, Q.dk], ["1.41", 2]);
+  A10.same("query-key: the best score", BK.rows[DOG].score, 3);
   const mid = (y, h) => y + h / 2 - 29; // top of a 58 px label tag centred on a row
   const TM = {
     word: 0.2, // word tag j at 0.2 + 0.2 j
-    label: 0.5, // row labels 'query', 'key', 'value' 0.2 s apart
-    chip: 1.0, // word j starts 1.0 + 0.55 j: query chip, key chip +0.15, value chip +0.3
-    focus: [3.2, 3.9],
-    score: 4.0, // key j is scored from 4.0 + 1.1 j
+    qLabel: 0.7, // the 'query' label, then its chips: word j at 1.0 + 0.15 j
+    query: 1.0,
+    kLabel: 2.5, // the 'key' label, then its chips: word j at 2.7 + 0.15 j
+    key: 2.7,
+    focus: [3.9, 4.6],
+    score: 4.7, // key j is scored from 4.7 + 1.1 j
     step: 1.1,
-    best: [7.6, 8.1],
-    fade: [7.7, 8.0], // arrows and rings
-    div: 9.4, // the "÷ 1.41" label
-    scaled: 9.6, // scaled cell j at 9.6 + 0.12 j
-    share: 11.1, // the "share" label; cell j at 11.2 + 0.15 j
-    shareRing: [11.8, 12.1],
+    best: [8.3, 8.8],
+    fade: [8.4, 8.7], // arrows and rings
+    div: 10.0, // the "÷ 1.41" label
+    scaled: 10.2, // scaled cell j at 10.2 + 0.12 j
+    share: 11.7, // the "share" label; cell j at 11.8 + 0.15 j
+    shareRing: [12.5, 12.8],
   };
   const tj = (j) => TM.score + TM.step * j;
 
@@ -103,14 +110,13 @@
   }
 
   function build(stage) {
-    const tags = Q.words.map((w, j) => A10.tag(stage, { x: CX[j] - A10.tagW(w) / 2, y: 0, text: w }));
+    const tags = Q.words.map((w, j) => A10.tag(stage, { x: CX[j] - A10.tagW(w) / 2, y: Y.word, text: w }));
     const labels = {
-      query: A10.tag(stage, { x: 12, y: mid(Y.query, 56), text: "query", tone: "purple" }),
-      key: A10.tag(stage, { x: 12, y: mid(Y.key, 56), text: "key", tone: "blue" }),
-      score: A10.tag(stage, { x: 12, y: Y.disc - 29, text: "score", tone: "blue" }),
-      div: A10.tag(stage, { x: 12, y: mid(Y.scaled, 52), text: "÷ 1.41", tone: "grey" }),
-      share: A10.tag(stage, { x: 12, y: mid(Y.share, 56), text: "share", tone: "green" }),
-      value: A10.tag(stage, { x: 12, y: mid(Y.value, 56), text: "value", tone: "orange" }),
+      query: A10.tag(stage, { x: 14, y: mid(Y.query, 56), text: "query", tone: "purple" }),
+      key: A10.tag(stage, { x: 14, y: mid(Y.key, 56), text: "key", tone: "blue" }),
+      score: A10.tag(stage, { x: 14, y: Y.disc - 29, text: "score", tone: "blue" }),
+      div: A10.tag(stage, { x: 14, y: mid(Y.scaled, 52), text: `÷ ${ROOT}`, tone: "grey" }),
+      share: A10.tag(stage, { x: 14, y: mid(Y.share, 56), text: "share", tone: "green" }),
     };
     Object.entries(labels).forEach(([name, t]) =>
       A10.same(`query-key: the ${name} label clears the first chips`, t.x + t.w <= 165, true),
@@ -119,7 +125,6 @@
       A10.cells(stage, { x: CX[j] - (2 * w + gap) / 2, y, texts: texts.map(String), w, h: 56, gap, tone });
     const qrow = Q.words.map((_, j) => chip(j, Y.query, Q.Q[j], "purple"));
     const krow = Q.words.map((_, j) => chip(j, Y.key, Q.K[j], "blue"));
-    const vrow = Q.words.map((_, j) => chip(j, Y.value, Q.V[j], "orange"));
     const rings = Q.words.map((_, j) => frame(stage, CX[j] - 93, Y.key - 6, 186, 68, "purple"));
     const mults = BK.rows.map((r, j) =>
       A10.cells(stage, {
@@ -147,7 +152,7 @@
       svg.appendChild(L5.arrow(CX[ASK], Y.query + 64, x, Y.key - 10, "purple", 1, { w: 5, head: 16, bow: bows[j] })),
     );
     const pluses = CX.map((x) => svg.appendChild(A10.op("plus", x, Y.prod + 24, 26)));
-    const equals = CX.map((x) => svg.appendChild(A10.op("equals", x, 323, 30)));
+    const equals = CX.map((x) => svg.appendChild(A10.op("equals", x, (Y.prod + 48 + Y.disc - 30) / 2, 30)));
 
     return (t) => {
       const focus = t >= TM.focus[0];
@@ -159,11 +164,10 @@
         const asks = focus && j === ASK;
         g.set({ k: A10.seq(t, TM.word, 0.2, 0.4, j), tone: asks ? "purple" : "grey", solid: asks, s: asks ? bump : 1 });
       });
-      labels.query.set({ k: A10.seq(t, TM.label, 0.2, 0.3, 0) });
-      labels.key.set({ k: A10.seq(t, TM.label, 0.2, 0.3, 1) });
-      labels.value.set({ k: A10.seq(t, TM.label, 0.2, 0.3, 2), tone: focus ? "grey" : "orange" });
+      labels.query.set({ k: ramp(t, TM.qLabel, TM.qLabel + 0.3, E.lin) });
+      labels.key.set({ k: ramp(t, TM.kLabel, TM.kLabel + 0.3, E.lin) });
 
-      // 2. queries, keys, values: word by word; then "barked" asks and the rest steps back
+      // 2. the queries (one row), then the keys (one row); then "barked" asks and the other queries step back
       // the pair being multiplied lights up: cell d of the query and cell d of the key that is being scored
       const pairBump = (d, only) =>
         1 +
@@ -174,18 +178,16 @@
             0,
           );
       Q.words.forEach((_, j) => {
-        const at = TM.chip + 0.55 * j;
         const asks = focus && j === ASK;
         qrow[j].all((d) => {
-          const p = A10.pop(A10.seq(t, at, 0.06, 0.35, d));
+          const p = A10.pop(A10.seq(t, TM.query + 0.15 * j, 0.06, 0.35, d));
           const s = p.s * (j === ASK ? pairBump(d) : 1) * (asks ? 1 + 0.07 * flash(t, ...TM.focus) : 1);
           return { ...p, s, tone: focus && !asks ? "grey" : "purple", solid: asks };
         });
         krow[j].all((d) => {
-          const p = A10.pop(A10.seq(t, at + 0.15, 0.06, 0.35, d));
+          const p = A10.pop(A10.seq(t, TM.key + 0.15 * j, 0.06, 0.35, d));
           return { ...p, s: p.s * pairBump(d, j) };
         });
-        vrow[j].all((d) => ({ ...A10.pop(A10.seq(t, at + 0.3, 0.06, 0.35, d)), tone: focus ? "grey" : "orange" }));
       });
 
       // 3. scoring: for each key an arrow from the query, a ring on the key, the products added up, a score
@@ -223,14 +225,15 @@
   V.scene({
     kicker: "QUERY AND KEY",
     title: ["A query is matched", "against every key"],
-    dur: 13.5,
+    dur: 14,
     caps: [
-      [1, 3.4, "Each word makes a query, a key and a value."],
-      [3.5, 5.3, "Hold the query of “barked” against each key."],
-      [5.4, 7.2, "Multiply the pairs, then add them up."],
-      [7.6, 9.4, "“dog” matches best: a score of 3."],
-      [9.5, 11.2, "Divide by 1.41 to keep scores small."],
-      [11.3, 13.1, "Softmax turns them into shares."],
+      [0.9, 2.4, "Query: what I am looking for."],
+      [2.6, 4.1, "Key: what I have to offer."],
+      [4.5, 6.3, "Compare the query of “barked” to each key."],
+      [6.4, 8.1, "Multiply the pairs, then add them up."],
+      [8.3, 10, `“dog” matches best: a score of ${BK.rows[DOG].score}.`],
+      [10.1, 11.7, `Divide by ${ROOT} to keep scores small.`],
+      [11.9, 13.7, "Softmax turns them into shares."],
     ],
     build,
   });
