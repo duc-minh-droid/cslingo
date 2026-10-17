@@ -5,7 +5,11 @@
    Every paint list comes from A8.PAINT (common.js); this file asserts it and lays it out.
    Story (local seconds): 0.2-1.0 Alice, Bob and the pipe; 1.0-1.8 the public pots; 3.4-4.0 the secret pots; 4.4-5.0 the secret drops
    rise into the pots, both mix; 5.8-7.0 the swap; 5.9-6.9 Eve and her copies; 7.7-8.3 the second drops, both pots turn the same tan
-   and go purple (secret again); 8.8-9.3 the equals sign; 10.1-10.6 Eve's question mark. */
+   and go purple (secret again); 8.8-9.3 the equals sign; 9.7 the purple key icon under it (the shared colour IS the key from scene 2);
+   11.1-11.9 Eve tries to unmix each copy (a red arrow back towards the secret paint, stopped by a red cross); 12.0 her question mark.
+   Colour exception, on purpose: the paints are literal CSLingo tokens (gold, rose, blue), so Alice's rose paint is the same red as
+   Eve. The roles are carried by the frames and tags instead: purple dashed frame plus "secret" for the pots only their owner holds,
+   red dashed frames for Eve's copies. */
 (function () {
   const V = window.VID;
   const A8 = V.a8;
@@ -52,7 +56,10 @@
     drop2: [7.7, 8.3],
     final: 8.3,
     equals: 8.8,
-    qmark: 10.1,
+    key: 9.7,
+    undo: [11.1, 11.6],
+    cross: 11.55,
+    qmark: 12.0,
   };
   const pop = (t, a, d = 0.35) => ramp(t, a, a + d, lin);
 
@@ -125,6 +132,29 @@
     const copyL = A8.pot(stage, { x: 390, y: 410, r: 32 });
     const copyR = A8.pot(stage, { x: 546, y: 410, r: 32 });
     const unknown = A8.icon(stage, "qmark", { x: 468, y: 410, tone: "red", size: 50 });
+    // the shared colour is the key (scene 2's question answered); it hangs under the equals sign, off the open wire
+    const shareKey = A8.icon(stage, "key", { x: 468, y: 334, tone: "purple", size: 96 });
+    // Eve's attempt to unmix: an arrow from each copy back towards the secret paint, stopped by a red cross
+    const undoL = A8.link(stage, {
+      pts: [
+        [336, 410],
+        [214, 410],
+      ],
+      tone: "red",
+      w: 5,
+      head: 16,
+    });
+    const undoR = A8.link(stage, {
+      pts: [
+        [600, 410],
+        [722, 410],
+      ],
+      tone: "red",
+      w: 5,
+      head: 16,
+    });
+    const crossL = A8.icon(stage, "cross", { x: 275, y: 410, tone: "red", size: 50, disc: true });
+    const crossR = A8.icon(stage, "cross", { x: 661, y: 410, tone: "red", size: 50, disc: true });
 
     const dropA1 = A8.drop(stage, { x: AX, y: SY, r: 18, paint: "A" });
     const dropB1 = A8.drop(stage, { x: BX, y: SY, r: 18, paint: "B" });
@@ -185,6 +215,11 @@
       copyR.set({ drops: P.eveSees[2], frame: "red", k: pop(t, T.copyR, 0.4) });
 
       equals.set({ k: pop(t, T.equals, 0.4) });
+      shareKey.set({ k: pop(t, T.key, 0.4), s: 1 + 0.1 * flash(t, T.key + 0.3, T.key + 0.7) });
+      undoL.set({ k: ramp(t, ...T.undo) });
+      undoR.set({ k: ramp(t, ...T.undo) });
+      crossL.set({ k: pop(t, T.cross, 0.3), draw: ramp(t, T.cross, T.cross + 0.3, lin) });
+      crossR.set({ k: pop(t, T.cross + 0.1, 0.3), draw: ramp(t, T.cross + 0.1, T.cross + 0.4, lin) });
       const u = ramp(t, T.qmark, T.qmark + 0.5, lin);
       unknown.set({ k: pop(t, T.qmark, 0.3), dx: 6 * Math.sin(u * Math.PI * 6) * (1 - u) });
     };
@@ -193,13 +228,14 @@
   V.scene({
     kicker: "SHARED SECRET",
     title: ["Mix paint in public,", "share a secret colour"],
-    dur: 12,
+    dur: 13.4,
     caps: [
       [1.2, 3.4, "Both start with the same public paint."],
       [3.6, 5.8, "Each adds a secret paint of their own."],
       [6.0, 8.0, "They swap the mixtures. Eve can see those."],
-      [8.0, 9.9, "Each adds their own secret again: the very same colour."],
-      [10.1, 11.8, "Eve cannot unmix paint to find a secret."],
+      [8.0, 9.6, "Each adds their own secret again: the very same colour."],
+      [9.7, 11.0, "That colour is their shared key."],
+      [11.1, 13.2, "Eve cannot unmix paint to find a secret."],
     ],
     build,
   });

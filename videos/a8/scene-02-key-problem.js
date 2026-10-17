@@ -6,10 +6,12 @@
    the key too), purple = Alice's secret key, orange = the +5 shifts and the question about Bob's key, red = Eve and her copies.
    Timeline (local seconds): 0.2 Alice, Bob, the wire; 0.85 the grey row pops at Alice's end; 1.5-2.2 it slides to the middle of the
    wire; 1.95 Eve; 2.35 the copy arrow, 2.6 her red copy SECRET, 2.9 the eye (she reads it); 4.1-4.55 all of that fades (Eve stays);
-   4.65 the row pops again at Alice's end, the purple key 5 beside Alice; 4.95 the +5 tags, 5.05 the six tiles flip to XJHWJY (blue);
-   6.7 the +5 tags fade and the row slides to Bob's end; 7.15 Eve copies it too (red XJHWJY, red question mark: she cannot read it);
-   8.1 Bob's dashed key and the orange question mark; 8.4 Eve's copy fades; 8.75-9.65 a copy of key 5 travels up onto the wire (it
-   turns blue as it enters: everything on the wire is public); 9.5 the copy arrow, 9.85 Eve's solid red key 5, 10.05 the eye.
+   4.65 the row pops again at Alice's end, the purple key 5 beside Alice, the +5 tags and the grey "toy shift cipher" tag; 5.0-5.4 one
+   worked example builds under the wire (grey S, an orange +5 arrow, blue X), 5.45 the first tile flips to X and the example holds
+   about a second so the rule is seen before the other five flip (6.2-6.95) to XJHWJY (blue); 7.1 the +5 tags and the example fade and
+   the row slides to Bob's end; 7.6 Eve copies it too (red XJHWJY, red question mark: she cannot read it without the key);
+   8.5 Bob's dashed key and the orange question mark; 8.8 Eve's copy fades; 9.15-10.05 a copy of key 5 travels up onto the wire (it
+   turns blue as it enters: everything on the wire is public); 9.9 the copy arrow, 10.25 Eve's solid red key 5, 10.45 the eye.
    Every letter and the key come from A8.CIPHER (common.js) and are asserted below; nothing is typed here. */
 (function () {
   const V = window.VID;
@@ -43,6 +45,7 @@
     [700, LANE_KEY],
   ]; // the copy of the key: up into the lower lane, then right
   const TURNS_BLUE = 296; // the copy turns blue (public) once its centre is inside the wire band
+  const EX = { x: 364, y: 346, gap: 152 }; // the worked example S +5 X under the wire (tiles 56 px)
   const EVE = { x: 468, y: 578 };
   const COPY_Y = 392; // top of Eve's copied row
 
@@ -59,20 +62,28 @@
     keyIcon: 4.65,
     keyTag: 4.8,
     plus: 4.95, // + 0.12 i
-    flip: 5.05, // + 0.12 i, 0.35 s each
-    plusOut: [6.7, 7.05],
-    slide2: [6.7, 7.6],
-    arrow2: [7.15, 7.5],
-    copy2: 7.2, // + 0.05 i
-    q2: 7.7,
-    bobKey: 8.1,
-    bobQ: 8.25,
-    out2: [8.4, 8.8],
-    travel: [8.75, 9.65],
-    arrow3: [9.5, 9.9],
-    eveKey: 9.85,
-    eye2: 10.05,
+    toy: 5.0,
+    exS: 5.0,
+    exArrow: [5.15, 5.4],
+    exTag: 5.2,
+    exX: 5.4,
+    flip0: 5.45, // the first tile flips on its own, the example stays on screen beside it
+    flipRest: 6.2, // + 0.1 (i - 1), 0.35 s each
+    exOut: [7.1, 7.45],
+    plusOut: [7.1, 7.45],
+    slide2: [7.1, 8.0],
+    arrow2: [7.55, 7.9],
+    copy2: 7.6, // + 0.05 i
+    q2: 8.1,
+    bobKey: 8.5,
+    bobQ: 8.65,
+    out2: [8.8, 9.2],
+    travel: [9.15, 10.05],
+    arrow3: [9.9, 10.3],
+    eveKey: 10.25,
+    eye2: 10.45,
   };
+  const flipAt = (i) => (i === 0 ? T.flip0 : T.flipRest + 0.1 * (i - 1));
   const PHASE_B = 4.62; // from here the row is the second life of the tiles (grey at Alice's end, then flipping)
 
   const popS = (k) => 0.8 + 0.2 * E.pop(clamp(k));
@@ -81,18 +92,22 @@
   V.scene({
     kicker: "THE KEY PROBLEM",
     title: ["The cipher needs a key", "but Eve is listening"],
-    dur: 11,
+    dur: 11.4,
     caps: [
       [2.2, 4.3, "Anything on the open wire, Eve can read."],
-      [5.0, 7.6, "A cipher scrambles it with a secret key."],
-      [8.7, 10.8, "But how does Bob get the key without Eve seeing it?"],
+      [
+        5.1,
+        7.4,
+        `The key is ${C.key}: each letter moves ${C.key} along, so ${C.pairs[0].from} becomes ${C.pairs[0].to}.`,
+      ],
+      [9.2, 11.2, "But how does Bob get the key without Eve seeing it?"],
     ],
     build(stage) {
       // the open wire, Alice and Bob
       const wire = A8.wire(stage, { x: 40, y: 222, w: 856, h: 160 }); // the band y 142..302
       const wireTag = A8.tag(stage, { x: 468, y: 112, text: "the open wire" });
-      const alice = A8.person(stage, { who: "alice", x: 52, y: 48 });
-      const bob = A8.person(stage, { who: "bob", x: 884, y: 48, name: "left" });
+      const alice = A8.person(stage, { who: "alice", x: 52, y: 50 });
+      const bob = A8.person(stage, { who: "bob", x: 884, y: 50, name: "left" });
 
       // the message and the +5 shifts
       const msg = L5.chromosome(stage, {
@@ -106,6 +121,32 @@
       const plus = C.pairs.map((_, i) =>
         A8.tag(stage, { x: tileX(i), y: 250, text: SHIFT_TEXT, tone: "orange", w: 52, h: 40 }),
       );
+
+      // one worked example under the wire: S moves 5 along and becomes X (so the rule is seen, not just the result)
+      const exS = L5.chromosome(stage, { x: EX.x, y: EX.y, genes: C.pairs[0].from, size: ROW.size, tone: "grey" });
+      const exX = L5.chromosome(stage, {
+        x: EX.x + EX.gap,
+        y: EX.y,
+        genes: C.pairs[0].to,
+        size: ROW.size,
+        tone: "blue",
+      });
+      const exArrow = A8.link(stage, {
+        pts: [
+          [EX.x + ROW.size + 14, EX.y + ROW.size / 2],
+          [EX.x + EX.gap - 14, EX.y + ROW.size / 2],
+        ],
+        tone: "orange",
+      });
+      const exTag = A8.tag(stage, {
+        x: EX.x + (ROW.size + EX.gap) / 2,
+        y: EX.y - 16,
+        text: SHIFT_TEXT,
+        tone: "orange",
+        w: 52,
+        h: 40,
+      });
+      const toy = A8.tag(stage, { x: 720, y: 184, text: "a toy shift cipher" });
 
       // Alice's key, Bob's missing key and the copy of the key that travels
       const keyIcon = A8.icon(stage, "key", { x: 56, y: KEY_AT.y, tone: "purple", size: 72 });
@@ -124,7 +165,9 @@
       });
       const arrow2 = A8.link(stage, {
         pts: [
-          [EVE.x, 310],
+          [682, 312],
+          [682, 344],
+          [EVE.x, 344],
           [EVE.x, 390],
         ],
         tone: "red",
@@ -168,7 +211,7 @@
             msg.set(i, { x: dx, tone: "grey", ...tilePop(k, out1) });
           } else {
             const k = pop(T.pop2 + 0.05 * i);
-            const fk = ramp(t, T.flip + 0.12 * i, T.flip + 0.12 * i + 0.35, lin);
+            const fk = ramp(t, flipAt(i), flipAt(i) + 0.35, lin);
             const dx = DX_BOB * ramp(t, T.slide2[0], T.slide2[1], E.inOut);
             msg.flip(i, fk, {
               from: pair.from,
@@ -184,10 +227,16 @@
         plus.forEach((p, i) =>
           p.set({ k: pop(T.plus + 0.12 * i, 0.25), o: 1 - ramp(t, T.plusOut[0], T.plusOut[1], lin) }),
         );
+        const exO = 1 - ramp(t, T.exOut[0], T.exOut[1], lin);
+        exS.all(() => tilePop(pop(T.exS), exO));
+        exX.all(() => tilePop(pop(T.exX), exO));
+        exArrow.set({ k: ramp(t, T.exArrow[0], T.exArrow[1]), o: exO });
+        exTag.set({ k: pop(T.exTag, 0.25), o: exO });
+        toy.set({ k: pop(T.toy), o: exO });
 
         // the keys
         keyIcon.set({ k: pop(T.keyIcon) });
-        keyTag.set({ k: pop(T.keyTag), s: 1 + 0.07 * flash(t, 5.1, 5.5) });
+        keyTag.set({ k: pop(T.keyTag), s: 1 + 0.07 * flash(t, 5.0, 5.4) });
         bobKey.set({ k: pop(T.bobKey), ghost: true });
         bobQ.set({ k: pop(T.bobQ) });
         const f = ramp(t, T.travel[0], T.travel[1], E.inOut);

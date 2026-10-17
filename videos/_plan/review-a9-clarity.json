@@ -1,0 +1,158 @@
+{
+  "findings": [
+    {
+      "scene": "scene-05-table.js (helper common-4.js, A9.dftGrid)",
+      "severity": "must",
+      "problem": "The table's arrows turn the opposite way to scene 4's test arrow. Scene 4's wheel turns clockwise (at sample 2 of the 1-spin test it points down-left, at sample 5 up-left); row 1 of the table reads right, up-right, up, up-left, left, down-left, down, down-right (counter-clockwise), and rows 2 to 7 are mirrored the same way (row 2 reads right, up, left, down). The table is the visual claim 'this is the same test, run at every speed', so a learner who compares the two scenes meets a contradiction right where the DFT is named. Bar lengths are unaffected. Independently confirmed from the source: the wheel uses -2 PI k n / 8 in a y-up plot, the grid uses the same angle in raw SVG coordinates (y down), which flips the sense of rotation.",
+      "fix": "In A9.dftGrid draw cell (k, n) at +TAU * W8.ang(k, n) / 8 in screen coordinates (y points down, so a positive angle is clockwise), so row 1 reads right, down-right, down, down-left, left, up-left, up, up-right. Add a build-time assert that cell (1, 1) points down-right and that every cell has the same screen direction as A9.chain(k).arrows[n] with the sample scaling removed (y flipped), so the two scenes cannot drift apart again. (Also reported in review-a9-facts.json.)",
+      "evidence": "s4@4.0 (wheel arrow down-left at sample 2), s4@5.5 (up-left at sample 5) against s5@6.0 and s5@8.5 (row 1 column 1 points up-right, row 1 column 2 points up, row 2 column 1 points up)."
+    },
+    {
+      "scene": "scene-04-arrow.js",
+      "severity": "should",
+      "problem": "Caption 2 says each sample scales a spinning arrow, but the scaling is never shown. The blue arrow simply appears while the purple one passes; no number sits on a sample or an arrow, and the sweep runs at 0.45 s per sample, so the first sample (the one moment that teaches the idea) lasts under half a second. A first-time learner cannot tell why one blue arrow is short, why two samples (2 and 6) have no arrow at all, and why samples 3 to 5 point the opposite way to the purple arrow.",
+      "fix": "Slow the first two samples to about 1.0 s each (sample 0, value 1: a full-length blue copy of the purple arrow; sample 1, value 0.7: a shorter one) and speed up to 0.45 s afterwards; the dead time 5.2 to 6.8 can absorb about 1.2 s. Show the factor as a 28 px grey label beside each growing blue arrow ('× 1', '× 0.7', '× 0', '× -0.7'), or ghost the unscaled purple arrow dashed beside the blue one for 0.5 s. Run 2 can stay as it is.",
+      "evidence": "s4@4.0 and s4@5.5 (purple arrow at sample 2 and 5, no factor anywhere); SWEEP in scene-04-arrow.js (per: 0.45 and 0.4)."
+    },
+    {
+      "scene": "scene-04-arrow.js",
+      "severity": "should",
+      "problem": "Caption 3 'Right speed: the arrows line up and add.' sits over a blue chain that zig-zags (down-right, up-right, nothing at samples 2 and 6, ...). The arrows do not literally line up, so the picture seems to contradict the caption just when the learner has to contrast it with the closed loop of run 2. What is true is that every arrow leans right (and the up and down parts cancel), so the total is long and flat.",
+      "fix": "Say what is drawn: 'Right speed: they all lean right and add.' (8 words in 1.9 s). Optionally tint the orange total arrow's stat 'total 4' so the word 'total' is read with the arrow. (Also a nit in review-a9-facts.json.)",
+      "evidence": "s4@7.8 (zig-zag chain under the orange total arrow, caption 'the arrows line up')."
+    },
+    {
+      "scene": "scene-04-arrow.js",
+      "severity": "should",
+      "problem": "Scene 4 never says it is answering the question scene 2 asked. Scene 2 ends on bars that say which waves are inside; scene 4 opens with the headline 'Test each frequency with a spinning arrow' and the caption 'Take 8 samples of a wave.', with no sentence that links the two. A first-time learner does not know why samples or arrows are suddenly involved, or that this is how the bars get found.",
+      "fix": "Re-word caption 1 to carry the link: 'To find the bars, take 8 samples.' (7 words in 1.7 s, still starts when the dots are on screen at 1.2).",
+      "evidence": "s2@8.5 (bars) then s4@1.6 (caption 'Take 8 samples of a wave.')."
+    },
+    {
+      "scene": "scene-05-table.js",
+      "severity": "should",
+      "problem": "The orange bars carry no number, so nothing connects them to the 'total 4' and 'total 0' of scene 4. The learner sees long and short pills grow beside the rows but is never shown that a bar is the length of the total arrow from that row's test, which is the whole point of the table, or that the two long ones are the same 4 they saw a minute ago. 'Eight tests give eight bars' is said, not shown.",
+      "fix": "Write the value (28 px, orange ink) at the end of each tall bar ('4' on rows 1 and 7) as the bar lands, and leave the stubs unlabelled; this ties the table to scene 4's stat and to the 4s of scene 10. Check the '4' stays right of the bar and inside x 924.",
+      "evidence": "s5@6.9 and s5@10.0 (two tall bars, no number); s4@7.8 (total 4)."
+    },
+    {
+      "scene": "scene-02-two-views.js",
+      "severity": "should",
+      "problem": "What bar height means is never said. The bars have frequency labels (5 Hz, 12 Hz) but nothing tells a first-time learner that a taller bar is a stronger wave, so the 12 Hz bar being half as tall can be read as 'half as many' or as a count. The only strength wording in the whole video is the word 'weaker' in scene 3's caption.",
+      "fix": "Make caption 3 carry it: 'Each bar: which wave, and how strong.' (7 words in 1.8 s, 6.3 to 8.1). No new tag is needed (a 'taller = stronger' tag would be about 288 px and break the x 924 limit).",
+      "evidence": "s2@7.0 and s2@8.5 (two bars, no strength word); grep for 'strength' in on-screen text finds nothing."
+    },
+    {
+      "scene": "scene-03-square.js",
+      "severity": "should",
+      "problem": "The last caption 'Only odd waves are needed.' and the tag 'odd waves only' are stated as a general rule, directly under the headline 'Add sine waves, get any shape'. It is only true for the square wave; lesson 9.1 teaches that a saw tooth needs every whole frequency and a triangle uses odd ones with weights 1, 1/9, 1/25. A learner can leave thinking odd waves are enough for any shape.",
+      "fix": "Make the claim about the shape: caption 'A square wave needs only odd waves.' (7 words in 1.8 s) and keep the tag or change it to 'square: odd waves only' (within 245 px). (Also in review-a9-facts.json.)",
+      "evidence": "s3@11.0 (caption under 'get any shape'); js/content/algo/algo-p9-x-01.js (saw and tri amplitudes)."
+    },
+    {
+      "scene": "scene-06-alias.js",
+      "severity": "should",
+      "problem": "The lower panel is never named and two of its bars are unlabelled. The dashed orange ghost at 7 Hz and the red bar at 1 Hz carry no words, so a first-time learner has to guess that the panel is what the DFT reports for the eight dots, that the dashed orange bar is the wave that was really there and that the red bar is what the DFT claims. The scene is about 'a wave lies', but the lie is only implied by colour; the 'folds back' tag floats in the shaded zone with nothing to attach to.",
+      "fix": "Add two 28 px tags in the empty upper part of the panel: 'true: 7 Hz' beside the ghost bar (pops with it at 6.4 to 7.2) and 'DFT shows 1 Hz' beside the red bar (pops with it at 8.0), and drop them with the other red items at the fix (9.6 to 10.4; 'true: 7 Hz' can turn green with the bar). Keep them clear of the purple arc and the 'limit: 4 Hz' tag.",
+      "evidence": "s6@7.0 (ghost bar, no label), s6@9.0 (red bar at 1, no label), s6@10.8 (green bar, 'limit: 8 Hz' only)."
+    },
+    {
+      "scene": "scene-07-leak.js",
+      "severity": "should",
+      "problem": "The idea that makes the jump appear is never said: the DFT behaves as if the window repeated for ever. The faint copy and the 'a copy' label are on screen, but no caption explains why a copy is there, and caption 2 ('the ends do not meet') only makes sense with it. The word 'window' is also used for two different things (the bracket under the wave is the stretch of samples; caption 4 and the tag 'Hann window' mean the fading bell), so 'A window fades the ends' can be read as the bracket fading the ends.",
+      "fix": "Make caption 1 carry the repetition, for example 'The DFT repeats the window: whole cycles join.' (8 words; extend it from 3.7 to 4.2, caption 2 starts at 4.5). Re-word caption 4 so the bell is not 'the window': 'A smooth fade at both ends shrinks the leak.' and keep the purple tag 'Hann window' as the name.",
+      "evidence": "s7@2.5 (faint copy and 'a copy' label, caption about a clean bar), s7@9.4 ('Hann window' tag and bracket 'window' on screen together)."
+    },
+    {
+      "scene": "scene-08-edit.js",
+      "severity": "should",
+      "problem": "'The hum is one pair of bars' and the labels 15 / 113 and 3 / 125 rest on the rule 'the partner of bar k is 128 minus k', but 128 is never on screen (only 'bar number', 3, 15, 113, 125). A first-time learner sees 113 and 125 appear from nowhere and cannot tell why those are the partners or why both bars must be deleted.",
+      "fix": "Put the number on screen: change the axis label to 'bar number (128 in all)' or add a grey tag '15 + 113 = 128' under the arch (4.2 to 4.9, 28 px, about 250 px wide, grey so it does not compete with the red 'the hum'). (Also in review-a9-facts.json.)",
+      "evidence": "s8@5.3 and s8@7.3 (ticks 113 and 125, no 128 anywhere)."
+    },
+    {
+      "scene": "scene-10-halve.js",
+      "severity": "should",
+      "problem": "'18 minutes' and '0.02 seconds' only hold at an assumed speed of a billion products a second (lesson 9.2's table), and that speed is nowhere on screen. The two times look like measured facts about the two algorithms; a learner cannot check them against 1.1 x 10^12 products or ask what a faster computer would do.",
+      "fix": "Add a grey 28 px tag next to 'direct DFT' reading 'at a billion products a second' (about 460 px wide, x 300 to 760), popping with the red bar (10.8 to 11.2), and assert in the scene that COST.directMin uses 1e9 so the tag and the numbers cannot disagree. (Also in review-a9-facts.json.)",
+      "evidence": "s10@12.5, s10@13.1, s10@14.0 (no speed anywhere)."
+    },
+    {
+      "scene": "scene-10-halve.js",
+      "severity": "should",
+      "problem": "The payoff is the weakest picture in the video: a left-aligned stack of text pills (samples, direct DFT, FFT, 0.02 seconds, ratio) with one red bar and a 12 px sliver, and the right third of the stage empty. It is close to a bullet list, and the number the scene exists for (about 50,000) is just another pill the same size as the rest. The caption 'A million samples: 18 minutes or 0.02 seconds.' also reads as two alternatives ('or') rather than a comparison, and its second half is read before '0.02 seconds' lands (about 12.7).",
+      "fix": "Make the ratio the hero: centre the stack on the stage and show 'about 50,000 times less work' as one large line (48 px or more) at the bottom, and split the caption to follow the picture: 'Direct: 18 minutes for a million samples.' (11.2 to 12.8) then 'The FFT: 0.02 seconds.' (13.0 to 13.6) then 'About 50,000 times less work.' (13.8 to 15.3). Keep 'not to scale'.",
+      "evidence": "s10@11.8, s10@13.1, s10@14.0 (everything hugs the left, ratio is a small pill); CAPS in scene-10-halve.js."
+    },
+    {
+      "scene": "scene-10-halve.js",
+      "severity": "should",
+      "problem": "'The same answer as the direct DFT' cannot be checked on screen. The 8 bars grow at 8.8 to 9.6 and a 'same as direct' tag appears, but the direct DFT's bars from scene 5 are not shown and the bars carry no numbers, so the learner has to remember [0, 4, 0, 0, 0, 0, 0, 4] from five scenes ago.",
+      "fix": "Write '4' at the end of the two long bars (as in the scene 5 fix) and, for 1 s, draw the scene-5 picture as a grey outline behind the new bars so they visibly match; or word the tag 'same bars as scene 5'.",
+      "evidence": "s10@9.0 and s10@9.8 (bars and 'same as direct', no direct bars on screen)."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "should",
+      "problem": "Row 3 says 'The FFT halves the work again and again'. What halves is the problem (8 samples, then 4, then 2, then 1); the work in the video goes 64 products, 32 + 4, then 12 butterflies, which is not 'halved again and again' and is not what the pictogram beside it shows (64 against 12). The recap is the sentence the learner keeps, so it should be literally true. (Also in review-a9-facts.json.)",
+      "fix": "Relabel to 'The FFT keeps halving\\nthe problem' (21 and 11 characters, inside the 22 per line rule).",
+      "evidence": "s11@5.5 and s11@8.8 (row 3 label against the 64 products and 12 butterflies pictogram)."
+    },
+    {
+      "scene": "video",
+      "severity": "should",
+      "problem": "'DFT' and 'FFT' are never expanded and the word 'fast' never appears. The title card says 'Fourier Transform & FFT', and scenes 9 and 10 are entirely about why the FFT is the fast way, yet the video never says that the F in FFT is 'fast', so the acronym is a label with no meaning for a first-time learner.",
+      "fix": "In scene 9 pop a grey 28 px tag 'FFT = fast DFT' (about 245 px) in the bottom-right slot (x 670, y 574, the slot the 'a butterfly' tag takes at 6.6) from 1.4 to 6.0, then let it fade as the butterflies draw on, and in scene 10's payoff change the green 'FFT' tag to 'FFT: the fast way' (about 290 px).",
+      "evidence": "s1@3.5 (title), s9@0.5 (headline 'The FFT splits evens from odds'), s10@12.5 (tag 'FFT'); no on-screen text calls the FFT fast (the only 'faster' captions are scene 3's '3 times faster' and scene 6's 'Sample faster than twice the wave')."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "nit",
+      "problem": "Row 2's label says 'The DFT tests every frequency: bars out', but its pictogram shows one test (the chain), one purple arrow and a single orange bar. 'Every frequency' and 'bars' (plural) are not pictured, so the picture says less than the label.",
+      "fix": "Replace the single bar by a mini bar chart of the eight bars [0, 4, 0, 0, 0, 0, 0, 4] (two tall, six stubs, read from A9.W8.bars) in the same 340 x 140 area, still playing once and holding.",
+      "evidence": "s11@5.5 and s11@8.8 (row 2 pictogram)."
+    },
+    {
+      "scene": "scene-10-halve.js",
+      "severity": "nit",
+      "problem": "Caption 4 'Three levels of four: 12 butterflies.' claims a structure the picture does not label. The three columns of crossings are there, but nothing marks them as levels 1, 2 and 3, so only the counter (0 to 12) backs the claim.",
+      "fix": "Under each of the three butterfly columns add a small grey 28 px number '1', '2', '3' that pops when its level starts (4.1, 5.55, 7.0), or have the counter read '4', '8', '12' at the level ends. Check it does not touch the bottom tags.",
+      "evidence": "s10@6.6 and s10@7.8 (columns unlabelled)."
+    },
+    {
+      "scene": "scene-10-halve.js",
+      "severity": "nit",
+      "problem": "The headline 'Keep halving, share the work' is vague: 'share the work' does not say what is shared, and the learner has just met the butterflies, not a sharing step.",
+      "fix": "Use 'Keep halving, do far less work' (same two-line shape, 32 characters in all).",
+      "evidence": "s10@2.2 (headline)."
+    },
+    {
+      "scene": "scene-09-split.js",
+      "severity": "nit",
+      "problem": "Mid-split (3.4 to 4.2) the sliding tiles pile up: x2 and x4 pass over x1 and x3, and x4 / x6 overlap x3 / x5 by about 20 px for about a second, so the new order x0 x2 x4 x6 | x1 x3 x5 x7 is hard to follow. After 9.4 the purple 'a butterfly' tag stays bottom right although the butterfly it described is no longer highlighted.",
+      "fix": "Stagger the tile glides by 0.1 s per row so they pass one at a time (or widen the 22 px swing), and fade the 'a butterfly' tag out at 9.4 when the four butterflies settle to green.",
+      "evidence": "s9@3.7 (overlapping tiles), s9@9.5 and s9@11.5 ('a butterfly' tag with no highlight)."
+    },
+    {
+      "scene": "scene-05-table.js",
+      "severity": "nit",
+      "problem": "While the first rows fill (1.2 to 3) the purple tag 'row number = spins' sits alone at the bottom of the stage, about 400 px below row 0, with empty stage between; the tag also describes only the rows that are not there yet.",
+      "fix": "Pop the tag at about 3.0 when row 2 starts (or place it directly under the last row that exists and let it slide down), so it always sits next to the rows it names.",
+      "evidence": "s5@1.5 and s5@3.0 (one or two rows, the tag far below at the bottom)."
+    },
+    {
+      "scene": "scene-03-square.js / scene-07-leak.js",
+      "severity": "nit",
+      "problem": "Two bar axes are unlabelled. Scene 3's ticks read '1×, 3×, 5×, ...' and appear at 1.0, a second before any wave exists and with the caption still about the target, so they mean nothing yet; scene 7's ticks read 0, 4, 8, 12, 16, 20 with no word for what they count (scene 8 labels the same kind of axis 'bar number').",
+      "fix": "Scene 3: fade the tick labels in with the first bar (1.6 to 2.4). Scene 7: add the grey label 'bar number' under the ticks as scene 8 does, popping with the panel at 1.9.",
+      "evidence": "s3@1.0 (axis labels over an empty panel), s7@2.5 (axis with no name)."
+    },
+    {
+      "scene": "scene-06-alias.js",
+      "severity": "nit",
+      "problem": "The 'N samples a second' tag grows or pops wider than its slot and collides with the '7 Hz wave' tag next to it: its left edge sits on the other tag's right edge when it pulses (about 5.9) and when it becomes '16 samples a second' (about 10.0).",
+      "fix": "Move the second tag 14 px to the right (TAG_X[1] = 204 instead of 190; it still ends at 521, well before the 'looks like 1 Hz' tag at 590) so the pulse clears the first tag.",
+      "evidence": "s6@5.9 and s6@10.0 (tag edges touching at page x 250; TAG_X = [0, 190, 590] in scene-06-alias.js)."
+    }
+  ]
+}

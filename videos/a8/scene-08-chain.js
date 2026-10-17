@@ -1,4 +1,5 @@
-/* Phase 8 · Cryptography & Blockchain (algo-8), scene 08: "Edit one block and every link after breaks" (12.5 s).
+/* Phase 8 · Cryptography & Blockchain (algo-8), scene 08: "Edit one block and the break moves on" (12.5 s). Kicker "BLOCKCHAIN: HASH
+   CHAIN": this is where the video's second word is named.
    The hash chain of lesson 8.5 (A8.CHAIN, common.js): three blocks, each storing its data, the hash of the block BEFORE it (prev)
    and its own hash. Editing block 1 changes its hash, so the prev stored in block 2 no longer matches and the link breaks; a forger
    repairs block 2's prev (which changes block 2's hash and breaks the link into block 3), repairs that too, and the whole chain
@@ -8,6 +9,9 @@
    matches, red cross and red digits when not. The left chip is always the EARLIER block, so the copies travel a short way down.
    Colours (video-wide): blue = fingerprints and links that match, orange = the edited data and the digits that are changing,
    red = a mismatch (a broken link, the block behind it), green = a check that passes.
+   While block 1 is being edited nothing has been checked yet, so the old verdict goes away at once: the badge is hidden, the first
+   link turns grey (no disc) and the old copy of block 1's hash leaves the strip (3.3-3.5); the verdicts come back at 5.45.
+   Eve (the forger) pops at the bottom left when the repairs begin (7.3).
    Timeline (local seconds): 0.2-1.25 the blocks pop; 1.35-2.2 the links draw (blue), the tick discs pop 1.9 / 2.2; 2.0-2.6 the
    check strip: the labels pop and the two copies fly down out of the blocks, 2.6 the green tick; 2.65 green "valid chain".
    3.3-3.9 block 1's data strip goes orange, the old words are rubbed out and "ann pays EVE 50" is typed; 3.9-4.4 its hash digits roll
@@ -115,6 +119,7 @@
     hash3: [10.4, 10.7],
     goodBadge: 10.75,
     tag: 11.0,
+    forger: 7.3,
   };
   const pop = (t, a, d = 0.3) => ramp(t, a, a + d, lin);
   const NEVER = 99; // a time that never comes (finite, so the ramps stay numbers)
@@ -122,7 +127,7 @@
   // the check strip: copies of fingerprints that fly down out of the blocks and are compared in pairs (the checks)
   // slot "L" is the hash of block L, slot "R" the prev stored in block L + 1; src = [block index, field]; fly = [start, arrival]
   const CHIPS = {
-    H1a: { slot: "L", text: S[0][0].hash, src: [0, "hash"], fly: [2.0, 2.5], out: 5.0 },
+    H1a: { slot: "L", text: S[0][0].hash, src: [0, "hash"], fly: [2.0, 2.5], out: T.edit[0] + 0.2 },
     P2a: { slot: "R", text: S[0][1].prev, src: [1, "prev"], fly: [2.1, 2.6], out: T.prev2[1] },
     H1b: { slot: "L", text: S[1][0].hash, src: [0, "hash"], fly: [5.0, 5.45], out: T.swap[0] },
     P2b: { slot: "R", text: S[2][1].prev, src: [1, "prev"], fly: [T.prev2[1], T.fixed1], out: T.swap[0] },
@@ -132,14 +137,14 @@
   };
   // each check starts when its first new copy leaves (or the strip clears) and ends when the last copy lands
   const CHECKS = [
-    { a: "H1a", b: "P2a", start: 2.0, end: 2.6, link: 0 },
+    { a: "H1a", b: "P2a", start: 2.0, end: 2.6, link: 0, until: T.edit[0] },
     { a: "H1b", b: "P2a", start: 5.0, end: T.break1, link: 0 },
     { a: "H1b", b: "P2b", start: T.prev2[1], end: T.fixed1, link: 0 },
     { a: "H2", b: "P3a", start: T.swap[0], end: T.verdict2, link: 1 },
     { a: "H2", b: "P3b", start: T.prev3[1], end: T.fixed2, link: 1 },
   ].map((c) => {
     const [x, y] = [CHIPS[c.a].text, CHIPS[c.b].text];
-    return { ...c, ok: x === y, diff: A8.diffIdx(x, y) };
+    return { until: NEVER, ...c, ok: x === y, diff: A8.diffIdx(x, y) };
   });
   A8.same(
     "chain: the five checks (match, mismatch, match, mismatch, match)",
@@ -162,10 +167,11 @@
     CHECKS.filter((c) => !c.ok).map((c) => c.diff.length),
     [7, 8],
   );
-  // link states: each entry is [time the state begins, ok]
+  // link states: each entry is [time the state begins, ok]; null = not checked yet (the first link between the edit and its check)
   const LINKS = [
     [
       [T.link[0][1], true],
+      [T.edit[0], null],
       [T.break1, false],
       [T.fixed1, true],
     ],
@@ -184,7 +190,7 @@
   };
   const broken = (i, t) => {
     const st = linkState(i, t);
-    return st.since < NEVER && !st.ok;
+    return st.since < NEVER && st.ok === false;
   };
 
   // ---------- small pure helpers ----------
@@ -248,6 +254,7 @@
     // the verdict on the whole chain, and the sting in the tail
     const badge = L5.badge(stage, { ...BADGE, valid: "valid chain", invalid: "broken chain" });
     const tag = A8.tag(stage, { x: TAG.x, y: TAG.y, text: "but the edit is still there", tone: "orange" });
+    const forger = A8.person(stage, { who: "eve", x: 52, y: 588 });
 
     // the most recent check that has begun (and, for a chip, that it belongs to)
     const checkAt = (t, id) => {
@@ -305,9 +312,12 @@
       // ----- the links and their discs -----
       links.forEach((l, i) => {
         const st = linkState(i, t);
-        l.line.set({ k: ramp(t, T.link[i][0], T.link[i][1], lin), tone: st.ok ? "blue" : "red" });
-        l.ok.set({ k: st.ok ? pop(t, st.since) : 0 });
-        l.bad.set({ k: st.ok ? 0 : pop(t, st.since), draw: ramp(t, st.since + 0.05, st.since + 0.3, lin) });
+        l.line.set({
+          k: ramp(t, T.link[i][0], T.link[i][1], lin),
+          tone: st.ok === null ? "grey" : st.ok ? "blue" : "red",
+        });
+        l.ok.set({ k: st.ok === true ? pop(t, st.since) : 0 });
+        l.bad.set({ k: st.ok === false ? pop(t, st.since) : 0, draw: ramp(t, st.since + 0.05, st.since + 0.3, lin) });
       });
 
       // ----- the check strip -----
@@ -322,7 +332,7 @@
         const p = A8.arc(from, to, f);
         const alive = ramp(t, c.fly[0], c.fly[0] + 0.12, lin) * (1 - ramp(t, c.out, c.out + 0.2, lin));
         const ck = checkAt(t, id);
-        const settled = ck && t >= ck.end;
+        const settled = ck && t >= ck.end && t < ck.until;
         const red = settled && !ck.ok ? (i) => (ck.diff.includes(i) ? "red" : null) : null;
         chips[id].set({
           x: p.x,
@@ -332,7 +342,7 @@
           marks: settled && ck.ok ? () => "green" : red,
         });
       });
-      const verdict = cur && t >= cur.end ? cur : null;
+      const verdict = cur && t >= cur.end && t < cur.until ? cur : null;
       disc.ok.set({ k: verdict && verdict.ok ? pop(t, verdict.end) : 0 });
       disc.bad.set({
         k: verdict && !verdict.ok ? pop(t, verdict.end) : 0,
@@ -341,23 +351,26 @@
 
       // ----- the verdict on the chain, and the tag -----
       if (t < T.badge) badge("none", 0);
+      else if (t >= T.edit[0] && t < T.badBadge)
+        badge("none", 0); // the edit has not been checked yet: no verdict
       else if (t < T.badBadge) badge("valid", pop(t, T.badge, 0.35));
       else if (t < T.goodBadge) badge("invalid", pop(t, T.badBadge, 0.35));
       else badge("valid", pop(t, T.goodBadge, 0.35));
       tag.set({ k: pop(t, T.tag, 0.35) });
+      forger.set({ k: pop(t, T.forger, 0.4) });
     };
   }
 
   V.scene({
-    kicker: "HASH CHAIN",
-    title: ["Edit one block and", "every link after breaks"],
+    kicker: "BLOCKCHAIN: HASH CHAIN",
+    title: ["Edit one block and", "the break moves on"],
     dur: 12.5,
     caps: [
       [1.0, 3.2, "Each block stores the hash of the block before it."],
       [3.3, 5.4, "Edit one block and its hash changes."],
       [5.5, 7.7, "The next block holds the old hash: the link breaks."],
-      [8.2, 10.8, "Recompute every later hash and it looks valid again."],
-      [11.0, 12.4, "Hashes spot edits. They do not stop them."],
+      [7.9, 10.6, "Eve recomputes each later hash to repair the links."],
+      [10.8, 12.4, "It looks valid again, but hashes only spot edits."],
     ],
     build,
   });

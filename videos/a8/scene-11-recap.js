@@ -6,8 +6,10 @@
           blue drop into the right one, both turn the same tan, a green equals sign pops between them (A8.PAINT).
    Row 2 (blue): a grey tile 7 meets Bob's open blue padlock; the padlock snaps shut and the tile becomes a blue 13; Bob's purple key
           slides in, the padlock opens and the tile becomes a green 7 with a tick (A8.RSA: 7 -> 13 -> 7).
-   Row 3 (green, "Hashes link blocks, edits cost real work"): three small blocks joined by blue arrows; block 1 is edited (orange), the links after it break (red, one after the
-          other), then every block is re-sealed in turn (green, a tick each) and the links turn green (A8.SEAL).
+   Row 3 (green, "A blockchain: linked hashes, and edits cost real work"): three small blocks joined by blue arrows; block 1 is edited
+          (orange) and only the link into block 2 breaks (block 2 red); block 1 is re-sealed (green); block 2 is re-sealed, its link
+          is green again and only then the next link breaks (block 3 red); block 3 is re-sealed and the last link is green again;
+          at the end an orange bar under the blocks grows and says "50 tries": the work of those three seals (A8.SEAL).
    Every number and colour comes from A8.PAINT / A8.RSA / A8.SEAL and is asserted when the scene is built. */
 (function () {
   const V = window.VID;
@@ -143,23 +145,28 @@
   // ---------- row 3: hashes link blocks, work makes edits costly ----------
   function chainRow(pic) {
     const S = A8.SEAL;
-    const [edited, stale, fixed] = [S.view(1), S.view(2), S.view(4)];
+    const [edited, stale, second, fixed] = [S.view(1), S.view(2), S.view(3), S.view(4)];
     A8.same("recap row 3: three blocks", [edited.length, S.forged.length], [3, 3]);
     A8.same(
-      "recap row 3: editing block 1 breaks its seal and the next link",
-      [edited[0].sealOk, edited[1].linkOk],
-      [false, false],
+      "recap row 3: editing block 1 breaks its seal and only the link into block 2",
+      [edited[0].sealOk, edited[1].linkOk, edited[2].linkOk],
+      [false, false, true],
     );
     A8.same(
-      "recap row 3: re-mining only block 1 leaves the next link stale",
-      [stale[0].sealOk, stale[1].linkOk],
-      [true, false],
+      "recap row 3: re-mining only block 1 leaves the link into block 2 stale and the next one fine",
+      [stale[0].sealOk, stale[1].linkOk, stale[2].linkOk],
+      [true, false, true],
+    );
+    A8.same(
+      "recap row 3: re-mining block 2 mends its link and only then breaks the link into block 3",
+      [second[1].sealOk, second[1].linkOk, second[2].linkOk],
+      [true, true, false],
     );
     A8.same("recap row 3: after re-mining every block all is well", fixed.map((b) => b.sealOk && b.linkOk), [true, true, true]); // prettier-ignore
     if (!(S.total > S.forged.length)) throw new Error("recap row 3: re-sealing should cost more than one try a block");
 
     const XS = [78, 188, 298];
-    const Y = 70;
+    const Y = 62;
     const blocks = XS.map((x, i) => tile(pic, { x, y: Y, w: 70, h: 60, fs: 32, text: String(i + 1), tone: "grey" }));
     const links = [0, 1].map((i) => {
       const svg = L5.svg(pic, PIC.w, PIC.h);
@@ -168,15 +175,17 @@
       [l.red, l.green].forEach((g) => L5.drawOn(g, 1));
       return l;
     });
-    const ticks = XS.map((x) => A8.icon(pic, "tick", { x, y: 20, size: 30, tone: "green" }));
+    const ticks = XS.map((x) => A8.icon(pic, "tick", { x, y: 14, size: 28, tone: "green" }));
+    const work = A8.bar(pic, { x: 43, y: 102, w: 290, h: 36, tone: "orange", text: `${S.total} tries`, fs: 28 });
 
     const T = {
       pop: 0.08, // block i pops at 0.08 i
       draw: 0.4, // link i draws from 0.4 + 0.2 i
       edit: 1.2,
-      red: [1.6, 1.75], // blocks 2 and 3 (and the link before each) break one after the other
-      seal: [2.1, 2.5, 2.9], // each block is re-sealed in turn
-      end: 3.3, // the links turn green once the last block is sealed
+      red: [1.6, 2.6], // block 2 (and the link before it) breaks with the edit; block 3 (and its link) only after block 2 is mended
+      seal: [2.0, 2.5, 3.2], // each block is re-sealed in turn
+      fix: [2.5, 3.4], // a link is green again once the block it points at is re-sealed
+      work: [3.7, 4.4], // the bar that says what the three seals cost
     };
 
     return (q) => {
@@ -196,8 +205,9 @@
       links.forEach((l, i) => {
         L5.drawOn(l.blue, q < 0 ? 0 : ramp(q, T.draw + 0.2 * i, T.draw + 0.2 * i + 0.3, E.lin));
         V.show(l.red, clamp(q < 0 ? 0 : ramp(q, T.red[i], T.red[i] + 0.3, E.lin)));
-        V.show(l.green, clamp(q < 0 ? 0 : ramp(q, T.end + 0.1 * i, T.end + 0.1 * i + 0.3, E.lin)));
+        V.show(l.green, clamp(q < 0 ? 0 : ramp(q, T.fix[i], T.fix[i] + 0.3, E.lin)));
       });
+      work.set({ k: q < 0 ? 0 : ramp(q, ...T.work, E.out) });
     };
   }
 
@@ -219,7 +229,7 @@
       const rows = [
         ["purple", "A shared secret,\nnever sent", paintRow],
         ["blue", "Anyone can lock,\nonly Bob can open", lockRow],
-        ["green", "Hashes link blocks,\nedits cost real work", chainRow],
+        ["green", "A blockchain: linked\nhashes, and edits\ncost real work", chainRow],
       ].map(([tone, text, make], i) => {
         text.split("\n").forEach((line) => {
           if (line.length > 22) throw new Error(`recap: "${line}" is longer than 22 characters`);

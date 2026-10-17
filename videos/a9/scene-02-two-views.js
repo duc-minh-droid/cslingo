@@ -36,7 +36,7 @@
     caps: [
       [1.2, 3.0, "Count the waves in one second."],
       [3.7, 5.5, "Two waves added make one wiggle."],
-      [6.3, 8.1, "The bars show which waves are inside."],
+      [6.3, 8.1, "Each bar: which wave, and how strong."],
       [8.4, 10.2, "One signal, two descriptions."],
     ],
     build(stage) {

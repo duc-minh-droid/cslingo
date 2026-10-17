@@ -1,16 +1,18 @@
-/* Phase 7 · Information Theory & Compression (algo-7), scene 08: LZW, "LZW learns phrases as it reads" (13 s).
+/* Phase 7 · Information Theory & Compression (algo-7), scene 08: LZW, "LZW learns phrases as it reads" (14 s).
    The lecture's example: ABABABABA with the start dictionary A = 0, B = 1. A blue bracket marks the phrase w, an orange ring the next
-   letter c. If w + c is already in the dictionary its chip gets a blue ring (the lookup) and w just grows. If it is new: the phrase w is
-   sent as ONE code (the bracket turns green and stays, the code flies down into the sent row) and w + c is learned (an orange chip pops
-   into the dictionary); the next phrase restarts at c. Result: 0 1 2 4 3, nine letters became five codes, four new entries.
+   letter c. Every step asks "is w + c known?" and DRAWS the test: a blue tile with the candidate (w + c) appears at the right of the
+   dictionary, then a green tick (known: its chip gets a blue ring and w just grows) or a red cross (new: the phrase w is sent as ONE
+   code, the bracket turns green and stays, the code flies down into the sent row, and w + c is learned as an orange chip); the next
+   phrase restarts at c. Result: 0 1 2 4 3, nine letters became five codes, four new entries.
    Story (local seconds): 0.2 the tape, 0.45 the dictionary with its start chips A and B, 0.8 the legend and the sent row, 1.0 the first
-   bracket and ring. Step k runs from STEP_T[k]: it asks first (bracket, ring, and for a known phrase a blue ring on its chip) and then
+   bracket and ring. Step k runs from STEP_T[k]: it asks first (bracket, ring, the candidate tile and its tick or cross) and then
    acts (grow: the bracket widens; send: the bracket turns green and stays, the code flies down, 0.3 s later the new chip pops).
-   11.15 the last code leaves, 11.6 the "9 letters, 5 codes" tag. Nothing moves after 12.
+   Nothing moves after the "9 letters, 5 codes" tag.
    Every value comes from A7.LZW (common.js) and is asserted below; nothing is typed here. */
 (function () {
   const V = window.VID;
   const A7 = V.a7;
+  const L5 = V.l5;
   const { ramp, flash, lerp, ease: E } = V;
   const lin = E.lin;
   const Z = A7.LZW;
@@ -52,10 +54,12 @@
   });
 
   // ---------- timeline (local seconds) ----------
-  const STEP_T = [2.5, 3.9, 5.1, 6.1, 7.3, 8.1, 8.9, 10.1, 10.9];
-  const END = 12.0; // the last step ends here
+  const LEN = { emit: 1.35, grow: 0.95, final: 1.2 }; // how long a step runs: a new phrase takes longer (send, then learn)
+  const START = 2.9; // the first step starts here: the first caption explains the start dictionary
+  const STEP_T = S.reduce((a, s, k) => [...a, k ? a[k - 1] + LEN[S[k - 1].act] : START], []);
+  const END = STEP_T[S.length - 1] + LEN.final; // the last step ends here
   A7.same("lzw scene: one start time per step", STEP_T.length, S.length);
-  const ASK_SHARE = { grow: 0.45, emit: 0.38, final: 0.23 }; // the share of a step spent asking (the rest acts)
+  const ASK_SHARE = { grow: 0.5, emit: 0.5, final: 0.25 }; // the share of a step spent asking (the rest acts)
   const ASK0 = STEP_T.map((t, k) => (k ? t : 1.0)); // the bracket and the ring are there from here (step 0: from 1.0)
   const ACT = STEP_T.map((t, k) => t + ASK_SHARE[S[k].act] * ((STEP_T[k + 1] ?? END) - t)); // the step's action starts
   const SEND = SENDS.map((s) => ACT[s.k]); // the code of chunk m is sent here
@@ -70,6 +74,7 @@
   const TAPE_Y = 84; // the tape sits under a legend row
   const SPAN_Y = 184;
   const SENT = { x: 156, y: 262 };
+  const TEST = { x: 668, y: 452, w: 190, h: 76 }; // the "known?" test: the candidate tile, with its tick or cross at the right
 
   const tapeOf = TEXT.map((_, j) => Z.chunks.findIndex((c) => j >= c.from && j < c.to)); // the chunk (code) of every letter
   if (tapeOf.includes(-1)) throw new Error("lzw scene: every letter must belong to a sent chunk");
@@ -93,6 +98,14 @@
     });
     const dictTag = A7.tag(stage, { x: 42, y: 382, text: "dictionary", tone: "purple", h: 52 });
     const dict = A7.chips(stage, { x: 42, y: 452, cols: 3, items: Z.dict.map((d) => ({ idx: d.idx, text: d.text })) });
+    // the test every step runs: is the phrase plus the next letter in the dictionary?
+    const lookTag = A7.tag(stage, { x: TEST.x, y: 382, text: "known?", tone: "grey", h: 52 });
+    const cand = A7.tiles(stage, { x: TEST.x, y: TEST.y, items: ["ABAB"], w: TEST.w, h: TEST.h, fs: 44 });
+    const verdictSvg = L5.svg(stage);
+    const [vx, vy] = [TEST.x + TEST.w + 44, TEST.y + TEST.h / 2];
+    const tick = L5.tick(vx, vy, 52, "green", { w: 10 });
+    const cross = L5.cross(vx, vy, 52, "red", { w: 10 });
+    verdictSvg.append(tick, cross);
     const endTag = A7.tag(stage, {
       x: SENT.x + 84 * Z.codes.length + 12,
       y: SENT.y + 10,
@@ -184,8 +197,36 @@
       });
     }
 
+    // the candidate w + c and its verdict: a tick (known) or a cross (new) lands before the step acts, and both leave with the step
+    function drawLookup(t, k) {
+      const s = k >= 0 ? S[k] : null;
+      const asks = s && s.act !== "final";
+      const u = asks ? t - STEP_T[k] : 0;
+      const len = asks ? LEN[s.act] : 1;
+      const ask = asks ? ASK_SHARE[s.act] * len : 1;
+      const fade = 1 - ramp(u, len - 0.14, len, lin);
+      cand.set(0, {
+        text: asks ? s.w + s.c : "",
+        tone: "blue",
+        k: asks ? ramp(u, 0.05, 0.25, lin) : 0,
+        o: fade,
+      });
+      const known = asks && s.act === "grow";
+      const vk = asks ? ramp(u, 0.4 * ask, 0.4 * ask + 0.25, lin) : 0;
+      L5.drawOn(tick, known ? vk : 0);
+      L5.drawOn(cross, asks && !known ? vk : 0);
+      V.place(tick, { s: 0.7 + 0.3 * E.pop(vk), o: known ? Math.min(1, vk * 4) * fade : 0 });
+      V.place(cross, { s: 0.7 + 0.3 * E.pop(vk), o: asks && !known ? Math.min(1, vk * 4) * fade : 0 });
+      // the "known?" label comes with the first test and leaves when the last one (the final step has no next letter) is over
+      lookTag.set({
+        k: ramp(t, STEP_T[0] - 0.2, STEP_T[0] + 0.2, lin),
+        o: 1 - ramp(t, STEP_T[S.length - 1], STEP_T[S.length - 1] + 0.25, lin),
+      });
+    }
+
     return (t) => {
       const k = stepAt(t);
+      drawLookup(t, k);
       drawTape(t, k);
       drawBrackets(t, k);
       drawSent(t);
@@ -201,14 +242,14 @@
   V.scene({
     kicker: "LZW",
     title: ["LZW learns phrases", "as it reads"],
-    dur: 13,
+    dur: 14.4,
     caps: [
-      [0.4, 2.4, "LZW starts with a tiny dictionary: A and B."],
-      [2.6, 4.8, "A new longer phrase: send a code, learn it."],
-      [5.2, 6.8, "Known? Keep growing."],
-      [7.2, 8.7, "Still known: grow again."],
-      [8.9, 10.4, "Longer phrases get one code each."],
-      [11.4, 12.9, "Nine letters became five codes."],
+      [0.4, 2.7, "No chances needed: it starts with just A and B."],
+      [2.9, 5.5, "Phrase plus next letter new? Send a code, learn it."],
+      [5.7, 7.8, "Known? Keep growing. New? Send and learn."],
+      [8.0, 11.0, "Same again: grow while known, send when new."],
+      [11.3, 13.0, "Known again, then the text ends: send it."],
+      [13.1, 14.3, "Nine letters became five codes."],
     ],
     build,
   });

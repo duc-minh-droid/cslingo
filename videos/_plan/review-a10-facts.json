@@ -1,0 +1,67 @@
+{
+  "findings": [
+    {
+      "scene": "scene-04-attention.js",
+      "severity": "should",
+      "problem": "The headline 'Every word looks at / every other word' says 'other', but the scene and the lesson mean every word INCLUDING itself: 'it' gets a loop arc over itself (s4@3.3, s4@5.5), every word gets a loop in the web (s4@11.8), and the closing tag reads '7 × 7 = 49 shares' (49 includes the 7 self-shares; 'every other word' would be 7 × 6 = 42). The captions are right ('every word in the sentence'); the headline contradicts them and the number. Lesson 10.3's own inserted step is titled 'Self-attention: every word looks at every word' and says 'including itself'.",
+      "fix": "Change the title to ['Every word looks at', 'the whole sentence'] (19 and 18 characters) or ['Every word looks at', 'every word'], so it agrees with the loops and with 49 = 7 × 7.",
+      "evidence": "s4@3.3 and s4@5.5 (green loop over 'it'), s4@11.8 (loops under every word, tag '7 × 7 = 49 shares'); js/content/algo/algo-p9-x-02.js, step 'Self-attention: every word looks at every word'. (Stills are in /tmp/claude-0/-home-user-cslingo/962177ed-7999-51dd-b65e-c3a2043e7aab/scratchpad/rv-a10-facts/, named algo-10-s<scene>-<t>.png.)"
+    },
+    {
+      "scene": "scene-06-values.js",
+      "severity": "should",
+      "problem": "Beat 1 shows arithmetic a learner can check on the spot and it is off by 0.01: the row for 'dog' reads 0.58 × [1, 3] = [0.58, 1.73], but 0.58 × 3 = 1.74, and the column then reads 0.14 + 1.73 + 0.28 = 2.15 where the shown parts give 2.16 if 0.58 × 3 were used. The numbers are right only because the share cells are the ROUNDED values of 0.1400, 0.5760, 0.2840 and the products are taken from the unrounded ones (node: 0.576 × 3 = 1.728). Every other digit in the scene checks out (1.14, 2.15, the 3 × 3 grid, 1.05 2.54).",
+      "fix": "Show the three shares in beat 1 to three decimals (0.140, 0.576, 0.284: they are exact at 3 decimals, so 0.576 × 3 = 1.728 -> 1.73, 0.140 × 2 = 0.28, 0.284 -> 0.28 and the sums 1.14 / 2.15 all reproduce by hand). Widen the share cells from 92 px to about 108 px (x 156 to 264, still left of the times sign at 284) so '0.576' stays at 28 px or more, and assert in the scene that each shown product equals the shown share × the shown value to 2 decimals. Beat 2 can keep two decimals. (The lesson's own 'Watch it run' line has the same rounding, so it is worth fixing here rather than copying.)",
+      "evidence": "s6@6.8 (dog row 0.58 × 1 3 = 0.58 1.73; sum 1.14 2.15); node -e: A[2] = [0.1400, 0.5760, 0.2840], parts for dog = [0.5760, 1.7279], 0.58 × 3 = 1.74, 0.14 + 0.58 × 3 + 0.28 = 2.16."
+    },
+    {
+      "scene": "scene-07-heads.js",
+      "severity": "should",
+      "problem": "The four heads are shown with ready-made jobs ('who is “it”?', 'word before', 'who acts?', 'acts on what?') and the captions say 'One head finds ...', 'Another looks at ...', 'Others find ...', but nothing says these jobs are learned. Lesson 10.5's key point is 'Nobody tells the heads what to do; training finds useful patterns.' A first-time learner will take the four jobs as designed by hand (like four modules of a program). The patterns are also made up (two of the four labels, 'who acts?' and 'acts on what?', are not in the lesson's playground, which has 'same word type' and 'noun ↔ verb'; the lesson's text does list 'verbs and their objects' as a typical job, so the idea is supported).",
+      "fix": "Put 'learned' into the wording the learner hears. Smallest change: caption 2 'One head finds what “it” means.' -> 'One head learns what “it” means.' (same length and window), and caption 4 'Others find who acts and what is acted on.' -> 'Others learn who acts and what is acted on.' Optionally say in the notes that the patterns are illustrative.",
+      "evidence": "s7@1.8 (head tags look like fixed jobs), s7@3.7, s7@7.3, s7@8.4; js/content/algo/algo-p9-x-12.js step 'Heads specialise' ('Nobody tells the heads what to do')."
+    },
+    {
+      "scene": "scene-09-decoder.js",
+      "severity": "should",
+      "problem": "The learner is never told what is being translated. The lesson frames this scene as the German translation of 'I have eaten an apple' (the card header and step text say so), but the English sentence appears nowhere on screen, so the candidate lists (Ich / Wir / Das / Es, then habe / esse / bin / werde ...) look like arbitrary guesses, and 'The decoder writes one word at a time' reads as free writing. Nothing in the picture explains why 'Ich habe einen Apfel gegessen' is the right continuation, and the 0.74 / 0.52 / 0.64 / 0.74 / 0.71 / 0.97 shares look invented.",
+      "fix": "Add one grey tag at the top of the stage (stage y about 20, the band above the sentence row at y 120 is empty) reading 'translate: I have eaten an apple' (about 32 characters, roughly 540 px wide at 28 px, x 20 to 560), popping with the first slot at about 0.3 s and staying to the end. Do not mention how the decoder uses it (cross-attention stays uncovered). Optionally caption 1: 'Translating starts from a start token.'",
+      "evidence": "s9@2.4, s9@5.4, s9@9.5, s9@12.5 (no English text anywhere); js/content/algo/algo-p9-x-04.js card header 'toy scores for translating \"I have eaten an apple\" into German' and step 'Watch it run'."
+    },
+    {
+      "scene": "scene-02-tokens.js",
+      "severity": "nit",
+      "problem": "Each token shows four numbers (the first four of the lesson's eight) with no sign that it is a slice. Later scenes use other sizes without comment (two numbers per query, key and value in scenes 5-6, four in scene 8, '64 numbers' per word in scene 7), so a learner can walk away thinking a word is 'four numbers' and be surprised by 64 in scene 7. The lesson itself says 8 numbers per token (512 in the original paper).",
+      "fix": "Add a grey tag 'first 4 of 8 numbers' (about 20 characters, 335 px) in the free band at the bottom of the stage (stage y about 590, centred), visible from 3.9 to 8.2 and again from 10.6 to the end (the slot tags use that band from 8.5 to 10.3). Or add a small SVG ellipsis under each blue strip.",
+      "evidence": "s2@5.5, s2@12.5 (four cells per strip, no hint of more); js/content/algo/algo-p9-x-03.js, 10.1 playground (D = 8)."
+    },
+    {
+      "scene": "scene-04-attention.js",
+      "severity": "nit",
+      "problem": "Two places where the scene differs from lesson 10.3's demo, neither signposted on screen. (1) The strength is invented: 'it' puts about 82% on robot (blend bar and 15 px arc), whereas the app's own heatmap gives it -> robot 0.17 (the biggest in its row but gentle). A learner who opens the lesson sees a flatter row than the video's bar. The storyboard knows this (no number is printed) but nothing on screen says 'toy'. (2) The sentence has 7 words, the lesson's has 8 tokens (it keeps the full stop), so '7 × 7 = 49' is not the lesson's 8 × 8 = 64.",
+      "fix": "Cheap signpost: a grey tag 'toy scores' (about 190 px wide at 28 px) above the purple 'new “it”' tag (stage x 21 to about 211, y about 366, clear of the 'robot' label which starts near x 359; the right side of the bar has no room because the bar ends at x 748), popping with the bar at 7.0 and fading with it at 9.0. The sentence length needs no change, because the closing tag already says 7 × 7.",
+      "evidence": "s4@8.5 (82% green segment); js/content/algo/algo-p10.js a10-attn: TOKENS has 8 entries including '.', heatmap it -> robot 0.17 with scale on."
+    },
+    {
+      "scene": "scene-08-layer.js",
+      "severity": "nit",
+      "problem": "The caption 'A skip path adds the input back.' does not match what the picture adds. On screen the blue bars are the input x and the ORANGE pieces, labelled 'adds F(x)', are the sublayer's output; the orange skip arc above is the same colour, so the eye reads 'the skip path adds the orange pieces' = F(x), the opposite operand to the caption. Mathematically both are x + F(x), but the learner is told one thing and shown the other.",
+      "fix": "Reword caption 3 to the picture: 'A skip path adds the output to the input.' (8 words; widen its window to 4.5-6.4, it starts after the arc is drawn at 4.2-4.9), or relabel the orange tag 'adds F(x)' to 'output F(x)'.",
+      "evidence": "s8@5.6 (blue x bars, orange pieces, tag 'adds F(x)', orange arc under the strip), caption 'A skip path adds the input back.'"
+    },
+    {
+      "scene": "scene-08-layer.js",
+      "severity": "nit",
+      "problem": "Beat 3 draws three separate cards, each labelled 'network', one per word, and the caption says 'The network then treats each word alone.' Lesson 10.6 stresses that it is the SAME small network applied to every token with the same weights. Three identical-looking cards with no hint of sharing can read as three different networks.",
+      "fix": "Caption 5: 'The same network treats each word alone.' (7 words, same window 8.6-10.2).",
+      "evidence": "s8@9.5 (three 'network' cards); js/content/algo/algo-p9-x-02.js step 'The feed-forward network of a layer' ('applied to each token separately with the same weights')."
+    },
+    {
+      "scene": "scene-09-decoder.js",
+      "severity": "nit",
+      "problem": "The masked-attention beat draws only two green arcs from 'habe' (to <sos> and Ich) but the ringed row of the mask grid has THREE green cells (<sos>, Ich, habe itself). Scene 4 teaches that self-attention includes a loop over the word itself, and this scene's own source comment says 'looks at <sos>, Ich, itself', so a learner counting arcs against the grid gets 2 against 3.",
+      "fix": "Add a small green loop over 'habe' (A10.arc with x1 = x2, as scene 4 does for 'it', drawn with the other green arcs at 6.5-7.2 and faded with them at 8.7-9.1).",
+      "evidence": "s9@7.5 and s9@8.5 (two green arcs, three green cells in habe's row); videos/a10/scene-09-decoder.js line 48."
+    }
+  ]
+}

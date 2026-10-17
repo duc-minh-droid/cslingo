@@ -1,12 +1,13 @@
-/* Phase 7 · Information Theory & Compression (algo-7), scene 04-entropy (12 s): entropy is the AVERAGE surprise, and it is the
-   floor for compression. A source sends A, B, C or D with chances 1/2, 1/4, 1/8, 1/8 (surprise 1, 2, 3, 3 bits). A sample of
-   eight symbols with exactly those chances (ABAACABD) costs 14 bits of surprise; a fixed 2-bit code needs 16; 14 / 8 = 1.75.
-   Every number comes from A7.DIE / A7.SAMPLE (common.js) and is asserted below.
-   Story (local seconds): 0.2-1.2 the legend (symbol, chance, surprise) pops tile by tile and each tile pulses once; 2.8-3.9
-   the eight sample tiles pop; 4.2-5.4 each symbol gets its orange surprise cells (its legend tile lights up as it does);
-   5.8-7.4 the cells of all eight symbols slide down and close up into one 14-cell strip (the swap to the strip itself is
-   invisible: same cells, same place); 7.8-8.9 the grey fixed strip (2 bits each, 16 cells) and its tag; 9.0-10.4 the average
-   (14 bits over 8 symbols), the entropy counter 1.75 and the floor tag. Nothing moves after 10.4. */
+/* Phase 7 · Information Theory & Compression (algo-7), scene 04-entropy (13.2 s): entropy is the AVERAGE surprise, and it is the
+   floor for compression. A source sends A, B, C or D with chances 1/2, 1/4, 1/8, 1/8 (surprise 1, 2, 3, 3 bits). A typical sample
+   of eight symbols (A four times, B twice, C and D once: exactly those chances) costs 14 bits of surprise; a fixed 2-bit code
+   needs 16; 14 / 8 = 1.75. Every number comes from A7.DIE / A7.SAMPLE (common.js) and is asserted below.
+   Story (local seconds): 0.2-1.2 the legend (symbol, chance, surprise) pops tile by tile; 2.5-3.6 the eight sample tiles pop;
+   4.4-6.9 the symbols are priced one at a time, 0.32 s each: the symbol's legend tile and its sample tile get one orange ring
+   together and its orange surprise cells pop under it; 7.0-8.3 the cells of all eight symbols slide down and close up into one
+   14-cell strip (the swap to the strip itself is invisible: same cells, same place); 8.7-9.3 the grey fixed strip (2 bits each,
+   16 cells); 9.9-10.5 a purple dashed line marks the end of the 14th cell and the two extra fixed cells turn red (wasted);
+   10.6-11.3 the average (14 bits over 8 symbols) and the entropy counter 1.75; 11.1 the floor tag. Nothing moves after 12. */
 (function () {
   const V = window.VID;
   const A7 = V.a7;
@@ -23,10 +24,23 @@
   );
 
   // layout (stage px)
-  const L = { legend: 14, samp: 136, src: 252, tgt: 316, fix: 388, row1: 462, row2: 552 };
+  const L = { legend: 22, samp: 142, src: 258, tgt: 322, fix: 394, row1: 548, row2: 462 }; // the legend's rings (9 px out) stay 12 px inside the stage
   const CELL = { cell: 32, h: 44, gap: 4, digits: false };
   const slotMid = (j) => 76 + 112 * j; // centre of sample tile j
-  const T0 = { pop: 0.2, pulse: 1.6, samp: 2.8, cells: 4.2, gather: 5.8, surp: 7.4, fix: 7.8, fixTag: 8.5 };
+  const T0 = {
+    pop: 0.2,
+    samp: 2.5,
+    cells: 4.4, // symbol j is priced at cells + PRICE j
+    gather: 7.0,
+    surp: 8.3,
+    fix: 8.7,
+    fixTag: 9.3,
+    line: 9.9, // the floor line and the two wasted cells
+    avg: 10.6,
+    ent: 10.9,
+    floor: 11.1,
+  };
+  const PRICE = 0.32; // seconds a symbol takes to be priced: the learner sees which legend tile gives which cells
 
   function build(stage) {
     const bitsLabel = (n) => `${n} bit${n > 1 ? "s" : ""}`;
@@ -87,6 +101,23 @@
       tone: "grey",
     });
 
+    // the floor drawn: a dashed purple line in the gap after the 14th fixed cell (as long as the surprise strip); the two cells
+    // beyond it are the bits a fixed code wastes
+    const lineX = (fix.cell(S.total - 1).x + CELL.cell + fix.cell(S.total).x) / 2;
+    const floorLine = V.h("div", {
+      class: "c-purple",
+      style: {
+        position: "absolute",
+        left: `${(lineX - 3).toFixed(1)}px`,
+        top: `${L.fix - 16}px`,
+        width: "0",
+        height: `${CELL.h + 32}px`,
+        borderLeft: "6px dashed var(--c-lip)",
+      },
+    });
+    stage.append(floorLine);
+    const wasted = [...Array(S.fixedTotal - S.total).keys()].map((i) => S.total + i);
+
     // the result: entropy = 14 bits over 8 symbols = 1.75, and the floor
     const ent = A7.counter(stage, { x: 40, y: L.row1, w: 320, h: 72, label: "entropy", tone: "purple" });
     const eq = A7.sym("equals", 392, L.row1 + 36, 36, "purple");
@@ -94,45 +125,48 @@
     const avg = A7.tag(stage, {
       x: 432,
       y: L.row1 + 6,
-      text: `${S.total} bits / ${S.msg.length} symbols`,
+      text: `${S.total} bits over ${S.msg.length} symbols`,
       tone: "purple",
     });
+    // the floor tag hangs from the dashed line it names (centred on the line, 400 px wide)
     const floor = A7.tag(stage, {
-      x: 40,
+      x: Math.round(lineX - 200),
       y: L.row2,
-      text: "the floor: none can beat it",
+      text: "the floor, if nothing is lost",
       tone: "purple",
       solid: true,
     });
+    floor.el.style.width = "400px";
 
     // where each source strip lands: its own left edge to its slot in the 14-cell strip
     const dx = src.map((s, j) => tgt.group(j).x - s.left);
     const dy = L.tgt - L.src;
-    const arrive = (t, j) => ramp(t, T0.gather + 0.08 * j, T0.gather + 1 + 0.08 * j, E.inOut);
+    const arrive = (t, j) => ramp(t, T0.gather + 0.06 * j, T0.gather + 0.8 + 0.06 * j, E.inOut);
 
     return (t) => {
+      // symbol j is priced in the window [a, a + PRICE]: ONE ring at a time, on its legend tile and its own sample tile
+      const at = (j) => T0.cells + PRICE * j;
+      const priced = (j) => ramp(t, at(j), at(j) + 0.1) * (1 - ramp(t, at(j) + PRICE - 0.1, at(j) + PRICE));
       legend.all((i) => {
-        // the legend tile of a symbol lights up (orange ring) each time that symbol gets its surprise cells
-        const lit = Math.max(
-          0,
-          ...[...S.msg].map((c, j) =>
-            c === D.letters[i] ? flash(t, T0.cells + 0.1 * j, T0.cells + 0.5 + 0.1 * j) : 0,
-          ),
-        );
+        const lit = Math.max(0, ...[...S.msg].map((c, j) => (c === D.letters[i] ? priced(j) : 0)));
         return {
           k: ramp(t, T0.pop + 0.15 * i, T0.pop + 0.5 + 0.15 * i),
-          s: 1 + 0.06 * Math.max(lit, flash(t, T0.pulse + 0.3 * i, T0.pulse + 0.7 + 0.3 * i)),
+          s: 1 + 0.06 * lit,
           ring: lit > 0.01 ? "orange" : null,
           ringK: lit,
         };
       });
-      samp.all((j) => ({ k: ramp(t, T0.samp + 0.1 * j, T0.samp + 0.4 + 0.1 * j) }));
+      samp.all((j) => ({
+        k: ramp(t, T0.samp + 0.1 * j, T0.samp + 0.4 + 0.1 * j),
+        ring: priced(j) > 0.01 ? "orange" : null,
+        ringK: priced(j),
+      }));
 
       src.forEach((s, j) => {
         const e = arrive(t, j);
         s.set({
           solid: true,
-          k: ramp(t, T0.cells + 0.1 * j, T0.cells + 0.4 + 0.1 * j),
+          k: ramp(t, at(j), at(j) + 0.3),
           x: dx[j] * e,
           y: dy * e,
           o: e >= 1 ? 0 : 1,
@@ -140,32 +174,48 @@
       });
       tgt.set({ solid: true, groupK: (g) => (arrive(t, g) >= 1 ? 1 : 0) });
       surpTag.set({ k: ramp(t, T0.surp, T0.surp + 0.4) });
-      fix.set({ k: ramp(t, T0.fix, T0.fix + 0.7, lin) });
+      const waste = ramp(t, T0.line + 0.2, T0.line + 0.5, lin);
+      fix.set({
+        k: ramp(t, T0.fix, T0.fix + 0.6, lin),
+        cells:
+          waste > 0
+            ? Object.fromEntries(
+                wasted.map((i) => [
+                  i,
+                  { tone: "red", solid: true, s: 1 + 0.12 * flash(t, T0.line + 0.2, T0.line + 0.6) },
+                ]),
+              )
+            : {},
+      });
+      V.place(floorLine, {
+        s: 0.6 + 0.4 * E.pop(ramp(t, T0.line, T0.line + 0.4, lin)),
+        o: Math.min(1, ramp(t, T0.line, T0.line + 0.2, lin) * 4),
+      });
       fixTag.set({ k: ramp(t, T0.fixTag, T0.fixTag + 0.4) });
 
-      avg.set({ k: ramp(t, 9.0, 9.4) });
-      V.place(eq, { s: 0.8 + 0.2 * E.pop(ramp(t, 9.4, 9.8, lin)), o: ramp(t, 9.4, 9.6, lin) });
+      avg.set({ k: ramp(t, T0.avg, T0.avg + 0.4) });
+      V.place(eq, { s: 0.8 + 0.2 * E.pop(ramp(t, T0.ent, T0.ent + 0.4, lin)), o: ramp(t, T0.ent, T0.ent + 0.2, lin) });
       ent.set({
         text: S.perSymbol.toFixed(2),
         tone: "purple",
         solid: true,
-        k: ramp(t, 9.4, 9.9),
-        bump: flash(t, 9.7, 10.1),
+        k: ramp(t, T0.ent, T0.ent + 0.5),
+        bump: flash(t, T0.ent + 0.3, T0.ent + 0.7),
       });
-      floor.set({ k: ramp(t, 10.0, 10.4) });
+      floor.set({ k: ramp(t, T0.floor, T0.floor + 0.4) });
     };
   }
 
   V.scene({
     kicker: "ENTROPY",
     title: ["Average surprise", "is the entropy"],
-    dur: 12,
+    dur: 13.2,
     caps: [
-      [0.4, 2.6, "A source sends four symbols with these chances."],
-      [2.8, 4.4, "Here are eight symbols it sent."],
-      [4.6, 6.4, "Each one costs its surprise in bits."],
-      [8.0, 9.8, "Fixed: 16 bits. Surprise: only 14."],
-      [9.8, 11.6, "1.75 bits a symbol is the floor."],
+      [0.4, 2.2, "A source sends four symbols with these chances."],
+      [2.5, 4.2, "A typical eight: A four times, B twice."],
+      [4.5, 6.9, "Each one costs its surprise in bits."],
+      [9.0, 10.8, "A fixed 2-bit code: 16 bits. Surprise: only 14."],
+      [11.2, 13.0, "1.75 bits a symbol: the floor, if nothing is lost."],
     ],
     build,
   });

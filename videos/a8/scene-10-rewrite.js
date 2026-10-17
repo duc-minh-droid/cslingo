@@ -13,7 +13,8 @@
    card and cross (seal broken), 3.15 the link and block 2 go red; 3.4 the "mining" tag; 3.8-5.06 hunt 1 (nonce 0 to 14, the first
    digit red until the last), bar 1 grows to 15 of 30, green at 5.06; 5.2-5.45 block 2's prev rolls to the new hash, 5.45-6.09 hunt
    2 (nonce 0 to 4), the link into block 3 goes red at 5.65; 6.3-6.55 block 3's prev rolls, 6.55-8.0 hunt 3 (nonce 0 to 29), green
-   at 8.0; 8.2 the bracket, 8.35 the "50 tries" sticker; hold to 11. */
+   at 8.0; 8.2 the bracket, 8.35 the "50 tries" sticker, 9.2 the grey scale note "real blocks need trillions of tries" (lesson 8.7: finding
+   a valid block takes trillions of hashes, so a toy 50 is small beside a real chain); hold to 11.5. */
 (function () {
   const V = window.VID;
   const A8 = V.a8;
@@ -22,7 +23,7 @@
   const lin = E.lin;
   const SEAL = A8.SEAL;
   const GEN = A8.CHAIN.genesis;
-  const DUR = 11;
+  const DUR = 11.5;
   const LAG = 0.2; // a link is checked a beat after the hash it points at changes, so the seal breaks first and the link second
 
   // ---------- the model: every string and count is recomputed from the real toy hash and checked ----------
@@ -90,10 +91,11 @@
   A8.same("rewrite: the longest hunt is 30 tries", BAR_OF, 30);
 
   // ---------- layout (stage px) ----------
-  const BLK = { y: 10, w: 270, step: 333 };
+  const BLK = { x: 12, y: 12, w: 270, step: 321 }; // the same 12 px margins and 51 px gaps as scene 8, so the chain does not jump between scenes
   const BAR = { x: 175, y: 330, step: 60, w: 340, h: 48, labelX: 20 };
   const BRACKET = { x: 556, y0: 334, y1: 494, tip: 604 };
   const TOTAL = { x: 760, y: 414 };
+  const SCALE = { x: 760, y: 497 };
   const LEGEND_Y = 580;
 
   // ---------- timeline (local seconds) ----------
@@ -109,6 +111,7 @@
     prev3: [6.3, 6.55],
     bracket: 8.2,
     total: 8.35,
+    scale: 9.2,
   };
   // hunt k: the nonce counts 0, 1, 2 ... one row per `per` seconds from `a`; the winner's row is on screen from `won`
   const HUNTS = [
@@ -215,7 +218,7 @@
     // the three blocks, sealed: data, prev, nonce, hash
     const blocks = [0, 1, 2].map((i) =>
       A8.block(stage, {
-        x: i * BLK.step,
+        x: BLK.x + i * BLK.step,
         y: BLK.y,
         w: BLK.w,
         fields: ["data", "prev", "nonce", "hash"],
@@ -274,6 +277,16 @@
       tone: "orange",
       solid: true,
       fs: 44,
+    });
+
+    // the scale of a real chain, in grey: the toy 50 is tiny
+    const scale = A8.tag(stage, {
+      x: SCALE.x,
+      y: SCALE.y,
+      text: "real blocks need\ntrillions of tries",
+      box: true,
+      tone: "grey",
+      fs: 28,
     });
 
     return (t) => {
@@ -335,6 +348,7 @@
       brace.style.strokeDashoffset = String(1 - bk);
       V.show(brace, bk > 0.002 ? 1 : 0);
       total.set({ k: pop(t, T.total, 0.4) });
+      scale.set({ k: pop(t, T.scale, 0.4) });
     };
   }
 
@@ -344,10 +358,10 @@
     dur: DUR,
     caps: [
       [0.5, 2.0, "Each block is sealed by its own proof of work."],
-      [2.3, 3.9, "Edit block 1: its seal and the link both break."],
-      [4.0, 5.6, "Forging it means mining block 1 again."],
-      [5.7, 8.2, "Then every later block must be mined again too."],
-      [8.6, 10.7, "Rewriting history means redoing all that work."],
+      [2.9, 4.2, "Edit block 1: its seal and the link both break."],
+      [4.3, 5.8, "Forging it means mining block 1 again."],
+      [5.9, 8.2, "Then every later block must be mined again too."],
+      [8.5, 11.0, "Rewriting history means redoing all that work."],
     ],
     build,
   });

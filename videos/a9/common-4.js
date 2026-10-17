@@ -14,9 +14,11 @@
 
    ───────────────────────────── 2. THE DFT TABLE (scene 5) ─────────────────────────────
      const G = A9.dftGrid(parent, {x, y, cell: 50, gap: 5, unit: 70});   x, y = the top-left of the grid (row 0, column 0). n = 8.
-         An 8 x 8 grid of small sticker cells: row k, column n holds a purple arrow pointing at -2 PI ((k n) mod 8) / 8 (A9.W8.ang). Above
+         An 8 x 8 grid of small sticker cells: row k, column n holds a purple arrow turning CLOCKWISE on the screen like the wheel of scene 4:
+         it points at +2 PI ((k n) mod 8) / 8 in screen px (y down), the same direction as the arrow of A9.chain(k) (A9.W8.ang). Above
          the columns the eight samples A9.W8.x stand as blue stems (a small stem plot; the stems reach 95 px above y, so y >= 107). Left of every row its number k
-         (28 px). Right of the grid, row k owns an orange bar A9.W8.bars[k] x unit px long (a 0 bar ends as a small grey stub).
+         (28 px). Right of the grid, row k owns an orange bar A9.W8.bars[k] x unit px long (a 0 bar ends as a small grey stub); a long bar
+         carries its value (28 px, orange -on text) inside its right end once it has grown.
      G.set({o: 1, head: 1, rows: (k) => ({k: 0, lit: 0, bar: 0, hot: 0}) | undefined})
          head       0..1 pops the sample stems in
          rows(k)    called for k = 0..7:  k 0..1 pops the row's cells in, staggered left to right (0 hides the row, its number and its bar);
@@ -37,7 +39,8 @@
        the whole 8-point DFT is R.rect(0, 7, 0, 3), the even box R.rect(0, 3, 0, 2), the odd box R.rect(4, 7, 0, 2).
      R.tilesAt(from, to, u, fn?)  puts the eight INPUT tiles on a row arrangement, moving from `from` to `to` as u goes 0 -> 1. from / to are
        arrangements (A9.FFT.natural, A9.FFT.evenOdd, A9.FFT.order: the sample index in each row); every tile glides to its new row, and tiles that
-       move up swing 22 px left, tiles that move down swing 22 px right while they pass, so they never overlap. fn(i) (i = sample index) may
+       move up swing 24 px left, tiles that move down swing 60 px right (R.LANE) while they pass: the lanes are 84 px apart for 76 px wide tiles and the
+       swing reaches its full width within the first eighth of the move, so two tiles that swap rows never overlap. fn(i) (i = sample index) may
        return {tone, text, o, s, ring, ringK, solid, ghost, x, y} to restyle a tile (x, y add to the position). Call it every frame (u 0 = at `from`).
      R.inTile(i) -> the A9.tile of sample i (when you want to place one yourself).
      R.bf(L, b) -> the butterfly b (0..3) of level L (0..2) (rows A9.FFT.levels[L][b].a and .b);  bf.set({o, lit, k, tone, signs, minus})
@@ -48,13 +51,14 @@
          Each butterfly is: a short purple-dot stub on its lower input (the twiddle W, the purple dot), two lines into the upper output and two into the
          lower output (a classic X). bf.dot -> {x, y} the position of the purple dot, bf.a / bf.b -> {x, y} of its upper and lower INPUT points,
          bf.a1 / bf.b1 -> the OUTPUT points, bf.mid -> {x, y} the middle of the X.
-     R.out(k) -> the A9.tile of the answer X_k (orange);  R.outs.set(k, state);  R.bar(k).set({k: 0..1, v: A9.FFT.bars[k], o, tone}) grows the bar of
-         answer k to k x v x 40 px (a value of 0 ends as a small grey stub);  R.outs.all((k) => state).
+     R.out(k) -> the A9.tile of the answer X_k (orange);  R.outs.set(k, state);  R.bar(k).set({k: 0..1, v: A9.FFT.bars[k], o, tone, num, ghost}) grows the
+         bar of answer k to k x v x 40 px (a value of 0 ends as a small grey stub); num 0..1 fades the value (28 px) in inside a long bar; ghost 0..1
+         fades in a dashed red outline of the full-length bar under it (where the direct DFT's bar stands);  R.outs.all((k) => state).
      R.set({o}) fades the grey lines of the network as a whole (o 1 default); it never touches tiles or bars. */
 (function () {
   const V = window.VID;
   const A9 = V.a9;
-  const { clamp, lerp, ease: E } = V;
+  const { clamp, lerp, ramp, ease: E } = V;
   const { f1, at, tn } = A9;
   const FFT = A9.FFT;
   const W8 = A9.W8;
@@ -109,6 +113,7 @@
     const n = W8.n;
     const pitch = cell + gap;
     const svg = A9.svg(parent);
+    const gridAngle = (r, c) => (A9.TAU * W8.ang(r, c)) / n;
     const G = {
       left: x,
       top: y,
@@ -123,6 +128,32 @@
     G.rowMid = (k) => ({ x: x - 14, y: cy(k) });
     G.rowEnd = (k) => ({ x: G.barX, y: cy(k) });
     G.colMid = (c) => ({ x: cx(c), y });
+    // the cells turn the same way as the wheel of scene 4 and the chain arrows (their sample scaling removed, y flipped to screen px)
+    if (!(Math.cos(gridAngle(1, 1)) > 0 && Math.sin(gridAngle(1, 1)) > 0))
+      throw new Error("VID.a9: dftGrid cell (1, 1) must point down-right (clockwise, like the wheel)");
+    for (let r = 0; r < n; r++)
+      for (let c = 0; c < n; c++) {
+        const th = (-A9.TAU * r * c) / n; // the wheel's angle (y up)
+        A9.close(`dftGrid cell (${r}, ${c}) x like the wheel`, Math.cos(gridAngle(r, c)), Math.cos(th), 1e-9);
+        A9.close(
+          `dftGrid cell (${r}, ${c}) y like the wheel (flipped)`,
+          Math.sin(gridAngle(r, c)),
+          -Math.sin(th),
+          1e-9,
+        );
+        const arrow = A9.chain(r).arrows[c];
+        const [dx, dy] = [arrow.to[0] - arrow.from[0], arrow.to[1] - arrow.from[1]];
+        if (Math.abs(W8.x[c]) > 1e-9) {
+          const f = Math.sign(W8.x[c]) * Math.hypot(dx, dy);
+          A9.close(`dftGrid cell (${r}, ${c}) x like the chain arrow`, Math.cos(gridAngle(r, c)) * f, dx, 1e-9);
+          A9.close(
+            `dftGrid cell (${r}, ${c}) y like the chain arrow (flipped)`,
+            -Math.sin(gridAngle(r, c)) * f,
+            dy,
+            1e-9,
+          );
+        }
+      }
     const stemBase = y - 50;
     const stemH = 36;
     G.stem = (c) => ({ x: cx(c), y: stemBase - W8.x[c] * stemH });
@@ -152,7 +183,7 @@
             "stroke-width": "3",
           }),
         );
-        const a = (-A9.TAU * W8.ang(r, c)) / n;
+        const a = gridAngle(r, c); // screen px (y down): a positive angle turns clockwise, like the wheel and A9.chain
         const [ox, oy] = [cx(c), cy(r)];
         const len = cell * 0.34;
         const [tx, ty] = [ox + Math.cos(a) * len, oy + Math.sin(a) * len];
@@ -194,6 +225,16 @@
     );
     labels.forEach((t, r) => at(t, { x: x - 14, y: cy(r) + 10 }));
     const bars = Array.from({ length: n }, () => svg.appendChild(V.s("rect", { rx: 10, "stroke-width": "3" })));
+    const nums = Array.from({ length: n }, (_, r) =>
+      svg.appendChild(
+        V.s("text", {
+          "text-anchor": "end",
+          text: W8.bars[r] > 0 ? String(+W8.bars[r].toFixed(1)) : "",
+          style: { fontFamily: "var(--sans)", fontWeight: "900", fontSize: "28px" },
+        }),
+      ),
+    );
+    nums.forEach((e) => V.show(e, 0));
     const rings = Array.from({ length: n }, () =>
       svg.appendChild(V.s("rect", { fill: "none", "stroke-width": "5", rx: 18 })),
     );
@@ -241,6 +282,10 @@
         bar.style.fill = isStub ? "var(--line-2)" : torange.c;
         bar.style.stroke = isStub ? "var(--line-2)" : torange.lip;
         V.show(bar, (isStub ? bk > 0.6 : bk > 0.01) ? op : 0);
+        // a long bar says how long it is (the same 4 as the total arrow of scene 4), once it has grown
+        at(nums[r], { x: G.barX + W8.bars[r] * unit - 14, y: cy(r) + 10 });
+        nums[r].style.fill = torange.on;
+        V.show(nums[r], isStub ? 0 : ramp(bk, 0.85, 1, E.lin) * op);
         const ring = rings[r];
         at(ring, {
           x: x - 54,
@@ -267,7 +312,7 @@
         "stroke-width": "4",
         "stroke-linecap": "round",
         pathLength: "1",
-        style: { stroke: "var(--line)" },
+        style: { stroke: "var(--line-2)" }, // 1.48:1 on the white card (var(--line) is only 1.26:1)
         ...extra,
       });
     const hot = (extra) => V.s("line", { "stroke-width": "6", "stroke-linecap": "round", pathLength: "1", ...extra });
@@ -367,11 +412,15 @@
     );
     R.inTile = (i) => ins[i];
     const rowsOf = (arr) => FFT.rows(arr);
+    // two lanes for tiles that swap rows: up-movers swing 24 px left, down-movers 60 px right (84 px apart for 76 px tiles), at full width
+    // after the first eighth of the move and until the last eighth, so the tiles that pass each other never overlap
+    R.LANE = { up: 24, down: 60 };
     R.tilesAt = (from, to, u = 1, fn) => {
       const [rf, rt] = [rowsOf(from), rowsOf(to)];
+      const lat = E.inOut(clamp(8 * Math.min(clamp(u), 1 - clamp(u))));
       ins.forEach((t, i) => {
         const row = lerp(rf[i], rt[i], clamp(u));
-        const swing = 22 * Math.sin(Math.PI * clamp(u)) * Math.sign(rt[i] - rf[i]);
+        const swing = lat * (rt[i] < rf[i] ? -R.LANE.up : rt[i] > rf[i] ? R.LANE.down : 0);
         const st = (fn && fn(i)) || {};
         t.set({ ...st, x: swing + (st.x || 0), y: (row - i) * pitch + (st.y || 0) });
       });
@@ -384,11 +433,36 @@
     R.out = (k) => outs[k];
     R.outs = { set: (k, st) => outs[k].set(st), all: (fn) => outs.forEach((t, k) => t.set(fn(k) || {})) };
     const barSvg = A9.svg(parent);
+    const ghosts = FFT.natural.map(() =>
+      barSvg.appendChild(
+        V.s("rect", {
+          rx: 10,
+          fill: "none",
+          "stroke-width": "4",
+          "stroke-dasharray": "10 8",
+          style: { stroke: A9.tone("red").c },
+        }),
+      ),
+    );
     const bars = FFT.natural.map(() => barSvg.appendChild(V.s("rect", { rx: 10, "stroke-width": "3" })));
+    const nums = FFT.natural.map((k) =>
+      barSvg.appendChild(
+        V.s("text", {
+          "text-anchor": "end",
+          text: FFT.bars[k] > 0 ? String(+FFT.bars[k].toFixed(1)) : "",
+          style: { fontFamily: "var(--sans)", fontWeight: "900", fontSize: "28px", fill: A9.tone("orange").on },
+        }),
+      ),
+    );
+    nums.forEach((e) => V.show(e, 0)); // hidden until a bar says its number (an unplaced <text> would sit at the stage corner)
     R.bar = (k) => ({
-      set({ k: kk = 1, v = FFT.bars[k], o: op = 1, tone = "orange" } = {}) {
+      set({ k: kk = 1, v = FFT.bars[k], o: op = 1, tone = "orange", num = 0, ghost = 0 } = {}) {
         const stub = v === 0;
         const t = A9.tone(tone);
+        at(ghosts[k], { x: barX, y: rowY(k) - 15, width: Math.max(0, v * unit), height: 30 });
+        V.show(ghosts[k], stub ? 0 : clamp(ghost) * op);
+        at(nums[k], { x: barX + v * unit - 14, y: rowY(k) + 10 });
+        V.show(nums[k], stub ? 0 : clamp(num) * op);
         at(bars[k], {
           x: barX,
           y: rowY(k) - 15,

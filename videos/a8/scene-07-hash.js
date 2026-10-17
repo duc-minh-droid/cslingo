@@ -1,14 +1,15 @@
-/* Phase 8 · Cryptography & Blockchain (algo-8), scene 07: "A hash is a fingerprint of data" (10 s).
+/* Phase 8 · Cryptography & Blockchain (algo-8), scene 07: "A hash is a fingerprint of data" (11.1 s). The kicker "TRUST: HASH" and
+   the first caption bridge from secrets (scenes 2-6) to trust: a new question, was this data changed?
    The lesson's toy hash (A8.HASH, common.js) as one machine drawn three times: data -> hash -> fingerprint (8 hex digits).
    Row 1: "cat" goes in and f01dce9c comes out. Row 2: "cat" again gives the SAME fingerprint (every digit green, a green equals disc
    between the two). Row 3: one letter of "cat" is changed to give "cot" and ALL EIGHT digits of the fingerprint change (orange,
    with a tag that says so). Row 4: the way back, from the fingerprint to the data, is a red arrow with a cross on it and a "?".
    Colours (video-wide): grey = the data, blue = fingerprints (public), green = the same, orange = what changed, red = no way back.
    Timeline (local seconds): 0.2 "cat" and the "data" label; 0.5 arrow, 0.7 "hash", 0.95 arrow, 1.2 the "fingerprint" label and
-   the digits type out (1.3-1.9). 2.9 "cat" again, 3.15-3.75 arrow / machine / arrow, 3.7 the digits type out in green (3.8-4.3),
-   4.3 the equals disc. 5.05 a third "cat" which at 5.6 turns into "cot" (the tile bumps, the middle letter lights up), 5.85-6.5 arrow /
-   machine / arrow, 6.45 the digits type out in orange (6.55-7.05), 7.1 "all 8 digits differ". 7.6 the ghost fingerprint, 7.8-8.5 the red
-   arrow draws right to left, 8.4 the cross, 8.5 "no way back", 8.8 the question mark; 9.2-10 hold.
+   the digits type out (1.3-1.9), 1.95 the grey "toy hash" note. 3.3 "cat" again, 3.55-4.15 arrow / machine / arrow, 4.1 the digits type
+   out in green (4.2-4.7), 4.75 the equals disc. 5.7 a third "cat" which at 6.2 turns into "cot" (the tile bumps, the middle letter lights
+   up), 6.4-7.05 arrow / machine / arrow, 7.0 the digits type out in orange (7.1-7.6), 7.7 "here all 8 digits differ". 8.3 the ghost
+   fingerprint, 8.5-9.1 the red arrow draws right to left, 9.0 the cross, 9.2 "no way back", 9.5 the question mark; 9.9-11.1 hold.
    Every number and string comes from A8.HASH / A8.toy and is asserted below. */
 (function () {
   const V = window.VID;
@@ -38,7 +39,9 @@
     [A8.toy("a").length, A8.toy("x".repeat(500)).length],
     [8, 8],
   );
+  A8.same("hash: a real SHA-256 fingerprint is 256 bits = 64 hex digits", [256 / 4], [64]);
   const DIFFS = H.diffHex.length;
+  const REAL_DIGITS = 256 / 4;
   A8.same("hash: the tag counts the digits that differ", DIFFS, H.cat.length);
 
   // ---------- layout (stage px) ----------
@@ -55,21 +58,22 @@
   const T = {
     rows: [
       { tile: 0.2, a1: [0.5, 0.8], mach: 0.7, a2: [0.95, 1.25], fp: 1.2, type: [1.3, 1.9] },
-      { tile: 2.9, a1: [3.15, 3.4], mach: 3.3, a2: [3.5, 3.75], fp: 3.7, type: [3.8, 4.3] },
-      { tile: 5.05, a1: [5.85, 6.1], mach: 6.05, a2: [6.25, 6.5], fp: 6.45, type: [6.55, 7.05] },
+      { tile: 3.3, a1: [3.55, 3.8], mach: 3.7, a2: [3.9, 4.15], fp: 4.1, type: [4.2, 4.7] },
+      { tile: 5.7, a1: [6.4, 6.65], mach: 6.6, a2: [6.8, 7.05], fp: 7.0, type: [7.1, 7.6] },
     ],
     labelData: 0.2,
     labelFp: 1.2,
-    equals: 4.3,
-    flip: 5.6,
-    flipFlash: [5.4, 5.8],
-    diffTag: 7.1,
-    ghost: 7.6,
-    back: [7.8, 8.5],
-    cross: 8.4,
-    crossDraw: [8.45, 8.8],
-    way: 8.5,
-    ask: 8.8,
+    toy: 1.95,
+    equals: 4.75,
+    flip: 6.2,
+    flipFlash: [6.0, 6.4],
+    diffTag: 7.7,
+    ghost: 8.3,
+    back: [8.5, 9.1],
+    cross: 9.0,
+    crossDraw: [9.05, 9.4],
+    way: 9.2,
+    ask: 9.5,
   };
   const pop = (t, a, d = 0.35) => ramp(t, a, a + d, lin);
   const draw = (t, w) => ramp(t, w[0], w[1], lin);
@@ -117,7 +121,15 @@
       disc: true,
       size: 52,
     });
-    const diffTag = A8.tag(stage, { x: X.fp, y: 452, text: `all ${DIFFS} digits differ`, tone: "orange", fs: 28 });
+    const diffTag = A8.tag(stage, { x: X.fp, y: 452, text: `here all ${DIFFS} digits differ`, tone: "orange", fs: 28 });
+    // the digests are the lesson's toy 32-bit hash: say so, and say how long a real fingerprint is
+    const toyTag = A8.tag(stage, {
+      x: X.mach,
+      y: (ROWY[0] + ROWY[1]) / 2,
+      text: `toy hash: ${H.cat.length} digits (real ones: ${REAL_DIGITS})`,
+      tone: "grey",
+      fs: 28,
+    });
 
     // no way back
     const ghost = A8.digest(stage, { x: GHOST.x, y: GHOST.y, text: H.cat, fs: 36 });
@@ -149,6 +161,7 @@
       r2.tile.set({ k: pop(t, w2.tile) });
       r2.fp.set({ text: typed(H.cat, t, w2.type), marks: marks("green"), k: pop(t, w2.fp, 0.3) });
       equals.set({ k: pop(t, T.equals, 0.3) });
+      toyTag.set({ k: pop(t, T.toy, 0.3) });
 
       // row 3: a third "cat" whose middle letter is changed, and a fingerprint that changes in every digit
       const w3 = showRow(r3, t);
@@ -173,14 +186,15 @@
   }
 
   V.scene({
-    kicker: "HASH",
-    title: ["A hash is a", "fingerprint of data"],
-    dur: 10,
+    kicker: "TRUST: HASH",
+    title: ["A hash is", "a fingerprint of data"],
+    dur: 11.1,
     caps: [
-      [1.0, 2.8, "A hash turns data into a short fingerprint."],
-      [3.6, 5.3, "The same data always gives the same fingerprint."],
-      [5.7, 7.5, "Change one letter and every digit changes."],
-      [8.0, 9.6, "And you cannot work backwards from it."],
+      [0.3, 1.8, "New question: was this data changed?"],
+      [1.95, 3.3, "A hash turns data into a short fingerprint."],
+      [4.1, 5.7, "The same data always gives the same fingerprint."],
+      [7.0, 8.6, "Change one letter, the whole fingerprint changes."],
+      [9.1, 10.7, "And you cannot work backwards from it."],
     ],
     build,
   });
