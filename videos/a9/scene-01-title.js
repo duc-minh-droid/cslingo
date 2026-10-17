@@ -35,7 +35,7 @@
       const t2 = line("& FFT", 520);
       const s = h("div", {
         class: "v-text dim",
-        text: "How every signal splits into waves",
+        text: "How a signal splits into waves",
         style: {
           left: "0",
           width: "1080px",

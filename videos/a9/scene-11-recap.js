@@ -3,10 +3,12 @@
    5.4 the call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no fade, no reset): row 1 is done at about
    3.5, row 2 at 5.3 and row 3 at 5.4, so for the last three seconds only Byte's bob moves.
    Row 1 (blue): two purple waves (the 5 Hz wave and the 12 Hz wave of scene 2) draw on, a grey plus and equals sign pop, and the blue
-          wiggle they add up to draws on: any signal is a sum of sine waves.
+          wiggle they add up to draws on: any repeating signal is a sum of sine waves.
    Row 2 (orange): the eight blue arrows of the spinning-arrow test chain tip to tail (A9.chain(1)), the orange total arrow draws on, a
-          purple arrow points to one tall orange bar: the test result.
-   Row 3 (green): a red bar of 64 products against a short green bar of 12 butterflies and a green tick: the FFT halves the work.
+          purple arrow points to the first of the eight small orange bars (bar 1 is tall), the other seven follow (bar 7 tall, six stubs): the DFT
+          tests every frequency and gives bars out (A9.W8.bars, the table of scene 5).
+   Row 3 (green): a red bar of 64 products against a short green bar of 12 butterflies and a green tick: the FFT keeps halving the problem,
+          and that is far less work.
    Every number comes from A9.MIX / A9.chain / A9.W8 / A9.FFT and is asserted when the scene is built. */
 (function () {
   const V = window.VID;
@@ -71,21 +73,24 @@
     };
   }
 
-  // ---------- row 2: the spinning-arrow test, one bar out ----------
+  // ---------- row 2: the spinning-arrow test, then all eight bars ----------
   function testRow(pic) {
     const ch = A9.chain(1);
     A9.same("recap row 2: eight arrows in the chain", ch.arrows.length, 8);
     A9.closeAll("recap row 2: the chain ends at (4, 0)", ch.sum, [4, 0], 1e-9);
     A9.close("recap row 2: the total is 4 long", ch.len, 4, 1e-9);
+    const bars = A9.W8.bars;
+    A9.same("recap row 2: eight bars, two tall (1 spin and its mirror), six stubs", bars, [0, 4, 0, 0, 0, 0, 0, 4]);
+    A9.close("recap row 2: the first test gives bar 1", ch.len, bars[1], 1e-9);
 
     const Pl = A9.plot(pic, {
       x: 0,
       y: 0,
-      w: PIC.w,
+      w: 170,
       h: PIC.h,
       frame: false,
       equal: true,
-      view: [-0.2, 6.2, -1.2, 1.2], // room on the right for the purple arrow and the bar
+      view: [-0.2, 4.3, -1.5, 1.5], // room on the right for the total arrow's head
       pad: NOPAD,
       clip: false,
     });
@@ -93,14 +98,37 @@
     const total = Pl.vec({ tone: "orange", w: 7, head: 20 });
 
     const svg = A9.svg(pic, PIC.w, PIC.h);
-    const probe = svg.appendChild(L5.arrow(246, 70, 286, 70, "purple", 1, { w: 5, head: 14 }));
-    const BAR = { x: 296, w: 36, base: 130, h: 90, lip: 4 };
+    const probe = svg.appendChild(L5.arrow(176, 70, 204, 70, "purple", 1, { w: 5, head: 14 }));
+    // the eight bars of the DFT table (scene 5), small: bar 1 is the one the chain above just made, the rest follow
+    const BAR = { x: 214, pitch: 16, w: 12, base: 130, unit: 22.5, stub: 5, lip: 4 };
     const oc = A9.tone("orange");
-    const lipRect = svg.appendChild(V.s("rect", { x: BAR.x, width: BAR.w, rx: 10, style: { fill: oc.lip } }));
-    const bar = svg.appendChild(
-      V.s("rect", { x: BAR.x, width: BAR.w, rx: 10, "stroke-width": 3, style: { fill: oc.c, stroke: oc.lip } }),
-    );
-    const T = { arrow0: 0, step: 0.12, grow: 0.26, total: [1.3, 1.9], probe: [2.1, 2.4], bar: [2.4, 3.0] };
+    const bar = (k) => {
+      const stub = bars[k] === 0;
+      const x = BAR.x + k * BAR.pitch;
+      const lip = stub ? null : svg.appendChild(V.s("rect", { x, width: BAR.w, rx: 4, style: { fill: oc.lip } }));
+      const top = svg.appendChild(
+        V.s("rect", {
+          x,
+          width: BAR.w,
+          rx: 5,
+          "stroke-width": stub ? 0 : 2,
+          style: stub ? { fill: "var(--line-2)" } : { fill: oc.c, stroke: oc.lip },
+        }),
+      );
+      return { k, lip, top, h: stub ? BAR.stub : bars[k] * BAR.unit };
+    };
+    const minis = Array.from({ length: bars.length }, (_, k) => bar(k));
+    const T = {
+      arrow0: 0,
+      step: 0.12,
+      grow: 0.26,
+      total: [1.3, 1.9],
+      probe: [2.1, 2.4],
+      bar1: [2.4, 2.8],
+      rest: 2.7,
+      restStep: 0.04,
+      restDur: 0.3,
+    };
 
     return (q) => {
       arrows.forEach((a, i) => {
@@ -115,14 +143,17 @@
       });
       total.set({ x1: 0, y1: 0, x2: ch.sum[0], y2: ch.sum[1], k: ramp(q, ...T.total, E.inOut) });
       L5.drawOn(probe, ramp(q, ...T.probe, lin));
-      const kb = ramp(q, ...T.bar);
-      const hh = BAR.h * kb;
-      [bar, lipRect].forEach((r, j) => {
-        const lip = j === 0 ? BAR.lip : 0;
-        r.setAttribute("y", f1(BAR.base - hh + lip));
-        r.setAttribute("height", f1(Math.max(0, hh)));
-        r.setAttribute("rx", f1(Math.min(10, hh / 2)));
-        V.show(r, +(hh > 1));
+      minis.forEach(({ k, lip, top, h }) => {
+        const at = T.rest + T.restStep * k;
+        const kb = k === 1 ? ramp(q, ...T.bar1) : ramp(q, at, at + T.restDur);
+        const hh = h * kb;
+        [top, lip].forEach((r, j) => {
+          if (!r) return;
+          r.setAttribute("y", f1(BAR.base - hh + (j === 1 ? BAR.lip : 0))); // the lip (j = 1) peeks out under the bar
+          r.setAttribute("height", f1(Math.max(0, hh)));
+          r.setAttribute("rx", f1(Math.min(4, hh / 2)));
+          V.show(r, +(hh > 1));
+        });
       });
     };
   }
@@ -211,9 +242,9 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["blue", "Any signal is a\nsum of sine waves", sumRow],
+        ["blue", "Any repeating signal\nis a sum of sine waves", sumRow],
         ["orange", "The DFT tests every\nfrequency: bars out", testRow],
-        ["green", "The FFT halves the\nwork again and again", workRow],
+        ["green", "The FFT keeps halving\nthe problem", workRow],
       ].map(([tone, text, make], i) => {
         text.split("\n").forEach((line) => {
           if (line.length > 22) throw new Error(`recap: "${line}" is longer than 22 characters`);

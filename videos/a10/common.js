@@ -15,7 +15,7 @@
 
    1. TOKENS (scene 2; lesson 10.1)  "the bank by the river bank": six tokens, a 4-number embedding each (the first 4 of the lesson's 8
         numbers) and the sine / cosine position pattern of the slot (first 4 of 8).
-        A10.TOK = {words: [6 words], emb: [[4 numbers] x6], pos: [[4] x6], sum: [[4] x6] (emb + pos, exact),
+        A10.TOK = {words: [6 words], dim: 8 (numbers per token in the lesson), emb: [[4 numbers] x6], pos: [[4] x6], sum: [[4] x6] (emb + pos, exact),
                    embTxt / posTxt / sumTxt: [[4 strings] x6] (1 decimal; every shown sum equals the sum of the shown parts),
                    pairs: {the: [0, 3], bank: [1, 5]} (same word at two slots), dist: {the: [no pos, with pos], bank: [..]} (Euclidean
                    distance of the 4-number rows, 0 without position)}
@@ -117,6 +117,7 @@
       return d % 2 ? Math.cos(a) : Math.sin(a);
     });
   const T = { words: ["the", "bank", "by", "the", "river", "bank"], pairs: { the: [0, 3], bank: [1, 5] } };
+  T.dim = D8; // numbers per token in the lesson (the video shows the first 4)
   T.emb = T.words.map((w) => EMB8[w].slice(0, 4));
   T.pos = T.words.map((_, i) => pe8(i).slice(0, 4));
   T.sum = T.emb.map((e, i) => e.map((v, d) => v + T.pos[i][d]));

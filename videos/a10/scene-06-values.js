@@ -3,9 +3,11 @@
    copies are added up: 0.14 × [2, 1] + 0.58 × [1, 3] + 0.28 × [1, 1] = [1.14, 2.15]. BEAT 2 (7.6-12.5) does every word at once: the 3 × 3
    grid of shares times the stack of values gives one new pair of numbers per word, and the "barked" row is the one just computed.
    Every number comes from A10.QKV (common.js) and is asserted again here, including the shown parts adding up to the shown sums.
-   Story (local seconds): 0.2-0.8 "for barked" and the three words; 0.9-2.0 the values; 2.4-3.3 the shares and the times signs; 3.4-4.7 each
-   value is copied, slides right and flips into its scaled numbers; 4.9-6.3 plus signs, the sum line, the green result; 7.1-7.5 beat 1
-   fades; 7.6-8.5 the grid of shares; 8.3-8.8 the "barked" row is ringed; 8.9-9.6 times and the value stack; 9.8-11.2 equals, the
+   Beat 1 prints the three shares to THREE decimals (0.140, 0.576, 0.284) so that every product can be checked by hand (0.576 × 3 =
+   1.728, shown 1.73); beat 2 keeps two decimals.
+   Story (local seconds): 0.2-0.8 "for barked" and the three words; 0.9-2.0 the values; 2.4-3.3 the shares and the times signs; 3.4-4.5 each
+   value is copied, slides right (the copy only shows once it has cleared the original) and flips into its scaled numbers; 4.9-6.3 plus
+   signs, the sum line, the green result; 7.1-7.5 beat 1 fades; 7.6-8.5 the grid of shares; 8.3-8.8 the "barked" row is ringed; 8.9-9.6 times and the value stack; 9.8-11.2 equals, the
    green results row by row, a ring on "barked". Hold to 12.5. */
 (function () {
   const V = window.VID;
@@ -42,6 +44,18 @@
       num(z),
     ),
   );
+  const SHARE3 = BK.weights.map((w) => w.toFixed(3)); // beat 1 shows three decimals so the products can be checked by hand
+  A10.same("values: the shares of barked to three decimals", SHARE3, ["0.140", "0.576", "0.284"]);
+  A10.close("values: the three-decimal shares add up to 1", A10.sum(SHARE3.map(Number)), 1, 1e-9);
+  SHARE3.forEach((sh, r) =>
+    Q.V[r].forEach((v, d) =>
+      A10.same(
+        `values: the shown share × the shown value ${Q.words[r]}.${d}`,
+        (+sh * v).toFixed(2),
+        BK.blend.partsTxt[r][d],
+      ),
+    ),
+  );
   A10.same("values: new barked", BK.blend.zTxt, ["1.14", "2.15"]);
   A10.same("values: the grid of shares", Q.AT, [
     ["0.14", "0.58", "0.28"],
@@ -63,7 +77,7 @@
   // ---------- layout (stage px) ----------
   const CY = (r) => 204 + 100 * r; // beat 1 row centres 204, 304, 404
   const RES = 512; // beat 1 result row centre
-  const COL = { share: 164, times: 284, val: 310, eq: 512, prod: 540, plus: 627 };
+  const COL = { share: 156, shareW: 100, times: 284, val: 310, eq: 512, prod: 540, plus: 627 };
   const CHIP = { w: 84, gap: 6 };
   const SHIFT = 96; // beat 1 spans x 12-724, so it is moved right to sit centred on the stage
   const G = { x: 162, y: 200, cw: 118, ch: 64, gap: 6 }; // beat 2 grid
@@ -71,8 +85,8 @@
     who: 0.2, // purple tag; the three word tags at 0.35 + 0.15 r
     value: 0.9, // value chip r at 0.9 + 0.2 r
     share: 2.4, // share cell r at 2.4 + 0.15 r, its times sign 0.1 later
-    scale: 3.4, // row r copies and slides from 3.4 + 0.2 r, 0.9 s
-    eq: 4.4, // equals sign r at 4.4 + 0.17 r (after the chip has passed)
+    scale: 3.4, // row r copies and slides from 3.4 + 0.15 r for 0.7 s; the copy shows from +0.38 and flips from +0.45
+    eq: 4.35, // equals sign r at 4.35 + 0.15 r (after the chip has landed)
     plus: 4.9, // the two plus signs 0.15 apart
     line: [5.2, 5.6],
     out: 5.6, // the green tag; its equals 5.75; the chip 5.85
@@ -114,7 +128,7 @@
     const words = Q.words.map((w, r) => A10.tag(w1, { x: 12, y: CY(r) - 29, text: w }));
     const head = (text, tone, cx) => A10.tag(w1, { x: cx - A10.tagW(text) / 2, y: 96, text, tone });
     const hdr = {
-      share: head("share", "green", COL.share + 46),
+      share: head("share", "green", COL.share + COL.shareW / 2),
       value: head("value", "orange", COL.val + 87),
       scaled: head("scaled", "orange", COL.prod + 87),
     };
@@ -124,13 +138,14 @@
       A10.cells(w1, {
         x: COL.share,
         y: CY(r) - 28,
-        texts: [BK.rows[r].wTxt],
-        w: 92,
+        texts: [SHARE3[r]],
+        w: COL.shareW,
         h: 56,
         tone: "green",
         solid: true,
       }),
     );
+    A10.same("values: the share cells clear the times sign", COL.share + COL.shareW + 8 <= COL.times - 17, true);
     const vals = Q.words.map((_, r) => chip(COL.val, CY(r) - 28, Q.V[r].map(String), "orange", false));
     const prods = Q.words.map((_, r) => chip(COL.prod, CY(r) - 28, BK.blend.partsTxt[r], "orange", true));
     const sum = chip(COL.prod, RES - 28, BK.blend.zTxt, "green", true);
@@ -231,16 +246,17 @@
       Q.words.forEach((_, r) => {
         vals[r].all((i) => A10.pop(A10.seq(t, T.value + 0.2 * r, 0.06, 0.35, i)));
         const s0 = T.share + 0.15 * r;
-        const a = T.scale + 0.2 * r;
+        const a = T.scale + 0.15 * r;
         const pushed = 1 + 0.12 * flash(t, a + 0.05, a + 0.55); // the share nudges as it scales its row
         const sp = A10.pop(A10.seq(t, s0, 0, 0.35, 0));
         shares[r].set(0, { ...sp, s: sp.s * pushed });
         V.place(times[r], A10.pop(ramp(t, s0 + 0.1, s0 + 0.4, E.lin)));
 
         // a copy of the value chip sits on the value, slides right and flips into the scaled numbers
-        const dx = -230 * (1 - ramp(t, a, a + 0.9, E.inOut));
+        const dx = -230 * (1 - ramp(t, a, a + 0.7, E.inOut));
+        const seen = ramp(t, a + 0.38, a + 0.48, E.lin); // the copy shows only once it has cleared the value chip
         Q.V[r].forEach((v, i) => {
-          const k = ramp(t, a + 0.15 + 0.07 * i, a + 0.6 + 0.07 * i, E.lin);
+          const k = ramp(t, a + 0.45 + 0.06 * i, a + 0.8 + 0.06 * i, E.lin);
           prods[r].flip(i, k, {
             from: String(v),
             to: BK.blend.partsTxt[r][i],
@@ -249,10 +265,10 @@
             solid: k >= 0.5,
             hop: 8,
             x: dx,
-            o: t >= a ? 1 : 0,
+            o: seen,
           });
         });
-        const e0 = T.eq + 0.17 * r;
+        const e0 = T.eq + 0.15 * r;
         V.place(eqs[r], A10.pop(ramp(t, e0, e0 + 0.3, E.lin)));
       });
 

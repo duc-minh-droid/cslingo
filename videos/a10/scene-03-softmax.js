@@ -4,7 +4,7 @@
    (they add up to 1). A second bar shows that bigger gaps (scores 4, 2, 0) give a sharper share-out (top share 0.87). Every number
    comes from A10.SOFT (common.js) and is asserted again here.
    Story (local seconds): 0.2-0.9 discs pop; 0.4-1.3 score bars grow; 0.8 "scores" tag; 2.7-4.0 the bars stretch to e^score and the
-   tag reads "exponentiated"; 4.9-5.6 the orange total pops and three arrows funnel into it; 5.6-6.8 the share bar grows from the left;
+   tag names the rule ("e to the score", then "all positive": a score of 0 becomes 1); 4.9-5.6 the orange total pops and three arrows funnel into it; 5.6-6.8 the share bar grows from the left;
    6.4-7.0 its three labels pop, 7.0 "= 1"; 7.7-9.4 the sharper bar and its 0.87 label. Hold to 11.5. */
 (function () {
   const V = window.VID;
@@ -36,7 +36,8 @@
     tag: [0.8, 1.2], // the blue "scores" tag
     exp: [2.7, 4.0], // every bar stretches to e^score
     half: 3.35, // its number switches here
-    expTag: 2.9, // the tag reads "exponentiated"
+    expTag: 2.9, // the tag names the rule: "e to the score"
+    posTag: 4.1, // and, once the bars have stretched, "all positive"
     total: [4.9, 5.3], // the orange total
     arrow: 4.9, // funnel arrow i at 4.9 + 0.15 i, 0.45 s each
     by: [5.5, 5.9], // the orange "÷ 11.11" tag: each share is a stretched score divided by the total
@@ -71,6 +72,11 @@
       [92, 176, 260],
     );
     const head = A10.tag(stage, { x: 680, y: 40, w: 238, text: "scores", tone: "blue" });
+    A10.same(
+      "softmax: the three header texts fit the header tag",
+      ["scores", "e to the score", "all positive"].map((x) => A10.tagW(x) <= head.w),
+      [true, true, true],
+    );
     const total = A10.tag(stage, { x: 700, y: 150, text: `total ${S.totalTxt}`, tone: "orange", solid: true });
     A10.same("softmax: the total tag is 192 px wide", total.w, 192);
     const svg = A10.svg(stage);
@@ -108,7 +114,12 @@
         const text = kx < 0.5 ? String(S.scores[i]) : S.expTxt[i];
         bars.set(i, { v, grow: kx > 0 ? 1 : g, text: g > 0.6 ? text : "" });
       }
-      head.set({ k: ramp(t, ...TM.tag, E.lin), text: t >= TM.expTag ? "exponentiated" : "scores" });
+      const headText = t >= TM.posTag ? "all positive" : t >= TM.expTag ? "e to the score" : "scores";
+      head.set({
+        k: ramp(t, ...TM.tag, E.lin),
+        text: headText,
+        s: 1 + 0.08 * (V.flash(t, TM.expTag, TM.expTag + 0.35) + V.flash(t, TM.posTag, TM.posTag + 0.35)),
+      });
 
       // 2. the total and the three arrows that funnel into it
       total.set({ k: ramp(t, ...TM.total, E.lin) });
@@ -135,7 +146,8 @@
       [0.7, 2.6, "Imagine three words, each with a score."],
       [2.9, 4.8, "Stretch the scores: the biggest grows most."],
       [5.5, 7.6, "Divide by the total: the shares add to 1."],
-      [7.7, 10.4, "Bigger gaps give a sharper share-out."],
+      [7.7, 9.7, "Bigger gaps give a sharper share-out."],
+      [9.9, 11.4, "Attention will use these shares."],
     ],
     build,
   });

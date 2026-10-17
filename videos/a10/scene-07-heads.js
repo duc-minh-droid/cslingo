@@ -3,6 +3,8 @@
    its own pattern: who is "it"?, the word before, who acts?, acts on what? (made-up scores through the real softmax, the same recipes as
    the lesson's playground: A10.HEADS). Each head hands back a short list of 16 numbers (64 / 4 = 16) and the four lists are glued side
    by side into 64 numbers (4 × 16 = 64). Every number comes from A10.HEADS (common.js) and is asserted again here.
+   Nobody tells a head what to look for (lesson 10.5): the captions say the heads LEARN their jobs, and the four patterns are
+   illustrative. The captions take their numbers from A10.HEADS like the tags do.
    Story (local seconds): 0.15-0.8 the seven words; 0.7-1.2 the four head tags, each followed by its Q K V chips; 3.1-4.8 head 1 lights
    up, "it" turns purple, one arc to "robot" with its weight; 5.0-6.6 head 2: the word before (six arcs); 6.9-7.9 head 3: moved and
    detected look at robot; 7.9-8.9 head 4: detected and danger look at each other; 9.0-9.8 four "16 numbers" slices, one under each
@@ -116,11 +118,12 @@
 
     // the weight of the it -> robot link, on top of its arc
     const top = arcs[0][0].at(0.5);
+    const weightText = `share ${WEIGHT_TXT}`; // the word "share" is on screen since scene 3
     const weight = A10.tag(stage, {
-      x: top.x - 50,
+      x: top.x - A10.tagW(weightText) / 2,
       y: top.y - 29,
-      w: 100,
-      text: WEIGHT_TXT,
+      w: A10.tagW(weightText),
+      text: weightText,
       tone: "green",
       solid: true,
     });
@@ -242,11 +245,11 @@
     dur: 13,
     caps: [
       [1.1, 3.1, "Each head has its own query, key and value."],
-      [3.3, 4.8, "One head finds what “it” means."],
+      [3.3, 4.8, "One head learns what “it” means."],
       [5.1, 6.7, "Another looks at the word before."],
-      [6.9, 9, "Others find who acts and what is acted on."],
-      [9.1, 10.9, "Each head hands back 16 numbers per word."],
-      [11.2, 12.8, "Glued together, they make 64 numbers."],
+      [6.9, 9, "Others learn who acts and what is acted on."],
+      [9.1, 10.9, `Each head hands back ${H.dHead} numbers per word.`],
+      [11.2, 12.8, `Glued together, they make ${H.dModel} numbers.`],
     ],
     build,
   });
