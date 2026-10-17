@@ -1,10 +1,11 @@
-/* Phase 9 · Fourier Transform & FFT (algo-9), scene 10: "Keep halving, share the work" (15.5 s).
+/* Phase 9 · Fourier Transform & FFT (algo-9), scene 10: "Keep halving, do far less work" (16 s).
    IDEA (the whole FFT): each half is itself a DFT, so split again and again until single samples remain (a DFT of one sample is the sample itself:
    nothing to do), then climb back up with butterflies, level by level: 3 levels x 4 butterflies = 12 butterflies instead of 64 products, and the
    answer is the SAME 8 bars as the direct DFT. For 1,048,576 samples the direct DFT takes about 18 minutes, the FFT about 0.02 seconds: about
    50,000 times less work.
-   Part 1 (0 - 10.6 s) is the network of scene 9 (A9.fftRig: the same layout), part 2 (10.6 - 15.5 s) the payoff as two bars. Every number comes from
-   A9.FFT / A9.COST (common.js) and is asserted below.
+   Part 1 (0 - 10.6 s) is the network of scene 9 (A9.fftRig: the same layout), part 2 (10.6 - 16 s) the payoff as two bars (centred, with the ratio as
+   one big banner under them; the two times are said to hold at a billion products a second). Every number comes from A9.FFT / A9.COST (common.js)
+   and is asserted below.
    Colours (video-wide): blue = the even half / samples, purple = the odd half and the butterfly's dot, orange = a butterfly being computed and the
    answers, green = done / saved work, red = the direct way.
    Timeline (local seconds): 0.1 the picture of scene 9 pops in (tiles in even-odd order, two '4-point DFT' boxes, the last level of grey butterflies,
@@ -12,11 +13,13 @@
    2.1-2.5 those go; 2.2-3.0 every sample gets a green ring and the tag '1 sample = its own DFT'; 3.4-3.8 ring and tag fade; 3.35-4.2 the grey
    butterflies of the two lower levels draw on; 3.7 'direct: 64 products', 3.9 the counter; 4.1 / 5.55 / 7.0 the climb: level 0, 1, 2 (butterfly i of
    a level starts 0.2 s after butterfly i - 1: orange while it is computed, green when done; the counter counts them to 12; each answer tile goes
-   solid as its last butterfly finishes); 8.5-9.3 the 8 bars grow, 8.7 'same as direct'; 10.1-10.6 the network fades; 10.6 '1,048,576 samples',
-   10.8 'direct DFT', 11.0-11.9 the red bar grows ('18 minutes'), 12.2 'FFT', 12.5 a sliver, 12.7 '0.02 seconds', 13.1 'not to scale',
-   13.4 'about 50,000 times less work', 13.9-15.5 hold.
+   solid as its last butterfly finishes; a grey 'level 1/2/3' above each column as it starts); 8.3 dashed red outlines show where the direct DFT's
+   two long bars stand, 8.5-9.3 the 8 bars grow into them and the two long ones write their 4, 8.7 'same as direct'; 10.1-10.6 the network fades;
+   10.6 '1,048,576 samples', 10.8 'direct DFT' with 'at a billion products a second', 11.0-11.9 the red bar grows ('18 minutes'), 12.2 'FFT: the fast
+   way', 12.5 a sliver, 12.7 '0.02 seconds', 13.1 'not to scale', 13.9 'about 50,000 times less work' (a banner as wide as the red bar), 14.4-16 hold.
    Captions follow the picture (asserted below). Re-timed from the storyboard, to follow the picture and to read at 4.5 words a second or less: caption 1
-   ends at 2.4, caption 3 at 6.8, caption 4 starts at 7.0 (when the third level starts), caption 5 runs 8.7-10.3. update(t) is pure. */
+   ends at 2.4, caption 3 at 6.8, caption 4 starts at 7.0 (when the third level starts), caption 5 runs 8.7-10.3, and the payoff has three captions
+   (direct, the FFT, the ratio) that start as each of them appears. update(t) is pure. */
 (function () {
   const V = window.VID;
   const A9 = V.a9;
@@ -41,39 +44,44 @@
     climb: [4.1, 5.55, 7.0], // when butterfly 0 of level 0, 1, 2 is computed
     step: 0.2, // butterfly i starts 0.2 s after butterfly i - 1
     lit: 0.7, // orange for 0.7 s, then green for good
+    ghost: [8.3, 8.6], // the dashed outlines of the direct DFT's long bars
     bars: [8.5, 9.3],
+    nums: [9.0, 9.4], // the two long bars write their value
     same: [8.7, 9.2],
     fade: [10.1, 10.6], // everything of part 1 fades
     pay: [10.6, 11.0],
     dTag: [10.8, 11.2],
+    rate: [11.0, 11.4], // 'at a billion products a second'
     red: [11.0, 11.9],
     fTag: [12.2, 12.6],
     nub: [12.5, 13.0],
     secTag: [12.7, 13.2],
     scale: [13.1, 13.4],
-    ratio: [13.4, 13.9],
+    ratio: [13.9, 14.4],
   };
+  const DUR = 16;
+  const RATIO = Math.round(COST.ratio / 1e4) * 1e4; // about 50,000
   const CAPS = [
     [0.6, 2.4, "Each half is a DFT too: split again."],
     [2.5, 4.0, "Down to single samples."],
     [4.2, 6.8, "Butterflies combine pairs, level by level."],
-    [7.0, 8.6, "Three levels of four: 12 butterflies."],
+    [7.0, 8.6, `Three levels of four butterflies: ${FF.butterflies} products.`], // one butterfly is one product (scene 9)
     [8.7, 10.3, "The same answer as the direct DFT."],
-    [11.2, 13.2, "A million samples: 18 minutes or 0.02 seconds."],
-    [13.5, 15.2, "About 50,000 times less work."],
+    [11.2, 12.8, `Direct: ${Math.round(COST.directMin)} minutes for a million samples.`],
+    [12.9, 13.9, `The FFT: ${COST.fftSec.toFixed(2)} seconds.`],
+    [14.0, 15.7, `About ${A9.commas(RATIO)} times less work.`],
   ];
   const t0Of = (L, i) => TL.climb[L] + TL.step * i; // when butterfly i of level L starts
   const doneOf = (L, i) => t0Of(L, i) + TL.lit; // ... and when it is done
   const drawAt = (L, i) => TL.net + 0.15 * L + 0.07 * i; // when its grey lines start to draw
   const ALL = FF.levels.flatMap((lv, L) => lv.map((_, i) => ({ L, i })));
   const ROWS = FF.rows(FF.order); // the final row of every sample
-  const FROM = FF.rows(FF.evenOdd); // ... and its row after the first split (scene 9)
-  const LANE = { up: 24, down: 60 }; // how far a tile that moves up / down swings aside while two tiles swap rows
 
   // ---------- layout (stage px) ----------
   const NAMES = { four: "4-point DFT", two: "2-point\nDFT" };
   const BOT = { y: 574, h: 52 }; // the bottom row of tags (52 px high: the row ends at y 626)
-  const BAR = { x: 12, w: 760, h: 96 }; // part 2: the long red bar (px)
+  const BAR = { x: 88, w: 760, h: 96 }; // part 2: the long red bar (px), centred on the stage (88 px each side)
+  const PAY = { sam: 12, direct: 92, red: 160, fft: 290, nub: 372, hero: 520 }; // part 2: the y of each row
   const NUB = 12; // ... and the sliver that stands for the FFT (the true ratio is 52,429 to 1: 0.01 px)
   // the box that covers rows r0..r1 between lines c0 and c1 (26 px above and below the rows, so two 4-row boxes leave a 16 px gap)
   const rectOf = (R, r0, r1, c0, c1) => ({
@@ -121,6 +129,17 @@
       [18, "0.02", 50000, "1,048,576"],
     );
     A9.same("scene 10 the counter reaches 12", [ALL.length, FF.butterflies, FF.products], [12, 12, 64]);
+    A9.same("scene 10 three levels of four", [FF.levels.length, ...FF.levels.map((l) => l.length)], [3, 4, 4, 4]);
+    // the two times only hold at a billion products a second (lesson 9.2's table): the tag says so, and the numbers are computed from that speed
+    A9.same("scene 10 the speed on the tag is the speed of the times", COST.perSec, 1e9);
+    A9.close(
+      "scene 10 18 minutes is the direct count at that speed",
+      COST.direct / COST.perSec / 60,
+      COST.directMin,
+      1e-12,
+    );
+    A9.close("scene 10 0.02 seconds is the FFT count at that speed", COST.fft / COST.perSec, COST.fftSec, 1e-12);
+    A9.same("scene 10 the ratio caption is the rounded ratio", RATIO, 50000);
     // the climb: level by level, the last butterfly is done before the answers' caption starts, and the bars follow
     const last = Math.max(...ALL.map(({ L, i }) => doneOf(L, i)));
     A9.same(
@@ -147,8 +166,14 @@
       t0Of(2, 0), // the third level starts
       TL.bars[0],
       TL.red[0] + 0.15, // '18 minutes' shows once the bar is wider than 300 px
+      TL.secTag[0],
       TL.ratio[0],
     ];
+    A9.same(
+      "scene 10 the last caption stays up for a second and a half and the scene holds its last frame",
+      [CAPS[CAPS.length - 1][1] - TL.ratio[1] >= 1.2, DUR - 0.3 - CAPS[CAPS.length - 1][1] >= 0],
+      [true, true],
+    );
     A9.same(
       "scene 10 every caption starts after its picture does",
       CAPS.map((c, i) => c[0] >= starts[i] && c[0] - starts[i] < 0.6),
@@ -163,8 +188,8 @@
 
   V.scene({
     kicker: "THE FFT",
-    title: ["Keep halving,", "share the work"],
-    dur: 15.5,
+    title: ["Keep halving,", "do far less work"],
+    dur: DUR,
     caps: CAPS,
     build(stage) {
       check();
