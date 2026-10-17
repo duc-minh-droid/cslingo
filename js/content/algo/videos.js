@@ -1,4 +1,4 @@
-/* Recap videos for Algorithms phases 1 to 6: one node after each phase's boss quiz.
+/* Recap videos for Algorithms phases 1 to 7: one node after each phase's boss quiz.
    Each is a one-step lesson that plays videos/out/algo-N.mp4 (made from videos/algo-N.html, see videos/README.md).
    Same rules as the Nature-Inspired recaps (js/content/nic/videos.js): a bonus (m.video) that never counts towards
    finishing a phase or the course, and watching it keeps the streak alive and pays the review amount (5 XP).
@@ -96,6 +96,21 @@
         "Three checks, each guards a group",
         "The failed checks spell the position",
         "Hamming fixes one error, not two",
+      ],
+    },
+    {
+      n: 7,
+      blurb: "Phase 7 in pictures: information and entropy, prefix codes, Huffman coding and LZW compression.",
+      chapters: [
+        "Every letter costs the same bits",
+        "Rare news carries more information",
+        "Average surprise is the entropy",
+        "Codes you can read without any gaps",
+        "Merge the two rarest, again and again",
+        "Common letters get short codes",
+        "LZW learns phrases as it reads",
+        "The decoder rebuilds the same dictionary",
+        "Repeats shrink, noise barely does",
       ],
     },
   ];

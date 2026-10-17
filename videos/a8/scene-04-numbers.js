@@ -8,8 +8,12 @@
    Timeline (local seconds): 0.2 Alice, Bob, the pipe; 0.45 p, 0.65 g, 0.85 a, 1.05 b (with locks); 2.8 the working-out panel pops and
    types out (3.0-3.8); 3.9 "mod 23" tag and the remainder lights up; 5.5 A = 8 and 5.7 B = 19 pop at their ends; 5.9-6.1 panel and tag
    fade; 6.2-7.4 the swap; 7.5 the received number and the secret flash; 7.6 / 7.8 the green sums; 8.6 the equals disc; 9.2-9.8 the
-   locks pulse (the secrets never moved); 9.9-10.3 all of it fades; 10.3 Eve and what she knows; 10.8 the question; 11.0-12.35 the
-   six tries, 12.6 the last turns green; 12.75 "6 tries"; 12.85 the long number, 13.0 "617 digits", 13.55 "no computer can search that".
+   locks pulse (the secrets never moved); 9.5 the purple key icon and "shared key = 2" (the answer to scene 2's question); 10.6-10.95
+   all of it fades; 10.95 Eve and what she knows; 11.45 the question; 11.65-13.0 the six tries; 13.25 the last one is the hit: it turns
+   red (Eve's colour) and her dashed "a = ?" becomes a solid red "a = 6" (the toy secret leaks); 13.4 "6 tries"; 13.5 the long number,
+   13.65 "617 digits long", 14.2 "no computer can search that" (green: safe).
+   The paint colours of scene 3 are carried over as small dots: gold beside g, rose beside a, blue beside b, and A = 8 / B = 19 wear the
+   orange / green mixture dots (literal paint colours, the same documented exception as scene 3).
    Every number comes from A8.DH / A8.BIG and is asserted below; the captions are built from the same numbers. */
 (function () {
   const V = window.VID;
@@ -17,6 +21,7 @@
   const { ramp, flash, ease: E } = V;
   const lin = E.lin;
   const D = A8.DH;
+  const P = A8.PAINT;
   const BIG = A8.BIG;
 
   // ---------- the model: every number comes from the helper, and is checked here against plain BigInt sums ----------
@@ -48,7 +53,8 @@
     [D.tries, D.search.slice(0, -1).some((s) => s.y === D.A)],
     [6, false],
   );
-  A8.same("numbers: a real prime", [BIG.digits, BIG.lead], [617, "3231700607131100"]);
+  A8.same("numbers: a number the size of a real prime", [BIG.digits, BIG.lead], [617, "3231700607131100"]);
+  A8.same("numbers: Eve's hit gives her a", [D.search[D.search.length - 1].x, D.a], [6, 6]);
 
   // ---------- small html helpers (colour roles inside a sum: base = public blue, exponent = secret purple) ----------
   const INK = { blue: "var(--blue-ink)", purple: "var(--violet-ink)" };
@@ -58,6 +64,11 @@
   const cpow = (base, exp, fs, bt, et) =>
     `${bt ? col(bt, base) : A8.esc(base)}${sup(fs, et ? col(et, exp) : A8.esc(exp))}`;
   const MUL = "×";
+  /* a small paint dot (the colours of scene 3) to put before a number: the same average-of-paints colour as the pots */
+  const dot = (drops) => {
+    const c = A8.paintRgb(drops);
+    return `<span style="display:inline-block;width:26px;height:26px;border-radius:50%;box-sizing:border-box;background:${c.fill};border:3px solid ${c.edge};margin-right:12px;vertical-align:-1px"></span>`;
+  };
 
   /* the working-out line as typed segments: what has been typed shows, the rest keeps its room (hidden) so the panel never resizes */
   const WORK = [
@@ -89,15 +100,16 @@
   };
 
   // ---------- layout (stage px) ----------
-  const SPOT_A = { x: 110, y: 190 };
-  const SPOT_B = { x: 826, y: 190 };
+  const SPOT_A = { x: 118, y: 190 };
+  const SPOT_B = { x: 818, y: 190 };
   const WIRE = { x: 150, y: 190, w: 636, h: 120 };
-  const SECRET_A = { x: 138, y: 430, lock: 42 };
-  const SECRET_B = { x: 786, y: 430, lock: 894 };
+  const SECRET_A = { x: 150, y: 430, lock: 38 };
+  const SECRET_B = { x: 774, y: 430, lock: 898 };
   const RES_A = { x: 190, y: 330 };
   const RES_B = { x: 746, y: 330 };
-  const PANEL = { x: 468, y: 520 };
-  const TAG_MOD = { x: 468, y: 592 };
+  const PANEL = { x: 330, y: 520 }; // under Alice's secret a = 6: it is her working
+  const TAG_MOD = { x: 330, y: 592 };
+  const KEY_AT = { x: 468, y: 425 }; // "shared key = 2", centred under the equals sign
   const SIDES = 44; // how far the two numbers arc apart while they swap (wide enough that they never touch)
   const TRIES = { x0: 178, dx: 116, y: 280 };
 
@@ -134,40 +146,54 @@
     resA: 7.6,
     resB: 7.8,
     equals: 8.6,
-    locks: [9.2, 9.8],
-    out1: [9.9, 10.3],
-    eve: 10.3,
-    known: 10.42, // + 0.07 i; the ghost "a = ?" follows
-    question: 10.8,
-    tries: 11.0, // + 0.27 i
-    green: 12.6,
-    count: 12.75,
-    big: 12.85,
-    digits: 13.0,
-    red: 13.55,
+    key: 9.5,
+    locks: [9.9, 10.5],
+    out1: [10.6, 10.95],
+    eve: 10.95,
+    known: 11.07, // + 0.07 i; the ghost "a = ?" follows
+    question: 11.45,
+    tries: 11.65, // + 0.27 i
+    green: 13.25,
+    count: 13.4,
+    big: 13.5,
+    digits: 13.65,
+    red: 14.2,
   };
 
   V.scene({
     kicker: "DIFFIE-HELLMAN KEY EXCHANGE",
     title: ["The same trick", "with numbers"],
-    dur: 15,
+    dur: 15.65,
     caps: [
-      [1.25, 3.5, `Public: p = ${D.p} and g = ${D.g}. Secret: a = ${D.a} and b = ${D.b}.`],
+      [1.25, 3.5, `Like the paint: public p = ${D.p} and g = ${D.g}, secret a = ${D.a} and b = ${D.b}.`],
       [3.9, 6.0, `mod ${D.p} keeps only the remainder after dividing by ${D.p}.`],
       [6.2, 7.9, `They swap A = ${D.A} and B = ${D.B} in public.`],
-      [8.0, 9.9, `Both get ${D.shared}. The secret numbers were never sent.`],
-      [11.0, 12.9, `Eve must try every power of ${D.g} until she hits ${D.A}.`],
-      [13.1, 14.8, `A ${BIG.digits}-digit prime makes that search hopeless.`],
+      [8.0, 9.4, "Each raises what they received to their own secret."],
+      [9.5, 10.9, `Both get ${D.shared}: a shared key that was never sent.`],
+      [11.65, 13.45, `Eve must try every power of ${D.g} until she hits ${D.A}: that finds a.`],
+      [13.7, 15.4, `With a ${BIG.digits}-digit prime that search is hopeless.`],
     ],
     build(stage) {
       // ---- first half: the exchange ----
       const alice = A8.person(stage, { who: "alice", x: 52, y: 50 });
       const bob = A8.person(stage, { who: "bob", x: 884, y: 50, name: "left" });
       const pipe = A8.wire(stage, WIRE);
-      const pTag = A8.tag(stage, { x: 390, y: 62, text: `p = ${D.p}`, tone: "blue", fs: 36 });
-      const gTag = A8.tag(stage, { x: 545, y: 62, text: `g = ${D.g}`, tone: "blue", fs: 36 });
-      const aTag = A8.tag(stage, { x: SECRET_A.x, y: SECRET_A.y, text: `a = ${D.a}`, tone: "purple", fs: 36 });
-      const bTag = A8.tag(stage, { x: SECRET_B.x, y: SECRET_B.y, text: `b = ${D.b}`, tone: "purple", fs: 36 });
+      const pTag = A8.tag(stage, { x: 376, y: 62, text: `p = ${D.p}`, tone: "blue", fs: 36 });
+      const gTag = A8.tag(stage, { x: 552, y: 62, html: `${dot(["P"])}g = ${D.g}`, tone: "blue", fs: 36 });
+      const aTag = A8.tag(stage, {
+        x: SECRET_A.x,
+        y: SECRET_A.y,
+        html: `${dot(["A"])}a = ${D.a}`,
+        tone: "purple",
+        fs: 36,
+      });
+      const bTag = A8.tag(stage, {
+        x: SECRET_B.x,
+        y: SECRET_B.y,
+        html: `${dot(["B"])}b = ${D.b}`,
+        tone: "purple",
+        fs: 36,
+      });
       const aLock = A8.icon(stage, "lock", { x: SECRET_A.lock, y: SECRET_A.y, tone: "purple", size: 50 });
       const bLock = A8.icon(stage, "lock", { x: SECRET_B.lock, y: SECRET_B.y, tone: "purple", size: 50 });
 
@@ -188,8 +214,22 @@
         fs: 32,
       });
 
-      const numA = A8.tag(stage, { x: SPOT_A.x, y: SPOT_A.y, text: `A = ${D.A}`, tone: "blue", solid: true, fs: 40 });
-      const numB = A8.tag(stage, { x: SPOT_B.x, y: SPOT_B.y, text: `B = ${D.B}`, tone: "blue", solid: true, fs: 40 });
+      const numA = A8.tag(stage, {
+        x: SPOT_A.x,
+        y: SPOT_A.y,
+        html: `${dot(P.mixA)}A = ${D.A}`,
+        tone: "blue",
+        solid: true,
+        fs: 40,
+      });
+      const numB = A8.tag(stage, {
+        x: SPOT_B.x,
+        y: SPOT_B.y,
+        html: `${dot(P.mixB)}B = ${D.B}`,
+        tone: "blue",
+        solid: true,
+        fs: 40,
+      });
       const fromA = A8.tag(stage, {
         x: SPOT_A.x,
         y: 282,
@@ -197,7 +237,7 @@
         tone: "grey",
       });
       const fromB = A8.tag(stage, {
-        x: 818,
+        x: SPOT_B.x,
         y: 282,
         html: `${cpow(D.g, D.b, 28, null, "purple")} mod ${D.p}`,
         tone: "grey",

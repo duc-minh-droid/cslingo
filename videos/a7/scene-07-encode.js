@@ -2,9 +2,11 @@
    Part A (0-5.5): the finished Huffman tree. B glides up to hang one step from the root (the others stay three steps down), a 0 / 1
    sticker pops on every branch, and the five leaves are read one at a time: the path from the root lights up green and the leaf shows
    its code. Then the inner nodes fade and the five leaves glide up into a code book row.
-   Part B (5.3-12): spell BBADEBC. For each letter the message tile gets a blue ring, its code book tile an orange ring, and its
+   Part B (5.3-12.9): spell BBADEBC. For each letter the message tile gets a blue ring, its code book tile an orange ring, and its
    codeword appears in the 15-bit green strip (a blue line under it says which one it is). Then the grey fixed strip (21 bits) is drawn
-   under it at the same cell size, so the saving shows in the lengths.
+   under it at the same cell size, so the saving shows in the lengths. Finally both strips slide together into the real gap-free
+   bit strings (15 and 21 cells; the codewords were only spaced out to be readable) and seven blue lines cut the 15 bits back into
+   their codewords: the stream reads back one way, as in scene 5.
    Every value comes from A7.HUFF and A7.ENCODE (common.js); nothing is typed here. */
 (function () {
   const V = window.VID;
@@ -139,6 +141,15 @@
     const fixTag = A7.tag(stage, { x: 54, y: 474, text: `fixed: ${EN.fixedCount} bits`, tone: "grey", h: 52 });
     const under = A7.span(stage, { x: 0, y: 432, w: 40, h: 10, tone: "blue" });
     const n = EN.codes.length;
+    // closing the gaps between codewords: group g moves left by SQUEEZE * g, so every strip ends up one unbroken run of bits
+    const SQUEEZE = CELL.groupGap - CELL.gap;
+    const JOIN = [10.1, 10.9];
+    const groupOf = (codes) => codes.flatMap((c, g) => [...c].map(() => g));
+    const [hGroups, fGroups] = [groupOf(EN.codes), groupOf(EN.fixed)];
+    A7.same("encode scene: the joined strips", [hGroups.length, fGroups.length], [EN.count, EN.fixedCount]);
+    const cuts = EN.codes.map((_, g) =>
+      A7.span(stage, { x: huff.group(g).x, y: 432, w: huff.group(g).w, h: 10, tone: "blue" }),
+    );
 
     return {
       // the message tiles, the strips and their labels
@@ -149,13 +160,20 @@
           const ringK = ramp(t, a, a + 0.15, lin) * (1 - ramp(t, b, b + 0.12, lin));
           return { k: ramp(t, 5.3 + 0.05 * j, 5.6 + 0.05 * j, lin), ring, ringK };
         });
-        huff.set({ groupK: (g) => ramp(t, U(g) + 0.1, U(g) + 0.4, lin), tone: "green" });
+        const join = ramp(t, JOIN[0], JOIN[1], E.inOut);
+        const slide = (groups) => Object.fromEntries(groups.map((g, i) => [i, { x: -SQUEEZE * g * join }]));
+        huff.set({ groupK: (g) => ramp(t, U(g) + 0.1, U(g) + 0.4, lin), tone: "green", cells: slide(hGroups) });
         // a blue line under the codeword being written (it waits under its slot, then the codeword fills in; it goes when the tag comes)
         const g = Math.max(0, Math.min(n - 1, Math.floor((t - U(0)) / 0.45)));
         const gp = huff.group(g);
         under.set({ x: gp.x, w: gp.w, k: ramp(t, U(g), U(g) + 0.15, lin) * (1 - ramp(t, END, END + 0.2, lin)) });
         huffTag.set({ k: ramp(t, END, END + 0.4, lin) });
-        fix.set({ k: ramp(t, 9.0, 9.5, lin), tone: "grey" });
+        fix.set({ k: ramp(t, 9.0, 9.5, lin), tone: "grey", cells: slide(fGroups) });
+        // seven blue lines cut the joined 15 bits back into the codewords
+        cuts.forEach((c, g) => {
+          const gp = huff.group(g);
+          c.set({ x: gp.x - SQUEEZE * g * join, k: ramp(t, JOIN[1] + 0.08 * g, JOIN[1] + 0.08 * g + 0.25, lin) });
+        });
         fixTag.set({ k: ramp(t, 9.4, 9.8, lin) });
       },
       // the code book tile of the letter being spelled gets an orange ring for 0.4 s
@@ -177,12 +195,13 @@
   V.scene({
     kicker: "CODEWORDS",
     title: ["Common letters get", "short codes"],
-    dur: 12,
+    dur: 12.9,
     caps: [
       [1.4, 2.8, "Common B sits one step from the root."],
       [2.9, 4.6, "The path down is the code."],
       [5.6, 8.6, "Spell BBADEBC with these codes."],
-      [9.6, 11.6, "15 bits instead of 21."],
+      [9.6, 10.9, "15 bits instead of 21."],
+      [11.0, 12.7, "Joined up, it still splits into the same codes."],
     ],
     build(stage) {
       const tree = treePart(stage);

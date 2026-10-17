@@ -1,8 +1,10 @@
-/* Phase 7 · Information Theory & Compression (algo-7), scene 05: DECODING, "Codes you can read without any gaps".
+/* Phase 7 · Information Theory & Compression (algo-7), scene 05: DECODING, "Codes you can read without any gaps" (13.4 s).
    Part 1 (0.3-5.6): a bad code (A = 0, B = 1, C = 01) with no gaps between codewords: the bits 01 read as A then B, or as C.
-   Part 2 (5.7-12): the good code A = 0, B = 10, C = 110, D = 111 drawn as a tree with every codeword at a leaf. A blue token walks
-   the stream 010110 down from the root; a leaf turns green and its letter drops into the output, so it reads A B C only one way.
-   Every value comes from A7.BAD and A7.PREFIX (its tree and its walk); nothing is typed here. */
+   Bridge (5.7-6.9): "a better code" (A = 0, B = 10, C = 110, D = 111) pops in where the bad one was, with the rule in the caption (no code
+   may start another); it fades as the tree starts to grow.
+   Part 2 (7.1-13.4): that code drawn as a tree with every codeword at a leaf. A blue token walks the stream 010110 down from the
+   root; a leaf turns green and its letter drops into the output, so it reads A B C only one way; the verdict turns every leaf
+   green (D last). Every value comes from A7.BAD and A7.PREFIX (its tree and its walk); nothing is typed here. */
 (function () {
   const V = window.VID;
   const A7 = V.a7;
@@ -68,7 +70,20 @@
   // ---------- part 2: the prefix-free tree and its walk ----------
   function part2(stage) {
     const P = A7.PREFIX;
+    const SH = 1.4; // part 2 starts this much later than the original storyboard: the bridge ("a better code") comes first
     const pos = A7.treePos(P.tree, { x0: 150, slot: 130, top: 52, dy: 140 });
+    // the bridge: the new code in the place the bad one was, fading as the tree starts
+    const letters = Object.keys(P.codes);
+    const better = A7.tiles(stage, {
+      x: 300,
+      y: 24 + 36,
+      items: letters.map((c) => ({ text: c, sub: P.codes[c] })),
+      w: 88,
+      h: 104,
+      gap: 20,
+      fs: 44,
+    });
+    const betterTag = A7.tag(stage, { x: 24, y: 50 + 36, text: "a better code", tone: "green", h: 52 });
     const T = A7.tree(stage, { tree: P.tree, pos, leafH: 80 });
     const ids = Object.values(P.tree.nodes)
       .sort((a, b) => a.depth - b.depth || pos[a.id][0] - pos[b.id][0])
@@ -96,7 +111,7 @@
 
     // the walk: step i starts at 7.5 + 0.5 i and takes 0.4 s; a codeword ends at its leaf step
     const W = P.walk;
-    const [T0, STEP, DUR] = [7.5, 0.5, 0.4];
+    const [T0, STEP, DUR] = [7.5 + SH, 0.5, 0.4];
     const st = (i) => T0 + STEP * i;
     const en = (i) => st(i) + DUR;
     const last = W.map((w, i) => W.findIndex((v, j) => j >= i && v.leaf)); // step that finishes step i's codeword
@@ -114,9 +129,9 @@
       // --- the tree builds top-down, blue branches, then settles to grey ---
       const nodes = {};
       const edges = {};
-      const building = t < 7.0;
+      const building = t < 7.0 + SH;
       ids.forEach((id, k) => {
-        const n0 = 5.7 + 0.14 * k;
+        const n0 = 5.7 + SH + 0.14 * k;
         nodes[id] = { k: ramp(t, n0, n0 + 0.4, lin) };
         const par = P.tree.nodes[id].parent;
         if (par != null) {
@@ -148,10 +163,21 @@
           };
         }
       });
+      // the verdict: every leaf is a codeword, so all four leaves turn green (the ones not walked yet, D, a moment later)
+      Object.keys(P.tree.nodes)
+        .filter((id) => P.tree.nodes[id].leaf)
+        .forEach((id, q) => {
+          const at = 10.5 + SH + 0.12 * q;
+          if (t >= at && !(nodes[id] && nodes[id].solid)) {
+            nodes[id] = { ...nodes[id], tone: "green", solid: true, s: 1 + 0.08 * flash(t, at, at + 0.35) };
+            const key = A7.ek(P.tree.nodes[id].parent, id);
+            edges[key] = { ...edges[key], tone: "green" };
+          }
+        });
       T.update({ nodes, edges });
       // --- the token ---
       let tx = T.pt("root");
-      let [ty, to, ts] = [tx.y, ramp(t, 7.3, 7.5, lin), 0.6 + 0.4 * E.pop(ramp(t, 7.3, 7.6, lin))];
+      let [ty, to, ts] = [tx.y, ramp(t, 7.3 + SH, 7.5 + SH, lin), 0.6 + 0.4 * E.pop(ramp(t, 7.3 + SH, 7.6 + SH, lin))];
       tx = tx.x;
       const i = W.reduce((a, w, j) => (t >= st(j) ? j : a), -1);
       if (i >= 0) {
@@ -170,30 +196,34 @@
       }
       tok.set({ x: tx, y: ty, o: to, s: ts });
       // --- the stream, the output and the labels ---
-      const sk = ramp(t, 6.9, 7.4, lin);
-      recTag.set({ k: ramp(t, 6.9, 7.3, lin) });
+      const sk = ramp(t, 6.9 + SH, 7.4 + SH, lin);
+      recTag.set({ k: ramp(t, 6.9 + SH, 7.3 + SH, lin) });
       stream.set({ k: sk, cells });
-      const k0 = ramp(t, 6.9, 7.4, lin);
-      L5.drawOn(arrow, k0);
+      L5.drawOn(arrow, sk);
       out.all((j) => ({ k: ramp(t, en(arrive[j]), en(arrive[j]) + 0.4, lin) }));
-      leafTag.set({ k: ramp(t, 6.9, 7.3, lin) });
-      V.show(leafArrow, ramp(t, 7.0, 7.3, lin));
-      verdict.set({ k: ramp(t, 10.5, 10.9, lin) });
-      L5.drawOn(tick, ramp(t, 10.6, 11.0, lin));
+      leafTag.set({ k: ramp(t, 6.9 + SH, 7.3 + SH, lin) });
+      V.show(leafArrow, ramp(t, 7.0 + SH, 7.3 + SH, lin));
+      verdict.set({ k: ramp(t, 10.5 + SH, 10.9 + SH, lin) });
+      L5.drawOn(tick, ramp(t, 10.6 + SH, 11.0 + SH, lin));
+      // the bridge: "a better code" is there from 5.7 and leaves while the tree starts (6.9-7.3)
+      const gone = 1 - ramp(t, 6.9, 7.3, lin);
+      better.all((i) => ({ k: ramp(t, 5.7 + 0.1 * i, 6.2 + 0.1 * i, lin), o: gone }));
+      betterTag.set({ k: ramp(t, 5.7, 6.1, lin), o: gone });
     };
   }
 
   V.scene({
     kicker: "DECODING",
     title: ["Codes you can read", "without any gaps"],
-    dur: 12,
+    dur: 13.4,
     caps: [
       [0.4, 2.2, "Codes sit side by side, with no gaps."],
       [2.4, 3.8, "01 could be A then B…"],
       [3.8, 5.3, "…or C. Two readings!"],
-      [5.7, 7.6, "Put every code at a branch end."],
-      [7.6, 10.2, "Follow the bits down. A leaf means a letter is done."],
-      [10.5, 11.9, "No code starts another."],
+      [5.7, 7.1, "Fix it: no code may start another."],
+      [7.3, 9.0, "Put every code at a branch end."],
+      [9.0, 11.8, "Follow the bits down. A leaf means a letter is done."],
+      [11.9, 13.3, "No code starts another."],
     ],
     build(stage) {
       const [u1, u2] = [part1(stage), part2(stage)];

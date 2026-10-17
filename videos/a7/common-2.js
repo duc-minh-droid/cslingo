@@ -37,7 +37,8 @@
    A7.bar(parent, {x, y, w, h = 56, tone = "grey", solid = true, text = "", fs = 32}) -> b    a horizontal sticker bar that grows
        from x to the right, full length w at k = 1 (never shorter than 14 px once visible).
        b.set({k, tone, solid, text, textOut = false, o});  text sits inside (left, 18 px padding) or, with textOut, just right of
-       the end (ink colour; use it for short bars);  b.end(k) -> x of the bar's right end at k.
+       the end (ink colour; use it for short bars);  b.end(k) -> x of the bar's right end at k.  A bar with no text has no padding,
+       so its width is exactly w * k (down to the 14 px minimum).
    A7.span(parent, {x, y, w, h = 14, tone = "blue"}) -> s   a rounded line (a bracket under tiles: the phrase w, a chunk)
        s.set({x, w, k, tone, dash, o})   x, w: new left edge and width (px, parent coords: you may animate them); k grows it from
        the left; dash: true = dashed outline.
@@ -370,7 +371,7 @@
         ...abs(x, y, w, h),
         display: "flex",
         alignItems: "center",
-        padding: "0 18px",
+        padding: "0",
         fontSize: `${fs}px`,
         fontWeight: "900",
         borderRadius: "16px",
@@ -390,6 +391,8 @@
       const solid = st.solid ?? o.solid ?? true;
       const text = st.text ?? o.text ?? "";
       setCls(el, `v-card c-${tone}`);
+      // padding only where the bar carries text, so a bar without text can be as short as its width says (never under 14 px)
+      el.style.padding = text && !st.textOut ? "0 18px" : "0";
       el.style.width = `${f1(Math.max(14, w * k))}px`;
       el.style.background = solid ? "var(--c)" : "";
       el.style.borderColor = solid ? "var(--c-lip)" : "";

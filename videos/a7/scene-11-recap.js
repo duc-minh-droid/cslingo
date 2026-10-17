@@ -57,10 +57,11 @@
     const gapMid = (edge + grey.cell(FLOOR).x) / 2;
     const line = V.h("div", {
       class: "c-purple",
-      style: { ...box(gapMid - 2, 14, 0, 100), borderLeft: "4px dashed var(--c)" },
+      style: { ...box(gapMid - 2, 14, 0, 100), borderLeft: "4px dashed var(--c-lip)" },
     });
     pic.append(line);
-    const tick = L5.svg(pic, PIC.w, PIC.h).appendChild(L5.tick(310, 88, 42, "green", { w: 8 }));
+    // the tick pops just right of the strips, level with the green one it confirms (not far away at the edge of the picture)
+    const tick = L5.svg(pic, PIC.w, PIC.h).appendChild(L5.tick(236, 88, 42, "green", { w: 8 }));
     const T = { strips: [0, 0.5], line: [0.4, 0.8], shrink: [0.9, 1.4], tick: [1.6, 2.1] };
 
     return (q) => {
@@ -226,7 +227,7 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["purple", "Entropy is the floor:\nno code beats it", floorRow],
+        ["purple", "Entropy is the floor\nif nothing is lost", floorRow],
         ["green", "Huffman merges the\ntwo rarest, repeat", huffRow],
         ["blue", "LZW learns repeated\nphrases as it goes", lzwRow],
       ].map(([tone, text, make], i) => {
