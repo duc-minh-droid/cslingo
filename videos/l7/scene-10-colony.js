@@ -369,7 +369,7 @@
           if (w > 0.5) V.show(trails[ki], clamp(tau[k] / 2) * (ramp(t, 0.4, 1.0, E.out) > 0.04 ? 1 : 0));
           halos[k].setAttribute("stroke-width", f1(w + 22));
           const led = Math.max(...MAP.tours.map((tr, i) => (tr.edges.includes(k) ? lead(t, m, i) : 0)));
-          V.show(halos[k], led * (1 - gone) * ramp(t, 0.4, 0.8, lin));
+          V.show(halos[k], led * (1 - gone) * ramp(t, 1.0, 1.4, lin)); // after the roads have grown
         });
 
         // ---- the short tour's roads turn green ----

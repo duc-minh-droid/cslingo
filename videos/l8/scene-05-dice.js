@@ -1,20 +1,21 @@
-/* Lecture 8 video, scene 5: roll the dice. The chances of scene 4 (Ash 20%, Birch 40%, Cedar 40%) become a choice with a
+/* Lecture 8 video, scene 5: the random draw. The chances of scene 4 (Ash 20%, Birch 40%, Cedar 40%) become a choice with a
    roulette draw: the ant draws a random number u between 0 and 1 and takes the slice it lands in. Likely roads win more
    often, but a small slice can still win. Every number comes from L8.HUB (the lesson's rule and its two seeded draws, run and
    asserted in l8/common.js) and is asserted again here, including which slice each draw lands in.
    Story (local seconds): 0.2-1.4 the share strip, the little map (an ant on a hub, three villages, trails as thickness) and
-   the cut numbers 0, 0.2, 0.6, 1; 1.0-1.4 the dice and its 'u = random number' tag; DRAW 1: 1.4-2.4 the dice rolls and lands,
-   2.4-2.9 the pointer drops on the strip at u = 0.31, 2.8 the 'u = 0.31' tag, 3.4-3.7 the Birch slice turns orange and its road
-   is drawn, 3.9-4.7 the ant walks to Birch; 4.8-5.2 everything fades back; DRAW 2: 5.3-5.9 a quicker roll, 5.9-6.3 the pointer
-   drops at u = 0.08, 6.5-6.8 the small Ash slice turns orange, 7.0-7.8 the ant walks to Ash; 7.8-9.0 hold. */
+   the cut numbers 0, 0.2, 0.6, 1; 1.0 the 'u: a random number from 0 to 1' tag; DRAW 1: 1.4-1.7 the pointer drops on the strip,
+   1.5-2.6 its number flickers through random decimals (the pointer jumps with them) and settles on u = 0.31, 3.4-3.7 the Birch
+   slice turns orange and its road is drawn, 3.9-4.7 the ant walks to Birch; 4.8-5.2 everything fades back; DRAW 2: 5.3-5.55 the
+   pointer drops again, 5.4-6.1 a quicker flicker settles on u = 0.08, 6.5-6.8 the small Ash slice turns orange, 7.0-7.8 the ant
+   walks to Ash; 7.8-9.0 hold. (No die: a die face is a whole number and would not match a decimal u.) */
 VID.scene({
   kicker: "THE CHOICE",
-  title: ["Then roll the dice,", "weighted by those shares"],
+  title: ["Then a random draw", "picks the road"],
   dur: 9,
   caps: [
     [1.2, 3.1, "The ant draws a random number."],
     [3.4, 5.2, "The slice it lands in wins."],
-    [6.4, 8.6, "Unlikely roads can still win."],
+    [6.6, 8.8, "Unlikely roads can still win."],
   ],
   build(stage, V) {
     const L8 = V.l8;
@@ -56,24 +57,22 @@ VID.scene({
       strip: 0.2,
       map: 0.6, // hub, ant and the three villages pop
       ticks: 0.8, // the cut numbers fade in
-      dice: 1.0, // the dice and its tag pop
+      what: 1.0, // the 'u: a random number' tag pops
       draws: [
         {
-          roll: [1.4, 2.4],
-          rate: 9, // faces per second while it rolls
-          face: 4,
-          drop: [2.4, 2.9], // the pointer drops onto the strip
-          tag: 2.8,
+          roll: [1.5, 2.6], // the number flickers through random decimals, then settles on u
+          rate: 12, // new numbers per second while it flickers
+          drop: [1.4, 1.7], // the pointer drops onto the strip
+          tag: 1.4,
           win: [3.4, 3.7], // the slice turns orange
           road: [3.4, 3.8], // the chosen road is drawn
           walk: [3.9, 4.7], // the ant walks it
         },
         {
-          roll: [5.3, 5.9],
-          rate: 14,
-          face: 2,
-          drop: [5.9, 6.3],
-          tag: 6.2,
+          roll: [5.4, 6.1],
+          rate: 16,
+          drop: [5.3, 5.55],
+          tag: 5.3,
           win: [6.5, 6.8],
           road: [6.5, 6.9],
           walk: [7.0, 7.8],
@@ -108,11 +107,18 @@ VID.scene({
       ),
     );
 
-    // ---- the random number: a dice with its tag, and the 'u = 0.31' tag that rides on the pointer
-    const diceTag = L8.tag(stage, { x: 490, y: 59, text: "u = random number", tone: "orange" });
+    // ---- the random number: a tag that says what u is, and the 'u = 0.31' tag that rides on the pointer
+    const what = L8.tag(stage, { x: 12, y: 16, text: "u: a random number from 0 to 1", tone: "orange" });
     const utag = L8.tag(stage, { x: 0, y: 108, text: "u = 0.31", tone: "orange", solid: true });
-    const diceSvg = L5.svg(stage);
-    const dice = [1, 2, 3, 4, 5, 6].map((f) => diceSvg.appendChild(L5.dice(860, 90, 90, { face: f, tone: "orange" })));
+    // the flicker: fixed 'random' numbers from a seeded generator, so any frame is the same every time
+    const gen = L8.rng(37);
+    const FLICKER = Array.from({ length: 40 }, () => gen());
+    // none of the first 14 numbers (all that are ever shown) sits close to a real draw, so a flicker never looks like a landing
+    L8.same(
+      FLICKER.slice(0, 14).every((x) => DRAWS.every((d) => Math.abs(x - d.u) > 0.05)),
+      true,
+      "scene 5: the flicker stays clear of the two real draws",
+    );
 
     // ---- the little map: an ant on a hub, one road to each village, trails as thickness (blue)
     const HUB_P = { x: 150, y: 505 };
@@ -188,43 +194,31 @@ VID.scene({
     return (t) => {
       // ---- strip, cuts and pointer
       const stripK = ramp(t, T.strip, T.strip + 0.6, E.lin);
-      const mi = t < 5.6 ? 0 : 1; // which draw owns the pointer
+      const mi = t < 5.2 ? 0 : 1; // which draw owns the pointer
       const Dm = T.draws[mi];
       const fade1 = 1 - ramp(t, T.reset[0], T.reset[1], E.lin); // draw 1 fades back, draw 2 stays
       const keep = mi === 0 ? fade1 : 1;
       const mk = ramp(t, Dm.drop[0], Dm.drop[1], E.lin) * keep;
+      // while it flickers the pointer shows a different number every 1 / rate s; after that it holds the real draw
+      const flickering = t >= Dm.roll[0] && t < Dm.roll[1];
+      const u = flickering ? FLICKER[Math.floor((t - Dm.roll[0]) * Dm.rate) % FLICKER.length] : DRAWS[mi].u;
       const g = strip.update({
         parts,
         k: stripK,
         ticks: ramp(t, T.ticks, T.ticks + 0.6, E.lin),
-        marker: DRAWS[mi].u,
+        marker: u,
         markerK: mk,
       });
-      const label = `u = ${DRAWS[mi].u.toFixed(2)}`;
+      const label = `u = ${u.toFixed(2)}`;
       const tw = L8.tagW(label);
       utag.set({
         text: label,
         x: clamp(g.markerX - tw / 2, 12, 936 - 12 - tw),
         k: ramp(t, Dm.tag, Dm.tag + 0.4, E.lin),
+        s: 1 + 0.1 * flash(t, Dm.roll[1], Dm.roll[1] + 0.3), // a little pop as the number settles
         o: keep,
       });
-
-      // ---- the dice: pops in, rolls (shaking and hopping), lands on its face with a little squash
-      const di = t >= T.draws[1].roll[0] ? 1 : 0;
-      const Dd = T.draws[di];
-      const rolling = t >= Dd.roll[0] && t < Dd.roll[1];
-      const face = rolling ? 1 + (Math.floor((t - Dd.roll[0]) * Dd.rate) % 6) : t >= Dd.roll[1] ? Dd.face : 1;
-      const calm = rolling ? 1 - ramp(t, Dd.roll[1] - 0.25, Dd.roll[1], E.lin) : 0; // the shake dies away before it lands
-      const dk = ramp(t, T.dice, T.dice + 0.4, E.lin);
-      dice.forEach((d, i) =>
-        V.place(d, {
-          r: 14 * Math.sin(24 * t) * calm,
-          y: -14 * Math.abs(Math.sin(12 * (t - Dd.roll[0]))) * calm,
-          s: (0.6 + 0.4 * E.pop(dk)) * (1 + 0.12 * flash(t, Dd.roll[1], Dd.roll[1] + 0.3)),
-          o: i + 1 === face ? clamp(dk * 3) : 0,
-        }),
-      );
-      diceTag.set({ k: dk });
+      what.set({ k: ramp(t, T.what, T.what + 0.4, E.lin) });
 
       // ---- the winners: slice, road and village light up together, draw 1 then fades back
       const nodes = { H: { k: ramp(t, T.map, T.map + 0.4, E.lin) } };

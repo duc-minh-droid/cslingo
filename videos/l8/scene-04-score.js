@@ -103,9 +103,9 @@ VID.scene({
       trail: L8.tag(stage, { x: 341, y: 16, text: "trail", tone: "blue" }),
       close: L8.tag(stage, { x: 453, y: 16, text: "closeness", tone: "purple" }),
       score: L8.tag(stage, { x: 645, y: 16, text: "score", tone: "grey" }),
-      chance: L8.tag(stage, { x: 800, y: 16, text: "chance", tone: "orange" }),
+      chance: L8.tag(stage, { x: 780, y: 16, text: "chance", tone: "orange" }),
     };
-    const where = L8.tag(stage, { x: 12, y: 16, text: "one town, four roads", tone: "grey" });
+    const where = L8.tag(stage, { x: 12, y: 16, text: "ant at one town", tone: "grey" });
 
     // ---- the four rows
     const names = rows.map((r, i) =>

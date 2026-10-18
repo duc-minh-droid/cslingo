@@ -2,24 +2,27 @@
    deposit. First evaporation (rho = 0.5 keeps half of the old 4), then every ant that used the road adds Q over its tour
    length, so shorter tours lay more. Lesson 8.3's ledger: trail 4, rho 0.5, Q 100, three ants whose tours (25, 50, 100 km)
    all use the road. Every figure comes from L8.LEDGER (the lesson's rule, run and asserted in l8/common.js) and is
-   re-derived and asserted here. The little road above the tank swells and shrinks with the trail (4 -> 2 -> 9).
-   Story (local seconds): 0.2-0.9 the road, the floor, the tank title, four blue blocks and the disc 4 (mid-stage); 2.9-3.3
-   the red evaporation tag, 3.3-4.3 two blocks turn red, float up and fade (the disc shows 2); 4.8-5.4 the tank group
-   slides right to make room; 5.2-5.6 the green deposit tag and the 'L = tour length' label, then
+   re-derived and asserted here. The road swells and shrinks with the trail (4 -> 2 -> 9): it starts big on the left, facing
+   the tank on the right (so the stage is full from the first second), then glides up to sit over the tank.
+   Story (local seconds): 0.2-0.9 the big road, the floor, the tank title, four blue blocks and the disc 4; 2.9-3.3
+   the red evaporation tag, 3.3-4.3 two blocks turn red, float up and fade (the disc shows 2); 4.8-5.4 the road shrinks up to
+   the tank to make room; 5.2-5.6 the green deposit tag, the 'L = tour length' label and 'ants using this road', then
    one row per ant (ant and tour chip, arrow, 'Q / L = deposit' chip) whose green blocks fly into the tank (the disc counts
    6, 8, 9); 9.2-10.0 the short tour's chip and the long tour's chip pulse (shorter tours leave more); 10.6-11.3 the
    result: 2 + 7 = 9, the two blue blocks and the seven green blocks flash as their numbers pop. 11.3-12.5 hold. */
+
 VID.scene({
   kicker: "THE UPDATE",
   title: ["Evaporate,", "then deposit"],
   dur: 12.5,
-  caps: [
-    [0.5, 2.7, "This road carries a trail of 4."],
+  // the captions' numbers come from the same asserted ledger as the figure
+  caps: ((LG) => [
+    [0.5, 2.7, `This road carries a trail of ${LG.tau}.`],
     [3.0, 5.0, "Evaporation: half of it fades."],
-    [5.4, 8.8, "Each ant adds Q over its tour length."],
+    [5.4, 8.8, "Each ant that used it adds Q over its tour length."],
     [9.1, 10.6, "Shorter tours leave more."],
-    [10.7, 12.3, "New trail: 2 + 7 = 9."],
-  ],
+    [10.7, 12.3, `New trail: ${(1 - LG.rho) * LG.tau} + ${LG.deps.reduce((a, b) => a + b, 0)} = ${LG.next}.`],
+  ])(VID.l8.LEDGER),
   build(stage, V) {
     const L8 = V.l8;
     const L5 = V.l5;
@@ -83,22 +86,25 @@ VID.scene({
 
     // ---- layout (stage px): the tank on the right, one row per ant on the left
     const SLOT = 9;
-    const SHIFT = -270; // how far left the tank group starts
     L8.same(SLOT, evap + delta, "scene 7: the tank holds the new trail, one block per unit");
     const BX = 670;
     const slotY = (i) => 518 - 44 * i; // block i from the floor up, 36 px high with an 8 px gap
-    const ROWY = (i) => 240 + 104 * i;
+    const ROWY = (i) => 252 + 104 * i;
     const [EQX, EQW] = [300, 260];
     const LAUNCH = EQX + EQW + 52; // where a block leaves its chip: the free column between the rows and the tank
-    // the tank group (road, title, blocks, disc) sits mid-stage first, then slides right to make room for the ants
+    // the tank (title, blocks, disc) stays on the right; the road it measures starts big on the left and glides up over it
     const tank = V.h("div", { style: L8.abs(0, 0, 936, 640) });
     stage.append(tank);
     const tsvg = L5.svg(tank);
     const svg = L5.svg(stage);
 
-    // the road this is about: two villages and a road whose width follows the trail
-    const ROAD = { x0: 664, x1: 826, y: 44 };
-    const road = tsvg.appendChild(
+    // the road this is about: two villages and a road whose width follows the trail (drawn in a box centred on its final spot)
+    const ROAD = { x0: 30, x1: 190, y: 30 }; // inside the box
+    const BOX = { x: 635, y: 14, w: 220, h: 60 }; // the box's final place on the stage (centre 745, 44)
+    const BIG = { x: 250, y: 270, s: 2 }; // where the big road sits at the start (its centre) and its scale
+    const roadBox = V.h("div", { style: L8.abs(BOX.x, BOX.y, BOX.w, BOX.h) });
+    stage.append(roadBox);
+    const road = L5.svg(roadBox, BOX.w, BOX.h).appendChild(
       V.s("line", {
         x1: ROAD.x0,
         y1: ROAD.y,
@@ -119,7 +125,7 @@ VID.scene({
         style: { stroke: "var(--line-2)" },
       }),
     );
-    const towns = [ROAD.x0, ROAD.x1].map(() => L8.token(tank, { tone: "grey", size: 40 }));
+    const towns = [ROAD.x0, ROAD.x1].map(() => L8.token(roadBox, { tone: "grey", size: 40 }));
     const title = L8.tag(tank, { x: 610, y: 96, text: "trail on this road", tone: "blue" });
     const disc = L8.disc(tank, { x: 876, y: 340, size: 76, text: String(run[0]), tone: "blue" });
 
@@ -136,9 +142,11 @@ VID.scene({
     L8.same(green.length, delta, "scene 7: one green block per unit deposited");
 
     // the left side: the two rule tags and the three ants
-    const tagEvap = L8.tag(stage, { x: 12, y: 12, text: `evaporation: ρ = ${LG.rho}`, tone: "red" });
-    const tagDep = L8.tag(stage, { x: 12, y: 86, text: `deposit: Q / L, Q = ${LG.Q}`, tone: "green" });
-    const tourLab = L8.label(stage, { x: 12, y: 150, w: 250, text: "L = tour length", tone: "grey", align: "left" });
+    const tagEvap = L8.tag(stage, { x: 18, y: 14, text: `evaporation: ρ = ${LG.rho}`, tone: "red" });
+    const tagDep = L8.tag(stage, { x: 18, y: 78, text: `deposit: Q / L, Q = ${LG.Q}`, tone: "green" });
+    const tourLab = L8.label(stage, { x: 18, y: 156, w: 240, text: "L = tour length", tone: "grey", align: "left" });
+    // only the ants that walked this road add to it
+    const usingTag = L8.tag(stage, { x: 270, y: 146, text: "ants using this road", tone: "grey" });
 
     // a chip holding an equation: numbers as text, signs drawn as SVG
     const eqChip = (o) => {
@@ -161,7 +169,7 @@ VID.scene({
       c.tile.append(V.h("div", { style: { display: "flex", alignItems: "center", gap: "6px" } }, ...o.parts.map(part)));
       return c;
     };
-    const ants = ROWS.map((_, i) => svg.appendChild(L8.ant(48, ROWY(i), 64)));
+    const ants = ROWS.map((_, i) => svg.appendChild(L8.ant(52, ROWY(i), 64)));
     const tours = LG.lens.map((len, i) =>
       L8.chip(stage, { x: 96, y: ROWY(i) - 32, w: 130, h: 64, text: `${len} km`, tone: "grey", fs: 34, radius: 20 }),
     );
@@ -216,11 +224,14 @@ VID.scene({
     const pulseOf = (t, a) => flash(t, T.pulse[a][0], T.pulse[a][1]);
 
     return (t) => {
-      // ---- the tank group: mid-stage at first, then right
-      V.place(tank, { x: SHIFT * (1 - ramp(t, T.slide[0], T.slide[1], E.inOut)) });
-
-      // ---- the road, the floor, the tank title
+      // ---- the road: big on the left at first, then it glides up over the tank; the floor and the tank title
       const open = ramp(t, T.open, T.open + 0.5, E.lin);
+      const glide = ramp(t, T.slide[0], T.slide[1], E.inOut);
+      V.place(roadBox, {
+        x: (BIG.x - (BOX.x + BOX.w / 2)) * (1 - glide),
+        y: (BIG.y - (BOX.y + BOX.h / 2)) * (1 - glide),
+        s: 1 + (BIG.s - 1) * (1 - glide),
+      });
       V.place(floor, { o: ramp(t, T.open, T.open + 0.4, E.lin) });
       V.place(road, { o: open });
       road.setAttribute("stroke-width", L8.f1(3 + 2.4 * tauAt(t)));
@@ -256,15 +267,16 @@ VID.scene({
       });
       tagEvap.set({
         k: ramp(t, T.evapTag, T.evapTag + 0.4, E.lin),
-        s: 1 + 0.12 * flash(t, T.evapTag + 0.3, T.evapTag + 0.7),
+        s: 1 + 0.05 * flash(t, T.evapTag + 0.3, T.evapTag + 0.7),
       });
 
       // ---- deposits: the label, then one row per ant
       tagDep.set({ k: ramp(t, T.depTag, T.depTag + 0.4, E.lin) });
       tourLab.set({ k: ramp(t, T.tour, T.tour + 0.4, E.lin) });
+      usingTag.set({ k: ramp(t, T.tour + 0.1, T.tour + 0.5, E.lin) });
       ROWS.forEach((r, i) => {
         const ak = ramp(t, r.ant, r.ant + 0.5, E.lin);
-        V.place(ants[i], { x: (1 - E.out(ak)) * -26, s: 0.6 + 0.4 * E.pop(ak), o: clamp(ak * 3) });
+        V.place(ants[i], { x: (1 - E.out(ak)) * -14, s: 0.6 + 0.4 * E.pop(ak), o: clamp(ak * 3) });
         const pulse = i === 0 ? pulseOf(t, 0) : i === 2 ? pulseOf(t, 1) : 0;
         tours[i].set({ k: ak, s: 1 + 0.1 * pulse });
         const dk = ramp(t, r.eq, r.eq + 0.35, E.out);
