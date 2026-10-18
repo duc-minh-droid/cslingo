@@ -1,9 +1,10 @@
 /* Lecture 8 video, scene 2: the loop. One round of the Ant System is three steps (place the ants on random towns, every ant
    builds a whole tour, update the trails) and then the loop repeats: the ants start afresh, the trails stay. Run for real on
    the five villages P Q R S T (L8.LOOP: three ants, round 1 from equal trails, round 2 from the updated trails).
-   Story (local seconds): 0.2-1.3 roads, towns and equal blue trails appear, 1.0-1.6 the three step cards, STEP 1 1.35 the ants
-   pop onto P S Q, STEP 2 3.6 the ants walk their tours (3.8-6.3, five hops of 0.5 s), STEP 3 6.6 the paths fade and the
-   trails swell or thin (6.8-8.0), REPEAT 8.4 the loop arrow draws on, 9.0 'round 2', 9.2 the ants pop onto T P S. */
+   Story (local seconds): 0.2-1.3 roads, towns and equal blue trails appear (a thin and a thick sample road define the blue
+   'trail'), 1.0-1.6 the three step cards, STEP 1 1.35 the die tumbles and the ants pop onto P S Q, STEP 2 3.6 the ants walk
+   their tours (3.8-6.3, five hops of 0.5 s), STEP 3 6.6 the paths fade and the trails swell or thin (6.8-8.0), REPEAT 8.4 the
+   loop arrow draws on, 9.0 'round 2', 9.2 the ants pop onto T P S, 9.6 the legend reads 'trail = memory'. */
 VID.scene({
   kicker: "THE LOOP",
   title: ["Ants build tours,", "then the trails learn"],
@@ -55,6 +56,8 @@ VID.scene({
       loop: [8.4, 9.0],
       round2: 9.0,
       ants2: 9.2,
+      roll: [1.4, 2.0], // the die tumbles while the ants pick their towns
+      memory: 9.6,
     };
     const walkEnd = T.walk + N * T.hop;
     const stepAt = (t) => (t < T.step1 ? -1 : t < T.step2 ? 0 : t < T.step3 ? 1 : t < T.round2 ? 2 : 0);
@@ -66,19 +69,27 @@ VID.scene({
     const svg = L5.svg(stage);
     const ants = [0, 1, 2].map(() => svg.appendChild(L8.ant(0, 0, 64)));
 
-    // legend: a blue sample road says what the blue lines are
-    const sample = svg.appendChild(
-      V.s("line", {
-        x1: 24,
-        y1: 530,
-        x2: 84,
-        y2: 530,
-        "stroke-width": 14,
-        "stroke-linecap": "round",
-        style: { stroke: "var(--blue)" },
-      }),
+    // legend: a thin and a thick blue sample road say what the blue lines are (thicker = stronger trail)
+    const sample = [
+      [22, 58, 6],
+      [76, 112, 18],
+    ].map(([x1, x2, w]) =>
+      svg.appendChild(
+        V.s("line", {
+          x1,
+          y1: 530,
+          x2,
+          y2: 530,
+          "stroke-width": w,
+          "stroke-linecap": "round",
+          style: { stroke: "var(--blue)" },
+        }),
+      ),
     );
-    const legend = L8.tag(stage, { x: 104, y: 508, text: "trail", tone: "blue" });
+    const legend = L8.tag(stage, { x: 134, y: 508, text: "trail", tone: "blue" });
+    // the last beat: the trails are the colony's memory
+    const memEq = svg.appendChild(L8.mark("equals", 274, 530, 40, "grey"));
+    const memory = L8.tag(stage, { x: 306, y: 508, text: "memory", tone: "blue" });
     const roundTag = L8.tag(stage, { x: 10, y: 6, text: "round 1", tone: "grey" });
 
     // ---- the three step cards on the right, each with a number disc and a label
@@ -90,11 +101,12 @@ VID.scene({
       L8.disc(stage, { x: 636, y: 90 + 140 * i + 48, size: 52, text: String(i + 1), tone: "orange" }),
     );
     const labels = NAMES.map((name, i) =>
-      L8.label(stage, { x: 680, y: 90 + 140 * i + 28, w: 200, text: name, align: "left", fs: 32 }),
+      L8.label(stage, { x: 674, y: 90 + 140 * i + 29, w: 206, text: name, align: "left", fs: 30 }),
     );
-    // a die on card 1: the towns are chosen at random
-    const die = svg.appendChild(L5.dice(852, 138, 44, { face: 5, tone: "orange" }));
-    const loop = svg.appendChild(L5.arrow(888, 418, 888, 138, "grey", 1, { w: 6, head: 20, bow: -24 }));
+    // a die on card 1 (the towns are chosen at random) and the loop arrow, on a layer above the cards
+    const top = L5.svg(stage);
+    const dice = [1, 2, 3, 4, 5, 6].map((face) => top.appendChild(L5.dice(852, 138, 44, { face, tone: "orange" })));
+    const loop = top.appendChild(L5.arrow(888, 418, 888, 138, "grey", 1, { w: 6, head: 20, bow: -24 }));
 
     // ---- where an ant is: standing on a town, or walking a road (blended over 0.2 s at both ends of a hop)
     const rest = (town) => net.rest(town);
@@ -143,8 +155,11 @@ VID.scene({
 
       // ---- legend and round tag
       const legK = ramp(t, 0.9, 1.3, E.lin);
-      V.place(sample, { o: legK });
+      sample.forEach((g) => V.place(g, { o: legK }));
       legend.set({ k: legK });
+      const memK = ramp(t, T.memory, T.memory + 0.4, E.lin);
+      V.place(memEq, { o: memK });
+      memory.set({ k: memK, s: 1 + 0.12 * flash(t, T.memory + 0.3, T.memory + 0.7) });
       roundTag.set({
         text: t >= T.round2 ? "round 2" : "round 1",
         k: ramp(t, T.round, T.round + 0.4, E.lin),
@@ -162,7 +177,17 @@ VID.scene({
         discs[i].set({ tone: on ? "orange" : "grey", k, s: bump });
         labels[i].set({ tone: on ? "orange" : "grey", bold: on, k });
       });
-      V.place(die, { o: L8.seq(t, T.cards, 0.15, 0.4, 0), r: 14 * flash(t, T.ants1, T.ants1 + 0.7) });
+      // the die tumbles through its faces while the ants pick their towns, then settles on 5
+      const dieK = L8.seq(t, T.cards, 0.15, 0.4, 0);
+      const rolling = t >= T.roll[0] && t < T.roll[1];
+      const face = rolling ? 1 + (Math.floor((t - T.roll[0]) * 10) % 6) : t < T.roll[0] ? 3 : 5;
+      dice.forEach((d, i) =>
+        V.place(d, {
+          o: i + 1 === face ? dieK : 0,
+          r: rolling ? 16 * Math.sin(26 * t) : 0,
+          s: rolling ? 1.08 : 1,
+        }),
+      );
 
       // ---- the loop arrow draws on from card 3 up to card 1
       L5.drawOn(loop, ramp(t, T.loop[0], T.loop[1], E.inOut));
