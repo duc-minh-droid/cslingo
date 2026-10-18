@@ -1,0 +1,88 @@
+{
+  "findings": [
+    {
+      "scene": "video (all scenes with captions; worst in scene-06, scene-08, scene-09, scene-07, scene-05)",
+      "severity": "must",
+      "problem": "Captions are too long for the time they are on screen, so a first-time learner cannot read them. Lecture 7 has 42 captions (lectures 5 and 6 have 23 and 24) and 23 of them need more than 20 characters per second (median 21.0 cps; l5 median 11.5, l6 9.1, l8 16.5), 11 need more than 25 cps. The engine also spends 0.25 s on each fade, so the fully visible time is shorter still. Worst cases (window, chars, cps): s6 6.4-8.0 'That is stigmergy: talking through the environment.' 51 chars 31.9 cps (the banner already says it); s8 12.6-13.8 'The tour is 4 + 6 + 3 + 5 = 18 long.' 36 chars, 1.2 s, only 0.7 s at full opacity; s9 0.6-2.4 'The ant has finished its tour. Now the trails update.' 53 chars 29 cps; s7 8.2-10.0 'A stronger trail has a higher chance of being picked.' 53 chars 29 cps; s5 2.6-4.6 'Ants walk at the same speed, so the short trip ends first.' 58 chars 29 cps; s8 5.0-6.8 'The weights become chances, and the dice picks one.' 51 chars 28 cps; s10 9.8-11.6 'Even though the first ants found only long tours.' 27 cps; s8 10.0-12.4 (61 chars) and s8 7.0-9.8 'Visited towns go into its tour memory, so it never repeats one.' (63 chars, the longest) also break the 'captions short' house rule (l5/l6 maximum is 54 chars).",
+      "fix": "Aim at 17 cps or less measured over the window (about 34 chars for a 2.0 s window, 40 for 2.4 s) and drop captions that only repeat a label on screen. Suggested rewrites: s6 'That is stigmergy.' (banner carries the rest); s8 last caption 'Tour length: 18.' or delete it (the card shows the sum) and start it at 12.5; s9 first 'Tour done. Now the trails update.'; s7 'A stronger trail gets picked more.'; s5 'The short trip ends first.'; s8 'Weights become chances; dice picks.' / 'Memory stops it repeating a town.' / 'Then it visits the last town and goes home.' Where a beat cannot lose words, move caption starts earlier or lengthen the scene: the video is 121.5 s and the house limit is about 130, so about 8 s can be shared out (scenes 5, 8, 9, 10 gain most).",
+      "evidence": "Computed from the caps arrays of videos/l7/scene-02..10 (chars / (to - from)); compare l5 13.1 mean, l6 10.0, l8 16.2, l7 21.2. Stills: s8@13.0 (caption 'The tour is...' is only 1.2 s long), s6@8.25, s7@9.75 show the long two-line captions."
+    },
+    {
+      "scene": "scene-03-votes.js",
+      "severity": "must",
+      "problem": "The caption runs ahead of its picture. 'Thirty-one scouts are right 87% of the time.' is shown from 6.2 s to 9.0 s, but the 87% figure only appears when the bar finishes filling at 8.95 s (T.r3.fill [8.15, 8.95]); at 8.25 s the bar still reads 29%. The reader is told 87% for 2.7 s before it is on screen, and when it arrives the caption is about to go. The same happens in miniature for 'Eleven scouts vote, and the majority wins.' (3.0-6.0): the 75% bar only fills in 5.2-6.0 and the scouts are still grey until 3.9.",
+      "fix": "Split the third caption: 6.2-8.0 'Thirty-one scouts vote the same way.' (the scouts pop at 6.25 and flip 7.05-7.8), then 8.2-9.8 'Now the group is right 87% of the time.' timed to the bar fill; or move the bar fills earlier (r3.fill to about [7.2, 8.0]). Check the 11-scout caption the same way (start it at 3.9 or end the fill by 5.4).",
+      "evidence": "s3@8.25 (bar shows 29% under the caption 'Thirty-one scouts are right 87% of the time.'); s3@10.5 and s3@8.95 show the 87% only at the end. Stills in the scratchpad rev-l7-brand/a and /c."
+    },
+    {
+      "scene": "scene-09-update.js",
+      "severity": "should",
+      "problem": "Nine L7.text nodes in this scene are built with a tone but never get one: L7.text only applies its colour inside set(), and scene 9 never calls set() on them. The result is default ink (rgb 60,60,60) everywhere: 'Evaporate' and '× 0.5' (meant to be purple, the evaporation colour), 'Deposit' and 'Q = 72' (blue), 'tour length' and '18' (orange), and the two sub-lines 'every road keeps half' and 'tour roads gain Q ÷ length' (meant to be the dim grey tone). The key concept of the scene, evaporation, therefore loses its colour role exactly where the colour roles are meant to teach it. Scenes 3 and 6 and 10 do call set({}) and are fine.",
+      "fix": "Apply the colour when the node is made, in common-2.js text(): after creating el, set el.style.color = colour(base) (this fixes every caller), or call .set({}) once on each of the nine nodes in scene-09 build. Then recheck contrast: purple, blue and orange inks on var(--panel) are all at least 5.2:1.",
+      "evidence": "s9@2.75, s9@5.5, s9@8.25: 'Evaporate × 0.5' and 'Deposit' are dark grey. Computed colours at s9@8.5: tour length, 18, Evaporate, every road keeps half, × 0.5, Deposit, Q = 72, tour roads gain Q ÷ length, 72 ÷ 18 = 4 all rgb(60, 60, 60)."
+    },
+    {
+      "scene": "video (scenes 3, 5, 6, 7, 8, 9, 10)",
+      "severity": "should",
+      "problem": "The 12 px stage margin house rule is broken in most scenes: resting content sits at 0 px from the 936 x 640 stage edge. Scene 3: both header tags at y 0 and the three row labels at x 0. Scene 5: the Nest sticker at x 0 and the right panel cards ending at x 936. Scene 6: the purple banner at y 0, the two cards at x 0 and ending at 936, the Nest at x 10. Scene 7: the trail A, trail B tags and the step card at y 0, trail A pops 0.9 px above the stage. Scene 8: tour memory tag at x 0 (pops to -3), rule and row cards end at 936 (pop to 939), the rule card top is at 6, and the ant standing on A pokes 1.5 px above the stage. Scene 9: town A disc at x 6 and the ant's feelers 3 px above the stage. Scene 10: counter and tokens at x 0 and the right cards at 936 (pulse scale pushes the leader card 8 px past the stage, the counter 7 px). Nothing is cropped on the 1080 canvas (the stage sits 72 px in), and lectures 5 and 6 do the same in places, so this is a polish issue, but it is an explicit house rule and scenes 4, 7 (right column) and 9 (right panel) show the author knew how to keep it.",
+      "fix": "Shift left-hand content to x >= 12 and right-hand panels so they end at x <= 924 (for example scene 5 PANEL.x 578, w 346; scene 6 cards x 12 / 474 with w 438; scene 8 and 10 RX 508, RW 416; tags and stats y >= 12). Keep pulses (bump, 1.04-1.08 scale) from growing past 924 by shrinking the card width by the same amount, as scene 5 already does for the red card. Lift town ants by 40+ px only where there is room, or shift the maps down by 12 px (MAP_BOX y 32).",
+      "evidence": "Measured every 0.2 s over the whole video (bounding boxes minus the stage origin 72, 262): s3@4.0 tags at left 0 / top 0; s5@7.0 step card right edge 936; s6@10.0 cards 0..450 and 486..936; s8@3.5 ant top at -1.5; s10@9.0 leader card right edge 944 during its pulse."
+    },
+    {
+      "scene": "scene-04-equal.js",
+      "severity": "should",
+      "problem": "The share tags say '100% of ants' / '0% of ants' (and '90% of ants' and so on) without saying they mean the LAST 10 ants that left the nest. Read literally they are false: at the end colony 1 has sent 63 of its 77 ants over the upper bridge (82%), not 100%, and colony 2 has sent 16 of 77 (21%) over the upper one. Scene 5 does define this with a 'last 10 ants' tag, but scene 4 does not, and the numbers jump around (50%, 90%, 100%) in a way that looks like a bug if you read them as running totals.",
+      "fix": "Add a small defining tag in the legend row (for example 'last 10 ants' beside the share tags, appearing with them at 4.0 s) or write the tags as '90% of last 10'. Keep the wording identical to scene 5.",
+      "evidence": "s4@6.25 and s4@9.38: tags '90% of ants', '100% of ants', '0% of ants'; bridgeAt(L7.EQ.up, 76).n = [63, 14], bridgeAt(L7.EQ.down, 76).n = [16, 61]."
+    },
+    {
+      "scene": "scene-05-short.js",
+      "severity": "should",
+      "problem": "The third tally row, 'split 5%', is never explained: no caption mentions it, no legend defines it, and 'split' is not a word the lesson's learner has met for a colony. A first-time learner will guess 'split what?'. This breaks the 'jargon defined on screen' house rule.",
+      "fix": "Rename the label to plain words that fit the 346 px card (for example 'no winner', 'stay split' or 'no clear winner' at 28 px) and extend the last caption to cover it ('A few lock onto the long one, a few never settle.') or add a one-line tag under the three cards.",
+      "evidence": "s5@10.5 and s5@13.3: rows 'short road 85%', 'long road 10%', 'split 5%'; captions 9.8-11.8 and 12.0-13.6 mention only the short and long road."
+    },
+    {
+      "scene": "scene-02-swarm.js",
+      "severity": "should",
+      "problem": "The grey sticker 'emergent: no ant can alone' is ungrammatical and does not finish the thought, yet it is the only on-screen definition of the word 'emergent' (and the kicker of scene 3 is 'EMERGENCE'). It also appears at 8.5 s while the caption 'Yet together they find the shortest route.' is already up, and the green sticker beside it ('finds the shortest route') claims a result the scene never shows.",
+      "fix": "Reword to a complete phrase that still fits at 28 px (for example 'emergent: beyond any one ant', then re-measure TEXT_W and keep the sticker's centre at 700 with the right edge at x <= 924), and keep the green tick sticker as a teaser but make the caption say 'Together they can find the shortest route.' so it reads as the promise of the next scenes.",
+      "evidence": "s2@9.3 (hold frame) and s2@9.95: stickers 'finds the shortest route' and 'emergent: no ant can alone'."
+    },
+    {
+      "scene": "video (determinism and update purity)",
+      "severity": "nit",
+      "problem": "Result of the determinism proof: update(t) is pure. For 329 absolute times (every 0.37 s over 121.5 s) the computed state of every visible element (opacity, visibility, transform, dash, fill, stroke, geometry, text) was identical when the times were visited forwards, backwards and in a shuffled order; 0 mismatches, no page errors, and no Math.random, Date, timers, rAF, transition or animation in videos/l7 (grep). The only history-dependent pixels are the Sprout mascot of the title card (s1@0.3: 1098 pixels differ between a jumped seek and a sequential seek, because NIC.mascot/cast.js keeps its own state; lectures 5 and 6 behave the same, and the sequential order used by tools/render-video.js reproduces exactly) and 1-2 pixel anti-aliasing noise elsewhere (max 16 pixels in the recap mascot, 0-10 pixels at the other times). No change is needed in videos/l7; do not rely on seeking straight to s1@0.15-0.4 for stills of the title card.",
+      "fix": "None required. If a perfect still of the mascot pop-in is ever needed, seek 0 and 0.15 first.",
+      "evidence": "Rendered the same 77 times (7 per scene incl. 0, 0.15, 0.3) in two orders and compared PNGs: 23 differ, all within the mascot or max 1-10 pixels; DOM state comparison over 329 times in three orders: 0 differences."
+    },
+    {
+      "scene": "scene-09-update.js and scene-10-colony.js",
+      "severity": "nit",
+      "problem": "The first 0.3 s of both scenes look slightly broken: roads and trails draw before their towns have popped in. s9@0.15 shows loose orange and blue stubs where the towns will be, s9@0.3 shows the C-D road drawn straight through the half-transparent C disc, and s10@0.15 shows three stray blue dots (round line caps of zero-length dashes, widths of the full trails) at A, B and C.",
+      "fix": "Start the road grow a little later than the town pops (grow ramp from 0.3 instead of 0.1 and 0.2) or hide a trail until its dash length is at least 2 px (V.show(trail, grow > 0.05)).",
+      "evidence": "s9@0.15, s9@0.3, s10@0.15 (contact sheet rev-l7-brand/sheets/boundary.png)."
+    },
+    {
+      "scene": "scene-06-stigmergy.js",
+      "severity": "nit",
+      "problem": "Beat A and beat B overlap: the left card starts to pop at 8.2 s while the beat A picture (ground band, dots, nest and food) is still fading until 8.3 s, so for about 0.1 s a faint Nest, Food and dotted trail show behind and through the Sign-based card, and the caption 'Scent is a sign. Building itself can also prompt others.' (8.4) starts before the right card's drop animation (9.0).",
+      "fix": "Start the cards at 8.3 and the second caption at 8.8, or fade beat A out by 8.0.",
+      "evidence": "s6@8.25."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "nit",
+      "problem": "Colour roles: row 1 ('Simple ants, no boss') uses a purple card, but purple means evaporation or rewriting everywhere else in this video (and in the same recap, row 2's purple dots). Rows 2 and 3 use blue (pheromone) and green (short tour), which match their roles. The recap also leaves the lowest 140 px empty under the call-to-action sticker.",
+      "fix": "Use an orange or grey card for row 1 (no leader = the crown and choice colours), keep purple for the evaporation dots only. Optionally move the CTA down 20 px and add 20 px between rows.",
+      "evidence": "s11@4.5 and s11@8.95."
+    },
+    {
+      "scene": "video (engine, no l7 action)",
+      "severity": "nit",
+      "problem": "Kicker lines ('SWARMS', 'THE DOUBLE BRIDGE', 'RECAP' ...) are 24 px (css .v-kicker in videos/video.css), which is below the house minimum of 28 px for text. Every other text in lecture 7 is 28 px or more (checked on all elements every 0.2 s) and nothing is dimmed below full opacity (no text held below 0.78 opacity). This one is inherited from the shared stylesheet that lectures 5, 6 and 8 also use, and video.css may not be edited here.",
+      "fix": "No change in videos/l7. If the series stylesheet is ever revised, raise .v-kicker to 28 px.",
+      "evidence": "Computed font sizes at s2@5.0 (kicker 24 px) and s11@4.5; audit of all stage and caption text: minimum 28 px."
+    }
+  ]
+}
