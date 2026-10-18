@@ -226,20 +226,20 @@
           const disc = L7.disc(card.el, { x: 42, y: 39, size: 56, text: o.town, tone: "grey" });
           const span = (text, st2) => V.h("span", { text, style: { display: "inline-block", ...st2 } });
           const sTau = span(L7.fmt(o.tau), {});
-          const sOp = span("÷", { margin: "0 8px" });
+          const sOp = span("÷", { margin: "0 6px" });
           const sD = span(String(o.d), {});
-          const sRes = span(`= ${L7.fmt(o.w)}`, { marginLeft: "10px" });
+          const sRes = span(`= ${L7.fmt(o.w)}`, { marginLeft: "8px" });
           const eq = V.h(
             "div",
             {
               style: {
                 position: "absolute",
-                left: "84px",
+                left: "80px",
                 top: "0",
                 height: "78px",
                 display: "flex",
                 alignItems: "center",
-                fontSize: "33px",
+                fontSize: "30px",
                 fontWeight: "900",
                 whiteSpace: "nowrap",
               },

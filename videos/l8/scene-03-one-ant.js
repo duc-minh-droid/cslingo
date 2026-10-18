@@ -149,7 +149,8 @@ VID.scene({
     // ---- one town's look at time t: red once visited, green while it is allowed, a ring for the choice being made
     function town(id, t) {
       const st = { k: L8.seq(t, 0.2, 0.08, 0.4, F.ids.indexOf(id)) };
-      if (t >= visitedAt[id] && t < CLEAR[0] + 0.1) st.tone = "red";
+      if (t >= CLEAR[0] + 0.1) return st; // a new tour: every town is plain again
+      if (t >= visitedAt[id]) st.tone = "red";
       else if (t >= greenAt[id]) st.tone = "green";
       const k = Math.floor((t - S0) / SD);
       if (k < 0 || k > 3 || !ONE.steps[k].J.includes(id)) return st;
