@@ -2,7 +2,7 @@
    A ring of eight identical ants joined to their neighbours by short links. A blue pulse hops from ant to ant (information only
    travels between neighbours, nothing sits in the middle). Then the centre shows the crown that is NOT there: a crown, crossed out,
    'no leader'. The two stickers at the bottom name the surprise: the group still finds the shortest route (emergent).
-   Concept picture, not a simulation. Local seconds: 0.2-1.5 ants pop clockwise, 1.6-2.8 links draw on, 1.8 'neighbours only',
+   Concept picture, not a simulation. Local seconds: 0.2-1.5 ants pop clockwise, 1.6-2.8 links draw on, 1.8 'only what is near',
    3.0 the pulse starts, 5.6 crown, 6.3 cross, 6.9 'no leader', 7.8 green sticker, 8.5 'emergent'. */
 (function () {
   const V = window.VID;
@@ -50,10 +50,10 @@
   const PULSE0 = 3.0;
   // widths of the tag texts (28 px, weight 900) as the browser draws them, rounded up
   const TEXT_W = {
-    "neighbours only": 219,
+    "only what is near": 234,
     "no leader": 128,
-    "finds the shortest route": 323,
-    "emergent: no ant can alone": 370,
+    "finds short routes": 243,
+    "emergent: beyond any one ant": 411,
   };
 
   const f1 = (n) => n.toFixed(1);
@@ -67,12 +67,12 @@
   V.scene({
     kicker: "SWARMS",
     title: ["Simple ants,", "clever colony"],
-    dur: 10,
+    dur: 10.6,
     caps: [
       [0.4, 2.8, "A colony is many identical, simple ants."],
-      [3.0, 5.6, "Each one only reacts to its neighbours."],
-      [6.2, 7.7, "There is no leader giving orders."],
-      [7.8, 9.6, "Yet together they find the shortest route."],
+      [3.0, 5.6, "Each one only reacts to what is near it."],
+      [6.4, 8.2, "No leader gives the orders."],
+      [8.3, 10.5, "Together they can find short routes."],
     ],
     build(stage) {
       // layer 1: the links, under everything
@@ -93,7 +93,12 @@
       const antLayer = L5.svg(stage);
       const ants = ring.map(() => antLayer.appendChild(L7.ant(0, 0, SIZE)));
       // the pulse (HTML, above the ants), then the tags
-      const pulse = L7.token(stage, { tone: "blue", size: 26 });
+      const pulse = L7.token(stage, { tone: "grey", size: 26 }); // a dark message dot, not blue: blue is kept for pheromone
+      Object.assign(pulse.el.style, {
+        background: "var(--ink)",
+        borderColor: "var(--ink)",
+        boxShadow: "0 3px 0 var(--ink)",
+      });
       // tags are centred on a given x: their width is the measured 28 px bold text plus the tag's own padding and border (42 px)
       const centred = (text, cx, y, tone, solid, extra = 0) => {
         const w = TEXT_W[text] + 42 + extra;
@@ -101,11 +106,11 @@
         t.el.style.width = `${w}px`;
         return { t, left: cx - w / 2 };
       };
-      const near = centred("neighbours only", CX, 262, "grey", false).t;
+      const near = centred("only what is near", CX, 262, "grey", false).t;
       const lead = centred("no leader", CX, 372, "red", true).t;
-      const found = centred("finds the shortest route", 260, 548, "green", true, 46);
+      const found = centred("finds short routes", 260, 548, "green", true, 46);
       found.t.el.style.paddingLeft = "64px"; // room for the tick on the left (46 px more than the usual 18)
-      const emerge = centred("emergent: no ant can alone", 700, 548, "grey", false).t;
+      const emerge = centred("emergent: beyond any one ant", 690, 548, "grey", false).t;
       // layer 3: the crown, its cross and the tick, above the tags
       const over = L5.svg(stage);
       const crown = over.appendChild(L7.crown(CX, 280, 130, "orange"));

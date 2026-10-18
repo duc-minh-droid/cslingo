@@ -292,8 +292,9 @@
         ...(w ? { whiteSpace: "normal" } : {}),
       },
     });
-    parent.append(el);
     const colour = (t) => (t === "ink" ? "var(--ink)" : t === "dim" ? "var(--text-dim)" : L7.tone(t).ink);
+    el.style.color = colour(base); // the colour is right from the first frame, even if set() is never called
+    parent.append(el);
     return {
       el,
       set(st = {}) {

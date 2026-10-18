@@ -128,12 +128,12 @@
         ground[k].style.strokeDasharray = trail[k].style.strokeDasharray = halo[k].style.strokeDasharray = dash;
         trail[k].setAttribute("stroke-width", f1(wd));
         trail[k].style.stroke = L7.tone(tone || "blue").c;
-        V.show(trail[k], wd > 0.5 ? dim : 0);
-        V.show(ground[k], grow > 0.001 ? dim : 0);
+        V.show(trail[k], wd > 0.5 && grow > 0.04 ? dim : 0); // no round-capped dot while a road has barely started
+        V.show(ground[k], grow > 0.02 ? dim : 0);
         const hl = st.halo && st.halo[k];
         halo[k].setAttribute("stroke-width", f1(wd + 20));
         if (hl) halo[k].style.stroke = L7.tone(hl).dim;
-        V.show(halo[k], hl ? dim : 0);
+        V.show(halo[k], hl && grow > 0.04 ? dim : 0);
       });
       keys.forEach((k) => {
         const p = st.pills && st.pills[k];

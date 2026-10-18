@@ -1,0 +1,151 @@
+{
+ "findings": [
+  {
+   "scene": "scene-08-snowball.js (also scene-09-variants.js, scene-02-loop.js)",
+   "severity": "must",
+   "problem": "The word 'round' means two different things and neither is defined. Scenes 2 and 8 use it as the loop counter ('round 1', 'round 2', 'round 7'), but scene 8 also uses it for a tour of the villages: 'trail on best round', 'ants on the best round', the captions 'Short rounds leave more trail...' and 'one short round'. In the same frame the grey tag 'round 6' sits next to the stat 'trail on best round 83%'. Scene 9 repeats it ('40 runs, 20 rounds each' beside 'trail on the best round' and 'stuck on a poor round'). Scenes 3, 7 and 9 already call the loop of villages a 'tour', so a first-time learner reads 'best round' as 'best iteration' and the key statistic of the scene stops making sense.",
+   "fix": "Keep 'round' for the loop counter only and say 'tour' for the villages loop everywhere: stat 'trail on best tour', tag 'ants on the best tour', captions 'Short tours leave more trail, so more ants follow.' and 'The colony settles on one short tour.' In scene 9: 'trail on the best tour', 'stuck on a poor tour: over 116 km', captions '...pile trail on the best tour.' and 'But more runs get stuck on a poor tour.' (or, alternatively, rename the counter tag to 'loop 6' and leave 'best round'; but pick one meaning).",
+   "evidence": "Stills lecture-8-s8-6.5.png (round 6 tag beside 'trail on best round 83%'), s8-12.4, s9-10.8 ('20 rounds each' and 'poor round'), s2-10.2 ('round 2' as an iteration). stills in /tmp/claude-0/-home-user-cslingo/962177ed-7999-51dd-b65e-c3a2043e7aab/scratchpad/review-l8-clarity/stills (lecture-8-sN-T.png, T = local seconds)"
+  },
+  {
+   "scene": "scene-02-loop.js",
+   "severity": "should",
+   "problem": "Step 3 (update the trails) is shown but not explained, and Step 2 hides what it should show. All three ants lay their tours as the same orange overlay, so by 5.2 s nine of the ten roads are orange and a learner cannot tell which ant walked where; at 4.5 s and 5.2 s two ants sit on top of each other (Q-R, S) and the orange ants vanish into the orange paths. At 6.8 to 8.0 s some roads swell and R-T thins, but nothing says why (P-T and R-S are thickest because all three ants used them) or that the unused road fades. The caption only says 'update the trails'.",
+   "fix": "Give the tours a readable structure without new colours: draw each ant's tour one after another (or offset the three overlays by 4 px) and badge the ants 1, 2, 3 with L8.disc. During the swell add three small count tags on the roads that change ('3 ants' on P-T and R-S, '0' on R-T) and word caption 3 'Roads that ants used get thicker; the rest fade.' (9 words). Use a darker orange outline on the walking ants or stop them short of overlaps.",
+   "evidence": "Stills lecture-8-s2-4.5.png, s2-5.2.png (two ants stacked, nine orange roads), s2-6.0.png, s2-8.5.png (thick roads with no reason given)."
+  },
+  {
+   "scene": "scene-04-score.js",
+   "severity": "should",
+   "problem": "The last beat (scores to total to chance) is the part a learner most needs to see and is the quickest. The three scores are added into the total at 0.15 s apart (about 9.5 to 9.95 s), so '0.5 + 1 + 1 = 2.5' is gone in under half a second, the plus signs are never drawn and the ring only flashes on each chip. Then the chances 20 / 40 / 40 / 0 pop in with no division shown, so the learner has to take 'share of the total' on trust (0.5 / 2.5 is never on screen).",
+   "fix": "Slow the sum to about 0.4 s per score and draw two L8.mark('plus') signs between the red/grey score chips (or a running '0.5, 1.5, 2.5' on the total). Then show one derivation for Ash ('0.5 / 2.5 = 20%') as the first chance chip pops, or flash each score chip as its chance chip appears. There is about 1.6 s of dead hold at 3.6 to 5.2 s that can be shortened to pay for this.",
+   "evidence": "Stills lecture-8-s4-9.0.png, s4-9.5.png (total 0.5, ring on Ash), s4-9.85.png (total already 2.5), s4-10.5.png (chance chips with no working)."
+  },
+  {
+   "scene": "scene-05-dice.js",
+   "severity": "should",
+   "problem": "The die does not match the number it is meant to produce. A six-sided die rolls and lands on 4, then the pointer drops at u = 0.31; the second die lands on 2 and the pointer drops at u = 0.08. Nothing links a face (an integer) to u (a decimal between 0 and 1), so a learner may think the face 4 or 2 selects the road. The tag 'u = random number' helps, but the die is decorative and misleading.",
+   "fix": "Replace the die with a number readout that flickers through random decimals ('u = 0.77, 0.12, 0.54 ...') and settles on 0.31 (then 0.08) while the pointer slides along the strip, or keep the die only as a small 'random' icon beside the readout without faces. Title could become 'Then draw a random number'.",
+   "evidence": "Stills lecture-8-s5-1.8.png (die shows 4 mid-roll), s5-3.6.png (die 4, u = 0.31), s5-6.1.png (die 2, pointer for 0.08)."
+  },
+  {
+   "scene": "scene-06-dials.js",
+   "severity": "should",
+   "problem": "Captions 3 and 4 start about 1 s before their picture arrives, and the setting tag claims the end state early. Caption 3 ('Alpha 0: trails ignored, the nearest wins.') appears at 6.0 s but the alpha knob only reaches 0 at about 7.0 s and the 82% label at 7.2 s; at 6.5 s the knob reads 0.3 and beta 2.4 while the tag already says 'alpha = 0: trails ignored'. Caption 4 ('Beta 0: only trails count...') appears at 9.2 s, the knob reaches 0 at about 10.1 s and the 74% label at 10.3 s; at 9.6 s beta shows 0.9 beside the tag 'beta = 0: closeness ignored'. Caption 1 ('Two dials set what the ants trust.') is also word for word the headline.",
+   "fix": "Start caption 3 at about 6.9 s and caption 4 at about 10.1 s (end them where they end now, or shorten holds) and change the mode tag text only when its knob lands (alpha 0 at 7.0, beta 0 at 10.1). Replace caption 1 with something the headline does not already say, for example 'Same ants and roads, two settings.'",
+   "evidence": "Stills lecture-8-s6-6.5.png (alpha 0.3, beta 2.4, tag already 'alpha = 0'), s6-9.6.png (alpha 2.1, beta 0.9, tag 'beta = 0'), s6-7.5.png and s6-10.8.png (the states the captions describe)."
+  },
+  {
+   "scene": "scene-06-dials.js",
+   "severity": "should",
+   "problem": "Closeness is drawn as a distance, which contradicts scene 4 and teaches the wrong direction. In scene 4 distance is grey ('Ash · 2 km') and closeness is the purple chip '1/2'. In scene 6 the purple chips read '2 km', '10 km', and the beta dial ('closeness') and its tag pulse these chips at 4.2 to 5.2 s, so a learner reads 'closeness = 10 km' (bigger is better?). The purple colour role (closeness) is not kept.",
+   "fix": "Show distance in grey ('2 km' in a grey chip, as in scene 4) and show closeness as a purple chip ('1/2', '1/4', '1/5', '1/8', '1/10', fs 28 or more); pulse those on the beta beat. Alternatively keep km grey and add the purple '1/d' chips beside them.",
+   "evidence": "Stills lecture-8-s6-4.6.png (purple '2 km ... 10 km' chips pulsing under the 'closeness' tag) against s4-5.0.png (grey km, purple 1/d)."
+  },
+  {
+   "scene": "scene-07-update.js",
+   "severity": "should",
+   "problem": "The scene never says why these three ants deposit on this road. The ant rows show only an ant, a tour length and 'Q / L' arithmetic; nothing shows that each tour passes over the road whose tank is on the right, and 'Each ant adds Q over its tour length' reads as if every ant always adds to every road. A first-time learner will not get the key rule of the update: only ants that used the road deposit on it.",
+   "fix": "Add a small tag at 5.4 s over the ant rows, 'ants that used this road' (28 px, grey), and draw a short grey arrow (L5.arrow) from each deposit chip to the tank as the blocks fly, or put a tiny copy of the road (two dots and a blue line) at the left of each ant row.",
+   "evidence": "Stills lecture-8-s7-6.4.png, s7-8.9.png (three ant rows, no link to the road on the right)."
+  },
+  {
+   "scene": "scene-07-update.js",
+   "severity": "should",
+   "problem": "The stage is mostly empty for the first 5 s. From 0.2 to 5.2 s the only content is a small 200 px road, one tag and a 2-4 block stack in the middle column (x about 410 to 720 of 1080), with blank space left, right and below, then everything slides to the right at about 5.2 s when the left column arrives. Balance only recovers after 6 s.",
+   "fix": "Lay the scene out in its final arrangement from the start: tank and road on the right, and pop the two tags (evaporation, deposit) and the 'L = tour length' line on the left as they are introduced, or enlarge the tank blocks (about 60 px high) and the road so the first beats fill the stage; avoid the late sideways slide.",
+   "evidence": "Stills lecture-8-s7-0.5.png, s7-2.5.png, s7-4.6.png (centred and sparse), s7-5.4.png (the slide), s7-9.4.png (final balance)."
+  },
+  {
+   "scene": "scene-08-snowball.js",
+   "severity": "should",
+   "problem": "The 'ants on the best round' dots and the fast time-lapse do not support the caption 'so more ants follow'. The count per round is 1, 1, 0, 4, 5, 4, 6, 6, 9, 10, 10, 10, 10, 10, so it flickers (round 3 shows no orange dot at all while the trail share is 66%, 5.0 s) and each round lasts only 0.54 s, with the round tag, best tag, share counter and ten dots all changing at once. The label 'trail on best round' (the share of all trail lying on the best tour's roads) is never explained.",
+   "fix": "Slow the first four rounds (about 0.8 s each, where the story is) and speed up the settled tail, hold each count for a beat, and avoid the empty round-3 frame (for example show the best-so-far tour's dots as 'ants on the best tour in this round' with a short tag 'only 0 this time' or use the lesson's seed only if its counts rise; a monotone run would be better). Add a short definition tag at 1.6 s: 'share of all trail on the best tour'.",
+   "evidence": "Stills lecture-8-s8-5.png (round 3: 66% and no orange dots), s8-6.5.png (4 dots at round 6), s8-9.5.png (round 12). Data from VID.l8.SNOW.hist."
+  },
+  {
+   "scene": "scene-09-variants.js",
+   "severity": "should",
+   "problem": "For the first 3.3 s the stage shows three identical rows of grey chips (48 52 55 60 71 80 three times) pushed to the right, with no row labels and the left 40% of the stage empty; the caption asks 'Which of them add trail?' but the viewer cannot tell why there are three rows. The rule names only pop at 3.4 s.",
+   "fix": "Pop the three rule tags with their rows (0.3 to 1.5 s) so the rows are labelled from the start, or show one row first and copy it twice at 3.0 s. Keep the left column filled at all times.",
+   "evidence": "Stills lecture-8-s9-1.2.png, s9-2.5.png (three unlabelled identical rows), s9-3.8.png (first tag)."
+  },
+  {
+   "scene": "scene-10-schedule.js",
+   "severity": "should",
+   "problem": "Caption 1 ('Any problem drawn as a path suits ants.', 0.5 to 2.9 s) repeats the headline almost word for word and runs about 2.5 s ahead of its picture: until 3.2 s the stage shows only five bare job nodes, a Start node and the tag 'one press, five jobs', and no problem is drawn as a path yet.",
+   "fix": "Reword the caption to what is on screen: 'A print shop: one press, five jobs.' (0.5 to 2.9 s) and move the 'suits ants' idea to the start of caption 2 or to a closing line ('Any path problem suits ants.' at 12.5 s).",
+   "evidence": "Stills lecture-8-s10-1.5.png, s10-2.5.png (nodes only under 'Any problem drawn as a path suits ants.')."
+  },
+  {
+   "scene": "scene-10-schedule.js",
+   "severity": "should",
+   "problem": "The scene shows a path being drawn but never connects it to the ant algorithm of the rest of the video. There is no trail, no closeness, no probability on the grey arrows and no feedback at the end (a short or late schedule does not lay more or less trail), so it reads as 'a schedule is a path', not 'an ant can build it with trails'. This is the scene that is meant to show the same loop on a new problem.",
+   "fix": "After the stats (about 11.3 s) draw the picked path in thick blue (pheromone) with a small tag 'low lateness = more trail', or show blue arrow widths on the first set of grey arrows at 3.2 s with a tag 'trail on each arrow'. Reuse the blue and green roles from scenes 7 and 8.",
+   "evidence": "Stills lecture-8-s10-3.6.png (grey options, no weights), s10-11.6.png (end state without trail)."
+  },
+  {
+   "scene": "scene-03-one-ant.js",
+   "severity": "nit",
+   "problem": "The red 'closed' signs are inconsistent with the caption. At step 2 a red X sits only on the road Q-T (not on Q-P, the road just walked), at step 3 only on R-P and R-T (not R-Q), and the first sign appears at 5.4 s, 0.8 s before caption 3 ('A visited town is never picked again.') starts and while caption 2 is still on screen. On the P-R road the X sits just under the Q node next to the '13' and '14' tags and is crowded.",
+   "fix": "Either mark all roads to visited towns (including the one just walked, in a lighter red) or say in caption 3 'The tabu towns are closed'; start the signs at 6.1 s. Move the P-R sign toward the middle of that road.",
+   "evidence": "Stills lecture-8-s3-5.9.png (X on T-Q under caption 2), s3-7.7.png (two signs, crowded near Q)."
+  },
+  {
+   "scene": "scene-05-dice.js",
+   "severity": "nit",
+   "problem": "The orange ant walks on the orange arrow of its own path and nearly disappears (s5-4.4, s5-7.4), and the hub the ant stands on is an unlabelled white circle, so it is not clear what it stands for (the town the ant is at).",
+   "fix": "Draw the chosen path in a darker orange or keep it behind a white-edged ant; give the hub a tag 'ant is here' or the letter of the town. Same issue in scene 2 where ants walk over orange overlays.",
+   "evidence": "Stills lecture-8-s5-4.4.png, s5-7.4.png, s5-8.8.png."
+  },
+  {
+   "scene": "scene-02-loop.js",
+   "severity": "nit",
+   "problem": "In the first second the roads draw before their towns exist: at 0.5 s all roads of T converge on an empty point and S is half faded, so the map looks broken for a moment.",
+   "fix": "Start the roads at 0.6 s (after the last town has popped, 0.2 + 0.08 x 4 + 0.4 = 0.92 s) or fade each road with the later of its two towns.",
+   "evidence": "Still lecture-8-s2-0.5.png."
+  },
+  {
+   "scene": "scene-04-score.js",
+   "severity": "nit",
+   "problem": "The scene jumps from the P Q R S T map of scenes 2 and 3 to a new setting (an ant at the left with four villages Ash, Birch, Cedar, Dale) with nothing saying this is one decision at one town; the ant shows no tabu state before Dale turns red.",
+   "fix": "Add a small grey tag at 0.4 s, 'ant at one town: four roads', and pop Dale's tag in red at 7.7 s as now (already planned).",
+   "evidence": "Stills lecture-8-s4-0.5.png, s4-2.0.png."
+  },
+  {
+   "scene": "scene-09-variants.js (also scene-06-dials.js)",
+   "severity": "nit",
+   "problem": "Bar tracks are longer than 100%, so the bars under-read: in scene 9 the 97% bar fills only about 76% of its 560 px track (full = 440) and in scene 6 the 82% bar about 64% of its 514 px track (full = 404), which weakens the 'near 100%' message and makes the empty track after the bar look like a missing 3%.",
+   "fix": "Set full equal to the track width minus room for the label (for example 560 and 514 with the % label drawn inside the bar end), or end the track at the 100% mark and put the label to the right of the track.",
+   "evidence": "Stills lecture-8-s9-9.5.png (97% bar), s6-7.5.png (82% bar)."
+  },
+  {
+   "scene": "scene-10-schedule.js",
+   "severity": "nit",
+   "problem": "Small role and term slips. The Start node is purple, but purple means closeness everywhere else; the options are plain grey arrows (scene 3 used green rings and dotted green roads for 'allowed'); the visited tag says 'visited' where scene 3 said 'tabu list'; the job letters B, L, P, T, W are never named and the durations (30 or 50 minutes) are never shown, only implied by block width.",
+   "fix": "Make Start grey or orange, show the options in the same green dotted style as scene 3, call the tag 'tabu' (or 'visited = tabu'), and put the minutes in the blocks ('50 min', '30 min') or a one-line legend 'W wraps, L leaflets, P posters, T tickets, B banner' where 28 px fits.",
+   "evidence": "Stills lecture-8-s10-0.5.png (purple Start), s10-4.8.png ('visited'), s10-10.6.png."
+  },
+  {
+   "scene": "video",
+   "severity": "nit",
+   "problem": "Several captions lead their picture by 0.5 to 0.7 s (house rule: a caption never runs ahead): scene 2 caption 4 'The trails are the memory' at 8.9 s, memory tag at 9.6 s; scene 3 caption 1 about 'towns it has visited' while the tabu list holds only T until P enters at about 3.5 s, and caption 4 'Tour length 74 km' from 8.9 s while the total shows 55 km until 9.2 to 9.5 s; scene 4 caption 5 'its chance' at 9.7 s, chance chips from 10.2 s; scene 5 caption 3 'Unlikely roads can still win' at 5.9 s, Ash slice turns orange at 6.5 s. Scene 3 caption 4 is 9 words in 2.5 s (3.6 words per second).",
+   "fix": "Shift each caption start to the moment its picture lands (about +0.6 s) or trim the first words; shorten scene 3 caption 4 to 'Back home. Tour length 74 km.'",
+   "evidence": "Timings read from the scene sources and stills lecture-8-s2-10.2.png, s3-9.2.png, s4-9.85.png, s5-5.6.png."
+  },
+  {
+   "scene": "video",
+   "severity": "nit",
+   "problem": "The 12 px stage margin is missed a little in places (mostly pop bumps): the 'round' tag in scene 2 is at x = 10 for the whole scene; the dial row in scene 6 starts at stage y 0 to 10 (27 px under the headline) and its mode tag pops out to x = -5; scene 9 rule tags sit at x = 8 to 10; the scene 10 stat stickers pop to x = -10 and the scene 8 share sticker to x = 947 of 936 at 11.0 s. The text itself is never under 28 px and never dimmer than 0.8 at rest (checked by scanning every 0.5 s).",
+   "fix": "Start left-aligned items at x 12 and end right-aligned items at x 924; drop bump scales on full-width stickers to 1.03; move the scene 6 dials down about 14 px.",
+   "evidence": "Geometry scan of the rendered DOM every 0.25 s; stills lecture-8-s6-0.4.png, s10-11.6.png, s8-11.png."
+  },
+  {
+   "scene": "scene-11-recap.js",
+   "severity": "nit",
+   "problem": "The recap covers only three ideas (loop, choice, update). The dials (scene 6), the snowball (scene 8), the three variants (scene 9) and construction graphs (scene 10) are not recalled, so about half of the video's ideas never come back.",
+   "fix": "Keep the three rows but fold them in: row 1 'Ants build tours, trails remember', row 2 'Trail and closeness set the odds (alpha, beta)', row 3 'Good tours lay more, and trails snowball'; or add one short grey line above the call to action: 'Variants and other problems next time'.",
+   "evidence": "Stills lecture-8-s11-8.9.png."
+  }
+ ]
+}

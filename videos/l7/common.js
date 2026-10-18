@@ -46,7 +46,7 @@
               { step (floor), a, b          strengths (linear between steps),
                 gainA, lossA, gainB, lossB  what the CURRENT step adds / removes (loss = rho x strength after the previous step),
                 running                     true while the ants still walk (step <= stop) }
-          At step 30: a 19.9, b 9.9, gain 4 / loss 4.0 and 2 / 2.0 (they balance); at step 50 the trails are down to 0.2 and 0.1.
+          At step 30: a 20.0, b 10.0, gain 4 / loss 4.0 and 2 / 2.0 (they balance); at step 50 the trails are down to A 0.23 and B 0.12.
 
    4. THE FOUR-TOWN ROUND  (lesson 7.4: towns A B (top), C D (bottom); roads carry a distance d and pheromone tau)
         L7.MAP = { names: "ABCD", roads: ["A-B","A-C","A-D","B-C","B-D","C-D"] (key = the two letters in order, joined by "-"),
