@@ -4,22 +4,24 @@
    lateness: finish time minus due time. This is the real run of the lesson's ant (L8.SCHED, rng 2: picks W L P T B).
    Layout note: the six nodes sit on a stretched hexagon (Start on the left, the jobs clockwise in the order the ant picks
    them), because with every pair of nodes joined no arrow may run through a third node; the build asserts a clear gap.
-   Story (local seconds): 0.1-1.0 Start and the five jobs, 0.5 the 'one press, five jobs' tag, 1.6-2.2 the ant on Start.
-   Five steps start at 3.0 + 1.2 k: thin grey arrows go from the ant's node to every job still allowed, the chosen one turns
-   orange and thick while the others fade, the ant hops there, the job turns red (a 'visited' tag explains red) and its block
-   grows into the chart (grey). 9.0-9.5 the formula late = ends - due, 9.3-9.9 the 'ends' and 'due' lines under each block,
-   10.0-10.5 the red 'late' tags, 11.2-11.75 the two stickers (average 54 min late, worst 70 min late). 12.0-13.5 hold. */
+   Story (local seconds): 0.1-1.0 Start (grey, ringed orange: it is where the ant stands) and the five jobs, 0.5 the 'one press,
+   five jobs' tag, 1.6-2.2 the ant on Start. Five steps start at 3.0 + 1.2 k ('same rule as before' tag): thin blue arrows (equal
+   trail on every choice) go from the ant's node to every job still allowed, the chosen one turns orange and thick (its colour
+   switches, nothing is blended) while the others fade, the ant hops there, the job turns red (a 'tabu' tag explains red) and its block (letter and minutes) grows into the chart (grey). 9.0-9.5 the formula late = ends - due (the visited
+   nodes go plain, so red means 'late' only from here), 9.3-9.9 the 'ends' and 'due' lines under each block, 10.0-10.5 the red
+   'late' tags, 11.2-11.75 the two stickers (average 54 min late, worst 70 min late). 12.0-13.7 hold. */
 VID.scene({
   kicker: "CONSTRUCTION GRAPHS",
   title: ["Any problem drawn", "as a path"],
-  dur: 13.5,
-  caps: [
-    [0.5, 2.9, "Any problem drawn as a path suits ants."],
-    [3.1, 5.6, "The ant leaves Start and picks a job."],
+  dur: 13.7,
+  // the captions' numbers come from the same asserted evaluation as the figure
+  caps: ((S) => [
+    [0.5, 2.9, "A print shop: five jobs, one press."],
+    [3.1, 5.6, "The ant picks a job by the same rule."],
     [5.9, 8.9, "It picks one job at a time, never twice."],
-    [9.3, 11.1, "Lateness: finish time minus due time."],
-    [11.4, 13.3, "Average 54 minutes late, worst 70."],
-  ],
+    [9.3, 11.4, "Lateness: finish time minus due time."],
+    [11.6, 13.5, `Average ${S.eval.avg} minutes late, worst ${S.eval.max}.`],
+  ])(VID.l8.SCHED),
   build(stage, V) {
     const L8 = V.l8;
     const L5 = V.l5;
@@ -90,11 +92,12 @@ VID.scene({
     const ant = svg.appendChild(L8.ant(0, 0, 70));
 
     // ---- tags, the chart and the two stickers
-    const intro = L8.tag(stage, { x: 12, y: 12, text: "one press, five jobs", tone: "grey" });
-    const visited = L8.tag(stage, { x: 791, y: 12, text: "visited", tone: "red" });
+    const intro = L8.tag(stage, { x: 18, y: 14, text: "one press, five jobs", tone: "grey" });
+    const same = L8.tag(stage, { x: 350, y: 14, text: "same rule as before", tone: "grey" });
+    const visited = L8.tag(stage, { x: 812, y: 14, text: "tabu", tone: "red" });
     const chart = L8.gantt(stage, { x: 43, y: 338, h: 66, order });
-    const avg = L8.stat(stage, { x: 12, y: 548, w: 440, h: 80, label: "average", tone: "red" });
-    const worst = L8.stat(stage, { x: 480, y: 548, w: 440, h: 80, label: "worst", tone: "red" });
+    const avg = L8.stat(stage, { x: 20, y: 548, w: 432, h: 80, label: "average", tone: "red" });
+    const worst = L8.stat(stage, { x: 484, y: 548, w: 432, h: 80, label: "worst", tone: "red" });
 
     // ---- the formula late = ends - due, top right (tags and signs pop one after another)
     const FY = 42; // tags are 61 px high, so their middle is at 12 + 30
@@ -134,44 +137,46 @@ VID.scene({
 
     return (t) => {
       // ---- arrows: thin grey options from the ant's node, the pick turns orange and thick, the others fade
+      // every option is a thin blue arrow (the same trail on each at the start); the chosen one switches to thick orange and
+      // stays as the path, the others fade away (so blue and orange are never blended)
       const options = SCHED.steps.flatMap((st, k) => {
         const s = sOf(k);
         const grow = ramp(t, s, s + 0.4, E.out);
         const fade = 1 - ramp(t, s + 0.4, s + 0.7, E.lin);
+        const mix = ramp(t, s + 0.4, s + 0.7, E.lin);
         return st.J.map((j) => {
           const pick = j === st.to;
           return {
             a: chain[k],
             b: j,
             k: grow,
-            tone: "grey",
-            w: 4,
+            tone: pick && mix > 0 ? "orange" : "blue",
+            w: pick ? lerp(4, 10, mix) : 4,
             head: true,
-            o: pick ? 1 - ramp(t, s + 0.7, s + 0.8, E.lin) : fade,
+            o: pick ? 1 : fade,
           };
         });
-      });
-      const picks = SCHED.steps.map((st, k) => {
-        const mix = ramp(t, sOf(k) + 0.4, sOf(k) + 0.7, E.lin);
-        return { a: chain[k], b: st.to, k: 1, tone: "orange", w: lerp(4, 10, mix), head: true, o: mix };
       });
       const live = (p) => p.k > 0.001 && p.o > 0.001;
 
       // ---- nodes: Start purple; a job is grey until the ant has been there, then red (a small pop as it turns)
-      const nodes = { Start: { tone: "purple", k: L8.seq(t, 0.1, 0, 0.4, 0) } };
+      const nodes = {
+        Start: { tone: "grey", ring: "orange", ringK: ramp(t, 0.5, 0.9, E.lin), k: L8.seq(t, 0.1, 0, 0.4, 0) },
+      };
       order.split("").forEach((j, k) => {
-        const red = t >= visitedAt(k);
+        const red = t >= visitedAt(k) && t < FORMULA; // red = visited, until red starts to mean 'late'
         nodes[j] = {
           k: L8.seq(t, 0.2, 0.1, 0.4, k),
           tone: red ? "red" : "grey",
           s: 1 + 0.12 * flash(t, visitedAt(k), visitedAt(k) + 0.4),
         };
       });
-      net.update({ roads: 0, paths: [...options, ...picks].filter(live), nodes });
+      net.update({ roads: 0, paths: options.filter(live), nodes });
       V.place(ant, antAt(t));
 
       // ---- tags
       intro.set({ k: ramp(t, 0.5, 0.8, E.lin) });
+      same.set({ k: ramp(t, S0 - 0.1, S0 + 0.3, E.lin), o: 1 - ramp(t, FORMULA - 0.2, FORMULA, E.lin) });
       visited.set({
         k: ramp(t, visitedAt(0) - 0.05, visitedAt(0) + 0.3, E.lin),
         o: 1 - ramp(t, FORMULA - 0.2, FORMULA, E.lin),
@@ -191,8 +196,12 @@ VID.scene({
       });
 
       // ---- the two stickers
-      avg.set({ text: `${SCHED.eval.avg} min late`, k: ramp(t, 11.2, 11.55, E.lin), bump: flash(t, 11.4, 11.8) });
-      worst.set({ text: `${SCHED.eval.max} min late`, k: ramp(t, 11.4, 11.75, E.lin), bump: flash(t, 11.6, 12.0) });
+      avg.set({ text: `${SCHED.eval.avg} min late`, k: ramp(t, 11.2, 11.55, E.lin), bump: 0.3 * flash(t, 11.4, 11.8) });
+      worst.set({
+        text: `${SCHED.eval.max} min late`,
+        k: ramp(t, 11.4, 11.75, E.lin),
+        bump: 0.3 * flash(t, 11.6, 12.0),
+      });
     };
   },
 });

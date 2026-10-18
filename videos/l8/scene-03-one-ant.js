@@ -68,8 +68,8 @@ VID.scene({
     // ---- the two lists under the map: slots (dashed) that fill and empty, chips that fly between them
     const SLOT = (i) => 200 + 80 * i;
     const [Y_TABU, Y_ALLOW] = [416, 510];
-    const tabuTag = L8.tag(stage, { x: 12, y: 425, text: "tabu list", tone: "red" });
-    const allowTag = L8.tag(stage, { x: 12, y: 519, text: "allowed", tone: "green" });
+    const tabuTag = L8.tag(stage, { x: 20, y: 425, text: "tabu list", tone: "red" });
+    const allowTag = L8.tag(stage, { x: 20, y: 519, text: "allowed", tone: "green" });
     const box = (i, y) => L8.chip(stage, { x: SLOT(i), y, w: 68, h: 68, text: "", tone: "grey", fs: 38 });
     const tabuSlots = Array.from({ length: N }, (_, i) => box(i, Y_TABU));
     const allowSlots = others.map((_, i) => box(i, Y_ALLOW));
@@ -222,7 +222,7 @@ VID.scene({
         text: none ? "none left" : "allowed",
         tone: none ? "grey" : "green",
         k: kA,
-        s: 1 + 0.1 * flash(t, CLOSE[0], CLOSE[0] + 0.4),
+        s: 1 + 0.04 * flash(t, CLOSE[0], CLOSE[0] + 0.4),
         o: 1 - clr,
       });
       allowSlots.forEach((c, i) =>

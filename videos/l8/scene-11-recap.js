@@ -2,10 +2,10 @@
    Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row,
    5.4-6.0 the call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no fade, no reset): rows 1 and 2
    are done at about 5.1, row 3 at 6.1, so for the last 2.5 seconds only Sprout's bob moves.
-   Row 1 (blue): the loop. Discs 1 2 3 joined by two grey arrows; an orange ant stands above disc 1, hops to disc 2 and disc 3
+   Row 1 (blue card, orange discs as in scene 2): the loop. Discs 1 2 3 joined by two grey arrows; an orange ant stands above disc 1, hops to disc 2 and disc 3
           (each disc bumps as it lands), then rides the grey return arrow (drawn under it) back to disc 1 and stays there.
-   Row 2 (orange): the choice. The share strip Ash 20% / Birch 40% / Cedar 40%, a dice that rolls and lands on 4, the random
-          number's pointer dropping on the strip at u = 0.31, and the Birch slice turning solid orange (the slice it landed in).
+   Row 2 (orange): the choice. The share strip Ash 20% / Birch 40% / Cedar 40%, the random number's pointer dropping on the
+          strip at u = 0.31, and the Birch slice turning solid orange (the slice it landed in). (No die: scene 5 has none either.)
    Row 3 (green): the update. Four blue blocks (the old trail 4); two turn red and float away (evaporation, rho = 0.5); seven
           green blocks pop into slots 2-8 (the deposits Q / L = 4 + 2 + 1); the tag 2 + 7 = 9 (the new trail).
    Every number comes from L8.LOOP, L8.HUB and L8.LEDGER (run and asserted in l8/common.js) and is asserted again when the
@@ -54,7 +54,7 @@
     const STEPS = ["place the ants", "build the tours", "update the trails"];
     L8.same(STEPS.length, 3, "recap row 1: three steps in a round");
     const [X, Y, SIZE, AY] = [[56, 170, 284], 54, 52, 12];
-    const discs = X.map((x, i) => L8.disc(pic, { x, y: Y, size: SIZE, text: String(i + 1), tone: "blue" }));
+    const discs = X.map((x, i) => L8.disc(pic, { x, y: Y, size: SIZE, text: String(i + 1), tone: "orange" }));
     const svg = L5.svg(pic, PIC.w, PIC.h);
     const fwd = [0, 1].map((i) =>
       svg.appendChild(L5.arrow(X[i] + 34, Y, X[i + 1] - 34, Y, "grey", 1, { w: 6, head: 18 })),
@@ -180,7 +180,7 @@
     };
   }
 
-  // ---------- row 2: roll the dice on the share strip ----------
+  // ---------- row 2: a random draw on the share strip ----------
   function diceRow(pic) {
     const rows = L8.HUB.rows.slice(0, 3); // Ash, Birch, Cedar (Dale is tabu and has no slice)
     const chance = rows.map((r) => r.p);
@@ -190,7 +190,7 @@
     L8.same(draw.u.toFixed(2), "0.31", "recap row 2: the random number");
     L8.same([rows[win].name, draw.to], ["Birch", "Birch"], "recap row 2: the slice the number lands in");
 
-    const STRIP = { x: 0, y: 66, w: PIC.w, h: 50 };
+    const STRIP = { x: 0, y: 62, w: PIC.w, h: 50 };
     const strip = L8.strip(pic, { ...STRIP, fs: 28 });
     const parts = rows.map((r) => ({ text: r.name, v: r.p, tone: "grey" }));
     const geo = strip.update({ parts, k: 1 }); // only to read where the slices sit
@@ -206,26 +206,11 @@
         },
       }),
     );
-    const FACE = 4; // the face the dice lands on (any face will do: it only says "a random number")
-    const diceSvg = L5.svg(pic, PIC.w, PIC.h);
-    const dice = [1, 2, 3, 4, 5, 6].map((f) => diceSvg.appendChild(L5.dice(36, 31, 50, { face: f, tone: "orange" })));
-    const T = { strip: [0.1, 0.7], dice: [0.7, 1.0], roll: [1.0, 1.7], rate: 12, drop: [1.7, 2.3], win: [2.4, 2.7] };
+    const T = { strip: [0.1, 0.7], drop: [1.0, 1.6], win: [2.0, 2.3] };
 
     return (q) => {
       const sk = ramp(q, ...T.strip, E.lin);
       strip.update({ parts, k: sk, marker: draw.u, markerK: ramp(q, ...T.drop, E.lin) });
-      const rolling = q >= T.roll[0] && q < T.roll[1];
-      const face = rolling ? 1 + (Math.floor((q - T.roll[0]) * T.rate) % 6) : q >= T.roll[1] ? FACE : 1;
-      const calm = rolling ? 1 - ramp(q, T.roll[1] - 0.25, T.roll[1], E.lin) : 0; // the shake dies away before it lands
-      const dk = ramp(q, ...T.dice, E.lin);
-      dice.forEach((d, i) =>
-        V.place(d, {
-          r: 10 * Math.sin(24 * q) * calm,
-          y: -6 * Math.abs(Math.sin(12 * (q - T.roll[0]))) * calm,
-          s: (0.6 + 0.4 * E.pop(dk)) * (1 + 0.12 * flash(q, T.roll[1], T.roll[1] + 0.3)),
-          o: i + 1 === face ? clamp(dk * 3) : 0,
-        }),
-      );
       V.place(hit, { o: ramp(q, ...T.win, E.lin), s: 1 + 0.06 * flash(q, T.win[0], T.win[1] + 0.2) });
     };
   }
@@ -315,8 +300,8 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["blue", "Build tours, then\nupdate the trails", loopRow],
-        ["orange", "Trail times closeness,\nthen roll the dice", diceRow],
+        ["blue", "Place, build, update:\nthe loop repeats", loopRow],
+        ["orange", "Trail times closeness,\nthen draw by chance", diceRow],
         ["green", "Evaporate, then add\nQ over tour length", trailRow],
       ].map(([tone, text, make], i) => {
         text.split("\n").forEach((line) => {

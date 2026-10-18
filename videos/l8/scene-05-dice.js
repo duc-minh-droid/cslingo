@@ -111,8 +111,8 @@ VID.scene({
     const what = L8.tag(stage, { x: 12, y: 16, text: "u: a random number from 0 to 1", tone: "orange" });
     const utag = L8.tag(stage, { x: 0, y: 108, text: "u = 0.31", tone: "orange", solid: true });
     // the flicker: fixed 'random' numbers from a seeded generator, so any frame is the same every time
-    const gen = L8.rng(37);
-    const FLICKER = Array.from({ length: 40 }, () => gen());
+    const gen = L8.rng(467);
+    const FLICKER = Array.from({ length: 40 }, () => 0.06 + 0.88 * gen()); // never right at the strip's ends
     // none of the first 14 numbers (all that are ever shown) sits close to a real draw, so a flicker never looks like a landing
     L8.same(
       FLICKER.slice(0, 14).every((x) => DRAWS.every((d) => Math.abs(x - d.u) > 0.05)),
@@ -213,9 +213,9 @@ VID.scene({
       const tw = L8.tagW(label);
       utag.set({
         text: label,
-        x: clamp(g.markerX - tw / 2, 12, 936 - 12 - tw),
+        x: clamp(g.markerX - tw / 2, 22, 936 - 22 - tw),
         k: ramp(t, Dm.tag, Dm.tag + 0.4, E.lin),
-        s: 1 + 0.1 * flash(t, Dm.roll[1], Dm.roll[1] + 0.3), // a little pop as the number settles
+        s: 1 + 0.05 * flash(t, Dm.roll[1], Dm.roll[1] + 0.3), // a little pop as the number settles
         o: keep,
       });
       what.set({ k: ramp(t, T.what, T.what + 0.4, E.lin) });

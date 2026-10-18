@@ -103,9 +103,9 @@ VID.scene({
       trail: L8.tag(stage, { x: 341, y: 16, text: "trail", tone: "blue" }),
       close: L8.tag(stage, { x: 453, y: 16, text: "closeness", tone: "purple" }),
       score: L8.tag(stage, { x: 645, y: 16, text: "score", tone: "grey" }),
-      chance: L8.tag(stage, { x: 780, y: 16, text: "chance", tone: "orange" }),
+      chance: L8.tag(stage, { x: 774, y: 16, text: "chance", tone: "orange" }),
     };
-    const where = L8.tag(stage, { x: 12, y: 16, text: "ant at one town", tone: "grey" });
+    const where = L8.tag(stage, { x: 20, y: 16, text: "ant at one town", tone: "grey" });
 
     // ---- the four rows
     const names = rows.map((r, i) =>
@@ -119,7 +119,7 @@ VID.scene({
     const slots = mk(646, 110, () => "", "grey"); // the dashed places the scores will fill
     const scores = mk(646, 110, (r) => num(r.would), "grey");
     const chances = rows.map((r, i) =>
-      L8.chip(stage, { x: 770, y: Y(i) - 38, w: 154, h: 76, text: "", tone: "orange", fs: 34 }),
+      L8.chip(stage, { x: 768, y: Y(i) - 38, w: 142, h: 76, text: "", tone: "orange", fs: 32 }),
     );
     const fraction = (r) => `${num(r.score)}/${num(H.total)}`;
 

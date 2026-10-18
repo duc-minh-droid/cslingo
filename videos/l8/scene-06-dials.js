@@ -108,18 +108,18 @@ VID.scene({
     const ruleTimes = signs.appendChild(L8.mark("times", 530, FY + 30, 32, "purple"));
     const tagClose = L8.tag(stage, { x: 556, y: FY, text: "closeness", tone: "purple" });
     const expB = L8.disc(stage, { x: 760, y: FY + 12, size: 52, text: "β", tone: "purple" });
-    const mode = L8.tag(stage, { x: 12, y: 166, text: "α = β = 1", tone: "grey" });
+    const mode = L8.tag(stage, { x: 20, y: 166, text: "α = β = 1", tone: "grey" });
     const head = L8.tag(stage, { x: 780, y: 166, text: "chance", tone: "orange" });
 
     const Y = (i) => 280 + 78 * i;
-    const BAR = { x: 486, w: 438 };
-    const names = C.map((c, i) => L8.tag(stage, { x: 12, y: Y(i) - 30, text: `${c.name} · ${c.d} km`, tone: "grey" }));
+    const BAR = { x: 490, w: 434 };
+    const names = C.map((c, i) => L8.tag(stage, { x: 18, y: Y(i) - 30, text: `${c.name} · ${c.d} km`, tone: "grey" }));
     // closeness is 1 over the distance (purple, as in scene 4); the distance itself stays grey in the name tag
     const closes = C.map((c, i) =>
-      L8.chip(stage, { x: 232, y: Y(i) - 26, w: 100, h: 52, text: `1/${c.d}`, tone: "purple", fs: 30, radius: 18 }),
+      L8.chip(stage, { x: 244, y: Y(i) - 26, w: 100, h: 52, text: `1/${c.d}`, tone: "purple", fs: 30, radius: 18 }),
     );
     const trails = C.map((c, i) =>
-      L8.chip(stage, { x: 344, y: Y(i) - 26, w: 130, h: 52, text: `trail ${c.tau}`, tone: "blue", fs: 28, radius: 18 }),
+      L8.chip(stage, { x: 356, y: Y(i) - 26, w: 126, h: 52, text: `trail ${c.tau}`, tone: "blue", fs: 28, radius: 18 }),
     );
     // a bar is a share of 1, so its track ends at 100 %; a favourite's share is written inside the end of its bar
     const bars = C.map((_, i) => L8.bar(stage, { x: BAR.x, y: Y(i) - 26, w: BAR.w, h: 52, tone: "grey", full: BAR.w }));
@@ -157,7 +157,7 @@ VID.scene({
         text: MODES[landed][0],
         tone: MODES[landed][1],
         k: ramp(t, T.mode, T.mode + 0.4, E.lin),
-        s: 1 + 0.06 * Math.max(flash(t, T.g[1], T.g[1] + 0.4), flash(t, T.t[1], T.t[1] + 0.4)),
+        s: 1 + 0.03 * Math.max(flash(t, T.g[1], T.g[1] + 0.4), flash(t, T.t[1], T.t[1] + 0.4)),
       });
       head.set({ k: ramp(t, T.chance, T.chance + 0.4, E.lin) });
 

@@ -66,7 +66,7 @@ VID.scene({
       red: 3.3, // the two top blocks turn red ...
       go: [3.7, 4.3], // ... then float up and fade, the trail shrinks
       discEvap: 4.2,
-      slide: [4.8, 5.4], // the tank group slides right
+      slide: [4.8, 5.4], // the big road glides up over the tank
       depTag: 5.2,
       tour: 5.3, // the 'L = tour length' label
       pulse: [
@@ -191,11 +191,11 @@ VID.scene({
 
     // the result: new trail = 2 + 7 = 9, the two parts in the colours of their blocks
     const RY = 584;
-    const resTag = L8.tag(stage, { x: 12, y: RY - 24, text: "new trail", tone: "blue" });
+    const resTag = L8.tag(stage, { x: 18, y: RY - 24, text: "new trail", tone: "blue" });
     const res = [
-      { x: 190, w: 72, text: String(evap), tone: "blue", solid: false },
-      { x: 322, w: 72, text: String(delta), tone: "green", solid: false },
-      { x: 454, w: 84, text: String(evap + delta), tone: "blue", solid: true },
+      { x: 202, w: 72, text: String(evap), tone: "blue", solid: false },
+      { x: 334, w: 72, text: String(delta), tone: "green", solid: false },
+      { x: 466, w: 84, text: String(evap + delta), tone: "blue", solid: true },
     ].map((r) =>
       L8.chip(stage, {
         x: r.x,
@@ -210,8 +210,8 @@ VID.scene({
       }),
     );
     const resSolid = [false, false, true];
-    const plus = svg.appendChild(L8.mark("plus", 292, RY, 40, "grey"));
-    const equals = svg.appendChild(L8.mark("equals", 424, RY, 40, "grey"));
+    const plus = svg.appendChild(L8.mark("plus", 304, RY, 40, "grey"));
+    const equals = svg.appendChild(L8.mark("equals", 436, RY, 40, "grey"));
 
     // ---- the trail on the road as a smooth number: shrinks while it evaporates, grows as each block lands
     const landOf = (g) => ROWS[owner[g].a].fly + ROWS[owner[g].a].step * owner[g].j + ROWS[owner[g].a].dur;

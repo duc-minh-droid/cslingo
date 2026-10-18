@@ -25,7 +25,7 @@
           lines under each block, "ends 50" (its finish time) and "due 30"; lateK 0..1 pops the lateness tags under them ("late 20"
           red = ends minus due, "on time" green) and turns each block red / green.
         -> {lefts: [x of each block], widths: [px], rows: L8.evalOrder(order).rows, bottom: y of the lowest tag's bottom}
-        Blocks hold the job letter (44 px); the lines and tags are 28 px. Height used: h + 130 (block, ends line at h + 8, due line at
+        Blocks hold the job letter (40 px) and its minutes (28 px); the lines and tags are 28 px. Height used: h + 130 (block, ends line at h + 8, due line at
         h + 44, tag at h + 84, 46 high). */
 (function () {
   const V = window.VID;
@@ -247,11 +247,18 @@
     const el = V.h("div", { style: abs(x, y, 10, h) });
     const items = rows.map((r) => {
       const wd = L8.JOBS[r.j].dur * px - gap;
-      const block = V.h("div", {
-        class: "v-gene c-grey",
-        text: r.j,
-        style: { ...abs(r.start * px, 0, wd, h), borderRadius: "20px", fontSize: "44px", transformOrigin: "0 50%" },
-      });
+      const block = V.h(
+        "div",
+        {
+          class: "v-gene c-grey",
+          style: { ...abs(r.start * px, 0, wd, h), borderRadius: "20px", fontSize: "40px", transformOrigin: "0 50%" },
+        },
+        V.h("span", { text: r.j }),
+        V.h("span", {
+          text: `${L8.JOBS[r.j].dur} min`,
+          style: { fontSize: "28px", fontWeight: "800", marginLeft: "8px", whiteSpace: "nowrap" },
+        }),
+      );
       const line = (text, dy) =>
         V.h("div", {
           class: "v-text dim",
