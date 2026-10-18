@@ -170,7 +170,7 @@ VID.scene({
             tone: on && dep ? "green" : "grey",
             solid: on && dep,
             ghost: on && !dep,
-            s: 1 + (dep ? 0.14 : -0.1) * pulse,
+            s: 1 + (dep ? 0.1 : -0.1) * pulse,
           });
         });
       });
