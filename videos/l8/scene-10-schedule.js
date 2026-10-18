@@ -8,7 +8,7 @@
    Five steps start at 3.0 + 1.2 k: thin grey arrows go from the ant's node to every job still allowed, the chosen one turns
    orange and thick while the others fade, the ant hops there, the job turns red (a 'visited' tag explains red) and its block
    grows into the chart (grey). 9.0-9.5 the formula late = ends - due, 9.3-9.9 the 'ends' and 'due' lines under each block,
-   10.0-10.5 the red 'late' tags, 11.2-11.75 the two stickers (average 54, maximum 70). 12.0-13.5 hold. */
+   10.0-10.5 the red 'late' tags, 11.2-11.75 the two stickers (average 54 min late, worst 70 min late). 12.0-13.5 hold. */
 VID.scene({
   kicker: "CONSTRUCTION GRAPHS",
   title: ["Any problem drawn", "as a path"],
@@ -90,14 +90,14 @@ VID.scene({
     const ant = svg.appendChild(L8.ant(0, 0, 70));
 
     // ---- tags, the chart and the two stickers
-    const intro = L8.tag(stage, { x: 12, y: 10, text: "one press, five jobs", tone: "grey" });
-    const visited = L8.tag(stage, { x: 793, y: 10, text: "visited", tone: "red" });
+    const intro = L8.tag(stage, { x: 12, y: 12, text: "one press, five jobs", tone: "grey" });
+    const visited = L8.tag(stage, { x: 791, y: 12, text: "visited", tone: "red" });
     const chart = L8.gantt(stage, { x: 43, y: 338, h: 66, order });
     const avg = L8.stat(stage, { x: 12, y: 548, w: 440, h: 80, label: "average", tone: "red" });
     const worst = L8.stat(stage, { x: 480, y: 548, w: 440, h: 80, label: "worst", tone: "red" });
 
     // ---- the formula late = ends - due, top right (tags and signs pop one after another)
-    const FY = 40; // tags are 61 px high, so their middle is at 10 + 30
+    const FY = 42; // tags are 61 px high, so their middle is at 12 + 30
     const fTags = [
       L8.tag(stage, { x: 529, y: FY - 30, text: "late", tone: "red", solid: true }),
       L8.tag(stage, { x: 675, y: FY - 30, text: "ends", tone: "grey" }),

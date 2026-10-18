@@ -1,0 +1,116 @@
+{
+  "findings": [
+    {
+      "scene": "scene-03-votes.js",
+      "severity": "must",
+      "problem": "Caption 3, 'Thirty-one scouts are right 87% of the time.' (6.2-9.0 s), runs ahead of its picture. The 87% only exists when bar 3 fills at 8.15-8.95 s. Until then the 31 tokens are still popping in (6.25-7.0 s) and flipping (7.05-7.8 s), and the third bar is empty. For about 2 s of its 2.8 s window the caption states a number that is not on screen. This breaks the house rule that a caption never runs ahead of its picture.",
+      "fix": "Split the claim. Use 'Thirty-one scouts vote the same way.' for 6.2-8.1 s, then 'Now the majority is right 87% of the time.' for 8.3-10.8 s. Drop the old caption 4, because the headline already says 'Many weak votes make a strong one'. Or pull the bar-3 fill forward to about 7.9-8.5 s and start the caption at 7.9 s.",
+      "evidence": "Still s3@6.4: caption shows '...87% of the time' while the 31 tokens are grey and half-popped and the third bar is empty. Source: scene-03-votes.js T.r3.fill = [8.15, 8.95] against caption [6.2, 9.0]."
+    },
+    {
+      "scene": "scene-03-votes.js",
+      "severity": "should",
+      "problem": "The wording and header make the percentage ambiguous. Each individual scout stays right 60% of the time. What is right 87% of the time is the majority, over many votes. The caption says 'Thirty-one scouts are right 87%', and the header 'group is right' has no 'how often'. The one example vote shown has 19 of 31 tokens green (61%, 7 of 11 = 64% in the middle row), next to a bar saying 87%. A first-time learner can read the bar as 'the share of green tokens' and see a contradiction. The lesson uses the same shorthand ('Eleven scouts are right about 75%'), but there it comes with the sentence 'the colony goes with the route most scouts chose'.",
+      "fix": "Header 'group is right, vote after vote' (or 'majority is right, out of many votes'). Caption 3 'The majority of 31 is right 87% of the time.' Optionally add a small '19 of 31 green = the group is right' note, so the one shown vote is clearly a single draw.",
+      "evidence": "Stills s3@8.0 and s3@10.5: row 3 shows 19 green / 12 red tokens and an 87% bar. I verified majority(11, 0.6) = 75.35, majority(31, 0.6) = 87.16, 7/4 and 19/12 votes, and the 50% coin-flip case against the lesson's majority()."
+    },
+    {
+      "scene": "scene-04-equal.js",
+      "severity": "should",
+      "problem": "The live tags read '100% of ants' / '0% of ants' (and '70% of ants' etc.), but the helper value is the share of the LAST 10 ants (bridgeAt().share), not of all ants. At the last tick the real cumulative shares are colony 1 about 82% on the upper bridge and colony 2 about 21% on the upper bridge (79% lower). So '100% of ants' is false as written. It also sits under the caption 'Soon most ants use one bridge.' Scene 5 labels the same quantity correctly as 'last 10 ants', so the video is inconsistent about it.",
+      "fix": "Say what is counted: '<n>% of last 10 ants' (the tag is 222 px wide, so shorten it, for example '100% of last 10'). Alternatively add one grey tag 'share of the last 10 ants' beside the legend, as scene 5 does.",
+      "evidence": "Stills s4@7.0 and s4@9.5 show '100% of ants / 0% of ants'. A node check with the lesson's bridge() (seeds 77 and 58) gives a cumulative upper share through tick 76 of 81.8% (colony 1) and 20.8% (colony 2), against a last-10 share of 100% and 0%. At T = 40 the tag says 100% while the cumulative share is 71%."
+    },
+    {
+      "scene": "scene-05-short.js",
+      "severity": "should",
+      "problem": "The grey 'split 5%' card in the tally of 200 colonies uses jargon that is never defined on screen. 'Split' means neither road got 80% of the last 40 ants (the lesson's settling rule). A first-time learner cannot tell what 5% of colonies did. The caption only covers the 85% and the 10% ('A few still lock onto the long one').",
+      "fix": "Relabel the card as plain words, such as 'undecided' or 'no clear winner'. Keep the grey tone, and optionally show it for a moment with a 'no road gets 8 in 10' note.",
+      "evidence": "Stills s5@11.0 and s5@13.6: cards 'short road 85%', 'long road 10%', 'split 5%'. Checked: the lesson's tally(10, 200) = {up 170, down 20, split 10}, which is 85/10/5."
+    },
+    {
+      "scene": "scene-09-update.js",
+      "severity": "should",
+      "problem": "The round pills on the roads change meaning between scenes 8 and 9 with no label. In scene 8 they are distances (grey 3 4 5 6 3 4). In scene 9 the same pills in the same positions are pheromone (blue 24 40 10 30 20 10, then counting down). Nothing on screen in scene 9 says 'pheromone on each road'. The viewer has to infer it from the caption 'keeps only half of its pheromone' and the colour. A learner can easily read 24 and 40 as longer distances.",
+      "fix": "Add a blue legend tag in scene 9, for example 'pheromone on each road' with a small pill icon, popping in with the pills at about 0.6 s. Alternatively start the first caption 'The ant has finished its tour. Now each road's pheromone updates.' and label the pills for a moment.",
+      "evidence": "Stills s9@1.0, s9@3.2, s9@6.5 against s8@13.8: same pill positions, different numbers and colours, no legend. The values themselves are right (start 24 40 10 30 20 10, evap 12 20 5 15 10 5, after 12 24 9 19 14 5, matching the lesson's table and L7.UPDATE)."
+    },
+    {
+      "scene": "scene-10-colony.js",
+      "severity": "should",
+      "problem": "The three bars headed 'trail per tour' (74/94/100 at the start, 21/41/21 at the end) are the SUM of the pheromone on the tour's four roads. Nothing on screen says so, and nothing says these are the only three different round trips. A first-time learner will not know what '94' counts or why a tour has a trail number. The lesson's table calls it 'trail on its roads'.",
+      "fix": "Rename the header 'pheromone on its 4 roads' (or 'trail on the tour's roads'). Optionally add a first-frame note, 'the 3 different round trips'. Do not change the numbers, which are right.",
+      "evidence": "Stills s10@1.0 and s10@10.4. I verified the sums by hand and in node: A-B-C-D 24+30+10+10 = 74, A-B-D-C 24+20+10+40 = 94, A-C-B-D 40+30+20+10 = 100, and 21/41/21 after ant 24 (10.29 on the four roads of A-B-D-C). Tour lengths 18/14/18 are correct."
+    },
+    {
+      "scene": "scene-10-colony.js",
+      "severity": "nit",
+      "problem": "The 24 ant tokens use red for a long tour and green for the short tour, but no legend defines this. The cues are indirect: the red '18 long' and green '14 long' text in the rows, and a red bracket that appears only at 9.8 s round the first five tokens, with no text.",
+      "fix": "Add two tiny legend tags under the tokens ('long tour' red, 'short tour' green), or put 'first 5: long tours' on the bracket.",
+      "evidence": "Stills s10@4.2 (tokens red/green with no key) and s10@10.4 (bracket without words)."
+    },
+    {
+      "scene": "scene-07-trail.js",
+      "severity": "nit",
+      "problem": "The loss pills show a negative zero, '-0', at steps 0 and 1 (nothing has evaporated yet), and '+0' / '-0.06' / '-0.03' at the end. '-0' reads like a glitch.",
+      "fix": "In pillsAt, print the bare '0' (no minus sign) when the loss is under 0.001, or show an en dash. The same applies to '+0' after the ants stop: '0' is clearer.",
+      "evidence": "Still s7@2.0 shows '+4 / -0' and '+2 / -0'. Source: `-${lossText(s.lossA)}` where lossText(0) returns '0'."
+    },
+    {
+      "scene": "scene-09-update.js",
+      "severity": "nit",
+      "problem": "Evaporation is 20% per step in scene 7 ('loss: 20% evaporates') but half per tour in scenes 9 and 10 ('every road keeps half'), and nothing tells the viewer these are different set-ups. Both match the lesson (7.3 trail lab at 20%, 7.4 story ant at rho 0.5), but a first-time learner may think the rule changed or one number is wrong. The 24-ant run in scene 10 also uses rho = 0.5, while the lesson's demo defaults to 20%.",
+      "fix": "Make caption 2 explicit, for example 'In this example every road keeps half of its pheromone.' Optionally name the rate on the card, 'Evaporate × 0.5 (this example)'.",
+      "evidence": "Scene 7 TRAIL.rho = 0.2 against scene 9 UPDATE.rho = 0.5 and RUN (rho 0.5). I replayed the lesson's sendAnt() with seed 59 and rho 0.5: it reproduces L7.RUN exactly (ants 1-5 are length 18, ants 6-24 are length 14). With rho 0.2 and the same seed the tours differ."
+    },
+    {
+      "scene": "scene-02-swarm.js",
+      "severity": "nit",
+      "problem": "Caption 2, 'Each one only reacts to its neighbours', sits slightly against scene 6, where the ants never need to meet and communicate through the ground. The lesson's own wording is 'reacts to what is near it' and 'dealing with its fellows AND with the environment'. A learner could take 'only neighbours' to mean direct ant-to-ant messages.",
+      "fix": "Say 'Each one only reacts to what is near it.' and change the tag text to 'only what is near' (or 'local rules').",
+      "evidence": "Still s2@3.9 ('neighbours only' tag and caption) against scene 6 and the lesson step 'No boss in charge'. The ring figure itself matches the lesson's six-ant ring."
+    },
+    {
+      "scene": "scene-03-votes.js",
+      "severity": "nit",
+      "problem": "The headline and last caption ('Many weak votes make a strong one', 'Many weak votes make one strong choice') overgeneralise. The lesson, its bank questions and the recap logic all stress that each vote must be BETTER THAN CHANCE: 31 coin-flip scouts stay at 50%. The video's only protection is the '60%' tag, and the storyboard bans mentioning the coin-flip case here.",
+      "fix": "Caption 4: 'Many votes that beat chance make one strong choice.' Keep the headline if needed.",
+      "evidence": "Lesson l7-swarm takeaway 3 ('better-than-chance contributions add up. Pure noise does not'), predict l7-swarm-2, and bank nic-44 ('A crowd of coin-flippers is still a coin flip'). L7.VOTE.coin = 50 is computed but never shown."
+    },
+    {
+      "scene": "scene-05-short.js",
+      "severity": "nit",
+      "problem": "The three-step loop is drawn (more pheromone, more ants choose it, more pheromone laid) but its name, 'positive feedback', is never shown. The lesson step 'A snowball effect' and the boss match question both use that term. The headline 'gets paid first' also uses 'paid' as an undefined metaphor for 'gets its pheromone first'.",
+      "fix": "Add a tag 'positive feedback' beside the loop (grey or purple) when the pulse starts at about 5.4 s. Consider 'The short bridge gets pheromone first'.",
+      "evidence": "Still s5@6.5 shows the loop with no name. Lesson l7-bridge step 'A snowball effect'; boss l7-boss match item 'Positive feedback'."
+    },
+    {
+      "scene": "scene-09-update.js",
+      "severity": "nit",
+      "problem": "'Q' is shown as 'Q = 72' and used in the caption ('gains Q ÷ length') without saying what Q is. The lesson also leaves it undefined, but the house rule is to define jargon on screen before use.",
+      "fix": "Change the dim note to 'Q = 72 (pheromone per tour)' or 'Q: a fixed amount per ant'.",
+      "evidence": "Still s9@6.5 and s9@8.5, Deposit card: 'Q = 72', 'tour roads gain Q ÷ length', '72 ÷ 18 = 4'. The numbers are correct (72 / 18 = 4, 72 / 14 = 5.14, shown as 5.1)."
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Numbers in the captions are typed by hand rather than derived, although the house rule says numbers come from asserted helpers. They are currently right, and nearby asserts pin them, but they would not follow a data change. Typed: scene 3 '60%' and '87%', scene 5 '85%', scene 8 '4 + 6 + 3 + 5 = 18', scene 9 '72 ÷ 18 = 4'.",
+      "fix": "Build the caption strings from the asserted values (`${pct}%`, `${rows[2].shown}%`, `${PCT.short}%`, SUM_TEXT, `${U.Q} ÷ ${U.len} = ${U.dep}`). The same goes for the hard-coded tag texts '5 steps' / '10 steps' (from L7.BR) and 'loss: 20% evaporates' (from TRAIL.rho).",
+      "evidence": "caps arrays in scene-03-votes.js, scene-05-short.js, scene-08-walk.js and scene-09-update.js. The asserts L7.same('scene 5 tally in percent', ...) and SUM_TEXT exist but are not used for the captions."
+    },
+    {
+      "scene": "common.js / lecture-7.json",
+      "severity": "nit",
+      "problem": "Documentation numbers disagree with the computed ones. The common.js header says the trails at step 30 are 'a 19.9, b 9.9' and at step 50 '0.2 and 0.1'. The real values are 19.975 and 9.988, which the scenes correctly show as 20.0 and 10.0, and 0.23 and 0.12. The storyboard outline says trail A is 13.5 at step 5, but the real value is 13.446, which rounds to 13.4. Neither number is on screen, but the next editor could 'fix' the code to match the wrong note.",
+      "fix": "Correct the header comment to 'a 20.0, b 10.0' and 'A 0.23, B 0.12', and the storyboard to '13.4 (step 5)'.",
+      "evidence": "Node check: trail(4, 0.2) gives a[5] = 13.4464, a[24] = 19.906, a[30] = 19.975, b[30] = 9.988, a[50] = 0.230, b[50] = 0.115. Scene 7 asserts round1(TR.a[30]) = 20 and a[50] about 0.23."
+    },
+    {
+      "scene": "scene-11-recap.js",
+      "severity": "nit",
+      "problem": "The recap covers swarm, trails and short tours, but leaves out the double-bridge idea (equal bridges give one chance winner; the short bridge gets its pheromone first, so positive feedback). That is a whole lesson (7.2) and the centre of the lecture, and it takes scenes 4 and 5 (about 27 s). It also leaves out the ant's choice rule (pheromone ÷ distance, tour memory) and the words 'stigmergy', 'evaporate' and 'deposit'. A learner who rewatches only the recap misses 7.2 and half of 7.4.",
+      "fix": "Make row 2 'Strong trails attract ants: short bridges win' (a two-road picture where the short road thickens first). Alternatively keep three rows but make row 3 cover both the choice and the update, 'Pheromone ÷ distance picks the road; short tours get more'.",
+      "evidence": "Stills s11@5.5 and s11@8.8: rows 'Simple ants, no boss: a clever colony', 'Trails build up, fade and guide the next ant', 'Short tours get more pheromone per road'. The pictogram data are correct: A-B-D-C is the 14 tour, and A-D and B-C are the two skipped roads."
+    }
+  ]
+}
