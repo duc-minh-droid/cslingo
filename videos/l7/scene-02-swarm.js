@@ -67,7 +67,7 @@
   V.scene({
     kicker: "SWARMS",
     title: ["Simple ants,", "clever colony"],
-    dur: 10.6,
+    dur: 10.8,
     caps: [
       [0.4, 2.8, "A colony is many identical, simple ants."],
       [3.0, 5.6, "Each one only reacts to what is near it."],

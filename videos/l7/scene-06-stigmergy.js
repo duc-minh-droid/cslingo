@@ -3,9 +3,9 @@
    senses the dots (an orange ring) and turns onto them. The purple banner then names it: stigmergy, and the ground band turns purple
    (the environment).  Beat B, the two kinds side by side: SIGN-BASED (ants: a mark that is not the work) and SEMATONIC (the work itself
    prompts others: a pile gets one more block and two more builders walk in).  Concept pictures, not simulations.
-   Local seconds: 0.2-0.7 ground, nest, food, 0.6-0.9 ant 1 pops, 0.8-3.4 it walks and drops the dots, 3.5 'later', 3.9-4.2 ant 2 pops,
-   4.0-6.2 it walks, 4.1-4.7 sense ring, 6.4 banner, 7.9-8.3 beat A fades, 8.2-9.1 the two cards pop, 8.8-9.9 the left picture plays,
-   9.0-10.2 the right one, 9.8 'ants use this'. */
+   Local seconds: 0.2-0.7 ground, nest, food, 0.6-0.9 ant 1 pops, 0.8-2.8 it walks and drops the dots, 2.9 'later', 3.3-3.6 ant 2 pops,
+   3.4-5.2 it walks, 3.5-4.1 sense ring, 5.4 banner, 7.0-7.4 beat A fades, 7.5-8.4 the two cards pop, 8.1-9.2 the left picture plays,
+   8.3-9.5 the right one, 9.1 'ants use this'; the finished two-card picture holds for about 3 s. */
 (function () {
   const V = window.VID;
   const L7 = V.l7;
@@ -19,10 +19,12 @@
   const tone = L7.tone;
 
   // ---------- beat A: the walk (stage px, from the storyboard) ----------
-  const NEST = [50, 330];
-  const FOOD = [886, 330];
-  const pathAt = (s) => [90 + 756 * s, 330 - 50 * Math.sin(TAU * s)];
-  const headingAt = (s) => Math.atan2(-50 * TAU * Math.cos(TAU * s), 756) * DEG;
+  const NEST = [62, 330]; // the stickers keep 12 px from the stage edge
+  const FOOD = [874, 330];
+  const X0 = 102; // the walk runs from the nest rim to the food rim
+  const SPAN = 720;
+  const pathAt = (s) => [X0 + SPAN * s, 330 - 50 * Math.sin(TAU * s)];
+  const headingAt = (s) => Math.atan2(-50 * TAU * Math.cos(TAU * s), SPAN) * DEG;
   const N_DOTS = 20;
   const DOTS = Array.from({ length: N_DOTS }, (_, j) => {
     const s = (j + 0.5) / N_DOTS;
@@ -45,32 +47,34 @@
     const b = posLater(Math.min(1, s + e));
     return Math.atan2(b[1] - a[1], b[0] - a[0]) * DEG;
   };
-  const LATER_END = 0.95; // the later ant stops just before the food, so it stays in full view
+  const LATER_END = 0.9; // the later ant stops well short of the food, so the 'Food' label stays readable
   const ANT = 70;
   const SENSE_AHEAD = 26; // the sense ring sits this far ahead of the ant's centre (on its head and feelers)
 
   // ---------- timing (local seconds) ----------
-  const T1 = { pop: 0.6, go: 0.8, end: 3.4, fade: [3.4, 3.8] }; // ant 1
-  const T2 = { pop: 3.9, go: 4.0, end: 6.2 }; // ant 2
-  const SENSE = [4.1, 4.7];
-  const BANNER = [6.4, 7.0];
-  const HILITE = [6.5, 6.9]; // the ground band turns purple
-  const GONE = [7.9, 8.3]; // beat A fades out
-  const CARD = { left: [8.2, 8.8], right: [8.5, 9.1] };
-  const LEFT = { walk: [8.8, 9.9], tag: 9.8 };
-  const RIGHT = { drop: [9.0, 9.4], in: [9.5, 10.2], pop: 9.3 };
-  const dotPop = (j) => T1.go + (T1.end - T1.go) * Math.min(1, DOTS[j].s + TAIL / 756);
-  const dotSensed = (j) => T2.go + ((T2.end - T2.go) * Math.max(0.02, (DOTS[j].x - 55 - 90) / 756)) / LATER_END;
+  const T1 = { pop: 0.6, go: 0.8, end: 2.8, fade: [2.8, 3.2] }; // ant 1
+  const T2 = { pop: 3.3, go: 3.4, end: 5.2 }; // ant 2
+  const SENSE = [3.5, 4.1];
+  const BANNER = [5.4, 6.0];
+  const HILITE = [5.5, 5.9]; // the ground band turns purple
+  const GONE = [7.0, 7.4]; // beat A fades out, then the two cards pop
+  const CARD = { left: [7.5, 8.1], right: [7.8, 8.4] };
+  const LEFT = { walk: [8.1, 9.2], tag: 9.1 };
+  const RIGHT = { drop: [8.3, 8.7], in: [8.8, 9.5], pop: 8.6 };
+  const dotPop = (j) => T1.go + (T1.end - T1.go) * Math.min(1, DOTS[j].s + TAIL / SPAN);
+  const dotSensed = (j) => T2.go + ((T2.end - T2.go) * Math.max(0.02, (DOTS[j].x - 55 - X0) / SPAN)) / LATER_END;
 
-  // ---------- beat B geometry (inside a card: its padding box is 444 wide) ----------
+  // ---------- beat B geometry (inside a card: its padding box is 432 wide) ----------
   const CARD_Y = 146;
   const CARD_H = 420;
+  const CARD_X = [18, 480]; // two cards 438 wide with 18 px margins and a 24 px gap
+  const CARD_W = 438;
   const LEFT_DOTS = [90, 175, 260, 345]; // blue scent dots, left picture
-  const LEFT_WALK = [44, 398]; // the little ant's walk, x
+  const LEFT_WALK = [44, 390]; // the little ant's walk, x
   const LEFT_Y = 110;
   const SQ = 36; // a block is a rounded square
   const PITCH = 40;
-  const FLOOR = 205; // bottoms of the stacks
+  const FLOOR = 213; // bottoms of the stacks
   const STACKS = [
     { x: 100, n: 1 },
     { x: 220, n: 3 },
@@ -78,16 +82,16 @@
   ];
   const levelY = (i) => FLOOR - SQ / 2 - PITCH * i; // centre of level i (0 based)
   const NEW_Y = levelY(STACKS[1].n); // where the dropped block lands
-  const SQ_ANT_Y = 24; // the dropping ant stands above the middle stack
+  const SQ_ANT_Y = 32; // the dropping ant stands above the middle stack (13 px below the card's top edge)
   const WALKERS = [
     { from: 40, to: 148, r: 0, delay: 0 },
-    { from: 410, to: 292, r: 180, delay: 0.1 },
+    { from: 390, to: 292, r: 180, delay: 0.1 },
   ];
-  const WALK_Y = 194;
+  const WALK_Y = 202;
 
   // ---------- facts (asserted: a wrong number throws) ----------
   L7.close("scene 6 path slope (2 pi x 50)", 50 * TAU, 314, 0.2);
-  L7.close("scene 6 heading at the nest", headingAt(0), -22.6, 0.05);
+  L7.close("scene 6 heading at the nest", headingAt(0), -23.6, 0.05);
   [0.1, 0.37, 0.6, 0.93].forEach((s) => {
     const a = pathAt(s - 0.001);
     const b = pathAt(s + 0.001);
@@ -129,8 +133,8 @@
     WALKERS[1].to + 24 + 4 < STACKS[2].x - SQ / 2 && WALKERS[1].to - 24 - 4 > STACKS[1].x + SQ / 2,
     true,
   );
-  L7.close("scene 6 the banner opens as caption 3 does", BANNER[0], 6.4, 1e-9);
-  L7.close("scene 6 the later ant arrives as caption 2 ends", T2.end, 6.2, 1e-9);
+  L7.same("scene 6 the banner opens once the later ant has arrived", BANNER[0] >= T2.end, true);
+  L7.same("scene 6 beat A has gone before the cards pop", GONE[1] <= CARD.left[0], true);
 
   // widths of the tags (28 px, weight 900) as the browser draws them, rounded up (a tag is 6 px of border plus 36 px of padding wider)
   const TAG_W = { "scent mark": 192, later: 108, banner: 640 };
@@ -167,12 +171,13 @@
   V.scene({
     kicker: "STIGMERGY",
     title: ["Ants talk through", "the ground"],
-    dur: 11,
+    dur: 12.3,
     caps: [
-      [0.8, 3.4, "One ant leaves a scent mark on the ground."],
-      [3.9, 6.2, "A later ant senses the mark and follows it."],
-      [6.4, 8.0, "That is stigmergy: talking through the environment."],
-      [8.4, 10.6, "Scent is a sign. Building itself can also prompt others."],
+      [0.8, 3.3, "An ant leaves a scent mark on the ground."],
+      [3.4, 5.5, "A later ant senses it and follows."],
+      [5.6, 7.2, "That is stigmergy."],
+      [8.0, 9.8, "Scent is a sign, not the work."],
+      [9.9, 11.9, "The work itself can prompt others."],
     ],
     build(stage) {
       // ----- beat A: one wrapper so the whole picture fades together -----
@@ -182,9 +187,9 @@
       stage.append(A);
       const svg = L5.svg(A);
       const bandAttrs = {
-        x: 1.5,
+        x: 13.5,
         y: 215,
-        width: 933,
+        width: 909,
         height: 230,
         rx: 30,
         fill: "var(--panel-2)",
@@ -201,17 +206,17 @@
       // the nest and the food sit above the ants: the ants come out of the nest and go into the food
       svg.appendChild(L7.spot(NEST[0], NEST[1], "Nest"));
       svg.appendChild(L7.spot(FOOD[0], FOOD[1], "Food"));
-      const ground = L7.tag(A, { x: 24, y: 456, text: "the ground", tone: "grey" });
+      const ground = L7.tag(A, { x: 28, y: 456, text: "the ground", tone: "grey" });
       const scent = centred(A, "scent mark", TAG_W["scent mark"], 468, 150, { tone: "blue" });
       const later = centred(A, "later", TAG_W.later, 468, 150, { tone: "grey" });
 
       // ----- banner -----
-      const banner = centred(stage, BANNER_TEXT, TAG_W.banner, 468, 0, { tone: "purple", solid: true });
+      const banner = centred(stage, BANNER_TEXT, TAG_W.banner, 468, 12, { tone: "purple", solid: true });
 
       // ----- beat B: two cards, each with its picture and words inside -----
-      const mkCard = (x, name) => L7.card(stage, { x, y: CARD_Y, w: 450, h: CARD_H, tone: name, plain: true });
-      const left = mkCard(0, "blue");
-      const right = mkCard(486, "purple");
+      const mkCard = (x, name) => L7.card(stage, { x, y: CARD_Y, w: CARD_W, h: CARD_H, tone: name, plain: true });
+      const left = mkCard(CARD_X[0], "blue");
+      const right = mkCard(CARD_X[1], "purple");
       const title = (c, text, name) => L7.text(c.el, { x: 24, y: 232, text, fs: 36, tone: name });
       const sub = (c, text) => L7.text(c.el, { x: 24, y: 286, text, fs: 28, tone: "dim" });
       const lTitle = title(left, "Sign-based", "blue");
@@ -221,10 +226,10 @@
       const uses = L7.tag(left.el, { x: 24, y: 336, text: "ants use this", tone: "green", solid: true });
 
       // left picture: a little ant walks a line and drops four scent dots
-      const lsvg = L5.svg(left.el, 444, 215);
+      const lsvg = L5.svg(left.el, 432, 215);
       lsvg.appendChild(
         V.s("path", {
-          d: `M 28 ${LEFT_Y} L 416 ${LEFT_Y}`,
+          d: `M 28 ${LEFT_Y} L 404 ${LEFT_Y}`,
           fill: "none",
           "stroke-width": "8",
           "stroke-linecap": "round",
@@ -235,10 +240,10 @@
       const lAnt = lsvg.appendChild(L7.ant(0, 0, 56));
 
       // right picture: stacks of blocks; an ant drops one more block, then two more ants walk in
-      const rsvg = L5.svg(right.el, 444, 215);
+      const rsvg = L5.svg(right.el, 432, 225);
       rsvg.appendChild(
         V.s("path", {
-          d: `M 28 ${FLOOR + 6} L 416 ${FLOOR + 6}`,
+          d: `M 28 ${FLOOR + 6} L 404 ${FLOOR + 6}`,
           fill: "none",
           "stroke-width": "8",
           "stroke-linecap": "round",
@@ -282,8 +287,8 @@
           place(dots[j], { s: E.pop(k) * (1 + 0.35 * bump), o: Math.min(1, k * 4) });
         });
         // the scent tag names the dots while ant 1 walks, 'later' takes its place
-        scent.set({ k: ramp(t, 1.2, 1.5, lin), o: 1 - ramp(t, 3.2, 3.5, lin) });
-        later.set({ k: ramp(t, 3.5, 3.8, lin), o: 1 - ramp(t, 6.2, 6.5, lin) });
+        scent.set({ k: ramp(t, 1.2, 1.5, lin), o: 1 - ramp(t, 2.6, 2.9, lin) });
+        later.set({ k: ramp(t, 2.9, 3.2, lin), o: 1 - ramp(t, 5.2, 5.5, lin) });
 
         // ant 2: pops below the trail, senses the dots, turns onto them and follows them
         const s2 = LATER_END * ramp(t, T2.go, T2.end, lin);

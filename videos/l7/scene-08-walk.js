@@ -1,9 +1,10 @@
 /* Lecture 7 · scene-08-walk: ACO turns the bridge into a graph. On the four-town round an ant at a town gives every UNVISITED town a
    weight = pheromone / distance, turns the weights into chances, picks with the dice and keeps a tour memory so it never repeats a
    town. One worked walk, the lesson's story ant: A-C-B-D and home, length 18 (L7.WALK, L7.MAP, asserted below).
-   Local seconds: 0.2-1.3 map, ant on A, memory tag + tile A; 1.8-4.8 step 1 (rows, weights, chances, total); 4.7-5.9 dice, pick;
-   6.0-6.8 hop to C; 7.0-9.9 step 2 (B or D, pick B, hop 9.1-9.9); 10.1-11.4 step 3 (only D is left, hop 10.7-11.4); 11.6-12.4 home to A;
-   12.5-13.2 the tour length 4 + 6 + 3 + 5 = 18; hold. Scene 9 starts from this picture (the same map at x 0, y 20). */
+   Local seconds: 0.2-1.3 map, ant on A, memory tag + tile A and four empty slots (three towns to visit, then home); 2.2-5.0 step 1
+   (rule, rows, weights, chances, total); 5.1-6.3 the chance bar and its random pick; 6.4-7.2 hop to C; 7.6-10.5 step 2 (B or D,
+   pick B, hop 9.7-10.5); 10.9-12.2 step 3 (only D is left, hop 11.5-12.2); 12.4-13.2 home to A; 13.25-14 the tour length
+   4 + 6 + 3 + 5 = 18; hold. Scene 9 starts from this picture (the same map at x 12, y 34). */
 (function () {
   const V = window.VID;
   const L7 = V.l7;
@@ -61,60 +62,58 @@
   // ---------- timeline (local seconds) ----------
   const T_ANT = 0.8; // the ant pops on town A
   const HOP_T = [
-    [6.0, 6.8],
-    [9.1, 9.9],
-    [10.7, 11.4],
-    [11.6, 12.4],
+    [6.4, 7.2],
+    [9.7, 10.5],
+    [11.5, 12.2],
+    [12.4, 13.2],
   ]; // A>C, C>B, B>D, D>A
-  const TILE_T = [1.2, 6.6, 9.7, 11.3]; // tour memory tiles A, C, B, D pop
-  const HOME = { ghost: 11.3, fill: 12.2 }; // the fifth tile (home A): dashed at first, then filled
-  const LEN = { tag: 12.45, card: 12.5, pills: 12.6 };
-  // one entry per step: rows pop, weights show, chances and totals pop, the dice rolls, the pick, and the fades
+  const TILE_T = [1.2, 7.0, 10.3, 12.1]; // tour memory tiles A, C, B, D pop
+  const SLOTS_T = 1.4; // the empty slots (three towns still to visit, then home) pop one by one
+  const HOME = { ghost: SLOTS_T + 0.4, fill: 13.0 }; // the fifth tile (home A): dashed at first, then filled
+  const LEN = { tag: 13.25, card: 13.3, pills: 13.4 };
+  // one entry per step: rows pop, weights show, chances and totals pop, the chance bar and its random pick, and the fades
   const STEPS = [
     {
-      rows: 2.0,
+      rows: 2.4,
       gap: 0.18,
-      res: 3.0,
+      res: 3.4,
       resGap: 0.3,
-      pills: 4.0,
+      pills: 4.4,
       pillGap: 0.15,
-      tags: 4.0,
-      dice: [4.7, 4.8, 5.8],
-      face: 3,
-      pick: 5.9,
-      other: [5.9, 6.3],
-      all: [6.5, 6.9],
+      tags: 4.4,
+      dice: [5.1, 5.2, 6.2], // the bar pops, the marker sweeps, the marker lands
+      pick: 6.3,
+      other: [6.3, 6.7],
+      all: [6.9, 7.3],
     },
     {
-      rows: 7.0,
+      rows: 7.6,
       gap: 0.15,
-      res: 7.3,
+      res: 7.9,
       resGap: 0.15,
-      pills: 7.7,
+      pills: 8.3,
       pillGap: 0.15,
-      tags: 7.7,
-      dice: [8.1, 8.3, 9.0],
-      face: 5,
-      pick: 9.05,
-      other: [9.05, 9.45],
-      all: [9.55, 9.95],
+      tags: 8.3,
+      dice: [8.7, 8.9, 9.6],
+      pick: 9.65,
+      other: [9.65, 10.05],
+      all: [10.15, 10.55],
     },
     {
-      rows: 10.1,
+      rows: 10.9,
       gap: 0,
-      res: 10.35,
+      res: 11.15,
       resGap: 0,
-      pills: 10.5,
+      pills: 11.3,
       pillGap: 0,
-      tags: 10.2,
+      tags: 11.0,
       dice: null,
-      face: null,
-      pick: 10.65,
-      other: [10.65, 10.65],
-      all: [11.0, 11.4],
+      pick: 11.45,
+      other: [11.45, 11.45],
+      all: [11.8, 12.2],
     },
   ];
-  const HEAD_T = 1.8; // the rule card pops and stays: it is the rule behind every row
+  const HEAD_T = 2.2; // the rule card pops and stays: it is the rule behind every row
   const MAP_T = [0.2, 0.9]; // the roads grow
   const ORDER = (() => {
     const out = [];
@@ -128,29 +127,31 @@
   L7.same("scene 8 a step's rows are gone before the next step's pop", ORDER, [true, true, true]);
 
   // ---------- layout (stage px) ----------
-  const RX = 520; // right panel
-  const RW = 416;
-  const ROW = { y0: 104, dy: 96, h: 84 };
-  const HEAD = { y: 6, h: 82 };
+  const RX = 520; // right panel: ends on the 12 px margin
+  const RW = 392; // the right panel ends 12 px inside the stage, so a pulsing card stays inside it
+  const ROW = { y0: 106, dy: 96, h: 84 };
+  const HEAD = { y: 12, h: 82 };
+  const MAP_BOX = { x: 12, y: 44, w: 480, h: 300 }; // the same place as scenes 9 and 10
   const MEM_Y = 372;
   const TILE_Y = 440;
+  const BAR = { h: 48, dy: 160 }; // the chance bar sits this far under a step's 'total' tag
 
   V.scene({
     kicker: "ANTS ON A MAP",
     title: ["Pick the next town", "by trail and distance"],
-    dur: 14,
+    dur: 15.5,
     caps: [
-      [1.0, 2.6, "An ant starts on one town."],
-      [2.8, 4.8, "Each town left gets a weight: pheromone ÷ distance."],
-      [5.0, 6.8, "The weights become chances, and the dice picks one."],
-      [7.0, 9.8, "Visited towns go into its tour memory, so it never repeats one."],
-      [10.0, 12.4, "It carries on until every town is visited, then returns home."],
-      [12.6, 13.8, "The tour is 4 + 6 + 3 + 5 = 18 long."],
+      [1.0, 3.2, "Goal: visit every town, then go home."],
+      [3.3, 5.3, "Weight = pheromone ÷ distance."],
+      [5.4, 7.4, "A random pick, by those chances."],
+      [8.3, 10.3, "Tour memory stops repeat visits."],
+      [11.0, 13.2, "It visits every town, then goes home."],
+      [13.3, 15.2, `Tour length: ${SUM_TEXT}.`],
     ],
     build(stage) {
       const blue = L7.tone("blue");
       const orange = L7.tone("orange");
-      const M = L7.map(stage, { x: 0, y: 20, w: 480, h: 300 });
+      const M = L7.map(stage, MAP_BOX);
 
       // own layers inside the map's road svg: pale halos UNDER the trails (so they can fade), orange walk lines ABOVE them
       if (M.el.children.length !== 18)
@@ -188,9 +189,9 @@
       );
 
       // tour memory: a tag, then tiles A C B D A that pop as the ant chooses (the home tile is dashed until the ant returns)
-      const memTag = L7.tag(stage, { x: 0, y: MEM_Y, text: "tour memory", tone: "grey" });
+      const memTag = L7.tag(stage, { x: 16, y: MEM_Y, text: "tour memory", tone: "grey" });
       const mem = L5.chromosome(stage, {
-        x: 0,
+        x: 16,
         y: TILE_Y,
         genes: TOUR.join("") + TOUR[0],
         size: 80,
@@ -270,11 +271,33 @@
         };
       });
 
-      // the dice, drawn in all six faces (only one shows)
-      const diceSvg = L5.svg(stage);
-      const faces = [1, 2, 3, 4, 5, 6].map((f) =>
-        diceSvg.appendChild(V.s("g", {}, L5.dice(0, 0, 76, { face: f, tone: "orange" }))),
-      );
+      // the random pick: a bar with one segment per town still to visit, as wide as its chance (the 40 / 50 / 10 of the pills), and a
+      // marker that sweeps over it and lands in the picked town's segment
+      const markSvg = L5.svg(stage);
+      const bars = W.steps.map((st, s) => {
+        if (!STEPS[s].dice) return null;
+        L7.same(`scene 8 step ${s + 1} bar widths add up to the bar`, L7.sum(st.opts.map((o) => o.pct)), 100);
+        const y = notes[s].y + BAR.dy;
+        let x = RX;
+        const segs = st.opts.map((o) => {
+          const w = (RW * o.pct) / 100;
+          const seg = L7.card(stage, { x, y, w: w - 4, h: BAR.h, text: o.town, tone: "orange", plain: true, fs: 28 });
+          const out = { town: o.town, seg, mid: x + (w - 4) / 2 };
+          x += w;
+          return out;
+        });
+        const picked = segs.findIndex((g) => g.town === st.pick);
+        const marker = markSvg.appendChild(
+          V.s("path", {
+            d: "M -12 -18 L 12 -18 L 0 0 Z",
+            "stroke-width": "4",
+            "stroke-linejoin": "round",
+            style: { fill: "var(--ink)", stroke: "var(--ink)" },
+          }),
+        );
+        return { y, segs, picked, marker, target: segs[picked].mid };
+      });
+      const tri = (v) => 1 - Math.abs(2 * (v - Math.floor(v)) - 1); // a triangle wave 0..1..0 with period 1
 
       // the tour length
       const lenTag = L7.tag(stage, { x: RX, y: MEM_Y, text: "tour length", tone: "grey" });
@@ -343,11 +366,17 @@
           V.show(h.p, f > 0.001 && t < h.t1 ? 1 : 0);
         });
 
-        // ---- the tour memory ----
+        // ---- the tour memory: empty slots at first (towns still to visit, then home), each filling in as the ant chooses ----
         memTag.set({ k: ramp(t, 1.0, 1.35, lin) });
         TILE_T.forEach((t0, i) => {
           const k = ramp(t, t0, t0 + 0.4, lin);
-          mem.set(i, { tone: "orange", s: 0.7 + 0.3 * E.pop(k), o: Math.min(1, k * 4) });
+          const kg = ramp(t, SLOTS_T + 0.1 * i, SLOTS_T + 0.1 * i + 0.35, lin);
+          mem.set(
+            i,
+            k > 0 || i === 0
+              ? { tone: "orange", s: 0.7 + 0.3 * E.pop(k), o: Math.min(1, k * 4) }
+              : { tone: "orange", ghost: true, text: "?", s: 0.7 + 0.3 * E.pop(kg), o: Math.min(1, kg * 4) },
+          );
         });
         const kg = ramp(t, HOME.ghost, HOME.ghost + 0.4, lin);
         const kf = ramp(t, HOME.fill, HOME.fill + 0.4, lin);
@@ -403,24 +432,39 @@
           n.mem.set({ k: ramp(t, S.tags + 0.15, S.tags + 0.5, lin), o });
         });
 
-        // ---- the dice ----
-        const shown = STEPS.findIndex((S) => S.dice && t >= S.dice[0] && t < S.all[1]);
-        faces.forEach((g, i) => {
-          const S = STEPS[shown];
-          if (!S || i + 1 !== (t >= S.dice[2] ? S.face : 1 + (Math.max(0, Math.floor((t - S.dice[1]) * 10)) % 6))) {
-            return V.show(g, 0);
-          }
-          const y = notes[shown].y + 38;
-          const k = ramp(t, S.dice[0], S.dice[0] + 0.3, lin);
-          const rolling = t >= S.dice[1] && t < S.dice[2];
-          const q = t - S.dice[1];
-          const off = 1 - ramp(t, S.other[0] + 0.1, S.other[0] + 0.5, lin);
-          V.place(g, {
-            x: 870,
-            y: y - (rolling ? 10 * Math.abs(Math.sin(q * 12)) : 0),
-            s: (0.6 + 0.4 * E.pop(k)) * (1 + 0.12 * flash(t, S.dice[2], S.dice[2] + 0.25)),
-            r: rolling ? 16 * Math.sin(q * 24) : 0,
-            o: Math.min(1, k * 4) * off,
+        // ---- the random pick: the bar pops, the marker sweeps back and forth, slows and lands in the picked segment ----
+        bars.forEach((B, s) => {
+          if (!B) return;
+          const S = STEPS[s];
+          const kb = ramp(t, S.dice[0], S.dice[0] + 0.3, lin);
+          B.segs.forEach((g, i) => {
+            const isPick = i === B.picked;
+            const off = 1 - ramp(t, (isPick ? S.all : S.other)[0], (isPick ? S.all : S.other)[1] + 1e-6, lin);
+            const picked = isPick && t >= S.pick;
+            Object.assign(g.seg.el.style, {
+              background: picked ? "var(--c)" : "",
+              borderColor: picked ? "var(--c-lip)" : "",
+              boxShadow: picked ? "0 6px 0 var(--c-lip)" : "",
+              color: picked ? "var(--c-on)" : "",
+            });
+            g.seg.set({
+              tone: "orange",
+              plain: !picked,
+              k: kb,
+              o: off,
+              y: (1 - kb) * 8,
+              s: 1 + 0.06 * (isPick ? flash(t, S.pick, S.pick + 0.3) : 0),
+            });
+          });
+          const u = clamp((t - S.dice[1]) / (S.dice[2] - S.dice[1]));
+          const sweep = RX + RW * tri(2.2 * (t - S.dice[1]) + 0.1);
+          const x = B.target + (sweep - B.target) * (1 - E.out(u)) ** 1.5;
+          const off = 1 - ramp(t, S.all[0], S.all[1], lin);
+          V.place(B.marker, {
+            x,
+            y: B.y - 4,
+            o: ramp(t, S.dice[1] - 0.1, S.dice[1] + 0.1, lin) * off,
+            s: 1 + 0.25 * flash(t, S.dice[2], S.dice[2] + 0.3),
           });
         });
 

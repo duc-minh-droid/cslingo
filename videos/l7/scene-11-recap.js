@@ -1,7 +1,7 @@
 /* Lecture 7 · Swarm intelligence, scene 11-recap: three rows, each a small pictogram that plays ONCE and then holds its finished
    drawing, and one bold line. No numbers on screen.
    Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0 (the pictogram starts 0.4 s later), 5.4 the call to action.
-   Row 1 (purple): five identical ink ants on a ring, linked to their neighbours (no leader in the middle); an orange crown pops
+   Row 1 (orange: no leader, the colour of the crown and of choice): five identical ink ants on a ring, linked to their neighbours (no leader in the middle); an orange crown pops
           in the centre and a red cross draws over it.
    Row 2 (blue): four ants run from one grey sticker to another and the blue trail between them thickens; purple dots lift off it
           while it thins (evaporation); a last ant follows it and stops on the far sticker under a green tick.
@@ -36,7 +36,7 @@
     el.style.visibility = k <= 0.002 ? "hidden" : "";
   };
 
-  const CARD = { x: 72, w: 936, h: 180, tops: [240, 444, 648] };
+  const CARD = { x: 72, w: 936, h: 180, tops: [248, 458, 668] };
   const APPEAR = [0.8, 1.9, 3.0];
   const START = APPEAR.map((a) => a + 0.4); // each pictogram starts 0.4 s after its row
   const PIC = { x: 16, y: 10, w: 340, h: 140, zoom: 1.1 }; // drawn at 340 x 140, shown 10% larger
@@ -148,7 +148,7 @@
       const prog = DEP.map((d) => clamp((q - d) / RUN));
       // the trail is laid behind the first ant, then thickens with every ant that follows, then thins while it evaporates
       const thin = ramp(q, T.thin[0], T.thin[1], E.inOut);
-      const w = thick(prog) - 8 * thin;
+      const w = thick(prog) - 11 * thin; // 20 px once all four have passed, about 9 px once it has thinned
       const hue = flash(q, T.thin[0], T.thin[1] + 0.4); // purple while it fades
       drawTo(blue, Math.max(...prog));
       drawTo(purple, Math.max(...prog));
@@ -171,7 +171,7 @@
       // the last ant follows the trail and waits on the far sticker
       const pl = ramp(q, T.last[0], T.last[1], E.inOut);
       V.place(last, {
-        x: lerp(LX, RX, pl),
+        x: lerp(LX, RX - 44, pl), // it stops just short of the far sticker, so the sticker stays in view
         y: Y + (pl > 0 && pl < 1 ? 1.5 * Math.sin(2 * Math.PI * 4 * q) : 0),
         o: ramp(q, T.last[0], T.last[0] + 0.15, lin),
       });
@@ -255,9 +255,9 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["purple", "Simple ants, no boss:\na clever colony", swarmRow],
+        ["orange", "Simple ants, no boss:\na clever colony", swarmRow],
         ["blue", "Trails build up, fade\nand guide the next ant", trailRow],
-        ["green", "Short tours get more\npheromone per road", shortRow],
+        ["green", "Short routes get more\npheromone, so they win", shortRow],
       ].map(([tone, text, make], i) => {
         const card = V.h("div", { class: `v-card plain c-${tone}`, style: box(CARD.x, CARD.tops[i], CARD.w, CARD.h) });
         const pic = V.h("div", {
@@ -294,7 +294,7 @@
         },
       });
       const ctaBar = V.h("div", {
-        style: { ...box(0, 864, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
+        style: { ...box(0, 896, 1080, 80), display: "flex", justifyContent: "center", alignItems: "center" },
       });
       ctaBar.append(cta);
       stage.append(ctaBar);

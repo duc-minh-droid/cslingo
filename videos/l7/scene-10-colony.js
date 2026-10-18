@@ -1,8 +1,9 @@
 /* Lecture 7 · scene-10-colony: send many ants round the four-town map. Every ant uses the update of scene 9 (halve every road, then add
    Q / length on its own tour). The random start favours a long tour (the first five ants all walk length-18 tours), then a length-14
    tour appears, adds 72 / 14 = 5.1 per road against 4, takes the lead and keeps it. A real run of the lesson's algorithm: L7.RUN (24
-   ants, seed 59), every number asserted below. Local seconds: 0.2-1.4 map, rows, counter; ant k arrives at 1.8 + 0.34 (k - 1) and for
-   0.3 s its tour is swept in orange while the trails, bars and counter move to the new values; 3.8-4.4 the deposit card; 9.8-10.6 the
+   ants, seed 59), every number asserted below. Local seconds: 0.2-1.4 map, rows, counter; ant k arrives at 1.8 + 0.34 (k - 1) (ants
+   1 to 5), then a 0.7 s pause so the first short tour (ant 6, at 4.2) is seen, then 0.3 s per ant (ant 24 at 9.6); for 0.3 s each
+   ant's tour is swept in orange while the trails, bars and counter move to the new values; 3.8-4.4 the deposit card; 10.0-10.6 the
    14 row turns green and the short tour's roads turn green, the first five ants are bracketed; hold. */
 (function () {
   const V = window.VID;
@@ -96,24 +97,27 @@
 
   // ---------- timeline (local seconds) ----------
   const T0 = 1.8; // ant 1 arrives
-  const STEP = 0.34; // one ant after the next
+  const STEP = 0.34; // one ant after the next (ants 1 to 6)
+  const STEP_FAST = 0.3; // one ant after the next (ants 7 to 24)
+  const PAUSE = 0.7; // a pause before ant 6, the first ant that walks the short tour
   const BLEND = 0.3; // trails, bars and counter move to the new values in this long
   const SWEEP = { head: 0.22, tail: [0.1, 0.32] }; // an ant's tour is swept in orange: the head draws on, the tail wipes out
-  const tK = (k) => T0 + STEP * (k - 1);
+  const tK = (k) => T0 + STEP * (Math.min(k, 6) - 1) + (k >= 6 ? PAUSE : 0) + STEP_FAST * Math.max(0, k - 6);
   L7.same(
-    "scene 10 ant 6 and ant 24 arrive at 3.5 s and 9.62 s",
+    "scene 10 ant 6 and ant 24 arrive at 4.2 s and 9.6 s",
     [tK(6), tK(24)].map((x) => Math.round(x * 100) / 100),
-    [3.5, 9.62],
+    [4.2, 9.6],
   );
+  L7.same("scene 10 ant 6 is the first short tour", R.firstShort, 6);
   const DEP_T = 3.8; // the deposit card
   const LEAN_T = 6.6; // the short tour's row pulses once
-  const END_T = [9.8, 10.4]; // halos go, the first five ants are bracketed
-  const GREEN_T = 9.95; // the 14 row turns green
-  const RING = { t0: 9.95, step: 0.12, dur: 0.25 }; // the short tour's roads turn green, one after the next
+  const END_T = [10.0, 10.6]; // halos go, the first five ants are bracketed
+  const GREEN_T = 10.15; // the 14 row turns green
+  const RING = { t0: 10.15, step: 0.12, dur: 0.25 }; // the short tour's roads turn green, one after the next
 
   // what the colony looks like at time t: the last ant that has arrived, and how far we are into its update
   const mix = (t) => {
-    const j = clamp(Math.floor((t - T0) / STEP + 1e-9) + 1, 0, N);
+    const j = R.ants.reduce((n, a) => (t >= tK(a.k) - 1e-9 ? a.k : n), 0); // the last ant that has arrived
     const cur = j ? R.ants[j - 1] : R.start;
     const prev = j > 1 ? R.ants[j - 2] : R.start;
     return { j, cur, prev, f: j ? ramp(t, tK(j), tK(j) + BLEND, E.inOut) : 1 };
@@ -144,23 +148,23 @@
   );
 
   // ---------- layout (stage px) ----------
-  const MAP_BOX = { x: 0, y: 20, w: 480, h: 300 }; // the same place as scenes 8 and 9
+  const MAP_BOX = { x: 12, y: 44, w: 480, h: 300 }; // the same place as scenes 8 and 9
   const RX = 520;
-  const RW = 416;
-  const ROW = { y: [90, 200, 310], h: 100 };
-  const DEP = { y: 430, h: 120 };
-  const TOK = { x0: 24, pitch: 38, y0: 516, dy: 50, size: 32, per: 12 };
+  const RW = 392; // a pulsing card grows 4%, so the right column ends well inside the 12 px margin
+  const ROW = { y: [142, 244, 346], h: 96 };
+  const DEP = { y: 458, h: 146 };
+  const TOK = { x0: 40, pitch: 38, y0: 548, dy: 46, size: 32, per: 12 };
   const tokXY = (i) => ({ x: TOK.x0 + TOK.pitch * (i % TOK.per), y: TOK.y0 + TOK.dy * Math.floor(i / TOK.per) });
 
   V.scene({
     kicker: "MANY ANTS",
     title: ["Send many ants:", "the short tour wins"],
-    dur: 12,
+    dur: 12.8,
     caps: [
-      [1.8, 3.6, "Ants go round one after another."],
+      [1.8, 3.7, "Ants go round one after another."],
       [3.8, 6.4, "A shorter tour adds more to each road."],
       [6.6, 9.4, "So the trail leans towards the shortest tour."],
-      [9.8, 11.6, "Even though the first ants found only long tours."],
+      [10.1, 12.3, "The first ants found only long tours."],
     ],
     build(stage) {
       const orange = L7.tone("orange");
@@ -252,11 +256,18 @@
       );
 
       // left: the ants counter and one token per ant (red = a long tour, green = the short one)
-      const counter = L7.stat(stage, { x: 0, y: 380, w: 300, h: 80, label: "ants", tone: "grey" });
+      const counter = L7.stat(stage, { x: 16, y: 380, w: 220, h: 80, label: "ants", tone: "grey" });
+      // the legend for the token colours, beside the counter
+      const LONG_LEN = R.lens.find((l) => l !== SHORT_LEN);
+      L7.same("scene 10 the long tours are 18 long", LONG_LEN, 18);
+      const legend = [
+        L7.tag(stage, { x: 256, y: 382, text: "long tour", tone: "red" }),
+        L7.tag(stage, { x: 256, y: 446, text: "short tour", tone: "green" }),
+      ];
       const bracket = V.h("div", {
         class: "v-tag c-red",
         style: {
-          left: "0px",
+          left: `${TOK.x0 - TOK.size / 2 - 8}px`,
           top: `${TOK.y0 - TOK.size / 2 - 8}px`,
           width: `${TOK.pitch * (FIRST_LONG - 1) + TOK.size + 16}px`,
           height: `${TOK.size + 16}px`,
@@ -283,13 +294,8 @@
       );
 
       // right: the trail on each tour (a bar per tour), then what an ant adds
-      const head = L7.tag(stage, { x: RX, y: 20, text: "trail per tour", tone: "grey" });
-      const strongest = L7.tag(stage, {
-        x: RX + L7.tagW("trail per tour") + 10,
-        y: 20,
-        text: "strongest",
-        tone: "orange",
-      });
+      const head = L7.tag(stage, { x: RX, y: 12, text: "pheromone on its 4 roads", tone: "grey" });
+      const strongest = L7.tag(stage, { x: RX, y: 76, text: "strongest", tone: "orange" });
       const rows = R.tours.map((name, i) => {
         const card = L7.card(stage, { x: RX, y: ROW.y[i], w: RW, h: ROW.h, tone: "grey", plain: true });
         card.el.append(
@@ -313,19 +319,19 @@
         return { card, bar, tick };
       });
       const dep = L7.card(stage, { x: RX, y: DEP.y, w: RW, h: DEP.h, tone: "blue", plain: true });
-      const depLine = (top, label, tone, amount) => {
+      const depLine = (top, label, tone, len, amount) => {
         const el = V.h(
           "div",
-          { class: "v-text", style: { left: "20px", top: `${top}px`, fontSize: "28px", fontWeight: "900" } },
+          { class: "v-text", style: { left: "20px", top: `${top}px`, fontSize: "30px", fontWeight: "900" } },
           V.h("span", { text: label, style: { color: L7.tone(tone).ink } }),
-          V.h("span", { text: `: +${L7.fmt(amount)}`, style: { color: blue.ink } }),
-          V.h("span", { text: " per road", style: { color: "var(--text-dim)" } }),
+          V.h("span", { text: `: ${MAP.Q} ÷ ${len} = ${L7.fmt(amount)}`, style: { color: blue.ink } }),
         );
         dep.el.append(el);
         return el;
       };
-      const depShort = depLine(14, "short tour", "green", R.dep.short);
-      const depLong = depLine(62, "long tour", "red", R.dep.long);
+      L7.text(dep.el, { x: 20, y: 8, text: "added to each tour road:", fs: 28, tone: "dim", bold: false });
+      const depShort = depLine(52, "short", "green", SHORT_LEN, R.dep.short);
+      const depLong = depLine(98, "long", "red", LONG_LEN, R.dep.long);
 
       const leaderAt = (t, m) => (m.j && t >= tK(m.j) + 0.25 ? m.cur.leader : m.prev.leader);
 
@@ -350,7 +356,7 @@
         // ---- the map: roads, halos under the leading tour ----
         const pop = (i) => L7.seq(t, 0.15, 0.06, 0.35, i);
         M.update({
-          grow: ramp(t, 0.2, 0.9, E.out),
+          grow: ramp(t, 0.4, 1.0, E.out),
           tau,
           towns: Object.fromEntries(
             [..."ABCD"].map((n, i) => [n, { s: 0.7 + 0.3 * E.pop(pop(i)), o: Math.min(1, pop(i) * 4) }]),
@@ -359,7 +365,8 @@
         });
         KEYS.forEach((k, ki) => {
           const w = L7.trailW(tau[k], 0.5);
-          if (w > 0.5) V.show(trails[ki], clamp(tau[k] / 2)); // a trail that has almost gone fades out instead of popping
+          // a trail that has almost gone fades out instead of popping; none shows before its road has started to grow
+          if (w > 0.5) V.show(trails[ki], clamp(tau[k] / 2) * (ramp(t, 0.4, 1.0, E.out) > 0.04 ? 1 : 0));
           halos[k].setAttribute("stroke-width", f1(w + 22));
           const led = Math.max(...MAP.tours.map((tr, i) => (tr.edges.includes(k) ? lead(t, m, i) : 0)));
           V.show(halos[k], led * (1 - gone) * ramp(t, 0.4, 0.8, lin));
@@ -389,10 +396,11 @@
 
         // ---- the three tours ----
         head.set({ k: ramp(t, 0.2, 0.55, lin) });
+        legend.forEach((g, i) => g.set({ k: ramp(t, 1.3 + 0.15 * i, 1.65 + 0.15 * i, lin) }));
         strongest.set({
           k: ramp(t, 0.4, 0.75, lin),
           tone: t >= GREEN_T ? "green" : "orange",
-          s: 1 + 0.08 * flash(t, GREEN_T, GREEN_T + 0.4),
+          s: 1 + 0.08 * (flash(t, GREEN_T, GREEN_T + 0.4) + flash(t, tK(R.firstShort) + 0.25, tK(R.firstShort) + 0.65)),
         });
         rows.forEach((r, i) => {
           const isShort = i === SHORT_I;

@@ -1,11 +1,11 @@
 /* Lecture 7 · scene-09-update: after a whole tour the trails update in TWO steps. EVAPORATE: every road keeps half of its
    pheromone (x 0.5). DEPOSIT: every road of the tour gains Q / tour length = 72 / 18 = 4. Roads the ant skipped only lose. The same
    four-town map as scene 8, starting from its end state (the orange tour A-C-B-D-A, the ant home on A). Every number comes from
-   L7.UPDATE (asserted below and again at the first and last frame). Local seconds: 0.1-0.9 the map, the tour tiles and the pills with
-   the START values, 1.4-2.0 the Evaporate card, 2.6-3.8 every pill counts down to half while purple bubbles rise off the roads and
-   the trails thin out, 4.6-5.2 the Deposit card, 5.8-7.6 the ant walks its tour again and each tour road in turn gains 4 (a '+4'
-   floats up, the pill counts up, the trail thickens), 7.6-8.2 the 'skipped roads only lose' tag and purple halos under A-B and C-D,
-   8.2-11 hold. */
+   L7.UPDATE (asserted below and again at the first and last frame). Local seconds: 0.15-1.0 the map (the roads start after the towns
+   have popped), the tour tiles and the pills with the START values (0.6, with the blue tag 'pheromone on each road'), 1.4-2.0 the
+   Evaporate card, 2.6-3.8 every pill counts down to half while purple bubbles rise off the roads and the trails thin out, 4.6-5.2 the
+   Deposit card, 5.8-7.6 the ant walks its tour again and each tour road in turn gains 4 (a '+4' floats up, the pill counts up, the
+   trail thickens), 7.6-8.2 the 'skipped roads only lose' tag and purple halos under A-B and C-D, 8.2-11 hold. */
 (function () {
   const V = window.VID;
   const L7 = V.l7;
@@ -53,7 +53,7 @@
   const DEP0 = 5.8; // the first road gains
   const DEP_STEP = 0.45; // one road after the next
   const DEP_DUR = 0.4; // a pill counts up in this long
-  const PLUS_DUR = 0.6; // a '+4' pops beside its pill and fades in this long
+  const PLUS_DUR = 0.9; // a '+4' pops beside its pill, stays at full strength and fades at the very end
   const dep0 = (i) => DEP0 + DEP_STEP * i;
   const HOME_TURN = dep0(HOPS.length - 1) + DEP_DUR + 0.1; // once home, the ant turns to face right again
   const NOTE = [7.6, 8.2]; // the skipped roads: tag, halos, purple pills
@@ -87,11 +87,12 @@
   );
 
   // ---------- layout (stage px) ----------
-  const MAP_BOX = { x: 0, y: 20, w: 480, h: 300 }; // the same place as scenes 8 and 10
-  const TILES = { x: 12, y: 380, size: 80, gap: 12 };
-  const LEN_CARD = { x: TILES.x, y: 492, w: 5 * TILES.size + 4 * TILES.gap, h: 90 };
+  const MAP_BOX = { x: 12, y: 44, w: 480, h: 300 }; // the same place as scenes 8 and 10
+  const MEM_Y = 372; // the tour memory, where scene 8 left it
+  const TILES = { x: 16, y: 440, size: 80, gap: 12 };
+  const LEN_CARD = { x: TILES.x, y: 536, w: 5 * TILES.size + 4 * TILES.gap, h: 80 };
   const RX = 520;
-  const RW = 404; // the right panel ends 12 px inside the stage
+  const RW = 392; // the right panel ends 12 px inside the stage, so a pulsing card stays inside it
   const SIDE = { "A-C": [61, 24], "B-C": [-66, -4], "B-D": [62, 9], "A-D": [73, -4] }; // where a '+4' pops, from its pill's centre
   const LIFT = 34; // the ant stands this far above its town (keeps its feelers inside the stage margin)
   const BUBBLES = { 0.5: [0.2, 0.8], 0.55: [0.2, 0.84], 0.36: [0.17, 0.7] }; // where vapour rises, by where the road's pill sits
@@ -103,10 +104,10 @@
     title: ["Evaporate first,", "then deposit"],
     dur: 11,
     caps: [
-      [0.6, 2.4, "The ant has finished its tour. Now the trails update."],
-      [2.6, 4.6, "First, every road keeps only half of its pheromone."],
-      [4.8, 7.4, "Then each road on the tour gains Q ÷ length: 72 ÷ 18 = 4."],
-      [7.6, 9.8, "Roads the ant skipped only lose pheromone."],
+      [0.5, 2.5, "Tour done. Now the trails update."],
+      [2.6, 4.9, "In this example, each road keeps half."],
+      [5.2, 7.4, "Then each tour road gains Q ÷ length."],
+      [7.7, 9.9, "Skipped roads only lose pheromone."],
     ],
     build(stage) {
       const purple = L7.tone("purple");
@@ -121,22 +122,25 @@
       });
       const M = L7.map(stage, MAP_BOX);
       M.el.before(halo);
-      const halos = Object.fromEntries(
-        SKIPPED.map((k) => {
-          const { A, B } = M.road(k);
-          return [
-            k,
-            halo.appendChild(
-              V.s("path", {
-                d: `M ${f1(A.x)} ${f1(A.y)} L ${f1(B.x)} ${f1(B.y)}`,
-                fill: "none",
-                "stroke-linecap": "round",
-                style: { stroke: purple.edge },
-              }),
-            ),
-          ];
-        }),
-      );
+      const bandOf = (keys, colour) =>
+        Object.fromEntries(
+          keys.map((k) => {
+            const { A, B } = M.road(k);
+            return [
+              k,
+              halo.appendChild(
+                V.s("path", {
+                  d: `M ${f1(A.x)} ${f1(A.y)} L ${f1(B.x)} ${f1(B.y)}`,
+                  fill: "none",
+                  "stroke-linecap": "round",
+                  style: { stroke: colour },
+                }),
+              ),
+            ];
+          }),
+        );
+      const halos = bandOf(SKIPPED, purple.edge); // purple bands under the two skipped roads
+      const tourBands = bandOf(U.tourRoads, orange.edge); // orange bands under the tour the ant walked (the blue trail stays visible)
 
       // vapour: purple rings that rise off every road while it evaporates (between the roads and the pills)
       const vapour = V.s("svg", {
@@ -172,6 +176,7 @@
       }, []);
 
       // the tour as tiles under the map, and its length
+      const memTag = L7.tag(stage, { x: 16, y: MEM_Y, text: "tour memory", tone: "grey" });
       const row = L5.chromosome(stage, {
         x: TILES.x,
         y: TILES.y,
@@ -188,10 +193,10 @@
         tone: "orange",
         plain: true,
       });
-      L7.text(lenCard.el, { x: 24, y: 24, text: "tour length", fs: 32, tone: "orange" });
+      L7.text(lenCard.el, { x: 24, y: 20, text: "tour length", fs: 32, tone: "orange" });
       L7.text(lenCard.el, {
         x: LEN_CARD.w - 24 - 120 - 6,
-        y: 12,
+        y: 7,
         w: 120,
         text: String(U.len),
         fs: 56,
@@ -199,8 +204,9 @@
         align: "right",
       });
 
-      // right panel: Evaporate, Deposit, and the note about skipped roads
-      const card1 = L7.card(stage, { x: RX, y: 40, w: RW, h: 150, tone: "purple", plain: true });
+      // right panel: what the pills count, then Evaporate, Deposit, and the note about skipped roads
+      const pherTag = L7.tag(stage, { x: RX, y: 12, text: "pheromone on each road", tone: "blue" });
+      const card1 = L7.card(stage, { x: RX, y: 84, w: RW, h: 150, tone: "purple", plain: true });
       L7.text(card1.el, { x: 24, y: 14, text: "Evaporate", fs: 40, tone: "purple" });
       L7.text(card1.el, { x: 24, y: 88, text: "every road keeps half", fs: 28, tone: "dim", bold: false });
       L7.text(card1.el, {
@@ -212,25 +218,17 @@
         tone: "purple",
         align: "right",
       });
-      const card2 = L7.card(stage, { x: RX, y: 220, w: RW, h: 210, tone: "blue", plain: true });
+      const card2 = L7.card(stage, { x: RX, y: 252, w: RW, h: 226, tone: "blue", plain: true });
       L7.text(card2.el, { x: 24, y: 14, text: "Deposit", fs: 40, tone: "blue" });
-      L7.text(card2.el, {
-        x: RW - 24 - 140 - 6,
-        y: 24,
-        w: 140,
-        text: `Q = ${U.Q}`,
-        fs: 32,
-        tone: "dim",
-        align: "right",
-      });
-      L7.text(card2.el, { x: 24, y: 74, text: "tour roads gain Q ÷ length", fs: 28, tone: "dim", bold: false });
+      L7.text(card2.el, { x: 24, y: 66, text: "tour roads gain Q ÷ length", fs: 28, tone: "dim", bold: false });
+      L7.text(card2.el, { x: 24, y: 100, text: `Q = ${U.Q}, fixed per ant`, fs: 28, tone: "dim", bold: false });
       const eq = V.h("div", {
         class: "v-text",
-        style: { left: "24px", top: "116px", fontSize: "56px", fontWeight: "900" },
+        style: { left: "24px", top: "140px", fontSize: "56px", fontWeight: "900" },
         html: `<span style="color:${blue.ink}">${U.Q}</span> ÷ <span style="color:${orange.ink}">${U.len}</span> = <span style="color:${blue.ink}">${U.dep}</span>`,
       });
       card2.el.append(eq);
-      const note = L7.tag(stage, { x: RX, y: 470, text: "skipped roads only lose", tone: "purple" });
+      const note = L7.tag(stage, { x: RX, y: 498, text: "skipped roads only lose", tone: "purple" });
 
       // the '+4' that pops beside each tour road's pill as it gains
       const plus = TOUR_KEYS.map((k) => {
@@ -292,9 +290,8 @@
           }),
         );
         M.update({
-          grow: ramp(t, 0.1, 0.8, E.out),
+          grow: ramp(t, 0.35, 1.0, E.out),
           tau,
-          tone: Object.fromEntries(U.tourRoads.map((k) => [k, "orange"])),
           pills,
           towns: Object.fromEntries(
             [..."ABCD"].map((n, i) => [
@@ -306,6 +303,11 @@
         });
 
         // ---- halos under the skipped roads fade in with their tag ----
+        const tk = ramp(t, 0.35, 0.8, lin);
+        U.tourRoads.forEach((k) => {
+          tourBands[k].setAttribute("stroke-width", f1(L7.trailW(tau[k], 0.5) + 26));
+          V.show(tourBands[k], tk);
+        });
         const hk = ramp(t, NOTE[0], NOTE[1], lin);
         SKIPPED.forEach((k) => {
           halos[k].setAttribute("stroke-width", f1(L7.trailW(tau[k], 0.5) + 26));
@@ -328,7 +330,9 @@
           const k = L7.seq(t, 0.5, 0.07, 0.35, i);
           return { s: 0.7 + 0.3 * E.pop(k), o: Math.min(1, k * 4) };
         });
+        memTag.set({ k: ramp(t, 0.5, 0.85, lin) });
         lenCard.set({ k: ramp(t, 0.9, 1.3, lin) });
+        pherTag.set({ k: ramp(t, 0.6, 0.95, lin) });
 
         // ---- the two cards ----
         card1.set({ k: ramp(t, 1.4, 2.0, lin), s: 1 + 0.03 * flash(t, EV[0], EV[1]) });
@@ -337,7 +341,7 @@
         // ---- a '+4' pops beside each pill as its road gains, drifts up a little and fades ----
         plus.forEach((p, i) => {
           const q = (t - dep0(i)) / PLUS_DUR;
-          const o = ramp(q, 0, 0.15, lin) * (1 - ramp(q, 0.6, 1, lin));
+          const o = ramp(q, 0, 0.12, lin) * (1 - ramp(q, 0.82, 1, lin));
           p.set({
             k: 1,
             o: q <= 0 || q >= 1 ? 0 : o,

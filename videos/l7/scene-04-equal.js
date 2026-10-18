@@ -17,7 +17,7 @@
     { sim: L7.EQ.up, x: 12, name: "colony 1" },
     { sim: L7.EQ.down, x: 498, name: "colony 2" },
   ];
-  const BOX = { y: 80, w: 426, h: 340, cy: 170 }; // 12 px side margins on the stage
+  const BOX = { y: 90, w: 426, h: 340, cy: 170 }; // 12 px side margins on the stage
   const RUN0 = 3.0; // the first ant leaves
   const RATE = 10; // ticks per second
   const LAST = 76; // the last tick we show
@@ -57,8 +57,8 @@
   });
 
   // ---------- geometry (stage px) ----------
-  const SHARE_W = 222; // every share tag has the width of '100% of ants', so the pill never changes size
-  const SHARE_DX = 55; // the tags sit a little right of each apex, clear of the 'colony' tag
+  const SHARE_W = 323; // every share tag has the width of '100% of last 10 ants', so the pill never changes size
+  const SHARE_DX = 0; // the tags are centred on each apex
   const STICKER_W = 402; // 'chose the upper bridge' + a tick on the left (text measured at 28 px bold)
   const STICKER_Y = 462;
   const LEGEND_Y = 566;
@@ -70,13 +70,13 @@
   V.scene({
     kicker: "THE DOUBLE BRIDGE",
     title: ["Two equal bridges,", "one winner"],
-    dur: 12.5,
+    dur: 13,
     caps: [
-      [0.4, 2.8, "Ants can cross by either of two equal bridges."],
+      [0.4, 2.8, "Ants use either of two equal bridges."],
       [3.0, 5.6, "At first the ants choose at random."],
-      [5.8, 8.6, "Each ant leaves pheromone and prefers a stronger trail."],
+      [5.8, 8.6, "Ants leave pheromone and prefer strong trails."],
       [8.8, 10.6, "Soon most ants use one bridge."],
-      [10.8, 12.2, "Which one is down to chance."],
+      [10.8, 12.6, "Which one is down to chance."],
     ],
     build(stage) {
       const bridges = COLONIES.map((c) => L7.bridge(stage, { x: c.x, ...BOX, dot: 9 }));
@@ -86,7 +86,13 @@
       const shares = bridges.map((b) => {
         const [hi, lo] = [b.apex(0), b.apex(1)];
         const mk = (y) => {
-          const t = L7.tag(stage, { x: hi.x - SHARE_W / 2 + SHARE_DX, y, text: "0% of ants", tone: "grey", h: HEIGHT });
+          const t = L7.tag(stage, {
+            x: hi.x - SHARE_W / 2 + SHARE_DX,
+            y,
+            text: "0% of last 10 ants",
+            tone: "grey",
+            h: HEIGHT,
+          });
           t.el.style.width = `${SHARE_W}px`;
           return t;
         };
@@ -153,8 +159,8 @@
           });
           const up = Math.round(s.share);
           const k = ramp(t, tagsAt + 0.15 * i, tagsAt + 0.15 * i + 0.4, lin);
-          shares[i].up.set({ text: `${up}% of ants`, k });
-          shares[i].down.set({ text: `${100 - up}% of ants`, k });
+          shares[i].up.set({ text: `${up}% of last 10 ants`, k });
+          shares[i].down.set({ text: `${100 - up}% of last 10 ants`, k });
           names[i].set({ k: seq(t, 0.25, 0.2, 0.35, i) });
         });
 

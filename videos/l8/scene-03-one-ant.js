@@ -5,16 +5,19 @@
    the 'tabu list' row (T), 1.3-1.8 the 'allowed' row (P Q R S, the towns turn green). Four steps start at 2.3 + 1.6 k: the
    towns still allowed ring green and dotted green roads show the options, the ant's pick gets an orange ring, the ant hops
    there (orange arrow, distance tag, running total), its chip flies into the next tabu slot and the town turns red; from step
-   2 a red 'closed' sign sits on the road to a visited town. 8.8-9.6 the allowed row reads 'none left' and the ant goes home. */
+   2 a red 'closed' sign sits on the road to a visited town. 8.8-9.6 the allowed row reads 'none left' and the ant goes home,
+   9.2-9.5 the total reads 74 km. 11.5-12.2 the tour is over: the red towns turn plain again, the orange tour is undrawn and the
+   tabu list empties (the ants forget; scene 2 showed the trails remember). */
 VID.scene({
   kicker: "ONE ANT",
   title: ["One ant builds", "a whole tour"],
-  dur: 12,
+  dur: 14.2,
   caps: [
-    [1.4, 3.7, "Towns it has visited go on the tabu list."],
-    [3.9, 6.0, "It picks any town that is still allowed."],
+    [1.4, 3.7, "Its start town goes on the tabu list."],
+    [3.9, 6.0, "It picks a town that is still allowed."],
     [6.2, 8.4, "A visited town is never picked again."],
-    [8.9, 11.4, "All towns visited: back home. Tour length 74 km."],
+    [9.4, 11.4, `Back home: tour length ${VID.l8.ONE.len} km.`],
+    [11.7, 13.9, "Next tour: the tabu list starts empty."],
   ],
   build(stage, V) {
     const L8 = V.l8;
@@ -44,6 +47,7 @@ VID.scene({
     const SD = 1.6;
     const sOf = (k) => S0 + SD * k;
     const CLOSE = [8.8, 9.6]; // the way home
+    const CLEAR = [11.5, 12.2]; // the tour is over: the tabu list empties
     const hops = Array.from({ length: N }, (_, j) => {
       const s = sOf(j);
       return j < N - 1
@@ -145,7 +149,7 @@ VID.scene({
     // ---- one town's look at time t: red once visited, green while it is allowed, a ring for the choice being made
     function town(id, t) {
       const st = { k: L8.seq(t, 0.2, 0.08, 0.4, F.ids.indexOf(id)) };
-      if (t >= visitedAt[id]) st.tone = "red";
+      if (t >= visitedAt[id] && t < CLEAR[0] + 0.1) st.tone = "red";
       else if (t >= greenAt[id]) st.tone = "green";
       const k = Math.floor((t - S0) / SD);
       if (k < 0 || k > 3 || !ONE.steps[k].J.includes(id)) return st;
@@ -168,10 +172,11 @@ VID.scene({
         return st.J.map((b) => ({ a: st.at, b, k: 1, tone: "green", w: 8, dash: true, o }));
       });
       const closed = signs.map(({ a, b, k }) => ({ a, b, k: 1, tone: "red", w: 8, dash: true, o: signK(t, k) }));
+      const undraw = 1 - ramp(t, CLEAR[0], CLEAR[1], E.inOut); // the tour is undrawn, never faded over the trails
       const arrows = hops.map((h) => ({
         a: h.a,
         b: h.b,
-        k: ramp(t, h.t0, h.t1, E.inOut),
+        k: ramp(t, h.t0, h.t1, E.inOut) * undraw,
         tone: "orange",
         w: 9,
         head: true,
@@ -183,7 +188,7 @@ VID.scene({
             text: String(ONE.legs[j]),
             tone: "orange",
             solid: true,
-            k: j < N - 1 ? ramp(t, sOf(j) + 1.3, sOf(j) + 1.6, E.lin) : ramp(t, 9.3, 9.6, E.lin),
+            k: (j < N - 1 ? ramp(t, sOf(j) + 1.3, sOf(j) + 1.6, E.lin) : ramp(t, 9.3, 9.6, E.lin)) * undraw,
           },
         ]),
       );
@@ -209,15 +214,19 @@ VID.scene({
       const kA = ramp(t, 1.3, 1.8, E.lin);
       tabuTag.set({ k: kT });
       tabuSlots.forEach((c, i) => c.set({ ghost: true, k: ramp(t, 1.0 + 0.05 * i, 1.4 + 0.05 * i, E.lin) }));
-      tabuT.set({ k: kT });
+      const clr = ramp(t, CLEAR[0], CLEAR[1], E.inOut);
+      tabuT.set({ k: kT, s: 1 - 0.4 * clr, o: 1 - clr });
       const none = t >= CLOSE[0] + 0.05;
       allowTag.set({
         text: none ? "none left" : "allowed",
         tone: none ? "grey" : "green",
         k: kA,
         s: 1 + 0.1 * flash(t, CLOSE[0], CLOSE[0] + 0.4),
+        o: 1 - clr,
       });
-      allowSlots.forEach((c, i) => c.set({ ghost: true, k: ramp(t, 1.3 + 0.05 * i, 1.7 + 0.05 * i, E.lin) }));
+      allowSlots.forEach((c, i) =>
+        c.set({ ghost: true, k: ramp(t, 1.3 + 0.05 * i, 1.7 + 0.05 * i, E.lin), o: 1 - clr }),
+      );
       chips.forEach((c, i) => {
         const id = others[i];
         const k = ONE.steps.findIndex((st) => st.to === id);
@@ -228,7 +237,8 @@ VID.scene({
           x: f * 80 * (k + 1 - i),
           y: f * (Y_TABU - Y_ALLOW),
           tone: f >= 0.5 ? "red" : "green",
-          s: 1 + 0.12 * flash(t, s + 1.55, s + 1.9),
+          s: (1 + 0.12 * flash(t, s + 1.55, s + 1.9)) * (1 - 0.4 * clr),
+          o: 1 - clr,
         });
       });
 

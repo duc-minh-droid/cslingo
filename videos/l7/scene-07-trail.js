@@ -3,9 +3,10 @@
    chance equal to its share (20 of 30 = 67%). If the ants stop, nothing refills it and it fades away. Two tanks fill and leak,
    run on the lesson's own numbers (L7.TRAIL / L7.trailAt, asserted below). Local seconds: 0.2-1.3 everything pops, 1.4-6.4 steps
    0 to 24 (slow at first so the first steps can be read, then a fast forward that spreads the levelling off over the caption), 6.4
-   the '=' signs and the dashed marks (the pills already read +4 and -4.0), 6.4-9.6 the step counter creeps on to 30, 6.8-7.1 the
-   equation cards, 8.1-9.5 the chance bars, 9.7-10.0 the ants fade, 10.0 the red 'ants stop' tag, 10.2-12.7 steps 30 to 50 while
-   the tanks drain. Ants drip pheromone into their tank (one drip per ant per 0.4 s) and purple bubbles evaporate off the surface. */
+   the '=' signs, the dashed marks and their '20' / '10' labels (the pills already read +4 and -4.0), 6.4-10.4 the step counter
+   creeps on to 30, 6.8-7.1 the equation cards, 8.7-10.1 the chance tag and bars, 10.4-10.7 the ants fade, 10.6 the red 'ants stop'
+   tag, 11.0-13.5 steps 30 to 50 while the tanks drain. The tag above each tank shows its live level. Ants drip pheromone into
+   their tank (one drip per ant per 0.4 s) and purple bubbles evaporate off the surface. */
 (function () {
   const V = window.VID;
   const L7 = V.l7;
@@ -28,22 +29,28 @@
   L7.same("scene 7 chance is the share of 20 + 10", [Math.round((100 * TR.eq.a) / (TR.eq.a + TR.eq.b))], [67]);
 
   // what the two pills under a tank say at a step: the gain of this step and what evaporates in it
-  const lossText = (v) => (v < 0.001 ? "0" : v.toFixed(v < 0.095 ? 2 : 1));
+  const gainText = (v) => (v ? `+${v}` : "0"); // nothing gained is a plain 0, never '+0'
+  const lossText = (v) => (v < 0.001 ? "0" : `-${v.toFixed(v < 0.095 ? 2 : 1)}`); // nothing lost is a plain 0, never '-0'
   const pillsAt = (T) => {
     const s = L7.trailAt(T);
-    return [`+${s.gainA}`, `-${lossText(s.lossA)}`, `+${s.gainB}`, `-${lossText(s.lossB)}`];
+    return [gainText(s.gainA), lossText(s.lossA), gainText(s.gainB), lossText(s.lossB)];
   };
   L7.same("scene 7 pills at step 2", pillsAt(2), ["+4", "-0.8", "+2", "-0.4"]);
   L7.same("scene 7 pills at step 30 (gain balances loss)", pillsAt(30), ["+4", "-4.0", "+2", "-2.0"]);
-  L7.same("scene 7 pills at step 50 (the ants have stopped)", pillsAt(50), ["+0", "-0.06", "+0", "-0.03"]);
+  L7.same("scene 7 pills at step 50 (the ants have stopped)", pillsAt(50), ["0", "-0.06", "0", "-0.03"]);
+  L7.same("scene 7 pills at step 0 (nothing gained or lost yet)", pillsAt(0), ["0", "0", "0", "0"]);
   const EQ_CARD = [`A: ${TR.ants.a} ÷ ${TR.rho} = ${TR.eq.a}`, `B: ${TR.ants.b} ÷ ${TR.rho} = ${TR.eq.b}`];
   L7.same("scene 7 equation cards", EQ_CARD, ["A: 4 ÷ 0.2 = 20", "B: 2 ÷ 0.2 = 10"]);
+  L7.same("scene 7 a fifth is the evaporation 0.2", 1 / TR.rho, 5);
+  const TOTAL = TR.eq.a + TR.eq.b;
+  const CHANCE_TAG = `chance: ${TR.eq.a} ÷ ${TOTAL}, ${TR.eq.b} ÷ ${TOTAL}`;
+  L7.same("scene 7 chance tag (20 of 30 and 10 of 30)", CHANCE_TAG, "chance: 20 ÷ 30, 10 ÷ 30");
 
   // ---------- step time T(t): the first steps are slow enough to read, then a fast forward that eases to a stop at step 30 ----------
   const T_RUN = 1.4; // the ants start walking
   const T_LEVEL = 6.4; // the trails have levelled off (step 24 of 30)
-  const T_DONE = 9.6; // step 30, the last one the ants walk
-  const T_STOP = 10.2; // the ants have stopped: steps 30 to 50 (the drain)
+  const T_DONE = 10.4; // step 30, the last one the ants walk
+  const T_STOP = 11.0; // the ants have stopped: steps 30 to 50 (the drain)
   const DRAIN = 8; // steps per second after the ants stop
   const KNOTS = [
     [T_RUN, 0],
@@ -81,9 +88,9 @@
   };
   L7.close("scene 7 step 5 at 3.4 s", tickAt(3.4), 5, 1e-9);
   L7.close("scene 7 step 24 at 6.4 s", tickAt(T_LEVEL), 24, 1e-9);
-  L7.close("scene 7 step 30 at 9.6 s", tickAt(T_DONE), 30, 1e-9);
-  L7.close("scene 7 step 30 stays until 10.2 s", tickAt(T_STOP - 0.001), 30, 1e-9);
-  L7.close("scene 7 step 50 at 12.7 s", tickAt(12.7), 50, 1e-9);
+  L7.close("scene 7 step 30 at 10.4 s", tickAt(T_DONE), 30, 1e-9);
+  L7.close("scene 7 step 30 stays until 11.0 s", tickAt(T_STOP - 0.001), 30, 1e-9);
+  L7.close("scene 7 step 50 at 13.5 s", tickAt(T_STOP + (TR.steps - TR.stop) / DRAIN), 50, 1e-9);
   L7.same(
     "scene 7 the step never runs backwards",
     Array.from({ length: 1301 }, (_, i) => tickAt(i / 100)).every((v, i, a) => i === 0 || v >= a[i - 1] - 1e-9),
@@ -93,6 +100,7 @@
 
   // ---------- layout (stage px) ----------
   const TANK_Y = 154;
+  const HEAD_Y = 12; // 12 px stage margin
   const TANKS = [
     { x: 40, w: 220, tone: "blue", name: "trail A", n: TR.ants.a, eq: TR.eq.a, pct: TR.chance.a },
     { x: 300, w: 220, tone: "blue", name: "trail B", n: TR.ants.b, eq: TR.eq.b, pct: TR.chance.b },
@@ -102,17 +110,17 @@
   const ANT_SIZE = 42;
   const PILL_Y = 502;
   const PILL = { w: 84, h: 54, gap: 52 }; // gain pill, a gap for '=', loss pill (both as wide as their tank)
-  const RX = 556;
-  const RW = 368;
+  const RX = 552;
+  const RW = 366; // the right column ends 18 px inside the stage, so a popping card stays inside the margin
   // the ants above a tank: one per ant that walks the trail each step, centred over it
   const ANTS = TANKS.flatMap((k, ti) =>
     Array.from({ length: k.n }, (_, i) => ({ tank: ti, i, x: k.cx + 50 * (i - (k.n - 1) / 2) })),
   );
   L7.same("scene 7 ants above the tanks", [ANTS.length, ANTS.filter((a) => a.tank === 0).length], [6, 4]);
   // widths of the tag texts (28 px, weight 900) as the browser draws them, plus the tag's own padding
-  const TAG_W = { "trail A": 128, "trail B": 126, "ants stop": 172 };
+  const TAG_W = { "trail A": 220, "trail B": 220, "ants stop": 172 }; // the tank tags are 220 px wide: they show 'trail A: 20.0'
   const AT = { tags: 0.2, tanks: 0.35, ants: 0.55, pills: 0.7, step: 0.9, legend: 1.0 };
-  const T_ANTS_OFF = [9.7, 10.0]; // the ants fade out
+  const T_ANTS_OFF = [10.4, 10.7]; // the ants fade out
   const CYCLE = 0.4; // one bob and one drip per ant in this many seconds
   const FALL = 0.34; // seconds a drip takes to reach the pheromone
   const VAPOUR = [
@@ -124,13 +132,13 @@
   V.scene({
     kicker: "PHEROMONE TRAILS",
     title: ["Trails build up", "and fade away"],
-    dur: 13,
+    dur: 14.1,
     caps: [
-      [1.4, 3.4, "Each step, ants add pheromone to a trail."],
+      [1.4, 3.4, "Each step, ants add pheromone."],
       [3.6, 6.2, "Each step, a fifth of it evaporates."],
-      [6.4, 8.0, "It levels off where gain equals loss."],
-      [8.2, 10.0, "A stronger trail has a higher chance of being picked."],
-      [10.2, 12.6, "If the ants stop, the trail fades away."],
+      [6.4, 8.6, "It levels off where gain equals loss."],
+      [8.9, 10.9, "Stronger trails get picked more."],
+      [11.1, 13.5, "If the ants stop, the trail fades away."],
     ],
     build(stage) {
       const blue = L7.tone("blue");
@@ -144,7 +152,7 @@
         t.el.style.width = `${w}px`;
         return t;
       };
-      const heads = TANKS.map((k) => centred(k.name, k.cx, 0, "blue", false));
+      const heads = TANKS.map((k) => centred(k.name, k.cx, HEAD_Y, "blue", false));
       const tanks = TANKS.map((k) => L7.tank(stage, { x: k.x, y: TANK_Y, w: k.w, h: 330, max: 24, tone: "blue" }));
 
       // the pills under each tank: this step's gain (blue), this step's loss (purple), and an orange '=' between them
@@ -200,15 +208,27 @@
       const stopTag = centred("ants stop", 270, ANT_Y - 29, "red", true);
 
       // right column: the step counter, the legend, the equations, the chance bars
-      const step = L7.stat(stage, { x: RX, y: 0, w: RW, h: 80, label: "step", tone: "grey" });
-      const gainTag = L7.tag(stage, { x: RX, y: 110, text: "gain: ants add", tone: "blue", solid: true });
-      const lossTag = L7.tag(stage, { x: RX, y: 178, text: "loss: 20% evaporates", tone: "purple", solid: true });
+      const step = L7.stat(stage, { x: RX, y: 12, w: RW, h: 76, label: "step", tone: "grey" });
+      const gainTag = L7.tag(stage, { x: RX, y: 104, text: "gain: ants add", tone: "blue", solid: true });
+      const lossTag = L7.tag(stage, { x: RX, y: 170, text: `loss: a fifth (${TR.rho})`, tone: "purple", solid: true });
       const cards = EQ_CARD.map((text, i) =>
-        L7.card(stage, { x: RX, y: 266 + 74 * i, w: RW, h: 64, text, tone: "blue", plain: true, fs: 32 }),
+        L7.card(stage, { x: RX, y: 250 + 70 * i, w: RW, h: 62, text, tone: "blue", plain: true, fs: 32 }),
       );
-      const chanceTag = L7.tag(stage, { x: RX, y: 420, text: "chance of being picked", tone: "grey" });
+      const chanceTag = L7.tag(stage, { x: RX, y: 402, text: CHANCE_TAG, tone: "grey" });
+      // the dashed marks are labelled with the level they stand for (20 and 10), in the gap between the tanks
+      const markLabels = TANKS.map((k, i) =>
+        L7.text(stage, {
+          x: 260,
+          y: tanks[i].yOf(k.eq) - 22,
+          w: 40,
+          text: String(k.eq),
+          fs: 30,
+          tone: "orange",
+          align: "center",
+        }),
+      );
       const bars = TANKS.map((k, i) => {
-        const b = L7.bar(stage, { x: RX, y: 490 + 66 * i, w: RW, h: 56, tone: "orange" });
+        const b = L7.bar(stage, { x: RX, y: 474 + 66 * i, w: RW, h: 56, tone: "orange" });
         b.el.lastChild.style.left = "14px"; // a little closer to the edge, so 'B 33%' fits inside its short bar
         return b;
       });
@@ -221,7 +241,12 @@
         const text = pillsAt(T);
 
         // ---- tags, tanks, pills ----
-        heads.forEach((h, i) => h.set({ k: ramp(t, AT.tags + 0.1 * i, AT.tags + 0.1 * i + 0.35, lin) }));
+        heads.forEach((h, i) =>
+          h.set({
+            text: `${TANKS[i].name}: ${level[i].toFixed(1)}`, // the live level
+            k: ramp(t, AT.tags + 0.1 * i, AT.tags + 0.1 * i + 0.35, lin),
+          }),
+        );
         tanks.forEach((tk, i) => {
           const k = ramp(t, AT.tanks + 0.1 * i, AT.tanks + 0.1 * i + 0.4, lin);
           const m = t >= T_LEVEL + 0.05 ? [TANKS[i].eq] : [null];
@@ -285,10 +310,11 @@
           const t0 = 6.8 + 0.3 * i;
           c.set({ k: ramp(t, t0, t0 + 0.35, lin) });
         });
-        chanceTag.set({ k: ramp(t, 8.1, 8.45, lin) });
+        chanceTag.set({ k: ramp(t, 8.7, 9.05, lin) });
+        markLabels.forEach((m, i) => m.set({ k: ramp(t, T_LEVEL + 0.05 + 0.1 * i, T_LEVEL + 0.4 + 0.1 * i, lin) }));
         bars.forEach((b, i) => {
-          const pop = ramp(t, 8.1 + 0.15 * i, 8.45 + 0.15 * i, lin);
-          const fill = ramp(t, 8.4 + 0.3 * i, 9.2 + 0.3 * i, E.out);
+          const pop = ramp(t, 8.7 + 0.15 * i, 9.05 + 0.15 * i, lin);
+          const fill = ramp(t, 9.0 + 0.3 * i, 9.8 + 0.3 * i, E.out);
           b.set({
             k: (fill * TANKS[i].pct) / 100,
             text: fill > 0 ? `${i ? "B" : "A"} ${Math.round(fill * TANKS[i].pct)}%` : `${i ? "B" : "A"}`,
@@ -298,7 +324,7 @@
         });
 
         // ---- the ants stop ----
-        stopTag.set({ k: ramp(t, 10.0, 10.35, lin) });
+        stopTag.set({ k: ramp(t, 10.6, 10.95, lin) });
       };
     },
   });
