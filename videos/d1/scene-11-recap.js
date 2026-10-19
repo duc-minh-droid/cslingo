@@ -135,6 +135,28 @@
     const wireIn = link(svg, [12, 70], [SPLIT[0] - 8, 70], 5, grey);
     const wires = YS.map((y) => link(svg, SPLIT, [SX - 18, y], 5, grey));
 
+    // packets: SVG, under the split and the servers so they slide into them
+    const packet = () => {
+      const rect = (dy, fill, stroke) =>
+        V.s("rect", { x: -9, y: -9 + dy, width: 18, height: 18, rx: 5, "stroke-width": 2.5, style: { fill, stroke } });
+      const [blue, red] = [L5.tone("blue"), L5.tone("red")];
+      const lip = rect(3, blue.lip, blue.lip);
+      const face = rect(0, blue.c, blue.lip);
+      return { g: svg.appendChild(V.s("g", {}, lip, face)), lip, face, blue, red };
+    };
+    // a trip takes DUR seconds; a dropped request goes the same speed to the full server (STOP of the way), then takes FALL to tumble off
+    const [DUR, FALL, STOP, A0, AS, B0, BS] = [0.75, 0.4, 0.92, 0.25, 0.12, 2.0, 0.13];
+    const TRAVEL = DUR * STOP;
+    const trips = [
+      ...Array.from({ length: REQS }, (_, i) => ({ t0: A0 + AS * i, to: ME, drop: i % 3 === 2 })),
+      ...Array.from({ length: 6 }, (_, j) => ({ t0: B0 + BS * j, to: j % 3, drop: false })),
+    ].map((tr) => ({
+      ...tr,
+      ...packet(),
+      dur: tr.drop ? TRAVEL + FALL : DUR,
+      path: D1.poly([[12, 70], SPLIT, [SX - 20, YS[tr.to]]]),
+    }));
+
     // the split: a purple sticker with a fork
     const vio = L5.tone("purple");
     const split = svg.appendChild(
@@ -160,21 +182,6 @@
       ),
     );
 
-    // packets: SVG, under the servers so they slide into them
-    const packet = () => {
-      const rect = (dy, fill, stroke) =>
-        V.s("rect", { x: -9, y: -9 + dy, width: 18, height: 18, rx: 5, "stroke-width": 2.5, style: { fill, stroke } });
-      const [blue, red] = [L5.tone("blue"), L5.tone("red")];
-      const lip = rect(3, blue.lip, blue.lip);
-      const face = rect(0, blue.c, blue.lip);
-      return { g: svg.appendChild(V.s("g", {}, lip, face)), lip, face, blue, red };
-    };
-    const [DUR, A0, AS, B0, BS] = [0.75, 0.25, 0.12, 2.0, 0.13];
-    const trips = [
-      ...Array.from({ length: REQS }, (_, i) => ({ t0: A0 + AS * i, to: ME, drop: i % 3 === 2 })),
-      ...Array.from({ length: 6 }, (_, j) => ({ t0: B0 + BS * j, to: j % 3, drop: false })),
-    ].map((tr) => ({ ...tr, ...packet(), path: D1.poly([[12, 70], SPLIT, [SX - 20, YS[tr.to]]]) }));
-
     // the servers, each with a meter to its right
     const icons = YS.map((y) => serverIcons(svg, SX, y, 38, ["grey", "green", "orange"]));
     const MX = 268;
@@ -194,7 +201,7 @@
       return { track, fill };
     });
 
-    const T = { fill: [0.3, 1.1], full: 1.1, add: 1.8, drain: [2.2, 3.0], green: 2.6, rise: [2.5, 3.4] };
+    const T = { fill: [0.3, 1.0], full: 1.0, add: 1.8, drain: [2.2, 3.0], green: 2.6, rise: [2.5, 3.4] };
     const level = (q, i) =>
       i === ME
         ? lerp(ramp(q, T.fill[0], T.fill[1], E.lin) * FULL, HALF, ramp(q, T.drain[0], T.drain[1], E.inOut))
@@ -213,19 +220,22 @@
 
       // packets
       trips.forEach((tr) => {
-        const u = (q - tr.t0) / DUR;
-        if (u < 0 || u > 1) return V.place(tr.g, { o: 0 });
-        const p = tr.path.at(u);
-        const fall = tr.drop ? ramp(u, 0.8, 1, E.lin) : 0; // a dropped request turns red and falls before the server
+        const sec = q - tr.t0; // seconds into this trip
+        if (sec < 0 || sec > tr.dur) return V.place(tr.g, { o: 0 });
+        const fall = tr.drop ? ramp(sec, TRAVEL, tr.dur, E.lin) : 0; // a dropped request bounces off the full server, turns red and falls
+        const p = tr.path.at(tr.drop ? STOP * ramp(sec, 0, TRAVEL, E.lin) : sec / DUR);
         const tone = fall > 0 ? tr.red : tr.blue;
         [tr.lip.style.fill, tr.face.style.fill] = [tone.lip, tone.c];
         [tr.lip.style.stroke, tr.face.style.stroke] = [tone.lip, tone.lip];
-        const x = tr.drop ? Math.min(p.x, tr.path.at(0.8).x) : p.x;
         V.place(tr.g, {
-          x,
-          y: p.y + 56 * E.out(fall) - (tr.drop ? (p.y - tr.path.at(0.8).y) * fall : 0),
-          s: 1 - 0.45 * (tr.drop ? fall : ramp(u, 0.9, 1, E.lin)),
-          o: Math.min(ramp(u, 0, 0.1, E.lin), tr.drop ? 1 - fall : 1 - ramp(u, 0.92, 1, E.lin)),
+          x: p.x,
+          y: p.y + 62 * fall * fall,
+          r: 60 * fall,
+          s: tr.drop ? 1 - 0.3 * fall : 1 - 0.45 * ramp(sec / DUR, 0.9, 1, E.lin),
+          o: Math.min(
+            ramp(sec, 0, 0.1, E.lin),
+            tr.drop ? 1 - ramp(fall, 0.45, 0.95, E.lin) : 1 - ramp(sec / DUR, 0.92, 1, E.lin),
+          ),
         });
       });
 
