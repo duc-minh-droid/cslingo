@@ -1,4 +1,4 @@
-/* Recap videos for Nature-Inspired lectures 1 to 6: one node after each lecture's boss quiz.
+/* Recap videos for Nature-Inspired lectures 1 to 8: one node after each lecture's boss quiz.
    Each is a one-step lesson that plays videos/out/lecture-N.mp4 (made from videos/lecture-N.html, see videos/README.md).
    A video is a bonus (m.video): it never counts towards finishing a lecture or a course, and watching it keeps the
    streak alive and pays the review amount (5 XP) without adding to lesson counts. */
@@ -92,6 +92,37 @@
         "Crossover: swap subtrees between two parents",
         "Evolve a formula: find x² + x + 1",
         "Five choices before you run",
+      ],
+    },
+    {
+      n: 7,
+      blurb: "Lecture 7 in pictures: simple ants, a clever colony, and how pheromone trails find the short route.",
+      chapters: [
+        "Simple ants, clever colony",
+        "Many weak votes make a strong one",
+        "Two equal bridges, one winner",
+        "The short bridge gets pheromone first",
+        "Ants talk through the ground",
+        "Trails build up and fade away",
+        "Pick the next town by trail and distance",
+        "Evaporate first, then deposit",
+        "Send many ants: the short tour wins",
+      ],
+    },
+    {
+      n: 8,
+      blurb:
+        "Lecture 8 in pictures: the Ant System step by step, from choosing a road to evaporating and depositing trail.",
+      chapters: [
+        "Ants build tours, then the trails learn",
+        "One ant builds a whole tour",
+        "Score every road: trail times closeness",
+        "Then a random draw picks the road",
+        "Two dials set what the ants trust",
+        "Evaporate, then deposit",
+        "Good trails snowball",
+        "Who gets to add trail?",
+        "Any problem drawn as a path",
       ],
     },
   ];
