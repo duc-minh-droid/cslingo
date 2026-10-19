@@ -24,7 +24,7 @@
   //  Dock + routing
   // =====================================================================
   const dock = qs("#dock");
-  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" aria-hidden="true" hidden></i></button>`;
+  dock.innerHTML = `<button data-to="learn" aria-label="Learn">${IC.home}<span>Learn</span></button><button data-to="practice" aria-label="Practice">${IC.dumbbell}<span>Practice</span><i class="dk-badge" aria-hidden="true" hidden></i></button><button data-to="glossary" aria-label="Glossary">${IC.book}<span>Glossary</span></button>`;
   qsa("button", dock).forEach((b) =>
     b.addEventListener("click", () => {
       location.hash = b.dataset.to === "learn" ? SUBJECTS[app.course].home : b.dataset.to;
@@ -229,10 +229,16 @@
 
   /* Page changes animate through fx.swap (View Transitions): dock tabs slide left/right in tab order, other page changes crossfade.
      Opening a lesson, the first render, re-rendering the same page and leaving the player all render at once (tests rely on it). */
-  const TABS = ["learn", "practice", "profile"];
+  const TABS = ["learn", "practice", "glossary", "profile"];
   const tabOf = (id) => {
     const p = id.split("/")[0];
-    return p === "profile" ? "profile" : p === "practice" || p === "revise" ? "practice" : "learn";
+    return p === "profile"
+      ? "profile"
+      : p === "glossary"
+        ? "glossary"
+        : p === "practice" || p === "revise"
+          ? "practice"
+          : "learn";
   };
   let routeTok = 0;
   app.lastRoute = null;
@@ -287,7 +293,7 @@
     const page = id.split("/")[0];
     if (
       !modules.some((m) => m.id === id) &&
-      !/^(practice|profile|revise)$/.test(page) &&
+      !/^(practice|profile|revise|glossary)$/.test(page) &&
       !SUBJ_ORDER.some((k) => SUBJECTS[k].home === id)
     ) {
       // a hash that names nothing (a typo, a renamed lesson): if only one course has loaded the lesson may live in another, so
@@ -353,6 +359,14 @@
     main.innerHTML = "";
     wait(false);
     if (!mod && NIC.player.isOpen()) NIC.player.close(true);
+    if (page === "glossary") {
+      app.renderTop();
+      setDock("glossary");
+      document.title = "Glossary · CSLingo";
+      app.glossaryPage(id.split("/")[1]);
+      window.scrollTo(0, 0);
+      return;
+    }
     if (page === "practice" || page === "profile" || page === "revise") {
       app.renderTop();
       setDock(page === "profile" ? "profile" : "practice");

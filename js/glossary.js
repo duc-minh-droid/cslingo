@@ -209,7 +209,7 @@
     ["distance[- ]vector", "Routing where each router shares its distance table only with its neighbours."],
     ["poisoned reverse", "Telling a neighbour your route via it is infinitely far, to stop routing loops."],
     ["invariant", "A statement that stays true at every step of an algorithm."],
-  ].map(([pat, tip]) => [new RegExp(`(?<![A-Za-z0-9_])(?:${pat})(?![A-Za-z0-9_])`, "i"), tip]);
+  ].map(([pat, tip]) => [new RegExp(`(?<![A-Za-z0-9_])(?:${pat})(?![A-Za-z0-9_])`, "i"), tip, pat]);
 
   const SKIP = new Set(["SCRIPT", "STYLE", "CODE", "PRE", "SVG", "BUTTON", "INPUT", "TEXTAREA", "SELECT", "A"]);
   function glossify(root, { max = 3 } = {}) {
@@ -268,4 +268,29 @@
     return count;
   }
   N.glossify = glossify;
+  /** The glossary page's terms: the display name is the first spelling in the pattern ("populations?" -> "Population"). */
+  const nameOf = (pat) => {
+    let depth = 0,
+      cut = pat.length;
+    for (let i = 0; i < pat.length; i++) {
+      if (pat[i] === "(") depth++;
+      else if (pat[i] === ")") depth--;
+      else if (pat[i] === "|" && !depth) {
+        cut = i;
+        break;
+      }
+    }
+    const n = pat
+      .slice(0, cut)
+      .replace(/\(\?:[^)]*\)\?/g, "")
+      .replace(/\(\?:([^|)]*)[^)]*\)/g, "$1")
+      .replace(/\[- \]\??/g, " ")
+      .replace(/\[([a-z])[a-z]*\]/g, "$1")
+      .replace(/(.)\?/g, "")
+      .replace(/\\/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    return /^[a-z]/.test(n) ? n[0].toUpperCase() + n.slice(1) : n;
+  };
+  N.glossary = { terms: G.map(([re, tip, pat]) => ({ re, tip, name: nameOf(pat) })) };
 })();

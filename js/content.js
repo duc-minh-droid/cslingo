@@ -378,7 +378,7 @@
     if (id === "ds-home") return "ds";
     if (id === "algo-home") return "algo";
     if (id === "profile") return courseOf(N.store.get("nic.lastHome", "home")); // stats and achievements need no other course's lessons
-    if (/^(practice|revise)$/.test(id)) return "all";
+    if (/^(practice|revise|glossary)$/.test(id)) return "all";
     if (/^l\d/.test(id)) return "nic";
     if (/^ds/.test(id)) return "ds";
     if (/^a\d/.test(id)) return "algo";

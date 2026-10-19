@@ -545,6 +545,41 @@ export async function shellChecks(page) {
     await ctx.close();
   }
 
+  // 12. the glossary: terms and lesson concepts, A to Z, each with the lesson's own animation
+  {
+    const { p, ctx, errors } = await fresh(page, { width: 390, height: 844 });
+    await boot(p, "glossary", base);
+    const n = await p.waitForSelector(".gl-item", { timeout: 30000 }).catch(() => null);
+    if (!n) bad("the Glossary page shows no entries");
+    else {
+      const count = await p.$$eval(".gl-item", (r) => r.length);
+      if (count < 150) bad(`the Glossary lists only ${count} entries`);
+      if (!(await p.$eval('#dock button[data-to="glossary"]', (b) => b.classList.contains("on"))))
+        bad("the Glossary dock tab is not highlighted on the Glossary page");
+      await p.fill("#gl-q", "a*");
+      await p.waitForTimeout(400);
+      const stars = await p.$$eval(".gl-name", (r) => r.map((x) => x.textContent).filter((t) => /^A\*/.test(t)));
+      if (stars.length !== 1) bad(`the Glossary has ${stars.length} entries for A*: ${stars.join(", ")}`);
+      await p.fill("#gl-q", "dijkstra");
+      await p.waitForTimeout(400);
+      const dij = await p.$$eval(".gl-name", (r) => r.map((x) => x.textContent).filter((t) => /^Dijkstra/.test(t)));
+      if (dij.length !== 1) bad(`the Glossary has ${dij.length} entries for Dijkstra: ${dij.join(", ")}`);
+      await p.click('.gl-item[data-id="t-dijkstra"] .gl-head');
+      const demo = await p
+        .waitForSelector(".gl-item.open .gl-anim-host button, .gl-item.open .gl-anim-host svg", { timeout: 8000 })
+        .catch(() => null);
+      if (!demo) bad("opening Dijkstra in the Glossary did not show the animation");
+      if (await p.$(".gl-item.open a, .gl-item.open .gl-step-h"))
+        bad("a Glossary entry shows more than the description and the animation");
+      if (await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+        bad("the Glossary scrolls sideways on a phone");
+      await p.click(".gl-item.open .gl-head");
+      if (await p.$(".gl-item.open")) bad("the open Glossary entry did not close");
+    }
+    if (errors.length) bad(`page errors on the Glossary: ${errors.join("; ")}`);
+    await ctx.close();
+  }
+
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.setViewportSize(size || BIG);
   await openHome(page, "home");
