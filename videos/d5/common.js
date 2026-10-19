@@ -24,7 +24,7 @@
         D5.RANGES = ["A–F", "G–M", "N–S", "T–Z"]   (the en dash is a real "–")
         D5.nodeOfName(name) -> 0..3 by first letter       D5.NAME_NODES = [[...], [...], [...], [...]] the surnames each node
         starts with, in sorted order (every one asserted to belong to its node); D5.NEW_NAME = "Okafor" (goes to node 2,
-        index 2 in N–S, between Nolan and Patel);  D5.insertAt(list, name) -> index where the name keeps the list sorted
+        the N–S node, at list index 1, between Nolan and Patel);  D5.insertAt(list, name) -> index where the name keeps the list sorted
         D5.rangeQuery(from, to) -> {nodes: [indexes asked], hits: [[node, name], ...]} over D5.NAME_NODES
         D5.QUERY = rangeQuery("Khan", "Mills") = {nodes: [1], hits: [[1,"Khan"], [1,"Lewis"]]}  (Morgan is outside)
 

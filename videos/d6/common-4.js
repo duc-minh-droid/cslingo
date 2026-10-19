@@ -355,13 +355,14 @@
           style: { ...abs(px(t) - 20, y + h + 12, 40), textAlign: "center", fontSize: "28px" },
         }),
       );
-    nums.push(
-      V.h("div", {
-        class: "v-text dim",
-        text: "tick",
-        style: { ...abs(x + w - 80, y + h + 48, 100), textAlign: "right", fontSize: "28px" },
-      }),
-    );
+    if (xLabel)
+      nums.push(
+        V.h("div", {
+          class: "v-text dim",
+          text: xLabel,
+          style: { ...abs(x + w - 80, y + h + 48, 100), textAlign: "right", fontSize: "28px" },
+        }),
+      );
     const wrap = V.h("div", { style: { position: "absolute", left: "0", top: "0", width: "0", height: "0" } });
     wrap.append(...nums);
     parent.append(wrap);
