@@ -1,0 +1,264 @@
+/* ---------- Glossary page (js/app/glossary-page.js) ---------- */
+.gl-page {
+  padding-bottom: 120px;
+}
+.gl-sub {
+  margin: -6px 0 16px;
+  color: var(--text-dim);
+}
+.gl-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 8px 0 10px;
+  background: var(--bg);
+}
+.gl-q {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  outline: none;
+}
+.gl-q:focus-visible {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-dim);
+}
+.gl-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.gl-seg button {
+  flex: 0 1 auto;
+}
+.gl-count {
+  margin: 4px 0 8px;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 700;
+}
+.gl-letter {
+  margin: 22px 0 8px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+.gl-item {
+  margin-bottom: 8px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 3px 0 var(--line);
+}
+.gl-item.open {
+  border-color: var(--blue-edge);
+  box-shadow: 0 3px 0 var(--blue-edge);
+}
+.gl-head {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.gl-head:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -3px;
+}
+.gl-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gl-name {
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.gl-short {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+.gl-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.gl-tags i,
+.gl-step-h i {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 99px;
+  border: 2px solid var(--line);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.gl-tags .gl-teal {
+  color: var(--teal-ink);
+  background: var(--teal-dim);
+  border-color: var(--teal-edge);
+}
+.gl-tags .gl-blue {
+  color: var(--blue-ink);
+  background: var(--blue-dim);
+  border-color: var(--blue-edge);
+}
+.gl-tags .gl-violet {
+  color: var(--violet-ink);
+  background: var(--violet-dim);
+  border-color: var(--violet-edge);
+}
+.gl-tags .gl-anim,
+.gl-step-h .gl-anim {
+  color: var(--amber-ink);
+  background: var(--amber-dim);
+  border-color: var(--amber-edge);
+  padding: 3px 7px;
+}
+.gl-car {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-right: 3px solid var(--text-faint);
+  border-bottom: 3px solid var(--text-faint);
+  transform: rotate(45deg);
+  transition: transform var(--dur-2, 200ms) ease;
+}
+.gl-item.open .gl-car {
+  transform: rotate(-135deg);
+}
+.gl-panel {
+  padding: 4px 16px 18px;
+}
+.gl-def {
+  margin: 4px 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text);
+}
+.gl-from {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.gl-body {
+  margin-bottom: 10px;
+}
+.gl-vis,
+.gl-demo {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.gl-demo-page {
+  padding: 0;
+  max-width: none;
+}
+.gl-h3 {
+  margin: 20px 0 8px;
+  font-size: 15px;
+}
+.gl-step {
+  margin-bottom: 6px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+}
+.gl-step-h {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.gl-step-h > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.gl-step-h:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -3px;
+}
+.gl-step-n {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  font-size: 12px;
+  border-radius: 50%;
+  background: var(--blue-dim);
+  color: var(--blue-ink);
+}
+.gl-step-p {
+  padding: 4px 14px 14px;
+}
+.gl-actions {
+  margin-top: 14px;
+}
+.gl-none {
+  padding: 18px;
+  text-align: center;
+  color: var(--text-dim);
+}
+@media (max-width: 600px) {
+  .gl-tools {
+    position: static;
+  }
+  .gl-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .gl-tags {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .gl-car {
+    margin-top: 6px;
+  }
+  .gl-panel {
+    padding: 2px 12px 16px;
+  }
+}
+/* three dock tabs on a phone: tighter buttons so they fit */
+@media (max-width: 480px) {
+  .dock button {
+    padding: 10px 12px;
+    gap: 6px;
+    letter-spacing: 0.02em;
+  }
+}
