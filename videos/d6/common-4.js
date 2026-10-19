@@ -318,7 +318,7 @@
 
   // ---------- 3. step plot ----------
   function stepPlot(parent, o = {}) {
-    const { x = 0, y = 0, w = 440, h = 250, xMax = 4, yMax = 3, counts = [] } = o;
+    const { x = 0, y = 0, w = 440, h = 250, xMax = 4, yMax = 3, counts = [], xLabel = "tick" } = o;
     const px = (t) => x + (t / xMax) * w;
     const py = (c) => y + h - (c / yMax) * h;
     const svg = L5.svg(parent);

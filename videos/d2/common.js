@@ -205,14 +205,15 @@
   const pathKeys = (path) => path.slice(1).map((c, i) => keyOf(path[i], c));
   /* suggested centres for the seven vertices on the 936 x 640 stage (the lesson's layout, stretched) */
   const LAYOUT = {
-    Ana: [150, 170],
-    Ben: [420, 100],
-    Cy: [690, 170],
-    Dee: [800, 390],
-    Eli: [540, 500],
-    Leeds: [230, 420],
-    Acme: [770, 270],
+    Ana: [140, 150],
+    Ben: [410, 64],
+    Cy: [700, 130],
+    Dee: [800, 420],
+    Eli: [500, 556],
+    Leeds: [190, 440],
+    Acme: [560, 330],
   };
+
   const PATH = bfs("Ana", "Dee");
   same(
     "graph: vertices",

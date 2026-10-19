@@ -19,11 +19,14 @@
           NODE: tone one of D2.TONES (grey = panel face with a grey rim); solid = filled in the tone (text in its -on shade); k 0..1 pops it in
                 (0 hides it); s scale; o opacity; dx, dy offset in px; ring = a tone name draws a ring round it (ringK 0..1 its pop-in, ringDash dashed).
           EDGE: tone (grey = pale grey line); k 0..1 how much of the arrow is drawn, growing from the tail (the head appears at k 1);
-                o opacity; w width multiplier (1; 1.4 = emphasised); dash true = dashed; label 0..1 pops the label pill in at the middle of
-                the arrow (text = the edge's label, or labelText), labelTone default "orange".
+                o opacity; w width multiplier (1; 1.4 = emphasised); dash true = dashed; label 0..1 pops the label pill in (text = the edge's
+                label, or labelText), labelTone default "orange"; labelAt 0..1 where along the arrow the pill sits (default 0.5, the middle);
+                labelSide 0 = on the arrow (default), 1 = beside it on the right-hand side of its direction (below a left-to-right arrow),
+                -1 = on the left-hand side (above it): the pill is then moved just far enough to leave the arrow visible.
+                A pill is about 118 (FRIEND) to 150 (WORKS_AT) px wide and 48 high: on an arrow shorter than that, use labelSide.
         g.pt(id) -> {x, y} centre of a vertex;   g.size(id) -> {w, h};   g.keys -> the edge keys, in order
         g.edgePt(key, f) -> {x, y} the point at fraction f (0..1) along the arrow from tail border to head border (use 1 - f to walk it backwards)
-        g.edgeMid(key) -> the middle point (where the label sits);   g.el -> the <svg>
+        g.edgeMid(key) -> the middle point of the arrow;   g.el -> the <svg>
    2. FAMILY ICONS  (small pictograms of the four NoSQL families, SVG <g> drawn around (0, 0): place them with V.place(g, {x: cx, y: cy, s, o}))
         D2.fam("doc" | "kv" | "wide" | "graph", size = 96, tone = "grey") -> <g>
           doc = a card with braces and lines;   kv = a key chip, an arrow and a value box;   wide = three rows of cells with different lengths;
@@ -190,7 +193,13 @@
         lab.rect.style.stroke = lt.edge;
         lab.t.style.fill = lt.ink;
         if (st.labelText != null && lab.t.textContent !== st.labelText) lab.t.textContent = st.labelText;
-        const m = e.g.p(0.5);
+        const m = e.g.p(dfl(st.labelAt, 0.5));
+        const side = st.labelSide || 0;
+        if (side) {
+          const [nx, ny] = [-e.g.u[1] * side, e.g.u[0] * side];
+          const off = Math.abs(nx) * (lab.w / 2) + Math.abs(ny) * 24 + 8;
+          [m.x, m.y] = [m.x + nx * off, m.y + ny * off];
+        }
         V.place(lab.g, { x: m.x, y: m.y, s: 0.8 + 0.2 * E.pop(lk), o: Math.min(1, lk * 4) * o });
       });
       nodeEls.forEach(({ id, g, ringEl, lip, face, label }) => {

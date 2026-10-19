@@ -20,7 +20,8 @@
         D5.chipW(text, fs = 28) -> a chip width that fits the text (about 0.6 x fs per character plus 24)
         c.el, c.w, c.h
    2. TAGS, COUNTERS, DISCS
-        const t = D5.tag(parent, {x, y, text, tone: "grey", solid: false, fs: 28, h, w});   a pill sticker (x, y = top-left)
+        const t = D5.tag(parent, {x, y, text, tone: "grey", solid: false, fs: 28, h, w, icon});   a pill sticker (x, y = top-left);
+            icon: "search" | "client" | "hash" | "plus" | "server" puts that small icon before the text (about 42 px wider)
             t.set({text, tone, solid, k: 1, x, y, s, o})   k 0..1 pops it in (and fades it out when going back to 0); x, y =
             offset from where it was placed.  w fixes the width (text centred), so you can centre a tag: x = cx - w / 2.
             D5.tagW(text, fs = 28) -> estimated width (about 0.465 x fs per character plus 40). A tag is 58 px high at 28 px.
@@ -30,11 +31,12 @@
             CENTRE).  d.set({text, tone, solid: true, k, x, y, s, o})   x, y = offset from where it was placed
    3. MOTION AND TIMING
         D5.fly(a, b, k, {arc: 0}) -> {x, y}   the point at progress k (0..1, ease it first) from a to b, both {x, y}; arc bends the
-            path sideways by that many px at the middle (negative = up when travelling right), so things do not slide through
-            each other.   D5.appear(k) -> {s, o}   a pop-in to spread into chip.set;   D5.seq(t, t0, step, dur, i) -> 0..1, the
+            path sideways by that many px at the middle (positive = up when travelling right, negative = down), so things do not
+            slide through each other.   D5.appear(k) -> {s, o}   a pop-in to spread into chip.set;   D5.seq(t, t0, step, dur, i) -> 0..1, the
             ramp of the i-th item of a staggered list (item i starts at t0 + i * step and lasts dur);  D5.lerp2(a, b, k)
    4. SVG ICONS  (return a <g> drawn at absolute coordinates, x, y = CENTRE; append to your own L5.svg(parent) layer and move
-      with V.place(g, {x, y, s, r, o}); tone = a tone name, or omit it to inherit the colours of the enclosing .c-<tone> element)
+      with V.place(g, {x, y, s, r, o}); tone = a tone name, omit it to inherit the colours of the enclosing .c-<tone> element (grey when there is none), "ink" for the
+      -ink shade of that element, or "on" for its -on shade, for use on a solid fill)
         D5.icon.server(x, y, size, tone)   a server rack (two units with lights): the node symbol
         D5.icon.client(x, y, size, tone)   a laptop: who sends the requests
         D5.icon.hash(x, y, size, tone)     the # sign, drawn with four strokes: the hash function
@@ -57,14 +59,28 @@
   D5.tn = tn;
   D5.tone = (name) => L5.tone(tn(name));
   const INHERIT = {
-    c: "var(--c)",
-    ink: "var(--c-ink)",
+    c: "var(--c, var(--text-dim))",
+    ink: "var(--c-ink, var(--text-dim))",
+    dim: "var(--c-dim, var(--panel-2))",
+    edge: "var(--c-edge, var(--line-2))",
+    lip: "var(--c-lip, var(--line-2))",
+    on: "var(--c-on, var(--ink))",
+  };
+  const INK = {
+    ...INHERIT,
+    c: "var(--c-ink, var(--text-dim))",
+    edge: "var(--c-ink, var(--text-dim))",
+    lip: "var(--c-ink, var(--text-dim))",
+  };
+  const ON = {
+    c: "var(--c-on)",
+    ink: "var(--c-on)",
     dim: "var(--c-dim)",
-    edge: "var(--c-edge)",
-    lip: "var(--c-lip)",
+    edge: "var(--c-on)",
+    lip: "var(--c-on)",
     on: "var(--c-on)",
   };
-  const paint = (tone) => (tone ? D5.tone(tone) : INHERIT);
+  const paint = (tone) => (tone === "on" ? ON : tone === "ink" ? INK : tone ? D5.tone(tone) : INHERIT);
   const abs = (x, y, w, h) => {
     const st = { position: "absolute", left: `${f1(x)}px`, top: `${f1(y)}px` };
     if (w != null) st.width = `${f1(w)}px`;
@@ -140,7 +156,6 @@
   function tag(parent, o = {}) {
     const el = V.h("div", {
       class: "v-tag",
-      text: o.text || "",
       style: {
         ...abs(o.x || 0, o.y || 0, o.w),
         ...flex,
@@ -148,6 +163,20 @@
         ...(o.h ? { height: `${o.h}px` } : {}),
       },
     });
+    const label = V.h("span", { text: o.text || "" });
+    let icons = null;
+    if (o.icon) {
+      const svg = V.s("svg", {
+        width: 34,
+        height: 34,
+        viewBox: "0 0 34 34",
+        style: { flex: "none", marginRight: "8px", overflow: "visible", marginLeft: "-6px" },
+      });
+      icons = [icon[o.icon](17, 17, 30, "ink"), icon[o.icon](17, 17, 30, "on")];
+      svg.append(...icons);
+      el.append(svg);
+    }
+    el.append(label);
     parent.append(el);
     const base = { tone: o.tone || "grey", solid: !!o.solid };
     return {
@@ -155,7 +184,8 @@
       set(st = {}) {
         const solid = st.solid ?? base.solid;
         setClass(el, `v-tag c-${tn(st.tone || base.tone)}${solid ? " solid" : ""}`);
-        setText(el, st.text);
+        setText(label, st.text);
+        if (icons) icons.forEach((g, i) => V.show(g, +(i === +solid)));
         const k = clamp(st.k ?? 1);
         V.place(el, {
           x: st.x || 0,

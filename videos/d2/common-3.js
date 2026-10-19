@@ -5,8 +5,9 @@
    1. TABLE  (a sticker with the table's name on top and one strip per row; a cell is a chip)
         const T = D2.table(parent, {x, y, w: 210, name: "users", rows: [[{text: "251", tone: "orange"}, ""], ...], widths: [72], tone: "grey", fs: 28});
           rows: one array per row, one entry per cell: a string (text on a grey chip), "" (an empty chip: a placeholder for data we do
-          not name), or {text, tone, solid: false}. widths: px of every cell but the last, which takes the rest of the row (default: the first cell 72).
-          Height = T.h = 56 + rows * 46 + 8 (one row: 110, two rows: 156); T.w = w.
+          not name), or {text, tone, solid: false}. widths: px of every cell but the last, which takes the rest of the row (default: the first cell 72);
+          stretch: false = the last cell keeps its own width too (widths[c], else the last width given), for rows of different lengths (wide-column).
+          Height = T.h = 56 + rows * 46 + 8 (one row: 110, two rows: 156); with name: "" there is no title and the header shrinks to 14 (rows * 46 + 22); T.w = w.
         T.set({k: 1, o: 1, x: 0, y: 0, s: 1, tone, hot: [row indices] | row index, hotTone: "blue", hotK: 1, cells: {"0,1": {text, tone, solid}}, rowTone: {0: "green"}})
           k 0..1 pops the table in; x, y offset; hot rings the rows (hotK 0..1 pops the rings); cells overrides single cells; rowTone tints a whole row.
         T.mid() -> {x, y} centre of the table;  T.top() / T.bottom() / T.left() / T.right() -> the middle of an edge;
@@ -80,7 +81,8 @@
   function table(parent, o = {}) {
     const { x = 0, y = 0, w = 210, name = "", rows = [], tone: base = "grey", fs = 28 } = o;
     const widths = o.widths || [72];
-    const h = 56 + rows.length * PITCH + 8;
+    const top0 = name ? 56 : 14;
+    const h = top0 + rows.length * PITCH + 8;
     const el = V.h("div", { class: `v-card plain c-${tn(base)}`, style: { ...abs(x, y, w, h), borderRadius: "22px" } });
     const title = V.h("div", {
       text: name,
@@ -94,8 +96,9 @@
       },
     });
     el.append(title);
+    const stretch = o.stretch !== false;
     const cellW = (c, n) =>
-      c < n - 1
+      c < n - 1 || !stretch
         ? (widths[c] ?? widths[widths.length - 1])
         : w - 28 - widths.slice(0, n - 1).reduce((a, b) => a + b + 8, 0);
     const cells = rows.map((row, r) =>
@@ -107,7 +110,7 @@
             ...chipStyle(cellW(c, row.length), CH),
             ...flex,
             left: `${left}px`,
-            top: `${56 + r * PITCH}px`,
+            top: `${top0 + r * PITCH}px`,
             fontSize: `${fs}px`,
             fontWeight: "800",
             whiteSpace: "nowrap",
@@ -118,7 +121,7 @@
       }),
     );
     const rings = rows.map((_, r) => {
-      const g = ring(w + 4, PITCH, 18, -2, 52 + r * PITCH);
+      const g = ring(w + 4, PITCH, 18, -2, top0 - 4 + r * PITCH);
       el.append(g);
       return g;
     });
@@ -135,8 +138,8 @@
       bottom: () => ({ x: cx, y: y + h }),
       left: () => ({ x, y: cy }),
       right: () => ({ x: x + w, y: cy }),
-      rowMid: (i) => ({ x: cx, y: y + 56 + i * PITCH + CH / 2 }),
-      cellMid: (r, c) => ({ x: x + cells[r][c].left + cells[r][c].w / 2, y: y + 56 + r * PITCH + CH / 2 }),
+      rowMid: (i) => ({ x: cx, y: y + top0 + i * PITCH + CH / 2 }),
+      cellMid: (r, c) => ({ x: x + cells[r][c].left + cells[r][c].w / 2, y: y + top0 + r * PITCH + CH / 2 }),
       set(st = {}) {
         const hd = head(st);
         setClass(el, `v-card plain c-${tn(st.tone || base)}`);

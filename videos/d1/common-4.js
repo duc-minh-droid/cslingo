@@ -9,8 +9,9 @@
         f.at(i) -> {x, y} the centre of disk i in PARENT coordinates;  f.size, f.pitch, f.el
    2. DOT HISTOGRAM  (scene 7: the 100 response times of D1.PERF as dots that fall into 50 ms bins, two dots wide)
         const h = D1.dotsHist(parent, {x, y, w: 840, h: 260});   the baseline is 44 px above y + h (ticks 0 250 500 750 are below it)
-        h.update({n, tone: (ms) => "blue", o: 1, ticks: 1})
-            n = how many dots have landed (0..100, fractional: dot a is falling while a < n < a + 1; they arrive in D1.PERF.order);
+        h.update({n, fall: 8, tone: (ms) => "blue", o: 1, ticks: 1})
+            n = how many dots have started to fall (0..100 + fall; they arrive in D1.PERF.order); each dot takes `fall` units of n
+            to drop in from above (default 8, so about eight are in the air at once); n = 100 + fall is the finished histogram;
             tone(ms) colours a dot by its response time (e.g. red above the 99th percentile); ticks fades the axis numbers
         h.xOf(ms) -> x of a response time in PARENT coordinates;  h.baseY;  h.topY (the top of the tallest stack);  h.dot (diameter)
         const m = D1.vline(parent, {x, y1, y2, tone, text, w: 6});   a marker line with a tag on top (text >= 28 px, centred on x)
@@ -145,7 +146,7 @@
         V.show(svg, u.o ?? 1);
         ticks.forEach((t) => t.set({ k: u.ticks ?? 1, o: u.o ?? 1 }));
         P.order.forEach((s, a) => {
-          const q = clamp(n - a);
+          const q = clamp((n - a) / (u.fall ?? 8));
           const c = circles[s];
           if (q <= 0) return V.show(c.g, 0);
           V.show(c.g, 1);
@@ -153,8 +154,7 @@
           c.lip.style.fill = col.lip;
           c.top.style.fill = col.c;
           c.top.style.stroke = col.lip;
-          const drop = (1 - q * q) * (baseY - h * 0.9); // falls from above, speeding up
-          const [cx, cy] = [fx(s), fy(s) - Math.max(0, drop)];
+          const [cx, cy] = [fx(s), fy(s) - (1 - q * q) * 240]; // falls from above, speeding up
           c.lip.setAttribute("cx", f1(cx));
           c.lip.setAttribute("cy", f1(cy + 2));
           c.top.setAttribute("cx", f1(cx));
@@ -260,7 +260,6 @@
           e.el.style.stroke = on ? orange.c : D1.tone("purple").c;
           V.show(e.el, layer);
         });
-        bar.set({ k: layer, tone: hot > 0.01 ? "purple" : "purple" });
         const hotRing = clamp(hotK);
         svcs.forEach((s, i) => {
           const edit = hot > 0.01 && layer < 0.5 && M.edges.some(([a, d]) => a === i && d === M.hot);

@@ -303,3 +303,58 @@
   void ramp;
   void E;
 })();
+(function () {
+  const V = window.VID;
+  const D5 = V.d5;
+  const L5 = V.l5;
+  const { ramp, ease: E } = V;
+  // 11: animation + icons + links, to test purity
+  V.scene({
+    kicker: "TEST 11",
+    title: ["motion", ""],
+    dur: 4,
+    caps: [[0.4, 3.5, "Motion test."]],
+    build(stage) {
+      const cl = D5.cluster(stage, {
+        x: 12,
+        y: 300,
+        n: 4,
+        w: 210,
+        gap: 24,
+        cols: 2,
+        rows: 2,
+        cw: 70,
+        ch: 44,
+        cg: 8,
+        headH: 52,
+      });
+      const chips = D5.ids(0, 5).map((i) => D5.chip(stage, { text: String(i), w: 70, h: 44 }));
+      const q = D5.tag(stage, { x: 340, y: 20, text: "red", tone: "blue", solid: true, icon: "search" });
+      const q2 = D5.tag(stage, { x: 560, y: 20, text: "client", tone: "blue", icon: "client" });
+      const q3 = D5.tag(stage, { x: 700, y: 20, text: "+ node", tone: "orange", icon: "plus" });
+      const svg = L5.svg(stage);
+      const ln = [0, 1, 2, 3].map((n) =>
+        D5.link(svg, { x: 468, y: 80 }, { x: cl.top(n).x, y: cl.top(n).y - 70 }, "blue"),
+      );
+      const ic = svg.appendChild(D5.icon.client(60, 60, 60));
+      const hb = D5.hashBox(stage, { x: 40, y: 140 });
+      return (t) => {
+        for (let n = 0; n < 4; n++)
+          cl.set(n, { k: ramp(t, 0.1 + n * 0.1, 0.6 + n * 0.1), tag: `T${n}`, tagK: ramp(t, 0.5, 1) });
+        chips.forEach((c, i) => {
+          const a = { x: 100 + i * 80, y: 220 };
+          const b = cl.slot(i % 4, Math.floor(i / 4));
+          const k = ramp(t, 1 + i * 0.2, 2 + i * 0.2, E.inOut);
+          const p = D5.fly(a, b, k, { arc: -50 });
+          c.set({ ...p, ...D5.appear(ramp(t, 0.4, 0.8)), ring: "orange", ringK: ramp(t, 2.5, 3) });
+        });
+        q.set({ k: ramp(t, 0.3, 0.8) });
+        q2.set({});
+        q3.set({ solid: true });
+        ln.forEach((l, n) => l(ramp(t, 1.5 + n * 0.2, 2.2 + n * 0.2, E.out)));
+        V.place(ic, { x: 20, y: 0, s: 1 });
+        hb.set({ pulse: V.flash(t, 1, 2) });
+      };
+    },
+  });
+})();

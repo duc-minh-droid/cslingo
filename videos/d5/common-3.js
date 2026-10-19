@@ -14,7 +14,8 @@
             k 0..1 pops the whole node in; o opacity; x, y = offset of the whole node from its home; s scale; label = header text;
             ghost = dashed outline with nothing in it (a node that has not joined yet); ring = tone name for a halo around the
             node (ringK 0..1 pops it, ringDash true = dashed); slotsO 0..1 fades the dashed slots; tag = a pill CENTRED over the
-            node, on the 58 px above its top edge (the range tags A-F, hours, "P1"); tagK 0..1 pops it (0 hides it).
+            node, on the 58 px above its top edge (the range tags A-F, hours, "P1"); pass the text EVERY frame (without it, or with
+            tagK 0, the tag is hidden); tagK 0..1 pops it.
         cl.slot(i, j) -> {x, y} centre of slot j of node i in stage px (row-major; j >= cols * rows continues the grid BELOW the
             card: use it for overflow);  cl.box(i) -> {x, y, w, h} the card;  cl.mid(i) centre of the card;  cl.top(i) / cl.bottom(i)
             top / bottom centre;  cl.tagAt(i) centre of the tag;  cl.n, cl.w, cl.h, cl.cols, cl.rows, cl.nslots, cl.cw, cl.ch
@@ -96,7 +97,7 @@
       const label = V.h("div", {
         text: (o.names && o.names[i]) || `Node ${i + 1}`,
         style: {
-          ...abs(60, 0, w - 70, headH),
+          ...abs(o.icon === false ? 18 : 60, 0, w - 70, headH),
           ...flex,
           justifyContent: "flex-start",
           fontSize: "28px",
@@ -112,7 +113,7 @@
           const p = slotRel(j);
           const s = V.h("div", {
             style: {
-              ...abs(p.x - cw / 2, p.y - ch / 2, cw, ch),
+              ...abs(p.x - cw / 2 - 3, p.y - ch / 2 - 3, cw, ch),
               boxSizing: "border-box",
               border: "3px dashed var(--line-2)",
               borderRadius: "12px",

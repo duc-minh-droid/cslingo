@@ -36,8 +36,8 @@
                    Y write 70 [4.7, 6.2]  -> final 70
         ISO.serial (one after the other):  X read 100 [0.4, 1.9], X write 70 [2.3, 3.8], Y read 70 [4.2, 5.7], Y write 40 [6.1, 7.6] -> final 40
         ISO.lost = 40 - 70 = -30 (the 30 that one payment lost: both ended at 70 but 40 was right). Lanes: "Shopper X", "Shopper Y".
-        D6.ACID = [{k: "A", word: "Atomic", line: "all or nothing"}, {k: "C", word: "Consistent", line: "rules always hold"},
-          {k: "I", word: "Isolated", line: "no interference"}, {k: "D", word: "Durable", line: "stays saved"}]
+        D6.ACID = [{k: "A", word: "Atomic", line: "all or nothing"}, {k: "C", word: "Consistent", line: "total stays 150"},
+          {k: "I", word: "Isolated", line: "no clashing"}, {k: "D", word: "Durable", line: "stays saved"}]
    5. EVENTUAL CONSISTENCY (scene 6, lesson 6.2)  Three replicas R1 R2 R3 hold 40; the write 35 lands on R1 at tick 0 and reaches
         R2 at tick 2 and R3 at tick 4.
         D6.EV = {n: 3, at: [0, 2, 4], old: 40, latest: 35, last: 4, vals(tick), count(tick), read(tick, i), counts}
@@ -199,8 +199,8 @@
   same(ISO.lost, -30, "ISO.lost");
   D6.ACID = [
     { k: "A", word: "Atomic", line: "all or nothing" },
-    { k: "C", word: "Consistent", line: "rules always hold" },
-    { k: "I", word: "Isolated", line: "no interference" },
+    { k: "C", word: "Consistent", line: "total stays 150" },
+    { k: "I", word: "Isolated", line: "no clashing" },
     { k: "D", word: "Durable", line: "stays saved" },
   ];
   same(BANK.asha + BANK.ben, BANK.ok.asha + BANK.ok.ben, "the rule 'the total stays 150'");
