@@ -556,22 +556,21 @@ export async function shellChecks(page) {
       if (count < 150) bad(`the Glossary lists only ${count} entries`);
       if (!(await p.$eval('#dock button[data-to="glossary"]', (b) => b.classList.contains("on"))))
         bad("the Glossary dock tab is not highlighted on the Glossary page");
-      await p.fill("#gl-q", "dijkstra step");
+      await p.fill("#gl-q", "a*");
       await p.waitForTimeout(400);
-      const names = await p.$$eval(".gl-name", (r) => r.map((x) => x.textContent));
-      if (!names.includes("Dijkstra step by step")) bad(`searching "dijkstra step" found: ${names.join(", ")}`);
-      await p.click('.gl-item[data-id="m-a2-dijkstra"] .gl-head');
+      const stars = await p.$$eval(".gl-name", (r) => r.map((x) => x.textContent).filter((t) => /^A\*/.test(t)));
+      if (stars.length !== 1) bad(`the Glossary has ${stars.length} entries for A*: ${stars.join(", ")}`);
+      await p.fill("#gl-q", "dijkstra");
+      await p.waitForTimeout(400);
+      const dij = await p.$$eval(".gl-name", (r) => r.map((x) => x.textContent).filter((t) => /^Dijkstra/.test(t)));
+      if (dij.length !== 1) bad(`the Glossary has ${dij.length} entries for Dijkstra: ${dij.join(", ")}`);
+      await p.click('.gl-item[data-id="t-dijkstra"] .gl-head');
       const demo = await p
-        .waitForSelector(".gl-item.open .gl-demo button, .gl-item.open .gl-demo svg", { timeout: 8000 })
+        .waitForSelector(".gl-item.open .gl-anim-host button, .gl-item.open .gl-anim-host svg", { timeout: 8000 })
         .catch(() => null);
-      if (!demo) bad("opening Dijkstra in the Glossary did not show the lesson's demo");
-      const term = await p.evaluate(async () => {
-        const it = document.querySelector('.gl-item[data-id="m-a2-dijkstra"]');
-        it.querySelector(".gl-step-h").click();
-        await new Promise((r) => setTimeout(r, 400));
-        return !!it.querySelector(".gl-step-p:not([hidden]) .lesson-visual > *");
-      });
-      if (!term) bad("a step opened in the Glossary shows no figure");
+      if (!demo) bad("opening Dijkstra in the Glossary did not show the animation");
+      if (await p.$(".gl-item.open a, .gl-item.open .gl-step-h"))
+        bad("a Glossary entry shows more than the description and the animation");
       if (await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
         bad("the Glossary scrolls sideways on a phone");
       await p.click(".gl-item.open .gl-head");
