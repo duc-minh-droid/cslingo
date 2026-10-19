@@ -23,7 +23,7 @@
   const V = window.VID;
   const D3 = V.d3;
   const L5 = V.l5;
-  const { clamp, lerp, ease: E } = V;
+  const { clamp, ease: E } = V;
   const { abs, tn } = D3;
 
   function mergeRig(parent, o = {}) {
@@ -39,15 +39,29 @@
     const root = V.h("div", { style: abs(0, 0, 936, 640) });
     parent.append(root);
     const heads = ["segment 1", "segment 2", "segment 3", "merged"].map((text, c) =>
-      D3.tag(root, { x: colX(c) + (colW - D3.tagW(text)) / 2, y, text, tone: c === 3 ? "green" : "grey", solid: c === 3 }),
+      D3.tag(root, {
+        x: colX(c) + (colW - D3.tagW(text)) / 2,
+        y,
+        text,
+        tone: c === 3 ? "green" : "grey",
+        solid: c === 3,
+      }),
     );
     const cols = segs.map((s, c) => D3.recs(root, { x: colX(c), y: top, w: colW, h: rowH, gap: rowGap, recs: s }));
     const outCol = D3.recs(root, { x: colX(3), y: top, w: colW, h: rowH, gap: rowGap, recs: out });
     const svg = L5.svg(root);
     const arrowY = bottom + 44;
-    const age = svg.appendChild(L5.arrow(colX(0) + 120, arrowY, colX(2) + colW - 120, arrowY, "grey", 1, { w: 6, head: 18 }));
+    const age = svg.appendChild(
+      L5.arrow(colX(0) + 120, arrowY, colX(2) + colW - 120, arrowY, "grey", 1, { w: 6, head: 18 }),
+    );
     const older = D3.tag(root, { x: colX(0), y: arrowY - 29, text: "older", tone: "grey" });
-    const newer = D3.tag(root, { x: colX(2) + colW - D3.tagW("newer"), y: arrowY - 29, text: "newer", tone: "grey", solid: true });
+    const newer = D3.tag(root, {
+      x: colX(2) + colW - D3.tagW("newer"),
+      y: arrowY - 29,
+      text: "newer",
+      tone: "grey",
+      solid: true,
+    });
     const info = (p) => {
       const done = p >= nF;
       const step = done ? nF : clamp(Math.floor(p), 0, nF - 1);
@@ -174,5 +188,5 @@
       },
     };
   }
-  Object.assign(D3, { mergeRig, tree, lerp });
+  Object.assign(D3, { mergeRig, tree });
 })();

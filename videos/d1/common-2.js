@@ -26,7 +26,7 @@
             b.set({text, tone, plain, k, x, y, s, o})
         const l = D1.label(parent, {x, y, w, text, tone: "grey", fs: 28, align: "center"});   plain text (tone = its -ink colour)
             l.set({text, tone, k, x, y, o, bold})   (a label wider than w wraps: give it enough width)
-   2. ICONS  (SVG <g> at absolute coordinates, x, y = centre, size = about the height; append to your own L5.svg(parent) layer;
+   2. ICONS  (now in common-5.js, load it right after this file; SVG <g> at absolute coordinates, x, y = centre, size = about the height; append to your own L5.svg(parent) layer;
       V.place(g, {x, y, s, r, o}) moves, scales and fades them; tone = a tone name)
         D1.icon.server(x, y, size, tone)    a rack with two slots and an LED          D1.icon.disk(x, y, size, tone)  a round disk
         D1.icon.db(x, y, size, tone)        a database cylinder                       D1.icon.person(x, y, size, tone)

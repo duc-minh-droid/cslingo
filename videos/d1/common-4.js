@@ -233,7 +233,7 @@
       D1.card(root, { x: dx(j) - GEO.db.w / 2, y: GEO.db.y, w: GEO.db.w, h: GEO.db.h, text: t.replace(" DB", "") }),
     );
     parent.append(root);
-    const hotOf = (e, hot, layered) => (layered ? e.d === M.hot || e.d === -1 : e.d === M.hot) && hot > 0.01;
+    const hotOf = (e, hot, layered) => e.d === M.hot && hot > 0.01;
     return {
       el: root,
       svcMid: (i) => ({ x: x + sx(i), y: y + GEO.svc.y + GEO.svc.h / 2 }),

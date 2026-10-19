@@ -1,0 +1,382 @@
+{
+ "slug": "ds-1",
+ "dir": "d1",
+ "title": "Lecture 1 · Reliable, scalable and maintainable systems",
+ "outline": "STATUS: helpers d1/common.js, common-2.js, common-3.js, common-4.js, common-5.js written, linted and (data layer) asserted under node; page, audio stub, title card and placeholder scenes written; scenes 2-11 are PLACEHOLDERS (labelled stickers); recap is a placeholder. Helpers were rendered once in a throwaway test page (servers in every state, all icons, wire cut, bar, user, stream, diskField with the 7 dead disks, dotsHist, vline, arch with and without the layer) and look right; not polished: scene authors should check their first frame and fix a helper locally if something is off.\n\nLecture 1 video (Data Science, COM3021): 'Reliable, scalable & maintainable systems'. 11 scenes, about 122.7 s: title (4), one server (10), consistent or available (11.5), four building blocks (13), faults vs failures (11.5), cascade and correlated bug (12), response-time spread (12.5), Twitter fan-out (16), scale up or out (11), maintainability (12.2), recap (9). Story follows lessons ds-why (1.1), ds-blocks (1.2), ds-reliability (1.3), ds-load (1.4), ds-twitter (1.5), ds-scaling (1.6), ds-maintain (1.7); boss ds1-boss (music app Tunely) and workshop 1.W 'keep the app alive' (ds-ops, Snapbox) are not covered (the recap points to the workshop). Not covered: load parameters per system, the load-versus-response-time curve and 'servers needed', spatial GeoJSON/PostGIS/R-tree, the full list of operability items.\n\nTHE EXAMPLE DATA (all asserted when the page loads by videos/d1/common.js; a wrong number throws an Error): one server capacity 6,000/s, load 3,000 then 9,000 (served 6,000, dropped 3,000); tickets 5 -> 4 in London, New York still 5; cache 2 ms vs database 100 ms, index 1,000,000 records -> 20 checks; 10,000 disks, 1 in 10,000 per day, seeded week [1,1,0,2,1,1,1] = 7 faults, 7 failures with one copy, 0 with two; six servers capacity 100, load 420: 70, 84, then 105 (over) then 140, 210, 420; response times gamma(2.5, 100 ms): p50 218, mean 250, p95 554, p99 754, 5 of 100 above p95, 1 above p99; tweets: Cat has 5 followers, Ana follows 3, 4,600 posts/s x 75 = 345,000 writes/s, 300,000 reads/s = 65.2 x posts, celebrity 30,000,000 / 345,000 = 87 s versus a 5 s goal; costs at 8x: scale up 34,297 vs out 8,800, at 32x 362,039 vs 35,200, at 40x none vs 44,000, capacity left after one failure 0% vs 88%; 5 services x 4 databases = 20 connections, with a layer 5 + 4 = 9, edits 5 vs 1.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Terms are defined on screen before use: 'link', 'fault', 'failure', 'p95' / 'p99' (marker tags), 'load' (the stat), 'scale up' / 'scale out' (column tags), 'connections' / 'to edit' (stats). Captions are plain sentences of at most about 20 characters per second; each starts only when its picture is on screen. Mascot: Pebble.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 1",
+  "title": "Reliable, scalable, maintainable systems",
+  "sub": "What keeps a data system working",
+  "who": "pebble",
+  "dur": 4,
+  "note": "scene-01-title.js is finished by the architect: it sets the title on two lines of 84 px (Reliable, scalable, / maintainable systems), like videos/a6/scene-01-title.js. Do not replace it."
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-one-server.js",
+   "kicker": "WHY IT'S HARD",
+   "title": [
+    "One server can't",
+    "keep up or stay up"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.5,
+     3.2,
+     "One big server does all the work."
+    ],
+    [
+     3.5,
+     5.6,
+     "Too many requests get dropped."
+    ],
+    [
+     5.9,
+     7.9,
+     "One crash, and everything is down."
+    ],
+    [
+     8.1,
+     9.8,
+     "Even repairs take it offline."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.1): before the web one mainframe held everything; one server has three limits: it can only grow so big (scalability), a crash stops everything (availability), repairs need downtime (maintenance). DATA (asserted in d1/common.js): D1.ONE = {cap: 6000, loads: [3000, 9000], calm {served 3000, dropped 0}, over {served 6000, dropped 3000}, down {served 0, dropped 9000}}.\n\nLAYOUT. Users: six D1.icon.person (size 54, grey) in a 2 x 3 grid at x 60 / 130, y 60 / 140 / 220 in an L5.svg layer. Big server: const srv = D1.server(stage, {x: 580, y: 40, w: 300, h: 300, label: 'one server', fs: 28}); srv.set({state, load: load / 6000, text: '3,000/s'}). Stream: D1.stream(stage, {path: D1.poly([[240, 190], [570, 190]]), n: 12, size: 26}) with rate = load / 9000 (3,000 -> 0.33, 9,000 -> 1) and dropShare = dropped / load (0 -> 0.33 -> 1), dropAt 0.9 (red packets fall just in front of the server). Stats under the server: D1.stat(stage, {x: 560, y: 370, w: 330, h: 80, label: 'served', tone: 'green'}) and {y: 460, label: 'dropped', tone: 'red'} showing D1.fmt of the numbers above (count them up over 0.8 s). Tags stacked bottom-left at x 12, y 410 / 480 / 550 (D1.tag solid): orange 'scalability: only so big', red 'availability: a crash stops all', grey 'maintenance: repairs need downtime'.\n\nTIMELINE. 0.2-0.9 users, server, stats pop. 1.0 stream starts at load 3,000 (server ok, meter half full, served counts to 3,000). 3.4-4.6 load ramps 3,000 -> 9,000: meter fills past capacity, server state 'hot' then 'over' (text '9,000/s'), served 6,000, dropped counts to 3,000; orange tag pops 4.6. 6.0 D1.icon.bolt pops on the server, state 'down' (red cross), served 0, dropped 9,000, every packet dropped; red tag 6.4. 8.1 D1.icon.wrench (size 90, rocks +-15 deg) pops on the server, the stream stops (rate 0); grey tag 8.3. 9.6-10 hold.\n\nEND STATE: dead server with wrench, three tags, served 0 / dropped 9,000.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-consistency.js",
+   "kicker": "TRADE-OFF 1",
+   "title": [
+    "Copies drift apart:",
+    "consistent or available?"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.5,
+     2.8,
+     "Two copies, kept in step by a link."
+    ],
+    [
+     3.0,
+     4.6,
+     "Now the link is cut."
+    ],
+    [
+     4.7,
+     7.0,
+     "London sells a ticket; New York never hears."
+    ],
+    [
+     7.5,
+     9.2,
+     "Stay consistent: refuse to answer."
+    ],
+    [
+     9.3,
+     11.3,
+     "Stay available: answer, maybe stale."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.1): two copies of 'tickets left' in London and New York; when the network link is cut a sale in London never reaches New York, so New York must choose: refuse (consistent, not available) or answer with the old value (available, not consistent). DATA: D1.TICKETS = {start 5, after 4, consistent {answer null, stale false}, available {answer 5, stale true}} (D1.ticketRun(mode)).\n\nLAYOUT. Header tags 'London' (x 30, y 0) and 'New York' (x 636, y 0). Cards: D1.card(stage, {x: 30, y: 70, w: 270, h: 200}) and {x: 636}; in each a D1.chip (x +75, y 110, w 120, h 100, fs 76) showing the count and D1.label 'tickets left' under it (y 222). Wire: D1.wire(stage, {x1: 300, y1: 170, x2: 636, y2: 170, w: 10}) with a 'link' tag above (y 100). Copy packets: D1.token purple square on D1.poly([[300,170],[636,170]]). Buyer D1.user (x 165, y 330, name 'buyer') and customer D1.user (x 771, y 330, name 'customer'). Answer cards at y 430 (h 170): D1.card x 30 w 420 tone 'orange' (consistent) and x 486 w 420 tone 'red' (available), each with a header tag ('stay consistent' / 'stay available') at the top, a body (orange solid tag 'no answer' / red solid D1.chip '5' plus tag 'stale: it is 4'), and a grey label 'good for bank balances' / 'good for a like counter' at the foot.\n\nTIMELINE. 0.3-1.4 cards, chips (5 and 5), wire (green) and 'link' tag pop. 1.5-2.7 a purple packet shuttles London -> New York -> back (the copies in step). 3.0-3.6 wire.set({cut: 1}) (red, spark), tag text 'cut'. 4.0-4.5 buyer packet to London; 4.5-4.9 London chip flips 5 -> 4 (blue). 4.9-5.7 purple copy packet runs to the gap and drops red; New York stays 5. 6.8-7.5 customer packet up to New York. 7.6 consistent card pops (orange tag 'no answer'). 9.3 available card pops (red '5', 'stale'). Hold to 11.5.\n\nEND STATE: both answer cards visible, cut link, London 4, New York 5.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-blocks.js",
+   "kicker": "BUILDING BLOCKS",
+   "title": [
+    "Four building blocks",
+    "behind every data app"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     1.5,
+     3.9,
+     "A database keeps data safe for tomorrow."
+    ],
+    [
+     4.4,
+     7.2,
+     "A cache keeps answers close: 2 ms, not 100."
+    ],
+    [
+     7.8,
+     10.2,
+     "An index: 20 checks, not a million."
+    ],
+    [
+     10.5,
+     12.8,
+     "A batch job crunches it overnight."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.2): a database stores, a cache reuses expensive answers, an index finds records without scanning, a batch job crunches accumulated data on a schedule. DATA: D1.CACHE {dbMs 100, cacheMs 2} (a cache hit answers in 2 ms, a miss goes to the database in 100 ms); D1.INDEX {records 1,000,000, scan 1,000,000, checks 20}; D1.BATCH {night '02:00', ready '08:00'}.\n\nLAYOUT: a 2 x 2 grid of D1.card panels (w 450, h 290) at (14, 10), (472, 10), (14, 330), (472, 330), each with a grey header tag at its top-left ('database', 'cache', 'index', 'batch job'). Panels play one after another; finished panels hold. DATABASE: a blue square packet (D1.token, size 34) flies from x 60 into D1.icon.db (size 110, centre (225, 175)) at 0.4-1.1 of the panel's time, a tag 'tomorrow' pops at 1.5, the packet pops out at the right with an L5.tick (green) at 1.9. CACHE: grey 'app' chip, purple D1.card 'cache' (w 120, h 80), D1.icon.db (size 70) at the right; request 1 goes app -> cache (red L5.cross: miss) -> database (red tag '100 ms'), a purple copy stays in the cache; request 2 hits the cache (green L5.tick, green tag '2 ms'). INDEX: two D1.bar rows (w 400): 'no index' red bar fills to full with text '1,000,000 checks' (slow sweep), 'with an index' green bar tiny with text '20 checks'. BATCH: three stops at x 80 / 225 / 370: D1.icon.sun with a pile of blue packets growing (label 'all day'), D1.icon.moon + spinning D1.icon.gear (label '02:00', the pile is eaten), D1.icon.doc green (label '08:00').\n\nTIMELINE. 0.3-1.3 panels and headers pop (0.15 s apart); database 1.4-4.0; cache 4.3-7.4; index 7.7-10.2; batch 10.3-12.8; hold to 13.\n\nEND STATE: all four panels in their finished state.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-faults.js",
+   "kicker": "RELIABILITY",
+   "title": [
+    "Faults are normal,",
+    "failures are not"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.5,
+     3.0,
+     "10,000 disks: about one dies every day."
+    ],
+    [
+     3.2,
+     5.0,
+     "A dead disk is a fault."
+    ],
+    [
+     5.0,
+     7.2,
+     "One copy: a dead disk means a failure."
+    ],
+    [
+     7.5,
+     9.4,
+     "Two copies: users notice nothing."
+    ],
+    [
+     9.6,
+     11.3,
+     "Faults must not become failures."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.3): a fault is one part misbehaving (a disk dies); a failure is the whole service stopping. At 10,000 disks about one dies a day, so it must be a fault: with one copy each dead disk is also a failure, with two copies the copy answers. DATA (seeded simulation, asserted): D1.DISKS = {n 10000, p 1e-4, expected 1, days: 7 x {day, dead: [disk index], total}, perDay [1,1,0,2,1,1,1], faults 7, failures1 7 (one copy), failures2 0 (two copies), at(i) -> {col, row}}; the dead disks sit at (column,row) 71,10 / 32,23 / 74,59 / 74,91 / 39,62 / 8,1 / 91,46.\n\nLAYOUT. const f = D1.diskField(stage, {x: 20, y: 60, size: 380}); f.update({dead: [{i, k, tone}]}); tag '10,000 disks' (grey, x 20, y 0), tag '1 in 10,000 dies each day' (x 20, y 460), tag 'day N' (grey, x 330, y 0). Right column x 460 (w 464): D1.stat 'disk faults' orange (y 20, h 80). Row card 1 (y 150, h 190, header tag 'one copy'): D1.user at (500, 255), arrow to D1.icon.disk (x 640, y 255, size 60, dead = orange) and a red solid tag 'failures: 7'. Row card 2 (y 370, h 190, header tag 'two copies'): D1.user, arrow, two D1.icon.disk (one dead orange, its copy green) and a green solid tag 'failures: 0' with L5.tick.\n\nTIMELINE. 0.2-1.3 field, tags, stat pop. 1.6 + 0.42 (d - 1): day d, its disks pop on the field (orange), the 'disk faults' stat counts DISKS.days[d].total. 4.9 row 1 pops, a request packet hits the dead disk (red cross), the 7 field markers turn red one after another (5.8-6.4), 'failures: 7' counts up. 7.5 row 2 pops, the markers turn orange again, the copy answers (green tick), 'failures: 0'. Hold to 11.5.\n\nEND STATE: orange markers, row 1 red, row 2 green.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-cascade.js",
+   "kicker": "RELIABILITY",
+   "title": [
+    "One fault can bring",
+    "everything down"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "Six servers share the load, 70 each."
+    ],
+    [
+     2.8,
+     5.0,
+     "One dies; five carry on at 84 each."
+    ],
+    [
+     5.1,
+     7.0,
+     "One more dies: 105 each, over 100."
+    ],
+    [
+     7.1,
+     8.9,
+     "Overload makes them fall one by one."
+    ],
+    [
+     9.2,
+     11.0,
+     "One bug hits all six together."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.3): hardware faults are independent (one server dies, the rest share its load) but spare capacity is finite: when survivors are pushed over capacity they die too (cascade); a software bug is correlated and takes every server down at once. DATA: D1.CASC = {n 6, cap 100, load 420, calm {alive 6, per 70}, one {alive 5, per 84, over false}, two {alive 4, per 105, over true}, chain [{4,105},{3,140},{2,210},{1,420},{0}]} (D1.cascade).\n\nLAYOUT. const row = D1.servers(stage, {n: 6, x: 38, y: 150, w: 130, h: 150, gap: 16}); each set({state, load: per / 100, text: String(per), label: String(i + 1)}) with state 'ok' (green) up to 84, 'over' (orange tint, number in orange, meter full) when per > 100, 'down' (red cross). Above the row: grey tag 'each takes 100' (x 38, y 60) and D1.stat 'total load' blue '420' (x 590, y 50, w 300). Verdict tags centred at y 360: green solid 'fault tolerated' (L5.tick), orange solid 'overloaded', red solid 'cascade: all down', red solid 'all fail together'. D1.icon.bug (size 90, red) pops above the row at y 80 for the last beat.\n\nTIMELINE. 0.3-1.2 six servers at 70. 2.4 server 1 dies (D1.icon.bolt flash), the others show 84; green tag 3.4. 5.0 server 2 dies, four left show 105 and turn 'over'; orange tag 5.8. 6.8 + 0.45 k: the overloaded servers die one by one while the survivors' numbers read 140, 210, 420; red tag 8.6. 9.0-9.4 everything revives to 70 and the verdict tags clear; 9.5 the bug icon pops; 9.9 all six go down together, red tag 10.3. Hold to 12.\n\nEND STATE: six dead servers, bug icon, red tag.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-latency.js",
+   "kicker": "SCALABILITY",
+   "title": [
+    "Judge speed by the spread,",
+    "not the average"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.5,
+     "100 requests, each timed."
+    ],
+    [
+     3.0,
+     4.8,
+     "Most are quick; a few are slow."
+    ],
+    [
+     4.9,
+     6.6,
+     "The average is 250 ms."
+    ],
+    [
+     6.7,
+     8.5,
+     "p95: 95 in 100 are faster."
+    ],
+    [
+     8.6,
+     10.2,
+     "p99: 99 in 100 are faster."
+    ],
+    [
+     10.3,
+     12.2,
+     "The average hides the slowest."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.4): response time varies from request to request, so one number (the average) hides the unhappy users; percentiles describe the spread: p95 = 95 requests in 100 were faster. DATA (asserted): D1.PERF = {samples: 100 response times in ms (21 ... 837), order (arrival order), mean 250, p50 218, p95 554, p99 754, aboveP95 5, aboveP99 1, max 837, bins (17 counts per 50 ms)}.\n\nLAYOUT. const h = D1.dotsHist(stage, {x: 48, y: 90, w: 840, h: 300}) (baseY 346, tick numbers 0 250 500 750 below it); a grey tag 'response time, ms' at (330, 400). Markers (D1.vline, y1 130, y2 baseY): blue 'average 250' at h.xOf(250), orange 'p95 554' at h.xOf(554), red 'p99 754' at h.xOf(754). A red solid D1.stat-like tag '1 in 100' near the last dot.\n\nTIMELINE. 0.3-0.9 axis and tag. 0.8-4.4 dots fall: h.update({n: 108 * ramp(t, 0.8, 4.4, E.lin), fall: 8}); the finished shape is a left-heavy hill with a long right tail. 4.9-5.7 blue marker grows. 6.0-6.8 orange marker grows and the 5 dots above 554 turn orange (tone fn on ms > D1.PERF.p95). 8.0-8.8 red marker grows and the 1 dot above 754 turns red; '1 in 100' pops. Hold to 12.5.\n\nEND STATE: histogram with three markers, tail dots orange and red.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-fanout.js",
+   "kicker": "CASE STUDY: TIMELINES",
+   "title": [
+    "Do the work",
+    "on write or on read?"
+   ],
+   "dur": 16,
+   "caps": [
+    [
+     0.5,
+     2.6,
+     "Approach 1: one write per post."
+    ],
+    [
+     2.8,
+     5.0,
+     "Reading means 3 lookups and a merge."
+    ],
+    [
+     5.3,
+     7.2,
+     "Approach 2: copy to each follower."
+    ],
+    [
+     7.3,
+     9.2,
+     "Reading is one lookup."
+    ],
+    [
+     9.5,
+     11.6,
+     "Reads outnumber posts 65 to 1."
+    ],
+    [
+     11.7,
+     13.5,
+     "Copy on write: 345,000 a second."
+    ],
+    [
+     13.7,
+     15.8,
+     "A celebrity needs 87 seconds: go hybrid."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.5): fan-out. Approach 1 stores each post once and merges the followed people's posts when someone reads (1 write, many reads); approach 2 copies each post into every follower's mailbox (many writes, 1 read). Reads outnumber posts, so Twitter chose approach 2, except for celebrities whose fan-out is too slow (hybrid). DATA (asserted): D1.TWEET = {users, follows, cat {followers [Ana, Ben, Dev, Eli, Fay], writes1 1, writes2 5}, ana {followees [Ben, Cat, Dev], reads1 3, reads2 1}, load {posts 4600, reads 300000, fan 75, writes2 345000, ratio 65.2}, celeb {followers 30000000, secs 87, target 5}}.\n\nLAYOUT (phases share one stage; each phase fades the previous one). Counters top: D1.stat 'writes' orange (x 20, y 0, w 300) and 'reads' blue (x 340, y 0, w 300). Cat: D1.user (x 100, y 300, name 'Cat'). PHASE A1 (0.3-5.2): grey card 'all tweets' (x 330, y 230, w 200, h 160); a blue D1.icon.envelope flies Cat -> card (writes 1); Ana D1.user (x 790, y 300, name 'Ana'); three blue lookup packets run Ana -> card and back (reads 1, 2, 3) with a merge tag; PHASE A2 (5.2-9.3): five purple D1.icon.mailbox (size 60) in a column at x 700, y 90 / 190 / 290 / 390 / 490 with name tags Ana ... Fay; five purple envelopes fly from Cat (writes 5); then Ana's mailbox alone is read (reads 1). PHASE B (9.3-13.5): two D1.bar rows (w 560): blue 'posts / s' 4,600 (tiny) and blue 'reads / s' 300,000 (full); then chips 4,600 D1.mark('times') 75 D1.mark('equals') 345,000 (orange, 'writes / s'). PHASE C (13.5-16): D1.bar red '87 s' versus green '5 s'; a purple solid tag 'hybrid: most users on write, celebrities on read'.\n\nEND STATE: the hybrid tag over the 87 s versus 5 s bars.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-scaling.js",
+   "kicker": "SCALABILITY",
+   "title": [
+    "Scale up or",
+    "scale out?"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.5,
+     3.0,
+     "Need 8 times the power of one machine."
+    ],
+    [
+     3.2,
+     5.4,
+     "Scale up costs more: £34,297 vs £8,800."
+    ],
+    [
+     5.8,
+     7.6,
+     "One dies: 0% left, or 88% left."
+    ],
+    [
+     8.0,
+     10.6,
+     "At 40 times, no single machine exists."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.6): scale up = one bigger machine, scale out = many ordinary machines. Up costs more than proportionally and is one point of failure; out costs ~linearly and survives a failure. DATA (asserted): D1.SCALE = {max 32, need 8, up8 34297, out8 8800, up32 362039, out32 35200, big 40, up40 Infinity, out40 44000, leftUp 0, leftOut 88}, costUp(c) = 1000 c^1.7 (none above 32), costOut(c) = 1000 c (x1.1 above 1).\n\nLAYOUT. Two columns: left x 20-450 (header tag 'scale up' grey solid at y 0, sub label 'one bigger machine'), right x 486-916 ('scale out', 'many ordinary machines'). Left: D1.server (x 130, y 90, w 200, h 220, label '8x'); right: eight small D1.server (w 90, h 100, gap 12, 4 x 2) at x 506, y 90 / 202. Cost stats under each (y 340, w 410, h 80): orange 'cost' D1.money(D1.SCALE.up8) and green 'cost' D1.money(D1.SCALE.out8). Result tags (y 440): 'capacity left 0%' (red) / '88% left' (green).\n\nTIMELINE. 0.3-1.3 columns pop; 1.4-2.8 costs count up; 5.8 one machine dies on each side (left: the big one, state down; right: one small one), result tags pop; 8.0-10 left machine becomes a dashed ghost with orange tag 'none this big' and the right grid grows to 40 icons (8 x 5, D1.icon.server size 40) with green stat D1.money(D1.SCALE.out40). Hold to 11.\n\nEND STATE: ghost machine vs 40 small ones with cost 44,000.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-maintain.js",
+   "kicker": "MAINTAINABILITY",
+   "title": [
+    "Maintainable systems",
+    "are easy to change"
+   ],
+   "dur": 12.2,
+   "caps": [
+    [
+     0.5,
+     2.9,
+     "Three kinds of easy: run, understand, change."
+    ],
+    [
+     3.4,
+     5.4,
+     "Every service talks to every database."
+    ],
+    [
+     5.6,
+     7.6,
+     "Swap one database: edit all five."
+    ],
+    [
+     7.8,
+     9.8,
+     "One layer in between: 9 connections."
+    ],
+    [
+     10.0,
+     11.9,
+     "Now only the layer changes."
+    ]
+   ],
+   "spec": "IDEA (lesson 1.7): maintainable = easy to run (operability), easy to understand (simplicity), easy to change (evolvability); an abstraction (a data-access layer) removes accidental complexity. DATA (asserted): D1.MAINT = {services [Web app, Mobile API, Reports, Search, Billing], dbs [Users DB, Orders DB, Products DB, Logs DB], edges 20, direct 20, layered 9, hot 1 (Orders DB), editDirect 5, editLayer 1, big {8 services, 6 dbs, direct 48, layered 14}}.\n\nLAYOUT. Intro (0.3-3.2): three D1.card stickers at y 230 (w 290, h 130): 'easy to run' (green), 'easy to understand' (purple), 'easy to change' (orange) with small labels operability / simplicity / evolvability under them, fading out at 3.0. Then const a = D1.arch(stage, {x: 0, y: 0}); a.update({k, direct, layer, hot, lineK}) (services y 30, layer y 215, databases y 400; counters below y 500): D1.stat 'connections' grey (x 20, y 530, w 420) showing 20 then 9, and D1.stat 'to edit' orange (x 480, y 530, w 420) showing 5 then 1.\n\nTIMELINE. 3.2-4.0 boxes pop; 4.0-5.0 the 20 lines draw (lineK); 5.6-6.6 hot 0 -> 1 (Orders DB orange, five lines thick, five services ringed), 'to edit 5'; 7.4 hot -> 0; 7.8-8.8 layer 0 -> 1 (direct fades, 9 purple lines), 'connections 9'; 10.0-10.8 hot -> 1 again (only the layer rings), 'to edit 1'. Hold to 12.2.\n\nEND STATE: layered diagram with the layer ringed.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "cta": "Next: Workshop 1.W",
+  "points": [
+   {
+    "head": "Faults must not\nbecome failures",
+    "tone": "green",
+    "pictogram": "Four small D1.icon.server (size 54, drawn at x 40 / 110 / 180 / 250, y 70 inside the 340 x 140 area): pop in grey->green (0.1-0.6), the second turns orange with a bolt (1.4-1.9) while the others stay green, an L5.tick (size 40, green) draws on at x 320 (2.4-2.9). Holds."
+   },
+   {
+    "head": "Add machines\nas load grows",
+    "tone": "blue",
+    "pictogram": "A D1.stream-like row of blue packets (square, size 18) walks from x 20 into a purple split at x 120 and fans out to three D1.icon.server (size 50, x 250, y 30 / 70 / 110); first one server with a full orange meter (0.1-1.6), then three with calm green meters (2.0-3.4). Holds the three-server state."
+   },
+   {
+    "head": "Easy to run,\nunderstand, change",
+    "tone": "purple",
+    "pictogram": "Mini diagram (drawn small): three grey chips on top, a purple bar in the middle, two grey chips below, tidy purple lines (5 connections instead of 6) drawing on (0.3-1.8), then an L5.tick (green, size 40) at x 320 (2.2-2.7). Holds."
+   }
+  ],
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy videos/l5/scene-10-recap.js and videos/a6/scene-11-recap.js: kicker 'RECAP', headline 'Remember' (76 px, x 72, top 108), Pebble V.mascot('pebble', {size: 168, mood: 'love'}) at x 840, y 38 bobbing, three plain rows (x 72, width 936, height 180, tops 240 / 444 / 648; class 'v-card plain c-<tone>', edges green / blue / purple) each with a 340 x 140 pictogram on the left (drawn 10 % larger: div left 16, top 10, transform scale(1.1), origin 0 0; L5.svg(pic, 340, 140)) and a 36 px bold label (up to 2 lines of 22 characters, from x 440, centred vertically). Bottom: one solid blue tag 'Next: Workshop 1.W' (34 px, centred, y 904). Rows slide in at 0.8 / 1.9 / 3.0; each pictogram plays ONCE and then HOLDS its finished state (no loop, no fade, no reset) so the video ends on a calm complete frame; the call-to-action pops at 5.4. Nothing but Pebble's bob moves in the last second. No captions.\n\nCOLOURS (whole video): blue = traffic (requests, load, the work, the thing we look at); green = healthy / served / fast / correct / a tick; red = broken / dropped / failed / slow / stale; orange = a limit, a cost, a fault, attention (near capacity, the change); purple = the extra piece that helps (copies, cache, index, mailbox, the abstraction layer); grey = neutral machine or box. Every label is 28 px or more; symbols (tick, cross, arrow, times, plus, equals, bolt, bug) are SVG (L5.tick / L5.cross / L5.arrow, D1.mark, D1.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Consts: const V = window.VID, D1 = V.d1, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+ },
+ "helpers": "FILES: videos/d1/common.js (data and rules, asserted at load), common-2.js (tags, chips, stats, discs, tokens, cards, labels, timing and path tools), common-5.js (SVG icons and marks), common-3.js (servers, streams, wire, bars, users), common-4.js (disk field, dot histogram, vline markers, architecture diagram). Everything hangs off window.VID.d1; scenes start with const V = window.VID, D1 = V.d1, L5 = V.l5. videos/ds-1.html loads engine.js, cards.js, l5/common.js, then d1/common.js, common-2.js, common-5.js, common-3.js, common-4.js, then scene-01 ... scene-11, audio/ds-1.js. Every helper file starts with an API comment: READ THEM FIRST. All draw calls are pure.\nA. DATA (common.js): D1.same / close / rng / fmt / money / pct; D1.serve, ONE; ticketRun, TICKETS; CACHE, INDEX, BATCH; DISKS (days, perDay, faults, failures1, failures2, at, copy); cascade, CASC; quantile, PERF; TWEET; costUp, costOut, left, SCALE; MAINT; NEXT.\nB. DRAWING BASICS (common-2.js): D1.tag / chip / stat / disc / token / card / label (set({k, x, y, s, o, tone, text, ...}) each frame; k 0..1 pops it in), D1.seq, D1.poly, D1.lerp2, D1.loop, D1.tone.\nC. ICONS (common-5.js): D1.icon.server / disk / db / person / mailbox / envelope / bolt / bug / clock / moon / sun / gear / doc / wrench / spark, D1.mark('times' | 'plus' | 'equals' | 'minus', x, y, size, tone).\nD. MACHINES AND TRAFFIC (common-3.js): D1.server(parent, {x, y, w, h, label}).set({state: idle | ok | hot | over | down | ghost, load, text, ...}), D1.servers (a row), D1.stream (looping packets along D1.poly with rate and dropShare), D1.wire (a link with cut), D1.bar, D1.user.\nE. FIGURES (common-4.js): D1.diskField (10,000 dots, dead markers), D1.dotsHist (the 100 response times falling into bins), D1.vline (marker with tag), D1.arch (services, layer and databases with 20 / 9 connections and the 'replace Orders DB' change).\nF. TIPS: the helpers were checked once in a throwaway page; render a still of your first frame and fix a helper locally if something is off (report it). A tag that has not popped yet must be set({k: 0}) every frame. Text never below 28 px; keep a 12 px margin in the 936 x 640 stage."
+}

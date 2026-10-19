@@ -1,0 +1,328 @@
+{
+ "slug": "ds-2",
+ "dir": "d2",
+ "title": "Lecture 2 · Data models and NoSQL",
+ "outline": "STATUS: helpers (d2/common.js .. common-4.js, lint and prettier clean, tested in a throw-away stills scene), storyboard, page videos/ds-2.html, audio stub, finished title card and placeholder scenes 2-10 are DONE; the scene authors still have to draw scenes 2-9 and the recap (placeholders only). Video ds-2 (Data Science COM3021, lecture 2 'Data models and NoSQL'), 10 scenes, about 117.5 s: title (4), one profile page two ways (13), a company renames (12.5), changing the shape of your data (13.5), locality (12.5), the property graph (13), friends of friends (12.5), four NoSQL families (14.5), pick the family by the question (13), recap (9). Story: a profile page stored as six relational tables needs six lookups joined by a key, a document keeps it together (1 read) (2); many-to-one data (a company name shared by 400 profiles) is 1 row in tables but 400 copies to rewrite in documents, and a missed copy is stale (3); a document store tolerates old and new shapes (schema-on-read: the app splits 'Ada Byte' when it reads), a table must rewrite all 1,000 rows (schema-on-write) (4); locality: one document is one read for the whole profile, but loads all 20 KB when only the 0.2 KB name is wanted (5); a property graph stores vertices (person, city, company) and labelled edges (FRIEND, LIVES_IN, WORKS_AT), a vertex lists its in and out edges, and a route is a walk: Ana to Dee is 3 hops (6); friends of friends: tables add a join per hop, documents a fetch per hop, the graph repeats one move; a fourth hop reaches Eli (7); NoSQL stresses simple design, scaling out, availability, and has four families shown for one pancake recipe (8); choose the family by the shape of the question (9). Scope: concepts, not SQL syntax or products' how-tos (the lecture names MongoDB, DynamoDB, Cassandra but the video does not need them). The recap points to Workshop 2.W. LESSONS the facts come from: ds-models 2.1, ds-schema 2.2, ds-graph 2.3, ds-nosql 2.4 (js/content/ds/ds-l23-01.js, ds-l23-02.js), workshop ds-querylab 2.W (ds-workshops-02.js), boss ds2-boss (boss-ds-23.js, the Forkful recipe app: the video uses the lesson's own examples, not the boss questions).\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): grey = neutral data (a record, a row, an untouched copy); blue = the thing being read or looked at (the profile page, the current vertex, a read arrow, the walker); purple = a link between records (foreign key, join, an edge in use); orange = an identifier or the thing that changes (key chip, the company name, an edge label); green = a good result (one read, up to date, reached, done); red = a bad result (a stale copy, wasted KB, waiting). Shapes carry the model: table sticker = relational, braces sticker = document, pill vertices = graph. Every text is 28 px or more, symbols are SVG (L5.tick / L5.cross / L5.arrow), all draw calls pure. The same pieces return from scene to scene: the chef #251 profile (scenes 2, 5), the people Ana Ben Cy Dee Eli with the lesson's graph (6) and the workshop's friendship chain (7), the pancake recipe (8). Table stickers carry the key chip 251 in orange. Captions: one plain sentence each, at most about 20 characters per second, each starting only when its picture is on screen. Jargon defined on screen before use: 'join' (purple tag 'joined by key 251', scene 2), 'stale' (red tag, scene 3), 'schema' (shown as the two document shapes, scene 4), 'hop' (counter, scene 6), 'partition key / sort key' (tiny tags, scene 8). Mascot: Pebble (title and recap only). scene-01-title.js is finished (two-line 92 px headline because 'Data models and NoSQL' does not fit one line).",
+ "titleCard": {
+  "kicker": "Lecture 2",
+  "title": "Data models and NoSQL",
+  "sub": "Pick the right shape for your data",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-profile.js",
+   "kicker": "RELATIONAL OR DOCUMENT",
+   "title": [
+    "One profile page,",
+    "two ways to store it"
+   ],
+   "dur": 13.0,
+   "caps": [
+    [
+     0.5,
+     2.6,
+     "One profile page needs six tables."
+    ],
+    [
+     2.8,
+     6.0,
+     "The page asks each table in turn."
+    ],
+    [
+     6.3,
+     8.2,
+     "Six places to read, glued by a key."
+    ],
+    [
+     8.4,
+     10.4,
+     "A document keeps it all together."
+    ],
+    [
+     10.6,
+     12.7,
+     "One read gets the whole page."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.1 'Load one profile page', chef #251): relational storage scatters one profile over six tables joined by a key (6 lookups); a document keeps it in one place (1 read). DATA: D2.PROFILE (asserted: 6 tables users 1 / regions 1 / industries 1 / positions 2 / education 2 / contact_info 2 rows, 9 rows, relational lookups 6, document lookups 1). LAYOUT (stage px): tag D2.tag {x:0,y:6,text:'profile page',tone:'blue'}; page = D2.page(stage,{x:0,y:80,w:210,h:380}); tag {x:258,y:6,text:'relational: 6 tables'}; six D2.table w 210 at x = 258 + (i%3)*228, y = i<3 ? 80 : 208, name = D2.PROFILE.fields[i].table, rows = D2.PROFILE.fields[i].n times [{text:'251',tone:'orange'}, ''] (251 = D2.PROFILE.id, the key every table repeats); document D2.doc(stage,{x:258,y:80,w:420,title:'chef #251',lines:D2.profileDoc()}) (h 352, hidden until 7.4); stats D2.stat {x:258,y:520,w:330,h:80,label:'tables',tone:'purple'} and {x:600,y:520,w:324,h:80,label:'document',tone:'green'}; purple tag {x:560,y:420,text:'joined by key 251'} under the tables. TIMELINE: 0.3-1.0 page pops (k ramp), its tag; 0.8-1.7 the six tables pop 0.12 s apart (key chips orange). 2.2-5.8 six lookups, 0.6 s each, i = 0..5: a blue D2.token flies D2.bez(page.slotMid(i), table_i.left() or .top(), bow 14, f) in 0.4 s, table_i.set({hot:0, hotTone:'blue'}) rings its first row for 0.4 s, then page slot i fills (fill[i] ramp 0.25 s); stat 'tables' counts 1..6 (bump on each). 6.2 the purple tag pops. 6.9-7.5 tables, tag fade (o 1->0); 7.4-8.0 the document pops (k) with its six lines empty. 8.4-9.0 one blue token flies page.right() -> doc.left(); 9.0-9.6 doc fill [1,1,1,1,1,1] (ramp, chips solid blue) and ALL page slots fill together (0.05 s apart); stat 'document' pops with 1 (green) at 9.2. 9.8-13 hold: stat 'tables' 6 stays (purple), stat 'document' 1 (green). END: filled page, document, the two counters 6 vs 1.\n\nCAPTIONS: [[0.5, 2.6, \"One profile page needs six tables.\"], [2.8, 6.0, \"The page asks each table in turn.\"], [6.3, 8.2, \"Six places to read, glued by a key.\"], [8.4, 10.4, \"A document keeps it all together.\"], [10.6, 12.7, \"One read gets the whole page.\"]]"
+  },
+  {
+   "n": 3,
+   "file": "scene-03-rename.js",
+   "kicker": "MANY-TO-ONE",
+   "title": [
+    "A company renames,",
+    "who has to change?"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.8,
+     "One company, many profiles."
+    ],
+    [
+     3.1,
+     4.5,
+     "Tables: change one row."
+    ],
+    [
+     4.7,
+     7.6,
+     "Documents: rewrite all 400 copies."
+    ],
+    [
+     8.7,
+     11.9,
+     "Miss one and that profile is stale."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.1 'A company changes its name'): many profiles share one company. Relational stores the name once (1 row to change); a document store copies it into every profile (400 documents to rewrite, and a missed copy is stale). DATA: D2.RENAME (asserted: profiles 400 = 25 x 16 dots, company id 7 Acme -> Apex, relational rows 1, document docs 400, stale dot 213 = row 8 col 13). LAYOUT: tags {x:0,y:6,text:'relational'} and {x:330,y:6,text:'document'}; D2.table {x:0,y:80,w:270,name:'companies',rows:[[{text:'7',tone:'orange'},'Acme']],widths:[60]}; four person pictograms in 56 px circles at cx 34 + 66 i, cy 330 (L5.svg layer: V.s circle fill var(--blue-dim) stroke var(--blue-edge) + D2.icon.person(cx,330,40,'blue')) with purple L5.arrow(cx,300,135,200,'purple',1,{w:5,head:16}) up to the row; dots G = D2.dots(stage,{x:330,y:70}) (25 x 16, size 18, gap 6: x 330-924, y 70-448), all 'orange' (the old name copied); stats D2.stat {x:0,y:520,w:300,h:80,label:'rows changed',tone:'green'} and {x:330,y:520,w:594,h:80,label:'documents to rewrite',tone:'orange'}. TIMELINE: 0.3 tags; 0.4-1.2 table, four people, arrows draw on (L5.drawOn 0.1 s apart); 1.0-2.0 dots pop row by row (G.set with o = ramp per row, 0.05 s per row). 2.8-3.3 the name cell changes: table.set({cells:{'0,1':{text:'Apex',tone:'green'}}}) from 3.0 (flash scale), stat 'rows changed' pops with D2.RENAME.relational.rows (1) at 3.4; the four arrows flash green. 4.3 stat 'documents to rewrite' pops with 400 (D2.RENAME.document.docs). 4.8-8.0 the wave: dot i turns solid green when t > 4.8 + 3.2 * i / 400 except i = D2.RENAME.stale, which stays orange. 8.3 the stale dot gets ring 'red' (ringK pop) and a red solid tag 'stale' (28 px) pops beside it (G.mid(213), tag to the right). 9-12.5 hold. END: grid green with one red-ringed orange dot, 1 vs 400.\n\nCAPTIONS: [[0.5, 2.8, \"One company, many profiles.\"], [3.1, 4.5, \"Tables: change one row.\"], [4.7, 7.6, \"Documents: rewrite all 400 copies.\"], [8.7, 11.9, \"Miss one and that profile is stale.\"]]"
+  },
+  {
+   "n": 4,
+   "file": "scene-04-schema.js",
+   "kicker": "SCHEMA",
+   "title": [
+    "Changing the shape",
+    "of your data"
+   ],
+   "dur": 13.5,
+   "caps": [
+    [
+     0.5,
+     2.4,
+     "Old and new shapes sit side by side."
+    ],
+    [
+     2.6,
+     4.8,
+     "The app splits old names as it reads."
+    ],
+    [
+     5.2,
+     7.6,
+     "A table must change every row first."
+    ],
+    [
+     8.0,
+     11.6,
+     "On a big table that takes a long time."
+    ],
+    [
+     11.8,
+     13.3,
+     "Only then is it ready."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.2 'Split name into first and last'): a document store keeps old {name} and new {first_name, last_name} documents side by side and the app splits old names when it reads (schema-on-read, no waiting); a relational table must add columns and rewrite every row (schema-on-write, slow on a big table). DATA: D2.SCHEMA (asserted: rows 1000, old 'Ada Byte' splits to Ada + Byte, new Cy Dee), D2.migrate(p) -> {done, pct}. LAYOUT: tag {x:0,y:0,text:'document store'}; docs D2.doc y 66: #1 {x:0,w:280,title:'#1',lines:[{key:'name',text:'Ada Byte'}]}, #2 {x:300,w:280,title:'#2',lines:[{key:'name',text:'Bo Li'}]}, #3 {x:600,w:310,title:'#3',lines:[{key:'first_name',text:'Cy'},{key:'last_name',text:'Dee'}]}; purple solid tags 'Ada' and 'Byte' (h 38) over doc #1's text (doc.set texts:{0:''} hides the original) at doc.lineMid(0).x + 20 and + 100; purple tag 'app' with a purple arrow to doc #1; green tag 'no waiting' + L5.tick; tag {x:0,y:280,text:'relational'}; D2.table {x:0,y:344,w:560,name:'users',rows:[['Ada Byte','NULL','NULL'],['Bo Li','NULL','NULL'],['Cy Dee','Cy','Dee']],widths:[190,150]} (h 202) with an orange tag 'new columns' at {x:600,y:300}; D2.bar {x:600,y:360,w:320,h:56,tone:'orange'}. TIMELINE: 0.3-1.6 tag + three docs pop 0.25 s apart. 2.8 doc #1 hot ring purple, 3.0 'app' tag + arrow; 3.4-4.0 text splits (the two purple tags slide apart from the middle); 4.3 green 'no waiting' tag + tick. 5.0 relational tag, 5.1-5.8 table pops; 6.0 the NULL cells appear (first/last columns grey 'NULL') and the 'new columns' tag; 6.4 bar pops 'rewriting 0 / 1,000'. 7.0-11.6 sweep p = ramp 7.0..11.6 linear: bar.set({p, text: done.toLocaleString() + ' / 1,000'}) with D2.migrate(p); table.set({hot: floor(p*12) % 3, hotTone:'orange'}) and rows 0-2 turn green ('Ada','Byte' ...) as p passes 0.25 / 0.5 / 0.75 (cells override). 11.8 bar solid green with text 'done'. END: both lanes complete; the document lane finished 7 s before the table.\n\nCAPTIONS: [[0.5, 2.4, \"Old and new shapes sit side by side.\"], [2.6, 4.8, \"The app splits old names as it reads.\"], [5.2, 7.6, \"A table must change every row first.\"], [8.0, 11.6, \"On a big table that takes a long time.\"], [11.8, 13.3, \"Only then is it ready.\"]]"
+  },
+  {
+   "n": 5,
+   "file": "scene-05-locality.js",
+   "kicker": "LOCALITY",
+   "title": [
+    "One document,",
+    "one read"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.2,
+     "The page wants the whole profile."
+    ],
+    [
+     2.6,
+     5.4,
+     "One read from the document, six from tables."
+    ],
+    [
+     6.2,
+     8.0,
+     "Now it wants only the name."
+    ],
+    [
+     8.4,
+     11.8,
+     "Locality loads all 20 KB for a tiny sliver."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.2 'Locality: one document, one read'): a document is stored and loaded as one piece. If the page needs the whole profile that is one read against six; if it needs just the name the document still loads all 20 KB while the tables read a tiny row. DATA: D2.LOCALITY (asserted: all = doc 1 read 20 KB, tables 6 reads 20 KB; name = doc 1 read 20 KB, tables 1 read 0.2 KB; wasted 19.8 KB). LAYOUT: blue solid tag {x:290,y:0,text:'page needs: whole profile'} (text changes at 6.0 to 'page needs: just the name'); tag {x:0,y:70,text:'document'}; D2.doc {x:0,y:136,w:380,title:'chef #251',lines:D2.profileDoc()} (h 352); tag {x:440,y:70,text:'tables'}; six D2.table w 220, name only (rows []), x 440 + (i%2)*236, y 136 + floor(i/2)*84 (names D2.PROFILE.fields[i].table); stats D2.stat {x:0,y:520,w:230,h:80,label:'reads',tone}, tags for KB at {x:250,y:536} (D2.kb(...)); the same under the tables at x 440 / 690. TIMELINE: 0.3-1.2 the tag, document, tables pop. PART A: 1.2-2.0 a blue L5.arrow to the doc, all lines fill blue, doc stat 1 (green), tag '20 KB'; 2.2-4.6 six blue arrows to the six tables one after another (0.4 s apart, each table rings), tables stat counts 1..6 (orange), tag '20 KB' grey. PART B 6.0: need tag text changes, arrows fade, fills reset; 6.4-7.2 an arrow to the doc: line 0 (name) fills blue, the other five lines fill RED (wasted), doc stat 1, tag '20 KB' red at 7.4; 8.0-8.8 one arrow to the 'users' table only (ring), tables stat 1 (green), tag '0.2 KB' green; 9.2 a red tag '19.8 KB wasted' (D2.LOCALITY.wasted) under the doc. 10-12.5 hold. END: wasted doc in red next to the tiny green read.\n\nCAPTIONS: [[0.5, 2.2, \"The page wants the whole profile.\"], [2.6, 5.4, \"One read from the document, six from tables.\"], [6.2, 8.0, \"Now it wants only the name.\"], [8.4, 11.8, \"Locality loads all 20 KB for a tiny sliver.\"]]"
+  },
+  {
+   "n": 6,
+   "file": "scene-06-graph.js",
+   "kicker": "GRAPH MODEL",
+   "title": [
+    "When the links",
+    "are the data"
+   ],
+   "dur": 13.0,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "A graph stores things and their links."
+    ],
+    [
+     3.9,
+     5.4,
+     "Each link has a label."
+    ],
+    [
+     5.7,
+     8.2,
+     "A vertex lists its own links in and out."
+    ],
+    [
+     8.8,
+     12.6,
+     "To find a route, walk the edges: three hops."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.3 'Graph models'): entities are vertices, relationships are edges with a label; a vertex stores its incoming and outgoing edges so a route is found by walking edges. DATA: D2.GRAPH / D2.LAYOUT / D2.bfs (asserted: 7 vertices, 8 edges 4 FRIEND 2 LIVES_IN 2 WORKS_AT, Ben out 2 (FRIEND Cy, LIVES_IN Leeds) in 1 (Ana FRIEND), shortest chain Ana-Ben-Cy-Dee = 3 hops). LAYOUT: g = D2.graph(stage,{nodes: Object.fromEntries(D2.GRAPH.nodes.map((n) => [n.id,{x:D2.LAYOUT[n.id][0],y:D2.LAYOUT[n.id][1],kind:n.kind}])), edges: D2.GRAPH.edges}) fills the whole stage (verified); stat D2.stat {x:0,y:560,w:230,h:72,label:'hops',tone:'green'} bottom-left; tags 'out 2' (blue) and 'in 1' (purple) beside Ben. TIMELINE: 0.3-2.2 vertices pop (base node k via nodes states, 0.2 s apart, people first, then Leeds, Acme). 2.2-3.6 the eight edges draw on (k ramp, 0.17 s apart, grey). 3.9 label FRIEND on 'Ana>Ben' (label 1, labelSide -1), 4.3 LIVES_IN on 'Ana>Leeds' (labelSide -1), 4.7 WORKS_AT on 'Cy>Acme' (labelSide 1). 5.8-8.4 inspect Ben: Ben ring orange; his out edges ('Ben>Cy','Ben>Leeds' = D2.GRAPH.ben.out keys) blue w 1.4, in edge ('Ana>Ben') purple w 1.4, labels off; tags 'out 2' at 6.4 and 'in 1' at 6.9 (numbers = D2.GRAPH.ben.out.length / .in.length). 8.4 highlights fade. 8.8 Ana solid green; 9.2-12.0 a blue token walks D2.pathKeys(D2.GRAPH.path) with g.edgePt(key, f), 0.9 s per hop; each edge turns green, each reached vertex solid green; stat 'hops' counts 1, 2, 3 (D2.GRAPH.hops). END: Ana-Ben-Cy-Dee path in green, hops 3.\n\nCAPTIONS: [[0.5, 2.7, \"A graph stores things and their links.\"], [3.9, 5.4, \"Each link has a label.\"], [5.7, 8.2, \"A vertex lists its own links in and out.\"], [8.8, 12.6, \"To find a route, walk the edges: three hops.\"]]"
+  },
+  {
+   "n": 7,
+   "file": "scene-07-hops.js",
+   "kicker": "FOLLOWING LINKS",
+   "title": [
+    "Friends of friends:",
+    "joins or edges?"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.4,
+     "Five people, linked in a chain."
+    ],
+    [
+     3.0,
+     6.2,
+     "Tables add a join per hop; the graph just walks."
+    ],
+    [
+     7.0,
+     9.0,
+     "Want a fourth hop?"
+    ],
+    [
+     9.3,
+     12.2,
+     "Queries grow, the graph walk does not."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.3 + workshop 2.W): to reach friends of friends, tables need one more join per hop and documents one more fetch in your code, while a graph repeats the same move: follow an edge. DATA: D2.CHAIN, D2.walk (asserted: 3 hops from Ana reach Dee with 3 joins / 3 fetches, 4 hops reach Eli with 4 / 4). LAYOUT: chain g = D2.graph(stage,{nodes: people at x [90,280,470,660,850], y 40, kind 'person', edges: D2.CHAIN.friends.map(([a,b]) => [a,b,'FRIEND']), directed:false}); three rows y 150 / 290 / 430: D2.card label {x:0,w:190,h:90,text:'Tables'|'Documents'|'Graph'}; pipeline blocks D2.card w 118 h 90 at x 230 + j*132: j 0 'start\\nAna' (plain), then 'join' (purple, plain:false) / 'fetch' (orange) in rows 1-2, one hop card 'follow' (blue) + D2.stat-like counter D2.card text 'x3' in row 3; result chips D2.card {text:'Dee'} green at the row ends. TIMELINE: 0.3-1.6 chain nodes pop 0.15 s apart; 1.4-2.3 row labels and start blocks pop. Hops from D2.walk('Ana', 4).steps: hop 1 at 3.0 (walker token along g.edgePt, Ben blue; 'join' #1 and 'fetch' #1 pop; graph counter 'x1'), hop 2 at 4.2, hop 3 at 5.4 (Dee green; chips 'Dee' pop at 6.2 in the three rows). 7.0-7.8 dashed ghost blocks '+' pulse red at the end of rows 1-2 ('the query must change'); 7.8-8.5 they fill (join #4, fetch #4); graph counter 3 -> 4 (bump) with no new block; walker moves to Eli (8.0), chips change to 'Eli'. 9.3-9.9 three green tags under the rows: 'one more join', 'one more fetch', 'same move' (28 px). END: four hops, Eli reached, rows 1-2 longer than row 3.\n\nCAPTIONS: [[0.5, 2.4, \"Five people, linked in a chain.\"], [3.0, 6.2, \"Tables add a join per hop; the graph just walks.\"], [7.0, 9.0, \"Want a fourth hop?\"], [9.3, 12.2, \"Queries grow, the graph walk does not.\"]]"
+  },
+  {
+   "n": 8,
+   "file": "scene-08-families.js",
+   "kicker": "NoSQL",
+   "title": [
+    "Four kinds of NoSQL,",
+    "one recipe"
+   ],
+   "dur": 14.5,
+   "caps": [
+    [
+     0.5,
+     3.4,
+     "NoSQL: simple, scales out, stays available."
+    ],
+    [
+     4.0,
+     6.2,
+     "Document: the whole recipe in one place."
+    ],
+    [
+     6.5,
+     8.6,
+     "Key-value: every item found by its key."
+    ],
+    [
+     8.8,
+     11.0,
+     "Wide-column: columns vary per row."
+    ],
+    [
+     11.2,
+     14.1,
+     "Graph: recipes linked to what they use."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.4): NoSQL = non-relational storage that stresses simple design, scaling out and availability; it comes in four families, shown here for one pancake recipe. DATA: D2.AIMS, D2.FAMILIES, D2.FAMILY_ORDER (asserted: kv items share partition key recipe#7 with different sort keys, wide rows have different columns, Flour is used by Pancakes and Waffles). PART 1 (0.3-3.6) three aim cards (D2.card w 280 h 150, plain:false, tones blue / green / orange) centred at y 200 with D2.AIMS text and a small pictogram above each text (one box; one box becoming four; a box with L5.tick), 0.4 s apart; fade out 3.3-3.7. PART 2 (2x2 grid, cells at x (i%2)*496, y floor(i/2)*316, i = index in D2.FAMILY_ORDER): tag {x+62,y,text: D2.FAMILIES[k].name} with L5.svg D2.fam(k, 54) at (x+28, y+29); doc D2.doc {x:0,y:66,w:440,title:'recipes',lines:D2.FAMILIES.doc.lines}; key-value D2.table {x:496,y:66,w:440,name:'',rows: D2.FAMILIES.kv.rows.map(([a,b]) => [{text:a,tone:'orange'},{text:b,tone:'purple'}]),widths:[200]} with tiny tags 'partition key' orange / 'sort key' purple when it lands; wide-column one D2.table {x:0,y:382,w:440,name:'',rows: D2.FAMILIES.wide.rows.map((r) => r.cols),widths:[100,100],stretch:false}; graph D2.graph in the bottom-right cell with plain vertices Pancakes (586,440) Waffles (586,560) Eggs (830,400) Breakfast (830,490) Flour (830,580) and D2.FAMILIES.graph.edges (no labels except USES on Waffles>Flour with labelSide 1). TIMELINE: cells appear at 4.2 (doc, lines fill 4.6-5.6), 6.5 (kv rows pop 0.15 apart), 8.8 (wide rows, the three rows pop; row 3 shorter), 11.1 (graph: nodes then edges). 13-14.5 hold. END: all four shapes on screen, calm.\n\nCAPTIONS: [[0.5, 3.4, \"NoSQL: simple, scales out, stays available.\"], [4.0, 6.2, \"Document: the whole recipe in one place.\"], [6.5, 8.6, \"Key-value: every item found by its key.\"], [8.8, 11.0, \"Wide-column: columns vary per row.\"], [11.2, 14.1, \"Graph: recipes linked to what they use.\"]]"
+  },
+  {
+   "n": 9,
+   "file": "scene-09-choose.js",
+   "kicker": "CHOOSING",
+   "title": [
+    "Pick the family by",
+    "the question"
+   ],
+   "dur": 13.0,
+   "caps": [
+    [
+     0.5,
+     1.9,
+     "Four kinds of job, four families."
+    ],
+    [
+     2.8,
+     4.3,
+     "A cart by user id: key-value."
+    ],
+    [
+     5.1,
+     6.6,
+     "A whole product page: document."
+    ],
+    [
+     7.4,
+     8.9,
+     "Friends of friends: graph."
+    ],
+    [
+     9.7,
+     11.4,
+     "Varying columns: wide-column."
+    ],
+    [
+     11.6,
+     12.8,
+     "Pick by the question."
+    ]
+   ],
+   "spec": "IDEA (lesson 2.4 sorter): choose the NoSQL family by the shape of the question. DATA: D2.WORKLOADS (asserted: four jobs, each a different family: Cart by user id -> kv, One whole product page -> doc, Friends of friends -> graph, Events with varying columns -> wide). LAYOUT: family stickers at the bottom: D2.card w 216 h 220 at x i*240 (216 + 24 gap = 936 ends 912... use x = i * 240), y 380, plain, text D2.FAMILIES[k].name at the bottom of the card (fs 28) and D2.fam(k, 96) centred at (x+105, y+85) in an L5.svg layer (order D2.FAMILY_ORDER); workload cards at the top: D2.card w 210 h 110 y 20, x 12 + i*234, text D2.WORKLOADS[i].lines.join('\\n'), tone blue plain:false. TIMELINE: 0.3-1.2 the four family stickers pop 0.15 s apart; 1.2-2.0 the four workload cards pop. Card i flies at 2.0, 4.3, 6.6, 8.9 (0.7 s, E.inOut) from its slot to just inside its family's sticker (y 520): the card shrinks to 0.8, the family sticker turns green (tone) and a green L5.tick pops on it at landing; the order of flights = D2.WORKLOADS order (cart, product page, friends, events) so the first two cross: fly the second only after the first has landed. 10.4 solid blue tag 'pick by the shape of the question' (fs 34) pops at {x:468 - w/2,y:240}. END: four green families each holding its job.\n\nCAPTIONS: [[0.5, 1.9, \"Four kinds of job, four families.\"], [2.8, 4.3, \"A cart by user id: key-value.\"], [5.1, 6.6, \"A whole product page: document.\"], [7.4, 8.9, \"Friends of friends: graph.\"], [9.7, 11.4, \"Varying columns: wide-column.\"], [11.6, 12.8, \"Pick by the question.\"]]"
+  }
+ ],
+ "recap": {
+  "file": "scene-10-recap.js",
+  "dur": 9.0,
+  "points": [
+   {
+    "head": "Tree or shared data?\nDocument or tables",
+    "tone": "blue",
+    "pictogram": "340 x 140 area: left a D2.fam('doc', 84, 'blue') at (60, 70) with three small solid blue chips filling inside it one after another (0.1-1.2), a green L5.tick (size 34) at (60, 20) at 1.4-1.9; right three tiny D2.table-like stickers (rects 70 x 34, grey, edge line-2) at x 190, 250 ... joined by purple lines to a centre rect (a join) drawn on 2.2-3.2. Plays once, then holds."
+   },
+   {
+    "head": "Links are the data?\nUse a graph",
+    "tone": "purple",
+    "pictogram": "four small pill nodes (D2.graph in a 340 x 140 box is too big: draw four circles r 20 at (50,90) (130,40) (220,95) (300,45) with grey SVG lines); a small blue token walks the three edges (0.4-2.4) and each reached circle turns solid green; holds the green path. Pure SVG, no text."
+   },
+   {
+    "head": "Four NoSQL families:\npick by the question",
+    "tone": "green",
+    "pictogram": "four D2.fam icons (kinds D2.FAMILY_ORDER, size 64, tone grey) at x 44, 128, 212, 296, y 60 popping 0.12 s apart (0.1-0.8); at 1.4 a green L5.tick (size 30) draws on above the third (wide) and the third icon turns green; holds."
+   }
+  ],
+  "cta": "Next: Workshop 2.W",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/a6/scene-11-recap.js (kicker 'RECAP', headline 'Remember' 76 px at x 72 top 108, Pebble via V.mascot('pebble', {size: 168, mood: 'love'}) at x 840, y 38 bobbing, three plain sticker rows x 72 w 936 h 180 tops 240 / 444 / 648 with edge colours blue / purple / green, a 340 x 140 pictogram scaled 1.1 at left 16 top 10 and the bold label (36 px, 2 lines of at most 22 characters, x 440, vertically centred) on the right, the blue 'Next: Workshop 2.W' sticker at y 904). Rows slide in at 0.8, 1.9, 3.0; each pictogram starts 0.4 s later, plays ONCE and HOLDS its finished state (no loop, no fade, no reset) so the video ends on a calm, complete frame; the call to action pops at 5.4. No captions."
+ },
+ "helpers": "FILES: videos/d2/common.js (pure data and algorithms with build-time asserts, no DOM), common-2.js (tags, cards, stat counters, discs, tokens, progress bar, icons, bezier/lerp/seq helpers), common-3.js (stores: D2.table, D2.doc, D2.page, D2.dots), common-4.js (D2.graph property graph with labelled directed edges, D2.fam family icons). Everything hangs off window.VID.d2; scenes start with const V = window.VID, D2 = V.d2, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/ds-2.html loads engine.js, cards.js, l5/common.js, then d2/common.js .. common-4.js, scene-01 ... scene-10, audio/ds-2.js. Every helper file starts with a long API comment: READ THEM FIRST. All draw calls are pure (call set()/update() every frame with everything to show). A. DATA (common.js): D2.PROFILE / profileDoc(), D2.RENAME / rowCol, D2.SCHEMA / splitName / migrate(p), D2.LOCALITY / locality(need,size) / kb, D2.GRAPH {nodes, edges, path, hops, ben} / D2.bfs / D2.vertex / D2.pathKeys / D2.ekey / D2.LAYOUT, D2.CHAIN / D2.walk(start, hops), D2.AIMS / D2.FAMILIES / D2.FAMILY_ORDER / D2.WORKLOADS / D2.usersOf, D2.same / D2.close / D2.rng. B. BASICS (common-2.js): D2.tag(parent,{x,y,text,tone,solid,h,fs,mono}).set({text,tone,solid,k,x,y,s,o}); D2.card(parent,{x,y,w,h,text,tone,plain,fs,mono}).set({text,tone,plain,solid,k,x,y,s,o}); D2.stat(parent,{x,y,w,h,label,tone}).set({text,tone,solid,bump,k,o,x,y}); D2.disc, D2.token(parent,{tone,size}).set({x,y,s,o,tone}); D2.bar(parent,{x,y,w,h,tone}).set({p,tone,text,k,o}); D2.bez(a,b,bow,f) and D2.lerp2 to fly tokens along L5.arrow curves; D2.icon.person/pin/building/braces(x,y,size,tone,opt); D2.seq(t,t0,step,dur,i); D2.pop(k); D2.tagW(text); D2.TONES / D2.tone. C. STORES (common-3.js): D2.table(parent,{x,y,w,name,rows,widths,tone,stretch}).set({k,o,x,y,s,hot,hotTone,hotK,cells,rowTone}) with mid/top/bottom/left/right/rowMid/cellMid; D2.doc(parent,{x,y,w,title,lines,tone}).set({k,o,x,y,s,fill,fillTone,hot,hotTone,hotK,texts}) with lineMid/chipMid; D2.page(parent,{x,y,w,h,slots}).set({k,o,x,y,s,fill,tone,wait,waitK}) with slotMid; D2.dots(parent,{x,y,cols,rows,size,gap}).set((i) => state) with mid(i). D. GRAPH AND ICONS (common-4.js): D2.graph(parent,{nodes:{id:{x,y,kind,text}},edges,directed,ew}).update({nodes,edges,base,o}) -> pt/size/keys/edgePt(key,f)/edgeMid(key); node states {tone,solid,s,o,dx,dy,k,ring,ringK,ringDash}, edge states {tone,k,o,w,dash,label,labelTone,labelText,labelAt,labelSide}; D2.fam('doc'|'kv'|'wide'|'graph', size, tone) -> an SVG <g> drawn around (0,0) (V.place it to its centre). NOTES FOR SCENE AUTHORS: the helpers were checked in stills (tables, documents, page, dots, graph with labels, family icons all render on-brand); a table with name '' has no title; doc line chips are placeholders (no text) unless you give items; edge pills are 118-150 px wide so use labelSide on short arrows; fonts are 28 px minimum everywhere."
+}

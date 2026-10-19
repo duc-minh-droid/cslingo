@@ -1,0 +1,345 @@
+{
+ "slug": "ds-5",
+ "dir": "d5",
+ "title": "Lecture 5 · Partitioning",
+ "outline": "STATUS: complete. Helpers (common.js, common-2.js, common-3.js) written, linted and visually tested; ds-5.html, audio stub and 11 placeholder scenes in place; node tools/video-still.js ds-5 info shows the total.\n\nLecture 5 video (Data Science COM3021, 'Partitioning'): 11 scenes, 121.5 s: title (4), copies do not fit so split the data (12), key ranges (12), the timestamp trap (12.5), hash partitioning (13), the price of hashing: range queries (11.5), secondary index by document (11.5), by term (12), rebalancing: mod N versus fixed partitions (13.5), dynamic partitions split and merge (10.5), recap (9). Story: copies do not fit when data outgrows a node, so split it into partitions, each item in exactly one, and copy each partition to another node (scene 2, lesson 5.1); key-range partitioning gives each node a range of sorted keys: neighbours stay together so a range query reads one node (3, 5.2), but with a timestamp key every new write hits the one node that owns 'now' (4, 5.2); hash partitioning gives each node a range of hash values so keys spread evenly (5, 5.3) at the price of scattering range queries over all nodes (6, 5.3); a secondary index (search by colour) either lives in each partition (by document: the search is scattered to every partition, a write touches one: 7) or is itself split by term (one index partition answers a search, but a write updates several: 8) (5.4); when a node joins, 'key mod N' moves 9 of 12 keys but fixed partitions move only 3 whole partitions (9), and dynamic partitions split past a size limit and merge when small (10) (5.5). Not covered: compound keys, replication details beyond leader/follower, the workshop 5.W itself (the recap points to it).\n\nLESSONS the facts come from: ds5-why 5.1, ds5-range 5.2, ds5-hash 5.3, ds5-index 5.4, ds5-rebalance 5.5, ds5-cluster 5.W and boss ds5-boss (Parcelo, not used); js/content/ds/ds-l5-01.js, ds-l5-02.js, ds-l5-03.js, ds-l5-workshop.js.\n\nEXAMPLE DATA (all asserted at page load by videos/d5/common.js; a wrong number throws an Error): scene 2: 12 orders, 4 nodes, room for 8; full copies need 12 per node (4 too many); split 3 per node; with a follower of the previous node's partition each node holds 6. Scene 3: ranges A-F, G-M, N-S, T-Z; names Adams Chen Evans | Jones Khan Lewis Morgan | Nolan Patel Quinn | Taylor Usman Young; Okafor goes to N-S between Nolan and Patel; Khan to Mills touches only G-M (Khan, Lewis). Scene 4: hour ranges 00-05, 06-11, 12-17, 18-23; writes 14:02 14:09 14:13 14:21 14:34 14:50 all land on node 3 (loads 0, 0, 6, 0). Scenes 5-6: ids 101-116 with toy hashes 11 2 14 6 9 0 13 4 7 15 1 10 5 12 3 8; hash ranges 0-3, 4-7, 8-11, 12-15 per node; keys 101-108 land on nodes 3 1 4 2 3 1 4 2 (two each); key-range layout 101-104 | 105-108 | 109-112 | 113-116; a query for ids 101-104 asks 1 node with ranges, 4 with hashing. Scenes 7-8: 12 cars (1 red ford, 2 blue kia, 3 green mini, 4 red kia, 5 blue ford, 6 red mini, 7 green ford, 8 blue mini, 9 red ford, 10 green kia, 11 blue kia, 12 red mini) in 3 document partitions by id mod 3; red cars 1 4 6 9 12 (partition 2 has none); index partitions blue+ford, green+kia, mini+red; saving car 13 (blue mini) updates index partitions 1 and 3 plus its document partition. Scene 9: 12 keys on 3 nodes, key mod 3 -> key mod 4 moves keys 3-11 (9) and keeps 0-2; 12 fixed partitions p mod 3, node D steals P9, P10, P11 (3 moves) leaving [0,3,6] [1,4,7] [2,5,8] [9,10,11]. Scene 10: partitions 6, 8, 4 GB +4 each = 10, 12, 8; the 12 splits into 6 + 6 (limit 10 GB); halving gives 5, 3, 3, 4 and the two 3s merge into 6.\n\nVIDEO-WIDE CONVENTIONS: COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Shared layout: the cluster rig (D5.cluster) is the same sticker everywhere: a grey server card with a header (server icon + 'Node N') and a grid of dashed slots; chips (blue) are the data. Four-node scenes use x 12, w 210, gap 24; the three-node scenes use w 288, gap 24. Data is reused: scenes 5 and 6 share the 16 ids and the hash table; scenes 7 and 8 share the 12 cars and the three document partitions; scenes 3 and 4 share the key-range idea (surnames, then hours). The caption rule: a caption never runs ahead of its picture. Captions are sentences of at most about 20 characters per second. Title card kicker 'Data Science · Lecture 5' (like the other series).",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 5",
+  "title": "Partitioning",
+  "sub": "How big data is split across nodes",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 1,
+   "file": "scene-01-title.js",
+   "kicker": "",
+   "title": [],
+   "dur": 4,
+   "caps": [],
+   "spec": "Title card (finished): VID.titleCard({kicker: 'Data Science · Lecture 5', title: 'Partitioning', sub: 'How big data is split across nodes', who: 'pebble', dur: 4})."
+  },
+  {
+   "n": 2,
+   "file": "scene-02-split.js",
+   "kicker": "WHY PARTITION",
+   "title": [
+    "Copies do not fit,",
+    "so split the data"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Twelve orders. Each node has room for eight."
+    ],
+    [
+     2.8,
+     5.0,
+     "A full copy on every node does not fit."
+    ],
+    [
+     5.4,
+     7.8,
+     "So split them: each order lives in one partition."
+    ],
+    [
+     8.2,
+     11.6,
+     "Each partition is also copied to another node."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-why 5.1): replication copies the whole dataset to every node, which fails when the data is too big; partitioning gives each node a different subset (a partition), each order in exactly one; real systems also keep a copy (follower) of each partition on another node. Data: D5.SPLIT (12 orders, 4 nodes, room for 8), D5.layout('rep'|'part'|'both') gives the chips every node holds (rep: 12 each = 4 too many; part: 3 each; both: 6 each, which fits). COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Nodes: const cl = D5.cluster(stage, {x: 12, y: 250, n: 4, w: 210, gap: 24, cols: 4, rows: 2, cw: 44, ch: 44, cg: 6}) (node card 250-416, eight dashed slots = the room for 8; slot(n, 8..11) is a third row of four slots hanging BELOW the card at y about 436: the overflow). Purple partition tags over the nodes via cl.set(n, {tag: 'P1'..'P4'}) (tag centred on the 58 px above the card). Orders: 12 blue chips D5.chip(stage, {text: '1'..'12', w: 44, h: 44}) in a tray at y 70, centre x = 160 + 56 i, with a blue D5.tag(stage, {x: 383, y: 0, w: 170, text: '12 orders', tone: 'blue'}) above it. Replication copies: 48 extra chips (12 per node), tone blue for orders 1-8 and tone red + solid for 9-12 (overflow). Per-node fit tags 'x of 8' (D5.tag, 28 px, green) at y 440 under each node. Legend at y 520-578: a solid blue chip + tag 'leader' at x 250, a dashed blue chip (dashed: true) + tag 'follower' at x 520.\n\nTIMELINE. 0.2-1.0 the four nodes pop (k, 0.08 s apart) and the 12 tray chips pop (D5.appear, 0.05 s apart from 0.3); the 'room for 8' fact is the eight dashed slots. 2.8-4.6 REPLICATION: for every node, copies of orders 1..12 fly (D5.fly, arc -30, E.inOut, 0.9 s each, 0.07 s apart in order, node 0 first at 2.8, nodes 1-3 each 0.25 s later) from the tray to cl.slot(n, i); chips 9-12 turn red + solid when they land (they hang below the card); 4.4 every node gets a red ring (cl.set ring 'red', ringK ramp), a red D5.tag 'no room' pops under each overflow row (y 478). 5.0-5.4 all 48 copies and the rings shrink and fade out (s 1 -> 0.6, o 1 -> 0) together. 5.4-7.6 SPLIT: the 12 tray chips fly to their node: orders 1-3 to cl.slot(0, 0..2), 4-6 to node 1, 7-9 node 2, 10-12 node 3 (D5.layout('part')), 0.12 s apart, arc -40; the tags P1-P4 pop at 6.8; 7.4 green rings pop on the four nodes and the tray tag fades. 8.2-10.4 FOLLOWERS: 12 dashed blue chips (dashed: true) fly from each leader chip to cl.slot(D5.followerNode(p), 3..5) (node p + 1 holds the followers of partition p: node 1 holds followers of 10-12), 0.1 s apart, arc 30; the legend appears at 8.0; at 10.2 the green 'x of 8' tags pop reading '6 of 8' (D5.layout('both')[n].length and D5.SPLIT.cap). 10.6-11.8 hold.\n\nEND STATE: four green nodes, each with three solid and three dashed chips, '6 of 8' tags, legend visible."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-ranges.js",
+   "kicker": "KEY RANGES",
+   "title": [
+    "Each partition owns",
+    "a range of keys"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "Give each node a range of sorted keys."
+    ],
+    [
+     2.8,
+     5.8,
+     "Okafor sits between N and S, so it goes to node 3."
+    ],
+    [
+     6.6,
+     9.0,
+     "Ask for Khan to Mills: one node has them all."
+    ],
+    [
+     9.2,
+     11.6,
+     "Neighbouring keys sit together."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-range 5.2): key-range partitioning gives each partition a continuous range of SORTED keys (like encyclopaedia volumes). To place a key you find the range that holds it; neighbouring keys stay together, so a range query reads one node. Data: D5.RANGES ['A-F','G-M','N-S','T-Z'], D5.NAME_NODES (surnames per node, sorted), D5.NEW_NAME 'Okafor' (D5.nodeOfName -> node 2, D5.insertAt(D5.NAME_NODES[2], 'Okafor') = 1), D5.QUERY = D5.rangeQuery('Khan','Mills') = {nodes: [1], hits: Khan, Lewis (Morgan is outside)}. COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. const cl = D5.cluster(stage, {x: 12, y: 150, n: 4, w: 210, gap: 24, cols: 1, rows: 4, cw: 178, ch: 44, cg: 6}) (card 150-416; tags over the nodes at y 82-140: cl.set(n, {tag: D5.RANGES[n], tagK})). Name chips D5.chip(stage, {text, w: 178, h: 44, tone: 'grey'}) at cl.slot(n, i) for the surnames of D5.NAME_NODES; the 4th slot of A-F, N-S and T-Z is empty (dashed). Key chip 'Okafor' D5.chip({text: 'Okafor', w: 150, h: 48, tone: 'blue', solid: true}) at (468, 36). Pointer: an orange D5.disc size 40 or a small orange chip hopping over the tag positions cl.tagAt(n). Query pill D5.tag(stage, {x: 357, y: 8, text: 'Khan to Mills', tone: 'blue', solid: true, icon: 'search'}). Stat D5.stat(stage, {x: 330, y: 470, w: 276, h: 80, label: 'nodes asked', tone: 'green'}) reading '1'.\n\nTIMELINE. 0.2-1.2 nodes pop (0.1 s apart) with their tags and names; 1.4-1.9 Okafor pops. 2.8-4.2 the orange pointer hops tag to tag (A-F at 2.9, G-M at 3.4, N-S at 3.9, 0.35 s each hop, E.inOut); a tag the pointer leaves flashes red briefly (no match), the N-S tag turns green solid at 3.9 and node 2 gets a blue ring. 4.3-5.5 Okafor flies (arc -30) into cl.slot(2, 1) while Patel and Quinn slide down one slot (cl.slot(2, 2), cl.slot(2, 3)); Okafor turns grey (tone 'grey') as it lands and the ring fades. 6.4 Okafor is gone, the query pill pops (6.4-6.9); 6.9-7.8 a blue arrow (D5.link from the pill bottom to cl.top(1) minus 60 px) draws on, node 1 (G-M) gets a blue ring, Khan and Lewis turn solid blue (hits from D5.QUERY.hits), Morgan stays grey; 8.3-8.8 the green stat pops reading D5.QUERY.nodes.length. 9.0-11.8 hold (a gentle pulse of the two hit chips, flash 9.2-9.8).\n\nEND STATE: G-M node ringed blue with Khan and Lewis lit, the other nodes untouched, 'nodes asked 1' in green."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-hotspot.js",
+   "kicker": "THE TIMESTAMP TRAP",
+   "title": [
+    "Keyed by time,",
+    "every write hits one node"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Key by time: each node owns some hours."
+    ],
+    [
+     3.0,
+     5.8,
+     "It is afternoon, so new writes go to 12 to 17."
+    ],
+    [
+     6.2,
+     9.0,
+     "Write after write, all on the same node."
+    ],
+    [
+     9.4,
+     12.1,
+     "One hot spot while three nodes sit idle."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-range 5.2): with sorted keys, if the key order follows the arrival order (a timestamp) every new write goes to the node that owns 'now': a write hot spot while the others idle. Data: D5.HOURS ['00-05','06-11','12-17','18-23'], D5.WRITES (6 timestamps 14:02 ... 14:50), D5.nodeOfTime -> 2 for every one, D5.loadAt(k) = writes per node after k writes (D5.loadAt(6) = [0,0,6,0]). COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. const cl = D5.cluster(stage, {x: 12, y: 200, n: 4, w: 210, gap: 24, cols: 2, rows: 3, cw: 88, ch: 44, cg: 6}) (card 200-416; purple hour tags over each node via cl.set(n, {tag: D5.HOURS[n]})). Clock: orange solid D5.tag(stage, {x: 408, y: 40, w: 120, text, tone: 'orange', solid: true, icon: 'client'}) whose text is the timestamp of the write being sent (it reads '14:00' first). Six write chips D5.chip(stage, {text: D5.WRITES[i], w: 88, h: 44, tone: 'blue'}) flying from (468, 80) to cl.slot(2, i). Per node a meter D5.meter(stage, {x: cl.box(n).x + 15, y: 440, w: 180, tone: 'green'}) with k = D5.loadAt(done)[n] / 6, and a 28 px count D5.text under it (y 480: '0', '0', '6', '0'); tags 'idle' (grey) at y 480 replace the counts on nodes 0, 1, 3 at 8.8 and a red solid tag 'hot spot' (D5.tag, x 520, y 480 region, centred under node 2) pops at 8.5.\n\nTIMELINE. 0.2-1.2 nodes (tags, meters) pop; clock pops 1.4 reading '14:00'. 3.2 + 0.85 i (i = 0..5): write i leaves the clock (clock text = D5.WRITES[i]), flies 0.6 s (arc -40, E.inOut) to cl.slot(2, i) (2 columns x 3 rows: all six fit), node 2's meter then ramps to its new value over 0.3 s; node 2 turns tone 'red' (cl.set tone) once the 4th write has landed (6.0) and its meter turns red; nodes 0, 1, 3 stay grey and their meters stay empty. 8.5-9.0 the 'hot spot' tag pops, 8.8-9.3 the three 'idle' tags pop. 9.4-12.4 hold with a gentle pulse of the red node (flash 9.6-10.4).\n\nEND STATE: node 12-17 red with six chips and a full red meter; three grey nodes with empty meters and 'idle'."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-hash.js",
+   "kicker": "HASH PARTITIONING",
+   "title": [
+    "Hash the key,",
+    "spread the load"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "A hash turns a key into a number."
+    ],
+    [
+     3.0,
+     5.4,
+     "Each node owns a range of hash values."
+    ],
+    [
+     6.0,
+     9.4,
+     "Keys arrive in order but land all over."
+    ],
+    [
+     9.8,
+     12.6,
+     "Eight keys: two on every node."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-hash 5.3): a hash function turns a key into a number; each node owns a range of HASH values instead of a range of keys; consecutive keys get unrelated hashes, so they land on different nodes and the load spreads evenly. Data: D5.ARRIVALS = [{id, hash, node}] for keys 101..108 = hash 11, 2, 14, 6, 9, 0, 13, 4 on nodes 2, 0, 3, 1, 2, 0, 3, 1 (0-based), D5.HASH_RANGES ['0-3','4-7','8-11','12-15']; two keys per node at the end (asserted). COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. Queue: eight blue chips D5.chip(stage, {text: '101'..'108', w: 64, h: 44}) centre x = 50 + 72 i, y 40. Hash box D5.hashBox(stage, {x: 700, y: 8, w: 190, h: 100}) (purple, # icon). The hashed number: an orange D5.disc size 56. Hash cells: const nc = D5.cells(stage, {n: 16, per: 4, centres: [117, 351, 585, 819], y: 190, w: 46, h: 46, gap: 4, tone: 'purple'}) (values 0-15, four above each node, so each node's range 0-3 / 4-7 / 8-11 / 12-15 is literally above it; cell i centre = nc.mid(i)). Nodes: const cl = D5.cluster(stage, {x: 12, y: 290, n: 4, w: 210, gap: 24, cols: 2, rows: 1, cw: 64, ch: 44, cg: 8}) (card 290-406; key chips land on cl.slot(node, 0..1)). End: four green discs D5.disc size 48 text '2' at the top-right corner of each card.\n\nTIMELINE. 0.2-1.2 nodes, cells, hash box and the key queue pop. KEY 101 slowly (1.4-4.2): 1.4-2.0 the chip flies (arc -30) into the hash box (it shrinks to s 0.4 and fades while hb.set({pulse: flash}) swells the box); 2.2-2.8 the orange disc '11' (D5.ARRIVALS[0].hash) pops out under the box and flies (arc 20) to cell 11, which turns orange solid and rings; 3.0-3.8 the key chip (re-created at the cell, blue) drops from cell 11 into node 2 slot 0, the cell fades back to purple. KEYS 102-103 (4.2-5.4 and 5.4-6.4): same sequence, 0.5 s shorter each. KEYS 104-108 (6.4-10.0): 0.72 s each (queue chip -> box -> disc -> cell -> node); the disc and cell step can be overlapped. 10.0-10.8 each node pops its green ring and the green '2' disc. 10.8-12.8 hold.\n\nEND STATE: eight blue chips, two in every node, four green rings with '2' discs, all cells back to purple."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-range-query.js",
+   "kicker": "THE PRICE OF HASHING",
+   "title": [
+    "Hashing scatters",
+    "range queries"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.4,
+     3.0,
+     "The same 16 users, laid out two ways."
+    ],
+    [
+     3.4,
+     5.6,
+     "Now ask for ids 101 to 104."
+    ],
+    [
+     6.0,
+     8.4,
+     "Key ranges: all four are on one node."
+    ],
+    [
+     8.8,
+     11.1,
+     "Hash: they are on four different nodes."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-hash 5.3): hashing buys an even spread but throws away key order, so a range query (neighbouring ids) must ask many nodes; key ranges answer it from one node. Data: D5.RNODES (key-range layout: 101-104 | 105-108 | 109-112 | 113-116) and D5.HNODES (hash layout: [102,106,111,115] [104,108,109,113] [101,105,112,116] [103,107,110,114]); D5.RQ = {ids: [101..104], range: [0], hash: [0,1,2,3]} (nodes a query for these ids must ask). COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. Two stacked clusters, each const mk = (y) => D5.cluster(stage, {x: 12, y, n: 4, w: 210, gap: 24, cols: 2, rows: 2, cw: 64, ch: 44, cg: 8, headH: 52}) (card height 164): top = mk(70) (70-234), bottom = mk(396) (396-560). Chips D5.chip(stage, {text: String(id), w: 64, h: 44, tone: 'grey'}) at cl.slot(n, j) for D5.RNODES (top) and D5.HNODES (bottom). Row labels: purple D5.tag(stage, {x: 12, y: 0, text: 'key ranges'}) and D5.tag(stage, {x: 12, y: 326, text: 'hash'}). Stats: D5.stat(stage, {x: 612, y: 0 (and 326), w: 312, h: 64, label: 'nodes asked'}), top green reading D5.RQ.range.length, bottom red reading D5.RQ.hash.length. Query pill D5.tag(stage, {x: 357, y: 252, text: 'ids 101 to 104', tone: 'blue', solid: true, icon: 'search'}).\n\nTIMELINE. 0.2-1.4 both clusters and chips pop (0.04 s apart), labels at 0.6. 3.4-4.0 the query pill pops; 4.0-5.0 chips 101-104 turn solid blue in BOTH layouts (0.1 s apart, bump s 1.15 via flash). 6.0-7.0 top: node 0 gets a blue ring and the stat pops reading 1 (green). 8.8-10.4 bottom: the four nodes get red rings one after another (0.4 s apart, ringK pop) and the red stat pops reading 4 at 10.4. 10.6-11.4 hold.\n\nEND STATE: top row one blue-ringed node holding the four lit chips, green 'nodes asked 1'; bottom row four red-ringed nodes with one lit chip each, red 'nodes asked 4'."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-by-document.js",
+   "kicker": "SECONDARY INDEXES",
+   "title": [
+    "Search by colour:",
+    "ask every partition"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.4,
+     3.0,
+     "Each partition indexes only its own cars."
+    ],
+    [
+     3.4,
+     5.6,
+     "Search for red cars."
+    ],
+    [
+     6.0,
+     8.6,
+     "Any partition may hold one, so ask all three."
+    ],
+    [
+     8.8,
+     11.1,
+     "Gather the answers into one list."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-index 5.4): a secondary index searches by something that is not the key (colour). Index BY DOCUMENT (local): every partition indexes only its own documents, so a search cannot tell which partitions hold a match and is sent to ALL of them and the answers are gathered (scatter-gather); a write touches one partition. Data: 12 used cars D5.CARS (D5.carText(id) -> '4 red'), D5.DOCS = [[1,4,7,10],[2,5,8,11],[3,6,9,12]] (document partition = id mod 3), D5.search('red') = {ids: [1,4,6,9,12], local: [[1,4],[],[6,9,12]], askedDoc: 3}: partition 2 holds NO red car but still has to be asked. COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. const cl = D5.cluster(stage, {x: 12, y: 150, n: 3, w: 288, gap: 24, cols: 2, rows: 2, cw: 134, ch: 44, cg: 4, h: 246, names: ['Partition 1','Partition 2','Partition 3']}) (card 150-396). Car chips D5.chip(stage, {text: D5.carText(id), w: 134, h: 44, tone: 'grey'}) at cl.slot(n, j) for D5.DOCS. Under the chips of each card (card y + 172) a purple D5.tag(stage, {x: card.x + 20, y: card.y + 172, w: 248, text: 'own index'}) that later reads 'red: 1, 4' / 'red: none' / 'red: 6, 9, 12' (build the text from D5.search('red').local). Search pill D5.tag(stage, {x: 400, y: 20, text: 'red', tone: 'blue', solid: true, icon: 'search'}). Three blue arrows: const link = D5.link(L5.svg(stage), {x: 468, y: 82}, {x: cl.top(n).x, y: cl.top(n).y - 6}, 'blue'). Answer strip: tag D5.tag(stage, {x: 12, y: 462, text: 'answer', tone: 'blue'}) and five blue chips (ids 1, 4, 6, 9, 12; w 56) at centre x 220 + 72 i, y 491. Stat D5.stat(stage, {x: 612, y: 452, w: 312, h: 72, label: 'asked', tone: 'red'}) reading '3 of 3'.\n\nTIMELINE. 0.2-1.2 cards and car chips pop (0.04 s apart), 0.8 the 'own index' tags. 3.4-4.0 the search pill pops. 6.0-7.0 the three arrows draw on together and the three cards get red rings (every partition is asked); 7.0 the stat pops. 7.0-8.2 the index tags change text to the local results, the red cars turn solid blue (D5.search('red').ids), partition 2's tag reads 'red: none'. 8.8-10.4 the matching chips fly (arc 20, 0.12 s apart, in id order) down to the answer strip. 10.4-11.4 hold.\n\nEND STATE: three red-ringed partitions, five lit chips collected in the answer strip, red stat '3 of 3'."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-by-term.js",
+   "kicker": "SECONDARY INDEXES",
+   "title": [
+    "Split the index by term:",
+    "one read, wider writes"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "Or split the index itself, by term."
+    ],
+    [
+     3.6,
+     6.6,
+     "A search reads just one index partition."
+    ],
+    [
+     7.0,
+     10.0,
+     "Save a blue mini: two index partitions change."
+    ],
+    [
+     10.2,
+     11.7,
+     "Cheap reads, dearer writes."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-index 5.4): index BY TERM (global): the index itself is split by word. A search reads ONE index partition, which lists the ids; a write may touch SEVERAL index partitions because one document has several terms. Data: D5.TERMS ['blue','ford','green','kia','mini','red'], D5.idxPart(term) = index / 2 (Index 1: blue, ford; Index 2: green, kia; Index 3: mini, red), D5.postings(term) = ids, D5.search('red') = {idx: 2, ids: [1,4,6,9,12], fetch: [0, 2]}; D5.NEWCAR = [13, 'blue', 'mini'] and D5.write(D5.NEWCAR) = {docPart: 0, idxParts: [0, 2], byDoc: 1, byTerm: 3}. COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. Index cards: const ic = D5.cluster(stage, {x: 12, y: 76, n: 3, w: 288, gap: 24, cols: 1, rows: 1, cw: 250, ch: 44, h: 170, slots: false, icon: false, tone: 'purple', names: ['Index 1','Index 2','Index 3']}) (card 76-246); in each two D5.text lines (tone 'purple', x = card.x + 20, y = card.y + 62 and + 112) 'blue: 2 5 8 11' ... built from D5.postings (colon, no arrow glyph). Document cards: const dc = D5.cluster(stage, {x: 12, y: 340, n: 3, w: 288, gap: 24, cols: 5, rows: 1, cw: 48, ch: 44, cg: 6, slots: true, names: ['Cars 1','Cars 2','Cars 3'], icon: true}) (card 340-456; five slots per card, the fifth is free for car 13), chips D5.chip({text: String(id), w: 48, h: 44}) at dc.slot(n, j) for D5.DOCS. Search pill D5.tag(stage, {x: 568, y: 4, text: 'red', tone: 'blue', solid: true, icon: 'search'}) above Index 3, arrow D5.link(L5.svg(stage), pill bottom, ic.top(2)). New car: D5.chip(stage, {text: '13 blue mini', w: 190, h: 48, tone: 'blue', solid: true}) at (110, 520). Two stats at y 500: D5.stat({x: 12 (then 484), y: 500, w: 440, h: 72}) labels 'search reads' (green, '1') and 'write updates' (orange, '2').\n\nTIMELINE. 0.2-1.4 index cards (with lines) and document cards pop. 3.6-4.0 search pill; 4.0-4.8 the arrow draws on and Index 3 gets a blue ring, its 'red:' line turns blue (tone via D5.text), the green stat pops '1'. 5.2-6.4 the five ids fly (copy chips, arc 20) from the red line to their cars: 1, 4 in Cars 1, 6, 9, 12 in Cars 3 (dc.slot), turning those chips blue (D5.search('red').fetch = [0, 2]). 6.6 the blue rings fade. 7.0-7.8 the new car chip pops at left and flies to dc.slot(0, 4) (D5.write(D5.NEWCAR).docPart); 8.0-9.2 two small '13' chips fly (arc -20) from the car to the 'blue' line in Index 1 and the 'mini' line in Index 3 (idxParts [0, 2]) and the lines gain ' 13' (text 'blue: 2 5 8 11 13', 'mini: 3 6 8 12 13'); those two cards get orange rings and the stat 'write updates' pops reading D5.write(D5.NEWCAR).idxParts.length. 9.6-11.8 hold.\n\nEND STATE: two orange-ringed index cards with 13 added, the car in Cars 1, stats '1' (green) and '2' (orange)."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-rebalance.js",
+   "kicker": "REBALANCING",
+   "title": [
+    "A new node joins:",
+    "move as little as you can"
+   ],
+   "dur": 13.5,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "Twelve items on three nodes. A fourth joins."
+    ],
+    [
+     3.6,
+     6.8,
+     "Hash mod N: N changed, so 9 of 12 keys move."
+    ],
+    [
+     7.4,
+     10.4,
+     "Fixed partitions: it steals 3 whole ones."
+    ],
+    [
+     10.8,
+     13.1,
+     "Three moves instead of nine."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-rebalance 5.5): when a node joins, move as little data as possible. The trap 'node = key mod N': N changes, so the answer changes for most keys (3 -> 4 nodes moves 9 of 12). Fixed partitions: create many partitions (here 12), the new node steals WHOLE partitions from the fullest nodes (3 of 12) and the key-to-partition assignment never changes. Data: D5.MOD = {keys: 0..11, from: k mod 3, to: k mod 4, moved: [3..11] (9 keys), stay: [0,1,2]}; D5.FIXED = {own0: p mod 3, steals: [{p: 9, from: 0}, {p: 10, from: 1}, {p: 11, from: 2}], nodes1: [[0,3,6],[1,4,7],[2,5,8],[9,10,11]], moved: 3}; D5.slotsOf(list, node). Same event, two rules, side by side. COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. Two clusters of four nodes: const mk = (y) => D5.cluster(stage, {x: 12, y, n: 4, w: 210, gap: 24, cols: 2, rows: 2, cw: 70, ch: 44, cg: 8, headH: 52, names: ['Node A','Node B','Node C','Node D']}) (card height 164): top = mk(76) (76-240), bottom = mk(396) (396-560); node D (index 3) starts as ghost (cl.set(3, {ghost: true})) and joins with ghost false, tone 'orange', ring 'orange'. Top chips D5.chip(stage, {text: String(k), w: 70, h: 44}) for keys 0-11 at the slot of node k mod 3, slot index floor(k / 3) (so node A holds 0,3,6,9); bottom chips text 'P0'..'P11' tone 'grey', same slots (p mod 3, floor(p / 3)). Row labels: purple D5.tag(stage, {x: 12, y: 8, text: 'node = key mod N'}) and a tag 'N = 3' at x 290 (text changes to 'N = 4'); bottom purple D5.tag(stage, {x: 12, y: 328, text: '12 fixed partitions'}). Stats D5.stat(stage, {x: 600, y: 4 and 324, w: 324, h: 64, label: 'moved'}), top red reading '9 of 12', bottom green reading '3 of 12' (counting up).\n\nTIMELINE. 0.2-1.4 both rows (nodes A-C, chips, ghost D) pop; labels 0.8. 2.0-3.0 node D joins in both rows (ghost off, orange ring pop, 'N = 3' flips to 'N = 4' at 2.6). 3.4-6.6 TOP: the 9 chips of D5.MOD.moved turn orange and fly (arc +-40, E.inOut, 0.5 s each, 0.25 s apart, in key order) to the slot of node k mod 4 (sorted by key inside each node; chips 0, 1, 2 stay put), the red counter counts 1..9 as each lands; when done they settle back to blue. 7.4-10.2 BOTTOM: P9, P10, P11 (D5.FIXED.steals, in order) turn orange and fly to node D slots 0, 1, 2 (0.7 s each, 1.0 s apart), the green counter counts 1, 2, 3; each source node is flashed (ring blue 0.4 s). 10.4-11.0 both counters bump. 11.0-13.4 hold.\n\nEND STATE: top four nodes with a criss-cross of 12 chips and red '9 of 12'; bottom four nodes with three partitions each and green '3 of 12'."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-dynamic.js",
+   "kicker": "DYNAMIC PARTITIONS",
+   "title": [
+    "Big partitions split,",
+    "small ones merge"
+   ],
+   "dur": 10.5,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "Each partition has a size limit: 10 GB."
+    ],
+    [
+     3.0,
+     5.4,
+     "Data grows: P2 reaches 12 GB, over the limit."
+    ],
+    [
+     5.8,
+     8.0,
+     "It splits in two, and one half can move node."
+    ],
+    [
+     8.2,
+     10.2,
+     "Data shrinks: small neighbours merge."
+    ]
+   ],
+   "spec": "IDEA (lesson ds5-rebalance 5.5): with dynamic partitioning a partition that grows past a size limit splits in two (each half can live on a different node); when data shrinks small neighbours merge. Data (GB, run as code): D5.DYN = {limit: 10, start: [6, 8, 4], grown: [10, 12, 8] (+4 each), split: [10, 6, 6, 8] (only P2 > 10 splits, splitAt 1), shrunk: [5, 3, 3, 4] (halved), merged: [5, 6, 4] (neighbours 3 + 3 < 7 merge, mergeAt 1)}. COLOURS (whole video): blue = the data and what we ask about (keys, orders, records, the query, the search word); green = even, fits, cheap, healthy (a fair node, a tick, 'asked 1 node'); red = overload, overflow, hot spot, expensive ('asked 4 nodes', 'moved 9 of 12'); orange = attention and things in motion (the new node, the key being placed, a pointer, a hashed number, a stolen partition); purple = the routing rule or lookup table (range tags, hash ranges, the hash box, the index, 'key mod N', the size limit); grey = neutral (idle nodes, empty slots, the rest). Every label is 28 px or more; symbols are SVG (L5.tick / L5.cross / L5.arrow, D5.icon.*), never glyphs. Pass everything to every draw call every frame (pure). Setup lines every scene starts with: const V = window.VID, D5 = V.d5, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT. const cl = D5.cluster(stage, {x: 12, y: 120, n: 3, w: 288, gap: 24, cols: 1, rows: 1, cw: 200, ch: 44, h: 360, slots: false}) (cards 120-480; node centres 156, 468, 780). Tanks: baseline y = cl.box(0).y + cl.h - 24 = 456; const t = D5.tank(stage, {x: centre, y: 456, w: 84, scale: 15, tone: 'blue'}) (height = GB x 15 px, text '<gb> GB'); one tank alone sits at its node centre, two tanks in one node at centre -56 and +56. Names 'P1'..'P4' as 28 px D5.text under the baseline (y 464, inside the card bottom). Limit: const r = D5.rule(stage, {x: 12, y: 456 - 150, w: 912, text: 'limit 10 GB'}) (purple dashed line at 10 GB, label over its right end).\n\nTIMELINE. 0.2-1.2 cards, tanks 6, 8, 4 GB (tank growth from 0, 0.1 s apart) and the limit rule pop. 3.0-4.2 every tank grows by 4 GB together (gb = lerp(D5.DYN.start[i], D5.DYN.grown[i], E.inOut)); the middle tank crosses the line and turns red (tone 'red') at about 3.9, P1 reaches exactly 10 and stays blue. 5.8-6.6 P2 splits: two tanks of D5.DYN.split[1] and [2] = 6 GB (left stays red-to-blue as it shrinks, tone 'blue', a split flash); 6.6-7.8 the right half slides (arc -40) into node 3 beside P3, whose tank is 8 GB, at centre +56 (P3 shifts to -56); names 'P2a' / 'P2b' can be 'P2' / 'P3' with P3 renamed 'P4' (keep the names on screen at 28 px). 8.2-9.3 SHRINK: all tanks halve (gb -> D5.DYN.shrunk) and the two adjacent 3 GB halves slide together and fuse into one 6 GB tank (D5.DYN.merged) in node 2 (the right one leaves node 3). 9.4-10.4 hold.\n\nEND STATE: three tanks 5, 6, 4 GB under the limit line, each blue."
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Split the data\ninto partitions",
+    "tone": "blue",
+    "pictogram": "Twelve small blue chips (D5.chip w 30 h 30 is too small for text: draw them as text-free blue squares, SVG or divs, 22 px) in a row, then they fly into two small grey node boxes (w 96, h 70, D5.icon.server on top), six into each; a green L5.tick (size 34) draws on over the pair. Pop 0.1-0.5, fly 1.0-2.2, tick 2.6-3.1; it holds."
+   },
+   {
+    "head": "Ranges keep order,\nhashes spread load",
+    "tone": "purple",
+    "pictogram": "Two strips of four small node boxes (w 50, h 46, gap 8): strip 1 labelled with a 28 px purple tag 'range' holds three blue dots stacked in node 1 and a green L5.tick; strip 2 tagged 'hash' holds one blue dot in each of three different nodes and a red L5.cross. Dots pop (0.1-0.6, 0.08 s apart), marks draw on at 1.8 and 2.6; it holds."
+   },
+   {
+    "head": "New node? Move whole\npartitions only",
+    "tone": "orange",
+    "pictogram": "Four small node boxes in a row (w 64, h 56), the first three each holding four grey dots, the fourth an empty orange dashed box; three dots (one from each of the first three) hop (D5.fly arc -30) into the fourth box and turn orange; a green L5.tick over it. Pop 0.1-0.6, hops 1.2-2.6 (0.4 s apart), tick 3.0-3.5; it holds."
+   }
+  ],
+  "cta": "Next: Workshop 5.W",
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/a6/scene-11-recap.js and videos/l5/scene-10-recap.js: kicker 'RECAP' (.v-kicker at x 72, y 74), headline 'Remember' (76 px, x 72, top 108), the Pebble mascot V.mascot('pebble', {size: 168, mood: 'love'}) at x 840, y 38 bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}), edge colours blue / purple / orange), in each row a 340 x 140 pictogram on the left (div at left 16, top 10, transform scale(1.1), origin 0 0; draw with L5.svg(pic, 340, 140) and D5 helpers, which take any parent) and the bold label (36 px, up to two lines of at most 22 characters, from x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, 'v-tag solid c-blue') 'Next: Workshop 5.W'. Rows slide in at 0.8 / 1.9 / 3.0 (0.5 s, label 0.15 s later); each pictogram starts 0.4 s after its row and PLAYS ONCE then HOLDS its finished state until the end (no loop, no fade-out, no reset icon); all three are finished by 6.6; the call to action pops at 5.4-6.0 (scale 0.8 -> 1, E.pop); in the last 2 s only Pebble's bob moves. No captions. Numbers in pictograms come from D5 data asserted at build time (12 items, 3 steals: D5.FIXED.moved, D5.RQ.range / D5.RQ.hash lengths 1 and 4)."
+ },
+ "helpers": "FILES: videos/d5/common.js (pure data and algorithms, no DOM, every number asserted at page load: D5.same throws a clear Error), common-2.js (chip, tag, stat, disc, fly, appear, seq, icons), common-3.js (cluster, meter, tank, rule, hashBox, cells, text, link). Everything hangs off window.VID.d5; scenes start with const V = window.VID, D5 = V.d5, L5 = V.l5. videos/ds-5.html loads engine.js, cards.js, l5/common.js, then d5/common.js, common-2.js, common-3.js, then scene-01 ... scene-11, audio/ds-5.js. READ THE API COMMENTS AT THE TOP OF EACH FILE FIRST: they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames.\n\nA. DATA (common.js): D5.SPLIT / D5.layout(mode) / D5.followerNode / D5.lost; D5.RANGES / NAME_NODES / NEW_NAME / nodeOfName / insertAt / rangeQuery / QUERY; D5.HOURS / WRITES / nodeOfTime / loadAt; D5.HASH_RANGES / hashOf / hNode / rNode / KEYS8 / ARRIVALS / HNODES / RNODES / askedNodes / RQ; D5.CARS / carText / docPart / DOCS / TERMS / idxPart / postings / search / NEWCAR / write; D5.MOD / FIXED / slotsOf / DYN; tools D5.same / sum / count / sorted / pct / ids.\nB. DRAWING (common-2.js): D5.chip(parent, {text, tone, w, h, fs, radius, lip}) -> {set({x, y (CENTRE), s, sx, r, o, tone, text, solid, ghost, dashed, ring, ringK, ringDash}), w, h}; D5.chipW(text); D5.tag(parent, {x, y, text, tone, solid, fs, h, w, icon}) -> set({text, tone, solid, k, x, y, s, o}); D5.tagW(text); D5.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, o, x, y}); D5.disc(parent, {x, y (centre), size, text, tone}) -> set({text, tone, solid, k, x, y, s, o}); D5.fly(a, b, k, {arc}) -> {x, y}; D5.appear(k) -> {s, o}; D5.seq(t, t0, step, dur, i); D5.lerp2; D5.icon.server / client / hash / search / plus (x, y, size, tone) -> <g> for an L5.svg layer; D5.tone(name); D5.TONES.\nC. RIGS (common-3.js): D5.cluster(parent, {x, y, n, w, gap, cols, rows, cw, ch, cg, pad, headH, names, slots, tone, icon, h}) -> {set(i, {tone, k, o, x, y, s, label, ghost, ring, ringK, ringDash, slotsO, tag, tagTone, tagSolid, tagK}), slot(i, j), box(i), mid(i), top(i), bottom(i), tagAt(i), n, w, h, ...} (four nodes: w 210, gap 24, x 12, centres 117 351 585 819; three nodes: w 288, gap 24, centres 156 468 780); D5.meter(parent, {x, y, w, h, tone, mark}) -> set({k, tone, o, x, y}); D5.tank(parent, {x (centre), y (baseline), w, scale, tone}) -> set({gb, tone, text, o, x, y, solid, dashed, s}); D5.rule(parent, {x, y, w, text, tone}) -> set({k, o, y, tone}); D5.hashBox(parent, {x, y, w, h, text}) -> set({k, o, pulse, x, y, s}); D5.cells(parent, {n, per, centres, y, w, h, gap, tone, texts}) -> {set(i, {..chip fields, dx, dy}), mid(i)}; D5.text(parent, {x, y, text, tone, fs, w, align}) -> set({text, tone, k, o, x, y, bold}); D5.link(L5.svg(stage), a, b, tone, opt) -> (k, o) => draws an arrow on.\nNOTES FOR SCENE AUTHORS: (1) chips use x, y = CENTRE; tags, stats, cards use x, y = TOP-LEFT; offsets in set() are from where the thing was placed. (2) Chip widths: a 3-digit id needs w >= 60, a 5-char time w >= 88, 'Okafor' w >= 120, '10 green' w >= 134 at 28 px. (3) A cluster tag must be passed to cl.set every frame (omit it and it hides). (4) Rings are 9 px outside the card: leave room. (5) Colour roles are fixed for the whole video (see outline)."
+}

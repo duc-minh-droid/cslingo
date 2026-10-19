@@ -114,6 +114,7 @@
         hide(fill, down || ghost || load <= 0.001);
         [lab, txt, track, led, ...slots].forEach((e) => hide(e, ghost));
         hide(txt, ghost || down);
+        hide(lab, ghost || down);
         cross.style.visibility = down ? "" : "hidden";
         const k = clamp(st.k ?? 1);
         V.place(el, {
