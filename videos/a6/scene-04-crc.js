@@ -1,4 +1,4 @@
-/* Phase 6 · scene 04-crc (12.5 s): a CRC check is the remainder of a long division of the message by a pattern both sides know
+/* Phase 6 · scene 04-crc (12 s): a CRC check is the remainder of a long division of the message by a pattern both sides know
    (the generator), where "subtract" is XOR. Message 1011, generator 1101, so the sender divides 1011000 and sends 1011 + 100.
    Every digit comes from A6.CRC / A6.division (common.js, common-3.js).
    Story (local seconds): 0.15-1.2 the message and the generator appear (and "both sides know it"); 1.5-3.2 the message and three
@@ -29,6 +29,8 @@
     s1: [3.35, 5.05], // step 1: p 0 -> 1
     s2: [5.2, 6.9], // step 2: p 1 -> 2
     xor: [3.6, 3.9],
+    xorOut: [7.3, 7.5], // the XOR reminder makes way for the reason the division stops
+    short: [7.45, 7.75],
     rem: [7.3, 7.8],
     remTag: [7.45, 7.75],
     frame: 8.6, // the frame tiles appear one after another, each lighting up the tile it copies
@@ -40,22 +42,24 @@
     pulseChk: 10.9,
   };
   const lin = E.lin;
+  const DY = 4; // the whole picture sits 4 px lower than the storyboard, so no tag touches the top of the stage
   const pulseAt = (i) => T.copy[0] + (i * (T.copy[1] - T.copy[0])) / (C.msg.length + 1);
 
   function build(stage) {
     // right column: the message and the generator, each with its label
-    const msgTag = A6.tag(stage, { x: 600, y: 8, text: "message", tone: "grey" });
-    const msg = A6.bits(stage, { x: 600, y: 76, bits: C.msg, size: 60, gap: 8 });
-    const genTag = A6.tag(stage, { x: 600, y: 150, text: "generator", tone: "purple" });
-    const gen = A6.bits(stage, { x: 600, y: 218, bits: C.gen, size: 60, gap: 8, tone: "purple" });
-    const bothTag = A6.tag(stage, { x: 600, y: 296, text: "both sides know it", tone: "purple" });
-    const xorTag = A6.tag(stage, { x: 600, y: 296, text: "XOR: differ = 1", tone: "purple" });
-    const remTag = A6.tag(stage, { x: 562, y: 378, text: "remainder", tone: "orange", solid: true });
+    const msgTag = A6.tag(stage, { x: 600, y: 8 + DY, text: "message", tone: "grey" });
+    const msg = A6.bits(stage, { x: 600, y: 76 + DY, bits: C.msg, size: 60, gap: 8 });
+    const genTag = A6.tag(stage, { x: 600, y: 150 + DY, text: "generator", tone: "purple" });
+    const gen = A6.bits(stage, { x: 600, y: 218 + DY, bits: C.gen, size: 60, gap: 8, tone: "purple" });
+    const bothTag = A6.tag(stage, { x: 600, y: 296 + DY, text: "both sides know it", tone: "purple" });
+    const xorTag = A6.tag(stage, { x: 600, y: 296 + DY, text: "XOR: differ = 1", tone: "purple" });
+    const shortTag = A6.tag(stage, { x: 600, y: 296 + DY, text: "too short for 1101", tone: "grey" });
+    const remTag = A6.tag(stage, { x: 562, y: 378 + DY, text: "remainder", tone: "orange", solid: true });
 
     // the long division, five rows
     const d = A6.division(stage, {
       x: 80,
-      y: 76,
+      y: 76 + DY,
       dividend: C.padded,
       gen: C.gen,
       size: 60,
@@ -66,7 +70,7 @@
     const addW = A6.tagW("add 000");
     const addTag = A6.tag(stage, {
       x: (d.mid(0, 4).x + d.mid(0, 6).x - addW) / 2,
-      y: 10,
+      y: 10 + DY,
       text: "add 000",
       tone: "orange",
     });
@@ -77,16 +81,16 @@
     const left = Math.round((936 - (labW + 20 + frameW)) / 2);
     const out = A6.bits(stage, {
       x: left + labW + 20,
-      y: 520,
+      y: 520 + DY,
       bits: C.frame,
       size: 72,
       gap: 10,
       tones: ["grey", "grey", "grey", "grey", "orange", "orange", "orange"],
     });
-    const frameTag = A6.tag(stage, { x: left, y: 520 + 36 - 29, text: "frame sent", tone: "green" });
+    const frameTag = A6.tag(stage, { x: left, y: 520 + DY + 36 - 29, text: "frame sent", tone: "green" });
     const checkTag = A6.tag(stage, {
       x: (out.mid(4).x + out.mid(6).x - A6.tagW("check bits")) / 2,
-      y: 452,
+      y: 452 + DY,
       text: "check bits",
       tone: "orange",
     });
@@ -122,7 +126,8 @@
         return { s: E.pop(k) * (1 + 0.1 * use), o: clamp(k * 5) };
       });
       bothTag.set({ k: ramp(t, ...T.both, lin), o: 1 - ramp(t, ...T.both2, lin) });
-      xorTag.set({ k: ramp(t, ...T.xor, lin) });
+      xorTag.set({ k: ramp(t, ...T.xor, lin), o: 1 - ramp(t, ...T.xorOut, lin) });
+      shortTag.set({ k: ramp(t, ...T.short, lin) });
       remTag.set({ k: ramp(t, ...T.remTag, lin) });
 
       // the division: the message and zeros go in, then two steps, then the remainder lights up
@@ -156,14 +161,14 @@
   }
 
   V.scene({
-    kicker: "THE CRC",
+    kicker: "DETECTING · THE CRC",
     title: ["Check bits come from", "a long division"],
-    dur: 12.5,
+    dur: 12,
     caps: [
-      [1.2, 3, "Pick a pattern both sides know."],
-      [3.3, 5.3, "Add zeros to the message, then divide."],
+      [1.2, 3, "The CRC: a pattern both sides know."],
+      [3.3, 5.3, "Add one zero per check bit, then divide."],
       [5.6, 7.6, "Line the pattern up under the next 1."],
-      [8, 9.7, "What is left over is the remainder."],
+      [7.7, 9.7, "Too short to divide: that is the remainder."],
       [9.9, 11.9, "Send the message plus the remainder."],
     ],
     build,

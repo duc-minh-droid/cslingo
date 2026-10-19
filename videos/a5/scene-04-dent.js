@@ -1,6 +1,7 @@
-/* Phase 5 · scene 04-dent (11 s): WHY TURNS MATTER. A blue walker goes round the hull of the example points, A C D E G, and at
-   every corner the turn is a LEFT turn: five green arrows pile up in a log under the plot. Then the walk takes a detour through the
-   inside point F (E -> F -> G): there the turn is RIGHT. A right turn means F is a dent, not a corner, and it is crossed out.
+/* Phase 5 · scene 04-dent (11 s): WHY TURNS MATTER. A blue walker goes round the hull of the example points, A C D E G, ANTICLOCKWISE
+   (a circular arrow says so), and at every corner the turn is a LEFT turn: five green arrows pile up in a log under the plot and a
+   tally on the right counts them (left 5, right 0). Then the walk takes a detour through the inside point F (E -> F -> G): there the
+   turn is RIGHT. A right turn means F is a dent, not a corner, and it is crossed out.
    Every turn kind is computed from the points with A5.turnKind (the arrows are drawn from what it says, never typed), and A5.DENT
    is checked against the storyboard when the scene is built. The walker rests a little way along an edge, never on a letter.
    Story (local seconds): 0.2-1.0 the points pop in, 1.0-1.4 the walker and the start A, five edges of 0.65 s from 1.4 (a corner
@@ -36,7 +37,8 @@
   const TRIM = 32; // the plot cuts an edge 32 px short of a named point
   const REST = 46; // the walker stands this far from a corner centre, so the letter stays visible
   const HEAD = 28.6; // arrowhead length of a 1.2-wide edge in the plot (3.4 x 8.4 px)
-  const FADE = 0.4; // opacity of the pale record of the five left turns
+  const FADE = 0.4; // opacity of the five arrows once they are only a record (arrows only: the letters stay at full strength)
+  const LAG = 0.25; // a turn is logged as the walker leaves the corner, not as it arrives
   const smooth = (x) => 0.5 * x + 0.5 * E.inOut(x); // a walk that slows at corners but never stops dead
 
   V.scene({
@@ -44,8 +46,8 @@
     title: ["A convex shape always", "turns the same way"],
     dur: 11,
     caps: [
-      [1, 3.2, "Walk round the hull, corner by corner."],
-      [3.4, 5.5, "Every turn is a left turn."],
+      [1, 4.9, "Walk round the hull, corner by corner."],
+      [5, 6.2, "Anticlockwise, every turn is a left turn."],
       [6.3, 8.4, "Go through F and you turn right."],
       [8.6, 10.8, "Right turn: a dent, not a corner."],
     ],
@@ -81,7 +83,14 @@
         }),
       );
       stage.append(...letters);
-      const allLeft = A5.tag(stage, { x: 596, y: LOG.y - 27, text: "all left turns", tone: "green", solid: true });
+      // the tally in the right strip: left turns and right turns of the walk round the hull
+      const tallyL = A5.counter(stage, { x: 708, y: 40, w: 208, label: "left", tone: "green" });
+      const tallyR = A5.counter(stage, { x: 708, y: 134, w: 208, label: "right", tone: "grey" });
+      // 'anticlockwise': a circular arrow that runs against the clock, with its word under it
+      const loop = A5.circleArrow(svg, 820, 296, 46, "blue");
+      const loopTag = A5.tag(stage, { x: 716, y: 372, text: "anticlockwise", tone: "blue" });
+      loopTag.el.style.width = "208px";
+      loopTag.el.style.justifyContent = "center";
       // the right turn at the dent: a red arrow in the free space left of F
       const turnArrow = svg.appendChild(A5.turnIcon(DENT_KIND, 306, 178, 72, "red"));
       const cross = L5.cross(P[DENT][0], P[DENT][1], 52, "red");
@@ -162,7 +171,7 @@
             tone: red ? "red" : "grey",
             solid: red,
             s: 1 + 0.25 * flash(t, detour[1].t0, detour[1].t0 + 0.4),
-            o: red ? 1 - 0.65 * blink : lerp(0.35, 0.5, pale),
+            o: red ? 1 - 0.15 * blink : lerp(0.85, 0.9, pale),
           };
         }
 
@@ -213,14 +222,23 @@
         ];
         pl.update({ points, polys, segs, tags });
 
-        // ---- the log of turns and the walker
+        // ---- the log of turns, the tally and the walker
         const rec = lerp(1, FADE, ramp(t, 5.5, 5.9, lin));
+        const logged = (i) => ramp(t, arrive(i) + LAG, arrive(i) + LAG + 0.4, lin);
         icons.forEach((g, i) => {
-          L5.drawOn(g, ramp(t, arrive(i), arrive(i) + 0.4, lin));
+          L5.drawOn(g, logged(i));
           V.place(g, { o: rec });
         });
-        letters.forEach((e, i) => V.place(e, { o: ramp(t, arrive(i) + 0.1, arrive(i) + 0.4, lin) * rec }));
-        allLeft.set({ k: ramp(t, 4.75, 5.15, lin), o: rec });
+        letters.forEach((e, i) => V.place(e, { o: ramp(t, arrive(i) + LAG + 0.1, arrive(i) + LAG + 0.4, lin) }));
+        const count = icons.filter((_, i) => logged(i) > 0.5).length;
+        const lastLog = count ? arrive(count - 1) + LAG + 0.2 : 0;
+        const tallyOut = 1 - ramp(t, 5.4, 5.8, lin); // the whole tally leaves as the detour starts
+        const tallyK = ramp(t, EDGE0, EDGE0 + 0.4, E.pop);
+        tallyL.set({ text: String(count), bump: flash(t, lastLog, lastLog + 0.35), k: tallyK, o: tallyOut });
+        tallyR.set({ text: "0", k: tallyK, o: tallyOut });
+        L5.drawOn(loop, ramp(t, EDGE0, EDGE0 + 0.9, lin));
+        V.place(loop, { o: tallyOut });
+        loopTag.set({ k: ramp(t, EDGE0 + 0.3, EDGE0 + 0.7, E.pop), o: tallyOut });
         L5.drawOn(turnArrow, ramp(t, 6.4, 6.8, lin));
         V.place(turnArrow, { o: dFade });
         L5.drawOn(cross, ramp(t, 8.6, 9.2, lin));

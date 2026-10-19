@@ -80,8 +80,8 @@
     const svg = L5.svg(stage);
     const bolt = svg.appendChild(A6.bolt(H.mid(FI).x, 100, 100, "orange"));
     const ctr = A6.stat(stage, { x: 180, y: 524, w: 270, h: 80, label: "ones", tone: "blue" });
-    const verdict = A6.tag(stage, { x: 464, y: 535, text: "odd: failed", tone: "red", solid: true });
-    const land = { x: H.mid(FI).x, y: 24 };
+    const verdict = A6.tag(stage, { x: 480, y: 535, text: "odd: check fails", tone: "red", solid: true }); // 30 px clear of the counter (16 px at its bump)
+    const land = { x: H.mid(FI).x, y: 38 }; // as in scene 10: the disc (62% of 84 px) stays inside the stage
     const home = H.syn.numHome();
     // the answer stays in the readout (110 = 6); a copy of its disc flies up to the tile
     const pointer = A6.disc(stage, { x: home.x, y: home.y, size: 84, text: String(ONE.at), tone: "orange" });
@@ -157,7 +157,7 @@
         o: out,
       });
       verdict.set({
-        text: c >= 0 && !ONE.checks[c].fail ? "even: passes" : "odd: failed",
+        text: c >= 0 && !ONE.checks[c].fail ? "even: check passes" : "odd: check fails",
         tone,
         k: c < 0 ? 0 : ramp(t, countAt(c) + 0.1, countAt(c) + 0.4, lin),
         o: out,
@@ -183,7 +183,7 @@
   }
 
   V.scene({
-    kicker: "HAMMING CODE",
+    kicker: "CORRECTING · HAMMING CODE",
     title: ["The failed checks", "spell the position"],
     dur: 14,
     caps: [

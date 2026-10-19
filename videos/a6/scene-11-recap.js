@@ -5,7 +5,9 @@
    Row 1 (orange): two frames, each with its check bits in orange: a parity frame (data 1011 + parity bit 1) and the CRC frame
           (1011 + remainder 100). A bit flips in the first (a red tile, a red cross), then in the second: both flips are caught.
    Row 2 (purple): the words 000, 010, 011, 111 as markers on a line, the ends solid green (valid words), three purple arrows (one flip
-          each) between them. A red token (the noisy word 010) pops on the second marker, hops onto the first (000) and turns green: a green tick.
+          each) between them and the label "3 apart". The second marker turns red (the noisy word 010); a green arrow curves from it back
+          to the first marker (000) while a red token hops along it and turns green: a green tick over 000. The finished picture keeps
+          the red word, the green repair arrow and the tick.
    Row 3 (green): the three checks p4 p2 p1 as discs 1 1 0 (red = failed, green = passed), an equals sign and the orange disc 6.
    Every bit, remainder and syndrome comes from A6.CRC / A6.CODE / A6.HAM and is asserted when the scene is built. */
 (function () {
@@ -91,7 +93,7 @@
       [one.recv, one.fix, A6.dist(one.recv, one.fix)],
       [path[1], path[0], 1],
     );
-    const [Y, R] = [66, 18];
+    const [Y, R] = [70, 18];
     const X = [40, 40 + 260 / 3, 40 + 520 / 3, 300];
     const valid = path.map((w) => A6.CODE.words.includes(w));
 
@@ -112,10 +114,26 @@
       ),
     );
     const marks = path.map((_, i) => A6.token(pic, { tone: valid[i] ? "green" : "grey", size: 2 * R }));
+    // how far apart the valid words are: three flips
+    const label = V.h("div", {
+      text: `${A6.CODE.d} apart`,
+      style: {
+        ...box(0, 112, PIC.w, 34),
+        textAlign: "center",
+        fontSize: "28px",
+        fontWeight: "800",
+        color: "var(--violet-ink)",
+      },
+    });
+    pic.append(label);
+    // the repair: a green arrow from the noisy word back to the nearest valid word (an arc above the line)
+    const repair = lineSvg.appendChild(
+      L5.arrow(X[1] - 6, Y - R - 4, X[0] + 10, Y - R - 4, "green", 1, { w: 6, head: 16, bow: 14 }),
+    );
     const noisy = A6.token(pic, { tone: "red", size: 2 * R });
     const tickSvg = L5.svg(pic, PIC.w, PIC.h);
-    const tick = tickSvg.appendChild(L5.tick(170, 24, 42, "green", { w: 8 }));
-    const T = { pop: 0.1, steps: 0.9, noisy: 1.9, hop: [3.0, 3.6], tick: 3.7 };
+    const tick = tickSvg.appendChild(L5.tick(X[0], 20, 34, "green", { w: 7 }));
+    const T = { pop: 0.1, steps: 0.9, label: [1.9, 2.2], noisy: 2.2, repair: [2.8, 3.3], hop: [3.0, 3.6], tick: 3.7 };
 
     return (q) => {
       V.show(line, ramp(q, 0, 0.3, E.lin));
@@ -124,8 +142,12 @@
       marks.forEach((m, i) => {
         const k = A6.seq(q, T.pop, 0.1, 0.45, i);
         const land = i === 0 ? 0.2 * flash(q, T.hop[1] - 0.1, T.hop[1] + 0.3) : 0;
-        m.set({ x: X[i], y: Y, s: (0.5 + 0.5 * E.pop(k)) * (1 + land), o: Math.min(1, k * 4) });
+        const tone = i === 1 && q >= T.noisy ? "red" : valid[i] ? "green" : "grey"; // the noisy word stays red
+        m.set({ x: X[i], y: Y, s: (0.5 + 0.5 * E.pop(k)) * (1 + land), o: Math.min(1, k * 4), tone });
       });
+      const kl = ramp(q, ...T.label, E.lin);
+      V.place(label, { y: (1 - kl) * 8, o: kl });
+      L5.drawOn(repair, ramp(q, ...T.repair, E.lin));
       const born = ramp(q, T.noisy, T.noisy + 0.4, E.lin);
       noisy.set({
         x: lerp(X[1], X[0], e),

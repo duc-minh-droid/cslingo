@@ -9,11 +9,12 @@
    loose band, the farthest pair), "grey" neutral (a point not decided yet, an inside point, a candidate ray). A5.TONES lists them.
 
    POSITIONS
-     A5.pos({x = 50, y = 60, s = 1.75})   the seven points A..G of lessons 5.2-5.4 at stage px: {A: [x, y], ...} = the app's own
+     A5.pos({x = 62, y = 60, s = 1.7})    the seven points A..G of lessons 5.2-5.4 at stage px: {A: [x, y], ...} = the app's own
                           coordinates (A5.PTS) shifted so the box 60..410 x 45..245 starts at (x, y) and scaled by s. The default fills
-                          x 50..662, y 60..410 and leaves the right-hand column (x 700..920) and the band y 440..620 free. The
-                          smallest distance between two points is 129 px at s = 1.75, so r = 26 discs never touch.
-                          With the defaults: A (50,384) B (225,279) C (277,410) D (522,349) E (662,191) F (382,226) G (347,60).
+                          x 62..657, y 60..400 and leaves the right-hand column (x 716..924) and the band y 440..620 free; a ring
+                          (r + 13) round any point stays at least 18 px inside the stage. The smallest distance between two points is
+                          137 px, so r = 26 discs never touch.
+                          With the defaults: A (62,374.5) B (232,272.5) C (283,400) D (521,340.5) E (657,187.5) F (385,221.5) G (351,60).
 
    THE PLOT
      const p = A5.plot(parent, {pos, r: 26, font: 30, letters: true, hidden: false, segs: 26, polys: 4, arcs: 6, tags: 16});
@@ -69,7 +70,7 @@
   ];
   const zero = { position: "absolute", left: "0px", top: "0px", width: "0px", height: "0px" };
 
-  const pos = ({ x = 50, y = 60, s: k = 1.75 } = {}) =>
+  const pos = ({ x = 62, y = 60, s: k = 1.7 } = {}) =>
     Object.fromEntries(Object.entries(A5.PTS).map(([n, [px, py]]) => [n, [x + (px - 60) * k, y + (py - 45) * k]]));
 
   /** closed outline path; spread (0..1) times amount (px) moves every edge outward by that distance (a loose band, mitred corners) */
@@ -175,11 +176,12 @@
       const tone = st.tone || "grey";
       const solid = !!st.solid;
       t.g.setAttribute("class", cls(tone));
+      const rim = tone === "grey" ? "var(--node-off-ic)" : "var(--c-edge)"; // a grey point's rim is a shade stronger than the page lines
       css(t.face, {
         fill: solid ? "var(--c)" : tone === "grey" ? "var(--panel)" : "var(--c-dim)",
-        stroke: solid ? "var(--c-lip)" : "var(--c-edge)",
+        stroke: solid ? "var(--c-lip)" : rim,
       });
-      t.lip.style.fill = solid ? "var(--c-lip)" : "var(--c-edge)";
+      t.lip.style.fill = solid ? "var(--c-lip)" : rim;
       t.txt.style.fill = solid ? "var(--c-on)" : "var(--ink)";
       const text = st.text != null ? String(st.text) : t.label;
       if (t.txt.textContent !== text) t.txt.textContent = text;

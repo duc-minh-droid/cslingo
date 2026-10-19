@@ -1,8 +1,10 @@
 /* Phase 7 · Information Theory & Compression (algo-7), scene 06: Huffman coding, merge the two smallest again and again.
    Left: the pool of five letters with their chances (leaves never move). Four times the two SMALLEST roots turn orange, a new node
-   (their sum, blue) appears centred above them with two branches, and a green chip with its weight flies to the "Huffman" label on
-   the right: every merge adds its weight to the bits per letter, so the green bar grows .20, .49, .98, 1.98. At the end the tree
-   turns green and a purple bar shows the entropy floor, 1.96, practically as long as the Huffman bar and far below the fixed 3.00.
+   (their sum, blue) appears centred above them with two branches, and every letter under the new node gets an orange "+1" badge:
+   it now sits one step deeper, so its code is one bit longer. Those letters' chances add up to the new node's weight, so a green
+   chip "+.20" flies to the "Huffman" label on the right and the bits per letter grow by exactly that: .20, .49, .98, 1.98. The
+   bits-per-letter column comes in after the leaves are explained. At the end the tree turns green and a purple bar shows the
+   entropy floor FOR THESE CHANCES, 1.96, practically as long as the Huffman bar and far below the fixed 3.00.
    Every number comes from A7.HUFF (asserted by the helpers; the positions are re-checked here). */
 (function () {
   const V = window.VID;
@@ -20,6 +22,7 @@
   const FLY = 1.2; // ... the weight chip leaves the new node
   const FLY_LEN = 0.6;
   const BAR_END = [2.2, 2.2, 2.2, 2.0]; // ... the bar has reached its new length
+  const COL = 1.7; // the bits-per-letter column comes in once the leaves and their chances are on screen
   const GREEN = 10.6; // the finished tree turns green, bottom up
   const FLOOR = 11.0; // the entropy floor appears
 
@@ -28,7 +31,9 @@
   const BAR_W = 240; // 80 px per bit: the fixed 3-bit code fills it
   const CHIP_H = 62; // a weight chip is 62 px tall and 83 px wide (100 for "1.00"): a flight starts centred on the node
   const BOW = [40, 40, -30, -30]; // how far each flight arcs up (down for the two that start high, so they miss the fixed bar)
-  const chipW = (text) => (text.length > 3 ? 100 : 83);
+  const chipW = (text) => 83 + 17 * (text.length - 3); // a weight chip grows with its text (".20" 83 px, "+.20" 100, "+1.00" 117)
+  const BADGE_W = 64; // the "+1" badge on a leaf
+  const BADGE_AT = 0.6; // a badge pops this long after its merge starts (with the new node), and has left by BADGE_AT + 0.9
   const pos = A7.treePos(H, { x0: 20, slot: 120, top: 70, dy: 140, flat: 1 });
   const expect = {
     C: [80, 490],
@@ -56,6 +61,30 @@
 
   function build(stage) {
     const T = A7.tree(stage, { tree: H, pos, leafW: 88 });
+
+    // one "+1" badge per leaf, centred on the top edge of its tile where the branch ends; it pops for each merge the leaf is under
+    const badges = H.order.map((id) => {
+      const [p, sz] = [T.pt(id), T.size(id)];
+      const tag = A7.tag(stage, {
+        x: p.x - BADGE_W / 2,
+        y: p.y - sz.h / 2 - 30,
+        text: "+1",
+        tone: "orange",
+        solid: true,
+        h: 44,
+      });
+      tag.el.style.width = `${BADGE_W}px`;
+      return tag;
+    });
+    // the merge that makes leaf l one step deeper, as a list of merge indexes
+    const underMerge = H.order.map((_, l) =>
+      H.merges.map((m, i) => (H.nodes[m.id].lo <= l && l < H.nodes[m.id].hi ? i : -1)).filter((i) => i >= 0),
+    );
+    A7.same(
+      "scene 6: how often each letter gets +1 (its code length)",
+      underMerge.map((a) => a.length),
+      H.order.map((id) => H.nodes[id].depth),
+    );
 
     // the pool's own caption: the small numbers on the leaves are chances
     const chanceLine = A7.span(stage, { x: 30, y: 550, w: 580, h: 8, tone: "grey" });
@@ -88,11 +117,10 @@
     const floorTrack = track(468);
     const floorBar = A7.bar(stage, { x: RX, y: 468, w: BAR_W, h: 48, tone: "purple" });
 
-    // a bar has no text here, so it needs no padding (the helper's 18 px padding would keep every short bar at 42 px)
-    [fixedBar, huffBar, floorBar].forEach((b) => (b.el.style.padding = "0"));
-
     // one green chip per merge: the new node's weight, flying to the Huffman label
-    const chips = H.merges.map((m) => A7.tag(stage, { x: 0, y: 0, text: A7.fmtW(m.w), tone: "green", solid: true }));
+    const chips = H.merges.map((m) =>
+      A7.tag(stage, { x: 0, y: 0, text: `+${A7.fmtW(m.w)}`, tone: "green", solid: true }),
+    );
 
     return (t) => {
       // ---- the tree ----
@@ -141,6 +169,16 @@
       });
       T.update({ nodes, edges });
 
+      // ---- the "+1" badges: every letter under a new node is one step deeper ----
+      badges.forEach((b, l) => {
+        let [k, o] = [0, 1];
+        underMerge[l].forEach((i) => {
+          const u = t - T0[i] - BADGE_AT;
+          if (u >= 0 && u < 0.95) [k, o] = [ramp(u, 0, 0.25), 1 - ramp(u, 0.7, 0.95)];
+        });
+        b.set({ k, o });
+      });
+
       // ---- the weights flying to the label, and the bar they grow ----
       let cost = 0;
       let bump = 0;
@@ -151,7 +189,7 @@
         const from = T.pt(m.id);
         chips[i].set({
           k: t >= fa && t < fb ? ramp(t, fa, fa + 0.2, E.lin) : 0,
-          x: lerp(from.x - chipW(A7.fmtW(m.w)) / 2, RX, p),
+          x: lerp(from.x - chipW(`+${A7.fmtW(m.w)}`) / 2, RX, p),
           y: lerp(from.y - CHIP_H / 2, 250, p) - BOW[i] * Math.sin(Math.PI * p),
         });
         const [ba, bb] = [fb, T0[i] + BAR_END[i]];
@@ -161,18 +199,18 @@
       });
       const kCost = cost / (H.fixedBits * 100);
       huffLbl.set({
-        k: ramp(t, 2.0, 2.4, E.lin),
+        k: ramp(t, COL + 0.7, COL + 1.1, E.lin),
         text: `Huffman: ${A7.fmtBits(Math.round(cost))}`,
         s: 1 + 0.06 * bump,
       });
-      V.show(huffTrack, ramp(t, 2.0, 2.4, E.lin));
+      V.show(huffTrack, ramp(t, COL + 0.7, COL + 1.1, E.lin));
       huffBar.set({ k: kCost });
 
       // ---- the fixed bar and the floor ----
-      const intro = ramp(t, 0.6, 0.9, E.lin);
+      const intro = ramp(t, COL, COL + 0.3, E.lin);
       hdr.set({ k: intro });
-      fixedLbl.set({ k: ramp(t, 0.65, 1.05, E.lin) });
-      fixedBar.set({ k: ramp(t, 0.7, 1.2) });
+      fixedLbl.set({ k: ramp(t, COL + 0.05, COL + 0.45, E.lin) });
+      fixedBar.set({ k: ramp(t, COL + 0.1, COL + 0.6) });
       chanceLine.set({ k: ramp(t, 1.0, 1.5) });
       chanceTag.set({ k: ramp(t, 1.2, 1.6, E.lin) });
       floorLbl.set({ k: ramp(t, FLOOR, FLOOR + 0.4, E.lin) });
@@ -187,10 +225,10 @@
     dur: 14,
     caps: [
       [0.4, 2.7, "Each letter has a chance. Join the two smallest."],
-      [3.3, 5.3, "Its chance adds to the bits per letter."],
-      [5.5, 8.0, "Repeat with the two smallest left."],
+      [3.0, 5.2, "Letters under it pay one more bit: +.20."],
+      [5.5, 9.2, "Repeat with the two smallest left."],
       [9.4, 11.0, "One node left: the tree is done."],
-      [11.1, 13.6, "1.98 bits a letter, just above the 1.96 floor."],
+      [11.1, 13.6, "1.98 bits a letter. This source's floor is 1.96."],
     ],
     build,
   });

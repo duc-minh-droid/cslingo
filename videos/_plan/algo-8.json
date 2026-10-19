@@ -364,9 +364,9 @@
     "pictogram": "Left to right in 340 x 140: a tile A8.tag box '7' grey (w 64, h 64, fs 36) at (70, 70), a blue padlock A8.icon 'lock' (size 56) at (170, 70) opening and a purple key A8.icon 'key' (size 56) at (270, 70). Plays ONCE and holds: 0.0-0.3 the tile and the open padlock pop; 0.5-0.9 the padlock closes (open 1 -> 0) and 0.9-1.2 the tile turns into a blue solid '13'; 1.5-2.1 the key slides in from x 330 to 270 and its blue-to-purple turn is shown by a small bump; 2.1-2.5 the padlock opens (open 0 -> 1) and 2.5-2.9 the tile turns into a green solid '7' with a green tick (A8.icon 'tick' size 36 at (70, 18)) and stays."
    },
    {
-    "head": "Hashes link blocks,\nwork makes edits costly",
+    "head": "A blockchain: linked\nhashes, and edits\ncost real work",
     "tone": "green",
-    "pictogram": "Three small blocks A8.tag box w 70, h 60, fs 32, texts '1' '2' '3' at (78, 70), (188, 70), (298, 70) joined by blue arrows (L5.arrow with L5.svg, 38 px long, w 5, head 14) between them. Plays ONCE and holds: 0.0-0.4 the blocks pop, 0.4-0.9 the arrows draw; 1.2-1.5 block 1 turns orange; 1.6-1.9 both arrows turn red and blocks 2 and 3 turn red; 2.1-3.0 the blocks are re-sealed one after another (2.1, 2.5, 2.9): each turns green with a small green tick above it (A8.icon 'tick' size 30, at y 20) and the arrows turn green after the last one; it ends fully green."
+    "pictogram": "Three small blocks A8.tag box w 70, h 60, fs 32, texts '1' '2' '3' at (78, 70), (188, 70), (298, 70) joined by blue arrows (L5.arrow with L5.svg, 38 px long, w 5, head 14) between them. Plays ONCE and holds: 0.0-0.4 the blocks pop, 0.4-0.9 the arrows draw; 1.2-1.5 block 1 turns orange; 1.6 block 2 and the arrow into it turn red (only that link breaks at the edit); 2.0 block 1 is re-sealed (green, a tick); 2.4-2.5 block 2 is re-sealed, its arrow turns green and only then does block 3 break (red at 2.6, with the arrow into it); 3.2 block 3 is re-sealed (green, a tick) and 3.4 its arrow turns green; 3.7-4.4 an orange bar under the blocks grows and says '50 tries' (the work of the three seals); it ends fully green with the bar. "
    }
   ],
   "cta": "Next: Workshop 8.W",

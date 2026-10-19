@@ -65,8 +65,9 @@
          made and used at once.
      A7.lzwEncode(text, alpha) / A7.lzwDecode(codes, alpha) run any message.
    SCENE 10, GIF (lesson 7.11).  A7.GIF = {alpha: ["A","B","C","D"], tones: {A:"green", B:"blue", C:"purple", D:"orange"},
-       flat: {text: "AAAAAABBBCCCCCDDDD", count: 11, chunks}, noisy: {text: "DBCBAABDADDCDDACCA", count: 17, chunks}}
-       count = number of LZW codes for the 18 pixels; chunks as above. Flat chunks: A|AA|AAA|B|BB|C|CC|CC|D|DD|D.
+       flat: {text: "AAAAAABBBCCCCCDDDD", count: 11, chunks}, noisy: {text: "ABCCABDCACBBCDADDB", count: 15, chunks}}
+       count = number of LZW codes for the 18 pixels; chunks as above. Flat (the lesson's "Lecture row") chunks: A|AA|AAA|B|BB|C|CC|CC|D|DD|D
+       (11 codes); noisy (the lesson's "Noisy" row) chunks: A|B|C|C|AB|D|CA|C|B|BC|D|A|D|D|B (15 codes: only a little fewer).
    SMALL TOOLS.  A7.rng(seed) (mulberry32: the only randomness allowed)   A7.same(what, got, want) throws when JSON differs
        A7.close(what, got, want, tol) throws when numbers differ    A7.TONES = ["grey","green","red","orange","blue","purple"]
        A7.sum(list)   A7.mix(p, q, f) -> [x, y]   A7.cyc(t, t0, period) (time inside a loop, -1 before t0) */
@@ -415,7 +416,7 @@
       alpha,
       tones: { A: "green", B: "blue", C: "purple", D: "orange" },
       flat: mk("AAAAAABBBCCCCCDDDD"),
-      noisy: mk("DBCBAABDADDCDDACCA"),
+      noisy: mk("ABCCABDCACBBCDADDB"), // the row of the lesson's "Noisy" button (lesson 7.11, mseed(1)): 15 codes for 18 pixels
     };
   })();
 
@@ -501,7 +502,11 @@
     GIF.flat.codes.map((c) => c + 1),
     [1, 5, 6, 2, 8, 3, 10, 10, 4, 13, 4],
   );
-  same("gif noisy", GIF.noisy.count, 17);
+  same(
+    "gif noisy (the lesson's Noisy row: only a little fewer codes)",
+    [GIF.noisy.count, GIF.noisy.chunks.map((c) => c.text).join("|")],
+    [15, "A|B|C|C|AB|D|CA|C|B|BC|D|A|D|D|B"],
+  );
 
   Object.assign(A7, {
     TONES,

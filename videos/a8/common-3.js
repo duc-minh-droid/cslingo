@@ -73,7 +73,7 @@
         mem[i] = key;
         c.textContent = ch;
         c.className = tone ? `c-${tn(tone)}` : "";
-        css(c, tone ? { background: "var(--c-edge)", color: "var(--c-ink)" } : { background: "", color: "" });
+        css(c, tone ? { background: "var(--c-edge)", color: "var(--c-on)" } : { background: "", color: "" });
       });
     };
   }
@@ -165,7 +165,7 @@
       const label =
         f === "data"
           ? null
-          : V.h("span", { text: FIELD_LABEL[f], style: { color: "var(--text-dim)", fontWeight: "800" } });
+          : V.h("span", { text: FIELD_LABEL[f], style: { color: "var(--c-ink)", fontWeight: "800" } });
       const value = V.h("span", f === "data" ? {} : { style: { fontFamily: "var(--mono)", fontWeight: "700" } });
       if (label) strip.append(label);
       strip.append(value);
