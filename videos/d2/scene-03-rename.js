@@ -5,7 +5,8 @@
    Story (local seconds): 0.25 the two tags, 0.3 the companies table, 0.5-0.9 four profiles (of 400) point at its one row, 1.0-2.1
    the 400 dots, 2.4 the name ring, 3.0 the name changes (the arrows turn green), 3.4 "rows changed 1", 4.3 "documents to rewrite
    400" and the grid pulses, 4.8-8.0 the rewrite wave (dot i turns green at 4.8 + 3.2 i / 400, the stale copy stays orange), 8.3 the
-   red ring, 8.5 the "stale: Acme" tag, 9-12.5 hold. */
+   red ring, 8.5 the red "stale copy" tag, 9-12.5 hold. The legend under the grid (1.9 "Acme copy", 4.65 "Apex copy") says what a
+   square is; the stale tag joins it there instead of covering squares of the grid. Three people and an ellipsis stand for the 400. */
 (function () {
   const V = window.VID;
   const D2 = V.d2;
@@ -27,13 +28,17 @@
   // ---------- layout (stage px, 12 px margin) ----------
   const TABLE = { x: 12, y: 80, w: 270 }; // one row: 110 px high, its lip ends at y 196
   const GRID = { x: 326, y: 80 }; // 25 x 16 dots of 18 px with 6 px gaps: 594 x 394, ends at x 920 (room for the wave's pop)
-  const PEOPLE = { cy: 330, r: 28, n: 4 };
+  const PEOPLE = { cy: 330, r: 28, n: 3 }; // three of the 400 profiles, then an ellipsis: the rest
+  const MORE = [232, 250, 268]; // the three dots of the ellipsis (x centres) after the last person
+  const LEGEND = { x: 326, y: 484, h: 52 }; // what the squares mean: one row of tags under the grid
+  const STAT = { y: 546, h: 72 }; // under the legend; the lip ends at 624, inside the 12 px margin
   const personX = (i) => 46 + 66 * i;
-  const arrowEnd = (i) => TABLE.x + TABLE.w / 2 + (i - 1.5) * 22; // the four arrows reach the table's lower edge side by side
+  const arrowEnd = (i) => TABLE.x + TABLE.w / 2 + (i - (PEOPLE.n - 1) / 2) * 26; // the arrows reach the table's lower edge side by side
 
   // ---------- timeline ----------
   const T = {
     tags: 0.25, // both tags pop
+    legend: 1.9, // the orange swatch tag: a square holding the old name (the grid has just finished popping)
     table: 0.3, // the companies table
     people: 0.5, // the four profiles pop, 0.1 s apart
     arrows: 0.7, // ... and their arrows draw on to the one row
@@ -46,7 +51,7 @@
     wave0: 4.8, // the first dot is rewritten ...
     wave: 3.2, // ... and the last one 3.2 s later
     ring: 8.3, // the red ring round the stale copy
-    tag: 8.5, // the "stale: Acme" tag
+    tag: 8.5, // the red "stale copy" tag in the legend row
     breathe: 9.2, // the ring starts a slow pulse
   };
   const hit = (i) => T.wave0 + (T.wave * i) / N; // the rewrite reaches dot i
@@ -108,7 +113,10 @@
         ),
       ),
     );
-    const tagMany = D2.tag(stage, { x: TABLE.x, y: 386, text: `${N} profiles`, tone: "blue" });
+    const more = MORE.map((cx) =>
+      layer.appendChild(V.s("circle", { cx, cy: PEOPLE.cy + 8, r: 5.5, style: { fill: D2.tone("blue").edge } })),
+    );
+    const tagMany = D2.tag(stage, { x: TABLE.x, y: 386, text: `${N} profiles in all`, tone: "blue" });
 
     // the 400 copies of the name, one dot per profile document (orange = the old name)
     const grid = D2.dots(stage, { ...GRID, cols: R.cols, rows: R.rows, size: 18, gap: 6 });
@@ -116,27 +124,34 @@
     const halo = V.h("div", {
       class: "c-red",
       style: {
-        ...D2.u.abs(stale.x - 23, stale.y - 23, 46, 46),
+        ...D2.u.abs(stale.x - 25, stale.y - 25, 50, 50),
         boxSizing: "border-box",
-        border: "5px solid var(--c)",
-        borderRadius: "13px",
+        border: "7px solid var(--c)",
+        borderRadius: "14px",
       },
     });
     stage.append(halo);
-    const tagStale = D2.tag(stage, {
-      x: stale.x + 32,
-      y: stale.y - 29,
-      text: `stale: ${R.company.from}`,
-      tone: "red",
-      solid: true,
+    // the legend under the grid: what a square is, so the wave reads at once (orange = the old name, green = the new one)
+    const legend = [
+      { text: `${R.company.from} copy`, tone: "orange", solid: false },
+      { text: `${R.company.to} copy`, tone: "green", solid: true },
+      { text: "stale copy", tone: "red", solid: true },
+    ];
+    let lx = LEGEND.x;
+    legend.forEach((l) => {
+      l.x = lx;
+      lx += Math.round(40 + 14.4 * l.text.length) + 16;
+      l.tag = D2.tag(stage, { x: l.x, y: LEGEND.y, text: l.text, tone: l.tone, solid: l.solid, h: LEGEND.h });
     });
+    D2.same("rename scene: the legend keeps the 12 px margin", lx - 16 <= 924, true);
+    const [tagOld, tagNew, tagStale] = legend.map((l) => l.tag);
 
-    const statRows = D2.stat(stage, { x: 12, y: 520, w: 290, h: 80, label: "rows changed", tone: "green" });
+    const statRows = D2.stat(stage, { x: 12, y: STAT.y, w: 290, h: STAT.h, label: "rows changed", tone: "green" });
     const statDocs = D2.stat(stage, {
       x: GRID.x,
-      y: 520,
+      y: STAT.y,
       w: 594,
-      h: 80,
+      h: STAT.h,
       label: "documents to rewrite",
       tone: "orange",
     });
@@ -157,6 +172,7 @@
         cells: renamed ? { "0,1": { text: R.company.to, tone: "green", solid: true } } : {},
       });
       people.forEach((g, i) => V.place(g, D2.pop(k(T.people + 0.1 * i, 0.35))));
+      more.forEach((c, i) => V.place(c, D2.pop(k(T.people + 0.1 * (PEOPLE.n + i), 0.3))));
       lines.forEach(([plain, ok], i) => {
         L5.drawOn(plain, ramp(t, T.arrows + 0.1 * i, T.arrows + 0.1 * i + 0.3, E.out));
         // the link turns green from the row down: every profile that points at it now sees the new name
@@ -187,6 +203,8 @@
       const h = k(T.ring, 0.35);
       const breathe = (1 - Math.cos((2 * Math.PI * clamp(t - T.breathe, 0, 99)) / 1.4)) / 2; // a slow pulse draws the eye to the miss
       V.place(halo, { s: 1 + (1 - E.out(h)) + 0.08 * breathe * h, o: Math.min(1, h * 4) });
+      tagOld.set({ k: k(T.legend, 0.35) });
+      tagNew.set({ k: k(T.wave0 - 0.15, 0.35) });
       tagStale.set({ k: k(T.tag, 0.35) });
 
       // ---- counters ----
@@ -207,8 +225,8 @@
     dur: 12.5,
     caps: [
       [0.5, 2.8, "One company, many profiles."],
-      [3.1, 4.5, "Tables: change one row."],
-      [4.7, 7.6, "Documents: rewrite all 400 copies."],
+      [3.1, 4.8, "Tables: change one row."],
+      [4.9, 7.9, "Documents: rewrite all 400 copies."],
       [8.7, 11.9, "Miss one and that profile is stale."],
     ],
     build,

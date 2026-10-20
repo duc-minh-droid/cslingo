@@ -2,13 +2,14 @@
    eight edges). Things are vertices, relationships are edges with a label; a vertex stores the edges that arrive ("in") and the
    edges that leave ("out"), so a route is found by walking edges, one hop per edge. Every count and key comes from D2.GRAPH
    (asserted when the page loads): Ben stores 1 edge in and 2 out, and Ana to Dee is 3 hops along Ana-Ben-Cy-Dee.
-   Story (local seconds): 0.3-1.5 the seven vertices pop (people first), 1.0 the tag "vertex", 1.6-2.7 the eight edges draw on,
-   2.3 the tag "edge", 3.6 both tags go; 3.7 / 4.1 / 4.5 one label each (FRIEND, LIVES_IN, WORKS_AT), 5.5 they go; INSPECT BEN
-   5.55 his orange ring, 6.0 the edge that arrives draws on in purple (towards Ben), 6.35 "in 1", 6.9 the two edges that leave
-   draw on in blue (away from Ben), 7.25 "out 2", 8.3 the highlights fade; WALK 8.6 Ana turns green (the start), 8.7 the tag
-   "route: Ana to Dee" and a dashed orange ring on Dee (where to), 8.9 the "hops" counter, 9.1-11.65 a blue token walks the
-   three edges, 0.85 s each: it paints every edge green as it goes, the vertex it reaches turns solid green and the counter
-   goes 1, 2, 3. Then the picture holds.
+   Story (local seconds): 0.3-1.0 the five people pop first (people link to people), 1.0 the tag "vertex", 1.15-1.6 the four friendships
+   draw on, 1.9 the tag "edge", the city and the company pop (1.9, 2.1) and their four edges draw on (2.3-2.7), 3.8 / 4.2 / 4.6 one label
+   each (FRIEND, LIVES_IN, WORKS_AT: one of each kind), 5.6 they go; INSPECT BEN 5.5 his orange ring, 5.9 the edge that arrives draws on
+   in purple (towards Ben) and the tag "in: Ana" (6.2), 6.5 the two edges that leave draw on in blue (away from Ben) and the tag
+   "out: Cy, Leeds" (6.8): the lists he stores, built from D2.GRAPH.ben; 9.1 the highlights and the two definition tags fade (they stay
+   while the captions use the words); WALK 9.4 Ana turns green (the start), 9.5 the tag "route: Ana to Dee" and a dashed orange ring
+   on Dee (where to), 9.7 the "hops" counter, 9.9-12.4 a blue token walks the three edges, 0.85 s each: it paints every edge green as
+   it goes, the vertex it reaches turns solid green and the counter goes 1, 2, 3. Then the picture holds.
    Two graphs are stacked: the lower one is the plain graph (vertices, grey edges, labels); the upper one draws only the
    coloured highlights (inspect and route) on top of it, so an edge can grow in colour from its tail and fade away again. */
 (function () {
@@ -68,25 +69,28 @@
 
   // ---------- timeline ----------
   const T = {
-    node: 0.3, // the vertices pop, 0.17 s apart
-    nodeStep: 0.17,
+    node: 0.3, // the five people pop first, 0.14 s apart (people link to people), then the city and the company
+    nodeStep: 0.14,
+    nodeMore: [1.9, 2.1], // Leeds, Acme
     tagV: 1.0, // "vertex"
-    edge: 1.6, // the edges draw on, 0.13 s apart
-    edgeStep: 0.13,
-    tagE: 2.3, // "edge"
-    tagsOff: 3.6,
-    label: [3.7, 4.1, 4.5],
-    labelsOff: 5.5,
-    ben: 5.55, // inspect Ben
-    inEdge: 6.0,
-    inTag: 6.35,
-    outEdge: 6.9,
-    outTag: 7.25,
-    calm: 8.3, // the highlights fade
-    start: 8.6, // Ana is the start
-    route: 8.7, // the route tag and the ring round Dee
-    stat: 8.9,
-    walk: 9.1, // the token leaves Ana
+    edge: 1.15, // the four friendships draw on first, 0.15 s apart ...
+    edgeStep: 0.15,
+    edgeMore: 2.3, // ... then the four edges to the city and the company, 0.13 s apart
+    edgeMoreStep: 0.13,
+    tagE: 1.9, // "edge"
+    tagsOff: 9.1, // both definitions stay while the captions use the words
+    label: [3.8, 4.2, 4.6],
+    labelsOff: 5.6,
+    ben: 5.5, // inspect Ben
+    inEdge: 5.9,
+    inTag: 6.2,
+    outEdge: 6.5,
+    outTag: 6.8,
+    calm: 9.1, // the highlights fade
+    start: 9.4, // Ana is the start
+    route: 9.5, // the route tag and the ring round Dee
+    stat: 9.7,
+    walk: 9.9, // the token leaves Ana
     hop: 0.85, // seconds per edge
   };
 
@@ -106,6 +110,14 @@
     return lo;
   })();
   const arrive = (h) => T.walk + (h + U1) * T.hop; // hop h (0-based) reaches its vertex
+  const PEOPLE = G.nodes.filter((n) => n.kind === "person").length; // the people are the first five vertices
+  const nodeAt = (i) => (i < PEOPLE ? T.node + T.nodeStep * i : T.nodeMore[i - PEOPLE]);
+  const edgeAt = (i) => (i < 4 ? T.edge + T.edgeStep * i : T.edgeMore + T.edgeMoreStep * (i - 4)); // friendships first
+  D2.same(
+    "graph scene: the first four edges are the friendships",
+    G.edges.slice(0, 4).map((e) => e.label),
+    ["FRIEND", "FRIEND", "FRIEND", "FRIEND"],
+  );
   const showAt = (f) => ramp(f, F0, 0, E.lin) * (1 - ramp(f, 1, F1, E.lin)); // 0 while the token is inside a vertex
 
   function build(stage) {
@@ -120,15 +132,15 @@
     const TEXT = {
       vertex: "vertex",
       edge: "edge",
-      in: `in ${BEN.in.length}`,
-      out: `out ${BEN.out.length}`,
+      in: `in: ${BEN.in.map((e) => e.from).join(", ")}`, // what Ben stores: the vertices its edges come from ...
+      out: `out: ${BEN.out.map((e) => e.to).join(", ")}`, // ... and the vertices they go to
       route: `route: ${START} to ${GOAL}`,
     };
     const AT = {
       vertex: { x: dee.x - tagWidth(TEXT.vertex) / 2, y: dee.y + g.size("Dee").h / 2 + 62 }, // under Dee
       edge: { x: em.x + 56, y: em.y - 29 }, // right of the Cy>Dee arrow
-      in: { x: 222, y: 20 }, // above the arrow that arrives at Ben
-      out: { x: ben.x + 36, y: ben.y + 54 }, // between the two arrows that leave Ben
+      in: { x: 186, y: 14 }, // above the arrow that arrives at Ben
+      out: { x: ben.x + 88, y: 14 }, // above the arrow that leaves Ben for Cy
       route: { x: 924 - 12 - 8 - tagWidth(TEXT.route), y: 14 }, // top right, clear of Cy
     };
     const mk = (key, tone, solid) => D2.tag(stage, { ...AT[key], text: TEXT[key], tone, solid });
@@ -163,7 +175,7 @@
       // ---- the plain graph: vertices ----
       const nodes = {};
       G.nodes.forEach((n, i) => {
-        const st = { k: D2.seq(t, T.node, T.nodeStep, 0.4, i) };
+        const st = { k: ramp(t, nodeAt(i), nodeAt(i) + 0.4, E.lin) };
         const wi = G.path.indexOf(n.id); // position on the route, -1 when it is not on it
         if (n.id === "Ben" && t >= T.ben && t < T.calm + 0.3)
           Object.assign(st, { ring: "orange", ringK: k(T.ben, 0.3) * (1 - calm) });
@@ -178,7 +190,7 @@
       // ---- the plain graph: grey edges that draw on, and the three labels ----
       const edges = {};
       G.edges.forEach((e, i) => {
-        const st = { k: E.out(D2.seq(t, T.edge, T.edgeStep, 0.35, i)), tone: "grey" };
+        const st = { k: E.out(ramp(t, edgeAt(i), edgeAt(i) + 0.35, E.lin)), tone: "grey" };
         const lab = LABELLED.findIndex(([key]) => key === e.key);
         if (lab >= 0)
           Object.assign(st, {
@@ -238,14 +250,15 @@
   }
 
   V.scene({
-    kicker: "GRAPH MODEL",
+    kicker: "GRAPH MODEL: MANY-TO-MANY",
     title: ["When the links", "are the data"],
-    dur: 13.0,
+    dur: 14.0,
     caps: [
-      [0.5, 2.7, "A graph stores things and their links."],
-      [3.9, 5.4, "Each link has a label."],
-      [5.7, 8.2, "A vertex lists its own links in and out."],
-      [8.8, 12.6, "To find a route, walk the edges: three hops."],
+      [1.3, 3.6, "A graph stores things and their links."],
+      [3.9, 5.7, "Each kind of link has a label."],
+      [6.9, 9.1, "A vertex lists its links in and out."],
+      [9.5, 12.0, "To find a route, walk the edges."],
+      [12.3, 13.6, "Three hops."],
     ],
     build,
   });

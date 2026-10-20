@@ -37,6 +37,13 @@
   );
   D2.same("families scene: three aims", AIMS, ["simple design", "scales out", "stays available"]);
   const KV = F.kv.rows; // [partition key, sort key]
+  const RECIPE_ID = F.wide.rows[0].id; // recipe 7: the same recipe in all four shapes
+  const DOC_TITLE = `${F.doc.coll.replace(/s$/, "")} #${RECIPE_ID}`; // "recipe #7": one document of the collection
+  D2.same(
+    "families scene: the document is recipe 7, like the key-value items",
+    [DOC_TITLE, KV[0][0]],
+    ["recipe #7", "recipe#7"],
+  );
   D2.same(
     "families scene: one partition key, four different sort keys",
     [new Set(KV.map((r) => r[0])).size, new Set(KV.map((r) => r[1])).size, KV.length],
@@ -73,6 +80,8 @@
     ["USES", "USES"],
   );
   D2.same("families scene: the labelled edge is Waffles to Flour", LABEL_KEY, "Waffles>Flour");
+  const TAG_KEY = GE.find((e) => e.label === "TAGGED").key; // the one edge of the other kind: a recipe is tagged, not made of, Breakfast
+  D2.same("families scene: the other kind of edge is Pancakes TAGGED Breakfast", TAG_KEY, "Pancakes>Breakfast");
 
   // ---------- layout (stage px; everything keeps the 12 px margin, lips included) ----------
   const COL = [
@@ -106,31 +115,36 @@
     def: 0.3, // the definition tag
     aim: 0.35, // the three aims pop, 0.3 s apart
     aimStep: 0.3,
-    split: 1.7, // one box becomes four
-    tick: 2.45, // the tick is drawn
-    aimsOff: 3.25, // part 1 fades
-    cell: [3.75, 6.3, 8.75, 11.05], // the four title tags (the sticker follows 0.1 s later)
-    name: 4.3, // document: name and minutes are typed, then the steps pop
-    mins: 4.8,
-    steps: 5.1,
-    items: 6.7, // key-value: the four items, 0.28 s apart
+    cross: 0.85, // simple design: the tangle of joined tables is crossed out, then one flat box
+    one: 1.35,
+    split: 1.45, // scales out: one box becomes four
+    fail: 2.05, // stays available: one of four boxes fails (red cross) ...
+    route: 2.5, // ... and the request still reaches a working one (arrow, then the tick)
+    tick: 2.85,
+    aimsOff: 3.4, // part 1 fades (the document pops 0.15 s later, so the stage is never empty)
+    cell: [3.55, 6.4, 10.2, 13.1], // the four title tags (the sticker follows 0.1 s later)
+    name: 4.0, // document: name and minutes are typed, then the steps pop
+    mins: 4.5,
+    steps: 4.8,
+    items: 6.8, // key-value: the four items, 0.28 s apart
     itemStep: 0.28,
-    keys: 8.0, // the orange keys pulse together, then the purple ones one by one
-    sorts: 8.2,
-    rows: 9.1, // wide-column: the three rows, 0.35 s apart
+    keys: 7.7, // the orange keys pulse together (grouped), then the blue ones one by one (ordered)
+    sorts: 7.95,
+    rows: 10.6, // wide-column: the three rows, 0.35 s apart
     rowStep: 0.35,
-    vary: 10.25, // the columns that vary turn blue
-    node: 11.15, // graph: recipes, then ingredients, 0.15 s apart
+    vary: 11.95, // the columns that vary turn blue
+    node: 13.2, // graph: recipes, then ingredients, 0.15 s apart
     nodeStep: 0.15,
-    edge: 12.1, // the four edges, 0.2 s apart
+    edge: 14.15, // the four edges, 0.2 s apart
     edgeStep: 0.2,
-    label: 12.95, // USES
-    focus: 13.4, // who else uses flour?
+    label: 15.2, // USES and TAGGED
+    focus: 16.4, // who else uses flour?
   };
-  const ACTIVE = T.cell.map((a, i) => [a, i < 3 ? T.cell[i + 1] : 13.9]); // a family's title tag is solid blue until the next one pops
+  const END = 19.2; // the scene's length
+  const ACTIVE = T.cell.map((a, i) => [a, i < 3 ? T.cell[i + 1] : END]); // a family's title tag is solid blue until the next one pops
   D2.same(
-    "families scene: the graph is complete before the focus and the focus before the hold",
-    [T.edge + 3 * T.edgeStep + 0.4 < T.label + 0.3, T.label + 0.3 < T.focus, T.focus + 0.6 < 14.2],
+    "families scene: the graph is complete before the labels and the focus, and the focus before the hold",
+    [T.edge + 3 * T.edgeStep + 0.4 < T.label + 0.3, T.label + 0.3 < T.focus, T.focus + 0.6 < END - 0.5],
     [true, true, true],
   );
 
@@ -181,12 +195,46 @@
       return c;
     });
     const pics = L5.svg(stage);
-    const [cy, mid] = [AIM.y + 70, (i) => aimX(i) + AIM.w / 2];
-    const one = pics.appendChild(box(mid(0), cy, 80, 62, "blue"));
+    const [cy, mid] = [AIM.y + 66, (i) => aimX(i) + AIM.w / 2];
+    // simple design: a tangle of joined tables is crossed out, one flat box is all you need
+    const line = (x1, y1, x2, y2) =>
+      V.s("line", {
+        x1,
+        y1,
+        x2,
+        y2,
+        "stroke-width": 4,
+        "stroke-linecap": "round",
+        style: { stroke: D2.tone("grey").lip },
+      });
+    const TANGLE = [
+      [mid(0) - 98, cy - 16],
+      [mid(0) - 36, cy - 16],
+      [mid(0) - 67, cy + 32],
+    ];
+    const tangle = pics.appendChild(
+      V.s(
+        "g",
+        {},
+        ...TANGLE.map(([x, y], i) => line(x, y, ...TANGLE[(i + 1) % 3])),
+        ...TANGLE.map(([x, y]) => box(x, y, 42, 32, "grey")),
+      ),
+    );
+    const crossT = pics.appendChild(L5.cross(mid(0) - 67, cy + 6, 56, "red", { w: 9 }));
+    const toOne = pics.appendChild(L5.arrow(mid(0) - 16, cy + 4, mid(0) + 14, cy + 4, "blue", 1, { w: 6, head: 14 }));
+    const one = pics.appendChild(box(mid(0) + 62, cy + 4, 62, 50, "blue"));
+    // scales out: one box becomes four side by side
     const OFF = [-93, -31, 31, 93];
-    const four = OFF.map(() => pics.appendChild(box(mid(1), cy, 52, 42, "green")));
-    const safe = pics.appendChild(box(mid(2), cy, 80, 62, "orange"));
-    const tick = pics.appendChild(L5.tick(mid(2), cy + 2, 46, "green", { w: 10 }));
+    const four = OFF.map(() => pics.appendChild(box(mid(1), cy + 4, 52, 42, "green")));
+    // stays available: four machines, one fails (red cross), the request still reaches a working one (arrow, tick)
+    const FX = [-78, -26, 26, 78];
+    const machines = FX.map((dx) => pics.appendChild(box(mid(2) + dx, cy + 18, 44, 36, "green")));
+    const failed = pics.appendChild(box(mid(2) + FX[1], cy + 18, 44, 36, "red"));
+    const crossM = pics.appendChild(L5.cross(mid(2) + FX[1], cy + 18, 34, "red", { w: 8 }));
+    const request = pics.appendChild(
+      L5.arrow(mid(2) + FX[2], cy - 40, mid(2) + FX[2], cy - 2, "blue", 1, { w: 6, head: 14 }),
+    );
+    const tick = pics.appendChild(L5.tick(mid(2) + 66, cy - 22, 36, "green", { w: 8 }));
 
     // ---- part 2: title tags and pictograms ----
     const icons = L5.svg(stage);
@@ -206,7 +254,7 @@
       x: COL[0].x,
       y: ROW.body[0],
       w: COL[0].w,
-      title: F.doc.coll,
+      title: DOC_TITLE,
       lines: F.doc.lines,
       tone: "grey",
     });
@@ -218,11 +266,11 @@
     const kvRows = [
       [
         { text: "partition key", tone: "orange", solid: true },
-        { text: "sort key", tone: "purple", solid: true },
+        { text: "sort key", tone: "blue", solid: true },
       ],
       ...KV.map(([a, b]) => [
         { text: a, tone: "orange" },
-        { text: b, tone: "purple" },
+        { text: b, tone: "blue" },
       ]),
     ];
     const kv = D2.table(stage, { x: COL[1].x, y: ROW.body[0], w: COL[1].w, name: "", rows: kvRows, widths: [232] });
@@ -276,18 +324,32 @@
       def.set({ k: lin(T.def, 0.4), o: off });
       aims.forEach((c, i) => c.set({ k: lin(T.aim + i * T.aimStep, 0.45), o: off }));
       const kA = AIMS.map((_, i) => lin(T.aim + i * T.aimStep, 0.45));
-      const pic = (g, i, extra = {}) =>
+      const pic = (g, k, extra = {}) =>
         V.place(g, {
-          s: (0.75 + 0.25 * E.pop(kA[i])) * (extra.s ?? 1),
+          s: (0.75 + 0.25 * E.pop(k)) * (extra.s ?? 1),
           x: extra.x || 0,
-          o: Math.min(1, kA[i] * 4) * off,
+          o: Math.min(1, k * 4) * (extra.o ?? 1) * off,
         });
-      pic(one, 0);
-      const p = E.inOut(lin(T.split, 0.6)); // the one box becomes four
-      four.forEach((b, j) => pic(b, 1, { x: OFF[j] * p, s: 1.5 - 0.5 * p }));
-      pic(safe, 2);
-      L5.drawOn(tick, lin(T.tick, 0.45));
-      V.place(tick, { s: 0.75 + 0.25 * E.pop(kA[2]), o: Math.min(1, kA[2] * 4) * off });
+      // simple design: tangle, crossed out, then the one flat box
+      pic(tangle, kA[0]);
+      L5.drawOn(crossT, lin(T.cross, 0.35));
+      V.place(crossT, { o: off });
+      L5.drawOn(toOne, lin(T.one - 0.15, 0.3));
+      V.place(toOne, { o: off });
+      pic(one, lin(T.one, 0.4));
+      // scales out: one box becomes four
+      const p = E.inOut(lin(T.split, 0.6));
+      four.forEach((b, j) => pic(b, kA[1], { x: OFF[j] * p, s: 1.5 - 0.5 * p }));
+      // stays available: one machine fails, the request still gets an answer
+      const fk = lin(T.fail, 0.3);
+      machines.forEach((m, j) => pic(m, kA[2], { o: j === 1 ? 1 - fk : 1 }));
+      pic(failed, kA[2], { o: fk });
+      L5.drawOn(crossM, lin(T.fail + 0.1, 0.3));
+      V.place(crossM, { o: off });
+      L5.drawOn(request, lin(T.route, 0.3));
+      V.place(request, { o: off });
+      L5.drawOn(tick, lin(T.tick, 0.4));
+      V.place(tick, { o: off });
 
       // ---- part 2: title tags and pictograms ----
       cells.forEach((c, i) => {
@@ -347,6 +409,7 @@
       GE.forEach((e, i) => {
         const st = { tone: "grey", k: E.out(D2.seq(t, T.edge, T.edgeStep, 0.35, i)) };
         if (e.key === LABEL_KEY) Object.assign(st, { label: lin(T.label, 0.3), labelSide: 1 });
+        if (e.key === TAG_KEY) Object.assign(st, { label: lin(T.label + 0.15, 0.3), labelSide: -1, labelAt: 0.5 });
         ge[e.key] = st;
       });
       const base = { node: { k: 0 }, edge: { k: 0, label: 0 } };
@@ -362,13 +425,14 @@
   V.scene({
     kicker: "NoSQL",
     title: ["Four kinds of NoSQL,", "one recipe"],
-    dur: 14.5,
+    dur: END,
     caps: [
       [0.5, 3.4, "NoSQL: simple, scales out, stays available."],
-      [4.0, 6.4, "Document: the whole recipe in one place."],
-      [6.5, 8.85, "Key-value: every item found by its key."],
-      [9.0, 11.15, "Wide-column: columns vary per row."],
-      [11.4, 14.1, "Graph: recipes linked to what they use."],
+      [4.6, 6.4, "Document: the whole recipe."],
+      [7.8, 10.3, "A partition key groups, a sort key orders."],
+      [10.9, 12.9, "Wide-column: columns vary per row."],
+      [14.3, 16.3, "Graph: things and labelled links."],
+      [16.7, 18.6, "Pancakes and Waffles share Flour."],
     ],
     build,
   });

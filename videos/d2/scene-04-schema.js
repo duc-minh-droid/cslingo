@@ -1,17 +1,19 @@
 /* Lecture 2 · scene 4 (SCHEMA): changing the shape of your data (lesson 2.2 "Split name into first and last name").
-   A document store happily keeps old documents ({name}) and new ones ({first_name, last_name}) side by side: the app splits an old
-   name in code when it reads it, so there is nothing to wait for. A relational table has one shape for every row: add the two new
-   columns, then rewrite ALL 1,000 rows before the table is ready. The numbers come from D2.SCHEMA / D2.migrate (asserted when the
-   page loads); the names are split by D2.splitName, the same function the lesson's demo uses.
-   Colours: grey = the old shape, orange = the new shape and everything that changes, blue = the name being read, purple = the app,
-   green = done and ready, red = waiting.
+   A document store (schema-on-read) happily keeps old documents ({name}) and new ones ({first_name, last_name}) side by side: the app
+   splits an old name in code when it reads it, so there is nothing to wait for. A relational table (schema-on-write) has one shape for
+   every row: add the two new columns, then rewrite ALL the rows (1M here, a value of the lesson's own slider) before the table is ready.
+   The numbers come from D2.SCHEMA / D2.migrate (asserted when the page loads); the names are split by D2.splitName, the same function
+   the lesson's demo uses.
+   Colours: grey = the old shape, orange = the new shape and everything that changes, blue = the name being read, purple = the app (the
+   operator, see common-2.js), green = done and ready, red = waiting.
    Story (local seconds): 0.3-1.1 the three documents (old, old, new), 1.55 rings on their keys (one field, one field, two fields),
    3.0 the app starts reading the old name (blue ring), 3.1 the app box and the arrow to it, 3.3-3.9 a blue copy of the name flies
-   down the arrow (the document stays as it was), 4.0-4.5 it splits in two inside the app, 4.6 "no waiting" and a tick; 5.2 the
-   relational lane, 5.3 the table with its one name column, 6.0-6.6 the table grows two new columns (NULL), 6.3 the "new columns"
-   tag, 6.8 the progress bar, 7.3-11.8 the rewrite sweep (three sample rows stand for the 1,000: the ring walks down them and each
-   turns green when the sweep has passed its third; the bar counts D2.migrate(p).done; a red "waiting" tag with a turning clock),
-   11.8 the bar is green ("done"), 11.9 the clock becomes a tick and "waiting" becomes "ready". */
+   down the arrow (the document stays as it was), 4.0-4.5 it splits in two inside the app, 4.6 "no waiting" and a tick; 4.8 the
+   relational lane, 4.9 the table with its one name column, 5.6-6.2 the table grows two new columns (NULL), 5.9 the "new columns" tag,
+   6.4 the progress bar, 6.9-11.4 the rewrite sweep (two sample rows and a row of dots stand for the million: the ring walks down them,
+   the two rows turn green when the sweep has passed 10 % and 20 %, the row of dots only at the end; the bar counts D2.migrate(p).done
+   in the lesson's own "489k / 1M" format; a red "waiting" tag with a turning clock), 11.4 the bar is green ("done"), 11.5 the
+   clock becomes a tick and "waiting" becomes "table ready". */
 (function () {
   const V = window.VID;
   const D2 = V.d2;
@@ -35,9 +37,13 @@
   );
   D2.same("schema scene: the sweep ends with every row rewritten", D2.migrate(1), { done: S.rows, pct: 100 });
   D2.same("schema scene: the sweep starts with none rewritten", D2.migrate(0), { done: 0, pct: 0 });
-  const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); // 1000 -> "1,000"
-  const ROWS = fmt(S.rows);
-  D2.same("schema scene: the row count as shown", ROWS, "1,000");
+  const ROWS = D2.abbr(S.rows); // the lesson's own way of writing a big count: 1000000 -> "1M"
+  D2.same("schema scene: the row count as shown", ROWS, "1M");
+  /* the table shows two real rows and a third "and all the rest" row of dots: the first two are rewritten in the first moments of the
+     sweep, the rest (a million rows) only when it ends. The fractions of the sweep at which each row is done: */
+  const DONE_AT = [0.1, 0.2, 1];
+  const MORE_ROW = DONE_AT.length - 1; // the row of dots
+  D2.same("schema scene: the row of dots is the last one to be done", DONE_AT.indexOf(1), MORE_ROW);
 
   // ---------- layout (stage px, 12 px margin) ----------
   const TAGH = 50; // every tag of this scene is 50 px high (two lanes of content need the room)
@@ -89,16 +95,16 @@
     split0: 4.0, // the name splits in two
     split1: 4.5,
     ok: 4.6, // no waiting, tick
-    tagB: 5.2, // lane B
-    table: 5.3, // the table, one column
-    cols0: 6.0, // the two new columns grow
-    cols1: 6.6,
-    newTag: 6.3,
-    bar: 6.8,
-    sweep0: 7.3, // the rewrite sweep
-    sweep1: 11.8,
-    wait: 7.4, // waiting + clock
-    ready: 11.9, // ready + tick
+    tagB: 4.8, // lane B (it starts while the app is still being explained, so the lower half is used early)
+    table: 4.9, // the table, one column
+    cols0: 5.6, // the two new columns grow
+    cols1: 6.2,
+    newTag: 5.9,
+    bar: 6.4,
+    sweep0: 6.9, // the rewrite sweep
+    sweep1: 11.4,
+    wait: 7.0, // waiting + clock
+    ready: 11.5, // ready + tick
   };
 
   /** the turning clock: a red face with four ticks and two hands (SVG group; the hands are set from the sweep) */
@@ -159,7 +165,16 @@
     };
   }
 
-  /** the users table: a name column, then (after the change) two new columns; three sample rows stand for the 1,000 */
+  /** three small round dots (an ellipsis) as SVG, drawn in the colour of the chip's text: "and all the rest" */
+  function dotsIcon() {
+    return V.s(
+      "svg",
+      { width: 44, height: 14, style: { flex: "none" } },
+      ...[8, 22, 36].map((cx) => V.s("circle", { cx, cy: 7, r: 4.5, style: { fill: "currentColor" } })),
+    );
+  }
+
+  /** the users table: a name column, then (after the change) two new columns; two sample rows and a row of dots stand for the million */
   function usersTable(parent) {
     const COL = [170, 120, 120];
     const LEFT = [14, 192, 320];
@@ -194,6 +209,7 @@
           },
         });
         el.append(chip);
+        if (r === MORE_ROW) chip.append(dotsIcon());
         return chip;
       }),
     );
@@ -241,7 +257,7 @@
 
   function build(stage) {
     // ---------- lane A: the document store ----------
-    const tagDoc = D2.tag(stage, { x: 12, y: 12, text: `document store: ${ROWS} documents`, tone: "grey", h: TAGH });
+    const tagDoc = D2.tag(stage, { x: 12, y: 12, text: "document store: schema-on-read", tone: "grey", h: TAGH });
     const docs = DOCS.map((d) =>
       D2.doc(stage, { x: d.x, y: DOC_Y, w: d.w, title: d.title, lines: d.lines, tone: d.tone }),
     );
@@ -280,9 +296,9 @@
     tagOk.el.style.width = `${OK.w}px`;
 
     // ---------- lane B: the relational table ----------
-    const tagRel = D2.tag(stage, { x: 12, y: 350, text: `relational: ${ROWS} rows`, tone: "grey", h: TAGH });
+    const tagRel = D2.tag(stage, { x: 12, y: 350, text: "relational: schema-on-write", tone: "grey", h: TAGH });
     const table = usersTable(stage);
-    const tagNew = D2.tag(stage, { x: RIGHT, y: TBL.y, text: "new columns", tone: "orange", h: TAGH });
+    const tagNew = D2.tag(stage, { x: RIGHT, y: TBL.y, text: "new columns: empty (NULL)", tone: "orange", h: TAGH });
     const bar = D2.bar(stage, { x: RIGHT, y: BAR.y, w: BAR.w, h: BAR.h, tone: "orange" });
     // the bar's own label turns light-on-fill half way along; this one stays dark, so it reads over fill and track alike
     const barLabel = V.h("div", {
@@ -344,21 +360,24 @@
       tagRel.set({ k: k(T.tagB) });
       const grow = ramp(t, T.cols0, T.cols1, E.out);
       const p = ramp(t, T.sweep0, T.sweep1, E.lin);
-      const third = (T.sweep1 - T.sweep0) / PEOPLE.length;
-      const doneAt = (r) => T.sweep0 + third * (r + 1); // row r is rewritten when the sweep has passed its third
+      const doneAt = (r) => T.sweep0 + (T.sweep1 - T.sweep0) * DONE_AT[r]; // row r is rewritten when the sweep has passed its mark
       const colO = (r, c) => ramp(t, T.cols0 + 0.25 + 0.08 * r + 0.05 * c, T.cols0 + 0.5 + 0.08 * r + 0.05 * c, E.lin);
-      const cur = clamp(Math.floor(p * PEOPLE.length), 0, PEOPLE.length - 1);
+      const cur = Math.max(
+        0,
+        DONE_AT.findIndex((d) => p < d),
+      ); // the row the sweep is on
       table.set({
         k: k(T.table, 0.45),
         w: lerp(TBL.narrow, TBL.full, grow),
         headO: [1, k(T.cols0 + 0.2, 0.3), k(T.cols0 + 0.25, 0.3)],
         cell: (r, c) => {
-          if (c === 0) return { tone: "grey", text: PEOPLE[r] };
+          const more = r === MORE_ROW; // the row of dots has no text
+          if (c === 0) return { tone: "grey", text: more ? "" : PEOPLE[r] };
           if (t >= doneAt(r)) {
             const bump = 1 + 0.12 * flash(t, doneAt(r), doneAt(r) + 0.3);
-            return { tone: "green", solid: true, text: SPLIT[r][c - 1], s: bump };
+            return { tone: "green", solid: true, text: more ? "" : SPLIT[r][c - 1], s: bump };
           }
-          return { tone: "orange", text: "NULL", o: colO(r, c) };
+          return { tone: "orange", text: more ? "" : "NULL", o: colO(r, c) };
         },
         ring: p > 0 && p < 1 ? cur : -1,
         ringK: k(T.sweep0, 0.25),
@@ -370,7 +389,7 @@
       const complete = p >= 1;
       const bk = k(T.bar, 0.4);
       bar.set({ k: bk, p, tone: complete ? "green" : "orange", text: "" });
-      setText(barLabel, complete ? "done" : `rewriting ${fmt(m.done)} / ${ROWS}`);
+      setText(barLabel, complete ? "done" : `rewriting ${D2.abbr(m.done)} / ${ROWS}`);
       setClass(barLabel, complete ? "c-green" : "c-orange");
       V.place(barLabel, { s: 0.9 + 0.1 * E.pop(bk), o: Math.min(1, bk * 4) });
 
@@ -381,7 +400,7 @@
       clk.set(2 * p, { ...pop, o: ready ? 0 : pop.o });
       tagWait.set({
         k: ready ? k(T.ready, 0.35) : wk,
-        text: ready ? "ready" : "waiting",
+        text: ready ? "table ready" : "waiting",
         tone: ready ? "green" : "red",
         solid: ready,
       });
@@ -394,11 +413,11 @@
     title: ["Changing the shape", "of your data"],
     dur: 13.5,
     caps: [
-      [0.9, 3.0, "Old and new shapes sit side by side."],
-      [3.2, 5.4, "The app splits old names as it reads."],
-      [5.9, 8.2, "A table must change every row first."],
-      [8.4, 11.8, "On a big table that takes a long time."],
-      [12.0, 13.4, "Only then is it ready."],
+      [0.9, 3.0, "Old and new shapes sit together."],
+      [3.2, 5.8, "The app splits old names as it reads."],
+      [6.3, 8.6, "A table must change every row first."],
+      [8.7, 11.4, "With a million rows that takes a long time."],
+      [11.6, 13.4, "Only then is the table ready."],
     ],
     build,
   });

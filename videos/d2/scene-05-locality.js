@@ -10,7 +10,8 @@
    count up, the meter fills a sixth), 4.7 both meters say "20 KB loaded"; 6.0 the page now needs only the name (everything resets);
    PART B 6.3 the arrow, 6.7 the name line fills blue, 7.1 the other five lines turn red inside a red outline and the document
    meter fills red behind a green sliver, 7.6 "20 KB loaded", 7.8-8.1 one arrow to the users table, 8.1 its green ring, reads 1
-   and the 0.2 KB sliver, 8.4 "0.2 KB loaded", 10.0 the document meter reads "19.8 KB wasted". */
+   and the 0.2 KB sliver, 8.4 "0.2 KB loaded", 10.0 the document meter reads "19.8 KB wasted". The grey tag "locality: one piece"
+   (0.35, with the document) defines the kicker's word; the captions name the cause (a document loads whole), not "locality". */
 (function () {
   const V = window.VID;
   const D2 = V.d2;
@@ -52,7 +53,7 @@
   const LOADED = (kb) => `${D2.kb(kb)} loaded`;
 
   // ---------- layout (stage px, 24 px side margins) ----------
-  const NEED_AT = { x: 311, y: 16, w: 396, h: 58 }; // y 16: the pop-in overshoot keeps clear of the 12 px margin
+  const NEED_AT = { x: 352, y: 16, w: 396, h: 58 }; // right of the "locality" tag (x 24 to 340) // y 16: the pop-in overshoot keeps clear of the 12 px margin
   const WIRE_Y = NEED_AT.y + NEED_AT.h / 2; // the wires start inside the tag
   const DOC = { x: 24, y: 172, w: 350 }; // 352 px high: ends at y 524
   const WL = 358; // the arrow into the document (the top edge is straight up to x 352, the corner is only 1.5 px lower here)
@@ -198,6 +199,8 @@
     const wires = L5.svg(stage); // under every sticker: the wires slide in below the need tag
     const tagNeed = D2.tag(stage, { ...NEED_AT, text: NEED.all, tone: "blue", solid: true });
     tagNeed.el.style.width = `${NEED_AT.w}px`;
+    // the one word of the scene that needs a definition: a document is stored (and so read) as one piece
+    const tagLoc = D2.tag(stage, { x: DOC.x, y: NEED_AT.y, text: "locality: one piece", tone: "grey" });
     const statDoc = D2.stat(stage, { x: DOC.x, y: STAT.y, w: 312, h: STAT.h, label: "document reads", tone: "green" });
     const statTab = D2.stat(stage, { x: 670, y: STAT.y, w: 250, h: STAT.h, label: "table reads", tone: "orange" });
 
@@ -274,6 +277,9 @@
       const inB = t >= T.swap;
       const drain = ramp(t, T.swap, T.swap + 0.35, E.lin); // part A empties away when the question changes
       const gone = 1 - ramp(t, T.swap, T.swap + 0.25, E.lin); // opacity of part A's wires and rings
+
+      // ---- the definition of locality, with the document ----
+      tagLoc.set({ k: k(T.doc, 0.4) });
 
       // ---- the need tag ----
       tagNeed.set({ text: inB ? NEED.name : NEED.all, k: k(T.need), s: 1 + 0.08 * flash(t, T.swap, T.swap + 0.4) });
@@ -379,13 +385,14 @@
 
   V.scene({
     kicker: "LOCALITY",
-    title: ["One document,", "one read"],
+    title: ["One document, one read:", "good and bad"],
     dur: 12.5,
     caps: [
       [0.5, 2.5, "The page wants the whole profile."],
-      [2.6, 5.4, "One read from the document, six from tables."],
+      [2.6, 4.4, "One read from the document."],
+      [4.5, 5.9, "Six from the tables."],
       [6.2, 8.0, "Now it wants only the name."],
-      [8.4, 11.8, "Locality loads all 20 KB for a tiny sliver."],
+      [8.4, 11.8, "A document loads whole: 20 KB for a sliver."],
     ],
     build,
   });

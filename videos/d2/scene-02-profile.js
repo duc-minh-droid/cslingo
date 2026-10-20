@@ -27,7 +27,7 @@
 
   // ---------- layout (stage px) ----------
   const PAGE = { x: 12, y: 80, w: 210, h: 380 }; // 12 px stage margin on the left
-  const TAB = { x0: 258, dx: 233, w: 200, y: [80, 224] }; // table i: column i % 3, row floor(i / 3); the gaps are 33 px wide
+  const TAB = { x0: 256, dx: 228, w: 196, y: [80, 224] }; // table i: column i % 3, row floor(i / 3); the gaps are 32 px wide; a ring stays inside x 924
   const tabPos = (i) => ({ x: TAB.x0 + (i % 3) * TAB.dx, y: TAB.y[Math.floor(i / 3)] });
   const DOC = { x: 430, y: 80, w: 420 }; // under the two counters, with room for the one-read arrow
   const LANE_X = [0, 1, 2].map((c) => TAB.x0 + c * TAB.dx - 16); // the vertical gaps: left of column c
@@ -82,7 +82,12 @@
   function build(stage) {
     const low = L5.svg(stage); // under the tables, so only the gaps between them show the bridges
     const tagPage = D2.tag(stage, { x: PAGE.x, y: 12, text: "profile page", tone: "blue" });
-    const tagStore = D2.tag(stage, { x: 258, y: 12, text: `relational: ${P.relational.places} tables`, tone: "grey" });
+    const tagStore = D2.tag(stage, {
+      x: TAB.x0,
+      y: 12,
+      text: `relational: ${P.relational.places} tables`,
+      tone: "grey",
+    });
     const page = D2.page(stage, { ...PAGE, slots: N });
     const tables = P.fields.map((f, i) =>
       D2.table(stage, {
@@ -112,9 +117,15 @@
       );
     });
     const doc = D2.doc(stage, { ...DOC, title: `chef #${KEY}`, lines: D2.profileDoc() });
-    const tagJoin = D2.tag(stage, { x: 453, y: 412, text: `joined by key ${KEY}`, tone: "purple", solid: true });
-    const statT = D2.stat(stage, { x: 258, y: 520, w: 318, h: 80, label: "table reads", tone: "purple" });
-    const statD = D2.stat(stage, { x: 600, y: 520, w: 324, h: 80, label: "document reads", tone: "green" });
+    const tagJoin = D2.tag(stage, {
+      x: 430,
+      y: 412,
+      text: `joined by foreign key ${KEY}`,
+      tone: "purple",
+      solid: true,
+    });
+    const statT = D2.stat(stage, { x: TAB.x0, y: 520, w: 318, h: 80, label: "table reads", tone: "orange" });
+    const statD = D2.stat(stage, { x: 598, y: 520, w: 300, h: 80, label: "document reads", tone: "green" }); // 300 wide: its pulse stays inside the 12 px margin
     const top = L5.svg(stage);
     const readY = DOC.y + 32; // the title row of the document: the page asks for "chef #251"
     const arrow = top.appendChild(
@@ -190,7 +201,7 @@
       const doc1 = t >= T.clear + 0.5; // the new tag only once the old one has faded out
       tagStore.set({
         text: doc1 ? `document: ${P.document.places} place` : `relational: ${P.relational.places} tables`,
-        x: doc1 ? DOC.x - 258 : 0,
+        x: doc1 ? DOC.x - TAB.x0 : 0,
         k: doc1 ? k(T.doc, 0.4) : k(T.tables + 0.05, 0.4),
         o: doc1 ? 1 : 1 - cleared,
       });
@@ -217,7 +228,7 @@
         bump: P.fields.reduce((s, _, i) => s + flash(t, hit(i), hit(i) + 0.3), 0) + 0.5 * flash(t, T.cmp, T.cmp + 0.4),
       });
       statD.set({
-        text: "1",
+        text: String(P.document.lookups),
         k: k(T.one),
         bump: flash(t, T.one, T.one + 0.4) + 0.5 * flash(t, T.cmp + 0.3, T.cmp + 0.7),
       });
@@ -241,7 +252,7 @@
     caps: [
       [0.8, 2.8, "One profile page needs six tables."],
       [2.8, 6.0, "The page asks each table in turn."],
-      [6.1, 8.2, "Six places to read, glued by a key."],
+      [6.1, 8.2, "Six reads, joined by a foreign key."],
       [8.4, 10.4, "A document keeps it all together."],
       [10.6, 12.7, "One read gets the whole page."],
     ],
