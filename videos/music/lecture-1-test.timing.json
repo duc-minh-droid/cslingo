@@ -1,0 +1,743 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "start": 0,
+  "volume": 0.22,
+  "snap": "downbeats"
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.95,
+     "Lecture one. Nature-inspired computing. This is how evolution became a way of solving problems."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/281ec02d6f786f4c.wav",
+     "at": 0.5,
+     "len": 7.2
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     10.12,
+     3.5
+    ],
+    [
+     14.46,
+     6.5
+    ],
+    [
+     18.72,
+     10
+    ],
+    [
+     25.008,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.87,
+     "Evolution: the fitter ones survive and breed."
+    ],
+    [
+     10.12,
+     14.21,
+     "Brains: connections that are useful get stronger."
+    ],
+    [
+     14.46,
+     18.47,
+     "Ants: shorter trails collect more scent."
+    ],
+    [
+     18.72,
+     23.93,
+     "And no one is in charge. Today, we copy evolution."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/edf84e29a8bd0a42.wav",
+     "at": 0.5,
+     "len": 9.12
+    },
+    {
+     "file": "videos/audio/clips/9e705ee411a971c3.wav",
+     "at": 10.12,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/f3e69513e97c3e9b.wav",
+     "at": 14.46,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/681f7848c664bad0.wav",
+     "at": 18.72,
+     "len": 4.96
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.65,
+     2.4
+    ],
+    [
+     13.425,
+     4.8
+    ],
+    [
+     16.775,
+     6.6
+    ],
+    [
+     23.336,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.4,
+     "Here is the goal: turn the letters Q Z T into the word C A T. The score is how many letters are right."
+    ],
+    [
+     8.65,
+     13.18,
+     "Change one letter at random. If it is not worse, keep it."
+    ],
+    [
+     13.43,
+     16.53,
+     "If it is worse, throw the change away."
+    ],
+    [
+     16.78,
+     21.23,
+     "Small steps add up. That is called cumulative selection."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/6b48f2146e9bf51f.wav",
+     "at": 0.5,
+     "len": 7.65
+    },
+    {
+     "file": "videos/audio/fake/459f7b1a195bd693.wav",
+     "at": 8.65,
+     "len": 4.275
+    },
+    {
+     "file": "videos/audio/fake/9eaf6977aea327d9.wav",
+     "at": 13.425,
+     "len": 2.85
+    },
+    {
+     "file": "videos/audio/fake/3d0b273f4c4b0abf.wav",
+     "at": 16.775,
+     "len": 4.2
+    }
+   ]
+  },
+  {
+   "dur": 36.827,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.425,
+     2.8
+    ],
+    [
+     9.6,
+     6.2
+    ],
+    [
+     14.225,
+     9.5
+    ],
+    [
+     20.05,
+     10.8
+    ],
+    [
+     28.275,
+     12.6
+    ],
+    [
+     36.827,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.17,
+     "Same target, and the same number of tries for both methods."
+    ],
+    [
+     5.42,
+     9.35,
+     "The monkey starts from scratch every single time."
+    ],
+    [
+     9.6,
+     13.97,
+     "Keep-if-better locks in each correct letter as it goes."
+    ],
+    [
+     14.22,
+     19.8,
+     "The monkey's best is still 6 of 28."
+    ],
+    [
+     20.05,
+     28.02,
+     "27 choices for each of 28 places: 27 × 27 × … × 27."
+    ],
+    [
+     28.27,
+     35.73,
+     "Monkey: 1.2 × 10⁴⁰ tries on average. Keeper: 3,037."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/8f7d1b3891657097.wav",
+     "at": 0.5,
+     "len": 4.425
+    },
+    {
+     "file": "videos/audio/fake/f4235c2665d6af31.wav",
+     "at": 5.425,
+     "len": 3.675
+    },
+    {
+     "file": "videos/audio/fake/f2c683a92e239b1f.wav",
+     "at": 9.6,
+     "len": 4.125
+    },
+    {
+     "file": "videos/audio/fake/dfa6afcb731472f7.wav",
+     "at": 14.225,
+     "len": 5.325
+    },
+    {
+     "file": "videos/audio/fake/070b2c1dc0a67747.wav",
+     "at": 20.05,
+     "len": 7.725
+    },
+    {
+     "file": "videos/audio/fake/32086a3cf7bef03a.wav",
+     "at": 28.275,
+     "len": 7.2
+    }
+   ]
+  },
+  {
+   "dur": 24.845,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.725,
+     1.9
+    ],
+    [
+     9.9,
+     4.3
+    ],
+    [
+     13.7,
+     5.8
+    ],
+    [
+     17.5,
+     10.3
+    ],
+    [
+     24.845,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "Picture a landscape, where height means how good a solution is."
+    ],
+    [
+     5.72,
+     9.65,
+     "One climber keeps a step only if it is not worse."
+    ],
+    [
+     9.9,
+     13.45,
+     "So it gets stuck on the first hill it finds."
+    ],
+    [
+     13.7,
+     17.25,
+     "Now twenty climbers spread out, and compete."
+    ],
+    [
+     17.5,
+     23,
+     "Each square is one run. With more climbers, more of them find the top."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/5d05b2a73d4c2712.wav",
+     "at": 0.5,
+     "len": 4.725
+    },
+    {
+     "file": "videos/audio/fake/7d69e5a81eba07d3.wav",
+     "at": 5.725,
+     "len": 3.675
+    },
+    {
+     "file": "videos/audio/fake/087b51bcc165b02c.wav",
+     "at": 9.9,
+     "len": 3.3
+    },
+    {
+     "file": "videos/audio/fake/33e8e0ce96dbde0e.wav",
+     "at": 13.7,
+     "len": 3.3
+    },
+    {
+     "file": "videos/audio/fake/955e5a6507fb2b4e.wav",
+     "at": 17.5,
+     "len": 5.25
+    }
+   ]
+  },
+  {
+   "dur": 28.212,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.65,
+     2.8
+    ],
+    [
+     11.1,
+     6.2
+    ],
+    [
+     15.8,
+     8.2
+    ],
+    [
+     21.1,
+     10.1
+    ],
+    [
+     28.212,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.4,
+     "Here are four parents, with fitness nine, six, three, and one."
+    ],
+    [
+     5.65,
+     10.85,
+     "Fitter parents are more likely to be picked. We pick twenty times."
+    ],
+    [
+     11.1,
+     15.55,
+     "If we only pick the best, everyone becomes a copy of it."
+    ],
+    [
+     15.8,
+     20.85,
+     "If everyone has equal chances, nothing pushes us towards better."
+    ],
+    [
+     21.1,
+     26.6,
+     "The answer is a weak bias. Fitter is likelier, but nobody is shut out."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/4dec1a6e13f3543b.wav",
+     "at": 0.5,
+     "len": 4.65
+    },
+    {
+     "file": "videos/audio/fake/2e76b3f231ad1e88.wav",
+     "at": 5.65,
+     "len": 4.95
+    },
+    {
+     "file": "videos/audio/fake/1056721c16f494ed.wav",
+     "at": 11.1,
+     "len": 4.2
+    },
+    {
+     "file": "videos/audio/fake/c2f72d496714c231.wav",
+     "at": 15.8,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/fake/599f037f00d28bba.wav",
+     "at": 21.1,
+     "len": 5.25
+    }
+   ]
+  },
+  {
+   "dur": 13.445,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.525,
+     5.2
+    ],
+    [
+     8.175,
+     8.9
+    ],
+    [
+     13.445,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.28,
+     "Mutation copies a parent, and changes one gene."
+    ],
+    [
+     4.53,
+     7.93,
+     "Recombination mixes pieces of two parents."
+    ],
+    [
+     8.18,
+     11.88,
+     "Mutation is needed. Recombination often helps."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/916d1d0f949c822e.wav",
+     "at": 0.5,
+     "len": 3.525
+    },
+    {
+     "file": "videos/audio/fake/d039e465b0145f1d.wav",
+     "at": 4.525,
+     "len": 3.15
+    },
+    {
+     "file": "videos/audio/fake/d1e57e1ceb7e95e0.wav",
+     "at": 8.175,
+     "len": 3.45
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.975,
+     3.1
+    ],
+    [
+     9.15,
+     5.1
+    ],
+    [
+     12.425,
+     7.1
+    ],
+    [
+     15.85,
+     8.8
+    ],
+    [
+     19.275,
+     10.4
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.72,
+     "Step one: score every dot. Its height is its fitness."
+    ],
+    [
+     4.97,
+     8.9,
+     "Step two: pick parents. The fitter, the likelier."
+    ],
+    [
+     9.15,
+     12.17,
+     "Optionally, mix two parents together."
+    ],
+    [
+     12.42,
+     15.6,
+     "Then mutate. Nudge each child a little."
+    ],
+    [
+     15.85,
+     19.02,
+     "The children become the new population."
+    ],
+    [
+     19.27,
+     22.82,
+     "Repeat, and the dots climb towards the star."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/8f01900017b2f71d.wav",
+     "at": 0.5,
+     "len": 3.975
+    },
+    {
+     "file": "videos/audio/fake/0ed687d120567cf3.wav",
+     "at": 4.975,
+     "len": 3.675
+    },
+    {
+     "file": "videos/audio/fake/e2064fd247076588.wav",
+     "at": 9.15,
+     "len": 2.775
+    },
+    {
+     "file": "videos/audio/fake/c280db3777aa5ba6.wav",
+     "at": 12.425,
+     "len": 2.925
+    },
+    {
+     "file": "videos/audio/fake/9cdb8a0ebd49f3aa.wav",
+     "at": 15.85,
+     "len": 2.925
+    },
+    {
+     "file": "videos/audio/fake/4bd6e5da89d5dab1.wav",
+     "at": 19.275,
+     "len": 3.3
+    }
+   ]
+  },
+  {
+   "dur": 18.436,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.75,
+     5.4
+    ],
+    [
+     13.2,
+     8.8
+    ],
+    [
+     18.436,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.5,
+     "Here the score is the number of green boxes. An evolutionary algorithm needs only a score."
+    ],
+    [
+     7.75,
+     12.95,
+     "Six different areas, but one single requirement: you can score it."
+    ],
+    [
+     13.2,
+     16.68,
+     "So, anything you can score, you can evolve."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/3a67135466cb8138.wav",
+     "at": 0.5,
+     "len": 6.75
+    },
+    {
+     "file": "videos/audio/fake/c5cbe2cc58cbca61.wav",
+     "at": 7.75,
+     "len": 4.95
+    },
+    {
+     "file": "videos/audio/fake/7149885ab2d896a5.wav",
+     "at": 13.2,
+     "len": 3.225
+    }
+   ]
+  },
+  {
+   "dur": 13.236,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.05,
+     3.4
+    ],
+    [
+     8.925,
+     5.9
+    ],
+    [
+     13.236,
+     9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.8,
+     "Remember: evolution keeps what works, and tries again."
+    ],
+    [
+     5.05,
+     8.68,
+     "The loop is score, select, vary, and replace."
+    ],
+    [
+     8.93,
+     12.1,
+     "If you can score it, you can evolve it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/fake/3ea708a9168bf476.wav",
+     "at": 0.5,
+     "len": 4.05
+    },
+    {
+     "file": "videos/audio/fake/6aa84a918b225e89.wav",
+     "at": 5.05,
+     "len": 3.375
+    },
+    {
+     "file": "videos/audio/fake/7ee684bd78322af3.wav",
+     "at": 8.925,
+     "len": 2.925
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+# Not part of the site: the TTS environment and the voice/music source files for the video pipeline
+tools/tts/
+videos/voice-ref/
+videos/music/
+videos/out/*-test.mp4
