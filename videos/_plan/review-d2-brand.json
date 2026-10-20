@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "scene": "video (scenes 2 to 9: engine kicker)",
+      "severity": "should",
+      "problem": "The small kicker above every headline (RELATIONAL OR DOCUMENT, MANY-TO-ONE, SCHEMA, LOCALITY, GRAPH MODEL, FOLLOWING LINKS, NOSQL, CHOOSING) is 24 px, below the 28 px floor. The title card and the recap already override it to 30 px (scene-01-title.js line 17, scene-10-recap.js line 403, with a comment saying 24 px is below the minimum), so eight of ten scenes break the rule the other two keep. It is the engine default in videos/video.css, so every finished video has it, but the rule is explicit (all text at least 28 px) and the fix is local.",
+      "fix": "Do not edit video.css. In each of scene-02 to scene-09 keep the scene object (const SC = V.scene({ ... build(stage) { SC.__kicker.style.fontSize = \"30px\"; ... } })) and set the kicker to 30 px inside build (engine.js creates def.__kicker before build runs). Alternatively the lead sets .v-kicker to 30 px once in video.css for the whole series. Check that the 30 px kicker still clears the 62 px headline that starts at y 108 (the recap already does this).",
+      "evidence": "Text scan every 0.25 s over the whole video (470 samples): 8 distinct strings at font-size 24 px, present in every sample of scenes 2 to 9 (for example s2@0.8, s8@4.8); every other text on the stage and in the captions is 28 px or more (captions 38 px). Nothing else in the video is under 28 px except 0.25 s pop-in frames (scale 0.8 while the opacity is under 0.55)."
+    },
+    {
+      "scene": "scene-02-profile.js, scene-05-locality.js, scene-03-rename.js",
+      "severity": "should",
+      "problem": "The colour roles drift between scenes for the same quantity and for the cost side of each comparison. The counter 'table reads' is purple in scene 2 (6 reads) and orange in scene 5 (1 to 6 reads), the cost counter 'documents to rewrite 400' is orange in scene 3, while other costs are red: 'waiting' (scene 4), the wasted KB (scene 5) and the tags 'one more join' and 'one more fetch' (scene 7). A learner cannot tell whether purple, orange or red means 'the expensive side', and purple is the join colour (scene 2 tag, scene 7 'join' blocks), so a purple 'table reads 6' reads as a join count. The storyboard itself lists purple for scene 2 and orange for scene 5.",
+      "fix": "Give the 'table reads' counter one tone in scenes 2 and 5 (suggest orange, with green only for the one-read side as now), keep purple only for links and joins, and use red only for the explicit costs (stale, wasted, waiting, one more join). In scene 3 either keep orange for 'documents to rewrite' (the thing that changes) or switch it to red, but say which in the helper header so the roles table in common-2.js matches what the scenes do.",
+      "evidence": "scene-02-profile.js line 116 (tone purple) vs scene-05-locality.js line 202 (tone orange); stills s2@10.6 and s2@12.9 (purple 6 next to green 1) against s5@4.9 (orange 6 next to green 1) and s3@6.0 (orange 400); red costs at s4@9.5, s5@10.2, s7@12.2."
+    },
+    {
+      "scene": "scene-05-locality.js",
+      "severity": "should",
+      "problem": "Caption 4 says 'Locality loads all 20 KB for a tiny sliver.' The word locality is only in the kicker and this caption and is never defined on screen (house rule: define jargon before using it), and as a subject it is wrong: locality does not load anything, the document does. A first-time learner reads 'locality' as a thing that loads data.",
+      "fix": "Rewrite the caption as 'The document still loads all 20 KB for that sliver.' (51 characters over the same 3.4 s is 15 characters per second) and, if the word locality should stay, add one small defining tag when the document appears, for example 'locality: stored and read together' (28 px, grey tone), or move the word to the first caption.",
+      "evidence": "s5@10.2 (caption 'Locality loads all 20 KB for a tiny sliver.' with the red 19.8 KB wasted meter); grep of every on-screen string shows locality appears only in the kicker and in this caption."
+    },
+    {
+      "scene": "scene-07-hops.js",
+      "severity": "nit",
+      "problem": "The orange 'fetch' blocks in the Documents row are never explained on screen: no caption mentions documents or fetching (caption 2 talks only about tables and the graph), and the word fetch appears only on the blocks. 'join' was defined in scene 2, 'fetch' was not.",
+      "fix": "Name both in caption 2: 'Tables join, documents fetch, the graph just steps.' (51 characters over the existing 3.3 s is 15.5 characters per second), or add a small orange tag 'fetch = read one more document' beside the Documents label while the first fetch pops.",
+      "evidence": "s7@4.6 and s7@6.9 (join, fetch and follow blocks, caption 'Tables add a join per hop; the graph just walks.')."
+    },
+    {
+      "scene": "video (all captions)",
+      "severity": "nit",
+      "problem": "Caption reading speed passes the house rule when measured over the caption's whole window: 37 captions, mean 15.0 characters per second, maximum 17.3 (scene 6 'A graph stores things and their links.', 38 characters in 2.2 s); none is above 18. But each caption fades in over 0.25 s, so measured from the moment it is fully visible 18 of the 37 exceed 18 characters per second (worst 20.0: scene 3 'Tables: change one row.', scene 9 'Friends of friends: graph.' and 'Pick by the question.'). Scene 9 is uniformly fast (19.3 to 20.0 on all six).",
+      "fix": "Where there is slack, end the caption later or trim words: scene 9 has only 0.15 to 0.3 s gaps, so shorten instead ('Four kinds of job, four families.' to 'Four jobs, four families.'), scene 3 caption 2 'Tables: change one row.' to 'One row changes.', scene 2 'Six places to read, glued by a key.' to 'Six reads, glued by a key.'. Do not start captions earlier: they already start as their picture appears. Scene 9 asserts 17.1 characters per second on the plain window; make the assertion count from from+0.25 if you want it honest.",
+      "evidence": "Script over VID.scenes caps: s2 0.8-2.8 19.4, s2 6.1-8.2 18.9, s2 8.4-10.4 18.9, s3 3.1-4.5 20.0, s4 0.9-3.0 19.5, s4 3.2-5.4 19.0, s4 12.0-13.4 19.1, s5 0.5-2.5 18.9, s6 0.5-2.7 19.5, s7 1.2-3.1 18.8, s8 4.0-6.4 18.6, s8 6.5-8.85 18.6, s9 all six 19.3 to 20.0 (characters per second excluding the 0.25 s fade-in). Caption starts were compared with the first frame that shows what each names (stills plus first-appearance times of the on-screen words): none runs ahead of its picture by more than its own reading time; the closest are scene 8 caption 5 (first edge at 12.1 s, caption from 11.4 s) and scene 4 caption 3 (rewrite sweep from 7.3 s, caption from 5.9 s)."
+    },
+    {
+      "scene": "scene-02-profile.js",
+      "severity": "nit",
+      "problem": "Two things in scene 2 leave the 12 px stage margin (stage is 936 px wide, so content should end at x 924). The hot rings round the right-hand column of tables (contact_info and industries, 5 px outside the table) reach x 929.9 for about 4 s: blue 3.8 to 5.8 s, purple 6.05 to 8.05 s. The 'document reads' counter pulses to x 943 at 9.55 s (past the 936 px stage edge: a 324 px card at x 600 scaled by about 1.1 including the pop overshoot) and to x 932 at 11.3 s.",
+      "fix": "Make the six tables 204 px wide instead of 210 (right edge 918, so the ring ends at 923.7), or shift the grid left by 8 px. Narrow the 'document reads' card to 300 px (right edge 900) so a 1.1 pulse ends at about 915, or halve its bump.",
+      "evidence": "Margin scan of every visible box and shape every 0.125 s (scenes 2 to 9): persistent hits only in s2 at 3.8-8.05 s (R 929.7 to 929.9) and the stat at 9.55 s (R 943.0) and 11.175-11.425 s (R 928.5 to 932.1). Everything else is a pop-in overshoot of 0.25 s or less (s3 table at 3.05-3.3 s L 5.4, s4 orange card at 0.8 s R 927)."
+    },
+    {
+      "scene": "scene-02-profile.js",
+      "severity": "nit",
+      "problem": "The 'document reads' counter text is typed by hand ('1', line 220) although the helper has the number and the scene already asserts it (P.document.lookups equals 1 on line 24). House rule: numbers come from asserted helpers.",
+      "fix": "Replace text: \"1\" with text: String(P.document.lookups).",
+      "evidence": "scene-02-profile.js line 220; common.js line 93 (document: { lookups: 1, places: 1 })."
+    },
+    {
+      "scene": "scene-04-schema.js, scene-08-families.js",
+      "severity": "nit",
+      "problem": "Purple is defined for this video as 'a link between records (foreign key, join, an edge in use)' and is used that way in scenes 2, 6 and 7, but it also marks the application ('app' tag and arrow, scene 4) and the 'sort key' chip (scene 8). A learner who has just read purple as join will look for a join in those two places.",
+      "fix": "Use blue (the thing doing the reading) for the app in scene 4 and grey or blue for the sort key chip in scene 8 (partition key stays orange as the identifier), or add the 'app' and 'sort key' meanings to the colour-role line in common-2.js and keep them consistent.",
+      "evidence": "s4@4.2 (purple app tag and arrow), s8@7.5 (purple sort key chips); scene 2 'joined by key 251' at s2@6.6 and scene 7 join blocks at s7@4.6 are purple."
+    }
+  ]
+}
