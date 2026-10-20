@@ -1,0 +1,7 @@
+# Local TTS + audio tools for tools/narrate.js (install PyTorch first: see setup.sh / README.md)
+qwen-tts
+soundfile
+numpy
+librosa
+imageio-ffmpeg
+faster-whisper

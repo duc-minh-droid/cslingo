@@ -57,6 +57,9 @@ body.rec .v-root {
   border-radius: 8px;
   background: var(--line);
 }
+.v-root.no-bar .v-progress {
+  display: none; /* a narration with "look": {"bar": false} drops the progress bar */
+}
 .v-progress i {
   display: block;
   height: 100%;

@@ -34,7 +34,7 @@ const toolGlobals = {
 const maxLines = ["error", { max: 500, skipBlankLines: true, skipComments: true }];
 
 export default [
-  { ignores: ["vendor/**", "node_modules/**", "trailer/**", "assets/**", "package-lock.json"] },
+  { ignores: ["vendor/**", "node_modules/**", "trailer/**", "assets/**", "package-lock.json", "tools/tts/.venv/**"] },
   js.configs.recommended,
   {
     files: [
