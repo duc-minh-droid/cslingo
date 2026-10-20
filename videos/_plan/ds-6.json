@@ -1,0 +1,372 @@
+{
+ "slug": "ds-6",
+ "dir": "d6",
+ "title": "Lecture 6 · Consistency and consensus",
+ "outline": "STATUS: complete (helpers linted and formatted, storyboard, page, audio stub, placeholder scenes); scene authors still have to draw scenes 2 to 11 (recap = scene 11).\nLecture 6 video (Data Science, COM3021): 'Consistency and consensus', sub line 'How copies agree when things go wrong'. 11 scenes, about 122.5 s: title (4), things go wrong (10), CAP: a cut forces a choice (14), atomic: all or nothing (12.5), isolation and ACID (12.5), eventual consistency (10.5), linearizable: one copy (14), the price of agreement (12.5), commit everywhere fails (10), two-phase commit (13.5), recap (9). Story in the lessons' order: ds6-fail 6.1 (faults, CAP, refuse or stale), ds6-acid 6.2 (ACID: atomic transfer of 30 from Asha 100 to Ben 50, isolation of two 30 payments from 100, eventual consistency 40 -> 35 reaching R1 at tick 0, R2 tick 2, R3 tick 4), ds6-linear 6.3 (register timeline, one flip moment: lo = latest start of a 0-read, hi = earliest end of a 1-read, linearizable iff lo <= hi), ds6-cap 6.4 (seat 14C, 30 ms each way: 2 ms local vs 62 ms with the other site), ds6-consensus 6.5 (consensus, commit everywhere fails, two-phase commit: prepare, votes, commit only if all yes, locks held), workshop ds6-lab 6.W, boss ds6-boss (Glimmer festival). Lessons: js/content/ds/ds-l6-01.js .. ds-l6-03.js, ds-l6-workshop.js, boss-ds-6.js. All numbers are computed and asserted in videos/d6/common.js (D6.CAP, BANK, ISO, EV, LIN, SEAT, TPC). Not covered: leader election as its own animation (named on a card in scene 9), durability and ACID consistency beyond the tile text in scene 5, the CAP 'no partition no dilemma' beat, the lesson's network-delay plot.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure. Shared look: stickers with lips; databases and nodes are D6.box stickers (name on top, big value, a sub line); packets are small solid pills that travel along links; a cut link is a gap with two red slashes. The same example data is reused: tickets 40 -> 35 (scene 3, recap), the replicas R1..R3 (6, 7), Asha/Ben (4), Orders/Stock/Payments (9, 10). The recap row colours are red (CAP), purple (linearizable), green (two-phase commit).",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 6",
+  "title": "Consistency and consensus",
+  "sub": "How copies agree when things go wrong",
+  "who": "pebble",
+  "dur": 4,
+  "note": "Finished: videos/d6/scene-01-title.js (two lines of 92 px)."
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-faults.js",
+   "kicker": "THINGS GO WRONG",
+   "title": [
+    "Distributed systems",
+    "fail in four ways"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.7,
+     2.2,
+     "A node can crash."
+    ],
+    [
+     3.5,
+     5.0,
+     "A message can get lost."
+    ],
+    [
+     5.9,
+     7.4,
+     "A reply can arrive late."
+    ],
+    [
+     8.1,
+     9.7,
+     "The network can split in two."
+    ]
+   ],
+   "spec": "IDEA: a distributed system is many machines talking over a network, and four things go wrong (lesson 6.1): a node crashes, a message is lost, a reply is slow, the network splits so two groups cannot talk. The fourth (a partition) is the one the next scene builds on.\nLAYOUT (stage px): four panels from D6.card(stage,{w:456,h:280,plain:true}) at (0,0), (480,0), (0,320), (480,320); in each a tag at (x+18, y+16) with D6.FAULTS[i].label ('node crashes', 'message lost', 'reply slow', 'network split'). In each panel two D6.server icons (size 96, an L5.svg layer created AFTER the cards) at panel x+90 and x+370, y+170 joined by D6.link (w 7) from x+130 to x+330 (create links before the servers). Panel 4 instead has FOUR servers (size 72) at x 540, 624, 792, 876 (y 490) with short links 540-624 and 792-876 and a link 624-792 that gets cut (gap 60). All servers start green (running, grey link).\nTIMELINE. Panel i pops in (D6.card set k ramp, 0.4 s) at 0.2, 2.6, 4.9, 7.4 and its tag pops 0.1 s later. CRASH 0.6-1.3: a blue token (D6.token size 34) travels the link left to right; the right server turns red and D6.bolt(size 80, red) pops on it (E.pop), the token stops. LOST 2.9-3.6: a token leaves the left server along the link and at the middle (x 710) shrinks to 0 while L5.cross(710, 170, 60, 'red') draws on; the right server stays grey and D6.qmark(850, 90, 56) pops above it (3.7). SLOW 5.2-7.6: a token crawls from the left server only 40% of the way along the link; D6.clock(230, 440, 64) pops over the link at 5.6 and D6.clockHand(g, (t-5.6)/2.0) turns (one full turn by 7.6); the right server stays grey. SPLIT 7.7-8.4: link 624-792 cut animates (update cut 0 -> 1 over 0.5 s); all four servers stay green. Hold the finished panels to the end.\nEND STATE: four panels, each showing its fault, nothing moving after 9.0.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-cap.js",
+   "kicker": "THE CAP THEOREM",
+   "title": [
+    "A cut network",
+    "forces a choice"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.5,
+     2.4,
+     "Two copies hold the tickets left."
+    ],
+    [
+     2.9,
+     4.5,
+     "The link between them is cut."
+    ],
+    [
+     5.0,
+     6.8,
+     "A sale reaches only one copy."
+    ],
+    [
+     7.2,
+     8.9,
+     "Node B is asked to read."
+    ],
+    [
+     9.2,
+     11.0,
+     "Refuse: right, but not available."
+    ],
+    [
+     11.4,
+     13.3,
+     "Answer: available, but stale."
+    ]
+   ],
+   "spec": "IDEA: replicas of one value (tickets left for the 8 pm show, 40 each, lesson 6.1). When the link is cut a sale of 5 lands on node A only; a read at node B must either refuse (consistent, not available) or answer with its old value (available, stale). CAP: during a partition choose consistency or availability. Data: D6.CAP.start 40, sale 5, latest 35, D6.CAP.refuse = {a 35, b 40, reply 'error', C true, A false}, D6.CAP.answer = {reply 40, stale true, C false, A true}; take every number from them.\nLAYOUT (stage px; verified by a prototype render). Link a=(350,105) b=(586,105) w 8 gap 84 (create first). D6.box Node A at (150,20,200x170), Node B at (586,20,200x170) (name 'Node A'/'Node B', vfs 60). Tag 'partition' (red solid) at (388,130). Packets: 'sell 5' (blue) rests at (74,105) left of A; 'read' (blue) rests at (862,105) right of B. Two cards at y 310, h 290, w 444: left x 0, right x 492 (D6.card plain grey, empty text). In each card: tag at (x+20, 326) purple 'stay consistent' / 'stay available'; a grey disc 'B' (size 64) at (x+80, 440); an L5.arrow from (x+124,440) to (x+214,440); a reply packet (fs 40) centred (x+320, 440): 'error' red solid / '40' orange solid; two chips (w 200, h 64, fs 28, radius 20) at (x+16, 506) 'consistent' and (x+226, 506) 'available', green for a kept property with an L5.tick at (x+dx+176, 538) and red with an L5.cross for a lost one (left card: consistent kept, available lost; right card: the reverse). Draw the tick/cross SVG layer AFTER the chips.\nTIMELINE. 0.3-1.1 boxes pop showing 40 (green, sub 'latest'). 2.4-3.2 the link cuts (cut 0 -> 1) and the 'partition' tag pops at 3.2. 4.4-5.2 the 'sell 5' packet slides right into node A and fades; A counts 40 -> 35 (D6.lerpN) with a bump; 5.3-6.0 a blue '35' packet leaves A along the link, stops at the gap, shrinks away with a red L5.cross; 6.0-6.5 B turns orange, sub 'old' (it still says 40). 7.0-7.6 the 'read' packet slides left into B. 8.6-9.4 left card pops (reply packet, ticks) -- the 'error' packet pops last at 9.0; 10.8-11.6 right card pops, reply '40' pops at 11.2 with a small grey label 'latest: 35' under it (28 px).\nEND STATE: both cards complete, nothing animates after 12.0.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-atomic.js",
+   "kicker": "ACID · ATOMIC",
+   "title": [
+    "A transaction is",
+    "all or nothing"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.3,
+     "Moving £30 is two writes."
+    ],
+    [
+     3.0,
+     4.6,
+     "A crash hits after the debit."
+    ],
+    [
+     5.0,
+     6.7,
+     "£30 has vanished."
+    ],
+    [
+     7.2,
+     9.2,
+     "One transaction undoes the debit."
+    ],
+    [
+     9.6,
+     12.1,
+     "All or nothing: the total stays £150."
+    ]
+   ],
+   "spec": "IDEA: a transfer of £30 from Asha (100) to Ben (50) is two writes, a debit then a credit. Without a transaction a crash between them loses £30 (total 120); in one transaction the debit is rolled back (total 150). Data: D6.BANK.plain {asha 70, ben 50, total 120}, D6.BANK.atomic {asha 100, ben 50, total 150}, D6.BANK.afterDebit {70, 50}.\nLAYOUT (verified). Two panels D6.card(plain, w 456, h 560) at x 0 and 480, y 0. In each panel (px = panel x): tag at (px+20,16): 'no transaction' grey / 'one transaction' purple. D6.box Asha at (px+20,90,150x140) and Ben at (px+286,90,150x140) (vfs 48, values '£100' / '£50'). L5.arrow from (px+180,165) to (px+276,165); D6.bolt(px+228,122,70,'red') (hidden until the crash); a blue packet '£30' travels the arrow. Chips (w 150, h 60, radius 20): '1 debit' at (px+20,258) and '2 credit' at (px+286,258). Right panel only: D6.bracket(purple) at (px+8,248,440x80) around the chips. D6.stat 'total' at (px+28,352,400x80). L5.badge at (px+28,460,w 400,h 68, valid 'all or nothing', invalid '£30 vanished'). Draw SVG layers after the stickers.\nTIMELINE. LEFT panel: 0.3-1.2 pops (panel, tag, boxes grey, chips grey, total £150 blue). 2.0-2.8 the '£30' packet leaves Asha along the arrow, Asha counts 100 -> 70 and turns green, chip '1 debit' turns green; 3.2-3.8 bolt pops (crash), packet stops mid-arrow and shrinks away with a cross; chip '2 credit' turns red; 4.6-5.4 total counts 150 -> 120, turns red, badge 'invalid' pops at 5.4. RIGHT panel: 6.3-7.0 pops (bracket pops with the chips); 7.2-7.8 same debit (Asha 70); 8.0-8.5 bolt; 8.6-9.4 rollback: the packet returns to Asha, Asha counts 70 -> 100 and turns orange, chip '1 debit' becomes 'undone' (orange), '2 credit' stays grey; 9.4-10.0 total stays £150 (green), badge 'valid' pops at 9.8.\nEND STATE: both panels complete, hold from 10.5.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-isolation.js",
+   "kicker": "ACID · ISOLATION",
+   "title": [
+    "Isolation keeps",
+    "payments apart"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.6,
+     2.3,
+     "Two shoppers each pay £30."
+    ],
+    [
+     1.8,
+     3.2,
+     "Both read £100 first."
+    ],
+    [
+     3.3,
+     5.0,
+     "Both write £70: one is lost."
+    ],
+    [
+     6.9,
+     8.4,
+     "One at a time gives £40."
+    ],
+    [
+     8.8,
+     12.2,
+     "ACID: atomic, consistent, isolated, durable."
+    ]
+   ],
+   "spec": "IDEA: isolation: concurrent transactions must not interfere. Two payments of £30 from £100 that both read 100 before either writes both write 70 (one payment lost); one after the other give 70 then 40 (lesson 6.2). Then the four ACID letters. Data: D6.ISO.mixed.ops (read 100, read 100, write 70, write 70, final 70), D6.ISO.serial.ops (read 100, write 70, read 70, write 40, final 40), D6.ISO.T 8, D6.ACID.\nLAYOUT (verified). D6.stat 'balance' at (0,0,330x80). Tag at (360,11): 'at the same moment' then 'one after the other'. D6.timeline(stage,{x:0,y:110,w:936,T:D6.ISO.T,lanes:['Shopper X','Shopper Y'],laneH:92,labelW:190,axis:false}); one bar per op: tl.bar({lane, s, e, text:`${kind} ${val}`, tone: read 'blue', write 'purple'}). Build both runs' bars up front and show one run at a time. L5.badge at (0,330,w 460,h 68): invalid 'one payment lost' / valid 'both counted'. ACID grid: for each D6.ACID[i] a D6.card (plain purple, 456x84) at ((i%2)*480, 430+floor(i/2)*100), a purple D6.disc size 60 with the letter at (x+52, y+42), D6.label(word, bold purple) at (x+100,y+6) and D6.label(line) at (x+100,y+42), left aligned, w 340. (A at top-left, C top-right, I bottom-left, D bottom-right.)\nTIMELINE. 0.3-0.8 stat (£100, blue), tag, timeline scaffold. MIXED run: each bar grows (k 0 -> 1 over 0.5 s) ending at 0.6 + 0.45 * e (e = the op's end time): reads end 1.5 and 1.7, writes 3.2 and 3.4; the balance stat changes to 70 when the first write lands (3.2) and turns red; badge 'invalid' at 3.6. 4.2-4.5 the mixed bars fade out, the badge and stat reset (balance £100 blue), tag changes. SERIAL run: bars end at 4.6 + 0.35 * e (5.3, 5.9, 6.6, 7.3); balance follows the op values (70 after the first write, 40 after the last), turns green; badge 'valid' at 7.5. 8.2-8.6 the timeline, stat, badge fade out; 8.7-10.3 the four ACID cards pop one after another (0.4 s apart, disc first).\nEND STATE: the four ACID cards; nothing animates after 10.8.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-eventual.js",
+   "kicker": "EVENTUAL CONSISTENCY",
+   "title": [
+    "Replicas disagree,",
+    "then converge"
+   ],
+   "dur": 10.5,
+   "caps": [
+    [
+     0.5,
+     2.2,
+     "The write lands on one copy."
+    ],
+    [
+     2.4,
+     4.2,
+     "The others hear later."
+    ],
+    [
+     5.0,
+     6.7,
+     "A read now can be stale."
+    ],
+    [
+     6.9,
+     8.9,
+     "Soon every copy agrees."
+    ]
+   ],
+   "spec": "IDEA: with replication, copies receive a write at different times; for a while some are outdated and a read can return the old value; eventually all converge. Data: D6.EV (write 35 over old 40; reaches R1 at tick 0, R2 at tick 2, R3 at tick 4); D6.EV.vals(tick), D6.EV.count(tick), D6.EV.read(3, 2) = {value 40, stale true}, D6.EV.counts [1,1,2,2,3]. Clock: tick = (t - 1.6) / 1.0 for t in 1.6..5.6 (one second per tick), so R2 updates at 3.6 and R3 at 5.6.\nLAYOUT (verified). D6.box R1, R2, R3 (icon 'server', w 220, h 170) at x 12, 358, 704, y 40, values from D6.EV.vals(tick), tone green + sub 'latest' when 35 else orange + sub 'old'. Blue packets: 'write 35' enters R1 from above (starts (122, 15)); a '35' packet travels R1 right edge -> R2 left edge (gap x 232-358, y 125) during ticks 0-2 and R2 right -> R3 left during ticks 2-4. D6.stat 'tick' at (12,300,250x80) showing floor(tick). Tag 'replicas updated' (green) at (340,240). D6.stepPlot(stage,{x:340,y:310,w:320,h:190,counts:D6.EV.counts,xLabel:''}).set({tick}). Right column: blue packet 'read' at (814,310) below R3, an orange '40' reply packet at (814,380), orange solid tag 'stale read' at (720,430), a green solid tag 'converged' at (720,430) later.\nTIMELINE. 0.3-0.9 boxes pop all 40 orange except none latest yet. 0.6-1.5 'write 35' drops into R1; R1 turns green 35 at 1.6 (tick 0). 1.6-3.6 the first '35' packet crosses to R2, R2 turns green at 3.6; tick stat and step plot follow tick. 3.6-5.6 second packet to R3. 4.6 (tick 3) the 'read' packet rises into R3, the orange '40' reply and 'stale read' tag pop 4.9-5.6. 5.6 R3 turns green 35, plot reaches 3, the 'stale read' tag swaps for the green 'converged' tag at 6.2 (the old reply fades).\nEND STATE: three green boxes, plot at 3, 'converged' tag; hold from 7.5.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-linearizable.js",
+   "kicker": "LINEARIZABILITY",
+   "title": [
+    "Linearizable: act",
+    "like one copy"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.5,
+     2.5,
+     "Many copies should act like one."
+    ],
+    [
+     3.0,
+     4.8,
+     "Each bar is one operation in time."
+    ],
+    [
+     6.1,
+     7.9,
+     "One flip explains every read."
+    ],
+    [
+     8.7,
+     10.6,
+     "Now B reads 0 after A read 1."
+    ],
+    [
+     11.3,
+     13.4,
+     "No flip fits: not linearizable."
+    ]
+   ],
+   "spec": "IDEA: a replicated store is linearizable when it behaves as if there were one copy: once a write has finished, every later read must see it, and no read may go back in time. Test: register x starts at 0, client C writes 1 (a bar); find one flip moment inside the write bar so that every read returning 0 starts before it and every read returning 1 ends after it (lesson 6.3). Data: D6.LIN (w {s 4, e 11}, T 13, lanes), D6.LIN.good.reads / .check {ok true, lo 4, hi 8, flip 6}, D6.LIN.bad.reads / .check {ok false, lo 8, hi 7, loBy 'B', hiBy 'A'}; D6.linCheck.\nLAYOUT (verified). Opening: three small D6.box ('R1','R2','R3', w 150, h 120, value 'x') at (60,30),(300,30),(540,30) slide together into one box at (300,30) named 'one copy' (0.4-2.4), then shrink into the tag 'x = one copy' (blue) at (0,0). D6.timeline(stage,{x:0,y:110,w:936,T:D6.LIN.T,lanes:D6.LIN.lanes,laneH:92,labelW:170}) (axis arrow + 'time'). Write bar: tl.bar({lane:2,s:4,e:11,text:'write 1',tone:'purple'}).set({solid:true}). Reads: tl.bar({lane:r.c,s:r.s,e:r.e,text:`read ${r.v}`,tone: v?'green':'blue'}). Zones: tl.zone({s:0,e:flip,tone:'grey',text:'x = 0'}) and tl.zone({s:flip,e:T,tone:'green',text:'x = 1'}); tl.flip().set({t:6}). Verdict L5.badge at (0,470,w 440,h 68, valid 'linearizable', invalid 'not linearizable'). Bad history: same lanes, write bar, A 'read 1' (5-7), B 'read 0' (8-10, ring 'red'), ranges tl.range({s:4,e:7,row:1,tone:'green',text:'flip before 7'}) and tl.range({s:8,e:11,row:2,tone:'red',text:'after 8'}); badge at (0,520).\nTIMELINE. 0.3-2.4 merge as above. 2.6-3.2 timeline scaffold (names, guides, axis) fades in. GOOD: write bar grows 3.0-3.8; reads grow A1 3.9, B1 4.3, A2 4.7, B2 5.1 (0.5 s each, E.out). 6.0-6.8 the flip line drops at t = 6 and the two zones fade in (6.2); 7.0 badge 'valid'. 8.0-8.4 everything (bars, zones, flip, badge) fades out. BAD: write bar 8.4-9.0; A 'read 1' grows 8.8; B 'read 0' grows 9.3 and its ring pops red at 9.8; 10.2-10.9 the two ranges draw on one after the other (green first), leaving a visible gap between 7 and 8; 11.6 badge 'invalid' pops.\nEND STATE: bad history with both ranges and the red badge; hold from 12.0.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-price.js",
+   "kicker": "THE PRICE OF AGREEMENT",
+   "title": [
+    "One copy of the truth",
+    "costs waiting"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.2,
+     "Two sites sell seat 14C."
+    ],
+    [
+     2.6,
+     4.4,
+     "Each books its own customer."
+    ],
+    [
+     4.8,
+     6.4,
+     "Neither knew: sold twice."
+    ],
+    [
+     6.9,
+     8.9,
+     "So Leeds must ask London first."
+    ],
+    [
+     9.6,
+     11.4,
+     "Asking costs 62 ms, not 2 ms."
+    ]
+   ],
+   "spec": "IDEA: seat 14C is sold from London (Mia) and Leeds (Omar). If each site decides alone both accept: sold twice. A linearizable system makes Leeds ask London first, so Omar is refused, but the answer costs a round trip: 2 x 30 + 2 = 62 ms instead of 2 ms (lesson 6.4). Data: D6.SEAT (oneWay 30, local 2, lin 62, run('ev') {London Mia, Leeds Omar, double true}, run('lin') {London Mia, Leeds Mia, refused 'Omar'}).\nLAYOUT (verified). D6.person(74,100,84,'blue') + D6.label 'Mia' at (14,150,w 120); D6.person(862,100,84,'blue') + label 'Omar' at (802,150,w 120). D6.link (w 8) from (350,105) to (586,105). D6.box London (140,20,210x170) and Leeds (586,20,210x170), vfs 48, sub 'seat 14C', value 'free' then 'Mia'/'Omar'. Packets: blue 'book' pills; purple 'taken?' (and 'yes') on the link at (440,105); red solid tag 'sold twice' at (390,215) / 'Omar refused' at (360,215). D6.meter(stage,{x:12,y:330,w:900,label:'answer from the local copy',max:D6.SEAT.lin,unit:'ms',tone:'green'}) and D6.meter(stage,{x:12,y:450,w:900,label:'ask the other site first (30 ms each way)',tone:'orange'}).\nTIMELINE. 0.3-1.0 persons, boxes ('free', grey), link pop. 1.6-2.4 a 'book' packet slides from each person into its site; each box turns green showing its customer (Mia, Omar) at 2.4. 4.4-5.0 both boxes turn red and the 'sold twice' tag pops. 6.0-6.4 reset: both boxes show 'Mia' (green), tag fades; 6.8-7.2 Omar's 'book' packet goes into Leeds; 7.0-7.7 purple 'taken?' packet crosses the link to London and 7.7-8.3 a 'yes' packet returns; 8.4 'Omar refused' tag pops (red). 9.0-9.4 the meters fade in; 9.4-9.9 the green meter grows to 2 ms; 9.8-10.9 the orange meter grows to 62 ms (number counts up via D6.lerpN) while two small '30 ms' labels (28 px, orange ink) sit under the link at 8.4 and 8.9 ... (place them under the link at (390,150) and (520,150) when the packets cross).\nEND STATE: Omar refused, both meters complete; hold from 11.2.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-commit-fails.js",
+   "kicker": "CONSENSUS",
+   "title": [
+    "Many nodes must",
+    "agree on one answer"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.5,
+     2.4,
+     "Several databases must agree."
+    ],
+    [
+     2.8,
+     4.6,
+     "It just sends commit to all."
+    ],
+    [
+     5.0,
+     6.9,
+     "One conflicts, one never hears."
+    ],
+    [
+     7.4,
+     9.4,
+     "Now the databases disagree."
+    ]
+   ],
+   "spec": "IDEA: consensus = getting several nodes to agree (leader election, atomic commit). One purchase touches three databases that must all commit or all not. Telling each to commit and letting it decide fails: a node may find a conflict, a message may be lost (lesson 6.5). Data: D6.DB (Orders, Stock, Payments), D6.TPC.naive = {out ['committed','rejected','never got it'], same false}.\nLAYOUT (verified). Two D6.card (plain, 280x80, fs 28) at (12,0) 'leader election' (grey) and (310,0) 'atomic commit' (purple). D6.box Coordinator (purple) at (358,120,220x130), vfs 40, value 'commit'. Three D6.box with icon 'db' (w 220, h 160) at x 12, 358, 704, y 380, names from D6.DB, vfs 34. D6.link (w 6) from (468,250) to each box top-middle (122+i*346, 380), created first. Purple packets 'commit' travel the links. Result values: Orders 'committed' (green), Stock 'conflict' (red, mark 'cross'), Payments 'no message' (red). Red solid tag '1 of 3 committed' at (300,566).\nTIMELINE. 0.3-0.9 both cards pop; 1.0 the 'atomic commit' card gets a purple ring while 'leader election' stays grey. 1.2-2.0 coordinator and databases pop; databases show '?' (orange). 2.6-3.4 three 'commit' packets leave the coordinator along the links. 3.4 Orders gets its packet and turns green 'committed'; 3.6 Stock gets its packet and turns red 'conflict' with a cross mark; the Payments packet dies halfway (3.4, shrinks away with L5.cross) and Payments turns red 'no message' at 4.2. 7.0-7.4 tag '1 of 3 committed' pops.\nEND STATE: one green, two red boxes and the red tag; hold from 8.0.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-two-phase.js",
+   "kicker": "TWO-PHASE COMMIT",
+   "title": [
+    "Ask first,",
+    "then decide once"
+   ],
+   "dur": 13.5,
+   "caps": [
+    [
+     0.5,
+     2.2,
+     "First, ask every database."
+    ],
+    [
+     2.8,
+     4.6,
+     "Each votes, and holds its locks."
+    ],
+    [
+     5.0,
+     6.8,
+     "Any no means abort for all."
+    ],
+    [
+     7.3,
+     9.3,
+     "All three abort and unlock."
+    ],
+    [
+     9.8,
+     12.0,
+     "If all vote yes, all commit."
+    ]
+   ],
+   "spec": "IDEA: two-phase commit: phase 1 the coordinator sends prepare, each database votes yes (and locks its data) or no; phase 2 one decision goes to everyone: commit only if all voted yes, abort if any voted no. So the databases always agree (lesson 6.5). Data: D6.TPC.abort = run2pc(['yes','yes','no'],'2pc') -> out aborted x3, decision 'abort', locks [true,true,false]; D6.TPC.commit -> committed x3.\nLAYOUT (verified). D6.link (w 6) from the coordinator bottom (468,150) to each database top (122+i*346, 330), created first. D6.box Coordinator (purple) at (358,10,220x140), vfs 44; three D6.box (icon 'db', w 220, h 170) at x 12, 358, 704, y 330, vfs 52, names D6.DB. Packets: purple 'prepare' / purple 'yes' / 'no' (green / red) / orange 'abort'. Votes show as the box value ('yes' green, 'no' red) with mark 'lock' (orange padlock badge) on a yes voter and mark 'cross' on the no voter; at the end sub 'aborted' on all three. Bottom row y 560: orange solid tag 'any no: abort' at (12,560) (lit at 4.8); from 9.4 a mini row: three green D6.disc (size 64, text 'yes') at (380,590), (450,590), (520,590), an L5.arrow (560,590)->(650,590), green solid tag 'commit' at (668,560).\nTIMELINE. 0.3-0.9 coordinator + boxes (value '?') pop; coordinator value 'prepare?'. 0.6-1.6 three 'prepare' packets travel down the links. 2.0 Orders votes: 'yes' packet returns, box 'yes' + padlock mark (2.4); 2.6 Stock the same; 3.2 Payments: 'no' packet (red), box turns red 'no' with a cross mark (3.6). 4.8 the tag 'any no: abort' lights (pops). 5.2-6.2 three orange 'abort' packets go down; coordinator value 'abort' (orange). 6.6-7.2 each box becomes orange 'aborted' (value) and the padlocks open (D6.lockOpen) then fade; 9.4-10.8 the mini row builds left to right: all-yes discs, arrow, 'commit' tag (the rule for the happy path).\nEND STATE: three 'aborted' boxes, the tag and the mini row; hold from 11.0.\n\nCOLOURS (whole video): green = agreed, latest, committed, correct; red = failure (crash, cut link, lost message, conflict, refusal/error, double booking, a 'no' vote); orange = old, undone, waiting (stale value, rolled-back debit, aborted, locks); blue = the request or data followed (reads, writes, packets of data); purple = the coordinator and the rules (prepare/commit messages, the coordinator, the flip moment, ACID tiles); grey = neutral. Text 28 px or more, symbols as SVG (D6.bolt / D6.padlock / L5.tick / L5.cross), update(t) pure."
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "cta": "Next: Workshop 6.W",
+  "points": [
+   {
+    "head": "Cut network: refuse,\nor answer stale",
+    "tone": "red",
+    "pictogram": "Two small D6.box (w 130, h 100, vfs 36, inside the 340 x 140 area) 'A' 35 green at (6,20) and 'B' 40 orange at (204,20), a D6.link between them (x 136 to 204, y 70) that cuts (cut 0 -> 1). Pass: boxes pop 0.1-0.6, link draws 0.7-1.0, cut 1.2-1.7, a blue '35' packet leaves A and dies at the gap (1.8-2.4); B stays orange. Finished state holds."
+   },
+   {
+    "head": "One copy: no read\ngoes back in time",
+    "tone": "purple",
+    "pictogram": "A mini timeline drawn with D6.timeline-like bars in the 340 x 140 area: a purple write bar (x 60-280, y 60), a blue 'read 0' bar on the left (x 6-100, y 8) and a green 'read 1' bar (x 150-250, y 8) and a purple dashed flip line at x 120 (y 0-130) with an L5.tick (green) at (320,34). Pass: bars pop 0.1-0.9 (0.15 s apart), the flip line draws down 1.2-1.8, the tick draws 2.0-2.5; holds."
+   },
+   {
+    "head": "Two-phase commit:\nall yes, or abort",
+    "tone": "green",
+    "pictogram": "One purple D6.disc (size 56, 'C') at (170,24) and three D6.disc (size 52) at (60,100), (170,100), (280,100) with texts 'yes','yes','no' (green, green, red), thin grey lines from C to each. Pass: discs pop 0.1-1.0, votes light one by one (1.0-2.0), then all three discs turn orange (abort) at 2.6 with a small purple 'abort' tag (28 px) beside C; holds."
+   }
+  ],
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy videos/a6/scene-11-recap.js (frame, mascot, rows, CTA): kicker 'RECAP' (a .v-kicker at its default place), headline 'Remember' (76 px, x 72, top 108), the Pebble mascot V.mascot('pebble', {size: 168, mood: 'love'}) at (840,38) bobbing, three plain sticker rows (x 72, w 936, h 180, tops 240 / 444 / 648; class 'v-card plain c-<tone>') with edge colours red / purple / green; in each a 340 x 140 animated pictogram on the left (a div at left 16, top 10 with transform scale(1.1), origin 0 0) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred). At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') 'Next: Workshop 6.W' popping at 6.8. Rows slide in at 0.8 / 1.9 / 3.0 and each pictogram starts 0.4 s later. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no blank frame); the video ends on a calm complete frame (only the mascot bob moves). Take every value from the helpers (D6.CAP.answer, D6.LIN.good.check, D6.TPC.abort) and assert it in the scene."
+ },
+ "helpers": "All helpers: const V = window.VID, D6 = V.d6, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comment at the top of each file first. d6/common.js = data and algorithms, asserted at load (D6.CAP, BANK, ISO, ACID, EV, linCheck/LIN, SEAT, run2pc/TPC, DB, FAULTS, same/close/rng). common-2.js = D6.tone, tag, chip, stat, disc, token, card, label, mark, seq, along, polyAt, pop, lerpN, tagW. common-3.js = pictograms bolt/qmark/padlock(+lockOpen)/clock(+clockHand)/server/cylinder/person; D6.box(parent,{x,y,w,h,name,tone,icon,vfs}).set({value,sub,tone,solid,mark:'tick'|'cross'|'qmark'|'lock',markK,k,x,y,s,o,vfs}) with .mid/.top/.bottom/.left/.right; D6.link(parent,{a,b,w,gap}).update({k,tone,cut,o}) (cut 0..1 opens a gap with red slashes; create BEFORE the boxes it joins); D6.packet(parent,{tone,text,fs}).set({x,y,s,o,tone,text}) (x,y = centre); D6.bracket. common-4.js = D6.timeline(parent,{x,y,w,T,lanes,laneH,labelW,axis}) with .bar({lane,s,e,text,tone}).set({k,tone,solid,ring,text,o}), .zone, .flip().set({t,k,text}), .range({s,e,row,tone,text}); D6.meter(parent,{x,y,w,label,max,unit,tone}).set({v,k}); D6.stepPlot(parent,{x,y,w,h,counts,xLabel}).set({tick}). Create SVG pictograms with L5.svg(parent) AFTER the stickers they must sit on (later elements are on top). videos/ds-6.html loads engine.js, cards.js, l5/common.js, d6/common.js .. common-4.js, scene-01 .. scene-11, audio/ds-6.js. Everything is pure: call set()/update() every frame from update(t)."
+}

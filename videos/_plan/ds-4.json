@@ -1,0 +1,341 @@
+{
+ "slug": "ds-4",
+ "dir": "d4",
+ "title": "Lecture 4 · Replication",
+ "outline": "STATUS: DONE: helpers common.js / common-2.js / common-3.js (eslint + prettier clean, each under 500 code lines, stills-tested), this storyboard, ds-4.html, audio/ds-4.js stub, finished title card, placeholder scenes 02-11 (page loads, total 121 s). LEFT: every scene 02-11 is still a placeholder for its author (the specs below are the brief); no scene has been drawn or reviewed yet.\n\nLecture 4 video (Data Science, COM3021): 'Replication', sub line 'Why we copy data, and what can go wrong'. 11 scenes, 121 s: title (4), one machine hits a ceiling (12), replication keeps a full copy on every node (10.5), writes go to the leader and the log carries them on (13), wait for the followers or answer at once (12.5), a new follower joins with a snapshot (12), failover: promote the freshest copy (13), split brain (11), read your writes (12.5), monotonic reads (11.5), recap (9). Story: one machine is a ceiling and a single point of failure, so we keep copies (4.1: ds4-scale); replication = a full copy on each node, partitioning = a piece each (4.1); one leader takes the writes and ships a log that followers apply in the same order, reads go anywhere (4.2: ds4-leader); the leader may answer at once (asynchronous), after one follower (semi-synchronous) or after all (synchronous): slower is safer, and a crash right after an asynchronous answer loses the write (4.3: ds4-sync); a new follower joins by snapshot plus catch-up (4.4: ds4-failover); when the leader fails promote the most up-to-date follower and accept that what no follower had is lost (4.4); a cut-off old leader plus a promoted one is split brain (4.4); lag makes your own post vanish unless own reads go to the leader (4.5: ds4-lag, read-your-writes); reads from different replicas can go back in time unless each user sticks to one replica (4.5, monotonic reads). Not covered: the replication-log runner steps and the workshop controls (4.W ds4-cluster), the cost curve of scaling up, Netflix figures; the recap points to Workshop 4.W. Lesson files: js/content/ds/ds-l4-01.js (4.1, 4.2), ds-l4-02.js (4.3, 4.5), ds-l4-03.js (4.4), ds-l4-workshop.js (4.W), boss-ds-4.js (ds4-boss, Gigly: not reused); revision questions in js/bank/ds-32.js to ds-34.js.\n\nTHE EXAMPLE DATA (all asserted by videos/d4/common.js): scale 600 req/s, big 600 vs 3 x 200, crash -> 0 vs 400 served; records A B C on 3 nodes, node 1 fails -> B on 2 nodes (replica) vs 0 (partition); log entries #1 #2 #3 = pic 1, pic 2, pic 3, follower lags 1 and 2 ticks; sync leader 5 ms, followers confirm 30 and 90 ms -> done at 5 / 35 / 95 ms, copies 1 / 2 / 3, survivors after a leader crash 0 / 1 / 2; join snapshot #5, then #6 #7 stored while copying, #8 later, F3 applies #6 #7 #8; failover: leader wrote 20, followers at #15, #18, #16, promote B (#18) loses #19 #20 (2), A would lose 5, C 4; split brain: seat 12 = Ann on A and Bo on B; lag: comments 3 -> 4, follower B still says 3; backwards: likes A says 7 then B says 6, pinned to A: 7 then 8.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B). Layout: scenes 4, 9 and 10 share ONE rig (D4.cluster: client left, leader on top of two followers, log bus on the right) so the viewer meets the same picture three times; scenes 5, 6, 7 use strips, lanes and bars of the same sticker tiles; scenes 2, 3, 8 use node rows. Packets (D4.packet) carry writes (blue), log entries (purple), reads (grey outline) and answers (green fresh / orange stale). Jargon defined on screen before use: 'replication' and 'partitioning' (heading tags, scene 3), 'leader' / 'follower' (names and crown, scene 4), 'asynchronous' / 'synchronous' / 'semi-sync' (mode tags with 'waits for none / one / all', scene 5), 'snapshot' (tag with camera, scene 6), 'read-your-writes' (blue tag, scene 9), 'same replica' (tag, scene 10). The word 'lag' is shown by a slow log packet. Captions: one plain sentence each, at most about 20 characters per second, each starting after the picture it describes.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 4",
+  "title": "Replication",
+  "sub": "Why we copy data, and what can go wrong",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-scale.js",
+   "kicker": "WHY DISTRIBUTE",
+   "title": [
+    "One machine hits a ceiling,",
+    "and can die"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     3.6,
+     "600 requests a second: one big machine, or three small ones."
+    ],
+    [
+     3.9,
+     6.3,
+     "The big machine crashes: nothing is served."
+    ],
+    [
+     6.8,
+     9.6,
+     "A small one crashes: 400 are still served."
+    ],
+    [
+     9.9,
+     11.7,
+     "Scaling out survives failures."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.1): the same load on one big machine (scale up) or on three small ones with the same total capacity (scale out); when a machine crashes the big one takes the service down, the small ones carry on with what is left. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA (assert with D4.same): D4.SCALE: load 600 req/s, one disc = 100 req/s (6 discs); up = one machine of 600: served 600 before the crash, 0 after (away 600); out = three machines of 200: served 600 before, 400 after machine 0 crashes (away 200). D4.SCALE.slots(D4.SCALE.up / .out) gives for each disc j {m, s, lost}. Caption numbers are templated from D4.SCALE.\n\nLAYOUT (stage px; two rows, both made of value-layout nodes with the icon centred, no value): ROW A (scale up): heading tag D4.tag(stage, {x: 190, y: 30, anchor: 'l', text: 'Scale up: one big machine'}); one node D4.node(stage, {x: 190, y: 62, w: 538, h: 190, name: 'One big machine', icon: 'server'}); six empty slots under its icon: D4.chips(stage, {x: 190 + 29, y: 62 + 136, n: 6, w: 70, h: 52, gap: 12, fs: 0, tone: 'grey'}) drawn ghost (row.all(() => ({ghost: true}))). ROW B (scale out): heading tag at (190, 322) 'Scale out: three small machines'; three nodes x 190 / 372 / 554 (w 170, h 190, y 354) named 'Machine 1' / 'Machine 2' / 'Machine 3', each with D4.chips(stage, {x: nodeX + 18, y: 354 + 136, n: 2, w: 62, h: 52, gap: 10, fs: 0}) ghost slots. Left column x 12..172: a client D4.person(…, 76, 'grey') at (92, 150) and (92, 442) (svg layer) with a D4.tag 'req/s' source tag at (92, 215) / (92, 507) reading D4.SCALE.load + ' req/s' (about 157 px wide). Right column: result tags centred at (837, 128) and (837, 420): D4.tag text 'served ' + number (tone grey, then green when 600/400, red when 0), and under each at (837, 190) / (837, 482) a solid verdict tag ('outage' red solid for row A, 'keeps going' green solid for row B). Discs: 12 discs D4.disc(stage, {size: 44, text: '', tone: 'grey'}), six per row, flying from the client's x (92 + 50, row y) to the centre of their slot (chips.mid(j) via D4.SCALE.slots; for row B chips of machine m are the m-th chips row, slot s).\n\nTIMELINE (local s). 0.2-1.0 headings, nodes, client + source tags pop (row A first, row B 0.25 s later, E.pop). 1.2-3.0 the discs of both rows fly in one after another (0.2 s apart, 0.5 s each, E.out, a small arc bow 20) and turn green (tone green) on arrival; the served tags count up 0 -> 600 (round numbers from the 100s steps). 3.8-4.3 bolt on the big machine (D4.bolt, size 90, pops with E.pop, fades by 4.5), the node goes down: node.set({down: ramp(t, 3.9, 4.3)}); its six discs turn red at 4.3 (tone red) with a quick shake (+-6 px, 0.3 s); the served tag counts to 0 (red) at 4.5; verdict 'outage' pops at 5.0. 6.6-7.1 bolt on Machine 1 only (row B), node 1 down at 6.8; its two discs turn red at 7.1; the other four stay green; served tag 400 (green) at 7.4; verdict 'keeps going' pops at 7.9. Hold to 12.\n\nEND STATE: row A dead and red, row B with one dead machine and four green discs, calm. CAPTIONS as listed, each starts after the picture it describes."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-copies.js",
+   "kicker": "REPLICATION",
+   "title": [
+    "Replication keeps a",
+    "full copy on every node"
+   ],
+   "dur": 10.5,
+   "caps": [
+    [
+     0.5,
+     3.8,
+     "Replication: every node keeps a full copy."
+    ],
+    [
+     4.2,
+     6.4,
+     "Partitioning: each node keeps a piece."
+    ],
+    [
+     7.0,
+     10.2,
+     "When a node fails, the copies carry on."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.1): replication = a copy of ALL the data on each node (this lecture); partitioning = each node holds a piece (next lecture); a failed node costs nothing when the others hold copies. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.COPY: records A B C; replica = three nodes each holding A B C; part = node 0 holds A, node 1 holds B, node 2 holds C; node 1 (the middle one) fails; record B is held by 3 nodes before and 2 after in the replica layout, by 1 before and 0 after in the partition layout (D4.COPY.held, assert with D4.same). The tags 'B: 2 copies left' / 'B: 0 copies left' are templated from D4.COPY.held.\n\nLAYOUT: two rows of three D4.node (layout 'slots', w 270, h 170, x 12 / 333 / 654, name 'Node 1' / 'Node 2' / 'Node 3', icon 'server'). Row 1 (replication) y 70, heading tag at (468, 36) 'Replication: a full copy each' (tone purple); row 2 (partition) y 388, heading tag at (468, 354) 'Partitioning: a piece each' (tone grey) and a small grey tag 'lecture 5' at the right of it (x 790, y 354). Records are D4.chips with n 3, w 70, h 64, gap 12, fs 34, via node.slot({n: 3, w: 70, h: 64, gap: 12}) in row 1; in row 2 each node holds ONE chip (node.slot({n: 1, w: 70, h: 64}) texts A / B / C). Verdict tags at (468, 275) and (468, 598), solid, green for row 1, red for row 2.\n\nTIMELINE. 0.3-0.9 heading 1 and the three nodes pop; 0.9-1.5 node 1's three chips pop (grey, 0.1 s apart) as the originals; 1.5-3.0 copies of A B C fly from node 1 to node 2 and node 3 (purple chips along arcs, bow 30, 0.12 s apart, E.out) and land as chips; 3.2 all nine chips turn green (tone) with a small pop. 3.8-4.3 heading 2 and the row 2 nodes pop; 4.4-5.5 the three single chips pop (grey). 6.6-7.2 bolt over node 2 in both rows (D4.bolt size 90) and node.set({down}) for both middle nodes; 7.3 verdict tags pop: row 1 'B: ' + 2 + ' copies left' (green solid) with green rings on the B chips of node 1 and 3, row 2 'B: ' + 0 + ' copies left' (red solid). Hold to 10.5.\n\nEND STATE: row 1 with a dead middle node and two green B chips ringed, row 2 with a dead middle node."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-leader.js",
+   "kicker": "LEADER AND FOLLOWERS",
+   "title": [
+    "Writes go to the leader,",
+    "the log carries them on"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     1.2,
+     4.4,
+     "Every write goes to the leader."
+    ],
+    [
+     4.8,
+     8.4,
+     "It sends each change on, in order, as a log."
+    ],
+    [
+     9.0,
+     12.6,
+     "Reads can go to any node, writes only to the leader."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.2): one replica is the leader and takes all writes; it appends each change to the replication log and the followers apply the same entries in the same order; reads can go to any node. The client changes a profile picture three times. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.LOG: writes pic 1, pic 2, pic 3 = entries #1, #2, #3 stored by the leader at ticks 1, 2, 3; Follower A (lag 1) applies them at ticks 2, 3, 4, Follower B (lag 2) at ticks 3, 4, 5, always in the order 1, 2, 3 (assert D4.LOG.order); D4.LOG.value(node, tick) gives the node's text: 'none', 'pic 1' ... Node values on screen come from it.\n\nLAYOUT: const rig = D4.cluster(stage, {h: 190, layout: 'value', clientName: 'Client'}) (see common-3.js: client at the left, leader / Follower A / Follower B in a column x 400..700, log bus at x 790). Node values via rig.L.set({value}) ('none' to start). Chips of the log inside each node: three D4.chips(stage, {x: node.x + 43, y: node.y + 132, n: 3, w: 66, h: 48, gap: 8, fs: 28, texts: ['#1', '#2', '#3'], tone: 'purple'}) per node, ghost until the entry is there (drawn solid-purple when present). Tags: 'writes' blue solid tag on wire cl at (326, 190); 'reads' grey tag on wire ca at (326, 300); 'the log' purple tag next to the bus at (857, 330) (anchor c, fs 28). Write packets: D4.packet(stage, {text: 'pic 1', tone: 'blue'}) flown with rig.wires.cl.at(f); entry packets D4.packet(stage, {text: '#1', tone: 'purple'}) flown with rig.wires.logA.at(f) and logB.at(f); read packets D4.packet(…, {text: 'read', tone: 'grey', solid: false}) on wires cl / ca / cb and answers 'pic 3' (green solid) flown back with f 1 -> 0.\n\nTIMELINE. 0.3-1.2 rig pops (client, then leader with crown 1, then followers; wires k 0 -> 1). 1.4-4.3 three writes: packet n leaves the client at 1.4 + n * 1.0 (n = 0, 1, 2), flies 0.6 s along cl, at arrival the leader value becomes pic n + 1 (bump) and chip #n + 1 pops purple in the leader. 4.6-8.6 log shipping in order: entry #n + 1 packets leave the leader at 4.7 + n * 0.9 along BOTH logA (0.8 s) and logB (1.2 s); on arrival follower value switches in order (D4.LOG.value) and the chip #n + 1 pops in that follower; followers' tone orange while behind the leader and green when their value equals the leader's (green for both at 8.0). 9.0-12.2 reads: three read packets leave the client at 9.1 / 9.3 / 9.5 towards leader, A, B (0.6 s), each returns as a green 'pic 3' answer (0.6 s) and fades at the client. Hold to 13.\n\nEND STATE: all three nodes green with pic 3 and #1 #2 #3, calm."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-wait.js",
+   "kicker": "SYNC OR ASYNC",
+   "title": [
+    "Wait for the followers,",
+    "or answer at once?"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "The leader stores the write in 5 ms."
+    ],
+    [
+     3.0,
+     5.6,
+     "Followers confirm after 30 and 90 ms."
+    ],
+    [
+     5.9,
+     8.6,
+     "Answer at once, or wait for the followers."
+    ],
+    [
+     8.9,
+     12.2,
+     "If the leader then crashes, only waiting keeps the write."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.3): the leader can tell the client 'done' at once (asynchronous), after ONE follower confirmed (semi-synchronous) or after ALL (synchronous): slower is safer. One write: the leader needs 5 ms, followers A and B confirm 30 ms and 90 ms later. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.SYNC: arrive {L: 5, A: 35, B: 95} ms; modes[0..2] = Asynchronous / Semi-synchronous / Synchronous with ack 5 / 35 / 95 ms, holds (who has the write at ack) copies 1 / 2 / 3, left (copies alive if the leader crashes right after answering) 0 / 1 / 2, lost true / false / false (assert in common.js; use D4.SYNC.modes[i].holds / .copies / .left / .lost and D4.SYNC.holds(ms)).\n\nLAYOUT: time axis X(ms) = 264 + 4.4 * ms (X(5) = 286, X(35) = 418, X(95) = 682, X(100) = 704). Header row y 40: purple D4.disc size 44 'A' at X(35) and 'B' at X(95) with dashed purple vertical lines (D4.wire dashed '10 10', tone purple, w 4) from y 66 to 580; small grey tag 'copies' at (828, 40) over the dot column. Three rows centred y 150 / 330 / 510: LEFT x 12..252: mode tag (D4.tag, fs 28, anchor l, x 12) 'Asynchronous' / 'Semi-sync' / 'Synchronous' at y - 28 and a smaller grey tag 'waits for none' / 'waits for one' / 'waits for all' (anchor l, x 12) at y + 34. LANE: grey D4.bar track x 264, w 440, h 34, y centred on the row, whose fill k = ms / 100 grows to the mode's ack (tone orange); a green solid tag 'N ms' (N = ack) above the bar end at (X(ack), y - 44) (for sync it sits at x 682, inside the stage). DOTS: three D4.disc size 52 'L' 'A' 'B' at x 766 / 828 / 890, y = row y: grey = does not hold the write yet, green = holds it (state at the moment of the row's ack: D4.SYNC.modes[i].holds). Playhead: a blue vertical line (D4.wire, w 6) at X(ms) from y 66 to 580 with a blue tag '35 ms' style counter above the axis at (X(ms), 24)... keep the counter inside x 40..900. Verdict tags under the dots at (828, row y + 50): 'lost' (red solid) / 'kept' (green solid) / 'kept' (green solid).\n\nTIMELINE. 0.3-1.0 rows (tags, bars, discs) pop 0.2 s apart; 1.0-1.5 header discs and dashed lines pop; caption 1 explains the 5 ms: the L dot of each row turns green at 1.4 (0.3 s pop). 3.0-7.2 the playhead sweeps ms 0 -> 95 linearly; each bar fills up to its ack as the playhead passes and then stops; at each ack the green 'N ms' tag pops and the dots show the holds at that ack (A's dot turns green when the playhead passes 35 ms in rows 2 and 3, B's at 95 ms in row 3; row 1's A and B dots stay grey: the dots never go past a row's own ack). 7.4-8.4 hold, a tick (L5.tick) pops next to each ack tag. 8.8-9.3 bolt on the L dot of every row (D4.bolt size 60) and the L dots turn red; 9.5 / 9.9 / 10.3 the verdicts pop (row 1 'lost', rows 2-3 'kept') and in rows 2 and 3 the surviving green dots get green rings. Hold to 12.5.\n\nEND STATE: three bars of different lengths with verdicts lost / kept / kept."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-join.js",
+   "kicker": "NEW FOLLOWER",
+   "title": [
+    "A new follower joins",
+    "with a snapshot"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.7,
+     "A new follower needs a copy of the data."
+    ],
+    [
+     3.0,
+     4.9,
+     "Take a snapshot of the leader."
+    ],
+    [
+     5.0,
+     7.0,
+     "Writes keep coming while it copies."
+    ],
+    [
+     7.2,
+     9.4,
+     "It asks for every change since."
+    ],
+    [
+     9.6,
+     11.7,
+     "Caught up: no pause in writes."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.4): a new follower cannot just copy a live leader (the data changes during the copy) and locking writes is not ideal; instead take a SNAPSHOT (the data at one moment), copy it, then ask for every change since the snapshot until caught up. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.JOIN (ticks): snapshot of #1..#5 at tick 0; the leader stores #6 at tick 1, #7 at tick 2, #8 at tick 4; the snapshot reaches F3 at tick 2.5; F3 applies #6, #7, #8 at ticks 3.5, 4.5, 5.5 (caughtAt 5.5). Use D4.JOIN.leaderAt(tick), D4.JOIN.f3At(tick), D4.JOIN.backlog [6, 7, 8], D4.JOIN.during [6, 7]. Mapping video seconds = 3.0 + 1.2 * tick (so #6 at 4.2 s, #7 at 5.4 s, copy lands 6.0 s, #8 at 7.8 s, F3 applies #6 / #7 / #8 at 7.2 / 8.4 / 9.6 s).\n\nLAYOUT: Leader card D4.node(stage, {x: 60, y: 20, w: 816, h: 170, name: 'Leader', tone: 'blue', layout: 'slots'}) with crown 1; F3 card D4.node(stage, {x: 60, y: 440, w: 816, h: 170, name: 'New follower', layout: 'slots', tone: 'grey', ghost: true at first}). Each card holds eight D4.chips from node.slot({n: 8, w: 76, h: 64, gap: 10}) texts '#1'..'#8': the leader's are purple (solid when stored; slots 6-8 empty ghost until stored), F3's are ghost until applied then green. Between the cards (y 190..440): the snapshot block = D4.tag(stage, {text: 'snapshot: up to #' + D4.JOIN.snap, tone: 'orange', solid: true}) with a D4.camera icon (size 56, orange) on its left, placed at (468, 220) at the start and flown down to (468, 410) between 3.6 s and 6.0 s; an orange bracket (two D4.wire pieces, tone orange, w 6) over leader chips #1-#5 while the snapshot is taken; the 'ask' arrow = L5.arrow from F3's top (330, 440) up to (330, 195), orange, with a tag 'since #5?' (orange, anchor l, x 350, y 318).\n\nTIMELINE. 0.3-1.4 cards pop, leader chips #1-#5 pop purple (0.1 s apart), F3 card dashed with eight ghost chips; caption 1. 3.0-3.6 the orange bracket pops over #1-#5, the block pops (camera + tag). 3.6-6.0 the block slides down to F3 (E.inOut); meanwhile #6 appears on the leader at 4.2 s and #7 at 5.4 s (purple, pop, bump the leader card). 6.0-6.3 the block lands: F3's chips #1-#5 turn green (0.08 s apart), the block fades. 6.2-7.0 the ask arrow draws on (L5.drawOn) and the 'since #5?' tag pops; 7.2 / 8.4 / 9.6 a purple entry packet (D4.packet '#6' / '#7' / '#8') flies leader -> F3 (0.6 s, D4.at with bow 0) and F3's chip turns green; #8 appears on the leader at 7.8 s. 9.8-10.4 F3 card tone green, ask arrow fades, L5.tick pops on F3 (size 70, at (800, 520)). Hold to 12.\n\nEND STATE: leader #1-#8 purple, F3 #1-#8 green, tick, calm."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-failover.js",
+   "kicker": "FAILOVER",
+   "title": [
+    "The leader crashes:",
+    "promote the freshest copy"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     3.4,
+     "The leader wrote 20 changes; followers lag behind."
+    ],
+    [
+     3.6,
+     6.4,
+     "The leader crashes. Which follower takes over?"
+    ],
+    [
+     6.5,
+     8.6,
+     "Best: the follower with the most changes."
+    ],
+    [
+     8.7,
+     10.0,
+     "B takes over."
+    ],
+    [
+     10.1,
+     12.8,
+     "The 2 changes no follower had are lost."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.4): when the leader fails a follower is promoted; each follower is behind by a different amount, so promoting it loses what it lacks; promote the most up-to-date one, and whatever no follower had is lost (even if the client was told 'done'). COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.FAIL: the leader wrote 20 changes (entry n at tick n) and crashed at tick 20; followers apply n at tick n + delay (A 5, B 2, C 4): at = {A: 15, B: 18, C: 16}; lose = {A: 5, B: 2, C: 4}; best = 'B'; lost = [19, 20]; D4.FAIL.missing('A') = [16..20]. All asserted in common.js. Captions are templated from D4.FAIL (the '2').\n\nLAYOUT: four rows, centres y 70 / 220 / 370 / 520 (pitch 150), each = name tag + a strip of 20 cells + count tag + loss tag. Name tags D4.tag anchor 'l' at x 12: 'Leader' (tone blue, solid, with D4.crown size 44 at (200?? no: put the crown on the tag's right at (176, y - 22)), 'Follower A', 'Follower B', 'Follower C' (grey). Strips: D4.chips(stage, {x: 200, y: rowY - 22, n: 20, w: 22, h: 44, gap: 3, fs: 0, lip: 3, radius: 7}) (ends at x 697): empty = ghost, applied = purple solid. Count tags (anchor l, x 712): '#20' for the leader and '#15' '#18' '#16' for the followers (grey, from D4.FAIL.at). Loss tags (anchor l, x 800): 'lose 5' 'lose 2' 'lose 4' (templated from D4.FAIL.lose; red tone, B's turns green solid). Entry numbers: tiny labels are NOT needed; the leader strip is labelled by the count tag, and cells 19 and 20 get a bracket (two red L5.arrow-free lines, w 5) when they are lost.\n\nTIMELINE. 0.3-1.4 rows pop (names, empty strips). 1.2-2.3 the leader strip fills cell by cell (0.05 s apart, purple solid); 1.5-2.9 follower strips fill the same way but lag (cell n of follower X appears at 1.5 + 0.05 * n * 1.0 + 0.35 * delay_X / 5 ... any monotone mapping, they must END at their D4.FAIL.at cell, A 15, B 18, C 16). 3.0-3.4 count tags pop. 3.6-4.2 bolt on the leader row (D4.bolt size 70 at (100, 70)), the name tag turns red (tone red), the crown fades; the leader cells stay purple. 4.6 / 5.4 / 6.2 the loss tags of A, B, C pop one by one (red), and while each is read its follower's MISSING cells on the leader strip (D4.FAIL.missing(k): A 16-20, B 19-20, C 17-20) show red rings for 0.8 s (chips.set(i, {ring: 'red'})). 6.4-7.0 B's row gets a green ring on its strip cells (ring green on cell 18) and its count tag turns green solid, A and C stay red. 8.7-9.5 the crown pops (crown 1) on B's name tag and B's tag turns blue solid ('Follower B' stays the text). 10.0-10.6 leader cells 19 and 20 turn red (tone red, with L5.cross at each, size 26) and a red solid tag 'lost' + the 2 pops at (800, 70). Hold to 13.\n\nEND STATE: B is the new leader (blue, crowned), the old leader dead with 2 red cells, calm."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-split.js",
+   "kicker": "SPLIT BRAIN",
+   "title": [
+    "A cut-off leader",
+    "that still thinks it leads"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.5,
+     2.0,
+     "A is the leader."
+    ],
+    [
+     2.2,
+     4.3,
+     "A is cut off; the others think it died."
+    ],
+    [
+     4.4,
+     6.3,
+     "They promote B, but A still leads."
+    ],
+    [
+     6.5,
+     8.7,
+     "Both take a write for seat 12."
+    ],
+    [
+     8.9,
+     10.9,
+     "Split brain: two histories disagree."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.4): the old leader is only cut off, not dead, so after a follower is promoted two nodes both believe they lead and accept different writes; when the network heals the histories disagree. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.SPLIT: nodes A (leader), B, C; A is cut off; B is promoted; a client writes seat 12 = Ann to A and another writes seat 12 = Bo to B; C follows its leader B. leaders ['A', 'B'] (two), conflict true, after {A: 'Ann', B: 'Bo', C: 'Bo'} (asserted). Seat and names are templated from D4.SPLIT.\n\nLAYOUT: D4.node (layout 'value', w 280, h 150, unit 'seat 12', value '' at first): A at x 12, y 250 (centre (152, 325)); B at x 644, y 60; C at x 644, y 440. Wires in a D4.svg layer BEFORE the nodes: A-B from (292, 300) to (644, 135), A-C from (292, 350) to (644, 515) (both 2-point wires: they can be cut), B-C from (784, 210) to (784, 440). Clients: D4.person size 70 at (152, 110) with a tag 'Ann' above (152, 62), and at (440, 70) with a tag 'Bo' above (440, 22); packets D4.packet 'Ann' / 'Bo' (blue solid) fly from the person to the node (to A's top edge (152, 250) and B's left edge (644, 120)). 'no reply' tags (orange, anchor c) at (700, 250) and (700, 395). A tag 'cut off' (orange) under A at (152, 430).\n\nTIMELINE. 0.3-1.2 nodes, wires, clients pop; A has crown 1 and blue tone, B and C grey. 1.8-2.6 wires A-B and A-C get cut (set cut 0 -> 1, bolts pop) and the 'cut off' tag pops under A. 3.0-3.6 'no reply' tags pop at B and C (orange). 4.0-4.7 B gets crown 1 and tone blue; the 'no reply' tags fade; A keeps its crown (two blue crowned nodes). 6.6-7.4 the packet 'Ann' flies to A and A's value becomes 'Ann' (bump); 7.0-7.8 the packet 'Bo' flies to B, B's value becomes 'Bo', and a purple entry packet carries 'Bo' B -> C along the B-C wire (7.8-8.4), C shows 'Bo'. 8.2-8.8 the wires A-B and A-C heal (cut back to 0, one green flash on the wires), D4.neq (size 90, red) pops on the A-B wire midpoint, A's and B's value texts turn red (vtone red). 9.0 a red solid tag 'two leaders' pops at (468, 20). Hold to 11.\n\nEND STATE: two crowned nodes with 'Ann' and 'Bo' in red and a not-equal sign between them."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-own-writes.js",
+   "kicker": "READ YOUR WRITES",
+   "title": [
+    "Your own post",
+    "must not vanish"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     1.3,
+     3.6,
+     "You post a comment: it goes to the leader."
+    ],
+    [
+     3.9,
+     6.6,
+     "Reload: a follower that lags still shows 3."
+    ],
+    [
+     6.7,
+     8.6,
+     "Your comment seems to have vanished."
+    ],
+    [
+     8.8,
+     12.2,
+     "Fix: read your own recent posts from the leader."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.5): a follower applies changes a little after the leader; if your reload is served by a lagging follower your own new comment seems to be gone; read-your-writes consistency: after a write, reads of your own recent updates come from the leader (or an up-to-date replica). COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.LAG: comments base 3; you post one at time 0; lag L 0, A 1, B 4; a reload at time 2 shows {L: 4, A: 4, B: 3} so the stale node is B; own reads go to L (asserted; D4.countAt). Show those numbers (templated), not typed.\n\nLAYOUT: const rig = D4.cluster(stage, {h: 160, layout: 'value', clientName: 'Your page', clientIcon: 'phone', clientValue: '3', clientUnit: 'comments', unit: 'comments'}) (client x 12..252, leader / A / B at x 400..700). Values: rig.L.set({value}) etc. Follower tone green when equal to the leader, orange when behind (B from 2.4 to 10.2, A from 2.4 to 3.6). A packet 'post' = D4.packet(stage, {text: 'post', tone: 'blue'}) on wire cl; log entries D4.packet '#4' purple on logA (fast, 0.9 s) and on logB (slow: 2.6 -> 10.2 s, it crawls: that IS the lag); read packets D4.packet 'reload' (grey, solid false) on cb and later on cl; answers: D4.packet with the number ('3' orange solid, '4' green solid) flown back (f 1 -> 0). Page verdict: a red solid tag 'post missing!' under the client at (132, 440) with L5.cross (size 56, red) at (132, 500), later a green L5.tick. Rule tag: D4.tag solid blue 'read-your-writes' at (132, 560) plus a blue arrow L5.arrow from the tag towards the wire cl (the thick blue wire: rig.wires.cl.set({tone: 'blue', w: 10}))).\n\nTIMELINE. 0.3-1.2 rig pops (all nodes show 3 comments, green; the leader blue with crown). 1.6-2.4 packet 'post' flies client -> leader; at 2.4 the leader shows 4 (bump), followers turn orange. 2.6-3.5 entry '#4' flies along logA, A shows 4 and turns green at 3.5; the slow entry on logB starts at 2.6 and arrives at 10.2. 4.0-4.8 'reload' flies client -> B; 4.8-5.6 the answer '3' (orange) flies back; the page shows 3 (value text orange) at 5.6; at 5.7 the red cross and 'post missing!' tag pop. 8.0-8.7 the 'read-your-writes' tag pops and the cl wire turns thick blue; the cross and verdict tag fade (8.4). 9.0-9.7 'reload' flies client -> leader; 9.7-10.4 the answer '4' (green) flies back, the page shows 4, green tick pops at 10.5. B receives its entry at 10.2 and turns green (value 4). Hold to 12.5.\n\nEND STATE: page shows 4 with a tick, all nodes green with 4, calm."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-backwards.js",
+   "kicker": "MONOTONIC READS",
+   "title": [
+    "Time must not",
+    "run backwards"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     1.3,
+     3.0,
+     "Refresh: replica A says 7."
+    ],
+    [
+     3.1,
+     5.5,
+     "Next refresh: B says 6. Time ran backwards."
+    ],
+    [
+     5.6,
+     8.2,
+     "Fix: keep each user on one replica."
+    ],
+    [
+     9.5,
+     11.3,
+     "Their view only ever moves forward."
+    ]
+   ],
+   "spec": "IDEA (lesson 4.5): reads served by different replicas can go backwards in time (a lagging replica after an up-to-date one); monotonic reads: keep each user on the SAME replica, so their view only moves forward. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B).\n\nDATA: D4.BACK: likes base 6; writes at times 0 and 3; lag L 0, A 1, B 4. At time 2.5 the state is {L: 7, A: 7, B: 6}; bad reads: A at time 2 says 7, then B at time 2.5 says 6 (back true); pinned to A: 7 at time 2 and 8 at time 4.5 (forward true). All asserted; show D4.BACK.bad[i].seen / D4.BACK.pinned[i].seen.\n\nLAYOUT: const rig = D4.cluster(stage, {h: 160, layout: 'value', clientName: 'Your page', clientIcon: 'phone', clientValue: '-', clientUnit: 'likes', unit: 'likes'}) (same geometry as scene 9). Start values L 7 (blue, crown), A 7 green, B 6 orange. History under the client: tag 'seen so far' (grey, anchor c) at (132, 428); two D4.chips(stage, {x: 22, y: 470, n: 2, w: 70, h: 60, gap: 70, fs: 34}) (x 22..92 and 162..232) plus a bad/good arrow L5.arrow from (100, 500) to (154, 500) (red when the second chip is lower, green when higher); under them a red solid tag 'back in time' at (132, 575). A second person (D4.person size 70) at (132, 70) with a packet D4.packet 'like' (blue solid) flying to the leader's left edge (400, rig.cy.L). Packets: 'refresh' (grey outlined) on wires ca / cb / cl, answers '7' green solid, '6' orange solid, '8' green solid back along the same wire (f 1 -> 0).\n\nTIMELINE. 0.3-1.0 rig pops. 1.3-2.5 refresh 1: 'refresh' -> A (0.6 s), answer 7 returns (0.6 s), the page shows 7 and chip 1 pops (green). 2.9-4.1 refresh 2: -> B, answer 6 (orange) returns, the page shows 6 (vtone orange), chip 2 pops RED, the red arrow draws on, 'back in time' tag pops at 4.3. 5.0-5.8 history, page value, tag and arrow fade out; the wire ca turns thick blue (rig.wires.ca.set({tone: 'blue', w: 10})), wires cl and cb stay thin grey; a blue solid tag 'same replica' pops on ca at (326, 300). 6.2-7.2 refresh -> A, answer 7, chip 1 green. 7.6-8.4 'like' flies from the second person to the leader; the leader shows 8 (bump); 8.4-9.2 a purple entry '#8' flies logA, A shows 8. 9.4-10.4 refresh -> A, answer 8 returns, page shows 8, chip 2 pops green, the green arrow draws on. Hold to 11.5.\n\nEND STATE: chips 7 -> 8 with a green arrow, the page showing 8, calm."
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "cta": "Next: Workshop 4.W",
+  "points": [
+   {
+    "head": "Copies keep it up:\none leader takes the writes",
+    "tone": "blue",
+    "pictogram": "340 x 140 area: three mini nodes as cards (D4.card, w 90, h 70) in a column, the leader blue with a small D4.crown, followers green; purple dots (D4.disc size 26) flow from the leader to both followers (0.9-2.4) once, then hold with all three green. Plays once and holds."
+   },
+   {
+    "head": "Waiting is safer\nbut slower",
+    "tone": "green",
+    "pictogram": "Two D4.bar strips (w 220, h 30, orange) at y 36 and y 96: a short one (fill 0.1) ending in a red L5.cross, a long one (fill 0.9) ending in a green L5.tick; the fills grow 0.9-2.6, the marks draw on at 2.7 and 3.3; plays once and holds."
+   },
+   {
+    "head": "Promote the freshest;\nread your own writes",
+    "tone": "red",
+    "pictogram": "A red D4.bolt over a grey node at x 50 and a blue D4.crown that hops (arc, 0.9-2.4) to a green node at x 170; then a D4.phone icon at x 290 with a green L5.tick pops at 3.2; plays once and holds."
+   }
+  ],
+  "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l5/scene-10-recap.js and videos/a6/scene-11-recap.js: kicker 'RECAP' (.v-kicker at x 72, y 74), headline 'Remember' (76 px, x 72, top 108), Pebble V.mascot('pebble', {size: 168, mood: 'love'}) at x 840, y 38 bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'})) with edge colours blue / green / red, in each row a 340 x 140 pictogram on the left (a div at left 16, top 10 with transform scale(1.1), origin 0 0; D4 helpers draw into it, each pictogram its own pixel coordinates) and the bold 36 px label (up to 2 lines of at most 22 characters, x 440, vertically centred) on the right. Bottom, centred at y 904: a solid blue tag 'Next: Workshop 4.W' (34 px, class v-tag solid c-blue). Rows slide in at 0.8, 1.9, 3.0 (0.5 s each); each pictogram plays ONCE (about 3.5 s), then HOLDS its finished state until the end (no loop, no blank frame); the cta pops at 5.4; nothing moves in the last second except Pebble's bob. No captions. COLOURS (whole video, never change): blue = the LEADER and the writes sent to it; green = up to date / safe / confirmed / fresh / a tick; orange = behind / stale / waiting / attention (a lagging follower, an old answer, the snapshot); red = crashed / lost / conflict (a dead node, a lost change, two leaders, a cross, the bolt); purple = the replication LOG (entries #1 #2 ..) and copies of data travelling between nodes; grey = neutral (client, idle node, empty slot, plain wire). Every text is 28 px or more, symbols are SVG pictograms (D4.bolt / crown / person / phone / camera / neq, L5.tick / L5.cross / L5.arrow), nothing is dimmed below 0.8 opacity, 12 px stage margins, every draw call is pure. Names on screen: Leader, Follower A, Follower B (node keys L, A, B)."
+ },
+ "helpers": "FILES: videos/d4/common.js (data and algorithms, every number asserted at load), common-2.js (tags, labels, discs, cards, bars, chips, wires, pictograms), common-3.js (D4.node and the D4.cluster rig). All hang off window.VID.d4; scenes start with const V = window.VID, D4 = V.d4, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/ds-4.html loads engine.js, cards.js, l5/common.js, then d4/common.js .. common-3.js, then the scenes, audio/ds-4.js. READ THE API COMMENT AT THE TOP OF EACH FILE: it is the contract. A. DATA: D4.SCALE, D4.COPY, D4.LOG, D4.SYNC, D4.JOIN, D4.FAIL, D4.SPLIT, D4.LAG, D4.BACK, D4.countAt, D4.servedOf, D4.range, D4.rng, D4.same / D4.close (build-time asserts). B. DRAWING: D4.tag / D4.packet / D4.label / D4.disc (centre anchored, set({.., k, x, y, s, r, o})), D4.card, D4.bar, D4.chips (row.set(i, {text, tone, solid, ghost, ring, ...}), mid / top / bottom), D4.wire(svg, {pts, tone, w, dash}) with set({tone, k, cut, o}) and at(f) so packets ride wires, D4.at(a, b, k, bow), D4.svg(parent), pictograms D4.bolt / crown / server / person / phone / camera / neq, D4.seq, D4.tagW, D4.tone. C. D4.node(parent, {x, y, w, h, name, value, unit, tone, icon, layout}).set({name, value, unit, tone, vtone, solid, ghost, down, crown, ring, bump, k, ...}) with .slot(), .edge(), .mid, .body; D4.cluster(parent, {h, layout, clientName, clientIcon, clientValue, clientUnit, unit}) -> {L, A, B, client, wires {cl, ca, cb, logA, logB}, cy, busX}. Tested: a throw-away scene rendered the rig, chips in a node, a cut wire, tags, bars, discs, crown and bolt in a stills render (no page errors)."
+}

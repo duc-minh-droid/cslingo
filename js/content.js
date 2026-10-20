@@ -139,6 +139,7 @@
       "js/content/ds/ds-l6-03.js",
       "js/content/ds/ds-l6-workshop.js",
       "js/content/ds/boss-ds-6.js",
+      "js/content/ds/videos.js",
     ],
     algo: [
       ...WORKSHOPS,
