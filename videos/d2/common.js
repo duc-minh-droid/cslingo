@@ -16,8 +16,10 @@
                      relational: {rows: 1}, document: {docs: 400}, stale: 213 (the one copy a rewrite loop misses; row 8, col 13, 0-based)}
         D2.rowCol(i, cols = 25) -> {r, c} of dot i.
    3. THE SCHEMA CHANGE (scene 4; lesson 2.2 "Split name into first and last name")
-        D2.SCHEMA = {rows: 1000, old: {name: "Ada Byte"}, next: {first_name: "Cy", last_name: "Dee"}, split: "Ada Byte" -> ["Ada", "Byte"]}
+        D2.SCHEMA = {rows: 1000000, old: {name: "Ada Byte"}, next: {first_name: "Cy", last_name: "Dee"}, split: "Ada Byte" -> ["Ada", "Byte"]}
+          (1M rows: a table big enough for "slow", one of the values of the lesson's own record slider, which runs from 1,000 to 100 million)
         D2.splitName(s) -> [first, last].   D2.migrate(p) -> {done, pct}: rows rewritten after a fraction p (0..1) of the sweep.
+        D2.abbr(n) -> "489k" / "1M": a count the way the lesson's slider writes it (thousands round DOWN, so a count never runs ahead).
    4. LOCALITY (scene 5; lesson 2.2 "Locality: one document, one read", the lesson's own formula, document size 20 KB)
         D2.LOCALITY = {size: 20, nameKB: 0.2, wasted: 19.8,
                        all:  {doc: {reads: 1, kb: 20}, tables: {reads: 6, kb: 20}},     the page needs the whole profile
@@ -127,7 +129,7 @@
   // ---------- 3. the schema change ----------
   const splitName = (s) => s.split(" ");
   const SCHEMA = {
-    rows: 1000,
+    rows: 1000000,
     old: { name: "Ada Byte" },
     next: { first_name: "Cy", last_name: "Dee" },
     split: splitName("Ada Byte"),
@@ -138,8 +140,11 @@
     return { done: Math.round(k * SCHEMA.rows), pct: Math.round(k * 100) };
   };
   same("schema: the old name splits in code", SCHEMA.split, ["Ada", "Byte"]);
-  same("schema: rows", SCHEMA.rows, 1000);
-  same("schema: half way", D2.migrate(0.5), { done: 500, pct: 50 });
+  // the lesson's own number format (its record slider writes 1000 as 1k and 1000000 as 1M)
+  D2.abbr = (n) => (n >= 1e6 ? `${n / 1e6}M` : n >= 1e3 ? `${Math.floor(n / 1e3)}k` : String(n));
+  same("schema: rows", SCHEMA.rows, 1000000);
+  same("schema: half way", D2.migrate(0.5), { done: 500000, pct: 50 });
+  same("schema: counts as written", [D2.abbr(SCHEMA.rows), D2.abbr(489999), D2.abbr(999)], ["1M", "489k", "999"]);
   D2.SCHEMA = SCHEMA;
 
   // ---------- 4. locality (the lesson's formula) ----------

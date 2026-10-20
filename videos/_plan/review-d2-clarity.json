@@ -1,0 +1,102 @@
+{
+  "findings": [
+    {
+      "scene": "scene-03-rename.js",
+      "severity": "should",
+      "problem": "The 400 orange-then-green squares are never explained while they animate. Nothing says a square is one profile document holding its own copy of the company name, orange means the old name 'Acme' and green means the new 'Apex' (the only legend, 'stale: Acme', arrives at 8.3 s, after the whole wave). The '400 profiles' pill also sits in the relational lane under only four person icons, so it reads as '400 = those four people' and the 400 squares in the document lane are not tied to it. The key idea (one copy per profile) is carried by a small tag plus a grid of anonymous squares.",
+      "fix": "When the dots pop (1.0 s) add a legend in the document lane: an orange swatch 'Acme' and, from 4.8 s, a green swatch 'Apex' (28 px). Magnify one square into a mini document sticker 'profile: company Acme' that turns 'Apex' with the first row of the wave. Move the '400 profiles' pill to span both lanes (or put '= 400' beside the grid) and add an SVG ellipsis after the four people so they read as samples.",
+      "evidence": "s3@1.2 (anonymous squares, '400 profiles' under four icons), s3@5.5 and s3@7.0 (wave runs with no legend), s3@8.9 (first explanation, 'stale: Acme')."
+    },
+    {
+      "scene": "scene-06-graph.js",
+      "severity": "should",
+      "problem": "Scene 6 starts with no motivation. Scenes 2 to 5 are about tables and documents, then the picture changes to seven floating pills with the headline 'When the links are the data'. A first-time learner is not told what problem the graph solves (people linked to people, many-to-many), so 'a graph stores things and their links' arrives as a definition with no reason. This is the biggest continuity gap in the video; the facts review only notes the missing word many-to-many.",
+      "fix": "Give the opening beat a reason, no extra length needed: change the kicker to 'GRAPH MODEL: MANY-TO-MANY' (or caption 1 to 'Friends link people to people. A graph stores those links.') and let the first two or three edges draw between the people before Leeds and Acme appear, so the first thing seen is people linked to people.",
+      "evidence": "s6@1.2 (unconnected pills, caption 'A graph stores things and their links.'), s5@12.2 to s6@1.2 (hard change of subject with no bridge)."
+    },
+    {
+      "scene": "scene-07-hops.js",
+      "severity": "should",
+      "problem": "The three rows are labelled boxes ('start Ana', 'join', 'fetch', 'follow'): a scene that could be replaced by a bullet list. A join, a fetch and a follow look the same except for colour, so a learner cannot see what each does. The graph row is meant to show 'the same move repeated', but the single 'follow' block only bumps on the first hop (code line 216), so rows 1 and 2 visibly grow while row 3 just changes a counter; the claim 'the graph repeats one move' is told by a tag ('same move'), not shown.",
+      "fix": "Put a small SVG pictogram in each block (table sticker for join, braces for fetch, arrow between two pills for follow; D2.fam icons or L5.arrow are already loaded) so the row types read at a glance. Flash the 'follow' block on every hop (3.0, 4.2, 5.4 and 8.0) so the same block visibly fires again each time while rows 1 and 2 add new blocks.",
+      "evidence": "s7@4.3 (join / fetch / follow blocks identical in shape, text only), s7@5.6 and s7@9.0 (follow block unchanged while hops goes 2 to 4), scene-07-hops.js lines 216-219."
+    },
+    {
+      "scene": "scene-08-families.js",
+      "severity": "should",
+      "problem": "The first 3.3 s (the three aims) are mostly text. 'simple design' is a lone empty box, 'scales out' is four boxes and 'stays available' is a box with a tick: none of the three pictures shows its idea, and 'available' in particular (the system keeps answering when a part fails) is not something a first-time learner can read from a tick. 'non-relational storage' is a tag with no picture either. After the cards fade (3.3 to 3.7) the stage is completely empty for about half a second before the first family appears.",
+      "fix": "Draw each aim as a tiny story: simple = one flat sticker (no join lines) next to a tangle of joined tables that is crossed out; scales out = one box that splits into four side by side (already roughly there, keep it); available = four boxes where one goes red with an SVG cross and the request arrow still reaches a green one. Cross-fade into the document sticker at 3.4 rather than leaving a blank gap.",
+      "evidence": "s8@1.2 and s8@3.0 (aim cards: empty box, four boxes, tick), s8@3.7 (headline only, stage empty)."
+    },
+    {
+      "scene": "scene-08-families.js",
+      "severity": "should",
+      "problem": "The graph quadrant is the most crowded part of the video and ends on a highlight nobody explains. Five vertices and four edges are squeezed into a 450 x 290 area under the key-value table; at 13.5 to 14.3 'Flour' gets an orange ring and the two arrows into it turn purple, but no tag or caption says why (it is shared by two recipes, which is the whole point of putting recipes in a graph). Only one of the four edges carries a label ('USES').",
+      "fix": "Add a 28 px green tag 'used by both' (or 'shared') next to Flour at 13.3 s, and either free up room (drop the 'not in every row' tag to beside the table, shift the graph up 20 px) or space Eggs and Breakfast further apart so the Pancakes arrows do not fan out through each other. Label Pancakes to Breakfast 'TAGGED' for a beat if the caption is kept as is.",
+      "evidence": "s8@13.5 and s8@14.3 (Flour ringed, purple arrows, no explanation, USES the only label), s8@12.4 (vertices nearly touching the key-value lip)."
+    },
+    {
+      "scene": "scene-09-choose.js",
+      "severity": "should",
+      "problem": "Three weaknesses. (1) The four job cards ('Cart by user id', 'One whole product page', 'Friends of friends', 'Events with varying columns') are text only, so the matching game is words onto icons with no picture of why each fits; the video's closing message ('pick by the shape of the question') is never drawn. (2) From 5.8 s the cards drop into the lower half and the top 240 px of the stage is empty until the end; the final blue tag floats lonely at y 400. (3) The tag 'pick by the shape of the question' (10.4) and caption 'Pick by the question.' (11.6) say the same thing twice.",
+      "fix": "Add a 44 px pictogram to each job card that shows its question shape (a key with one arrow for the cart, a whole page for the product, two linked pills for friends, ragged rows for events), reusing L5/D2 icons. Place the family stickers higher (about y 250) or keep the blue 'pick by the shape of the question' tag at the top of the stage from the start so the empty zone is used. Make the final caption add something ('Match the job to the shape.') or drop one of the two.",
+      "evidence": "s9@1.8 (text-only cards), s9@8.0, s9@11.0 (upper 240 px of the stage empty), s9@12.2 (tag and caption repeat each other)."
+    },
+    {
+      "scene": "scene-10-recap.js",
+      "severity": "should",
+      "problem": "Row 3 ('Four NoSQL families: pick by the question') ticks and turns green only the third icon (wide-column) and parks a question-mark bubble over it, so the last picture of the video reads as 'wide-column is the right pick'. The scene before spent its time matching all four families to four jobs; the recap contradicts that by crowning one.",
+      "fix": "Run the green tick across all four icons one after another (0.4 s apart, starting at 1.4 s) with the question bubble hopping with it, and hold all four green (or hold all four neutral with the bubble gone). The final frame then says 'each family has its job', not 'wide-column wins'.",
+      "evidence": "s10@5.0 (bubble over wide-column), s10@6.2 and s10@8.8 (only the third icon green and ticked, the other three grey)."
+    },
+    {
+      "scene": "scene-02-profile.js",
+      "severity": "nit",
+      "problem": "The comparison the headline promises ('two ways to store it') is never on screen at once: the six tables fade out (6.9 to 7.5) before the document pops, so in the final frame 'table reads 6' hangs beside a page and a document with nothing to point at, and the six page slots are identical blue bars so no slot is tied to the table that filled it.",
+      "fix": "Keep a small version of the tables on screen: shrink the six table stickers to a compact strip under the 'table reads' counter (full opacity, 28 px names can drop to icons) instead of removing them, or colour each page slot with its table's tone and keep the tone on the document lines.",
+      "evidence": "s2@8.6 (tables gone, counter 6 alone), s2@12.8 (final frame: page, document, 6 vs 1 with no tables)."
+    },
+    {
+      "scene": "scene-03-rename.js",
+      "severity": "nit",
+      "problem": "The 'stale: Acme' pill (about 200 x 60 px) sits on the grid and hides six neighbouring squares, so the stale square is surrounded by a gap in the data instead of by 399 green neighbours; the red ring is thin next to it and the orange stale square is hard to find at a glance among 400 green ones.",
+      "fix": "Put the pill outside the grid (under the grid or right of it, at the stat row) with a short red SVG leader line to the ringed square, and thicken the ring to 5 px so the square is findable.",
+      "evidence": "s3@8.9 and s3@10.5 (pill covering dots 14 to 19 of row 8)."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "nit",
+      "problem": "Balance and load: for the first 5 s the lower half of the stage is empty (three documents only), then by 8 s there are about 14 things on screen (three docs, tag, app, two chips, 'no waiting' plus tick, tag, table, 'new columns', bar, clock, 'waiting') and the finished document lane stays fully lit while the eye should be on the sweep.",
+      "fix": "Start the relational lane earlier (about 4.6 s, it already pops at 5.1) or move the document lane down a little so the stage is used from the start; once 'no waiting' is shown (4.3) calm the document lane by dropping the 'app' arrow and the old name chips to a lighter tone (fade the whole group, not the text below 0.8).",
+      "evidence": "s4@2.6 (docs only, lower 55% of the stage empty), s4@9.5 (dense two-lane stack)."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "nit",
+      "problem": "Caption 5 'Only then is it ready.' is ambiguous: 'it' has no clear antecedent after a caption about a long wait, and the picture's tag says 'ready' without saying what is ready.",
+      "fix": "Use 'Only then can the table be used.' (31 characters over the same 1.5 s is 20 per second, so trim to 'Only then is the table ready.') and change the green tag to 'table ready'.",
+      "evidence": "s4@12.2 and s4@13.2 (caption 'Only then is it ready.', tag 'ready')."
+    },
+    {
+      "scene": "scene-05-locality.js",
+      "severity": "nit",
+      "problem": "The right-hand lane is six name-only boxes in a zig-zag, a different look from the table stickers (key chip 251, rows) in scene 2, and it has no lane header, so a first-time learner may not realise these are the same six tables. The headline 'One document, one read' sells only the pro while the second half of the scene (6.0 to 11.8 s) shows the downside.",
+      "fix": "Give each box a one-row body with the orange 251 chip so they match scene 2, and add a 28 px grey tag 'tables' above the lane and 'document' above the document (the counters currently do that job). Consider the headline 'One document, one read: good and bad'.",
+      "evidence": "s5@4.4 (plain name boxes, no lane titles), s5@11.0 (red wasted document under a headline that promises one read)."
+    },
+    {
+      "scene": "scene-06-graph.js",
+      "severity": "nit",
+      "problem": "The two words the rest of the scene depends on, 'vertex' and 'edge', appear as small grey tags for about 1 to 2.4 s (1.2 to 3.6 s) and are gone before caption 3 and caption 4 use them (5.7 and 8.8 s). Caption 2 says 'Each link has a label' but only three of the eight edges ever get one, the other five stay unlabelled grey arrows.",
+      "fix": "Keep 'vertex' and 'edge' as a two-line legend (or recolour the tags blue and hold them to 5.4) so they are still on screen when the captions use them; flash all eight labels briefly (0.1 s apart, 4.2 to 5.4 s) or change the caption to 'Each link has a label, like FRIEND.'",
+      "evidence": "s6@2.6 (vertex and edge tags visible), s6@4.2 (gone, three labels only), s6@8.6 (caption talks about edges with no legend)."
+    },
+    {
+      "scene": "scene-07-hops.js",
+      "severity": "nit",
+      "problem": "Caption 3 'Want a fourth hop?' (7.0 to 9.0) is a question with no context for a first-time learner and it is the only caption in the video addressed to the viewer; the picture (red dashed '+' blocks) says 'now one more is needed'.",
+      "fix": "Make it a statement: 'Now add a fourth hop.'",
+      "evidence": "s7@7.3 and s7@8.2 (red dashed + blocks under the caption 'Want a fourth hop?')."
+    }
+  ]
+}

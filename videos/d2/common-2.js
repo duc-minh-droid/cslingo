@@ -4,10 +4,11 @@
    leave out falls back to its default and nothing is remembered between frames.
 
    COLOUR ROLES OF THIS VIDEO (tones): "grey" neutral data (a record, a row, an untouched copy, things not in play); "blue" the thing
-   being read or looked at (the profile page, the current vertex, a read arrow, the walker); "purple" a link between records (a
-   foreign key, a join, an edge in use); "orange" an identifier or the thing that changes (a key chip, the company name, an edge label,
-   attention); "green" a good result (one read, up to date, reached, done); "red" a bad result (a stale copy, wasted KB, waiting,
-   not reachable).  D2.TONES lists them;  D2.tone("red") -> {c, ink, dim, edge, lip, on} (CSS var() strings, same as VID.l5.tone:
+   being read or looked at (the profile page, the current vertex, a read arrow, the walker, the sort key); "purple" a link between
+   records (a foreign key, a join, an edge in use) and the application's own code (the "app" of scene 4, the operator); "orange" an
+   identifier or the thing that changes (a key chip, the company name, an edge label, attention) and the cost counters of the
+   comparisons ("table reads", "documents to rewrite": the green counter beside them is the cheap side); "green" a good result (one
+   read, up to date, reached, done); "red" a bad result (a stale copy, wasted KB, waiting, one more join or fetch, not reachable).  D2.TONES lists them;  D2.tone("red") -> {c, ink, dim, edge, lip, on} (CSS var() strings, same as VID.l5.tone:
    c = fill/icon, ink = text on a tint, dim = tint fill, edge = tint border, lip = sticker edge, on = text on a c fill).
 
    1. TAGS, CARDS, COUNTERS  (HTML stickers; every text is 28 px or more)
