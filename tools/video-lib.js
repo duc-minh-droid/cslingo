@@ -58,13 +58,13 @@ export async function launch() {
 }
 
 /** Open a lecture page at 1080 x 1080 in recording mode; resolves to {page, errors} once the engine is ready. */
-export async function openVideo(browser, base, name) {
+export async function openVideo(browser, base, name, { raw = false } = {}) {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1080 }, deviceScaleFactor: 1 });
   const errors = [];
   page.on("pageerror", (e) => errors.push(`page error: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && errors.push(`console: ${m.text()}`));
   page.on("response", (r) => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
-  await page.goto(`${base}/videos/${name}.html?rec=1`);
+  await page.goto(`${base}/videos/${name}.html?rec=1${raw ? "&raw=1" : ""}`); // raw: the original timing, no voice-over applied
   await page.waitForFunction(() => window.__vidReady === true, null, { timeout: 20000 });
   return { page, errors };
 }

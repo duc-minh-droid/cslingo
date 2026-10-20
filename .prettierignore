@@ -6,3 +6,4 @@ package-lock.json
 *.md
 *.html
 *.json
+tools/tts/.venv/

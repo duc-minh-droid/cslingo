@@ -156,7 +156,9 @@
         V.place(l, { y: (1 - p) * 22, o: p });
       });
     }
-    def.__update(lt * (def.k || 1)); // k < 1 slows a scene that needs more time for its voice-over (never speeds one up)
+    // narration re-times the scene: a warp maps voice time to the scene's own time piece by piece (each stretch between two
+    // captions fitted to its sentence); otherwise k < 1 slows the whole scene evenly
+    def.__update(def.warp ? warpTime(def.warp, lt) : lt * (def.k || 1));
     // caption: one plain-English sentence at a time, fading in and out
     const cap = (def.caps || []).find(([a, b]) => lt >= a && lt < b);
     if (cap) {
@@ -239,6 +241,16 @@
 
   /** Voice-over timing (videos/audio/lecture-N.js, made by tools/narrate.js): each scene may last longer than it was
       written for (`dur`), its animation is slowed to fit (`k`), and its captions follow the spoken sentences. */
+  /** Voice time -> scene time through the narration's warp knots [[voice s, scene s], ...] (linear between knots). */
+  function warpTime(w, t) {
+    for (let j = 1; j < w.length; j++)
+      if (t <= w[j][0] || j === w.length - 1) {
+        const [a, A] = w[j - 1],
+          [b, B] = w[j];
+        return b > a ? A + ((Math.min(t, b) - a) / (b - a)) * (B - A) : B;
+      }
+    return t;
+  }
   function applyNarration() {
     const N = V.narration;
     if (!N) return;
@@ -248,6 +260,7 @@
       d.k = d.dur / n.dur;
       d.dur = n.dur;
       d.caps = n.caps;
+      if (n.warp) d.warp = n.warp;
     });
   }
 
@@ -263,7 +276,9 @@
     capEl = V.h("div", { class: "v-caption" });
     root.append(track, capEl);
     document.body.prepend(root);
-    applyNarration();
+    if (!q.has("raw")) applyNarration();
+    if (!q.has("raw") && V.narration && V.narration.look && V.narration.look.bar === false)
+      root.classList.add("no-bar"); // ?raw=1: the original scene lengths and captions (tools/narrate.js reads them)
     V.scenes.forEach(buildScene);
     root.append(track, capEl); // above the scenes
     V.total = V.scenes.reduce((a, d) => a + d.dur, 0);
