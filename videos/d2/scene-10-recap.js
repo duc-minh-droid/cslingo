@@ -11,8 +11,10 @@
           solid green, and one pip of the hop counter (the pill at the bottom right) fills green per hop. Three hops, the
           green path stays.
    Row 3 (green): pick the family by the question. The four family icons (D2.FAMILY_ORDER) pop in on grey tiles (0.1-0.9), a
-          blue question bubble drops in above the third (1.1-1.5), the wide-column tile turns green and a green tick pops on
-          it (1.7-2.3): the question picked its family.
+          blue question bubble drops in above the first (1.1-1.5) and hops along: each tile in turn (1.5, 1.95, 2.4, 2.85) turns
+          green and gets its own green tick (every family is the answer to one job), then the bubble leaves and the four green
+          ticked tiles stay: each family has its job.
+   Row 1 says "Tree? Use a document. / Shared? Use tables." (the lesson's rule for the two stores).
    Every structure comes from the D2 helpers (D2.PROFILE, D2.walk, D2.FAMILY_ORDER, D2.WORKLOADS) and is asserted when the scene
    is built. D2.fam does not scale the document braces below size 100, so the icons are drawn at 100 and scaled whole. */
 (function () {
@@ -315,12 +317,10 @@
   // ---------- row 3: pick the family by the question ----------
   function pickFamily(pic) {
     const ORDER = D2.FAMILY_ORDER;
-    const PICK = D2.WORKLOADS.find((w) => w.text === "Events with varying columns").family;
-    const PI = ORDER.indexOf(PICK);
     D2.same(
-      "recap row 3: four families, the question picks the wide-column one (third)",
-      [ORDER.length, PICK, PI],
-      [4, "wide", 2],
+      "recap row 3: four families, and every one of them is the answer to one of the four jobs",
+      [ORDER.length, D2.WORKLOADS.map((w) => w.family).sort()],
+      [4, [...ORDER].sort()],
     );
     const svg = L5.svg(pic, PIC.w, PIC.h);
     const [TW, TH, TY, X0, STEP] = [74, 74, 56, 9, 83];
@@ -339,7 +339,7 @@
 
     // the question: a blue speech bubble with a drawn "?" and a tail pointing at the picked tile
     const blue = D2.tone("blue");
-    const cx = tiles[PI].x + TW / 2;
+    const cx = tiles[0].x + TW / 2; // drawn over the first tile; it hops along to the others
     const bubble = svg.appendChild(
       V.s(
         "g",
@@ -371,22 +371,29 @@
         V.s("circle", { cx: f1(cx), cy: 33, r: 3, style: { fill: blue.on } }),
       ),
     );
-    const badge = tickBadge(svg, tiles[PI].x + TW, TY + 3, 15, 21);
-    const T = { pop: 0.1, popStep: 0.12, ask: 1.1, pick: 1.7, tick: 1.8 };
+    const badges = tiles.map((tile) => tickBadge(svg, tile.x + TW, TY + 3, 15, 21));
+    const T = { pop: 0.1, popStep: 0.12, ask: 1.1, pick: 1.5, pickStep: 0.45 };
+    const pickAt = (i) => T.pick + T.pickStep * i; // the question picks the families one after another: each job has its family
 
     return (t) => {
       const q = t - START[2];
       tiles.forEach((tile, i) => {
-        const picked = i === PI && q >= T.pick;
+        const picked = q >= pickAt(i);
         tile.paint(picked ? "green" : "grey", picked ? "tint" : "panel");
         V.show(tile.grey, picked ? 0 : 1);
         V.show(tile.green, picked ? 1 : 0);
         const k = ramp(q, T.pop + T.popStep * i, T.pop + T.popStep * i + 0.4, E.lin);
-        popIn(tile.g, k, 12, 1 + (i === PI ? 0.14 * flash(q, T.pick, T.pick + 0.35) : 0));
+        popIn(tile.g, k, 12, 1 + 0.14 * flash(q, pickAt(i), pickAt(i) + 0.35));
+        badges[i](ramp(q, pickAt(i) + 0.05, pickAt(i) + 0.55, E.lin));
       });
+      // the question drops in over the first family, hops along as each one is picked and leaves after the last: four green ticks stay
       const b = ramp(q, T.ask, T.ask + 0.4, E.lin);
-      V.place(bubble, { y: -(1 - E.out(b)) * 16, s: 0.6 + 0.4 * E.pop(b), o: clamp(b * 4) });
-      badge(ramp(q, T.tick, T.tick + 0.5, E.lin));
+      const hop = tiles.reduce(
+        (x, tile, i) => (i ? x + (tile.x - tiles[i - 1].x) * ramp(q, pickAt(i) - 0.3, pickAt(i) - 0.05, E.inOut) : x),
+        0,
+      );
+      const gone = ramp(q, pickAt(tiles.length - 1) + 0.3, pickAt(tiles.length - 1) + 0.6, E.lin);
+      V.place(bubble, { x: hop, y: -(1 - E.out(b)) * 16, s: 0.6 + 0.4 * E.pop(b), o: clamp(b * 4) * (1 - gone) });
     };
   }
 
@@ -407,7 +414,7 @@
       stage.append(kicker, head, mascot);
 
       const rows = [
-        ["blue", "Tree or shared data?\nDocument or tables", docVsTables],
+        ["blue", "Tree? Use a document.\nShared? Use tables.", docVsTables],
         ["purple", "Links are the data?\nUse a graph", graphWalk],
         ["green", "Four NoSQL families:\npick by the question", pickFamily],
       ].map(([tone, text, make], i) => {

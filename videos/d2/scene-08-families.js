@@ -2,22 +2,25 @@
    non-relational storage that stresses simple design, scaling out and availability, and it comes in four families. The same pancake
    recipe is drawn in each: a DOCUMENT (the whole recipe in one place), a KEY-VALUE store (every item found by a two-part key: a
    partition key that groups the items, a sort key that orders them), a WIDE-COLUMN table (each row keeps its own columns) and a
-   GRAPH (recipes linked to what they use). Everything comes from D2.AIMS / D2.FAMILIES (asserted when the page loads): the four
-   key-value items share the partition key recipe#7 and have four different sort keys, only "name" is a column of every wide row,
-   and Flour is used by Pancakes and Waffles.
-   Layout: part 1 is three aim cards in the middle of the stage; part 2 is a 2 x 2 grid in the order document, key-value (top),
-   wide-column, graph (bottom). Every family has a title tag (solid blue while it is being explained, grey afterwards) with its small
-   pictogram. The grid is tight, so the key-value table carries the two key names as its first row (solid chips) instead of a row of
-   separate tags, and the graph's three ingredients stand on the right, beside the graph's title tag.
-   Story (local seconds): 0.3 the definition, 0.35 / 0.65 / 0.95 the three aims, 1.7 the one box becomes four, 2.45 the tick, 3.25
-   the aims fade; DOCUMENT 3.75 tag, 3.85 sticker, 4.3 name and minutes are typed, 5.1 the three steps pop in; KEY-VALUE 6.3 tag,
-   6.4 the table and its two key names, 6.7 the four items one by one, 8.0 the orange keys pulse together (same partition key),
-   8.2 the purple keys pulse down the column (ordered by the sort key); WIDE-COLUMN 8.75 tag, 8.85 the sticker, 9.1 the three rows
-   (shorter third), 10.25 the columns that are not in every row turn blue and get a note; GRAPH 11.05 tag, 11.15 the two recipes
-   then the three ingredients, 12.1 the four edges draw on, 12.95 the label USES, 13.4 the two edges into Flour grow in purple and
-   Flour gets a ring (who else uses flour?). Then the picture holds. A family's title tag is solid blue from the moment its
-   cell pops until the next cell pops. Captions are re-timed from the placeholder only to read at 17 characters per second or
-   slower and to start once their picture is on screen.
+   GRAPH (recipes and ingredients, linked by labelled edges: Pancakes and Waffles both USE Flour; the TAGGED edge to Breakfast is not
+   labelled because its arrow is too short for a label beside the graph's title tag). Everything comes from D2.AIMS / D2.FAMILIES
+   (asserted when the page loads): the four key-value items share the partition key recipe#7 and have four different sort keys,
+   only "name" is a column of every wide row, and Flour is used by Pancakes and Waffles.
+   Layout: part 1 is three aim cards in the middle of the stage, each with a tiny story (simple design: a tangle of joined tables is
+   crossed out and one flat box remains; scales out: one box becomes four; stays available: one of four machines fails and the
+   request still reaches a working one); part 2 is a 2 x 2 grid in the order document, key-value (top), wide-column, graph
+   (bottom). Every family has a title tag (solid blue while it is being explained, grey afterwards) with its small pictogram. The
+   grid is tight, so the key-value table carries the two key names as its first row (solid chips: partition key orange, sort key
+   blue) instead of a row of separate tags, and the graph's three ingredients stand on the right, beside the graph's title tag.
+   Story (local seconds): 0.3 the definition, 0.35 / 0.65 / 0.95 the three aims (simple design: cross 0.85, one box 1.35; scales
+   out: split 1.45; stays available: failure 2.05, request 2.5, tick 2.85), 3.35 the aims fade; DOCUMENT 3.55 tag and sticker "recipe
+   #7", 4.0 name and minutes are typed, 4.8 the three steps pop in; KEY-VALUE 6.4 tag and table, 6.8 the four items one by one, 7.7
+   the orange keys pulse together (same partition key: grouped), 7.95 the blue keys pulse down the column (ordered by the sort
+   key); WIDE-COLUMN 10.2 tag and sticker, 10.6 the three rows (shorter third), 11.95 the columns that are not in every row turn blue
+   and get a note; GRAPH 13.1 tag, 13.2 the two recipes then the three ingredients, 14.15 the four edges draw on, 15.2 the label
+   USES, 16.4 the two edges into Flour grow in purple and Flour gets a ring (Pancakes and Waffles share Flour). Then the picture
+   holds. A family's title tag is solid blue from the moment its cell pops until the next cell pops. Captions read at 17
+   characters per second or slower and start once their picture is on screen.
    Helper note: D2.fam("doc", size) does not scale the braces with `size` (fixed size and place), so the small pictograms are drawn at
    100 and scaled as a whole here (common-4.js is not edited). */
 (function () {
@@ -80,8 +83,6 @@
     ["USES", "USES"],
   );
   D2.same("families scene: the labelled edge is Waffles to Flour", LABEL_KEY, "Waffles>Flour");
-  const TAG_KEY = GE.find((e) => e.label === "TAGGED").key; // the one edge of the other kind: a recipe is tagged, not made of, Breakfast
-  D2.same("families scene: the other kind of edge is Pancakes TAGGED Breakfast", TAG_KEY, "Pancakes>Breakfast");
 
   // ---------- layout (stage px; everything keeps the 12 px margin, lips included) ----------
   const COL = [
@@ -121,7 +122,7 @@
     fail: 2.05, // stays available: one of four boxes fails (red cross) ...
     route: 2.5, // ... and the request still reaches a working one (arrow, then the tick)
     tick: 2.85,
-    aimsOff: 3.4, // part 1 fades (the document pops 0.15 s later, so the stage is never empty)
+    aimsOff: 3.35, // part 1 fades in 0.3 s (the document pops at 3.55, so the stage is never empty)
     cell: [3.55, 6.4, 10.2, 13.1], // the four title tags (the sticker follows 0.1 s later)
     name: 4.0, // document: name and minutes are typed, then the steps pop
     mins: 4.5,
@@ -137,7 +138,7 @@
     nodeStep: 0.15,
     edge: 14.15, // the four edges, 0.2 s apart
     edgeStep: 0.2,
-    label: 15.2, // USES and TAGGED
+    label: 15.2, // USES
     focus: 16.4, // who else uses flour?
   };
   const END = 19.2; // the scene's length
@@ -318,7 +319,7 @@
 
     return (t) => {
       const lin = (a, d = 0.35) => ramp(t, a, a + d, E.lin);
-      const off = 1 - lin(T.aimsOff, 0.4); // part 1 fades out as a whole
+      const off = 1 - lin(T.aimsOff, 0.3); // part 1 fades out as a whole
 
       // ---- part 1 ----
       def.set({ k: lin(T.def, 0.4), o: off });
@@ -409,7 +410,6 @@
       GE.forEach((e, i) => {
         const st = { tone: "grey", k: E.out(D2.seq(t, T.edge, T.edgeStep, 0.35, i)) };
         if (e.key === LABEL_KEY) Object.assign(st, { label: lin(T.label, 0.3), labelSide: 1 });
-        if (e.key === TAG_KEY) Object.assign(st, { label: lin(T.label + 0.15, 0.3), labelSide: -1, labelAt: 0.5 });
         ge[e.key] = st;
       });
       const base = { node: { k: 0 }, edge: { k: 0, label: 0 } };
@@ -432,7 +432,7 @@
       [7.8, 10.3, "A partition key groups, a sort key orders."],
       [10.9, 12.9, "Wide-column: columns vary per row."],
       [14.3, 16.3, "Graph: things and labelled links."],
-      [16.7, 18.6, "Pancakes and Waffles share Flour."],
+      [16.6, 18.6, "Pancakes and Waffles share Flour."],
     ],
     build,
   });

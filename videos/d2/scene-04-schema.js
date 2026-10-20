@@ -18,7 +18,7 @@
   const V = window.VID;
   const D2 = V.d2;
   const L5 = V.l5;
-  const { ramp, flash, clamp, lerp, ease: E } = V;
+  const { ramp, flash, lerp, ease: E } = V;
   const { abs, flex, setText, setClass, f1 } = D2.u;
 
   // ---------- the data (asserted against the storyboard and the lesson) ----------
