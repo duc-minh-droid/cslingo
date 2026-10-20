@@ -3,6 +3,8 @@
    split over the five that are left (+14 each) and they carry 84. A second fault: +21 each, 105, which is over 100. Overloaded
    servers die too, and every death pushes more onto fewer: 140, 210, 420, then nothing (a cascade). Finally a software bug is
    in the code that runs on all six, so all six fail at the same moment, though each was only at 70.
+   Colour: a dead server is orange (a FAULT: the service still works) and turns red only when no server is left (a FAILURE:
+   users get nothing), as for the disks in scene 5; the capacity tag sits under the row and turns orange when it is exceeded.
    Every number comes from D1.cascade (asserted below); each "+N" is the dead server's load split over the survivors. */
 (function () {
   const V = window.VID;
@@ -43,27 +45,34 @@
   D1.same("cascade scene: six servers, five and four left in the captions", [N, C.one.alive, C.two.alive], [6, 5, 4]);
 
   // ---------- the timeline (scene-local seconds) ----------
-  // server i dies at DIE[i]: the first two are hardware faults (a bolt), the others cannot take the load
-  const DIE = [2.3, 4.6, 6.8, 7.65, 8.3, 9.0];
-  const FLY = [0.4, 0.45, 0.32, 0.25, 0.25]; // the dead server's load takes this long to reach the others
+  // server i dies at DIE[i]: the first two are hardware faults (a bolt), the others cannot take the load. Each new per-server
+  // number stays on screen for about a second (105 for 1.9 s, then 140, 210 and 420 for 0.8 to 0.85 s each).
+  const DIE = [2.3, 4.6, 6.6, 7.8, 8.95, 10.1];
+  const FLY = [0.4, 0.45, 0.4, 0.3, 0.3]; // the dead server's load takes this long to reach the others
   const HARDWARE = 2; // the first two deaths are bolts
   const T = {
     pop: 0.1,
     intro: 0.85, // the six 70s bump in turn
+    hw: 2.0, // "hardware fault" in, out again at hwOff
+    hwOff: 5.0,
     ok: 3.15, // "fault tolerated" in, out again at okOff
     okOff: 4.55,
     over: 5.3, // "overloaded"
-    overOff: 6.65,
-    all: 7.2, // "cascade": named as the first overloaded server has gone and the load moves on
-    allOff: 9.4,
-    revive: 9.55, // the six come back at 70 each
-    bug: 9.85, // a software bug lands in the code of all six
-    wires: 10.0,
-    bugDead: 10.5, // ... and they fail together
-    bugTag: 10.85,
+    overOff: 6.5,
+    cas: 7.05, // "cascade": named as the first overloaded server has gone and the load moves on
+    casOff: 10.05,
+    all: 10.2, // "total failure": the last server has gone
+    allOff: 10.95,
+    revive: 11.05, // the six come back at 70 each
+    bug: 11.35, // a software bug lands in the code of all six
+    wires: 11.5,
+    bugDead: 12.0, // ... and they fail together
+    bugTag: 12.35,
   };
   const POP = { step: 0.045, dur: 0.28 };
   const REV = { step: 0.035, dur: 0.25 };
+  const WORD = ["no", "one", "two", "three", "four", "five", "six"]; // for the captions
+  const cap1 = (w) => w[0].toUpperCase() + w.slice(1);
   // the chips from dying server d burst out together and land FLY[d] later (the farther ones a little after the near ones)
   const depart = (d) => DIE[d] + 0.04;
   const land = (d, j) => DIE[d] + FLY[d] + 0.025 * (j - d - 1);
@@ -75,13 +84,13 @@
   };
 
   // ---------- layout ----------
-  const ROW = { x: 24, y: 294, w: 138, h: 190, gap: 12 };
+  const ROW = { x: 24, y: 294, w: 138, h: 180, gap: 12 };
   const midX = (i) => ROW.x + i * (ROW.w + ROW.gap) + ROW.w / 2;
   const CX = 468; // the middle of the row
   const BUS_Y = 264;
   const BUG = { x: CX, y: 200, size: 86 };
   const BOLT_Y = ROW.y - 34;
-  const TAG_Y = 530;
+  const TAG_Y = 562;
   const HEAD_Y = 44;
   const CHIP_W = { 2: 80, 3: 88, 4: 108 }; // a "+N" chip, by the number of digits
   const CHIP_H = 48;
@@ -144,12 +153,29 @@
 
     const load = D1.stat(stage, { x: 12, y: HEAD_Y, w: 300, h: 80, label: "total load", tone: "blue" });
     const alive = D1.stat(stage, { x: 340, y: HEAD_Y, w: 230, h: 80, label: "alive", tone: "green" });
-    const limit = D1.tag(stage, { x: 672, y: HEAD_Y + 11, text: "each takes 100", tone: "grey" });
-    limit.el.style.width = "252px"; // a fixed width puts its right end 12 px inside the stage
+    const limit = D1.tag(stage, { x: 24, y: ROW.y + ROW.h + 14, text: `each can handle ${CAP}`, tone: "grey" });
+    limit.el.style.width = "317px";
+
+    // the two kinds of fault, named where they strike
+    const hw = D1.tag(stage, {
+      x: 24,
+      y: 168,
+      text: "hardware fault: others share its load",
+      tone: "orange",
+      solid: true,
+    });
+    const sw = D1.tag(stage, {
+      x: BUG.x + 64,
+      y: BUG.y - 29,
+      text: "bug: same code on all six",
+      tone: "red",
+      solid: true,
+    });
 
     const vOk = verdictTag(stage, "fault tolerated", "green", "tick", 468);
     const vOver = verdictTag(stage, "overloaded", "orange", null, 468);
-    const vAll = verdictTag(stage, "cascade: they fall in turn", "red", "cross", 468);
+    const vCas = verdictTag(stage, "cascade: they fall in turn", "orange", null, 468);
+    const vAll = verdictTag(stage, "total failure", "red", "cross", 468);
     const vBug = verdictTag(stage, "all fail together", "red", "cross", 468);
 
     // top layer: the faults (bolts), the bug and its wires
@@ -186,6 +212,10 @@
       const revived = t >= T.revive;
       const bugDown = t >= T.bugDead;
       const rev = (i) => D1.seq(t, T.revive, REV.step, REV.dur, i);
+      // how many servers are alive: a dead one is a fault (orange) while any is left, a failure (red) when none is
+      const deaths = DIE.filter((d) => t >= d).length;
+      const revivedCount = row.list.filter((_, i) => rev(i) > 0).length;
+      const aliveN = revived ? (bugDown ? 0 : revivedCount) : N - deaths;
 
       // ---- servers ----
       row.list.forEach((s, i) => {
@@ -196,7 +226,7 @@
         const since = t - dieAt;
         let shake = since >= 0 && since < 0.4 ? Math.sin(since * 60) * 8 * (1 - since / 0.4) : 0;
         let st;
-        if (!up) st = { state: "down", k: k0 };
+        if (!up) st = { state: aliveN === 0 ? "down" : "fault", k: k0 };
         else if (revived) st = { state: "ok", load: PER[0] / CAP, text: String(PER[0]), k: 0.5 + 0.5 * r };
         else {
           const n = landed(i, t);
@@ -213,9 +243,6 @@
       });
 
       // ---- the numbers in the header ----
-      const deaths = DIE.filter((d) => t >= d).length;
-      const revivedCount = row.list.filter((_, i) => rev(i) > 0).length;
-      const aliveN = revived ? (bugDown ? 0 : revivedCount) : N - deaths;
       const overNow = !revived && aliveN > 0 && PER[landed(N - 1, t)] > CAP;
       const lastDeath = DIE.filter((d) => t >= d).pop();
       const aliveBump = revived
@@ -234,7 +261,7 @@
       limit.set({
         tone: limitOver ? "orange" : "grey",
         solid: limitOver,
-        s: 1 + 0.06 * flash(t, land(1, N - 1), land(1, N - 1) + 0.5),
+        s: 1 + 0.03 * flash(t, land(1, N - 1), land(1, N - 1) + 0.5),
         k: ramp(t, T.pop + 0.2, T.pop + 0.6, E.lin),
       });
 
@@ -246,8 +273,7 @@
         chip.set({
           x: lerp(midX(d) + 24, midX(j), e) - w / 2,
           y: lerp(ROW.y - 16, ROW.y - 10, e) - 46 * Math.sin(Math.PI * f) - CHIP_H / 2,
-          s: 1 - 0.3 * ramp(f, 0.75, 1, E.lin),
-          o: ramp(f, 0.1, 0.34, E.lin) * (1 - ramp(f, 0.85, 1, E.lin)), // they show once they have spread out
+          o: ramp(f, 0.1, 0.34, E.lin) * (1 - ramp(f, 0.85, 1, E.lin)), // they show once they have spread out; no shrinking, so the text stays 28 px
         });
       });
 
@@ -261,8 +287,11 @@
       // ---- verdicts ----
       vOk.set(life(t, T.ok, T.okOff));
       vOver.set(life(t, T.over, T.overOff));
+      vCas.set(life(t, T.cas, T.casOff));
       vAll.set(life(t, T.all, T.allOff));
       vBug.set(ramp(t, T.bugTag, T.bugTag + 0.4, E.out));
+      hw.set({ k: life(t, T.hw, T.hwOff) });
+      sw.set({ k: ramp(t, T.bug + 0.35, T.bug + 0.75, E.out) });
 
       // ---- the bug and its wires ----
       const bk = ramp(t, T.bug, T.bug + 0.4, E.out);
@@ -286,13 +315,14 @@
   V.scene({
     kicker: "RELIABILITY",
     title: ["One fault can bring", "everything down"],
-    dur: 12,
+    dur: 13.7,
     caps: [
-      [0.4, 2.6, `Six servers share the load, ${PER[0]} each.`],
-      [2.75, 4.85, `One dies; five carry on at ${PER[1]} each.`],
-      [5.05, 7.1, `One more dies: ${PER[2]} each, over ${CAP}.`],
-      [7.3, 9.5, "Overload makes them fall one by one."],
-      [9.95, 11.8, "One bug hits all six together."],
+      [0.4, 2.6, `${cap1(WORD[N])} servers share the load, ${PER[0]} each.`],
+      [2.75, 4.85, `One dies; ${WORD[C.one.alive]} carry on at ${PER[1]} each.`],
+      [5.05, 7.04, `One more dies: ${PER[2]} each, over ${CAP}.`],
+      [7.05, 9.25, "Overload makes them fall one by one."],
+      [9.3, 11.0, `The last one carries all ${C.load}.`],
+      [11.8, 13.6, `One bug hits all ${WORD[N]} together.`],
     ],
     build,
   });

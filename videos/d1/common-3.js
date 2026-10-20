@@ -6,7 +6,8 @@
         const s = D1.server(parent, {x, y, w: 130, h: 150, label: "1", fs: 28});   x, y = top-left; any size works (the parts scale)
         s.set({state, load, label, text, k, x, y, s, o, shake})
             state: "idle" grey (not in use) | "ok" green | "hot" orange (near capacity) | "over" orange tint (above capacity,
-            the meter is full) | "down" red tint with a red cross (dead) | "ghost" dashed empty outline (does not exist)
+            the meter is full) | "fault" orange tint with an orange cross (one part is dead but the service still works: a FAULT) |
+            "down" red tint with a red cross (the service is down for users: a FAILURE) | "ghost" dashed empty outline
             load: 0..1 fills the meter (1 = at capacity; pass load / capacity and anything above 1 shows a full meter)
             label: small name at the top (default the one given in the options);  text: the big line in the middle, e.g. "84"
             k 0..1 pops it in;  x, y offsets;  s scale;  o opacity;  shake: horizontal offset in px (a hit)
@@ -42,6 +43,7 @@
     ok: { tone: "green", plain: true },
     hot: { tone: "orange", plain: true },
     over: { tone: "orange", plain: false },
+    fault: { tone: "orange", plain: false },
     down: { tone: "red", plain: false },
     ghost: { tone: "grey", plain: true },
   };
@@ -78,16 +80,19 @@
     Object.assign(track.style, { background: "var(--line)", overflow: "hidden" });
     const fill = V.h("div", { style: { ...abs(0, 0, 0, h * 0.1), borderRadius: `${f1(h * 0.05)}px` } });
     track.append(fill);
-    const cross = V.s(
-      "svg",
-      {
-        width: w,
-        height: h,
-        style: { position: "absolute", left: "-3px", top: "-3px", overflow: "visible", visibility: "hidden" },
-      },
-      L5.cross(w / 2, h * 0.5, Math.min(w, h) * 0.5, "red", { ink: true, w: Math.max(8, Math.min(w, h) * 0.1) }),
-    );
-    el.append(...slots, led, lab, txt, track, cross);
+    const crossOf = (tone) =>
+      V.s(
+        "svg",
+        {
+          width: w,
+          height: h,
+          style: { position: "absolute", left: "-3px", top: "-3px", overflow: "visible", visibility: "hidden" },
+        },
+        L5.cross(w / 2, h * 0.5, Math.min(w, h) * 0.5, tone, { ink: true, w: Math.max(8, Math.min(w, h) * 0.1) }),
+      );
+    const crossRed = crossOf("red");
+    const crossOrange = crossOf("orange");
+    el.append(...slots, led, lab, txt, track, crossRed, crossOrange);
     parent.append(el);
     return {
       el,
@@ -97,7 +102,7 @@
         const sp = STATE[st.state || "idle"];
         if (!sp) throw new Error(`VID.d1.server: unknown state "${st.state}"`);
         const ghost = st.state === "ghost";
-        const down = st.state === "down";
+        const down = st.state === "down" || st.state === "fault";
         D1.setClass(el, `v-card${sp.plain ? " plain" : ""} c-${sp.tone}`);
         el.style.borderStyle = ghost ? "dashed" : "";
         el.style.boxShadow = ghost ? "none" : "";
@@ -115,7 +120,8 @@
         [lab, txt, track, led, ...slots].forEach((e) => hide(e, ghost));
         hide(txt, ghost || down);
         hide(lab, ghost || down);
-        cross.style.visibility = down ? "" : "hidden";
+        crossRed.style.visibility = st.state === "down" ? "" : "hidden";
+        crossOrange.style.visibility = st.state === "fault" ? "" : "hidden";
         const k = clamp(st.k ?? 1);
         V.place(el, {
           x: (st.x || 0) + (st.shake || 0),

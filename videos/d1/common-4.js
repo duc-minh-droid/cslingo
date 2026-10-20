@@ -17,9 +17,10 @@
         const m = D1.vline(parent, {x, y1, y2, tone, text, w: 6});   a marker line with a tag on top (text >= 28 px, centred on x)
         m.set({k: 0..1 (grows downward), tone, text, o, dy})   dy moves the tag along the line
    3. ARCHITECTURE  (scene 10: five services, four databases, the lines between them and an optional data-access layer; the
-      stage-sized figure: services y 30-94, layer y 215-279, databases y 400-472; counters and tags go below y 500)
-        const a = D1.arch(parent, {x: 0, y: 0});    a.svcMid(i) / a.dbMid(j) -> {x, y};  a.layerMid()
-        a.update({k: 1, direct: 1, layer: 0, hot: 0, hotK: 0, lineK: 1, o: 1})
+      stage-sized figure: services y 44-108, layer y 215-279, databases y 400-472; counters and tags go below y 500; the cards
+      sit `inset` px inside the 936 px stage on each side (default 24) so nothing needs scaling and the labels stay 28 px)
+        const a = D1.arch(parent, {x: 0, y: 0, inset: 24});    a.svcMid(i) / a.dbMid(j) -> {x, y};  a.layerMid()
+        a.update({k: 1, direct: 1, layer: 0, hot: 0, hotK: 0, lineK: 1, o: 1})   (also a.svcEdge(i) / a.layerEdge() -> top right corner)
             k 0..1 pops the boxes in (0 hides them);  direct 0..1 opacity of the 20 direct lines (service i to database j);
             layer 0..1 brings in the purple "data-access layer" bar and its 9 lines (5 + 4);  lineK 0..1 draws the direct
             lines in;  hot 0..1 shows the change "replace Orders DB": the Orders DB box turns orange solid and every line that
@@ -199,11 +200,12 @@
 
   // ---------- 3. architecture ----------
   function arch(parent, o = {}) {
-    const { x = 0, y = 0 } = o;
+    const { x = 0, y = 0, inset = 24 } = o;
     const M = D1.MAINT;
-    const GEO = { svc: { y: 30, h: 64, w: 164 }, layer: { y: 215, h: 64 }, db: { y: 400, h: 72, w: 190 } };
-    const sx = (i) => i * ((936 - 5 * GEO.svc.w) / 4 + GEO.svc.w) + GEO.svc.w / 2;
-    const dx = (j) => j * ((936 - 4 * GEO.db.w) / 3 + GEO.db.w) + GEO.db.w / 2;
+    const GEO = { svc: { y: 44, h: 64, w: 164 }, layer: { y: 215, h: 64 }, db: { y: 400, h: 72, w: 190 } };
+    const span = 936 - 2 * inset;
+    const sx = (i) => inset + i * ((span - 5 * GEO.svc.w) / 4 + GEO.svc.w) + GEO.svc.w / 2;
+    const dx = (j) => inset + j * ((span - 4 * GEO.db.w) / 3 + GEO.db.w) + GEO.db.w / 2;
     const root = V.h("div", { style: abs(x, y, 936, 640) });
     const svg = L5.svg(root);
     const sy = GEO.svc.y + GEO.svc.h;
@@ -218,9 +220,9 @@
       ...M.dbs.map((_, d) => ({ s: -1, d, el: mkLine([dx(d), ly[1]], [dx(d), GEO.db.y]) })),
     ];
     const bar = D1.card(root, {
-      x: 20,
+      x: inset + 16,
       y: GEO.layer.y,
-      w: 896,
+      w: span - 32,
       h: GEO.layer.h,
       text: "data-access layer",
       tone: "purple",
@@ -230,7 +232,7 @@
       D1.card(root, { x: sx(i) - GEO.svc.w / 2, y: GEO.svc.y, w: GEO.svc.w, h: GEO.svc.h, text: t }),
     );
     const dbs = M.dbs.map((t, j) =>
-      D1.card(root, { x: dx(j) - GEO.db.w / 2, y: GEO.db.y, w: GEO.db.w, h: GEO.db.h, text: t.replace(" DB", "") }),
+      D1.card(root, { x: dx(j) - GEO.db.w / 2, y: GEO.db.y, w: GEO.db.w, h: GEO.db.h, text: t }),
     );
     parent.append(root);
     const hotOf = (e, hot, layered) => e.d === M.hot && hot > 0.01;
@@ -239,6 +241,8 @@
       svcMid: (i) => ({ x: x + sx(i), y: y + GEO.svc.y + GEO.svc.h / 2 }),
       dbMid: (j) => ({ x: x + dx(j), y: y + GEO.db.y + GEO.db.h / 2 }),
       layerMid: () => ({ x: x + 468, y: y + GEO.layer.y + GEO.layer.h / 2 }),
+      layerEdge: () => ({ x: x + inset + 16 + span - 32, y: y + GEO.layer.y }),
+      svcEdge: (i) => ({ x: x + sx(i) + GEO.svc.w / 2, y: y + GEO.svc.y }),
       update(u = {}) {
         const { k = 1, direct: dOp = 1, layer = 0, hot = 0, lineK = 1 } = u;
         const hotK = u.hotK ?? hot;
@@ -269,9 +273,14 @@
           const edit = hot > 0.01 && j === M.hot;
           d.set({ k, tone: edit ? "orange" : "grey", plain: !edit, s: edit ? 1 + 0.08 * E.pop(hotRing) : 1 });
         });
-        if (hot > 0.01 && layer >= 0.5)
-          bar.set({ k: layer, tone: "orange", plain: false, s: 1 + 0.05 * E.pop(hotRing) });
         const lv = layer >= 0.5;
+        const hotLayer = hot > 0.01 && lv;
+        bar.set({
+          k: layer,
+          tone: hotLayer ? "orange" : "purple",
+          plain: false,
+          s: hotLayer ? 1 + 0.03 * E.pop(hotRing) : 1,
+        });
         return { direct: lv ? 0 : M.direct, layered: lv ? M.layered : 0, edit: lv ? M.editLayer : M.editDirect };
       },
     };

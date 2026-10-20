@@ -115,15 +115,15 @@
   };
 
   V.scene({
-    kicker: "SCALABILITY",
+    kicker: "PERFORMANCE",
     title: ["Judge speed by the spread,", "not the average"],
-    dur: 12.5,
+    dur: 12.3,
     caps: [
-      [0.7, 2.5, "100 requests, each timed."],
+      [0.7, 2.5, `${P.samples.length} requests, each timed.`],
       [3.0, 4.85, "Most are quick; a few are slow."],
-      [4.9, 6.6, "The average is 250 ms."],
-      [6.7, 8.5, "p95: 95 in 100 are faster."],
-      [8.7, 10.3, "p99: 99 in 100 are faster."],
+      [4.9, 6.6, `The average is ${P.mean} ms.`],
+      [6.7, 8.5, `p95: ${fast95} in 100 are faster.`],
+      [8.7, 10.3, `p99: ${fast99} in 100 are faster.`],
       [10.3, 12.2, "The average hides the slowest."],
     ],
     build(stage) {
@@ -140,7 +140,7 @@
       const keyTag = D1.tag(stage, { x: 62, y: 14, text: "one request" });
       const counter = D1.stat(stage, { x: 592, y: 14, w: 320, h: 80, label: "requests", tone: "blue" });
       const axisY = base + 56;
-      const axisTag = anchored(stage, { x: HIST.x + HIST.w / 2, y: axisY, text: "response time, ms" });
+      const axisTag = anchored(stage, { x: HIST.x + HIST.w / 2, y: axisY, text: "response time (ms)" });
       const quick = D1.tag(stage, { x: HIST.x, y: axisY, text: "quick", tone: "green" });
       const slow = anchored(stage, { x: HIST.x + HIST.w, y: axisY, align: "right", text: "slow", tone: "red" });
 

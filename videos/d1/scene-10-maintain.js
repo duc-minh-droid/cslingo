@@ -5,10 +5,10 @@
    5.65-6.4 a wrench badge lands on each of those services and "to edit" counts to 5; 7.85-8.45 the data-access layer fades in
    and the direct lines fade out ("connections" 20 -> 9; the hot state ends when the layer passes half way); 9.75 the tag
    returns, 9.8 Orders DB and the layer turn orange, 10.0 one wrench badge on the layer, "to edit" 5 -> 1 (green).
-   Numbers all come from D1.MAINT (asserted in common.js). Captions run at 17.6 to 18.0 characters per second.
-   Local workarounds (common-4.js is not edited): the figure sits in a wrapper scaled to 96 % so the cards that span the whole
-   stage keep a 12 px margin; the database cards get their " DB" back; the layer bar is styled here because the helper only
-   styles it while it is highlighted. */
+   Numbers all come from D1.MAINT (asserted in common.js). Captions run at 17 characters per second or slower. The architecture
+   figure is laid out by D1.arch inside the 12 px stage margin at full size (no scaling), so its labels render at 28 px; the
+   old counts ("was 20", "was 5") stay next to the new ones; the calm layered state shows "-" for "to edit" (nothing is being
+   changed there), as the lesson's own demo does. */
 (function () {
   const V = window.VID;
   const D1 = V.d1;
@@ -33,7 +33,7 @@
     edit: [10.1, 10.4],
     green: 10.5,
   };
-  const SC = 0.96; // the architecture figure is 936 px wide: this keeps its edge cards (and their orange pop) 12 px inside the stage
+  const WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]; // for the captions
 
   // the arch helper draws its direct lines with a staggered ramp: count the ones that have fully landed (same rule as common-4.js)
   const LINE_K = 1.05; // a little over 1 so the last line is complete when the ramp ends
@@ -53,26 +53,26 @@
     { text: "easy to\nchange", word: "evolvability", tone: "orange", icon: "wrench" },
   ];
 
-  // a small round sticker with an orange wrench: "this box has to be edited"
+  // a round sticker with an orange wrench: "this box has to be edited"
   function badge(svg) {
     const t = D1.tone("orange");
-    const lip = V.s("circle", { r: 17, cy: 3, "stroke-width": 0, style: { fill: t.lip } });
-    const disc = V.s("circle", { r: 17, "stroke-width": 3, style: { fill: "var(--panel)", stroke: t.lip } });
-    const g = V.s("g", {}, lip, disc, D1.icon.wrench(0, 0, 22, "orange"));
+    const lip = V.s("circle", { r: 22, cy: 4, "stroke-width": 0, style: { fill: t.lip } });
+    const disc = V.s("circle", { r: 22, "stroke-width": 3, style: { fill: "var(--panel)", stroke: t.lip } });
+    const g = V.s("g", {}, lip, disc, D1.icon.wrench(-3, 0, 30, "orange"));
     svg.append(g);
     return g;
   }
 
   V.scene({
     kicker: "MAINTAINABILITY",
-    title: ["Maintainable systems", "are easy to change"],
-    dur: 12.2,
+    title: ["Maintainable: easy to run,", "understand and change"],
+    dur: 12.5,
     caps: [
-      [0.75, 3.3, "Three kinds of easy: run, understand, change."],
-      [3.95, 6.1, "Every service talks to every database."],
-      [6.3, 8.15, "Swap one database: edit all five."],
-      [8.35, 10.35, "One layer in between: 9 connections."],
-      [10.5, 12, "Now only the layer changes."],
+      [0.75, 3.1, "Easy to run, understand and change."],
+      [3.95, 6.1, "Every service uses every database."],
+      [6.3, 8.2, `Swap a database: edit all ${WORD[M.editDirect]}.`],
+      [8.35, 10.4, `A layer in between: ${M.layered} connections.`],
+      [10.5, 12.3, "Now only the layer changes."],
     ],
     build(stage) {
       // ---- intro: three kinds of easy ----
@@ -96,37 +96,37 @@
       });
 
       // ---- the architecture and its counters ----
-      const fig = V.h("div", {
-        style: { position: "absolute", left: "0px", top: "0px", width: "936px", height: "640px" },
-      });
-      stage.append(fig);
-      V.place(fig, { s: SC });
-      const a = D1.arch(fig, { x: 0, y: 0 });
-      const parts = [...a.el.children];
-      const bar = parts[1];
+      const a = D1.arch(stage, { x: 0, y: 0 });
+      const bar = a.el.children[1];
       if (bar.textContent !== "data-access layer")
         throw new Error("maintain scene: layer bar not found in the arch figure");
-      // the helper drops " DB" from the database cards; put it back so the bottom row reads as databases
-      parts.slice(-M.dbs.length).forEach((c, j) => {
-        if (c.textContent !== M.dbs[j].replace(" DB", "")) throw new Error("maintain scene: database card not found");
-        c.textContent = M.dbs[j];
-      });
       const conn = D1.stat(stage, { x: 20, y: 542, w: 428, h: 80, label: "connections", tone: "grey" });
       const edit = D1.stat(stage, { x: 488, y: 542, w: 428, h: 80, label: "to edit", tone: "orange" });
+      // the old count stays beside the new one: a small grey "was 20" between the label and the number
+      const wasOf = (stat, text) => {
+        const el = V.h("span", { text, style: { fontSize: "28px", fontWeight: "800", color: "var(--text-dim)" } });
+        stat.el.insertBefore(el, stat.el.lastChild);
+        return el;
+      };
+      const wasConn = wasOf(conn, `was ${M.direct}`);
+      const wasEdit = wasOf(edit, `was ${M.editDirect}`);
       const hotMid = a.dbMid(M.hot);
       const tagW = D1.tagW("replace it");
       const replace = D1.tag(stage, {
-        x: 468 + (hotMid.x - 468) * SC - tagW / 2,
+        x: hotMid.x - tagW / 2,
         y: 484,
         h: 48,
         text: "replace it",
         tone: "orange",
         solid: true,
       });
-      const badgeLayer = L5.svg(fig);
-      // wrench badges sit on the top right corner of each service card that must be edited, and of the layer bar
-      const svcBadges = toEdit.map((s) => ({ g: badge(badgeLayer), at: { x: a.svcMid(s).x + 82 - 14, y: 28 } }));
-      const layerBadge = { g: badge(badgeLayer), at: { x: 898, y: 213 } };
+      const badgeLayer = L5.svg(stage);
+      // wrench badges sit on the top right corner of each service card that must be edited, and inside that of the layer bar
+      const svcBadges = toEdit.map((s) => ({
+        g: badge(badgeLayer),
+        at: { x: a.svcEdge(s).x - 12, y: a.svcEdge(s).y - 10 },
+      }));
+      const layerBadge = { g: badge(badgeLayer), at: { x: a.layerEdge().x - 26, y: a.layerEdge().y } };
 
       return (t) => {
         // intro
@@ -155,13 +155,6 @@
           throw new Error("maintain scene: five services must be edited without the layer");
         if (phase2 && r.edit !== M.editLayer)
           throw new Error("maintain scene: only the layer must be edited with the layer");
-        // the layer bar is only styled by the helper while it is highlighted: style it here every frame
-        bar.className = `v-card c-${phase2 ? "orange" : "purple"}`;
-        V.place(bar, {
-          s: (0.9 + 0.1 * E.pop(layer)) * (phase2 ? 1 + 0.03 * E.pop(hotK) : 1),
-          o: Math.min(1, layer * 4),
-        });
-
         // wrench badges: one per service that must be edited (five), or one on the layer
         const gone = 1 - ramp(t, T.fade1[0], T.fade1[1], E.lin);
         const b1 = svcBadges.map((_, i) => D1.seq(t, T.badge1, 0.12, 0.28, i));
@@ -189,13 +182,14 @@
           k: ramp(t, T.lines[0], T.lines[0] + 0.4, E.lin),
           bump: 0.25 * flash(t, T.layer[1] - 0.15, T.layer[1] + 0.35),
         });
+        wasConn.style.opacity = String(ramp(t, T.layer[0] + 0.2, T.layer[1] + 0.2, E.lin));
         const shown1 = b1.filter((p) => p >= 0.5).length;
-        // while no change is proposed (the calm layered state) the old count stays, grey
+        // while no change is proposed (the calm layered state) nothing is being edited: show "-", as the lesson's demo does
         const calm = !phase1 && !phase2 && layer >= 0.5;
         const nEdit = phase2
           ? Math.round(lerp(M.editDirect, M.editLayer, ramp(t, T.edit[0], T.edit[1], E.lin)))
           : calm
-            ? M.editDirect
+            ? "-"
             : shown1;
         edit.set({
           text: nEdit,
@@ -203,6 +197,7 @@
           k: ramp(t, T.hot1, T.hot1 + 0.4, E.lin),
           bump: phase2 ? 0.25 * flash(t, T.edit[1] - 0.1, T.edit[1] + 0.4) : 0,
         });
+        wasEdit.style.opacity = String(ramp(t, T.edit[0], T.edit[1], E.lin));
       };
     },
   });

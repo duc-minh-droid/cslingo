@@ -9,7 +9,24 @@
     { el } = N;
   const L = N.LESSONS;
 
-  const VIDEOS = [];
+  const VIDEOS = [
+    {
+      n: 1,
+      blurb:
+        "Lecture 1 in pictures: why one server is not enough, and what makes a system reliable, scalable and maintainable.",
+      chapters: [
+        "One server can't keep up or stay up",
+        "Copies drift apart: consistent or available?",
+        "Four building blocks behind most data apps",
+        "Faults are normal, failures are not",
+        "One fault can bring everything down",
+        "Judge speed by the spread, not the average",
+        "Do the work on write or on read?",
+        "Scale up or scale out?",
+        "Maintainable: easy to run, understand and change",
+      ],
+    },
+  ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const id = `ds${n}-video`,

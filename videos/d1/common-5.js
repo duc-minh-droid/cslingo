@@ -121,12 +121,15 @@
         [x + 0.4 * s, y + 0.5 * s],
         "Z",
       );
-      return V.s(
+      const g = V.s(
         "g",
         {},
         body("path", { d: shoulders }, t, tone, s),
         body("circle", { cx: f1(x), cy: f1(y - 0.24 * s), r: f1(0.2 * s) }, t, tone, s),
       );
+      // the grey fill is pale on a white panel: give the person the darker grey outline so the actors read at a glance
+      if (tone === "grey") g.querySelectorAll("*").forEach((e) => (e.style.stroke = "var(--node-off-ic)"));
+      return g;
     },
     envelope(x, y, s, tone = "blue") {
       const t = D1.tone(tn(tone));

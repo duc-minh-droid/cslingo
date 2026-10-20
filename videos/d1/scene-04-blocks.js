@@ -1,12 +1,13 @@
 /* Lecture 1 (ds-1), scene 04: the four building blocks, one panel each, played one after another (lesson 1.2).
    2 x 2 grid of sticker panels (database, cache, index, batch job). Story (local seconds):
    0.3-1.3 panels and headers pop.
-   DATABASE 0.9-3.5: a blue packet tagged "today" flies into the database and stays inside (a small blue square), the tag
-     "tomorrow" pops and a copy of the packet comes out the other side with a green tick: the data is still there.
-   CACHE 3.8-6.5: request 1 goes app -> cache (red cross, "miss": not here) -> database (red "100 ms"); a purple copy flies
-     back and stays in the cache; request 2 stops at the cache (green tick, "hit", green "2 ms").
-   INDEX 7.3-9.0: a race: "no index" sweeps up to 1,000,000 checks while "with an index" is done after 20.
-   BATCH JOB 9.7-12.2: the day's packets pile up under the sun, slide to the moon and gear (02:00) and are crunched, a green
+   DATABASE 0.9-3.5: a blue packet lights the "today" tag as it flies into the database and stays inside (a small blue square),
+     the tag "tomorrow" lights and a copy of the packet comes out the other side with a green tick: the data is still there.
+   CACHE 3.2-7.0 (the longest beat, each step held for about a second): request 1 goes app -> cache (red cross, "miss": not
+     here) -> database (red "100 ms"); a purple copy flies back and stays in the cache; request 2 stops at the cache (green
+     tick, "hit", green "2 ms"); a small label says what "ms" is. The captions start when the numbers they quote are on screen.
+   INDEX 7.95-9.8: a race: "no index" sweeps up to 1,000,000 checks while "with an index" is done after about 20.
+   BATCH JOB 11.1-13.7: the day's packets pile up under the sun, slide to the moon and gear (02:00) and are crunched, a green
      report is ready at 08:00.
    Every figure comes from D1.CACHE / D1.INDEX / D1.BATCH (asserted in common.js). */
 (function () {
@@ -32,17 +33,17 @@
     { x: 472, y: 330, name: "batch job" },
   ];
   // 1. database: today's packet in on the left, tomorrow's copy out on the right
-  const DB = { x: 226, y: 218, size: 112 };
+  const DB = { x: 226, y: 216, size: 132 };
   const IN_X = 90;
   const OUT_X = 360;
   // 2. cache: app -> cache -> database along one lane
-  const LANE = 160;
+  const LANE = 138;
   const APP = { x: 486, w: 88, h: 76 };
-  const CC = { x: 654, y: LANE - 48, w: 124, h: 96 }; // the cache card
+  const CC = { x: 640, y: LANE - 50, w: 150, h: 100 }; // the cache card
   const CCX = CC.x + CC.w / 2;
   const CDB = { x: 872, size: 64 }; // the small database
-  const REQ = [598, 640]; // a request walks from the app's edge to the cache's edge
-  const VERDICT = { sym: [656, 60], tag: [690, 31] }; // tick or cross, and its word, above the cache
+  const REQ = [598, 630]; // a request walks from the app's edge to the cache's edge
+  const VERDICT = { sym: [CCX - 40, 52], tag: [CCX - 6, 23] }; // tick or cross, and its word, above the cache
   // 3. index: two bars
   const BAR = { x: 34, w: 400, h: 44 };
   // 4. batch job: sun -> (moon + gear) -> report, with a pile of packets under the sun
@@ -69,38 +70,38 @@
     fly: [1.4, 2.0],
     stored: 2.0,
     tomorrow: 2.3,
-    out: [2.7, 3.15],
-    tick1: [3.15, 3.45],
+    out: [2.6, 3.05],
+    tick1: [3.05, 3.35],
     // cache
-    cacheIn: 3.8,
-    req1: 4.15,
-    legA: [4.2, 4.55],
-    miss: [4.55, 4.8],
-    missTag: 4.65,
-    legB: [4.95, 5.35],
-    slow: 5.35,
-    copy: [5.5, 5.85],
-    crossOut: [5.8, 5.9],
-    req2: [5.95, 6.25],
-    hit: [6.25, 6.5],
-    hitTag: 6.3,
-    fast: 6.35,
+    cacheIn: 3.2,
+    req1: 3.6,
+    legA: [3.65, 4.0],
+    miss: [4.0, 4.25],
+    missTag: 4.1,
+    legB: [5.0, 5.45],
+    slow: 5.45,
+    copy: [5.7, 6.05],
+    crossOut: [6.05, 6.15],
+    req2: [6.35, 6.65],
+    hit: [6.65, 6.9],
+    hitTag: 6.7,
+    fast: 6.75,
     // index
-    idxIn: 7.3,
-    race: 7.75,
-    sweep: [7.75, 8.9],
-    count: [7.9, 8.3],
+    idxIn: 7.95,
+    race: 8.35,
+    sweep: [8.35, 9.5],
+    count: [8.5, 8.9],
     // batch job
-    batIn: 9.7,
-    pile: 9.75,
-    arrow1: [10.4, 10.6],
-    night: 10.45,
-    slide: [10.55, 10.95],
-    spin: [10.8, 11.7],
-    eat: 10.95,
-    arrow2: [11.5, 11.7],
-    day: 11.7,
-    tick2: [11.95, 12.2],
+    batIn: 11.1,
+    pile: 11.15,
+    arrow1: [11.8, 12.0],
+    night: 11.85,
+    slide: [11.95, 12.35],
+    spin: [12.1, 13.0],
+    eat: 12.25,
+    arrow2: [12.8, 13.0],
+    day: 13.0,
+    tick2: [13.25, 13.5],
   };
   const popK = (t, a, d = 0.3) => ramp(t, a, a + d, E.lin);
   // pop a piece of the picture in: scale with a spring, fade fast
@@ -116,13 +117,14 @@
 
   V.scene({
     kicker: "BUILDING BLOCKS",
-    title: ["Four building blocks", "behind every data app"],
-    dur: 13,
+    title: ["Four building blocks", "behind most data apps"],
+    dur: 14.2,
     caps: [
-      [1.5, 3.9, "A database keeps data safe for tomorrow."],
-      [4.4, 7.2, "A cache keeps answers close: 2 ms, not 100."],
-      [7.8, 10.2, "An index: 20 checks, not a million."],
-      [10.5, 12.8, "A batch job crunches it overnight."],
+      [1.8, 3.9, "A database stores data for tomorrow."],
+      [3.9, 5.6, "A cache keeps answers close."],
+      [6.75, 8.65, `A hit takes ${MS(CACHE.cacheMs)}, a miss ${MS(CACHE.dbMs)}.`],
+      [9.0, 11.05, `An index: ${CHECKS(INDEX.checks)}, not a million.`],
+      [12.0, 14.0, "A batch job crunches it overnight."],
     ],
     build(stage) {
       // a tag centred on cx with a fixed width, so the text can be centred under or over a picture
@@ -157,8 +159,8 @@
       const pk = D1.token(stage, { tone: "blue", size: 34, square: true });
       const stored = D1.token(stage, { tone: "blue", size: 26, square: true });
       const pkOut = D1.token(stage, { tone: "blue", size: 34, square: true });
-      const today = tagC(IN_X, 98, "today", 124);
-      const tomorrow = tagC(OUT_X, 98, "tomorrow", 184);
+      const today = tagC(IN_X, 88, "today", 124);
+      const tomorrow = tagC(OUT_X, 88, "tomorrow", 184);
       const req1 = D1.token(stage, { tone: "blue", size: 30 });
       const req2 = D1.token(stage, { tone: "blue", size: 30 });
       const cc = D1.card(stage, { x: CC.x, y: CC.y, w: CC.w, h: CC.h, text: "cache", tone: "purple", plain: false });
@@ -175,8 +177,10 @@
       const copy = D1.token(stage, { tone: "purple", size: 32, square: true });
       const missTag = D1.tag(stage, { x: VERDICT.tag[0], y: VERDICT.tag[1], text: "miss", tone: "red" });
       const hitTag = D1.tag(stage, { x: VERDICT.tag[0], y: VERDICT.tag[1], text: "hit", tone: "green" });
-      const slow = tagC(815, 226, MS(CACHE.dbMs), 146, { tone: "red", solid: true });
-      const fast = tagC(626, 226, MS(CACHE.cacheMs), 112, { tone: "green", solid: true });
+      const slow = tagC(800, 200, MS(CACHE.dbMs), 146, { tone: "red", solid: true });
+      const fast = tagC(640, 200, MS(CACHE.cacheMs), 112, { tone: "green", solid: true });
+      // what "ms" is, said once (the lesson's first number with a unit)
+      const msNote = D1.label(stage, { x: 486, y: 262, w: 420, text: "1 ms = 1/1000 of a second" });
 
       const idxNote = D1.label(stage, {
         x: 164,
@@ -234,10 +238,13 @@
           s: appear(pkK).s * (1 - 0.85 * inK),
           o: appear(pkK).o * (1 - inK),
         });
-        today.set({ k: popK(t, T.packet, 0.3) });
+        // the tags light up in turn: "today" while the packet goes in, "tomorrow" while the copy comes out
+        const inToday = t < T.stored + 0.2;
+        const inTomorrow = t >= T.out[0] && t < T.tick1[1] + 0.5;
+        today.set({ k: popK(t, T.packet, 0.3), tone: inToday ? "blue" : "grey", solid: inToday });
         const stK = popK(t, T.stored, 0.3);
         stored.set({ x: DB.x, y: DB.y + 4, ...appear(stK) });
-        tomorrow.set({ k: popK(t, T.tomorrow, 0.3) });
+        tomorrow.set({ k: popK(t, T.tomorrow, 0.3), tone: inTomorrow ? "green" : "grey", solid: inTomorrow });
         const outK = ramp(t, T.out[0], T.out[1], E.out);
         pkOut.set({
           x: DB.x + (OUT_X - DB.x) * outK,
@@ -297,6 +304,7 @@
         L5.drawOn(hit, ramp(t, T.hit[0], T.hit[1], E.out));
         hitTag.set({ k: popK(t, T.hitTag, 0.3) });
         fast.set({ k: popK(t, T.fast, 0.3) });
+        msNote.set({ k: popK(t, T.slow + 0.2, 0.3) });
 
         // ---- 3. index: a race, the sweep against 20 checks ----
         const kIdx = popK(t, T.idxIn, 0.3);
@@ -304,13 +312,17 @@
         lab1.set({ k: popK(t, T.idxIn + 0.05, 0.3) });
         lab2.set({ k: popK(t, T.idxIn + 0.15, 0.3) });
         const sw = ramp(t, T.sweep[0], T.sweep[1], E.inOut);
-        bar1.set({ v: sw, k: popK(t, T.idxIn + 0.05, 0.3), text: CHECKS(Math.round(sw * INDEX.scan)) });
+        bar1.set({
+          v: sw,
+          k: popK(t, T.idxIn + 0.05, 0.3),
+          text: sw < 1 ? CHECKS(Math.round(sw * INDEX.scan)) : `up to ${CHECKS(INDEX.scan)}`, // the worst case
+        });
         const k2 = popK(t, T.race, 0.25);
         const n2 = Math.round(INDEX.checks * ramp(t, T.count[0], T.count[1], E.lin));
         bar2.set({
           v: t >= T.race ? Math.max(INDEX.checks / INDEX.scan, 0.001) : 0,
           k: popK(t, T.idxIn + 0.15, 0.3),
-          text: CHECKS(n2),
+          text: n2 < INDEX.checks ? CHECKS(n2) : `about ${CHECKS(INDEX.checks)}`, // log2 of a million is about 20
         });
         V.place(fill2, appear(k2));
         V.place(txt2, { o: ramp(t, T.race + 0.1, T.race + 0.3, E.lin) });

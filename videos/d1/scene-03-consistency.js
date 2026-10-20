@@ -1,9 +1,12 @@
 /* Lecture 1 (ds-1), scene 03: two copies of "tickets left" (London, New York); the link is cut, London sells one ticket and
    New York never hears, so New York must choose: refuse to answer (consistent) or answer with the old number (available).
-   Story (local seconds): 0.1-0.9 cards, counts, wire and "link" tag pop; 1.0-2.5 a purple copy shuttles across the working
-   link; 2.75-3.3 the link is cut; 3.5-4.6 a buyer asks London for 1 ticket and its count turns 5 -> 4; 4.7-5.85 the copy runs
-   to the gap and drops, New York stays on 5 (turns red: stale); 6.0-6.9 a customer asks New York "tickets left?"; 6.8-8.2
-   "stay consistent": New York refuses (cross, "no answer"); 8.9-10.4 "stay available": New York answers 5, which is stale. */
+   Story (local seconds): 0.1-0.9 cards, counts, wire and "network link" tag pop (why two copies: a crash in one city must not
+   stop the other); 1.0-2.5 a purple copy shuttles across the working link; 2.9-3.4 the link is cut; 3.7-4.8 a buyer asks
+   London for 1 ticket and its count turns 5 -> 4; 4.9-6.1 the copy runs to the gap and drops, New York stays on 5 (turns
+   red: stale); 6.3-7.2 a customer asks New York "tickets left?" and New York has to choose; 7.4-9.3 "stay consistent"
+   (copies always agree): New York refuses, an orange "no answer" chip reaches the customer; "or"; 9.3-11.3 "stay available"
+   (always answers): New York answers 5, a red 5 chip reaches the customer, who has been misled. The two answers are drawn as
+   New York's two options side by side, under a "New York must choose" tag. Every number comes from D1.TICKETS. */
 (function () {
   const V = window.VID;
   const D1 = V.d1;
@@ -21,117 +24,131 @@
   const LX = 30; // London card
   const NX = 636; // New York card
   const CW = 270;
-  const CY = 78;
-  const CH = 172;
+  const CY = 76;
+  const CH = 150;
   const WY = CY + CH / 2; // the wire runs through the middle of the cards
   const LC = LX + CW / 2; // card centres
   const NC = NX + CW / 2;
   const MID = (LX + CW + NX) / 2;
-  const UY = 346; // people
-  const AY = 428; // answer cards
-  const AH = 192;
-  const AW = 420;
-  const AX2 = 486;
+  const UY = 302; // people
+  const HY = 372; // "New York must choose"
+  const AY = 440; // answer cards
+  const AH = 174;
+  const AW = 408;
+  const AX = [LX, 936 - LX - AW]; // x of the two answer cards
   const GAP_X = 420; // a copy packet gets this far along the cut wire
-  const SLOT_Y = 260; // where New York's reply sits, between its card and the customer
-  const SLOT_H = 46;
-  const CHIP_Y = CY + 26; // the count chips
+  const CHIP_Y = CY + 14; // the count chips
+  const REPLY = { x: NC + 60, y: UY - 24, w: 62, h: 50 }; // New York's reply, beside the customer
+  // measured widths of the tags (D1.tagW is only an estimate and runs some px off)
+  const TW = { link: 215, cut: 84, choose: 349, no: 182, stale: 199, ask: 202 };
 
   // when things happen (local seconds)
   const S = {
     shuttle: [1.0, 2.5], // a copy crosses the working link and comes back
-    cut: [2.75, 3.3],
-    buyTag: 3.5,
-    buyHop: [3.7, 4.2],
-    flip: [4.2, 4.6], // London 5 -> 4
-    copyRun: [4.7, 5.4],
-    copyDrop: [5.4, 5.85],
-    stale: [5.6, 5.9], // New York's 5 is now wrong
-    askTag: 6.0,
-    askHop: [6.1, 6.6],
-    ring: [6.6, 6.9], // New York has to choose
-    cons: 6.8, // "stay consistent" card
-    reply: [8.9, 9.35], // the 5 leaves New York for the customer
-    avail: 9.0, // "stay available" card
+    cut: [2.9, 3.4],
+    buyTag: 3.7,
+    buyHop: [3.9, 4.4],
+    flip: [4.4, 4.8], // London 5 -> 4
+    copyRun: [4.9, 5.6],
+    copyDrop: [5.6, 6.05],
+    stale: [5.8, 6.1], // New York's 5 is now wrong
+    askTag: 6.3,
+    askHop: [6.4, 6.9],
+    ring: [6.9, 7.2], // New York has to choose
+    choose: 7.1, // "New York must choose"
+    cons: 7.4, // "stay consistent" card
+    noReply: 7.9, // the refusal reaches the customer
+    or: 9.0,
+    avail: 9.3, // "stay available" card
+    reply: 9.8, // the 5 reaches the customer
   };
 
   V.scene({
     kicker: "TRADE-OFF 1",
     title: ["Copies drift apart:", "consistent or available?"],
-    dur: 11.5,
+    dur: 12.2,
     caps: [
-      [0.6, 2.8, "Two copies, kept in step by a link."],
-      [3.1, 4.5, "Now the link is cut."],
-      [4.6, 7.2, "London sells a ticket; New York never hears."],
+      [0.6, 3.1, "Against crashes, keep a copy in each city."],
+      [3.3, 4.7, "Now the link is cut."],
+      [4.7, 7.3, "London sells a ticket; New York never hears."],
       [7.4, 9.4, "Stay consistent: refuse to answer."],
-      [9.4, 11.5, "Stay available: answer, maybe stale."],
+      [9.9, 12.0, "Stay available: answer, maybe stale."],
     ],
     build(stage) {
-      const svg = L5.svg(stage);
       const wire = D1.wire(stage, { x1: LX + CW, y1: WY, x2: NX, y2: WY, w: 10 });
-      // New York's refusal, in the same slot as its reply
-      const refuse = svg.appendChild(L5.cross(NC, SLOT_Y + SLOT_H / 2, 38, "orange", { ink: true }));
       const heads = [
         D1.tag(stage, { x: LX, y: 12, text: "London" }),
         D1.tag(stage, { x: NX, y: 12, text: "New York" }),
       ];
-      // New York's reply sits between its card and the customer; made before the cards so that it slides out from behind
-      // New York's card
-      const reply = D1.chip(stage, {
-        x: NC - 27,
-        y: SLOT_Y,
-        w: 54,
-        h: SLOT_H,
-        fs: 32,
-        tone: "red",
-        solid: true,
-        text: String(FAST.answer),
-      });
       const cards = [LX, NX].map((x) => D1.card(stage, { x, y: CY, w: CW, h: CH }));
       const chips = [LX, NX].map((x) =>
-        D1.chip(stage, { x: x + 75, y: CHIP_Y, w: 120, h: 100, fs: 76, tone: "green", text: String(T.start) }),
+        D1.chip(stage, { x: x + 75, y: CHIP_Y, w: 120, h: 82, fs: 62, tone: "green", text: String(T.start) }),
       );
-      const caps = [LX, NX].map((x) => D1.label(stage, { x, y: CY + 134, w: CW, text: "tickets left" }));
-      const link = D1.tag(stage, { x: 0, y: WY - 108, text: "link", tone: "green" });
+      const caps = [LX, NX].map((x) => D1.label(stage, { x, y: CY + 104, w: CW, text: "tickets left" }));
+      const linkText = "network link";
+      const link = D1.tag(stage, { x: 0, y: WY - 78, text: linkText, tone: "green" });
       const buyer = D1.user(stage, { x: LC, y: UY, name: "buyer" });
       const customer = D1.user(stage, { x: NC, y: UY, name: "customer" });
       // what each person says (blue = a request)
       const buyTag = D1.tag(stage, { x: LC + 66, y: UY - 30, text: "buy 1", tone: "blue" });
       const askText = "tickets left?";
-      const askTag = D1.tag(stage, { x: NC - 52 - D1.tagW(askText), y: UY - 30, text: askText, tone: "blue" });
+      const askTag = D1.tag(stage, { x: NC - 56 - TW.ask, y: UY - 30, text: askText, tone: "blue" });
       // packets: one purple copy, one blue request per person
       const copy = D1.token(stage, { tone: "purple", size: 32, square: true });
       const buy = D1.token(stage, { tone: "blue", size: 32, square: true });
       const ask = D1.token(stage, { tone: "blue", size: 32, square: true });
-      // the two answers
-      const aw = (x) => ({ x, y: AY, w: AW, h: AH });
-      const consCard = D1.card(stage, { ...aw(LX), tone: "orange" });
-      const availCard = D1.card(stage, { ...aw(AX2), tone: "red" });
-      const consHead = D1.tag(stage, { x: LX + 18, y: AY + 10, text: "stay consistent", tone: "orange" });
-      const availHead = D1.tag(stage, { x: AX2 + 18, y: AY + 10, text: "stay available", tone: "red" });
+
+      // New York's two options, side by side under one heading, with "or" between them
+      const choose = D1.tag(stage, {
+        x: 468 - TW.choose / 2,
+        y: HY,
+        text: "New York must choose",
+        tone: "grey",
+        solid: true,
+      });
+      const orTag = D1.label(stage, { x: 468 - 30, y: AY + AH / 2 - 20, w: 60, text: "or", bold: true });
+      const mk = (i, tone, head, def) => {
+        const x = AX[i];
+        const card = D1.card(stage, { x, y: AY, w: AW, h: AH, tone });
+        return {
+          card,
+          head: D1.tag(stage, { x: x + 18, y: AY + 8, text: head, tone }),
+          def: D1.label(stage, { x, y: AY + 76, w: AW, text: def, tone }),
+        };
+      };
+      const cons = mk(0, "orange", "stay consistent", "copies always agree");
+      const avail = mk(1, "red", "stay available", "always answers");
       const noAns = D1.tag(stage, {
-        x: LX + (AW - D1.tagW("no answer")) / 2,
-        y: AY + 80,
+        x: AX[0] + (AW - TW.no) / 2,
+        y: AY + 112,
         text: "no answer",
         tone: "orange",
         solid: true,
       });
       const staleText = `stale: it is ${T.after}`;
-      const rowW = 84 + 14 + D1.tagW(staleText);
-      const rowX = AX2 + (AW - rowW) / 2;
+      const rowW = 84 + 14 + TW.stale;
+      const rowX = AX[1] + (AW - rowW) / 2;
       const staleChip = D1.chip(stage, {
         x: rowX,
-        y: AY + 78,
+        y: AY + 112,
         w: 84,
-        h: 62,
-        fs: 48,
+        h: 58,
+        fs: 46,
         tone: "red",
         solid: true,
         text: String(FAST.answer),
       });
-      const staleTag = D1.tag(stage, { x: rowX + 98, y: AY + 80, text: staleText, tone: "red" });
-      const consFoot = D1.label(stage, { x: LX, y: AY + 150, w: AW, text: "good for bank balances" });
-      const availFoot = D1.label(stage, { x: AX2, y: AY + 150, w: AW, text: "good for a like counter" });
+      const staleTag = D1.tag(stage, { x: rowX + 98, y: AY + 112, text: staleText, tone: "red" });
+
+      // New York's reply as it reaches the customer: a chip, the same size for both answers
+      const rep = (tone, text) =>
+        D1.chip(stage, { x: REPLY.x, y: REPLY.y, w: REPLY.w, h: REPLY.h, fs: 34, tone, solid: true, text });
+      const noReply = rep("orange", "");
+      const reply = rep("red", String(FAST.answer));
+      const top = L5.svg(stage);
+      const refuse = top.appendChild(
+        L5.cross(REPLY.x + REPLY.w / 2, REPLY.y + REPLY.h / 2, 38, "orange", { on: true, w: 7 }),
+      );
       const lane = (x, a, b, f) => ({ x, y: a + (b - a) * f });
 
       return (t) => {
@@ -157,35 +174,35 @@
           tone: lead ? "green" : "blue",
           k: kn(0),
           sx: Math.max(0.04, Math.abs(Math.cos(Math.PI * flip))),
-          s: 1 + 0.08 * toLondon + 0.08 * flash(t, 4.5, 5.0),
+          s: 1 + 0.08 * toLondon + 0.08 * flash(t, 4.7, 5.2),
         });
         chips[1].set({
           text: String(T.start),
           tone: nyStale ? "red" : "green",
           k: kn(1),
-          s: 1 + 0.08 * toNY + 0.1 * flash(t, S.stale[0], 6.1) + 0.08 * flash(t, S.reply[0] - 0.05, S.reply[0] + 0.4),
-          ring: t < S.reply[1] ? "orange" : "red",
+          s: 1 + 0.08 * toNY + 0.1 * flash(t, S.stale[0], 6.3) + 0.08 * flash(t, S.reply - 0.05, S.reply + 0.4),
+          ring: t < S.reply ? "orange" : "red",
           ringK: rk,
         });
 
-        // the link tag says "link", then "cut"
-        const word = cut > 0.2 ? "cut" : "link";
+        // the link tag says "network link", then "cut"
+        const word = cut > 0.2 ? "cut" : linkText;
         link.set({
           text: word,
           tone: cut > 0.2 ? "red" : "green",
           solid: cut > 0.2,
-          x: MID - D1.tagW(word) / 2,
+          x: MID - (cut > 0.2 ? TW.cut : TW.link) / 2,
           k: ramp(t, 0.55, 0.9, E.lin),
         });
 
         // people: the customer is orange while New York decides, red once it has been misled
         const asked = ramp(t, S.askHop[1], S.askHop[1] + 0.1, E.lin);
-        const misled = ramp(t, S.reply[1], S.reply[1] + 0.15, E.lin);
+        const misled = ramp(t, S.reply, S.reply + 0.15, E.lin);
         buyer.set({ k: kc(0), s: 1 + 0.1 * flash(t, S.buyHop[0] - 0.2, S.buyHop[0] + 0.3) });
         customer.set({
           k: kc(1),
           s: 1 + 0.1 * flash(t, S.askTag - 0.1, S.askTag + 0.4),
-          tone: misled > 0.5 ? "red" : asked > 0.5 && t < S.reply[0] ? "orange" : "grey",
+          tone: misled > 0.5 ? "red" : asked > 0.5 ? "orange" : "grey",
         });
         const said = (a, b) => Math.min(ramp(t, a, a + 0.3, E.lin), 1 - ramp(t, b, b + 0.3, E.lin));
         buyTag.set({ k: said(S.buyTag, 4.5), o: 1 });
@@ -235,27 +252,26 @@
         hop(buy, LC, S.buyHop);
         hop(ask, NC, S.askHop);
 
-        // the two answers (the cross and the red 5 are New York's reply on its way to the customer)
-        consCard.set({ k: ramp(t, S.cons, S.cons + 0.5, E.lin) });
-        consHead.set({ k: ramp(t, S.cons, S.cons + 0.4, E.lin) });
-        noAns.set({ k: ramp(t, 7.1, 7.5, E.lin) });
-        consFoot.set({ k: ramp(t, 7.8, 8.2, E.lin) });
-        V.place(refuse, {
-          s: 0.6 + 0.4 * E.pop(ramp(t, 7.0, 7.4, E.lin)),
-          o: ramp(t, 7.0, 7.2, E.lin) * (1 - ramp(t, S.reply[0] - 0.15, S.reply[0] + 0.05, E.lin)),
-        });
-        availCard.set({ k: ramp(t, S.avail, S.avail + 0.5, E.lin) });
-        availHead.set({ k: ramp(t, S.avail, S.avail + 0.4, E.lin) });
-        staleChip.set({ k: ramp(t, 9.4, 9.8, E.lin) });
-        staleTag.set({ k: ramp(t, 9.6, 10.0, E.lin) });
-        availFoot.set({ k: ramp(t, 10.0, 10.4, E.lin) });
-        // the 5 slides out from behind New York's card into the slot above the customer
-        const slide = ramp(t, S.reply[0], S.reply[1], E.out);
-        reply.set({
-          y: -(SLOT_Y + SLOT_H + 8 - (CY + CH)) * (1 - slide),
-          k: ramp(t, S.reply[0], S.reply[0] + 0.02, E.lin),
-          o: 1 - ramp(t, 10.0, 10.2, E.lin),
-        });
+        // New York's two options (the one after the other, with "or" between them)
+        const kk = (a, d = 0.4) => ramp(t, a, a + d, E.lin);
+        choose.set({ k: kk(S.choose) });
+        cons.card.set({ k: kk(S.cons, 0.5) });
+        cons.head.set({ k: kk(S.cons, 0.4) });
+        cons.def.set({ k: kk(S.cons + 0.3) });
+        noAns.set({ k: kk(S.noReply + 0.2) });
+        orTag.set({ k: kk(S.or, 0.3) });
+        avail.card.set({ k: kk(S.avail, 0.5) });
+        avail.head.set({ k: kk(S.avail, 0.4) });
+        avail.def.set({ k: kk(S.avail + 0.3) });
+        staleChip.set({ k: kk(S.reply + 0.2) });
+        staleTag.set({ k: kk(S.reply + 0.4) });
+
+        // what reaches the customer: first the refusal (an orange chip with a cross), then the red 5
+        const nk = kk(S.noReply, 0.4);
+        const nGone = 1 - kk(S.reply - 0.15, 0.2);
+        noReply.set({ k: nk, o: nGone });
+        V.place(refuse, { s: 0.6 + 0.4 * E.pop(nk), o: Math.min(1, nk * 4) * nGone });
+        reply.set({ k: kk(S.reply, 0.4) });
       };
     },
   });
