@@ -22,7 +22,7 @@ Eight animated explainers (square 1080 x 1080, no audio, on-screen captions), on
 
 ## Data Science videos (`ds-N`)
 
-One explainer per Data Science lecture, same engine and rules: page `videos/ds-N.html`, scenes and helpers in `videos/dN/`, storyboard `videos/_plan/ds-N.json`, output `videos/out/ds-N.mp4` plus `ds-N-poster.png` (a still of the title card, `node tools/video-still.js ds-N 2.2 <dir>`). Record with `FFMPEG=... node tools/render-video.js ds-N`; the lecture is wired into the app by adding `{n, blurb, chapters}` to `VIDEOS` in `js/content/ds/videos.js`. Lecture 1 is recorded and wired; lectures 2 to 6 have their storyboards, helpers and (in progress) scene drafts but are not recorded yet. The agent briefs used to build them are `videos/_plan/DS_*.md` (architect, scene, review, fix).
+One explainer per Data Science lecture, same engine and rules: page `videos/ds-N.html`, scenes and helpers in `videos/dN/`, storyboard `videos/_plan/ds-N.json`, output `videos/out/ds-N.mp4` plus `ds-N-poster.png` (a still of the title card, `node tools/video-still.js ds-N 2.2 <dir>`). Record with `FFMPEG=... node tools/render-video.js ds-N`; the lecture is wired into the app by adding `{n, blurb, chapters}` to `VIDEOS` in `js/content/ds/videos.js`. Lectures 1 and 2 are recorded and wired; lectures 3 to 6 have their storyboards, helpers and (in progress) scene drafts but are not recorded yet. The agent briefs used to build them are `videos/_plan/DS_*.md` (architect, scene, review, fix).
 
 ## Algorithms videos (`algo-N`)
 

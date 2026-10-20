@@ -26,6 +26,21 @@
         "Maintainable: easy to run, understand and change",
       ],
     },
+    {
+      n: 2,
+      blurb:
+        "Lecture 2 in pictures: one profile stored as tables or as a document, links as data, and the four kinds of NoSQL.",
+      chapters: [
+        "One profile page, two ways to store it",
+        "A company renames, who has to change?",
+        "Changing the shape of your data",
+        "One document, one read: good and bad",
+        "When the links are the data",
+        "Friends of friends: joins or edges?",
+        "Four kinds of NoSQL, one recipe",
+        "Pick the family by the question",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
