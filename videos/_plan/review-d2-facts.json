@@ -1,0 +1,116 @@
+{
+  "findings": [
+    {
+      "scene": "scene-07-hops.js",
+      "severity": "must",
+      "problem": "The headline says 'Friends of friends: joins or edges?' but the scene never shows friends of friends. In the lesson (ds-querylab mission 'fof', 'Friends of friends of Ana' = go to friends twice) friends of friends of Ana is ONE person, Cy (2 hops; D2.walk('Ana', 2).result = ['Cy']). The scene walks 3 hops and labels Dee as the answer, then 4 hops and labels Eli, all under that headline. A learner will conclude that friends of friends is Dee or Eli, and scene 9 then reuses the phrase 'Friends of friends: graph' with the real meaning.",
+      "fix": "Either retitle the scene for what it shows (for example 'Hop by hop:' / 'joins or edges?'), or add a first beat that stops at 2 hops with the result chips reading 'Cy' and a small 'friends of friends' tag, then continue to 3 hops (Dee) and 4 hops (Eli). D2.walk('Ana', 2) already returns the data (2 joins, 2 fetches, result Cy).",
+      "evidence": "s7@1.0 (headline), s7@6.5 (chips read 'Dee' after 3 hops under the headline), js/content/ds/ds-workshops-02.js mission 'fof' (want ['Cy'], hops === 2), node check: walk('Ana',2).result = ['Cy']."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "should",
+      "problem": "The relational lane says 'relational: 1,000 rows' and the bar counts 'rewriting 378 / 1,000', but the table has only three rows, which turn green at 333, 667 and 1,000 (thirds), and the ring sits on row 2 ('Bo Li', still NULL) while the bar already says 378. Nothing on screen says the three rows are samples, so the table contradicts the counter. The document lane has the same gap: 'document store: 1,000 documents' over three documents.",
+      "fix": "Say they are samples: add an SVG ellipsis (three dots) under the third row of the table and under the documents, and put '3 of 1,000 shown' (or similar, 28 px minimum) in the lane tags, or tie the green flips to the bar by showing a 'many more' ellipsis row that fills as the bar passes.",
+      "evidence": "s4@9.0 (bar 378 / 1,000, 'Ada Byte' green, 'Bo Li' ringed and still NULL, 'Cy Dee' NULL), s4@12.5; code: doneAt(r) = sweep0 + third * (r + 1)."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "should",
+      "problem": "Caption 'On a big table that takes a long time.' sits over a table labelled 1,000 rows. 1,000 rows is not a big table (the lesson's own slider runs from 1,000 up to 100 million, and its 'slow, may need downtime' claim is made for big tables). The caption and the number disagree; a learner who knows databases will find the claim false for 1,000 rows.",
+      "fix": "Keep 1,000 as the asserted lesson default but make the claim honest: caption 'With millions of rows that takes a long time.' and/or the lane tag 'relational: 1,000 rows (think millions)'. Alternatively show the lesson's 1M figure (D2.SCHEMA.rows is asserted as 1000 in common.js, so change the storyboard assert at the same time).",
+      "evidence": "s4@9.0 (caption 'On a big table that takes a long time.' with the tag 'relational: 1,000 rows'); lesson ds-schema 'Existing records' slider 1,000 to 100,000,000."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "should",
+      "problem": "The lesson's own terms for this idea, 'schema-on-read' (document stores) and 'schema-on-write' (relational), never appear. The kicker says SCHEMA but 'schema' is never defined, and the lanes are tagged only by counts. A learner who has watched the video will not recognise the two names the lesson, the revision questions and the exam use. The storyboard outline itself names schema-on-read.",
+      "fix": "Put the lesson's words in the lane tags: 'document store: schema-on-read' and 'relational: schema-on-write' (each fits one 28 px tag), and move the 1,000 count into the bar label and the second tag ('1,000 rows'). Optionally make caption 2 'The app checks the shape as it reads.'",
+      "evidence": "s4@2.2 and s4@6.5 (tags 'document store: 1,000 documents' / 'relational: 1,000 rows'); js/content/ds/ds-l23-04.js L['ds-schema'] steps 'Schema-on-read' and 'Schema-on-write'."
+    },
+    {
+      "scene": "scene-05-locality.js",
+      "severity": "should",
+      "problem": "Caption 4 says 'Locality loads all 20 KB for a tiny sliver.' but 'locality' is never defined on screen (it appears only as the small kicker). The house rule is to define jargon before it is used. The lesson defines it as a document being stored as one continuous piece, so one read returns it all. Also the sentence blames locality for loading; it is the whole-document load that wastes the bytes.",
+      "fix": "Add a small tag on the document at about 0.5 s, 'locality: stored together' (grey, 28 px), and reword caption 4 to 'A document loads whole: 20 KB for a tiny sliver.' Keep the kicker.",
+      "evidence": "s5@8.6 and s5@11 (caption uses 'Locality'; no tag defines it); lesson ds-schema step 'Locality: pro and con' ('stored as one continuous string')."
+    },
+    {
+      "scene": "scene-06-graph.js",
+      "severity": "should",
+      "problem": "Caption 3 says 'A vertex lists its own links in and out.' but the picture only recolours edges in the drawing and shows the counters 'in 1' and 'out 2'. No list or record belonging to Ben is shown, so the claim that the vertex stores its edges (the lesson's reason traversal is cheap: 'each vertex can quickly list its incoming and outgoing edges') is not pictured.",
+      "fix": "Show Ben's stored record: a small sticker next to Ben with two rows, 'in: Ana (FRIEND)' and 'out: Cy (FRIEND), Leeds (LIVES_IN)', filled from D2.GRAPH.ben (28 px text; there is room right of Ben once the labels are off at 5.5), or soften the caption to 'Each vertex knows its edges: 1 in, 2 out.'",
+      "evidence": "s6@7.5 (Ben ringed, one purple and two blue edges, tags 'in 1', 'out 2', no list); lesson ds-graph demo prints 'Outgoing: FRIEND → Cy, LIVES_IN → Leeds / Incoming: Ana → (FRIEND)'."
+    },
+    {
+      "scene": "scene-06-graph.js",
+      "severity": "should",
+      "problem": "Two captions run ahead of their picture. Caption 1 ('A graph stores things and their links.', 0.5 to 2.7) is up for more than a second before any link exists: edges draw 1.6 to 2.9, so at 0.9 only four people are on screen and the last edge lands after the caption has gone. Caption 3 ('A vertex lists its own links in and out.') starts at 5.7 but Ben's in-edge draws at 6.0 and the out-edges at 6.9. Caption 4 says 'three hops' from 8.8 while the counter is 0 until 10.0.",
+      "fix": "Re-time: caption 1 to 1.3 to 3.4 (before 'Each link has a label' at 3.9), caption 3 to 6.4 to 8.2, and split caption 4 into 'To find a route, walk the edges.' (8.8 to 11.0) then 'Three hops.' (11.9 to 12.8).",
+      "evidence": "s6@0.9 (caption 'A graph stores things and their links.' over four unconnected people), s6@2.2 (edges still drawing), timeline T.edge 1.6 / 0.13 s apart."
+    },
+    {
+      "scene": "scene-07-hops.js",
+      "severity": "should",
+      "problem": "Caption 2 'Tables add a join per hop; the graph just walks.' leaves out the middle row. The Documents row with its orange 'fetch' blocks, and the tag 'one more fetch', are never explained: nothing says a fetch is your own code loading one more document per hop (the lesson: 'documents push each hop into your own code'). The headline also frames only 'joins or edges?'.",
+      "fix": "Caption 2: 'Tables join, documents fetch, the graph just follows.' (fits 3.6 to 6.9 at about 15 characters per second), and give the first fetch block a one-line tag 'your code loads another document'. Optionally put 'fetch' in the headline: 'joins, fetches or edges?'.",
+      "evidence": "s7@6.5 (three join blocks, three fetch blocks, caption mentions only tables and graph); js/content/ds/ds-workshops-02.js takeaways 'tables need a join per hop, documents push each hop into your application, graphs simply follow edges'."
+    },
+    {
+      "scene": "scene-08-families.js",
+      "severity": "should",
+      "problem": "Caption 5 'Graph: recipes linked to what they use.' is not what the picture and the lesson show. The graph has two kinds of edge, (Pancakes)-[USES]->(Flour/Eggs) and (Pancakes)-[TAGGED]->(Breakfast); Breakfast is a tag, not something the recipe uses, and the TAGGED label is never drawn (only USES on Waffles to Flour). So the caption is untrue for one of the three arrows leaving Pancakes.",
+      "fix": "Reword to 'Graph: things linked by labelled edges.' (or 'Graph: recipes linked to what they share.'), and label Pancakes>Breakfast 'TAGGED' for a moment (labelSide) so both edge kinds are seen.",
+      "evidence": "s8@13.8 (arrows Pancakes to Breakfast, Eggs, Flour; only 'USES' labelled), lesson ds-nosql SHAPES.graph '(Pancakes)-[TAGGED]->(Breakfast)'."
+    },
+    {
+      "scene": "scene-08-families.js",
+      "severity": "should",
+      "problem": "'partition key' and 'sort key' are shown as header chips but never explained in words. The only explanation is two colour pulses (orange chips together, purple chips down the column), and the caption says only 'every item found by its key'. The storyboard promised these terms would be defined on screen; the lesson defines them (partition key picks the partition and related items share it; sort key orders the items inside it).",
+      "fix": "Add two short 28 px notes under the table when the pulses run: 'same key: grouped' under the orange column at 8.0 and 'different keys: in order' under the purple column at 8.2, or make the caption 'Key-value: one key groups the items, another orders them.'",
+      "evidence": "s8@8.3 (header chips 'partition key' / 'sort key' over recipe#7 x4 and meta, step#1 to #3, no explanation), lesson ds-nosql step 'Key-value store' (cards 'Partition key: related items share it', 'Sort key: orders the items')."
+    },
+    {
+      "scene": "scene-10-recap.js",
+      "severity": "should",
+      "problem": "Row 1's label 'Tree or shared data? / Document or tables' is two questions with no rule. The lesson's takeaway is a rule: documents keep a tree together for fast whole reads, relational tables share common data through joins. Row 2 ('Links are the data? Use a graph') does give a rule, so row 1 is inconsistent and a first-time learner cannot tell which of tree or shared data goes with which store.",
+      "fix": "Use the same shape as row 2: 'Tree? Use a document.' / 'Shared? Use tables.' (21 and 19 characters, within the 22 limit).",
+      "evidence": "s10@8.8 (final frame, row 1 label), js/content/ds/ds-l23-04.js L['ds-models'].sum."
+    },
+    {
+      "scene": "scene-02-profile.js",
+      "severity": "nit",
+      "problem": "The lesson says the database 'joins them by foreign key (each row remembers its chef's user_id)'. The video says only 'key' ('joined by key 251', caption 'glued by a key'). 'Foreign key' is the term the lesson and exam use and it is never named.",
+      "fix": "Change the purple tag to 'joined by foreign key 251' (about 25 characters, fits under the tables) or caption 3 to 'Six places to read, joined by a foreign key.'",
+      "evidence": "s2@6.8 (tag 'joined by key 251'), js/content/ds/ds-l23-01.js ds-models demo text."
+    },
+    {
+      "scene": "scene-04-schema.js",
+      "severity": "nit",
+      "problem": "'NULL' is shown in six cells with no explanation. It is database jargon; the tag beside it only says 'new columns'.",
+      "fix": "Make the tag 'new columns: empty (NULL)' or 'new columns start empty' so the word is defined on screen.",
+      "evidence": "s4@6.5 and s4@9.0 (orange NULL cells, tag 'new columns')."
+    },
+    {
+      "scene": "video (scenes 3, 4, 5, 7, 8)",
+      "severity": "nit",
+      "problem": "Several captions announce their end result a little before the picture shows it: scene 3 caption 3 starts 4.7, the rewrite wave starts 4.8; scene 4 caption 3 'A table must change every row first.' starts 5.9, the rewrite starts 7.3; scene 5 caption 2 starts 2.6 saying 'six from tables' while the counter reads 1 (it reads 6 at 4.4); scene 7 caption 2 starts 3.6 saying 'a join per hop' with one join showing (three by 5.8); scene 8 caption 5 starts 11.4 saying 'linked' while the edges draw from 12.1.",
+      "fix": "Move each caption start to the moment its picture is complete, or to the beat where it first becomes visible: scene 3 to 4.9, scene 4 to 6.7, scene 5 to 4.4 (or split 'One read from the document.' at 2.0 and 'Six from tables.' at 4.4), scene 7 to 5.0, scene 8 to 12.3.",
+      "evidence": "s5@3.0 (caption 'six from tables', counter 2), s7@3.5 (one join), s3@5.5, scene source caps arrays."
+    },
+    {
+      "scene": "scene-08-families.js",
+      "severity": "nit",
+      "problem": "The document sticker is titled 'recipes', which in the lesson is the collection ('collection: recipes') not the document, and it shows no id, while the key-value and wide-column shapes use recipe#7 and row 7. A learner may read 'recipes' as one document of many and not see it is recipe 7.",
+      "fix": "Title it 'recipe #7' (or 'recipes: #7'), matching the other three shapes.",
+      "evidence": "s8@5.6 (title 'recipes'), lesson ds-nosql SHAPES.doc ('collection: recipes', '_id': 7)."
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Coverage gaps against the lessons' core ideas. The recap has no row for lesson 2.2 (schema flexibility and locality, two of the eight content scenes, about 26 s), and the lesson's reason for graphs (many-to-many relationships are awkward for documents and tables) is never named: the only relationship shown is many-to-one in scene 3.",
+      "fix": "Fold a word of 2.2 into recap row 1 (for example 'Tree, flexible shape? Use a document.') and add 'many-to-many' to scene 6's caption 1 or to the kicker (for example 'GRAPH MODEL: MANY-TO-MANY').",
+      "evidence": "s10@8.8 (three rows: documents/tables, graph, families), js/content/ds/ds-l23-05.js L['ds-graph'] step 'Why graphs?'."
+    }
+  ]
+}
