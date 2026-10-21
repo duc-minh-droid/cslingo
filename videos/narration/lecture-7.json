@@ -62,7 +62,7 @@
      "One scout ant is right 60% of the time."
     ],
     [
-     "Now eleven scouts each vote for a route, and the colony follows the majority.",
+     "Now eleven scouts vote for a route, and the colony follows the majority.",
      "Eleven scouts each vote for a route."
     ],
     [
@@ -146,7 +146,7 @@
      "Scent is a sign, not the work."
     ],
     [
-     "Sometimes the work itself prompts others, as when a growing pile attracts more builders.",
+     "Sometimes the work itself prompts others, as a growing pile attracts builders.",
      "The work itself can prompt others."
     ]
    ]
@@ -182,7 +182,7 @@
      "Goal: visit every town, then go home."
     ],
     [
-     "At town A, each unvisited town gets a weight: the pheromone divided by the distance.",
+     "At town A, each unvisited town gets a weight: pheromone divided by distance.",
      "Weight = pheromone ÷ distance."
     ],
     [
@@ -238,7 +238,7 @@
      "So the trail leans towards the shortest tour."
     ],
     [
-     "The first five ants found only long tours, yet the colony ends up favouring the short one.",
+     "The first five ants walked only long tours, yet the short tour wins in the end.",
      "The first ants found only long tours."
     ]
    ]
