@@ -74,7 +74,7 @@
      "Imagine three words, each with a score."
     ],
     [
-     "Stretch each score using e to its power, and the biggest grows most.",
+     "Stretch each score so it is positive, and the biggest grows most.",
      "Stretch the scores: the biggest grows most."
     ],
     [
@@ -230,7 +230,7 @@
   {
    "lines": [
     [
-     "To translate, the decoder starts from a start token.",
+     "To translate into German, the decoder starts from a start token.",
      "Translating starts from a start token."
     ],
     [
@@ -238,7 +238,7 @@
      "Every possible next word gets a share."
     ],
     [
-     "The likeliest word is written down, as the start of the German sentence.",
+     "The likeliest word is written down.",
      "The likeliest word is written down."
     ],
     [

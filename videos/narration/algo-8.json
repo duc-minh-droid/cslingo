@@ -66,7 +66,7 @@
      "They swap the mixtures. Eve can see those."
     ],
     [
-     "Each adds their secret again, and both pots turn the same colour.",
+     "Each adds their secret to the mixture they got, and the pots match.",
      "Each adds their own secret again: the very same colour."
     ],
     [
@@ -102,7 +102,7 @@
      "Both get 2: a shared key that was never sent."
     ],
     [
-     "Eve must try powers of five until one gives eight. That finds Alice's secret.",
+     "Eve must try powers of five until one gives eight.",
      "Eve must try every power of 5 until she hits 8: that finds a."
     ],
     [
@@ -122,11 +122,11 @@
      "Multiply them: n = 55 is public."
     ],
     [
-     "Next he takes one off each prime and multiplies, giving forty, which stays secret.",
+     "Next he takes one off each prime, multiplies, and keeps forty secret.",
      "Next z = (5 − 1) × (11 − 1) = 40, kept secret."
     ],
     [
-     "He picks three, since only one divides both three and forty.",
+     "He picks three, because three and forty share no factor except one.",
      "Pick e = 3: only 1 divides both 3 and 40."
     ],
     [
@@ -162,7 +162,7 @@
      "Then z = 40 and d = 27: she has the key."
     ],
     [
-     "A real number has more than six hundred digits, and nobody can factor that.",
+     "A real number has over six hundred digits, and nobody can factor it.",
      "A real n has 617+ digits: nobody can factor that."
     ]
    ]
@@ -182,7 +182,7 @@
      "The same data always gives the same fingerprint."
     ],
     [
-     "Change one letter, to make cot, and every digit of the fingerprint changes.",
+     "Change one letter, to make cot, and every digit changes.",
      "Change one letter, the whole fingerprint changes."
     ],
     [
@@ -206,7 +206,7 @@
      "The next block holds the old hash: the link breaks."
     ],
     [
-     "Eve then recomputes each later hash, block by block, to repair the links.",
+     "Eve recomputes each later hash, block by block, to repair the links.",
      "Eve recomputes each later hash to repair the links."
     ],
     [
@@ -238,7 +238,7 @@
      "One hash in 16 starts with 0."
     ],
     [
-     "Two zeros happen one time in two hundred and fifty-six. That is sixteen times more work.",
+     "Two zeros come one time in two hundred and fifty-six, so sixteen times more work.",
      "Two zeros: 1 in 256, so 16 times more work."
     ]
    ]
@@ -250,7 +250,7 @@
      "Each block is sealed by its own proof of work."
     ],
     [
-     "Edit block one, and the seal and link both break.",
+     "Edit block one, and its seal and link break.",
      "Edit block 1: its seal and the link both break."
     ],
     [

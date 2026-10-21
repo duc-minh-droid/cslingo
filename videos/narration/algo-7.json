@@ -66,7 +66,7 @@
      "Half the chance: one yes-or-no answer, 1 bit."
     ],
     [
-     "Every time the chance halves, we add one more bit. One in sixteen needs four.",
+     "Each time the chance halves, we add one more bit.",
      "Each time the chance halves, one more bit."
     ],
     [
@@ -82,7 +82,7 @@
      "A source sends four symbols with these chances."
     ],
     [
-     "A typical eight holds A four times, B twice, and C and D once.",
+     "A typical eight has the symbol A four times, B twice, and C and D once.",
      "A typical eight: A four times, B twice."
     ],
     [
@@ -106,7 +106,7 @@
      "Codes sit side by side, with no gaps."
     ],
     [
-     "The bits zero one could be A followed by B.",
+     "The bits zero one could be the letter A, then B.",
      "01 could be A then B…"
     ],
     [
@@ -142,11 +142,11 @@
      "Letters under it pay one more bit: +.20."
     ],
     [
-     "Repeat with the two smallest left. D and A join, then the two small groups join.",
+     "Repeat with the next two smallest, then the two groups.",
      "Repeat with the two smallest left."
     ],
     [
-     "Finally B joins, and one node is left. The tree is done.",
+     "Finally B joins, leaving one node. The tree is done.",
      "One node left: the tree is done."
     ],
     [
@@ -166,7 +166,7 @@
      "The path down is the code."
     ],
     [
-     "Spell B B A D E B C, one codeword per letter. The fixed code sits underneath.",
+     "Spell B B A D E B C with these codes, with the fixed code underneath.",
      "Spell BBADEBC with these codes."
     ],
     [
@@ -182,7 +182,7 @@
   {
    "lines": [
     [
-     "LZW needs no chances. It starts with just A and B.",
+     "L Z W needs no chances. It starts with just the letters A and B.",
      "No chances needed: it starts with just A and B."
     ],
     [
@@ -190,11 +190,11 @@
      "Phrase plus next letter new? Send a code, learn it."
     ],
     [
-     "A B is known, so the phrase grows. A B A is new, so send A B.",
+     "A B is known, so it grows. A B A is new, so send A B.",
      "Known? Keep growing. New? Send and learn."
     ],
     [
-     "Again, grow while the phrase is known, and send when it is new.",
+     "Again, grow while known, and send when new.",
      "Same again: grow while known, send when new."
     ],
     [
@@ -210,7 +210,7 @@
   {
    "lines": [
     [
-     "Only the codes arrive, with the starting entries A and B.",
+     "Only the codes arrive, with the starting letters A and B.",
      "Only codes arrive, plus the A, B start."
     ],
     [
@@ -230,15 +230,15 @@
   {
    "lines": [
     [
-     "A GIF packs each row of coloured pixels with LZW.",
+     "A GIF packs each row of coloured pixels with L Z W.",
      "A GIF packs each row of pixels with LZW."
     ],
     [
-     "LZW cuts the row into pieces, and each piece gets one code.",
+     "L Z W cuts the row into pieces, and each piece gets one code.",
      "Each piece of the row gets one code."
     ],
     [
-     "Eighteen pixels become just eleven codes, so the strip is shorter.",
+     "Repeats share codes, so eighteen pixels need only eleven.",
      "Repeats share codes: 18 pixels, 11 codes."
     ],
     [
@@ -246,7 +246,7 @@
      "Noise rarely repeats, so it saves little."
     ],
     [
-     "LZW only saves space where the data repeats.",
+     "L Z W only saves space where the data repeats.",
      "LZW feeds on repeats."
     ]
    ]
@@ -260,7 +260,7 @@
    "lines": [
     "Entropy is the floor for any code that loses nothing.",
     "Huffman merges the two rarest nodes, and repeats.",
-    "LZW learns repeated phrases as it reads."
+    "L Z W learns repeated phrases as it reads."
    ]
   }
  ]

@@ -10,13 +10,15 @@ same to every video.
 Work in this order; each phase ends with something that runs and is committed.
 
 1. **Phase 0, ship the silent videos.** Lecture 6 and 7 Data Science videos, the lesson fixes and the 28 px kicker go live first.
-   _Status: lecture 6 live; lecture 7 and the fixes in the final check._
+   _Status: done, lecture 7 and the fixes are live on both sites (PR #69)._
 2. **Phase 1, voice pipeline ready.** Done: `tools/narration-skeleton.js` (a script per video with the whole recipe and one line per
    caption), `tools/narration-check.js` (line counts, symbols, estimated length), `tools/tts/verify.py` (faster-whisper word-for-word
    check, deletes bad clips), `tools/voice-video.sh <name>` (narrate, verify up to three rounds, record, poster), the title-card pill
-   moved so a voice-over caption cannot overlap it. In progress: the CPU TTS environment (`tools/tts/setup.sh`) and a speed test.
+   moved so a voice-over caption cannot overlap it. Done: the CPU TTS environment is installed in `tools/tts/.venv` and the models are cached. Speed test on this 4-CPU machine
+   (no GPU): about 13 s of speech in 130 s, roughly ten times slower than real time.
 3. **Phase 2, write the narration scripts** for all 25 videos (4 agents: `lecture-1..8`, `algo-1..5`, `algo-6..10`, `ds-1..7`;
-   brief in `videos/_plan/NARRATION_TASK.md`). _Status: running._
+   brief in `videos/_plan/NARRATION_TASK.md`). _Status: done, all 25 scripts pass `tools/narration-check.js` with no warnings
+   (3.3 to 5.0 minutes each when narrated; `lecture-6` and `algo-5` have four recap rows, so do not regenerate their scripts)._
 4. **Phase 3, voice and record every video**, one at a time with `tools/voice-video.sh <name>`: needs about 1 to 2 hours of CPU per
    video without a GPU, so run it in the background on a machine with the RTX 4060 if there is one.
 5. **Phase 4, review and ship.** The owner watches two or three finished videos before anything is merged, then update

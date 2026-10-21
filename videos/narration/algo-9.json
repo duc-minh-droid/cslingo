@@ -162,11 +162,11 @@
   {
    "lines": [
     [
-     "The D F T treats the window as if it repeated for ever.",
+     "The D F T acts as if the window repeats for ever.",
      "The DFT repeats the window."
     ],
     [
-     "Whole cycles join smoothly, so there is one clean bar.",
+     "Whole cycles join up, giving one clean bar.",
      "Whole cycles join: one clean bar."
     ],
     [
@@ -186,7 +186,7 @@
   {
    "lines": [
     [
-     "A recording has a hum mixed through it. The D F T turns it into bars.",
+     "The D F T turns the wiggle, hum and all, into bars.",
      "The DFT turns the wiggle into bars."
     ],
     [
@@ -234,7 +234,7 @@
      "Each half is a DFT too: split again."
     ],
     [
-     "Keep going until single samples remain. Each is its own D F T.",
+     "Keep going down to single samples, each its own D F T.",
      "Down to single samples."
     ],
     [
