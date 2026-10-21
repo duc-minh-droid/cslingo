@@ -136,9 +136,9 @@
     dur: 12.5,
     caps: [
       [0.5, 2.3, "Moving £30 is two writes."],
-      [3.0, 4.6, "A crash hits after the debit."],
+      [3.0, 4.8, "A crash hits after the debit."],
       [5.0, 6.7, "£30 has vanished."],
-      [7.8, 9.6, "One transaction undoes the debit."],
+      [7.7, 9.7, "One transaction undoes the debit."],
       [9.8, 12.2, "All or nothing: the total stays £150."],
     ],
     build(stage) {

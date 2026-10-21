@@ -73,6 +73,22 @@
         "Time must not run backwards",
       ],
     },
+    {
+      n: 5,
+      blurb:
+        "Lecture 5 in pictures: splitting data into partitions, key ranges and the timestamp trap, hashing, secondary indexes, and rebalancing.",
+      chapters: [
+        "Copies do not fit, so split the data",
+        "Each partition owns a range of keys",
+        "Keyed by time, every write hits one node",
+        "Hash the key, spread the load",
+        "Hashing scatters range queries",
+        "Search by colour: ask every partition",
+        "Split the index by term: one read, wider writes",
+        "A new node joins: move as little as you can",
+        "Big partitions split, small ones merge",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {

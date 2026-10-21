@@ -10,8 +10,7 @@
 (function () {
   const V = window.VID;
   const D5 = V.d5;
-  const L5 = V.l5;
-  const { ramp, flash, clamp, ease: E } = V;
+  const { ramp, flash, ease: E } = V;
   const S = D5.SPLIT;
 
   // ---------- the data (asserted against the storyboard and checked again by a second rule) ----------
@@ -120,9 +119,7 @@
       );
 
       // the legend: a solid chip is a leader, a dashed chip a follower
-      const svgLeg = L5.svg(stage);
-      void svgLeg;
-      const legLead = D5.chip(stage, { text: "", tone: "blue", w: 44, h: 44 });
+      const legLead = D5.chip(stage, { text: "", tone: "blue", w: 44, h: 44, solid: true });
       const legFol = D5.chip(stage, { text: "", tone: "blue", w: 44, h: 44, dashed: true });
       const legLeadTag = D5.tag(stage, { x: 280, y: 520, text: "leader", tone: "blue" });
       const legFolTag = D5.tag(stage, { x: 550, y: 520, text: "follower", tone: "blue" });
@@ -162,6 +159,7 @@
             s: pop.s * (1 + 0.12 * flash(t, s0 + T.splitDur, s0 + T.splitDur + 0.3)),
             o: pop.o,
             tone: "blue",
+            solid: true,
           });
         });
 
@@ -197,6 +195,7 @@
           c.set({
             x: pos.x,
             y: pos.y,
+            dashed: true,
             o: f > 0 ? 1 : 0,
             s: f > 0 ? 1 + 0.12 * flash(t, s0 + T.folDur, s0 + T.folDur + 0.3) : 0,
           });
@@ -205,12 +204,11 @@
         // the legend and the "x of 8" tags
         const lg = ramp(t, T.legend, T.legend + 0.4, E.lin);
         const pop = D5.appear(lg);
-        legLead.set({ x: 250, y: 549, s: pop.s, o: pop.o });
-        legFol.set({ x: 520, y: 549, s: pop.s, o: pop.o });
+        legLead.set({ x: 250, y: 549, s: pop.s, o: pop.o, solid: true });
+        legFol.set({ x: 520, y: 549, s: pop.s, o: pop.o, dashed: true });
         legLeadTag.set({ k: lg });
         legFolTag.set({ k: lg });
         fits.forEach((tag, n) => tag.set({ k: ramp(t, T.fits + 0.08 * n, T.fits + 0.08 * n + 0.4, E.lin) }));
-        void clamp;
       };
     },
   });

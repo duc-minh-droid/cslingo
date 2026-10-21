@@ -143,7 +143,7 @@
       [0.7, 2.2, "A node can crash."],
       [3.5, 5.0, "A message can get lost."],
       [5.9, 7.4, "A reply can arrive late."],
-      [8.1, 9.7, "The network can split in two."],
+      [8.1, 9.9, "The network can split in two."],
     ],
     build,
   });

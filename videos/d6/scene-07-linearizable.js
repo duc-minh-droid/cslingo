@@ -23,9 +23,9 @@
     dur: 14,
     caps: [
       [0.5, 2.5, "Many copies should act like one."],
-      [3.0, 4.8, "Each bar is one operation in time."],
+      [3.0, 5.0, "Each bar is one operation in time."],
       [6.1, 7.9, "One flip explains every read."],
-      [9.2, 10.9, "Now B reads 0 after A read 1."],
+      [9.2, 11.0, "Now B reads 0 after A read 1."],
       [11.3, 13.4, "No flip fits: not linearizable."],
     ],
     build(stage) {
