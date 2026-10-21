@@ -139,6 +139,10 @@
       "js/content/ds/ds-l6-03.js",
       "js/content/ds/ds-l6-workshop.js",
       "js/content/ds/boss-ds-6.js",
+      "js/content/ds/ds-l7-01.js",
+      "js/content/ds/ds-l7-02.js",
+      "js/content/ds/ds-l7-workshop.js",
+      "js/content/ds/boss-ds-7.js",
       "js/content/ds/videos.js",
     ],
     algo: [

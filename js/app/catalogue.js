@@ -39,6 +39,7 @@
         4: "Lecture 4 — Replication",
         5: "Lecture 5 — Partitioning",
         6: "Lecture 6 — Consistency & consensus",
+        7: "Lecture 7 — The Paxos consensus protocol",
       },
     },
     algo: {
