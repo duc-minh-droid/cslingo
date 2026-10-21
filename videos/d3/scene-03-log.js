@@ -271,9 +271,9 @@
       headKey.set({ k: k(T.heads) });
       headVal.set({ k: k(T.heads + 0.1) });
       const down = LAND.reduce((s, a) => s + ramp(t, a + 0.1, a + 0.45, E.inOut), 0); // rows the "append" tag and arrow have slid down
-      // the slot steps down while it is invisible: it fades as the new line pops into it and returns one row lower
+      // the slot steps down while it is invisible: it fades as the request chip slides over it and returns one row lower
       const row = LAND.filter((a) => t >= a + 0.1).length;
-      const dip = LAND.reduce((s, a) => s + ramp(t, a - 0.05, a + 0.08, E.lin) - ramp(t, a + 0.2, a + 0.45, E.lin), 0);
+      const dip = LAND.reduce((s, a) => s + ramp(t, a - 0.35, a - 0.12, E.lin) - ramp(t, a + 0.2, a + 0.45, E.lin), 0);
       slot.set({ ghost: true, text: "next line", k: k(T.slot, 0.4), y: row * PITCH, o: 1 - dip });
       lines.all((i) => {
         const st = { tone: i === TOMB ? "red" : "grey", solid: false, k: k(LAND[i], 0.3) };
