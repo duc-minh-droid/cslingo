@@ -32,21 +32,21 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture four. Selection and operators. This is about who gets to breed, and how children are made."
    ]
   },
   {
    "lines": [
     [
-     "Generational: the whole population is replaced.",
+     "In a generational algorithm, the whole population is replaced by children. Here the best, at zero point nine, is lost.",
      "Generational: the whole population is replaced."
     ],
     [
-     "Elitism copies the best across unchanged.",
+     "Elitism fixes that. It copies the best across unchanged, and only the others are replaced.",
      "Elitism copies the best across unchanged."
     ],
     [
-     "Steady-state: one child replaces the weakest.",
+     "In steady-state, a single child arrives, and it replaces the weakest member.",
      "Steady-state: one child replaces the weakest."
     ]
    ]
@@ -54,15 +54,15 @@
   {
    "lines": [
     [
-     "A child with fitness 0.5 arrives.",
+     "A child with fitness zero point five arrives. Two rules decide which member it replaces.",
      "A child with fitness 0.5 arrives."
     ],
     [
-     "First weaker stops early. Weakest checks all five.",
+     "The first-weaker rule scans from the left, and stops early. The weakest rule checks all five.",
      "First weaker stops early. Weakest checks all five."
     ],
     [
-     "The 0.1 survives: more variety is kept.",
+     "So the first-weaker rule leaves the zero point one alive, which keeps more variety.",
      "The 0.1 survives: more variety is kept."
     ]
    ]
@@ -70,15 +70,15 @@
   {
    "lines": [
     [
-     "Each row is a generation. Orange = copies of the best.",
+     "Three populations of twelve run for eight generations. Each row is a generation, and orange cells are copies of the best.",
      "Each row is a generation. Orange = copies of the best."
     ],
     [
-     "Only selection acts: no mutation, no crossover.",
+     "Only selection acts here. There is no mutation, and no crossover.",
      "Only selection acts: no mutation, no crossover."
     ],
     [
-     "Too weak: no progress. Too strong: one copy wins.",
+     "Random picking is too weak, and nothing improves. Always picking the best is too strong. Tournament selection sits in between.",
      "Too weak: no progress. Too strong: one copy wins."
     ]
    ]
@@ -86,19 +86,19 @@
   {
    "lines": [
     [
-     "Each slice is sized by fitness.",
+     "Roulette selection gives each individual a slice of the wheel, sized by its fitness.",
      "Each slice is sized by fitness."
     ],
     [
-     "The bigger the slice, the likelier the pick.",
+     "The bigger the slice, the likelier the pick. Fitness two, three and five give twenty, thirty and fifty percent.",
      "The bigger the slice, the likelier the pick."
     ],
     [
-     "One superfit individual takes 99% of the wheel.",
+     "Now one superfit individual joins, with fitness one hundred. It takes ninety-nine percent of the wheel.",
      "One superfit individual takes 99% of the wheel."
     ],
     [
-     "It is picked again and again.",
+     "So it is picked again and again, and the rest hardly get a turn.",
      "It is picked again and again."
     ]
    ]
@@ -106,15 +106,15 @@
   {
    "lines": [
     [
-     "Roulette: the superfit takes 99%.",
+     "With roulette, the superfit individual takes ninety-nine percent.",
      "Roulette: the superfit takes 99%."
     ],
     [
-     "Rank: only the order counts, not the gaps.",
+     "Rank selection replaces each fitness with its rank. Only the order counts, not the gaps.",
      "Rank: only the order counts, not the gaps."
     ],
     [
-     "The exponent b turns the pressure up or down.",
+     "The exponent b turns the pressure up or down. A bigger b favours the top ranks, and a b of zero makes every pick equal.",
      "The exponent b turns the pressure up or down."
     ]
    ]
@@ -122,19 +122,19 @@
   {
    "lines": [
     [
-     "Draw two at random. The better one wins.",
+     "Tournament selection draws a few at random, and the better one wins. Here we draw two.",
      "Draw two at random. The better one wins."
     ],
     [
-     "The best was not even drawn.",
+     "The overall best was not even drawn, so it cannot win this time.",
      "The best was not even drawn."
     ],
     [
-     "A bigger t means tougher competition.",
+     "A bigger t means tougher competition, because more are drawn.",
      "A bigger t means tougher competition."
     ],
     [
-     "The best wins more often as t grows.",
+     "So the best wins more and more often as t grows.",
      "The best wins more often as t grows."
     ]
    ]
@@ -142,15 +142,15 @@
   {
    "lines": [
     [
-     "Each encoding needs its own kind of mutation.",
+     "Each encoding needs its own kind of mutation. A bit is flipped, an integer is re-rolled, and a real number is nudged.",
      "Each encoding needs its own kind of mutation."
     ],
     [
-     "Re-rolling a tour breaks it: D twice, J lost.",
+     "A tour is different. Re-rolling a city breaks it: D appears twice, and J is lost.",
      "Re-rolling a tour breaks it: D twice, J lost."
     ],
     [
-     "Swapping two genes keeps every city once.",
+     "Swapping two genes is safe. Every city still appears exactly once.",
      "Swapping two genes keeps every city once."
     ]
    ]
@@ -158,15 +158,15 @@
   {
    "lines": [
     [
-     "One cut: swap the tails.",
+     "Take two parents with eight genes each. One-point crossover cuts once, and swaps the tails.",
      "One cut: swap the tails."
     ],
     [
-     "Two cuts: swap the middle part.",
+     "Two-point crossover cuts twice, and swaps the middle part.",
      "Two cuts: swap the middle part."
     ],
     [
-     "Uniform: a 1 in the mask swaps that gene.",
+     "Uniform crossover uses a mask. Wherever the mask has a one, that gene is swapped.",
      "Uniform: a 1 in the mask swaps that gene."
     ]
    ]
@@ -174,15 +174,15 @@
   {
    "lines": [
     [
-     "Fitness: pixels that match, blank ones too.",
+     "Now we put it together, and evolve a picture. The fitness is the number of pixels that match, and blank pixels count too.",
      "Fitness: pixels that match, blank ones too."
     ],
     [
-     "Two recipes race. Both rely on mutation.",
+     "Two recipes race to copy a heart. One is steady-state, the other is generational. Both rely on mutation.",
      "Two recipes race. Both rely on mutation."
     ],
     [
-     "Algorithm 1 got there first, in this run.",
+     "In this run, algorithm one gets there first, after just over three thousand evaluations. Algorithm two needs nearly five thousand.",
      "Algorithm 1 got there first, in this run."
     ]
    ]
@@ -190,13 +190,13 @@
   {
    "at": [
     0.9,
-    2,
-    3.1
+    1.9,
+    2.9
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "Replace everyone, or only a few. The replacement rule decides who stays.",
+    "Tune the selection pressure, so it is not too weak, and not too strong.",
+    "Choose mutation and crossover that fit the encoding."
    ]
   }
  ]

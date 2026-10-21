@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture five. Partitioning. This is how data that is too big for one node gets split across many."
    ]
   },
   {
    "lines": [
     [
-     "12 orders; room for eight per node.",
+     "There are twelve orders, but each node has room for only eight.",
      "12 orders; room for eight per node."
     ],
     [
-     "A full copy per node does not fit.",
+     "So a full copy on every node does not fit.",
      "A full copy per node does not fit."
     ],
     [
-     "Split: each order lives in one partition.",
+     "Instead we split the data, and each order lives in exactly one partition.",
      "Split: each order lives in one partition."
     ],
     [
-     "Each partition is also copied to another node.",
+     "Each partition is also copied to another node, in case one fails.",
      "Each partition is also copied to another node."
     ]
    ]
@@ -58,19 +58,19 @@
   {
    "lines": [
     [
-     "Each node owns a range of keys.",
+     "With key ranges, each node owns a range of the keys.",
      "Each node owns a range of keys."
     ],
     [
-     "Okafor falls in N to S, so node 3 takes it.",
+     "Okafor falls between N and S, so node three takes it.",
      "Okafor falls in N to S, so node 3 takes it."
     ],
     [
-     "Khan to Mills: one node holds them all.",
+     "A query from Khan to Mills finds every name on one node.",
      "Khan to Mills: one node holds them all."
     ],
     [
-     "Neighbouring keys sit together.",
+     "That is the benefit. Neighbouring keys sit together.",
      "Neighbouring keys sit together."
     ]
    ]
@@ -78,19 +78,19 @@
   {
    "lines": [
     [
-     "Key by time: each node owns hours.",
+     "Now the key is the time of the write. Each node owns some hours.",
      "Key by time: each node owns hours."
     ],
     [
-     "It is afternoon: writes go to 12 to 17.",
+     "It is the afternoon, so writes go to the node for twelve to seventeen.",
      "It is afternoon: writes go to 12 to 17."
     ],
     [
-     "Write after write, all on the same node.",
+     "Write after write, they all land on the same node.",
      "Write after write, all on the same node."
     ],
     [
-     "One hot spot while three nodes sit idle.",
+     "That is one hot spot, while three nodes sit idle.",
      "One hot spot while three nodes sit idle."
     ]
    ]
@@ -98,7 +98,7 @@
   {
    "lines": [
     [
-     "A hash turns a key into a number.",
+     "A hash function turns a key into a number.",
      "A hash turns a key into a number."
     ],
     [
@@ -106,11 +106,11 @@
      "Each node owns a range of hash values."
     ],
     [
-     "Keys arrive in order but land all over.",
+     "Keys arrive in order, but land all over the nodes.",
      "Keys arrive in order but land all over."
     ],
     [
-     "Eight keys: two on every node.",
+     "Eight keys, and every node ends up with two.",
      "Eight keys: two on every node."
     ]
    ]
@@ -118,19 +118,19 @@
   {
    "lines": [
     [
-     "The same 16 users, laid out two ways.",
+     "Here are the same sixteen users, laid out two ways.",
      "The same 16 users, laid out two ways."
     ],
     [
-     "Now ask for ids 101 to 104.",
+     "Now ask for ids one hundred and one to one hundred and four.",
      "Now ask for ids 101 to 104."
     ],
     [
-     "Key ranges: all four are on one node.",
+     "With key ranges, all four are on one node.",
      "Key ranges: all four are on one node."
     ],
     [
-     "Hash: they are on four different nodes.",
+     "With hashing, they are on four different nodes. So range queries get expensive.",
      "Hash: they are on four different nodes."
     ]
    ]
@@ -138,19 +138,19 @@
   {
    "lines": [
     [
-     "Each partition indexes only its own cars.",
+     "Each partition indexes only its own cars. This is a local index.",
      "Each partition indexes only its own cars."
     ],
     [
-     "Search for red cars.",
+     "Now search for red cars.",
      "Search for red cars."
     ],
     [
-     "Any partition may hold one, so ask all three.",
+     "Any partition may hold one, so we must ask all three.",
      "Any partition may hold one, so ask all three."
     ],
     [
-     "Gather the answers into one list.",
+     "Then we gather the answers into one list.",
      "Gather the answers into one list."
     ]
    ]
@@ -158,19 +158,19 @@
   {
    "lines": [
     [
-     "Or split the index itself, by term.",
+     "The other way is to split the index itself, by term.",
      "Or split the index itself, by term."
     ],
     [
-     "A search reads just one index partition.",
+     "Now a search for red reads just one index partition.",
      "A search reads just one index partition."
     ],
     [
-     "Save a blue mini: two index partitions change.",
+     "But saving a blue mini updates two index partitions.",
      "Save a blue mini: two index partitions change."
     ],
     [
-     "Cheap reads, dearer writes.",
+     "So reads are cheap, and writes cost more.",
      "Cheap reads, dearer writes."
     ]
    ]
@@ -178,19 +178,19 @@
   {
    "lines": [
     [
-     "Twelve items on three nodes. A fourth joins.",
+     "Twelve items sit on three nodes, and a fourth node joins.",
      "Twelve items on three nodes. A fourth joins."
     ],
     [
-     "Hash mod N: N changed, so 9 of 12 keys move.",
+     "With hash modulo N, the N changes, so nine of the twelve keys move.",
      "Hash mod N: N changed, so 9 of 12 keys move."
     ],
     [
-     "Fixed partitions: it steals 3 whole ones.",
+     "With fixed partitions, the new node steals three whole partitions.",
      "Fixed partitions: it steals 3 whole ones."
     ],
     [
-     "Three moves instead of nine.",
+     "Three moves, instead of nine.",
      "Three moves instead of nine."
     ]
    ]
@@ -198,19 +198,19 @@
   {
    "lines": [
     [
-     "Each partition has a size limit: 10 GB.",
+     "Each partition has a size limit, here ten gigabytes.",
      "Each partition has a size limit: 10 GB."
     ],
     [
-     "Data grows: P2 hits 12 GB, over the limit.",
+     "As data grows, partition two reaches twelve gigabytes, over the limit.",
      "Data grows: P2 hits 12 GB, over the limit."
     ],
     [
-     "It splits; one half can move node.",
+     "So it splits in two, and one half can move to another node.",
      "It splits; one half can move node."
     ],
     [
-     "Data shrinks: neighbours merge.",
+     "If data shrinks, small neighbours merge.",
      "Data shrinks: neighbours merge."
     ]
    ]
@@ -222,9 +222,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "Split big data into partitions, so that each node holds only a piece.",
+    "Key ranges keep keys in order. Hashes spread the load evenly.",
+    "When a new node joins, move whole partitions only."
    ]
   }
  ]

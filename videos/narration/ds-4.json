@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture four. Replication. This is how copies of the data keep a system running, and what can go wrong with them."
    ]
   },
   {
    "lines": [
     [
-     "600 requests a second, on one machine or three.",
+     "Six hundred requests a second, on one big machine or on three small ones.",
      "600 requests a second, on one machine or three."
     ],
     [
-     "The big machine crashes: nothing is served.",
+     "Then the big machine crashes, and nothing is served.",
      "The big machine crashes: nothing is served."
     ],
     [
-     "A small one crashes: 400 are still served.",
+     "When one small machine crashes, the other two still serve four hundred.",
      "A small one crashes: 400 are still served."
     ],
     [
-     "Scaling out survives failures.",
+     "So scaling out survives failures.",
      "Scaling out survives failures."
     ]
    ]
@@ -58,15 +58,15 @@
   {
    "lines": [
     [
-     "Replication: every node keeps a full copy.",
+     "In replication, every node keeps a full copy of the data.",
      "Replication: every node keeps a full copy."
     ],
     [
-     "Partitioning: each node keeps a piece.",
+     "In partitioning, each node keeps only a piece. That comes in the next lecture.",
      "Partitioning: each node keeps a piece."
     ],
     [
-     "When a node fails, the copies carry on.",
+     "When a node fails, replication still has two copies of B, and partitioning has none.",
      "When a node fails, the copies carry on."
     ]
    ]
@@ -74,15 +74,15 @@
   {
    "lines": [
     [
-     "Every write goes to the leader.",
+     "A client changes its profile picture three times. Every write goes to the leader.",
      "Every write goes to the leader."
     ],
     [
-     "It sends each change on, in order, as a log.",
+     "The leader stores each one in a log, and sends it on, in order, to the followers.",
      "It sends each change on, in order, as a log."
     ],
     [
-     "Reads can go to any node, writes only to the leader.",
+     "Reads can go to any node, but writes only go to the leader.",
      "Reads can go to any node, writes only to the leader."
     ]
    ]
@@ -90,19 +90,19 @@
   {
    "lines": [
     [
-     "The leader stores the write in 5 ms.",
+     "The leader stores a write in five milliseconds.",
      "The leader stores the write in 5 ms."
     ],
     [
-     "Followers confirm at 35 and 95 ms.",
+     "The followers confirm at thirty-five and ninety-five milliseconds.",
      "Followers confirm at 35 and 95 ms."
     ],
     [
-     "Answer at once, or wait for the followers.",
+     "The leader can answer at once, or wait for one follower, or wait for both.",
      "Answer at once, or wait for the followers."
     ],
     [
-     "If the leader then crashes, only waiting keeps the write.",
+     "If the leader crashes, answering at once loses the write. Waiting keeps it, but is slower.",
      "If the leader then crashes, only waiting keeps the write."
     ]
    ]
@@ -110,23 +110,23 @@
   {
    "lines": [
     [
-     "A new follower needs a copy.",
+     "A new follower needs a copy of the data.",
      "A new follower needs a copy."
     ],
     [
-     "Take a snapshot of the leader.",
+     "So we take a snapshot of the leader.",
      "Take a snapshot of the leader."
     ],
     [
-     "Writes keep coming while it copies.",
+     "Writes keep coming while the snapshot is copied.",
      "Writes keep coming while it copies."
     ],
     [
-     "It asks for every change since.",
+     "The follower then asks for every change since entry five.",
      "It asks for every change since."
     ],
     [
-     "Caught up: no pause in writes.",
+     "It applies them, and has caught up. Writes never paused.",
      "Caught up: no pause in writes."
     ]
    ]
@@ -134,23 +134,23 @@
   {
    "lines": [
     [
-     "The leader wrote 20 changes; followers lag.",
+     "The leader has written twenty changes, but the followers lag behind.",
      "The leader wrote 20 changes; followers lag."
     ],
     [
-     "The leader crashes. Which follower takes over?",
+     "Then the leader crashes. Which follower should take over?",
      "The leader crashes. Which follower takes over?"
     ],
     [
-     "Best: the most up-to-date follower.",
+     "Promoting A would lose five changes, B two, and C four. The most up to date wins.",
      "Best: the most up-to-date follower."
     ],
     [
-     "B takes over.",
+     "So B takes over and becomes the leader.",
      "B takes over."
     ],
     [
-     "The 2 changes no follower had are lost.",
+     "The last two changes, which no follower had, are lost.",
      "The 2 changes no follower had are lost."
     ]
    ]
@@ -158,23 +158,23 @@
   {
    "lines": [
     [
-     "A is the leader.",
+     "Here A is the leader.",
      "A is the leader."
     ],
     [
-     "A is cut off; B and C think it died.",
+     "Then A is cut off. It is still running, but B and C think it died.",
      "A is cut off; B and C think it died."
     ],
     [
-     "B is promoted, yet A still leads.",
+     "So B is promoted. But A does not know, so it still thinks it leads.",
      "B is promoted, yet A still leads."
     ],
     [
-     "Both take a write for seat 12.",
+     "Now two clients write to seat twelve. Ann goes to A, and Bo goes to B.",
      "Both take a write for seat 12."
     ],
     [
-     "Split brain: two histories disagree.",
+     "The network heals, and the two histories disagree. That is split brain.",
      "Split brain: two histories disagree."
     ]
    ]
@@ -182,19 +182,19 @@
   {
    "lines": [
     [
-     "You post a comment to the leader.",
+     "You post a comment, and it goes to the leader.",
      "You post a comment to the leader."
     ],
     [
-     "Reload: a follower that lags still shows 3.",
+     "You reload, but a follower that lags still shows three comments.",
      "Reload: a follower that lags still shows 3."
     ],
     [
-     "Your comment seems to be gone.",
+     "Your own comment seems to be gone.",
      "Your comment seems to be gone."
     ],
     [
-     "Fix: read your own recent posts from the leader.",
+     "The fix is to read your own recent posts from the leader.",
      "Fix: read your own recent posts from the leader."
     ]
    ]
@@ -202,19 +202,19 @@
   {
    "lines": [
     [
-     "Refresh: replica A says 7.",
+     "You refresh, and replica A says seven likes.",
      "Refresh: replica A says 7."
     ],
     [
-     "B says 6: time ran backwards.",
+     "You refresh again, and replica B says six. Time ran backwards.",
      "B says 6: time ran backwards."
     ],
     [
-     "Fix: keep each user on one replica.",
+     "The fix is to keep each user on one replica.",
      "Fix: keep each user on one replica."
     ],
     [
-     "Their view only moves forward.",
+     "Then their view only moves forward.",
      "Their view only moves forward."
     ]
    ]
@@ -226,9 +226,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "Copies keep the system up. One leader takes the writes, and passes them to the followers.",
+    "Waiting for followers is safer, but slower.",
+    "When the leader crashes, promote the freshest follower, and let users read their own writes."
    ]
   }
  ]

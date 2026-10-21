@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture one. Reliable, scalable and maintainable systems. This is what keeps a data system working."
    ]
   },
   {
    "lines": [
     [
-     "One big server does all the work.",
+     "One big server does the work, up to six thousand requests a second.",
      "One big server does all the work."
     ],
     [
-     "Too many requests get dropped.",
+     "At nine thousand, it drops the extra three thousand.",
      "Too many requests get dropped."
     ],
     [
-     "One crash, and everything is down.",
+     "Then it crashes. Every request is turned away.",
      "One crash, and everything is down."
     ],
     [
-     "Even a repair means downtime.",
+     "Even a planned repair takes it offline.",
      "Even a repair means downtime."
     ]
    ]
@@ -58,23 +58,23 @@
   {
    "lines": [
     [
-     "Against crashes, keep a copy in each city.",
+     "So we keep a copy in London and in New York.",
      "Against crashes, keep a copy in each city."
     ],
     [
-     "Now the link is cut.",
+     "Then the link between them is cut.",
      "Now the link is cut."
     ],
     [
-     "London sells a ticket; New York never hears.",
+     "London sells a ticket and says four. New York never hears, and still says five.",
      "London sells a ticket; New York never hears."
     ],
     [
-     "Stay consistent: refuse to answer.",
+     "A customer asks New York. If it stays consistent, it refuses to answer.",
      "Stay consistent: refuse to answer."
     ],
     [
-     "Stay available: answer, maybe stale.",
+     "If it stays available, it answers five, which is stale.",
      "Stay available: answer, maybe stale."
     ]
    ]
@@ -82,23 +82,23 @@
   {
    "lines": [
     [
-     "A database stores data for tomorrow.",
+     "A database stores data today, so it is still there tomorrow.",
      "A database stores data for tomorrow."
     ],
     [
-     "A cache keeps answers close.",
+     "A cache keeps a copy of the answer close by.",
      "A cache keeps answers close."
     ],
     [
-     "A hit takes 2 ms, a miss 100 ms.",
+     "A hit takes two milliseconds. A miss goes to the database and takes a hundred.",
      "A hit takes 2 ms, a miss 100 ms."
     ],
     [
-     "An index: 20 checks, not a million.",
+     "An index needs about twenty checks, instead of a million.",
      "An index: 20 checks, not a million."
     ],
     [
-     "A batch job crunches it overnight.",
+     "A batch job crunches the day's data overnight.",
      "A batch job crunches it overnight."
     ]
    ]
@@ -106,23 +106,23 @@
   {
    "lines": [
     [
-     "10,000 disks: about one dies every day.",
+     "Take ten thousand disks. About one dies every day.",
      "10,000 disks: about one dies every day."
     ],
     [
-     "A dead disk is a fault.",
+     "Over a week, seven die. Each dead disk is a fault.",
      "A dead disk is a fault."
     ],
     [
-     "One copy: a dead disk is a failure.",
+     "With one copy, a dead disk means no answer. That is a failure.",
      "One copy: a dead disk is a failure."
     ],
     [
-     "Two copies: users notice nothing.",
+     "With two copies, the other disk answers, and users notice nothing.",
      "Two copies: users notice nothing."
     ],
     [
-     "Faults must not become failures.",
+     "Faults will happen. They must not become failures.",
      "Faults must not become failures."
     ]
    ]
@@ -130,27 +130,27 @@
   {
    "lines": [
     [
-     "Six servers share the load, 70 each.",
+     "Six servers share a load of four hundred and twenty, seventy each.",
      "Six servers share the load, 70 each."
     ],
     [
-     "One dies; five carry on at 84 each.",
+     "One dies. The other five carry eighty-four each, and the service survives.",
      "One dies; five carry on at 84 each."
     ],
     [
-     "One more dies: 105 each, over 100.",
+     "Another dies. Now it is one hundred and five each, over the limit of one hundred.",
      "One more dies: 105 each, over 100."
     ],
     [
-     "Overload makes them fall one by one.",
+     "Overloaded servers fall one by one, and the load on the rest keeps growing.",
      "Overload makes them fall one by one."
     ],
     [
-     "The last one carries all 420.",
+     "The last one cannot carry all four hundred and twenty.",
      "The last one carries all 420."
     ],
     [
-     "One bug hits all six together.",
+     "A software bug is different. It hits all six servers at once.",
      "One bug hits all six together."
     ]
    ]
@@ -158,27 +158,27 @@
   {
    "lines": [
     [
-     "100 requests, each timed.",
+     "A hundred requests, each timed, fall into bins by response time.",
      "100 requests, each timed."
     ],
     [
-     "Most are quick; a few are slow.",
+     "Most are quick. A few are slow, which makes a long tail.",
      "Most are quick; a few are slow."
     ],
     [
-     "The average is 250 ms.",
+     "The blue line is the average, two hundred and fifty milliseconds.",
      "The average is 250 ms."
     ],
     [
-     "p95: 95 in 100 are faster.",
+     "The orange line is p ninety-five. Ninety-five in a hundred are faster.",
      "p95: 95 in 100 are faster."
     ],
     [
-     "p99: 99 in 100 are faster.",
+     "The red line is p ninety-nine. Ninety-nine in a hundred are faster.",
      "p99: 99 in 100 are faster."
     ],
     [
-     "The average hides the slowest.",
+     "The slowest took over eight hundred milliseconds, and the average never shows it.",
      "The average hides the slowest."
     ]
    ]
@@ -186,35 +186,35 @@
   {
    "lines": [
     [
-     "Approach 1: one write per post.",
+     "Cat writes a post. In the first approach, it is stored once.",
      "Approach 1: one write per post."
     ],
     [
-     "Reading means 3 lookups and a merge.",
+     "When Ana reads, it takes three lookups and a merge.",
      "Reading means 3 lookups and a merge."
     ],
     [
-     "Approach 2: copy to each follower.",
+     "In the second approach, the post is copied to each follower. Cat has five.",
      "Approach 2: copy to each follower."
     ],
     [
-     "Reading is one lookup.",
+     "Now Ana's timeline is ready in her mailbox. Reading is one lookup.",
      "Reading is one lookup."
     ],
     [
-     "Reads outnumber posts 65 to 1.",
+     "Reads are far more common than posts, about sixty-five to one.",
      "Reads outnumber posts 65 to 1."
     ],
     [
-     "So fan out: 345,000 writes a second.",
+     "So we copy on write. Four thousand six hundred posts, times seventy-five followers, is three hundred and forty-five thousand writes a second.",
      "So fan out: 345,000 writes a second."
     ],
     [
-     "A celebrity post takes 87 s, not 5.",
+     "A celebrity with thirty million followers needs eighty-seven seconds. The goal is five.",
      "A celebrity post takes 87 s, not 5."
     ],
     [
-     "Hybrid: celebrities merge on read.",
+     "So it is a hybrid. Celebrities are merged when you read.",
      "Hybrid: celebrities merge on read."
     ]
    ]
@@ -222,19 +222,19 @@
   {
    "lines": [
     [
-     "Need 8 times the capacity of one machine.",
+     "Suppose we need eight times the capacity of one machine.",
      "Need 8 times the capacity of one machine."
     ],
     [
-     "One big machine costs about 4 times more.",
+     "The big machine costs about four times more, thirty-four thousand pounds against eight thousand eight hundred.",
      "One big machine costs about 4 times more."
     ],
     [
-     "One dies: nothing left, or 88% left.",
+     "If one dies, the big machine leaves nothing. The grid keeps eighty-eight per cent.",
      "One dies: nothing left, or 88% left."
     ],
     [
-     "Only scale out reaches 40x, but must coordinate.",
+     "At forty times, no single machine is big enough. Only the grid can grow.",
      "Only scale out reaches 40x, but must coordinate."
     ]
    ]
@@ -242,19 +242,19 @@
   {
    "lines": [
     [
-     "Easy to run, understand and change.",
+     "A maintainable system is easy to run, to understand, and to change.",
      "Easy to run, understand and change."
     ],
     [
-     "Every service uses every database.",
+     "Five services each use four databases. That is twenty connections.",
      "Every service uses every database."
     ],
     [
-     "Swap a database: edit all five.",
+     "To replace one database, all five services must be edited.",
      "Swap a database: edit all five."
     ],
     [
-     "A layer in between: 9 connections.",
+     "A layer in between makes it nine connections.",
      "A layer in between: 9 connections."
     ],
     [
@@ -270,9 +270,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "A fault is not a failure, if there is spare capacity.",
+    "When the load grows, add machines to share it.",
+    "Keep systems easy to run, to understand and to change."
    ]
   }
  ]

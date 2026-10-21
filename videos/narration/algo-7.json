@@ -1,0 +1,267 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A fixed code spends 3 bits on every letter.",
+     "A fixed code spends 3 bits on every letter."
+    ],
+    [
+     "That is 21 bits for BBADEBC.",
+     "That is 21 bits for BBADEBC."
+    ],
+    [
+     "But B turns up three times.",
+     "But B turns up three times."
+    ],
+    [
+     "Common letters get short codes: 15 bits.",
+     "Common letters get short codes: 15 bits."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "News we expect tells us nothing: 0 bits.",
+     "News we expect tells us nothing: 0 bits."
+    ],
+    [
+     "Half the chance: one yes-or-no answer, 1 bit.",
+     "Half the chance: one yes-or-no answer, 1 bit."
+    ],
+    [
+     "Each time the chance halves, one more bit.",
+     "Each time the chance halves, one more bit."
+    ],
+    [
+     "Rarer news tells us more.",
+     "Rarer news tells us more."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A source sends four symbols with these chances.",
+     "A source sends four symbols with these chances."
+    ],
+    [
+     "A typical eight: A four times, B twice.",
+     "A typical eight: A four times, B twice."
+    ],
+    [
+     "Each one costs its surprise in bits.",
+     "Each one costs its surprise in bits."
+    ],
+    [
+     "A fixed 2-bit code: 16 bits. Surprise: only 14.",
+     "A fixed 2-bit code: 16 bits. Surprise: only 14."
+    ],
+    [
+     "1.75 bits a symbol: the floor, if nothing is lost.",
+     "1.75 bits a symbol: the floor, if nothing is lost."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Codes sit side by side, with no gaps.",
+     "Codes sit side by side, with no gaps."
+    ],
+    [
+     "01 could be A then B…",
+     "01 could be A then B…"
+    ],
+    [
+     "…or C. Two readings!",
+     "…or C. Two readings!"
+    ],
+    [
+     "Fix it: no code may start another.",
+     "Fix it: no code may start another."
+    ],
+    [
+     "Put every code at a branch end.",
+     "Put every code at a branch end."
+    ],
+    [
+     "Follow the bits down. A leaf means a letter is done.",
+     "Follow the bits down. A leaf means a letter is done."
+    ],
+    [
+     "No code starts another.",
+     "No code starts another."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each letter has a chance. Join the two smallest.",
+     "Each letter has a chance. Join the two smallest."
+    ],
+    [
+     "Letters under it pay one more bit: +.20.",
+     "Letters under it pay one more bit: +.20."
+    ],
+    [
+     "Repeat with the two smallest left.",
+     "Repeat with the two smallest left."
+    ],
+    [
+     "One node left: the tree is done.",
+     "One node left: the tree is done."
+    ],
+    [
+     "1.98 bits a letter. This source's floor is 1.96.",
+     "1.98 bits a letter. This source's floor is 1.96."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Common B sits one step from the root.",
+     "Common B sits one step from the root."
+    ],
+    [
+     "The path down is the code.",
+     "The path down is the code."
+    ],
+    [
+     "Spell BBADEBC with these codes.",
+     "Spell BBADEBC with these codes."
+    ],
+    [
+     "15 bits instead of 21.",
+     "15 bits instead of 21."
+    ],
+    [
+     "Joined up, it still splits into the same codes.",
+     "Joined up, it still splits into the same codes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "No chances needed: it starts with just A and B.",
+     "No chances needed: it starts with just A and B."
+    ],
+    [
+     "Phrase plus next letter new? Send a code, learn it.",
+     "Phrase plus next letter new? Send a code, learn it."
+    ],
+    [
+     "Known? Keep growing. New? Send and learn.",
+     "Known? Keep growing. New? Send and learn."
+    ],
+    [
+     "Same again: grow while known, send when new.",
+     "Same again: grow while known, send when new."
+    ],
+    [
+     "Known again, then the text ends: send it.",
+     "Known again, then the text ends: send it."
+    ],
+    [
+     "Nine letters became five codes.",
+     "Nine letters became five codes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Only codes arrive, plus the A, B start.",
+     "Only codes arrive, plus the A, B start."
+    ],
+    [
+     "Each code adds an entry: previous plus first letter.",
+     "Each code adds an entry: previous plus first letter."
+    ],
+    [
+     "Code 4 is not in yet: AB plus AB's first letter.",
+     "Code 4 is not in yet: AB plus AB's first letter."
+    ],
+    [
+     "Same text back. No dictionary sent.",
+     "Same text back. No dictionary sent."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A GIF packs each row of pixels with LZW.",
+     "A GIF packs each row of pixels with LZW."
+    ],
+    [
+     "Each piece of the row gets one code.",
+     "Each piece of the row gets one code."
+    ],
+    [
+     "Repeats share codes: 18 pixels, 11 codes.",
+     "Repeats share codes: 18 pixels, 11 codes."
+    ],
+    [
+     "Noise rarely repeats, so it saves little.",
+     "Noise rarely repeats, so it saves little."
+    ],
+    [
+     "LZW feeds on repeats.",
+     "LZW feeds on repeats."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

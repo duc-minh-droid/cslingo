@@ -32,21 +32,21 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture six. Genetic programming. This is how evolution can write a program for you."
    ]
   },
   {
    "lines": [
     [
-     "Normally you write the program.",
+     "Normally, you write the program yourself, and it turns an input of two into an output of seven.",
      "Normally you write the program."
     ],
     [
-     "In GP you give examples of what it should do...",
+     "In genetic programming, you only give examples of what the program should do.",
      "In GP you give examples of what it should do..."
     ],
     [
-     "...and evolution finds a program that matches.",
+     "Then evolution finds a program that matches every example.",
      "...and evolution finds a program that matches."
     ]
    ]
@@ -54,15 +54,15 @@
   {
    "lines": [
     [
-     "A program can be drawn as a tree.",
+     "A program can be drawn as a tree. This one adds one, two, and the result of an if.",
      "A program can be drawn as a tree."
     ],
     [
-     "It runs from the leaves up to the root.",
+     "It runs from the leaves up to the root. With the time at five, the if picks four, and the root adds up to seven.",
      "It runs from the leaves up to the root."
     ],
     [
-     "Change the input and a different branch is used.",
+     "Change the time to eleven, and a different branch is used. Now the if picks three, and the answer is six.",
      "Change the input and a different branch is used."
     ]
    ]
@@ -70,15 +70,15 @@
   {
    "lines": [
     [
-     "Build programs from two sets: functions and terminals.",
+     "We build programs from two sets. Functions, such as plus, minus, times and if, and terminals, such as X and plain numbers.",
      "Build programs from two sets: functions and terminals."
     ],
     [
-     "Grow downwards, picking parts at random.",
+     "We grow the tree downwards, picking parts at random. The root must be a function.",
      "Grow downwards, picking parts at random."
     ],
     [
-     "At the limit, only terminals.",
+     "At the depth limit, only terminals are allowed, so the tree stops growing. This one reads x plus two, times four.",
      "At the limit, only terminals."
     ]
    ]
@@ -86,15 +86,15 @@
   {
    "lines": [
     [
-     "Run the program on many inputs.",
+     "To score a program, we run it on many inputs. The target is x squared plus x plus one, shown as eleven green dots.",
      "Run the program on many inputs."
     ],
     [
-     "Error = the area between its curve and the target.",
+     "The error is the area between the program's curve and the target. For x plus one, the error is zero point six seven.",
      "Error = the area between its curve and the target."
     ],
     [
-     "Lower error means a fitter program.",
+     "A lower error means a fitter program. Here the first program wins, and all four are ranked by error.",
      "Lower error means a fitter program."
     ]
    ]
@@ -102,15 +102,15 @@
   {
    "lines": [
     [
-     "Pick a node at random.",
+     "Mutation first picks a node at random. Here it lands on the x squared part of the parent.",
      "Pick a node at random."
     ],
     [
-     "Cut off its subtree.",
+     "Then it cuts off that subtree, and leaves a hole.",
      "Cut off its subtree."
     ],
     [
-     "Grow a new random subtree in its place.",
+     "Last, it grows a new random subtree in its place. The child is x plus x squared, plus one.",
      "Grow a new random subtree in its place."
     ]
    ]
@@ -118,15 +118,15 @@
   {
    "lines": [
     [
-     "Pick a point in each parent.",
+     "Crossover picks a point in each parent. Here the chosen subtrees have three nodes, and five nodes.",
      "Pick a point in each parent."
     ],
     [
-     "Swap the two subtrees.",
+     "Then it swaps the two subtrees, so each one lands in the other parent.",
      "Swap the two subtrees."
     ],
     [
-     "Same nodes, but the children have new sizes.",
+     "The nodes are the same, but the sizes change. Seven minus three plus five gives nine, and eleven minus five plus three gives nine too.",
      "Same nodes, but the children have new sizes."
     ]
    ]
@@ -134,15 +134,15 @@
   {
    "lines": [
     [
-     "Four random programs. Lower error is better.",
+     "Here is a worked run. Four random programs start the search, and the lowest error is on top.",
      "Four random programs. Lower error is better."
     ],
     [
-     "Next generation: a copy, a mutant, two children.",
+     "For the next generation, we take a copy of the best, a mutant, and two crossover children.",
      "Next generation: a copy, a mutant, two children."
     ],
     [
-     "A few generations later: x² + x + 1.",
+     "A few generations later, evolution finds x squared plus x plus one, with an error under zero point one.",
      "A few generations later: x² + x + 1."
     ]
    ]
@@ -150,29 +150,31 @@
   {
    "lines": [
     [
-     "Five things to choose before a run.",
+     "There are five things to choose before a run. These are the terminals, the functions, the fitness, the population size, and when to stop.",
      "Five things to choose before a run."
     ],
     [
-     "Only + and −? Straight lines only.",
+     "The sets must be rich enough. With only plus and minus, we can only draw straight lines.",
      "Only + and −? Straight lines only."
     ],
     [
-     "Add × and the curve fits.",
+     "Add multiply to the function set, and the curve fits the target.",
      "Add × and the curve fits."
     ]
    ]
   },
   {
    "at": [
-    0.9,
-    2,
-    3.1
+    1.1,
+    2.2,
+    3.3,
+    4.4
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "A program is a tree.",
+    "To make children, we cut and paste subtrees.",
+    "Fitness means running the program, and measuring the error.",
+    "And pick the right parts first, because the sets decide what can be built."
    ]
   }
  ]

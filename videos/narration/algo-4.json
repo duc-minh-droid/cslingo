@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Algorithms, phase four. Minimum spanning trees. This is the cheapest way to connect everything."
    ]
   },
   {
    "lines": [
     [
-     "Link every town. Each cable has a cost.",
+     "We must link every town, and each cable has a cost.",
      "Link every town. Each cable has a cost."
     ],
     [
-     "Add cables until every town is linked.",
+     "So we add cables until every town is linked.",
      "Add cables until every town is linked."
     ],
     [
-     "Five towns, four cables: always one fewer.",
+     "Five towns need four cables, always one fewer than the towns.",
      "Five towns, four cables: always one fewer."
     ],
     [
-     "A fifth cable makes a loop. A tree has no loops.",
+     "A fifth cable would make a loop, but a tree has no loops.",
      "A fifth cable makes a loop. A tree has no loops."
     ]
    ]
@@ -58,19 +58,19 @@
   {
    "lines": [
     [
-     "The same five towns have 21 different spanning trees.",
+     "The same five towns have twenty-one different spanning trees.",
      "The same five towns have 21 different spanning trees."
     ],
     [
-     "Each tree has a total cost, from 11 to 22.",
+     "Each tree has a total cost, from eleven up to twenty-two.",
      "Each tree has a total cost, from 11 to 22."
     ],
     [
-     "The cheapest is the minimum spanning tree.",
+     "The cheapest one is the minimum spanning tree.",
      "The cheapest is the minimum spanning tree."
     ],
     [
-     "Bigger networks have far too many trees to try them all.",
+     "Eight towns have four hundred and fifty-two trees, and bigger networks have far too many to try.",
      "Bigger networks have far too many trees to try them all."
     ]
    ]
@@ -78,27 +78,27 @@
   {
    "lines": [
     [
-     "Split the towns into X and the rest: a cut.",
+     "Split the towns into X and the rest. This is called a cut.",
      "Split the towns into X and the rest: a cut."
     ],
     [
-     "A tree must cross it. AC is the cheapest.",
+     "A tree must cross the cut. The cheapest cable across is A C.",
      "A tree must cross it. AC is the cheapest."
     ],
     [
-     "Suppose a tree uses the dearer cable AB.",
+     "Suppose a tree uses the dearer cable A B instead.",
      "Suppose a tree uses the dearer cable AB."
     ],
     [
-     "Add AC: a loop. AB also crosses the cut.",
+     "Add A C, and that makes a loop. A B also crosses the cut.",
      "Add AC: a loop. AB also crosses the cut."
     ],
     [
-     "Drop the dearer AB: the tree is cheaper.",
+     "Drop the dearer A B, and the tree gets cheaper, from twelve to eleven.",
      "Drop the dearer AB: the tree is cheaper."
     ],
     [
-     "Cheapest across a cut is safe: a cheapest tree uses it.",
+     "So the cheapest cable across a cut is safe. A cheapest tree always uses it.",
      "Cheapest across a cut is safe: a cheapest tree uses it."
     ]
    ]
@@ -110,7 +110,7 @@
      "Start anywhere. List the cables leaving the tree."
     ],
     [
-     "Take the cheapest one. A new town joins.",
+     "Take the cheapest one, and a new town joins.",
      "Take the cheapest one. A new town joins."
     ],
     [
@@ -118,11 +118,11 @@
      "Repeat. A cable inside the tree is ignored."
     ],
     [
-     "DE 1 is the cheapest. E joins.",
+     "Now D E, at cost one, is the cheapest, so E joins.",
      "DE 1 is the cheapest. E joins."
     ],
     [
-     "Every town is in. The cheapest tree costs 11.",
+     "Every town is in. The cheapest tree costs eleven.",
      "Every town is in. The cheapest tree costs 11."
     ]
    ]
@@ -130,7 +130,7 @@
   {
    "lines": [
     [
-     "Sort every cable by cost. Each town is its own group.",
+     "Sort every cable by cost. Each town starts as its own group.",
      "Sort every cable by cost. Each town is its own group."
     ],
     [
@@ -138,19 +138,19 @@
      "Take the cheapest cable that joins two groups."
     ],
     [
-     "Groups merge as cables join them.",
+     "Groups merge as the cables join them.",
      "Groups merge as cables join them."
     ],
     [
-     "A and B are already joined. Skip AB.",
+     "A and B are already joined through C, so skip A B.",
      "A and B are already joined. Skip AB."
     ],
     [
-     "BD joins the last two groups.",
+     "B D joins the last two groups.",
      "BD joins the last two groups."
     ],
     [
-     "Four cables suffice. The rest are never read.",
+     "Four cables are enough. The rest are never read.",
      "Four cables suffice. The rest are never read."
     ]
    ]
@@ -158,23 +158,23 @@
   {
    "lines": [
     [
-     "Prim: the cut is the tree so far.",
+     "In Prim, the cut is the tree built so far.",
      "Prim: the cut is the tree so far."
     ],
     [
-     "It takes the cheapest cable across the cut.",
+     "It takes the cheapest cable across that cut.",
      "It takes the cheapest cable across the cut."
     ],
     [
-     "Kruskal: the cut is one group.",
+     "In Kruskal, the cut is one group.",
      "Kruskal: the cut is one group."
     ],
     [
-     "Same rule: the cheapest cable across.",
+     "It takes the same kind of cable, the cheapest across.",
      "Same rule: the cheapest cable across."
     ],
     [
-     "Only safe choices, so the same tree.",
+     "Only safe choices, so both give the same tree.",
      "Only safe choices, so the same tree."
     ]
    ]
@@ -182,15 +182,15 @@
   {
    "lines": [
     [
-     "Prim's array version counts towns. Kruskal's counts cables.",
+     "Prim's array version counts towns, while Kruskal's counts cables.",
      "Prim's array version counts towns. Kruskal's counts cables."
     ],
     [
-     "Few cables: Kruskal does far less.",
+     "With few cables, Kruskal does about fifty times less work.",
      "Few cables: Kruskal does far less."
     ],
     [
-     "Every pair linked: Prim wins. Same tree cost either way.",
+     "With every pair linked, Prim does about five times less. The tree costs the same either way.",
      "Every pair linked: Prim wins. Same tree cost either way."
     ]
    ]
@@ -198,23 +198,23 @@
   {
    "lines": [
     [
-     "Goal: the shortest round trip through every town.",
+     "Now the goal is the shortest round trip through every town.",
      "Goal: the shortest round trip through every town."
     ],
     [
-     "A cheap start: the cheapest tree, cost W.",
+     "That is hard, so we start from the cheapest tree. Call its cost W.",
      "A cheap start: the cheapest tree, cost W."
     ],
     [
-     "Walk round it. Every cable is used twice: 2W.",
+     "Walk all the way round it. Every cable is used twice, so the walk costs two W.",
      "Walk round it. Every cable is used twice: 2W."
     ],
     [
-     "Skip towns already visited. Detours become direct legs.",
+     "Skip any town already visited. The detours become direct legs.",
      "Skip towns already visited. Detours become direct legs."
     ],
     [
-     "Straight is never longer: tour at most 2W.",
+     "A straight leg is never longer than a detour, so the tour costs at most two W.",
      "Straight is never longer: tour at most 2W."
     ]
    ]
@@ -222,19 +222,19 @@
   {
    "lines": [
     [
-     "Cut one cable from the best tour: a spanning tree is left.",
+     "Take the best possible tour, and cut one cable. A spanning tree is left.",
      "Cut one cable from the best tour: a spanning tree is left."
     ],
     [
-     "W is the cheapest tree, so best is at least W.",
+     "W is the cheapest tree, so the best tour is at least W.",
      "W is the cheapest tree, so best is at least W."
     ],
     [
-     "Our tour costs at most the walk, 2W.",
+     "Our tour costs at most the walk, which is two W.",
      "Our tour costs at most the walk, 2W."
     ],
     [
-     "So it is never worse than twice the best.",
+     "So it is never worse than twice the best, when distances are straight lines.",
      "So it is never worse than twice the best."
     ]
    ]
@@ -246,9 +246,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "The cheapest cable across a cut is always safe.",
+    "Prim grows one tree, and Kruskal merges pieces.",
+    "Double the tree and skip repeats, and the tour is at most twice the best."
    ]
   }
  ]

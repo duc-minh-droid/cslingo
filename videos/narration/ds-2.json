@@ -32,29 +32,29 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture two. Data models and NoSQL. The shape of your data decides how to store it."
    ]
   },
   {
    "lines": [
     [
-     "One profile page needs six tables.",
+     "One profile page needs data from six tables.",
      "One profile page needs six tables."
     ],
     [
-     "The page asks each table in turn.",
+     "So the page asks each table in turn, one lookup at a time.",
      "The page asks each table in turn."
     ],
     [
-     "Six reads, joined by a foreign key.",
+     "That makes six reads, and a shared key, a foreign key, joins the pieces.",
      "Six reads, joined by a foreign key."
     ],
     [
-     "A document keeps it all together.",
+     "A document keeps the same profile in one place.",
      "A document keeps it all together."
     ],
     [
-     "One read gets the whole page.",
+     "So one read gets the whole page.",
      "One read gets the whole page."
     ]
    ]
@@ -62,19 +62,19 @@
   {
    "lines": [
     [
-     "One company, many profiles.",
+     "Four hundred profiles all mention the same company.",
      "One company, many profiles."
     ],
     [
-     "Tables: change one row.",
+     "With tables, the name is stored once, so a rename changes one row.",
      "Tables: change one row."
     ],
     [
-     "Documents: rewrite all 400 copies.",
+     "With documents, every profile holds its own copy, so all four hundred are rewritten.",
      "Documents: rewrite all 400 copies."
     ],
     [
-     "Miss one and that profile is stale.",
+     "If the rewrite misses one, that profile shows the old name.",
      "Miss one and that profile is stale."
     ]
    ]
@@ -82,19 +82,19 @@
   {
    "lines": [
     [
-     "Old and new shapes sit together.",
+     "Documents can keep old and new shapes side by side.",
      "Old and new shapes sit together."
     ],
     [
-     "The app splits old names as it reads.",
+     "The app just splits an old name when it reads it.",
      "The app splits old names as it reads."
     ],
     [
-     "A table must change every row first.",
+     "A table has one shape, so every row must be changed first.",
      "A table must change every row first."
     ],
     [
-     "With a million rows that takes a long time.",
+     "With a million rows, that takes a long time.",
      "With a million rows that takes a long time."
     ],
     [
@@ -106,23 +106,23 @@
   {
    "lines": [
     [
-     "The page wants the whole profile.",
+     "Now the page needs the whole profile.",
      "The page wants the whole profile."
     ],
     [
-     "One read from the document.",
+     "From the document, that is one read.",
      "One read from the document."
     ],
     [
-     "Six from the tables.",
+     "From the tables, it is six.",
      "Six from the tables."
     ],
     [
-     "Now it wants only the name.",
+     "Now the page needs only the name.",
      "Now it wants only the name."
     ],
     [
-     "A document loads whole: 20 KB for a sliver.",
+     "The document still loads whole, twenty kilobytes for one small name.",
      "A document loads whole: 20 KB for a sliver."
     ]
    ]
@@ -130,23 +130,23 @@
   {
    "lines": [
     [
-     "A graph stores things and their links.",
+     "A graph stores things, called vertices, and the links between them, called edges.",
      "A graph stores things and their links."
     ],
     [
-     "Each kind of link has a label.",
+     "Each kind of link has a label, such as friend, lives in or works at.",
      "Each kind of link has a label."
     ],
     [
-     "A vertex lists its links in and out.",
+     "Each vertex lists its links in and out. Ben has one coming in, and two going out.",
      "A vertex lists its links in and out."
     ],
     [
-     "To find a route, walk the edges.",
+     "To find a route, we walk along the edges.",
      "To find a route, walk the edges."
     ],
     [
-     "Three hops.",
+     "Ana reaches Dee in three hops.",
      "Three hops."
     ]
    ]
@@ -154,23 +154,23 @@
   {
    "lines": [
     [
-     "Five people, linked in a chain.",
+     "Here are five people, linked in a chain of friends.",
      "Five people, linked in a chain."
     ],
     [
-     "A join, a fetch, or a follow.",
+     "In tables, each step is a join. In documents, a fetch. In a graph, a follow.",
      "A join, a fetch, or a follow."
     ],
     [
-     "Two hops: friends of friends.",
+     "Friends of friends is two hops. Ana reaches Cy.",
      "Two hops: friends of friends."
     ],
     [
-     "Now add a fourth hop.",
+     "Now go on to a fourth hop.",
      "Now add a fourth hop."
     ],
     [
-     "Queries grow, the graph walk does not.",
+     "Tables and documents need one more block for each hop. The graph repeats the same move.",
      "Queries grow, the graph walk does not."
     ]
    ]
@@ -178,27 +178,27 @@
   {
    "lines": [
     [
-     "NoSQL: simple, scales out, stays available.",
+     "NoSQL means simple design, scaling out, and staying available.",
      "NoSQL: simple, scales out, stays available."
     ],
     [
-     "Document: the whole recipe.",
+     "A document store keeps the whole recipe in one place.",
      "Document: the whole recipe."
     ],
     [
-     "A partition key groups, a sort key orders.",
+     "In a key-value store, the partition key groups items, and the sort key puts them in order.",
      "A partition key groups, a sort key orders."
     ],
     [
-     "Wide-column: columns vary per row.",
+     "In a wide-column store, each row keeps its own columns.",
      "Wide-column: columns vary per row."
     ],
     [
-     "Graph: things and labelled links.",
+     "A graph store keeps things and labelled links.",
      "Graph: things and labelled links."
     ],
     [
-     "Pancakes and Waffles share Flour.",
+     "Follow the links, and Pancakes and Waffles share Flour.",
      "Pancakes and Waffles share Flour."
     ]
    ]
@@ -206,27 +206,27 @@
   {
    "lines": [
     [
-     "Four jobs, four families.",
+     "Here are four jobs, and four families.",
      "Four jobs, four families."
     ],
     [
-     "A cart by user id: key-value.",
+     "A shopping cart, found by user id, fits key-value.",
      "A cart by user id: key-value."
     ],
     [
-     "A whole product page: document.",
+     "A whole product page fits a document.",
      "A whole product page: document."
     ],
     [
-     "Friends of friends: graph.",
+     "Friends of friends fits a graph.",
      "Friends of friends: graph."
     ],
     [
-     "Varying columns: wide-column.",
+     "Events with varying columns fit wide-column.",
      "Varying columns: wide-column."
     ],
     [
-     "Each job finds its family.",
+     "Each job finds its family. Pick by the shape of the question.",
      "Each job finds its family."
     ]
    ]
@@ -238,9 +238,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "If the data is a tree, use a document. If it is shared, use tables.",
+    "When the links are the data, use a graph.",
+    "Pick one of the four NoSQL families by the question you ask."
    ]
   }
  ]
