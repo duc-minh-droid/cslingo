@@ -224,7 +224,7 @@
         text: "Remember",
         style: { position: "absolute", left: "72px", top: "108px", fontSize: "76px" },
       });
-      // 30 px like the title card's kicker (the engine's .v-kicker is 24 px, below the 28 px minimum)
+      // 30 px like the title card's kicker (the engine's default .v-kicker is 28 px)
       const kicker = V.h("div", { class: "v-kicker", text: "RECAP", style: { fontSize: "30px" } });
       const mascot = V.mascot("pebble", { size: 168, mood: "love" });
       mascot.style.left = "840px";
