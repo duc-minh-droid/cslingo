@@ -57,6 +57,22 @@
         "Writes land in memory, then reach disk sorted",
       ],
     },
+    {
+      n: 4,
+      blurb:
+        "Lecture 4 in pictures: scaling up or out, copies on every node, one leader and its log, sync or async, a new follower, failover, split brain and stale reads.",
+      chapters: [
+        "One machine hits a ceiling, and can die",
+        "Replication keeps a full copy on every node",
+        "Writes go to the leader, the log carries them on",
+        "Wait for the followers, or answer at once?",
+        "A new follower joins with a snapshot",
+        "The leader crashes: promote the freshest copy",
+        "A cut-off leader that still thinks it leads",
+        "Your own post must not vanish",
+        "Time must not run backwards",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
