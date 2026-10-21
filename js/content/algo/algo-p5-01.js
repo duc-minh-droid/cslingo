@@ -316,7 +316,7 @@
       },
       {
         t: "The lecture's pseudocode",
-        b: `<p>The lecture sweeps <b>clockwise</b>. Each round it measures the angle <b>r–h–p</b> for every candidate p, keeps the smallest, then moves on: <b>r ← h</b>, <b>h ← p<sub>min</sub></b>.</p><p>The candidates are <b>(S minus H) plus H[0]</b>: everything not yet on the hull, plus the start, so the loop can close. It stops when h gets back to H[0].</p>`,
+        b: `<p>The lecture sweeps <b>clockwise</b>. Each round it measures the angle <b>r–h–p</b> for every candidate p, keeps the smallest, then moves on: <b>r ← h</b>, <b>h ← p<sub>min</sub></b>.</p><p>The candidates are <b>(S minus H) plus H[0]</b>: everything not yet on the hull, plus the start, so the loop can close. In round 1 the start is h itself, so there is nothing extra to check. It stops when h gets back to H[0].</p>`,
         v: pseudo(
           [
             "h ← leftmost point of S (tie: greatest y)",
@@ -351,7 +351,7 @@
       },
       {
         t: "Adding up the cost",
-        b: `<p>One round per hull point, and round <i>i</i> checks about |S| − i + 1 candidates (the hull so far drops out). Adding them up:</p><p>$$\\sum_{i=1}^{|H|}(|S|-i+1)=|S||H|-\\tfrac12|H|^2+\\tfrac12|H| = O(|S|\\,|H|)$$</p><p>For 7 points and a hull of 5 that is 7+6+5+4+3 = 25 checks. Great when most points are inside; slow when they're all on the edge.</p>`,
+        b: `<p>One round per hull point. Round 1 checks the |S| − 1 other points. Round <i>i</i> after that checks the |S| − <i>i</i> points not yet on the hull, plus the start, so |S| − <i>i</i> + 1. Adding them up:</p><p>$$(|S|-1)+\\sum_{i=2}^{|H|}(|S|-i+1)=|S||H|-\\tfrac12|H|^2+\\tfrac12|H|-1 = O(|S|\\,|H|)$$</p><p>For 7 points and a hull of 5 that is 6+6+5+4+3 = 24 checks. Great when most points are inside; slow when they're all on the edge.</p>`,
         v: F.bars(
           [
             ["h = 5 of 1000", 5000, "teal", "n·h"],

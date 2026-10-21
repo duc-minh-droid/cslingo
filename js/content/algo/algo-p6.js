@@ -57,7 +57,7 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
       },
       {
         t: "Why the receiver can check it",
-        b: `<p>Appending the remainder makes the whole frame divide <b>exactly</b> by the generator. The receiver divides again: remainder 0 means clean, anything else means corrupted.</p><span class="key">A good generator catches every single-bit error, every burst shorter than its degree, and much more.</span>`,
+        b: `<p>The sender appends the remainder, so the whole frame divides <b>exactly</b> by the generator. The receiver divides what arrives by the same generator.</p><p>A <b>non-zero</b> remainder proves the frame was damaged. A <b>zero</b> remainder means it passed the check, though a rare pattern of flips can still divide exactly and slip through.</p><span class="key">A good generator catches every single-bit error and every burst up to its degree.</span>`,
         v: F.compare(
           { title: "Clean frame 1011100", c: "teal", body: "÷ 1101 → remainder <b>000</b> ✓" },
           { title: "One bit flipped", c: "rose", body: "÷ 1101 → remainder <b>≠ 000</b>: error detected" },
@@ -138,7 +138,7 @@ remainder = <b style="color:var(--amber-ink)">100</b>  →  send 1011<b style="c
         qs("#div", ccard).textContent = "1011000 ÷ 1101\n\n" + shown;
         qs("#cr", ccard).innerHTML =
           si === steps.length - 1
-            ? `<b>Remainder 100</b> → codeword = 1011<b>100</b>. Receiver divides the whole thing by 1101: remainder 0 = clean, nonzero = corrupted.`
+            ? `<b>Remainder 100</b> → codeword = 1011<b>100</b>. Receiver divides the whole thing by 1101: remainder 0 = passes, nonzero = corrupted.`
             : steps[si].note;
       }
       qs("#nx", ccard).onclick = () => {

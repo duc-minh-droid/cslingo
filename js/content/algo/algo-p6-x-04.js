@@ -356,7 +356,7 @@ check: H · G = ${JSON.stringify(H.map((hr) => [0, 1, 2, 3].map((c) => G.reduce(
   );
   hamL.steps[at(hamL.steps, "The limit: one error")] = {
     t: "The limit: one error",
-    b: `<p>Hamming(7,4) corrects <b>exactly one</b> flipped bit. With two flips, the syndrome still points somewhere, but at an innocent bit, so the "fix" makes things worse: the decoder <b>adds another error</b>. A plain Hamming code can notice that something is wrong with two errors, but cannot repair them. Adding one extra overall parity bit (<b>SECDED</b>) lets you reliably <i>detect</i> double errors.</p>`,
+    b: `<p>Hamming(7,4) corrects <b>exactly one</b> flipped bit. With two flips, the syndrome still points somewhere, but at an innocent bit, so the "fix" makes things worse: the decoder <b>adds another error</b>.</p><p>It cannot even tell that two bits flipped, because a two-flip word looks exactly like a one-flip word from a different codeword. One extra overall parity bit (<b>SECDED</b>) fixes that: the decoder can then <i>detect</i> a double error instead of "repairing" it.</p>`,
     v: F.frames([
       { t: "Sent 1010101", v: F.cells(["1", "0", "1", "0", "1", "0", "1"]) },
       {
