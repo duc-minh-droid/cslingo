@@ -54,10 +54,11 @@
       "Nothing came before h, so r supplies a direction to measure the first angles from.",
     ),
     M(
-      "Gift wrapping on 7 points finds a hull of 5. Round i checks 7 − i + 1 candidates. How many checks in all?",
-      ["25", "35", "49", "15"],
+      "Gift wrapping on 7 points finds a hull of 5, so it runs 5 rounds. Round 1 checks the 6 other points. Each later round i checks the points not yet on the hull plus the start, which is 7 − i + 1. How many checks in all?",
+      ["24", "35", "49", "15"],
       0,
-      "7 + 6 + 5 + 4 + 3 = 25.",
+      "Round 1 checks 6. Rounds 2 to 5 check 6, 5, 4 and 3. In all, 6 + 6 + 5 + 4 + 3 = 24.",
+      { hint: "Write down the five round sizes, then add them up in pairs." },
     ),
     M(
       "Which points are candidates in the lecture's inner loop?",

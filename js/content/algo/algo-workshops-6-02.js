@@ -116,7 +116,7 @@
         rx = sent.slice(),
         host = pane("crc"),
         G = GEN;
-      host.innerHTML = `<p class="aw6-lede">Message <b>${MSG4}</b>, generator <b>${G}</b>: the sender appended remainder <b>${CRC_REM}</b>. The receiver divides the whole frame by ${G} (XOR, no borrows). Remainder 000 means clean.</p>
+      host.innerHTML = `<p class="aw6-lede">Message <b>${MSG4}</b>, generator <b>${G}</b>: the sender appended remainder <b>${CRC_REM}</b>. The receiver divides the whole frame by ${G} (XOR, no borrows). Remainder 000 means it passes the check.</p>
         <div class="aw6-end"><b>Sender</b><div data-s></div></div>${wire(false)}
         <div class="aw6-end"><b>Receiver</b><div data-r></div></div>
         <div class="aw6-div" data-div aria-live="polite"></div>
