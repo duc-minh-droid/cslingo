@@ -10,7 +10,10 @@ same to every video.
 Redo **every** recap video the way `videos/out/lecture-1-test.mp4` was made (that clip covers Lecture 1 scenes 0-1 only). Same
 voice, same delivery, same music treatment, same look, same tools and settings; "How the example was made" below is the recipe.
 
-Videos (16): `lecture-1` to `lecture-6` (Nature-Inspired) and `algo-1` to `algo-10` (Algorithms), pages `videos/<name>.html`.
+Videos (25): `lecture-1` to `lecture-8` (Nature-Inspired), `algo-1` to `algo-10` (Algorithms) and `ds-1` to `ds-7` (Data Science), pages
+`videos/<name>.html`. Narration scripts (`videos/narration/<name>.json`) exist only for `lecture-1` to `lecture-6`; `lecture-7`,
+`lecture-8`, `algo-1` to `algo-10` and `ds-1` to `ds-7` still need theirs (the silent versions are recorded, wired into the app and live).
+The Data Science videos use the `ds-N` names, their audio stubs are `videos/audio/ds-N.js` and their scenes are in `videos/dN/`.
 
 **Inputs** (in the repo; `.vercelignore` keeps them off the deployed site):
 - **Voice:** `videos/voice-ref/narrator.wav` + its transcript `videos/voice-ref/narrator.txt` (cut from `videos/voice-ref/example.mp3`).
@@ -59,7 +62,7 @@ Videos (16): `lecture-1` to `lecture-6` (Nature-Inspired) and `algo-1` to `algo-
 8. Owner reviews a couple of finished videos before anything is merged.
 
 ### Pipeline (already built)
-- `tools/narrate.js --engine qwen|chatterbox|kokoro|eleven|fake` voices each caption line; the open-source engines run locally
+- `tools/narrate.js --engine qwen|chatterbox|kokoro|fake` voices each caption line; the open-source engines run locally
   through `tools/tts/speak.py` (one batch per video, model loads once). Setup and engine notes: `tools/tts/README.md`.
 - Pacing: `"pace"` in each narration script (`pause`, `lead`, `tail`, `speed`, `warp`, `minStretch`), a per-line `pause`, `--pace N`.
 - Beat sync: `tools/tts/beats.py <track>` writes beat times; `"music": {"beats": ..., "snap": "downbeats"}` puts every cut on one.
@@ -117,3 +120,20 @@ Notes from the tests:
 - Models download to the Hugging Face cache on first use (about 4.5 GB each); `tools/tts/speak.py` sets
   `HF_HUB_DISABLE_IMPLICIT_TOKEN=1` because an expired stored login broke the public download. faster-whisper's GPU path needs
   CUDA 12 cuBLAS, which is not installed, so it runs on CPU (fast enough for checks).
+
+## Other open items
+
+Added 2026-10-21.
+
+- **Re-render every video after narration.** The scene text is now 28 px everywhere (the small kicker above each scene title was
+  24 px and was raised to 28 px in `videos/video.css`), but the `.mp4` files already recorded still show the old size. Re-rendering
+  for the voice-over picks the change up; until then nothing else needs doing.
+- **Voice-over for the nine newest videos.** `lecture-7`, `lecture-8` and `ds-1` to `ds-7` have no narration script yet (see the
+  videos list above); write them last, after the older ones have been approved.
+- **Data Science lecture 7 (Paxos) video** (`ds-7`): recorded and wired. Check on the live site that the bonus node after the
+  lecture 7 boss quiz plays `videos/out/ds-7.mp4` and shows its poster.
+- **Remove the four stray files** `/log4.txt`, `/log5.txt`, `/log10.txt` and `/log11.txt` from the filesystem root of the
+  development machine (they are outside the repo; the assistant's sandbox is not allowed to delete files at `/`).
+- **Revoke the old ElevenLabs and Gemini API keys** in their dashboards. They were pasted into a chat once. The local `.env.local`
+  and the ElevenLabs engine in `tools/narrate.js` have been deleted; the voice pipeline is local only (Qwen3-TTS, Chatterbox, Kokoro).
+- **App work still open:** "Bigger bets" (Profile overview, offline service worker, phase picker) and the "Shell polish" list.

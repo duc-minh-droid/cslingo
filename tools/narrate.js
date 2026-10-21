@@ -1,4 +1,4 @@
-/* Voice-over for a recap video:  node tools/narrate.js <lecture-N|algo-N> [--engine qwen|chatterbox|kokoro|eleven|fake] [--pace 1.4]
+/* Voice-over for a recap video:  node tools/narrate.js <lecture-N|algo-N> [--engine qwen|chatterbox|kokoro|fake] [--pace 1.4]
    Reads videos/narration/<name>.json (one spoken line per caption, or {at, lines} for the title and recap cards), makes one clip
    per line, measures it, and works out how long every scene must be so the picture waits for the voice. Writes
    videos/audio/<name>.js (read by the page: scene lengths and captions) and videos/audio/<name>.json (clip start times and the
@@ -7,7 +7,6 @@
 
    Engines (--engine, or "engine" in the script, or TTS_ENGINE):
      qwen | chatterbox | kokoro   open-source, run locally by tools/tts/speak.py (see tools/tts/README.md for the setup)
-     eleven                       ElevenLabs API (ELEVENLABS_API_KEY in .env.local, which git ignores; needs FFMPEG to measure mp3)
      fake                         silent clips of a plausible length, to test timing with no model at all
    --only A-B voices only scenes A..B with the engine (others fake), for a quick test of one stretch.
    Pacing (all optional, in the script's "pace" object; --pace N multiplies every gap):
@@ -26,36 +25,26 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { serve, launch, openVideo, root } from "./video-lib.js";
 
-if (existsSync(join(root, ".env.local"))) {
-  for (const l of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
-    const m = l.match(/^([A-Z_]+)=(.*)$/);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
-  }
-}
 const FFMPEG = process.env.FFMPEG || "ffmpeg";
 const PYTHON = process.env.TTS_PYTHON || "python";
-const ELEVEN_MODEL = process.env.VOICE_MODEL || "eleven_v4";
-const ELEVEN_VOICES = { alice: "Xb7hH8MSUJpSbSDYk0k2", matilda: "XrExE9yKIg1WjnnlVkGX", sarah: "EXAVITQu4vr4xnSDxMaL" };
 const LOCAL = ["qwen", "chatterbox", "kokoro"];
 
 const args = process.argv.slice(2);
 const opt = (n) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : undefined);
 const name = args.find((a, i) => !a.startsWith("--") && !args[i - 1]?.startsWith("--"));
 if (!name) {
-  console.error(
-    "usage: node tools/narrate.js <lecture-N|algo-N> [--engine qwen|chatterbox|kokoro|eleven|fake] [--pace 1.4]",
-  );
+  console.error("usage: node tools/narrate.js <lecture-N|algo-N> [--engine qwen|chatterbox|kokoro|fake] [--pace 1.4]");
   process.exit(2);
 }
 const script = JSON.parse(readFileSync(join(root, "videos", "narration", `${name}.json`), "utf8"));
 const engine = opt("engine") || (args.includes("--fake") ? "fake" : script.engine || process.env.TTS_ENGINE || "fake");
-if (![...LOCAL, "eleven", "fake"].includes(engine)) throw new Error(`unknown engine ${engine}`);
+if (![...LOCAL, "fake"].includes(engine)) throw new Error(`unknown engine ${engine}`);
 const P = { pause: 0.6, lead: 0.7, tail: 1.0, speed: 0.9, minStretch: 1, ...(script.pace || {}) };
 const scale = +(opt("pace") || 1);
 // --only 2-4 voices just those scenes with the engine (the rest get fake clips): a quick test of one stretch of a video
 const only = opt("only") ? opt("only").split("-").map(Number) : null;
 const engOf = (i) => (!only || (i >= only[0] && i <= (only[1] ?? only[0])) ? engine : "fake");
-const voiceOf = (eng) => (eng === "eleven" ? ELEVEN_VOICES[script.voice] || script.voice : script.voices?.[eng] || {});
+const voiceOf = (eng) => script.voices?.[eng] || {};
 const dirOf = (eng) => join(root, "videos", "audio", eng === "fake" ? "fake" : "clips");
 mkdirSync(dirOf(engine), { recursive: true });
 mkdirSync(dirOf("fake"), { recursive: true });
@@ -110,7 +99,7 @@ const keyOf = (eng, text) =>
     .update(`${eng}|${JSON.stringify(voiceOf(eng))}|${P.speed}|${text}`)
     .digest("hex")
     .slice(0, 16);
-const fileOf = (eng, text) => join(dirOf(eng), `${keyOf(eng, text)}.${eng === "eleven" ? "mp3" : "wav"}`);
+const fileOf = (eng, text) => join(dirOf(eng), `${keyOf(eng, text)}.wav`);
 
 /** Voice every line that has no cached clip yet; a local engine gets them all in one batch so its model loads once. */
 async function voiceAll(engine, texts) {
@@ -127,33 +116,6 @@ async function voiceAll(engine, texts) {
     });
     if (r.status !== 0) throw new Error(`tools/tts/speak.py failed (engine ${engine}); see tools/tts/README.md`);
     return;
-  }
-  const key = process.env.ELEVENLABS_API_KEY;
-  if (!key) throw new Error("set ELEVENLABS_API_KEY (in .env.local)");
-  for (const text of todo) {
-    for (let attempt = 0; ; attempt++) {
-      const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
-        method: "POST",
-        headers: { "xi-api-key": key, "content-type": "application/json" },
-        body: JSON.stringify({
-          text,
-          model_id: ELEVEN_MODEL,
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.8,
-            style: 0.15,
-            use_speaker_boost: true,
-            speed: P.speed,
-          },
-        }),
-      });
-      if (r.ok) {
-        writeFileSync(fileOf1(text), Buffer.from(await r.arrayBuffer()));
-        break;
-      }
-      if (attempt < 3 && r.status >= 500) await new Promise((ok) => setTimeout(ok, 2000 * (attempt + 1)));
-      else throw new Error(`ElevenLabs ${r.status}: ${(await r.text()).slice(0, 300)}`);
-    }
   }
 }
 
