@@ -1,0 +1,259 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A colony is many identical, simple ants.",
+     "A colony is many identical, simple ants."
+    ],
+    [
+     "Each one only reacts to what is near it.",
+     "Each one only reacts to what is near it."
+    ],
+    [
+     "No leader gives the orders.",
+     "No leader gives the orders."
+    ],
+    [
+     "Together they can find short routes.",
+     "Together they can find short routes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One scout ant is right 60% of the time.",
+     "One scout ant is right 60% of the time."
+    ],
+    [
+     "Eleven scouts each vote for a route.",
+     "Eleven scouts each vote for a route."
+    ],
+    [
+     "The majority is right 75% of the time.",
+     "The majority is right 75% of the time."
+    ],
+    [
+     "With 31 scouts it climbs to 87%.",
+     "With 31 scouts it climbs to 87%."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Ants use either of two equal bridges.",
+     "Ants use either of two equal bridges."
+    ],
+    [
+     "At first the ants choose at random.",
+     "At first the ants choose at random."
+    ],
+    [
+     "Ants leave pheromone and prefer strong trails.",
+     "Ants leave pheromone and prefer strong trails."
+    ],
+    [
+     "Soon most ants use one bridge.",
+     "Soon most ants use one bridge."
+    ],
+    [
+     "Which one is down to chance.",
+     "Which one is down to chance."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One road is twice as long.",
+     "One road is twice as long."
+    ],
+    [
+     "Same speed: the short trip ends first.",
+     "Same speed: the short trip ends first."
+    ],
+    [
+     "More pheromone, so more ants pick it.",
+     "More pheromone, so more ants pick it."
+    ],
+    [
+     "Soon most ants take the short road.",
+     "Soon most ants take the short road."
+    ],
+    [
+     "85% of 200 colonies pick the short road.",
+     "85% of 200 colonies pick the short road."
+    ],
+    [
+     "A few lock onto the long road.",
+     "A few lock onto the long road."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "An ant leaves a scent mark on the ground.",
+     "An ant leaves a scent mark on the ground."
+    ],
+    [
+     "A later ant senses it and follows.",
+     "A later ant senses it and follows."
+    ],
+    [
+     "That is stigmergy.",
+     "That is stigmergy."
+    ],
+    [
+     "Scent is a sign, not the work.",
+     "Scent is a sign, not the work."
+    ],
+    [
+     "The work itself can prompt others.",
+     "The work itself can prompt others."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each step, ants add pheromone.",
+     "Each step, ants add pheromone."
+    ],
+    [
+     "Each step, a fifth of it evaporates.",
+     "Each step, a fifth of it evaporates."
+    ],
+    [
+     "It levels off where gain equals loss.",
+     "It levels off where gain equals loss."
+    ],
+    [
+     "Stronger trails get picked more.",
+     "Stronger trails get picked more."
+    ],
+    [
+     "If the ants stop, the trail fades away.",
+     "If the ants stop, the trail fades away."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Goal: visit every town, then go home.",
+     "Goal: visit every town, then go home."
+    ],
+    [
+     "Weight = pheromone ÷ distance.",
+     "Weight = pheromone ÷ distance."
+    ],
+    [
+     "A random pick, by those chances.",
+     "A random pick, by those chances."
+    ],
+    [
+     "Tour memory stops repeat visits.",
+     "Tour memory stops repeat visits."
+    ],
+    [
+     "It visits every town, then goes home.",
+     "It visits every town, then goes home."
+    ],
+    [
+     "Tour length: 4 + 6 + 3 + 5 = 18.",
+     "Tour length: 4 + 6 + 3 + 5 = 18."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Tour done. Now the trails update.",
+     "Tour done. Now the trails update."
+    ],
+    [
+     "In this example, each road keeps half.",
+     "In this example, each road keeps half."
+    ],
+    [
+     "Then each tour road gains Q ÷ length.",
+     "Then each tour road gains Q ÷ length."
+    ],
+    [
+     "Skipped roads only lose pheromone.",
+     "Skipped roads only lose pheromone."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Ants go round one after another.",
+     "Ants go round one after another."
+    ],
+    [
+     "A shorter tour adds more to each road.",
+     "A shorter tour adds more to each road."
+    ],
+    [
+     "So the trail leans towards the shortest tour.",
+     "So the trail leans towards the shortest tour."
+    ],
+    [
+     "The first ants found only long tours.",
+     "The first ants found only long tours."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

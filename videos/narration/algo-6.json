@@ -1,0 +1,279 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A message travels as bits.",
+     "A message travels as bits."
+    ],
+    [
+     "Noise on the wire flips a bit.",
+     "Noise on the wire flips a bit."
+    ],
+    [
+     "The receiver cannot tell.",
+     "The receiver cannot tell."
+    ],
+    [
+     "Fix: add a check bit.",
+     "Fix: add a check bit."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Count the 1s in the message.",
+     "Count the 1s in the message."
+    ],
+    [
+     "Add a bit that makes the total even.",
+     "Add a bit that makes the total even."
+    ],
+    [
+     "One flip makes the total odd: caught.",
+     "One flip makes the total odd: caught."
+    ],
+    [
+     "But which bit? Parity cannot say.",
+     "But which bit? Parity cannot say."
+    ],
+    [
+     "Two flips make it even again: missed.",
+     "Two flips make it even again: missed."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The CRC: a pattern both sides know.",
+     "The CRC: a pattern both sides know."
+    ],
+    [
+     "Add one zero per check bit, then divide.",
+     "Add one zero per check bit, then divide."
+    ],
+    [
+     "Line the pattern up under the next 1.",
+     "Line the pattern up under the next 1."
+    ],
+    [
+     "Too short to divide: that is the remainder.",
+     "Too short to divide: that is the remainder."
+    ],
+    [
+     "Send the message plus the remainder.",
+     "Send the message plus the remainder."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Divide the frame by the same pattern.",
+     "Divide the frame by the same pattern."
+    ],
+    [
+     "A clean frame divides exactly: 000.",
+     "A clean frame divides exactly: 000."
+    ],
+    [
+     "These two flips change the remainder.",
+     "These two flips change the remainder."
+    ],
+    [
+     "A burst of three is caught too.",
+     "A burst of three is caught too."
+    ],
+    [
+     "More check bits catch longer bursts.",
+     "More check bits catch longer bursts."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A download checks every frame.",
+     "A download checks every frame."
+    ],
+    [
+     "Check fails, so ask for a resend.",
+     "Check fails, so ask for a resend."
+    ],
+    [
+     "A probe is minutes away.",
+     "A probe is minutes away."
+    ],
+    [
+     "Too slow, so it repairs itself.",
+     "Too slow, so it repairs itself."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One flip is one step.",
+     "One flip is one step."
+    ],
+    [
+     "Only 000 and 111 are valid words.",
+     "Only 000 and 111 are valid words."
+    ],
+    [
+     "Three steps apart: distance 3.",
+     "Three steps apart: distance 3."
+    ],
+    [
+     "Nearest valid word is 000: fixed.",
+     "Nearest valid word is 000: fixed."
+    ],
+    [
+     "Two flips lead to the wrong word.",
+     "Two flips lead to the wrong word."
+    ],
+    [
+     "Repeating works but wastes bits.",
+     "Repeating works but wastes bits."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Hamming sends 4 useful bits in 7.",
+     "Hamming sends 4 useful bits in 7."
+    ],
+    [
+     "Check bits sit at positions 1, 2, 4.",
+     "Check bits sit at positions 1, 2, 4."
+    ],
+    [
+     "Write each position in binary.",
+     "Write each position in binary."
+    ],
+    [
+     "p4 guards positions starting with 1.",
+     "p4 guards positions starting with 1."
+    ],
+    [
+     "Its bit makes the 1s even.",
+     "Its bit makes the 1s even."
+    ],
+    [
+     "p2 guards positions with a middle 1.",
+     "p2 guards positions with a middle 1."
+    ],
+    [
+     "p1 guards positions ending in 1.",
+     "p1 guards positions ending in 1."
+    ],
+    [
+     "Every group now has an even count.",
+     "Every group now has an even count."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A clean word passes all three checks.",
+     "A clean word passes all three checks."
+    ],
+    [
+     "Noise flips position 6.",
+     "Noise flips position 6."
+    ],
+    [
+     "Recount each group: odd means failed.",
+     "Recount each group: odd means failed."
+    ],
+    [
+     "p4 and p2 fail; p1 passes.",
+     "p4 and p2 fail; p1 passes."
+    ],
+    [
+     "Failures read as binary: 110 is 6.",
+     "Failures read as binary: 110 is 6."
+    ],
+    [
+     "Flip position 6 back: fixed.",
+     "Flip position 6 back: fixed."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two bits flip: positions 2 and 5.",
+     "Two bits flip: positions 2 and 5."
+    ],
+    [
+     "All fail: 111 means position 7.",
+     "All fail: 111 means position 7."
+    ],
+    [
+     "The repair flips an innocent bit.",
+     "The repair flips an innocent bit."
+    ],
+    [
+     "Checks pass, yet the data is wrong.",
+     "Checks pass, yet the data is wrong."
+    ],
+    [
+     "Hamming fixes exactly one error.",
+     "Hamming fixes exactly one error."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

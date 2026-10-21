@@ -1,0 +1,283 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Stretch a rubber band round every pin.",
+     "Stretch a rubber band round every pin."
+    ],
+    [
+     "Let go. It snaps onto the outer pins.",
+     "Let go. It snaps onto the outer pins."
+    ],
+    [
+     "The pins it touches are the hull corners.",
+     "The pins it touches are the hull corners."
+    ],
+    [
+     "A dent lets a segment poke outside.",
+     "A dent lets a segment poke outside."
+    ],
+    [
+     "A convex shape keeps every segment inside.",
+     "A convex shape keeps every segment inside."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Walk from p to a to b. Left or right?",
+     "Walk from p to a to b. Left or right?"
+    ],
+    [
+     "Multiply across, subtract: positive means left.",
+     "Multiply across, subtract: positive means left."
+    ],
+    [
+     "Now try a different path.",
+     "Now try a different path."
+    ],
+    [
+     "Negative means a right turn.",
+     "Negative means a right turn."
+    ],
+    [
+     "And one more path.",
+     "And one more path."
+    ],
+    [
+     "Zero means a straight line.",
+     "Zero means a straight line."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Walk round the hull, corner by corner.",
+     "Walk round the hull, corner by corner."
+    ],
+    [
+     "Anticlockwise, every turn is a left turn.",
+     "Anticlockwise, every turn is a left turn."
+    ],
+    [
+     "Go through F and you turn right.",
+     "Go through F and you turn right."
+    ],
+    [
+     "Right turn: a dent, not a corner.",
+     "Right turn: a dent, not a corner."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A computer has no rubber band. Way one: wrap.",
+     "A computer has no rubber band. Way one: wrap."
+    ],
+    [
+     "The leftmost point must be on the hull.",
+     "The leftmost point must be on the hull."
+    ],
+    [
+     "Swing a line clockwise from r.",
+     "Swing a line clockwise from r."
+    ],
+    [
+     "Every point it touches gets an angle.",
+     "Every point it touches gets an angle."
+    ],
+    [
+     "Smallest angle wins: A to G.",
+     "Smallest angle wins: A to G."
+    ],
+    [
+     "Repeat from G. Start the swing along the last edge.",
+     "Repeat from G. Start the swing along the last edge."
+    ],
+    [
+     "Each round, the first point touched is the next corner.",
+     "Each round, the first point touched is the next corner."
+    ],
+    [
+     "Back at A. One sweep per corner: 5 sweeps.",
+     "Back at A. One sweep per corner: 5 sweeps."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Way two: sort the points first.",
+     "Way two: sort the points first."
+    ],
+    [
+     "The lowest point must be on the hull.",
+     "The lowest point must be on the hull."
+    ],
+    [
+     "Sort the rest by angle, sweeping anticlockwise.",
+     "Sort the rest by angle, sweeping anticlockwise."
+    ],
+    [
+     "Walk the points in this order.",
+     "Walk the points in this order."
+    ],
+    [
+     "The path still has dents.",
+     "The path still has dents."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start the stack with C and D.",
+     "Start the stack with C and D."
+    ],
+    [
+     "Left turn: keep the middle point.",
+     "Left turn: keep the middle point."
+    ],
+    [
+     "A right turn is a dent: pop it.",
+     "A right turn is a dent: pop it."
+    ],
+    [
+     "Left turn again: push B.",
+     "Left turn again: push B."
+    ],
+    [
+     "A right turn again: pop B, then push A.",
+     "A right turn again: pop B, then push A."
+    ],
+    [
+     "The stack is the hull. One pass after the sort.",
+     "The stack is the hull. One pass after the sort."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "1,024 points, and only 4 are corners.",
+     "1,024 points, and only 4 are corners."
+    ],
+    [
+     "One sweep checks all 1,024 points.",
+     "One sweep checks all 1,024 points."
+    ],
+    [
+     "4 corners, 4 sweeps: 4,096 steps.",
+     "4 corners, 4 sweeps: 4,096 steps."
+    ],
+    [
+     "A sort halves the list again and again.",
+     "A sort halves the list again and again."
+    ],
+    [
+     "Ten halvings: log₂ 1,024 = 10.",
+     "Ten halvings: log₂ 1,024 = 10."
+    ],
+    [
+     "The sort makes 10 passes: about 10,240 steps.",
+     "The sort makes 10 passes: about 10,240 steps."
+    ],
+    [
+     "Few corners: wrapping wins.",
+     "Few corners: wrapping wins."
+    ],
+    [
+     "Now every point is a corner.",
+     "Now every point is a corner."
+    ],
+    [
+     "At 10 corners they tie. More, and wrapping loses.",
+     "At 10 corners they tie. More, and wrapping loses."
+    ],
+    [
+     "Scan wins. Wrapping costs about 100 times more.",
+     "Scan wins. Wrapping costs about 100 times more."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Try every pair: 21 of them.",
+     "Try every pair: 21 of them."
+    ],
+    [
+     "The farthest pair is A and E: two corners.",
+     "The farthest pair is A and E: two corners."
+    ],
+    [
+     "An inside point always loses to a corner.",
+     "An inside point always loses to a corner."
+    ],
+    [
+     "So drop every pair that uses an inside point.",
+     "So drop every pair that uses an inside point."
+    ],
+    [
+     "1,000 points, 10 corners.",
+     "1,000 points, 10 corners."
+    ],
+    [
+     "45 pairs to check, not 499,500.",
+     "45 pairs to check, not 499,500."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

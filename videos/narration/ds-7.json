@@ -1,0 +1,251 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two-phase commit needs all five to say yes.",
+     "Two-phase commit needs all five to say yes."
+    ],
+    [
+     "One crash and it is stuck waiting.",
+     "One crash and it is stuck waiting."
+    ],
+    [
+     "Paxos needs a majority: 3 of 5.",
+     "Paxos needs a majority: 3 of 5."
+    ],
+    [
+     "2 may crash.",
+     "2 may crash."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A node can play three roles.",
+     "A node can play three roles."
+    ],
+    [
+     "Proposers suggest a value.",
+     "Proposers suggest a value."
+    ],
+    [
+     "Acceptors decide which one is chosen.",
+     "Acceptors decide which one is chosen."
+    ],
+    [
+     "Learners are only told the result.",
+     "Learners are only told the result."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each proposal gets a unique number.",
+     "Each proposal gets a unique number."
+    ],
+    [
+     "Proposers never share a number.",
+     "Proposers never share a number."
+    ],
+    [
+     "A bigger number means newer.",
+     "A bigger number means newer."
+    ],
+    [
+     "The newer proposal beats the older.",
+     "The newer proposal beats the older."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A majority of 5 is 3: a quorum.",
+     "A majority of 5 is 3: a quorum."
+    ],
+    [
+     "So 2 may crash.",
+     "So 2 may crash."
+    ],
+    [
+     "Two majorities always overlap.",
+     "Two majorities always overlap."
+    ],
+    [
+     "They share at least one acceptor.",
+     "They share at least one acceptor."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Phase 1. Acceptor E is down.",
+     "Phase 1. Acceptor E is down."
+    ],
+    [
+     "PREPARE 1 goes to all.",
+     "PREPARE 1 goes to all."
+    ],
+    [
+     "Acceptors answer PROMISE.",
+     "Acceptors answer PROMISE."
+    ],
+    [
+     "3 promises make a quorum.",
+     "3 promises make a quorum."
+    ],
+    [
+     "A promise: ignore older proposals.",
+     "A promise: ignore older proposals."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Phase 2: ask them to accept.",
+     "Phase 2: ask them to accept."
+    ],
+    [
+     "ACCEPT carries number and value.",
+     "ACCEPT carries number and value."
+    ],
+    [
+     "Acceptors tell the learners.",
+     "Acceptors tell the learners."
+    ],
+    [
+     "A majority accepted: it is chosen.",
+     "A majority accepted: it is chosen."
+    ],
+    [
+     "The learners are told: 7.",
+     "The learners are told: 7."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two proposers can collide.",
+     "Two proposers can collide."
+    ],
+    [
+     "P1 asks A, B, C to promise 1.",
+     "P1 asks A, B, C to promise 1."
+    ],
+    [
+     "P2 asks B to E to promise 2.",
+     "P2 asks B to E to promise 2."
+    ],
+    [
+     "B and C ignore the older number.",
+     "B and C ignore the older number."
+    ],
+    [
+     "P2 has a majority: 9 is chosen.",
+     "P2 has a majority: 9 is chosen."
+    ],
+    [
+     "P1 must retry with 3.",
+     "P1 must retry with 3."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "P1 crashed after A and B accepted 7.",
+     "P1 crashed after A and B accepted 7."
+    ],
+    [
+     "P2 asks B, C, D to promise 2.",
+     "P2 asks B, C, D to promise 2."
+    ],
+    [
+     "B reports the 7 it accepted.",
+     "B reports the 7 it accepted."
+    ],
+    [
+     "So P2 must send 7, not its own 9.",
+     "So P2 must send 7, not its own 9."
+    ],
+    [
+     "7 stays chosen: it is safe.",
+     "7 stays chosen: it is safe."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each log entry is one Paxos round.",
+     "Each log entry is one Paxos round."
+    ],
+    [
+     "Round 1 chose +50: 100 → 150.",
+     "Round 1 chose +50: 100 → 150."
+    ],
+    [
+     "Round 2 chose −20: 150 → 130.",
+     "Round 2 chose −20: 150 → 130."
+    ],
+    [
+     "Every replica gets the same order.",
+     "Every replica gets the same order."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

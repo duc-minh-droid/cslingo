@@ -1,0 +1,231 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "12 orders; room for eight per node.",
+     "12 orders; room for eight per node."
+    ],
+    [
+     "A full copy per node does not fit.",
+     "A full copy per node does not fit."
+    ],
+    [
+     "Split: each order lives in one partition.",
+     "Split: each order lives in one partition."
+    ],
+    [
+     "Each partition is also copied to another node.",
+     "Each partition is also copied to another node."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each node owns a range of keys.",
+     "Each node owns a range of keys."
+    ],
+    [
+     "Okafor falls in N to S, so node 3 takes it.",
+     "Okafor falls in N to S, so node 3 takes it."
+    ],
+    [
+     "Khan to Mills: one node holds them all.",
+     "Khan to Mills: one node holds them all."
+    ],
+    [
+     "Neighbouring keys sit together.",
+     "Neighbouring keys sit together."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Key by time: each node owns hours.",
+     "Key by time: each node owns hours."
+    ],
+    [
+     "It is afternoon: writes go to 12 to 17.",
+     "It is afternoon: writes go to 12 to 17."
+    ],
+    [
+     "Write after write, all on the same node.",
+     "Write after write, all on the same node."
+    ],
+    [
+     "One hot spot while three nodes sit idle.",
+     "One hot spot while three nodes sit idle."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A hash turns a key into a number.",
+     "A hash turns a key into a number."
+    ],
+    [
+     "Each node owns a range of hash values.",
+     "Each node owns a range of hash values."
+    ],
+    [
+     "Keys arrive in order but land all over.",
+     "Keys arrive in order but land all over."
+    ],
+    [
+     "Eight keys: two on every node.",
+     "Eight keys: two on every node."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The same 16 users, laid out two ways.",
+     "The same 16 users, laid out two ways."
+    ],
+    [
+     "Now ask for ids 101 to 104.",
+     "Now ask for ids 101 to 104."
+    ],
+    [
+     "Key ranges: all four are on one node.",
+     "Key ranges: all four are on one node."
+    ],
+    [
+     "Hash: they are on four different nodes.",
+     "Hash: they are on four different nodes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each partition indexes only its own cars.",
+     "Each partition indexes only its own cars."
+    ],
+    [
+     "Search for red cars.",
+     "Search for red cars."
+    ],
+    [
+     "Any partition may hold one, so ask all three.",
+     "Any partition may hold one, so ask all three."
+    ],
+    [
+     "Gather the answers into one list.",
+     "Gather the answers into one list."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Or split the index itself, by term.",
+     "Or split the index itself, by term."
+    ],
+    [
+     "A search reads just one index partition.",
+     "A search reads just one index partition."
+    ],
+    [
+     "Save a blue mini: two index partitions change.",
+     "Save a blue mini: two index partitions change."
+    ],
+    [
+     "Cheap reads, dearer writes.",
+     "Cheap reads, dearer writes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Twelve items on three nodes. A fourth joins.",
+     "Twelve items on three nodes. A fourth joins."
+    ],
+    [
+     "Hash mod N: N changed, so 9 of 12 keys move.",
+     "Hash mod N: N changed, so 9 of 12 keys move."
+    ],
+    [
+     "Fixed partitions: it steals 3 whole ones.",
+     "Fixed partitions: it steals 3 whole ones."
+    ],
+    [
+     "Three moves instead of nine.",
+     "Three moves instead of nine."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each partition has a size limit: 10 GB.",
+     "Each partition has a size limit: 10 GB."
+    ],
+    [
+     "Data grows: P2 hits 12 GB, over the limit.",
+     "Data grows: P2 hits 12 GB, over the limit."
+    ],
+    [
+     "It splits; one half can move node.",
+     "It splits; one half can move node."
+    ],
+    [
+     "Data shrinks: neighbours merge.",
+     "Data shrinks: neighbours merge."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

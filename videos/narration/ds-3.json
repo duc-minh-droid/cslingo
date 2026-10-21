@@ -1,0 +1,255 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Some work is many small writes.",
+     "Some work is many small writes."
+    ],
+    [
+     "Other work is one big read.",
+     "Other work is one big read."
+    ],
+    [
+     "Design follows the workload.",
+     "Design follows the workload."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A log is a file you only add to.",
+     "A log is a file you only add to."
+    ],
+    [
+     "Set adds a line at the end.",
+     "Set adds a line at the end."
+    ],
+    [
+     "Get scans for the last line of a key.",
+     "Get scans for the last line of a key."
+    ],
+    [
+     "Delete adds a tombstone line.",
+     "Delete adds a tombstone line."
+    ],
+    [
+     "The newest line says: deleted.",
+     "The newest line says: deleted."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A write is one append: one step.",
+     "A write is one append: one step."
+    ],
+    [
+     "A read scans every line.",
+     "A read scans every line."
+    ],
+    [
+     "Twice the data, twice the scan.",
+     "Twice the data, twice the scan."
+    ],
+    [
+     "We need an index.",
+     "We need an index."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Keep a map in memory: key to byte offset.",
+     "Keep a map in memory: key to byte offset."
+    ],
+    [
+     "Get mew: look up its offset.",
+     "Get mew: look up its offset."
+    ],
+    [
+     "One jump, one disk read.",
+     "One jump, one disk read."
+    ],
+    [
+     "A write appends a line.",
+     "A write appends a line."
+    ],
+    [
+     "Every write updates the map.",
+     "Every write updates the map."
+    ],
+    [
+     "Get purr: still one jump.",
+     "Get purr: still one jump."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A log that only grows fills the disk.",
+     "A log that only grows fills the disk."
+    ],
+    [
+     "So close a file at its size limit.",
+     "So close a file at its size limit."
+    ],
+    [
+     "Many records, only three keys.",
+     "Many records, only three keys."
+    ],
+    [
+     "Compaction keeps the latest value per key.",
+     "Compaction keeps the latest value per key."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The whole map must fit in memory.",
+     "The whole map must fit in memory."
+    ],
+    [
+     "A range needs one lookup per key.",
+     "A range needs one lookup per key."
+    ],
+    [
+     "Sorted keys sit side by side.",
+     "Sorted keys sit side by side."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Three sorted segments, oldest left.",
+     "Three sorted segments, oldest left."
+    ],
+    [
+     "Take the smallest key first.",
+     "Take the smallest key first."
+    ],
+    [
+     "Repeats: the newest wins.",
+     "Repeats: the newest wins."
+    ],
+    [
+     "A newer tombstone deletes it.",
+     "A newer tombstone deletes it."
+    ],
+    [
+     "Repeat until every segment is used up.",
+     "Repeat until every segment is used up."
+    ],
+    [
+     "One sorted segment, no old values.",
+     "One sorted segment, no old values."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A segment sorted by key.",
+     "A segment sorted by key."
+    ],
+    [
+     "The index holds only some keys.",
+     "The index holds only some keys."
+    ],
+    [
+     "Jump to the key before it.",
+     "Jump to the key before it."
+    ],
+    [
+     "Scan a short block.",
+     "Scan a short block."
+    ],
+    [
+     "A range: one jump, read on.",
+     "A range: one jump, read on."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Writes land in memory first.",
+     "Writes land in memory first."
+    ],
+    [
+     "A tree keeps the keys in order.",
+     "A tree keeps the keys in order."
+    ],
+    [
+     "When full, write it out in order.",
+     "When full, write it out in order."
+    ],
+    [
+     "New writes get a new memtable.",
+     "New writes get a new memtable."
+    ],
+    [
+     "Reads check memory, then newest.",
+     "Reads check memory, then newest."
+    ],
+    [
+     "First hit wins: fig 11, not 8.",
+     "First hit wins: fig 11, not 8."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

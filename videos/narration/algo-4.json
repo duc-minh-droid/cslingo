@@ -1,0 +1,255 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Link every town. Each cable has a cost.",
+     "Link every town. Each cable has a cost."
+    ],
+    [
+     "Add cables until every town is linked.",
+     "Add cables until every town is linked."
+    ],
+    [
+     "Five towns, four cables: always one fewer.",
+     "Five towns, four cables: always one fewer."
+    ],
+    [
+     "A fifth cable makes a loop. A tree has no loops.",
+     "A fifth cable makes a loop. A tree has no loops."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The same five towns have 21 different spanning trees.",
+     "The same five towns have 21 different spanning trees."
+    ],
+    [
+     "Each tree has a total cost, from 11 to 22.",
+     "Each tree has a total cost, from 11 to 22."
+    ],
+    [
+     "The cheapest is the minimum spanning tree.",
+     "The cheapest is the minimum spanning tree."
+    ],
+    [
+     "Bigger networks have far too many trees to try them all.",
+     "Bigger networks have far too many trees to try them all."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Split the towns into X and the rest: a cut.",
+     "Split the towns into X and the rest: a cut."
+    ],
+    [
+     "A tree must cross it. AC is the cheapest.",
+     "A tree must cross it. AC is the cheapest."
+    ],
+    [
+     "Suppose a tree uses the dearer cable AB.",
+     "Suppose a tree uses the dearer cable AB."
+    ],
+    [
+     "Add AC: a loop. AB also crosses the cut.",
+     "Add AC: a loop. AB also crosses the cut."
+    ],
+    [
+     "Drop the dearer AB: the tree is cheaper.",
+     "Drop the dearer AB: the tree is cheaper."
+    ],
+    [
+     "Cheapest across a cut is safe: a cheapest tree uses it.",
+     "Cheapest across a cut is safe: a cheapest tree uses it."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start anywhere. List the cables leaving the tree.",
+     "Start anywhere. List the cables leaving the tree."
+    ],
+    [
+     "Take the cheapest one. A new town joins.",
+     "Take the cheapest one. A new town joins."
+    ],
+    [
+     "Repeat. A cable inside the tree is ignored.",
+     "Repeat. A cable inside the tree is ignored."
+    ],
+    [
+     "DE 1 is the cheapest. E joins.",
+     "DE 1 is the cheapest. E joins."
+    ],
+    [
+     "Every town is in. The cheapest tree costs 11.",
+     "Every town is in. The cheapest tree costs 11."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Sort every cable by cost. Each town is its own group.",
+     "Sort every cable by cost. Each town is its own group."
+    ],
+    [
+     "Take the cheapest cable that joins two groups.",
+     "Take the cheapest cable that joins two groups."
+    ],
+    [
+     "Groups merge as cables join them.",
+     "Groups merge as cables join them."
+    ],
+    [
+     "A and B are already joined. Skip AB.",
+     "A and B are already joined. Skip AB."
+    ],
+    [
+     "BD joins the last two groups.",
+     "BD joins the last two groups."
+    ],
+    [
+     "Four cables suffice. The rest are never read.",
+     "Four cables suffice. The rest are never read."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Prim: the cut is the tree so far.",
+     "Prim: the cut is the tree so far."
+    ],
+    [
+     "It takes the cheapest cable across the cut.",
+     "It takes the cheapest cable across the cut."
+    ],
+    [
+     "Kruskal: the cut is one group.",
+     "Kruskal: the cut is one group."
+    ],
+    [
+     "Same rule: the cheapest cable across.",
+     "Same rule: the cheapest cable across."
+    ],
+    [
+     "Only safe choices, so the same tree.",
+     "Only safe choices, so the same tree."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Prim's array version counts towns. Kruskal's counts cables.",
+     "Prim's array version counts towns. Kruskal's counts cables."
+    ],
+    [
+     "Few cables: Kruskal does far less.",
+     "Few cables: Kruskal does far less."
+    ],
+    [
+     "Every pair linked: Prim wins. Same tree cost either way.",
+     "Every pair linked: Prim wins. Same tree cost either way."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Goal: the shortest round trip through every town.",
+     "Goal: the shortest round trip through every town."
+    ],
+    [
+     "A cheap start: the cheapest tree, cost W.",
+     "A cheap start: the cheapest tree, cost W."
+    ],
+    [
+     "Walk round it. Every cable is used twice: 2W.",
+     "Walk round it. Every cable is used twice: 2W."
+    ],
+    [
+     "Skip towns already visited. Detours become direct legs.",
+     "Skip towns already visited. Detours become direct legs."
+    ],
+    [
+     "Straight is never longer: tour at most 2W.",
+     "Straight is never longer: tour at most 2W."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Cut one cable from the best tour: a spanning tree is left.",
+     "Cut one cable from the best tour: a spanning tree is left."
+    ],
+    [
+     "W is the cheapest tree, so best is at least W.",
+     "W is the cheapest tree, so best is at least W."
+    ],
+    [
+     "Our tour costs at most the walk, 2W.",
+     "Our tour costs at most the walk, 2W."
+    ],
+    [
+     "So it is never worse than twice the best.",
+     "So it is never worse than twice the best."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

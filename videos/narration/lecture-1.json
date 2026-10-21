@@ -1,104 +1,226 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture one. What is nature-inspired computing? Let's see evolution as a way of solving problems."
+    "TITLE: one or two sentences that say what this lecture is about."
    ]
   },
   {
    "lines": [
     [
-     "Nature has been solving hard problems for billions of years, so we copy it. Evolution: the fitter ones survive and breed.",
+     "Evolution: the fitter ones survive and breed.",
      "Evolution: the fitter ones survive and breed."
     ],
-    "Brains: connections that are useful get stronger.",
-    "Ants: shorter trails collect more scent.",
-    "And no one is in charge. Today, we copy evolution."
-   ]
-  },
-  {
-   "lines": [
-    "Here is the goal: turn the letters Q Z T into the word C A T. The score is how many letters are right.",
-    "Change one letter at random. If it is not worse, keep it.",
-    "If it is worse, throw the change away.",
-    "Small steps add up. That is called cumulative selection."
-   ]
-  },
-  {
-   "lines": [
-    "Same target, and the same number of tries for both methods.",
-    "The monkey starts from scratch every single time.",
-    "Keep-if-better locks in each correct letter as it goes.",
     [
-     "The monkey's best result is still only six letters out of twenty-eight.",
+     "Brains: useful connections get stronger.",
+     "Brains: useful connections get stronger."
+    ],
+    [
+     "Ants: short trails get more scent.",
+     "Ants: short trails get more scent."
+    ],
+    [
+     "No one is in charge. Today: evolution.",
+     "No one is in charge. Today: evolution."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Goal: turn QZT into CAT. Score = letters right.",
+     "Goal: turn QZT into CAT. Score = letters right."
+    ],
+    [
+     "Change one letter at random. Not worse? Keep it.",
+     "Change one letter at random. Not worse? Keep it."
+    ],
+    [
+     "Worse? Throw it away.",
+     "Worse? Throw it away."
+    ],
+    [
+     "Progress adds up. That is cumulative selection.",
+     "Progress adds up. That is cumulative selection."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Same target. Same number of tries.",
+     "Same target. Same number of tries."
+    ],
+    [
+     "The monkey starts from scratch every time.",
+     "The monkey starts from scratch every time."
+    ],
+    [
+     "Keep-if-better locks in each correct letter.",
+     "Keep-if-better locks in each correct letter."
+    ],
+    [
+     "The monkey's best is still 6 of 28.",
      "The monkey's best is still 6 of 28."
     ],
     [
-     "There are twenty-seven choices for each of twenty-eight places. Multiply twenty-seven, again and again.",
+     "27 choices for each of 28 places: 27 × 27 × … × 27.",
      "27 choices for each of 28 places: 27 × 27 × … × 27."
     ],
     [
-     "On average the monkey needs about ten to the forty tries. The keeper needs about three thousand.",
+     "Monkey: 1.2 × 10⁴⁰ tries on average. Keeper: 3,037.",
      "Monkey: 1.2 × 10⁴⁰ tries on average. Keeper: 3,037."
     ]
    ]
   },
   {
    "lines": [
-    "Picture a landscape, where height means how good a solution is.",
-    "One climber keeps a step only if it is not worse.",
-    "So it gets stuck on the first hill it finds.",
-    "Now twenty climbers spread out, and compete.",
-    "Each square is one run. With more climbers, more of them find the top."
+    [
+     "A landscape: height is how good.",
+     "A landscape: height is how good."
+    ],
+    [
+     "One climber keeps a step if it is not worse.",
+     "One climber keeps a step if it is not worse."
+    ],
+    [
+     "Stuck on the first hill.",
+     "Stuck on the first hill."
+    ],
+    [
+     "Twenty climbers spread out and compete.",
+     "Twenty climbers spread out and compete."
+    ],
+    [
+     "Each square is one run. More climbers find the top.",
+     "Each square is one run. More climbers find the top."
+    ]
    ]
   },
   {
    "lines": [
-    "Here are four parents, with fitness nine, six, three, and one.",
-    "Fitter parents are more likely to be picked. We pick twenty times.",
-    "If we only pick the best, everyone becomes a copy of it.",
-    "If everyone has equal chances, nothing pushes us towards better.",
-    "The answer is a weak bias. Fitter is likelier, but nobody is shut out."
+    [
+     "Four parents with fitness 9, 6, 3 and 1.",
+     "Four parents with fitness 9, 6, 3 and 1."
+    ],
+    [
+     "Fitter parents are likelier to be picked, 20 times.",
+     "Fitter parents are likelier to be picked, 20 times."
+    ],
+    [
+     "Only the best? Everyone becomes a copy.",
+     "Only the best? Everyone becomes a copy."
+    ],
+    [
+     "Equal chances? Nothing pushes towards better.",
+     "Equal chances? Nothing pushes towards better."
+    ],
+    [
+     "Weak bias: fitter is likelier, nobody is shut out.",
+     "Weak bias: fitter is likelier, nobody is shut out."
+    ]
    ]
   },
   {
    "lines": [
-    "Mutation copies a parent, and changes one gene.",
-    "Recombination mixes pieces of two parents.",
-    "Mutation is needed. Recombination often helps."
+    [
+     "Mutation: copy a parent, change one gene.",
+     "Mutation: copy a parent, change one gene."
+    ],
+    [
+     "Recombination: mix pieces of two parents.",
+     "Recombination: mix pieces of two parents."
+    ],
+    [
+     "Mutation is needed. Recombination often helps.",
+     "Mutation is needed. Recombination often helps."
+    ]
    ]
   },
   {
    "lines": [
-    "Step one: score every dot. Its height is its fitness.",
-    "Step two: pick parents. The fitter, the likelier.",
-    "Optionally, mix two parents together.",
-    "Then mutate. Nudge each child a little.",
-    "The children become the new population.",
-    "Repeat, and the dots climb towards the star."
+    [
+     "Score every dot: height is fitness.",
+     "Score every dot: height is fitness."
+    ],
+    [
+     "Pick parents: the fitter, the likelier.",
+     "Pick parents: the fitter, the likelier."
+    ],
+    [
+     "Optional: mix two parents.",
+     "Optional: mix two parents."
+    ],
+    [
+     "Mutate: nudge each child a little.",
+     "Mutate: nudge each child a little."
+    ],
+    [
+     "The children become the new population.",
+     "The children become the new population."
+    ],
+    [
+     "Repeat: the dots climb towards the star.",
+     "Repeat: the dots climb towards the star."
+    ]
    ]
   },
   {
    "lines": [
-    "Here the score is the number of green boxes. An evolutionary algorithm needs only a score.",
-    "Six different areas, but one single requirement: you can score it.",
-    "So, anything you can score, you can evolve."
+    [
+     "Score = green boxes. An EA only needs a score.",
+     "Score = green boxes. An EA only needs a score."
+    ],
+    [
+     "Six areas, one requirement: you can score it.",
+     "Six areas, one requirement: you can score it."
+    ],
+    [
+     "Anything you can score, you can evolve.",
+     "Anything you can score, you can evolve."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2,
+    3.1
    ],
    "lines": [
-    "Remember: evolution keeps what works, and tries again.",
-    "The loop is score, select, vary, and replace.",
-    "If you can score it, you can evolve it."
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
    ]
   }
  ]

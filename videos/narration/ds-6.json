@@ -1,0 +1,259 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A node can crash.",
+     "A node can crash."
+    ],
+    [
+     "A message can get lost.",
+     "A message can get lost."
+    ],
+    [
+     "A reply can arrive late.",
+     "A reply can arrive late."
+    ],
+    [
+     "The network can split in two.",
+     "The network can split in two."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two copies hold the tickets left.",
+     "Two copies hold the tickets left."
+    ],
+    [
+     "The link between them is cut.",
+     "The link between them is cut."
+    ],
+    [
+     "A sale reaches only one copy.",
+     "A sale reaches only one copy."
+    ],
+    [
+     "Node B is asked to read.",
+     "Node B is asked to read."
+    ],
+    [
+     "Refuse: right, but not available.",
+     "Refuse: right, but not available."
+    ],
+    [
+     "Answer: available, but stale.",
+     "Answer: available, but stale."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Moving £30 is two writes.",
+     "Moving £30 is two writes."
+    ],
+    [
+     "A crash hits after the debit.",
+     "A crash hits after the debit."
+    ],
+    [
+     "£30 has vanished.",
+     "£30 has vanished."
+    ],
+    [
+     "One transaction undoes the debit.",
+     "One transaction undoes the debit."
+    ],
+    [
+     "All or nothing: the total stays £150.",
+     "All or nothing: the total stays £150."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two shoppers pay £30.",
+     "Two shoppers pay £30."
+    ],
+    [
+     "Both read £100 first.",
+     "Both read £100 first."
+    ],
+    [
+     "Both write £70: one is lost.",
+     "Both write £70: one is lost."
+    ],
+    [
+     "One at a time gives £40.",
+     "One at a time gives £40."
+    ],
+    [
+     "ACID: atomic, consistent, isolated, durable.",
+     "ACID: atomic, consistent, isolated, durable."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The write lands on one copy.",
+     "The write lands on one copy."
+    ],
+    [
+     "The others hear later.",
+     "The others hear later."
+    ],
+    [
+     "A read now can be stale.",
+     "A read now can be stale."
+    ],
+    [
+     "Soon every copy agrees.",
+     "Soon every copy agrees."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Many copies should act like one.",
+     "Many copies should act like one."
+    ],
+    [
+     "Each bar is one operation in time.",
+     "Each bar is one operation in time."
+    ],
+    [
+     "One flip explains every read.",
+     "One flip explains every read."
+    ],
+    [
+     "Now B reads 0 after A read 1.",
+     "Now B reads 0 after A read 1."
+    ],
+    [
+     "No flip fits: not linearizable.",
+     "No flip fits: not linearizable."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two sites sell seat 14C.",
+     "Two sites sell seat 14C."
+    ],
+    [
+     "Each books its own customer.",
+     "Each books its own customer."
+    ],
+    [
+     "Neither knew: sold twice.",
+     "Neither knew: sold twice."
+    ],
+    [
+     "So Leeds must ask London first.",
+     "So Leeds must ask London first."
+    ],
+    [
+     "Asking costs 62 ms, not 2 ms.",
+     "Asking costs 62 ms, not 2 ms."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Several databases must agree.",
+     "Several databases must agree."
+    ],
+    [
+     "It just sends commit to all.",
+     "It just sends commit to all."
+    ],
+    [
+     "One conflicts, one never hears.",
+     "One conflicts, one never hears."
+    ],
+    [
+     "Now the databases disagree.",
+     "Now the databases disagree."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "First, ask every database.",
+     "First, ask every database."
+    ],
+    [
+     "Each votes, and holds its locks.",
+     "Each votes, and holds its locks."
+    ],
+    [
+     "Any no means abort for all.",
+     "Any no means abort for all."
+    ],
+    [
+     "All three abort and unlock.",
+     "All three abort and unlock."
+    ],
+    [
+     "If all vote yes, all commit.",
+     "If all vote yes, all commit."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

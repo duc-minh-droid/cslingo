@@ -1,0 +1,247 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "TITLE: one or two sentences that say what this lecture is about."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One profile page needs six tables.",
+     "One profile page needs six tables."
+    ],
+    [
+     "The page asks each table in turn.",
+     "The page asks each table in turn."
+    ],
+    [
+     "Six reads, joined by a foreign key.",
+     "Six reads, joined by a foreign key."
+    ],
+    [
+     "A document keeps it all together.",
+     "A document keeps it all together."
+    ],
+    [
+     "One read gets the whole page.",
+     "One read gets the whole page."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One company, many profiles.",
+     "One company, many profiles."
+    ],
+    [
+     "Tables: change one row.",
+     "Tables: change one row."
+    ],
+    [
+     "Documents: rewrite all 400 copies.",
+     "Documents: rewrite all 400 copies."
+    ],
+    [
+     "Miss one and that profile is stale.",
+     "Miss one and that profile is stale."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Old and new shapes sit together.",
+     "Old and new shapes sit together."
+    ],
+    [
+     "The app splits old names as it reads.",
+     "The app splits old names as it reads."
+    ],
+    [
+     "A table must change every row first.",
+     "A table must change every row first."
+    ],
+    [
+     "With a million rows that takes a long time.",
+     "With a million rows that takes a long time."
+    ],
+    [
+     "Only then is the table ready.",
+     "Only then is the table ready."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The page wants the whole profile.",
+     "The page wants the whole profile."
+    ],
+    [
+     "One read from the document.",
+     "One read from the document."
+    ],
+    [
+     "Six from the tables.",
+     "Six from the tables."
+    ],
+    [
+     "Now it wants only the name.",
+     "Now it wants only the name."
+    ],
+    [
+     "A document loads whole: 20 KB for a sliver.",
+     "A document loads whole: 20 KB for a sliver."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A graph stores things and their links.",
+     "A graph stores things and their links."
+    ],
+    [
+     "Each kind of link has a label.",
+     "Each kind of link has a label."
+    ],
+    [
+     "A vertex lists its links in and out.",
+     "A vertex lists its links in and out."
+    ],
+    [
+     "To find a route, walk the edges.",
+     "To find a route, walk the edges."
+    ],
+    [
+     "Three hops.",
+     "Three hops."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Five people, linked in a chain.",
+     "Five people, linked in a chain."
+    ],
+    [
+     "A join, a fetch, or a follow.",
+     "A join, a fetch, or a follow."
+    ],
+    [
+     "Two hops: friends of friends.",
+     "Two hops: friends of friends."
+    ],
+    [
+     "Now add a fourth hop.",
+     "Now add a fourth hop."
+    ],
+    [
+     "Queries grow, the graph walk does not.",
+     "Queries grow, the graph walk does not."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "NoSQL: simple, scales out, stays available.",
+     "NoSQL: simple, scales out, stays available."
+    ],
+    [
+     "Document: the whole recipe.",
+     "Document: the whole recipe."
+    ],
+    [
+     "A partition key groups, a sort key orders.",
+     "A partition key groups, a sort key orders."
+    ],
+    [
+     "Wide-column: columns vary per row.",
+     "Wide-column: columns vary per row."
+    ],
+    [
+     "Graph: things and labelled links.",
+     "Graph: things and labelled links."
+    ],
+    [
+     "Pancakes and Waffles share Flour.",
+     "Pancakes and Waffles share Flour."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Four jobs, four families.",
+     "Four jobs, four families."
+    ],
+    [
+     "A cart by user id: key-value.",
+     "A cart by user id: key-value."
+    ],
+    [
+     "A whole product page: document.",
+     "A whole product page: document."
+    ],
+    [
+     "Friends of friends: graph.",
+     "Friends of friends: graph."
+    ],
+    [
+     "Varying columns: wide-column.",
+     "Varying columns: wide-column."
+    ],
+    [
+     "Each job finds its family.",
+     "Each job finds its family."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
+   ]
+  }
+ ]
+}

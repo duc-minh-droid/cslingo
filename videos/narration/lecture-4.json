@@ -1,89 +1,202 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture four. Selection, operators and encodings. Who gets to breed, and how children are made."
+    "TITLE: one or two sentences that say what this lecture is about."
    ]
   },
   {
    "lines": [
-    "Generational replacement means the whole population is replaced.",
-    "Elitism copies the best across, unchanged.",
-    "In steady-state, one child replaces the weakest."
+    [
+     "Generational: the whole population is replaced.",
+     "Generational: the whole population is replaced."
+    ],
+    [
+     "Elitism copies the best across unchanged.",
+     "Elitism copies the best across unchanged."
+    ],
+    [
+     "Steady-state: one child replaces the weakest.",
+     "Steady-state: one child replaces the weakest."
+    ]
    ]
   },
   {
    "lines": [
-    "A child with fitness zero point five arrives. Who gets replaced?",
-    "The first-weaker method stops early. The weakest method checks all five.",
-    "The zero point one survives, so more variety is kept."
+    [
+     "A child with fitness 0.5 arrives.",
+     "A child with fitness 0.5 arrives."
+    ],
+    [
+     "First weaker stops early. Weakest checks all five.",
+     "First weaker stops early. Weakest checks all five."
+    ],
+    [
+     "The 0.1 survives: more variety is kept.",
+     "The 0.1 survives: more variety is kept."
+    ]
    ]
   },
   {
    "lines": [
-    "Each row is a generation. Orange shows copies of the best.",
-    "Only selection acts here: no mutation, and no crossover.",
-    "Too weak, and there is no progress. Too strong, and one copy wins."
+    [
+     "Each row is a generation. Orange = copies of the best.",
+     "Each row is a generation. Orange = copies of the best."
+    ],
+    [
+     "Only selection acts: no mutation, no crossover.",
+     "Only selection acts: no mutation, no crossover."
+    ],
+    [
+     "Too weak: no progress. Too strong: one copy wins.",
+     "Too weak: no progress. Too strong: one copy wins."
+    ]
    ]
   },
   {
    "lines": [
-    "Roulette selection: each slice is sized by fitness.",
-    "The bigger the slice, the likelier the pick.",
-    "One super-fit individual takes ninety-nine percent of the wheel.",
-    "So it is picked again and again."
+    [
+     "Each slice is sized by fitness.",
+     "Each slice is sized by fitness."
+    ],
+    [
+     "The bigger the slice, the likelier the pick.",
+     "The bigger the slice, the likelier the pick."
+    ],
+    [
+     "One superfit individual takes 99% of the wheel.",
+     "One superfit individual takes 99% of the wheel."
+    ],
+    [
+     "It is picked again and again.",
+     "It is picked again and again."
+    ]
    ]
   },
   {
    "lines": [
-    "With roulette, the super-fit individual takes ninety-nine percent.",
-    "Rank selection only counts the order, not the gaps.",
-    "The exponent b turns the pressure up, or down."
+    [
+     "Roulette: the superfit takes 99%.",
+     "Roulette: the superfit takes 99%."
+    ],
+    [
+     "Rank: only the order counts, not the gaps.",
+     "Rank: only the order counts, not the gaps."
+    ],
+    [
+     "The exponent b turns the pressure up or down.",
+     "The exponent b turns the pressure up or down."
+    ]
    ]
   },
   {
    "lines": [
-    "Tournament: draw two at random. The better one wins.",
-    "The best individual was not even drawn.",
-    "A bigger t means tougher competition.",
-    "The best wins more often as t grows."
+    [
+     "Draw two at random. The better one wins.",
+     "Draw two at random. The better one wins."
+    ],
+    [
+     "The best was not even drawn.",
+     "The best was not even drawn."
+    ],
+    [
+     "A bigger t means tougher competition.",
+     "A bigger t means tougher competition."
+    ],
+    [
+     "The best wins more often as t grows.",
+     "The best wins more often as t grows."
+    ]
    ]
   },
   {
    "lines": [
-    "Each encoding needs its own kind of mutation.",
-    "Re-rolling a tour breaks it: D appears twice, and J is lost.",
-    "Swapping two genes keeps every city exactly once."
+    [
+     "Each encoding needs its own kind of mutation.",
+     "Each encoding needs its own kind of mutation."
+    ],
+    [
+     "Re-rolling a tour breaks it: D twice, J lost.",
+     "Re-rolling a tour breaks it: D twice, J lost."
+    ],
+    [
+     "Swapping two genes keeps every city once.",
+     "Swapping two genes keeps every city once."
+    ]
    ]
   },
   {
    "lines": [
-    "One-point crossover: cut, and swap the tails.",
-    "Two-point crossover: swap the middle part.",
-    "Uniform crossover: a one in the mask swaps that gene."
+    [
+     "One cut: swap the tails.",
+     "One cut: swap the tails."
+    ],
+    [
+     "Two cuts: swap the middle part.",
+     "Two cuts: swap the middle part."
+    ],
+    [
+     "Uniform: a 1 in the mask swaps that gene.",
+     "Uniform: a 1 in the mask swaps that gene."
+    ]
    ]
   },
   {
    "lines": [
-    "Let's put it together, and evolve a picture. Fitness counts matching pixels, blank ones too.",
-    "Two recipes race. Both rely on mutation.",
-    "Algorithm one got there first, in this run."
+    [
+     "Fitness: pixels that match, blank ones too.",
+     "Fitness: pixels that match, blank ones too."
+    ],
+    [
+     "Two recipes race. Both rely on mutation.",
+     "Two recipes race. Both rely on mutation."
+    ],
+    [
+     "Algorithm 1 got there first, in this run.",
+     "Algorithm 1 got there first, in this run."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2,
+    3.1
    ],
    "lines": [
-    "Remember: the replacement strategy decides who stays.",
-    "Selection pressure must be balanced, not too weak and not too strong.",
-    "Choose mutation and crossover that fit your encoding."
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
    ]
   }
  ]

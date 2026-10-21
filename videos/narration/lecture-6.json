@@ -1,80 +1,178 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture six. Genetic programming. Evolving programs themselves."
+    "TITLE: one or two sentences that say what this lecture is about."
    ]
   },
   {
    "lines": [
-    "Normally, you write the program.",
-    "In genetic programming, you give examples of what it should do,",
-    "and evolution finds a program that matches."
+    [
+     "Normally you write the program.",
+     "Normally you write the program."
+    ],
+    [
+     "In GP you give examples of what it should do...",
+     "In GP you give examples of what it should do..."
+    ],
+    [
+     "...and evolution finds a program that matches.",
+     "...and evolution finds a program that matches."
+    ]
    ]
   },
   {
    "lines": [
-    "A program can be drawn as a tree.",
-    "It runs from the leaves up to the root.",
-    "Change the input, and a different branch is used."
+    [
+     "A program can be drawn as a tree.",
+     "A program can be drawn as a tree."
+    ],
+    [
+     "It runs from the leaves up to the root.",
+     "It runs from the leaves up to the root."
+    ],
+    [
+     "Change the input and a different branch is used.",
+     "Change the input and a different branch is used."
+    ]
    ]
   },
   {
    "lines": [
-    "We build programs from two sets: functions, and terminals.",
-    "We grow downwards, picking parts at random.",
-    "At the depth limit, only terminals are allowed."
+    [
+     "Build programs from two sets: functions and terminals.",
+     "Build programs from two sets: functions and terminals."
+    ],
+    [
+     "Grow downwards, picking parts at random.",
+     "Grow downwards, picking parts at random."
+    ],
+    [
+     "At the limit, only terminals.",
+     "At the limit, only terminals."
+    ]
    ]
   },
   {
    "lines": [
-    "Run the program on many inputs.",
-    "The error is the area between its curve and the target.",
-    "Lower error means a fitter program."
+    [
+     "Run the program on many inputs.",
+     "Run the program on many inputs."
+    ],
+    [
+     "Error = the area between its curve and the target.",
+     "Error = the area between its curve and the target."
+    ],
+    [
+     "Lower error means a fitter program.",
+     "Lower error means a fitter program."
+    ]
    ]
   },
   {
    "lines": [
-    "Mutation: pick a node at random.",
-    "Cut off its subtree.",
-    "Grow a new random subtree in its place."
+    [
+     "Pick a node at random.",
+     "Pick a node at random."
+    ],
+    [
+     "Cut off its subtree.",
+     "Cut off its subtree."
+    ],
+    [
+     "Grow a new random subtree in its place.",
+     "Grow a new random subtree in its place."
+    ]
    ]
   },
   {
    "lines": [
-    "Crossover: pick a point in each parent.",
-    "Swap the two subtrees.",
-    "The same nodes, but the children have new sizes."
+    [
+     "Pick a point in each parent.",
+     "Pick a point in each parent."
+    ],
+    [
+     "Swap the two subtrees.",
+     "Swap the two subtrees."
+    ],
+    [
+     "Same nodes, but the children have new sizes.",
+     "Same nodes, but the children have new sizes."
+    ]
    ]
   },
   {
    "lines": [
-    "Here are four random programs. Lower error is better.",
-    "Next generation: a copy, a mutant, and two children.",
-    "A few generations later, we find x squared plus x plus one."
+    [
+     "Four random programs. Lower error is better.",
+     "Four random programs. Lower error is better."
+    ],
+    [
+     "Next generation: a copy, a mutant, two children.",
+     "Next generation: a copy, a mutant, two children."
+    ],
+    [
+     "A few generations later: x² + x + 1.",
+     "A few generations later: x² + x + 1."
+    ]
    ]
   },
   {
    "lines": [
-    "Five things to choose before a run.",
-    "Only plus and minus? You can only draw straight lines.",
-    "Add multiply, and the curve fits."
+    [
+     "Five things to choose before a run.",
+     "Five things to choose before a run."
+    ],
+    [
+     "Only + and −? Straight lines only.",
+     "Only + and −? Straight lines only."
+    ],
+    [
+     "Add × and the curve fits.",
+     "Add × and the curve fits."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2,
+    3.1
    ],
    "lines": [
-    "Remember: tell the computer what to do, not how.",
-    "A program is a tree, so we mutate and cross subtrees.",
-    "Fitness is the error on your examples."
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
    ]
   }
  ]

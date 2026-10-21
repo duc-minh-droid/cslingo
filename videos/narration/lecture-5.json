@@ -1,79 +1,174 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture five. Encodings and representations. How do we write a solution as genes?"
+    "TITLE: one or two sentences that say what this lecture is about."
    ]
   },
   {
    "lines": [
-    "A tour visits every city once.",
-    "We write it as genes, and evolution changes the genes."
+    [
+     "A tour visits every city once.",
+     "A tour visits every city once."
+    ],
+    [
+     "We write it as genes. Evolution changes the genes.",
+     "We write it as genes. Evolution changes the genes."
+    ]
    ]
   },
   {
    "lines": [
-    "Mutation picks a gene, and gives it a random new value.",
-    "Now C is visited twice, and D is never visited."
+    [
+     "Mutation: pick a gene, give it a random new value.",
+     "Mutation: pick a gene, give it a random new value."
+    ],
+    [
+     "Now C is visited twice and D is never visited.",
+     "Now C is visited twice and D is never visited."
+    ]
    ]
   },
   {
    "lines": [
-    "Swap mutation exchanges two genes.",
-    "Nothing is created or lost, so the tour stays valid."
+    [
+     "Swap exchanges two genes.",
+     "Swap exchanges two genes."
+    ],
+    [
+     "Nothing is created or lost, so the tour stays valid.",
+     "Nothing is created or lost, so the tour stays valid."
+    ]
    ]
   },
   {
    "lines": [
-    "Here are two parents. Cut both after gene two.",
-    "Swap the tails to make two children.",
-    "But each child repeats one city, and misses another."
+    [
+     "Two parents. Cut both after gene 2.",
+     "Two parents. Cut both after gene 2."
+    ],
+    [
+     "Swap the tails to make two children.",
+     "Swap the tails to make two children."
+    ],
+    [
+     "Each child repeats one city and misses another.",
+     "Each child repeats one city and misses another."
+    ]
    ]
   },
   {
    "lines": [
-    "Repair: find the repeated city, and the missing one.",
-    "Put the missing city where the repeat was.",
-    "Both children are valid tours again."
+    [
+     "Repair: find the repeated city and the missing one.",
+     "Repair: find the repeated city and the missing one."
+    ],
+    [
+     "Put the missing city where the repeat was.",
+     "Put the missing city where the repeat was."
+    ],
+    [
+     "Both children are valid tours again.",
+     "Both children are valid tours again."
+    ]
    ]
   },
   {
    "lines": [
-    "With a direct encoding, each gene is the slot of one exam.",
-    "Mutation moves just one exam.",
-    "But it can create a clash, so fitness must punish it."
+    [
+     "Direct: each gene is the slot of one exam.",
+     "Direct: each gene is the slot of one exam."
+    ],
+    [
+     "Mutation moves just one exam...",
+     "Mutation moves just one exam..."
+    ],
+    [
+     "...but it can create a clash. Fitness must punish it.",
+     "...but it can create a clash. Fitness must punish it."
+    ]
    ]
   },
   {
    "lines": [
-    "With an indirect encoding, each gene is an instruction for a decoder.",
-    "The decoder never creates a clash.",
-    "But one early change can move several exams."
+    [
+     "Indirect: each gene is an instruction for a decoder.",
+     "Indirect: each gene is an instruction for a decoder."
+    ],
+    [
+     "The decoder never creates a clash.",
+     "The decoder never creates a clash."
+    ],
+    [
+     "One early change moves several exams.",
+     "One early change moves several exams."
+    ]
    ]
   },
   {
    "lines": [
-    "A coordinate is stored as five bits.",
-    "Flip the one-bit, and the value moves by one.",
-    "Flip the eight-bit, and it moves by eight.",
-    "Flip the sign, and plus becomes minus, a jump of four.",
-    "Which bit you flip matters."
+    [
+     "A coordinate is stored as five bits.",
+     "A coordinate is stored as five bits."
+    ],
+    [
+     "Flip the 1-bit: the value moves 1.",
+     "Flip the 1-bit: the value moves 1."
+    ],
+    [
+     "Flip the 8-bit: it moves 8.",
+     "Flip the 8-bit: it moves 8."
+    ],
+    [
+     "Flip the sign: + becomes −, a jump of 4.",
+     "Flip the sign: + becomes −, a jump of 4."
+    ],
+    [
+     "Which bit you flip matters.",
+     "Which bit you flip matters."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2,
+    3.1
    ],
    "lines": [
-    "Remember: the encoding decides which operators are safe.",
-    "Swap mutation and repair keep a tour valid.",
-    "Direct encodings are simple, indirect ones avoid clashes."
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
    ]
   }
  ]

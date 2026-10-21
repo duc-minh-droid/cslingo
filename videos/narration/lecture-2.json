@@ -1,91 +1,222 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture two. Why do we need evolutionary algorithms? Optimisation, and hardness."
+    "TITLE: one or two sentences that say what this lecture is about."
    ]
   },
   {
    "lines": [
-    "Take three items, and aim for a total of one hundred kilograms.",
-    "Each item is a bit. A one takes the item, and a zero leaves it.",
-    "The fitness, f of s, is how far we are from one hundred. Smaller is better.",
-    "Exhaustive search means trying every subset.",
-    "We try all eight. A hundred and ten is the best, with f equal to five."
+    [
+     "Three items. Aim for 100 kg in total.",
+     "Three items. Aim for 100 kg in total."
+    ],
+    [
+     "Bits: 1 takes an item, 0 leaves it.",
+     "Bits: 1 takes an item, 0 leaves it."
+    ],
+    [
+     "Fitness f(s): how far from 100 kg. Smaller is better.",
+     "Fitness f(s): how far from 100 kg. Smaller is better."
+    ],
+    [
+     "Exhaustive search: try every subset.",
+     "Exhaustive search: try every subset."
+    ],
+    [
+     "Try all 8: 110 is the best, with f = 5.",
+     "Try all 8: 110 is the best, with f = 5."
+    ]
    ]
   },
   {
    "lines": [
-    "Three items make eight possible solutions.",
-    "Each extra item doubles the count.",
-    "A real water network has twenty-one pipes, with sixteen sizes each.",
-    "Trying every design would take six hundred million years."
+    [
+     "3 items make 8 possible solutions.",
+     "3 items make 8 possible solutions."
+    ],
+    [
+     "Each extra item doubles the count.",
+     "Each extra item doubles the count."
+    ],
+    [
+     "A real water network: 21 pipes, 16 sizes each.",
+     "A real water network: 21 pipes, 16 sizes each."
+    ],
+    [
+     "Trying every design takes 600 million years.",
+     "Trying every design takes 600 million years."
+    ]
    ]
   },
   {
    "lines": [
-    "Here is a tiny exponential, next to a polynomial.",
-    "At n equals forty-four, the exponential overtakes.",
-    "Now a real run, with a bigger exponential.",
-    "Microseconds for the polynomial. Years for the exponential."
+    [
+     "A tiny exponential against a polynomial.",
+     "A tiny exponential against a polynomial."
+    ],
+    [
+     "At n = 44 the exponential overtakes.",
+     "At n = 44 the exponential overtakes."
+    ],
+    [
+     "Now a real run, with a bigger exponential.",
+     "Now a real run, with a bigger exponential."
+    ],
+    [
+     "Microseconds for a polynomial, years for an exponential.",
+     "Microseconds for a polynomial, years for an exponential."
+    ]
    ]
   },
   {
    "lines": [
-    "Connect all five towns as cheaply as possible.",
-    "Prim's method: take the cheapest cable to a new town.",
-    "Keep adding the cheapest cable, with no loops.",
-    "It is fast, and always optimal. This is an easy problem."
+    [
+     "Connect all 5 towns as cheaply as possible.",
+     "Connect all 5 towns as cheaply as possible."
+    ],
+    [
+     "Prim: take the cheapest cable to a new town.",
+     "Prim: take the cheapest cable to a new town."
+    ],
+    [
+     "Keep adding the cheapest cable. No loops.",
+     "Keep adding the cheapest cable. No loops."
+    ],
+    [
+     "Fast and always optimal: an easy problem.",
+     "Fast and always optimal: an easy problem."
+    ]
    ]
   },
   {
    "lines": [
-    "Now add a new rule: at most two cables per town.",
-    "But the best tree has three cables at C.",
-    "Run the same greedy method again.",
-    "An early cheap choice blocks cheaper ones later.",
-    "Greedy gets twenty, but a tree costing nineteen exists."
+    [
+     "New rule: at most 2 cables per town.",
+     "New rule: at most 2 cables per town."
+    ],
+    [
+     "But the best tree has 3 cables at C.",
+     "But the best tree has 3 cables at C."
+    ],
+    [
+     "Run the same greedy method again.",
+     "Run the same greedy method again."
+    ],
+    [
+     "An early cheap choice blocks cheaper ones later.",
+     "An early cheap choice blocks cheaper ones later."
+    ],
+    [
+     "Greedy gets 20, but a tree costing 19 exists.",
+     "Greedy gets 20, but a tree costing 19 exists."
+    ]
    ]
   },
   {
    "lines": [
-    "Nearest neighbour gives an instant, decent tour.",
-    "The evolutionary algorithm starts from random tangles.",
-    "It keeps improving its best tour.",
-    "Given time, it overtakes the quick method.",
-    "This is approximate: good answers, but no guarantee."
+    [
+     "Nearest neighbour: an instant, decent tour.",
+     "Nearest neighbour: an instant, decent tour."
+    ],
+    [
+     "The EA starts from random tangles.",
+     "The EA starts from random tangles."
+    ],
+    [
+     "It keeps improving its best tour.",
+     "It keeps improving its best tour."
+    ],
+    [
+     "Given time, it overtakes the quick method.",
+     "Given time, it overtakes the quick method."
+    ],
+    [
+     "Approximate: good answers, no guarantee.",
+     "Approximate: good answers, no guarantee."
+    ]
    ]
   },
   {
    "lines": [
-    "Here is a population of ten solutions, each with a fitness.",
-    "Select: the fitter ones are more likely, not only the best.",
-    "Vary: the children can be better, or worse.",
-    "So next: who stays?"
+    [
+     "A population: 10 solutions, each with a fitness.",
+     "A population: 10 solutions, each with a fitness."
+    ],
+    [
+     "Select: fitter ones are more likely, not only the best.",
+     "Select: fitter ones are more likely, not only the best."
+    ],
+    [
+     "Vary: children can be better or worse.",
+     "Vary: children can be better or worse."
+    ],
+    [
+     "Next: who stays?",
+     "Next: who stays?"
+    ]
    ]
   },
   {
    "lines": [
-    "Replace everyone, and the old best can be lost.",
-    "Merge, and keep the best ten, so the best survives.",
-    "Or replace the weakest, and the best survives too.",
-    "Then we repeat the loop."
+    [
+     "Replace everyone: the old best can be lost.",
+     "Replace everyone: the old best can be lost."
+    ],
+    [
+     "Merge, keep the best 10: the best survives.",
+     "Merge, keep the best 10: the best survives."
+    ],
+    [
+     "Replace the weakest: the best survives too.",
+     "Replace the weakest: the best survives too."
+    ],
+    [
+     "Then repeat the loop.",
+     "Then repeat the loop."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2,
+    3.1
    ],
    "lines": [
-    "Remember: trying every solution is too slow, because the work grows exponentially.",
-    "Greedy methods are fast, but they can get stuck.",
-    "An evolutionary algorithm gives good answers in reasonable time."
+    "RECAP ROW 1",
+    "RECAP ROW 2",
+    "RECAP ROW 3"
    ]
   }
  ]
