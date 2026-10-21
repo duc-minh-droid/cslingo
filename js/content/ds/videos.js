@@ -41,6 +41,22 @@
         "Pick the family by the question",
       ],
     },
+    {
+      n: 3,
+      blurb:
+        "Lecture 3 in pictures: a log you append to, a hash index, segments and compaction, sorted segments that merge, a sparse index and the memtable.",
+      chapters: [
+        "A database stores data and finds it again",
+        "The simplest database is a file you append to",
+        "Appending is cheap, finding means scanning",
+        "A map in memory jumps straight to a key",
+        "Cut the log into segments, then compact them",
+        "Keys must fit in memory, and ranges are slow",
+        "Sorted segments merge like merge sort",
+        "Sorted keys need only a sparse index",
+        "Writes land in memory, then reach disk sorted",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
