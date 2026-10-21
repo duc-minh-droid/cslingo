@@ -59,10 +59,10 @@
     title: ["Isolation keeps", "payments apart"],
     dur: 12.5,
     caps: [
-      [0.6, 2.3, "Two shoppers each pay £30."],
-      [1.8, 3.2, "Both read £100 first."],
-      [3.5, 5.0, "Both write £70: one is lost."],
-      [7.3, 8.7, "One at a time gives £40."],
+      [0.5, 1.8, "Two shoppers pay £30."],
+      [1.9, 3.2, "Both read £100 first."],
+      [3.5, 5.2, "Both write £70: one is lost."],
+      [7.3, 8.8, "One at a time gives £40."],
       [8.8, 12.2, "ACID: atomic, consistent, isolated, durable."],
     ],
     build(stage) {

@@ -59,7 +59,7 @@
     dur: 13.5,
     caps: [
       [0.5, 2.2, "First, ask every database."],
-      [2.8, 4.6, "Each votes, and holds its locks."],
+      [2.8, 4.7, "Each votes, and holds its locks."],
       [5.0, 6.8, "Any no means abort for all."],
       [7.3, 9.3, "All three abort and unlock."],
       [9.8, 12.0, "If all vote yes, all commit."],

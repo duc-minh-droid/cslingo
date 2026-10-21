@@ -28,11 +28,11 @@
     title: ["A cut network", "forces a choice"],
     dur: 14,
     caps: [
-      [0.5, 2.4, "Two copies hold the tickets left."],
-      [2.9, 4.5, "The link between them is cut."],
+      [0.5, 2.6, "Two copies hold the tickets left."],
+      [2.9, 4.7, "The link between them is cut."],
       [5.0, 6.8, "A sale reaches only one copy."],
       [7.2, 8.9, "Node B is asked to read."],
-      [9.2, 11.0, "Refuse: right, but not available."],
+      [9.2, 11.3, "Refuse: right, but not available."],
       [11.4, 13.3, "Answer: available, but stale."],
     ],
     build(stage) {
