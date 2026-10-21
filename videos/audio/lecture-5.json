@@ -28,7 +28,7 @@
    "caps": [
     [
      0.5,
-     7.87,
+     7.47,
      "Lecture five. Encodings. This is how we write a solution as genes, so that evolution can work on it."
     ]
    ],
@@ -36,7 +36,7 @@
     {
      "file": "videos/audio/clips/3378774913ff0bee.wav",
      "at": 0.5,
-     "len": 7.12
+     "len": 6.72
     }
    ]
   },
@@ -412,7 +412,7 @@
    ]
   },
   {
-   "dur": 25.008,
+   "dur": 26.679,
    "warp": [
     [
      0,
@@ -431,15 +431,15 @@
      5.1
     ],
     [
-     15.84,
+     16.72,
      8
     ],
     [
-     21.7,
+     22.58,
      9.5
     ],
     [
-     25.008,
+     26.679,
      11
     ]
    ],
@@ -456,17 +456,17 @@
     ],
     [
      12.54,
-     15.59,
+     16.47,
      "Flip the 8-bit: it moves 8."
     ],
     [
-     15.84,
-     21.45,
+     16.72,
+     22.33,
      "Flip the sign: + becomes −, a jump of 4."
     ],
     [
-     21.7,
-     24.35,
+     22.58,
+     25.23,
      "Which bit you flip matters."
     ]
    ],
@@ -482,24 +482,24 @@
      "len": 3.52
     },
     {
-     "file": "videos/audio/clips/ac1d136b96b189b6.wav",
+     "file": "videos/audio/clips/1d7a3ae6800724a9.wav",
      "at": 12.54,
-     "len": 2.8
+     "len": 3.68
     },
     {
      "file": "videos/audio/clips/26abd2cecd2f08a7.wav",
-     "at": 15.84,
+     "at": 16.72,
      "len": 5.36
     },
     {
      "file": "videos/audio/clips/2f247419e8248e60.wav",
-     "at": 21.7,
+     "at": 22.58,
      "len": 2.4
     }
    ]
   },
   {
-   "dur": 20.015,
+   "dur": 19.993,
    "warp": [
     [
      0,
@@ -518,27 +518,11 @@
      2.9
     ],
     [
-     20.015,
+     19.993,
      9
     ]
    ],
-   "caps": [
-    [
-     0.5,
-     6.59,
-     "The encoding is the big decision, because it decides which operators are safe."
-    ],
-    [
-     6.84,
-     11.57,
-     "Swap mutation and repair keep every child a valid tour."
-    ],
-    [
-     11.82,
-     18.63,
-     "A direct encoding writes the answer itself. An indirect one writes instructions for a decoder."
-    ]
-   ],
+   "caps": [],
    "clips": [
     {
      "file": "videos/audio/clips/f323508af5f53de7.wav",

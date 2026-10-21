@@ -207,7 +207,11 @@ for (const [i, sc] of scenes.entries()) {
   timing.push({
     dur: +dur.toFixed(3),
     ...(warp ? { warp: warp.map(([n, o]) => [+n.toFixed(3), +o.toFixed(3)]) } : {}),
-    caps: lines.map((l, j) => [+starts[j].toFixed(2), +(starts[j] + clips[j].len + 0.25).toFixed(2), l.cap]),
+    // the recap card has its own words and a tag or button at the bottom where a caption would sit: voice only there
+    caps:
+      script.scenes[i].at && i === scenes.length - 1
+        ? []
+        : lines.map((l, j) => [+starts[j].toFixed(2), +(starts[j] + clips[j].len + 0.25).toFixed(2), l.cap]),
     clips: clips.map((c, j) => ({ file: c.file, at: +starts[j].toFixed(3), len: +c.len.toFixed(3) })),
   });
 }
