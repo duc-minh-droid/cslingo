@@ -127,7 +127,12 @@
     },
   ];
 
+  // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
+  const NARRATED = {};
+
   VIDEOS.forEach(({ n, blurb, chapters }) => {
+    const mins = NARRATED[n] || 2,
+      voiced = !!NARRATED[n];
     const id = `l${n}-video`,
       src = `videos/out/lecture-${n}.mp4`,
       poster = `videos/out/lecture-${n}-poster.png`;
@@ -139,22 +144,22 @@
       num: `${n}.V`,
       title: `Lecture ${n} recap video`,
       blurb,
-      video: { src, poster, mins: 2, chapters },
+      video: { src, poster, mins, chapters },
       render() {}, // nothing to try: the video is the lesson's one step
     });
     L[id] = {
       sum: blurb,
       steps: [
         {
-          t: `Lecture ${n} in two minutes`,
-          b: `<p>No sound: the pictures and captions tell it. Pause or scrub any time.</p>
+          t: `Lecture ${n} in ${voiced ? `about ${mins} minutes` : "two minutes"}`,
+          b: `<p>${voiced ? "A voice tells it, and the captions follow along: turn the sound on or just read." : "No sound: the pictures and captions tell it."} Pause or scrub any time.</p>
             <details class="pl-chapters"><summary>Chapters</summary><ol>${chapters.map((c) => `<li>${c}</li>`).join("")}</ol></details>`,
           v(box, life) {
             const fig = el(`<figure class="pl-video">
-              <video controls playsinline preload="metadata" poster="${N.asset(poster)}" aria-label="Lecture ${n} recap video, about two minutes, no sound">
+              <video controls playsinline preload="metadata" poster="${N.asset(poster)}" aria-label="Lecture ${n} recap video, about ${voiced ? mins : "two"} minutes, ${voiced ? "with voice-over" : "no sound"}">
                 <source src="${N.asset(src)}" type="video/mp4" />
               </video>
-              <figcaption>Silent explainer for lecture ${n}. <a href="${N.asset(src)}" target="_blank" rel="noopener">Open the file</a></figcaption>
+              <figcaption>${voiced ? "Narrated" : "Silent"} explainer for lecture ${n}. <a href="${N.asset(src)}" target="_blank" rel="noopener">Open the file</a></figcaption>
             </figure>`);
             box.appendChild(fig);
             const v = fig.querySelector("video");

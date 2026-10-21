@@ -109,7 +109,9 @@ async function voiceAll(engine, texts) {
   if (!todo.length) return;
   if (engine === "fake") return todo.forEach((t) => silentWav(fileOf1(t), Math.max(1.4, (t.length * 0.075) / P.speed)));
   if (LOCAL.includes(engine)) {
-    const job = { engine, voice, speed: P.speed, lines: todo.map((t) => ({ text: t, out: fileOf1(t) })) };
+    // the voice drops the word after a hyphen ("eight-bit"), so the engine gets a space instead
+    const lines = todo.map((t) => ({ text: t.replace(/(\w)-(\w)/g, "$1 $2"), out: fileOf1(t) }));
+    const job = { engine, voice, speed: P.speed, lines };
     const r = run(PYTHON, [join(root, "tools", "tts", "speak.py")], {
       input: JSON.stringify(job),
       stdio: ["pipe", "inherit", "inherit"],

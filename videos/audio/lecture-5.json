@@ -1,0 +1,561 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.87,
+     "Lecture five. Encodings. This is how we write a solution as genes, so that evolution can work on it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3378774913ff0bee.wav",
+     "at": 0.5,
+     "len": 7.12
+    }
+   ]
+  },
+  {
+   "dur": 15.023,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     4.8
+    ],
+    [
+     15.023,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "A tour visits every city once."
+    ],
+    [
+     5.24,
+     13.09,
+     "We write it as genes. Evolution changes the genes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/af252db183c15e62.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/9a932ff1a4c562a0.wav",
+     "at": 5.24,
+     "len": 7.6
+    }
+   ]
+  },
+  {
+   "dur": 14.977,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     4
+    ],
+    [
+     14.977,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Mutation: pick a gene, give it a random new value."
+    ],
+    [
+     5.32,
+     13.01,
+     "Now C is visited twice and D is never visited."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1a151d8eeb625ec9.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/35817826001e4819.wav",
+     "at": 5.32,
+     "len": 7.44
+    }
+   ]
+  },
+  {
+   "dur": 15.023,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.4,
+     4
+    ],
+    [
+     15.023,
+     9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "Swap exchanges two genes."
+    ],
+    [
+     7.4,
+     14.29,
+     "Nothing is created or lost, so the tour stays valid."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f7b7183e63c2d6e7.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/903fa4160e61ce63.wav",
+     "at": 7.4,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 16.765,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3.5
+    ],
+    [
+     8.86,
+     8.4
+    ],
+    [
+     16.765,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Two parents. Cut both after gene 2."
+    ],
+    [
+     5.4,
+     8.61,
+     "Swap the tails to make two children."
+    ],
+    [
+     8.86,
+     15.19,
+     "Each child repeats one city and misses another."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6fcd5a354346ba34.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/6989275619d9b3e5.wav",
+     "at": 5.4,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/826813babbc37946.wav",
+     "at": 8.86,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 14.884,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     3.7
+    ],
+    [
+     10.78,
+     10.8
+    ],
+    [
+     14.884,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "Repair: find the repeated city and the missing one."
+    ],
+    [
+     5.24,
+     10.53,
+     "Put the missing city where the repeat was."
+    ],
+    [
+     10.78,
+     13.75,
+     "Both children are valid tours again."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c4ca4bd9d3d4758f.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/e4f4ab375589a03c.wav",
+     "at": 5.24,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/1091ccc2f7b40e80.wav",
+     "at": 10.78,
+     "len": 2.72
+    }
+   ]
+  },
+  {
+   "dur": 21.711,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     9.56,
+     4.5
+    ],
+    [
+     13.58,
+     7.2
+    ],
+    [
+     21.711,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.31,
+     "Direct: each gene is the slot of one exam."
+    ],
+    [
+     9.56,
+     13.33,
+     "Mutation moves just one exam..."
+    ],
+    [
+     13.58,
+     20.15,
+     "...but it can create a clash. Fitness must punish it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e1c7ccc7c6568486.wav",
+     "at": 0.5,
+     "len": 8.56
+    },
+    {
+     "file": "videos/audio/clips/6bfd5dce44281f84.wav",
+     "at": 9.56,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/c5fe6933cb84f0aa.wav",
+     "at": 13.58,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 21.618,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.92,
+     4
+    ],
+    [
+     14.54,
+     7.4
+    ],
+    [
+     21.618,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.67,
+     "Indirect: each gene is an instruction for a decoder."
+    ],
+    [
+     8.92,
+     14.29,
+     "The decoder never creates a clash."
+    ],
+    [
+     14.54,
+     20.87,
+     "One early change moves several exams."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c906962ca693e4fe.wav",
+     "at": 0.5,
+     "len": 7.92
+    },
+    {
+     "file": "videos/audio/clips/b16b1525757c59a8.wav",
+     "at": 8.92,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/82b9a218913522d7.wav",
+     "at": 14.54,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.52,
+     2.4
+    ],
+    [
+     12.54,
+     5.1
+    ],
+    [
+     15.84,
+     8
+    ],
+    [
+     21.7,
+     9.5
+    ],
+    [
+     25.008,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.27,
+     "A coordinate is stored as five bits."
+    ],
+    [
+     8.52,
+     12.29,
+     "Flip the 1-bit: the value moves 1."
+    ],
+    [
+     12.54,
+     15.59,
+     "Flip the 8-bit: it moves 8."
+    ],
+    [
+     15.84,
+     21.45,
+     "Flip the sign: + becomes −, a jump of 4."
+    ],
+    [
+     21.7,
+     24.35,
+     "Which bit you flip matters."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/38cf55f0ec446769.wav",
+     "at": 0.5,
+     "len": 7.52
+    },
+    {
+     "file": "videos/audio/clips/0ae9ef7bb6481fca.wav",
+     "at": 8.52,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/ac1d136b96b189b6.wav",
+     "at": 12.54,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/26abd2cecd2f08a7.wav",
+     "at": 15.84,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/2f247419e8248e60.wav",
+     "at": 21.7,
+     "len": 2.4
+    }
+   ]
+  },
+  {
+   "dur": 20.015,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.84,
+     1.9
+    ],
+    [
+     11.82,
+     2.9
+    ],
+    [
+     20.015,
+     9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "The encoding is the big decision, because it decides which operators are safe."
+    ],
+    [
+     6.84,
+     11.57,
+     "Swap mutation and repair keep every child a valid tour."
+    ],
+    [
+     11.82,
+     18.63,
+     "A direct encoding writes the answer itself. An indirect one writes instructions for a decoder."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f323508af5f53de7.wav",
+     "at": 0.5,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/63f1be52ec2a2067.wav",
+     "at": 6.84,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/4d58b7a2950c7721.wav",
+     "at": 11.82,
+     "len": 6.56
+    }
+   ]
+  }
+ ]
+}

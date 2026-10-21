@@ -146,7 +146,7 @@
      "Flip the 1-bit: the value moves 1."
     ],
     [
-     "Flip the eight-bit, and it moves by eight.",
+     "Flip the bit worth eight, and the value moves by eight.",
      "Flip the 8-bit: it moves 8."
     ],
     [
