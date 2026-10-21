@@ -38,11 +38,11 @@
   {
    "lines": [
     [
-     "A colony is made of many ants, and all of them are identical and simple.",
+     "A colony is made of many ants, all identical and simple.",
      "A colony is many identical, simple ants."
     ],
     [
-     "Each ant only reacts to what is near it. Information passes only between neighbours.",
+     "Each ant only reacts to what is near it.",
      "Each one only reacts to what is near it."
     ],
     [
@@ -78,7 +78,7 @@
   {
    "lines": [
     [
-     "In the double bridge experiment, ants travel between a nest and food by either of two equal bridges.",
+     "In the double bridge experiment, ants reach food by either of two equal bridges.",
      "Ants use either of two equal bridges."
     ],
     [
@@ -94,7 +94,7 @@
      "Soon most ants use one bridge."
     ],
     [
-     "Which one it is comes down to chance. These two colonies settle on opposite bridges.",
+     "Which one comes down to chance. These colonies settle on opposite bridges.",
      "Which one is down to chance."
     ]
    ]
@@ -102,15 +102,15 @@
   {
    "lines": [
     [
-     "Now the experiment again, but one road is twice as long.",
+     "Now the experiment again, with one road twice as long.",
      "One road is twice as long."
     ],
     [
-     "The ants walk at the same speed, so a trip on the short road ends first.",
+     "The ants walk at the same speed, so the short trip ends first.",
      "Same speed: the short trip ends first."
     ],
     [
-     "Its pheromone is laid sooner, so later ants find more of it there, and more of them pick that road.",
+     "Its pheromone is laid sooner, so more ants pick that road.",
      "More pheromone, so more ants pick it."
     ],
     [
@@ -122,7 +122,7 @@
      "85% of 200 colonies pick the short road."
     ],
     [
-     "A few lock onto the long road, because early luck went the wrong way.",
+     "A few lock onto the long road, through early bad luck.",
      "A few lock onto the long road."
     ]
    ]
@@ -130,23 +130,23 @@
   {
    "lines": [
     [
-     "An ant walks from the nest to the food, and leaves a scent mark on the ground.",
+     "An ant walks from the nest to the food, and leaves a scent mark.",
      "An ant leaves a scent mark on the ground."
     ],
     [
-     "A later ant senses the scent, and turns to follow it.",
+     "A later ant senses it, and follows.",
      "A later ant senses it and follows."
     ],
     [
-     "Communicating through marks left in the environment is called stigmergy.",
+     "Communicating through marks in the environment is called stigmergy.",
      "That is stigmergy."
     ],
     [
-     "For ants, the scent is only a sign. It is not the work itself.",
+     "For ants, the scent is only a sign, not the work itself.",
      "Scent is a sign, not the work."
     ],
     [
-     "Sometimes the work itself prompts others. A pile of blocks grows by one, and more builders walk in.",
+     "Sometimes the work itself prompts others, as when a growing pile attracts more builders.",
      "The work itself can prompt others."
     ]
    ]
@@ -154,7 +154,7 @@
   {
    "lines": [
     [
-     "Each step, the ants that use a trail add pheromone to it.",
+     "Each step, the ants using a trail add pheromone to it.",
      "Each step, ants add pheromone."
     ],
     [
@@ -162,15 +162,15 @@
      "Each step, a fifth of it evaporates."
     ],
     [
-     "The trail levels off where the gain equals the loss. Four ants a step gives twenty, and two ants a step gives ten.",
+     "The trail levels off where gain equals loss. Four ants a step give twenty, and two give ten.",
      "It levels off where gain equals loss."
     ],
     [
-     "A new ant picks a trail with a chance equal to its share. Twenty out of thirty is about sixty-seven percent, so stronger trails get picked more.",
+     "A new ant picks by share. Twenty out of thirty is sixty-seven percent, so stronger trails win.",
      "Stronger trails get picked more."
     ],
     [
-     "If the ants stop, nothing refills the trail, and it fades away.",
+     "If the ants stop, the trail fades away.",
      "If the ants stop, the trail fades away."
     ]
    ]
@@ -178,23 +178,23 @@
   {
    "lines": [
     [
-     "Now the ants meet a map. An ant must visit all four towns, and then go home.",
+     "Now the ants meet a map. An ant must visit all four towns, then go home.",
      "Goal: visit every town, then go home."
     ],
     [
-     "At town A, every unvisited town gets a weight. The weight is the pheromone on the road, divided by its distance.",
+     "At town A, each unvisited town gets a weight: the pheromone divided by the distance.",
      "Weight = pheromone ÷ distance."
     ],
     [
-     "The weights become chances, and the ant picks by chance. Here it picks town C.",
+     "The weights become chances, and the ant picks by chance. Here it picks C.",
      "A random pick, by those chances."
     ],
     [
-     "A tour memory records the towns already visited, so the ant never repeats one.",
+     "A tour memory stops the ant visiting a town twice.",
      "Tour memory stops repeat visits."
     ],
     [
-     "From C it picks B, and from B only D is left. Then it goes home to A.",
+     "From C it picks B, then only D is left. Then it goes home.",
      "It visits every town, then goes home."
     ],
     [
@@ -214,7 +214,7 @@
      "In this example, each road keeps half."
     ],
     [
-     "Second, deposit. Each road on the tour gains Q divided by the tour length. Seventy-two divided by eighteen is four.",
+     "Second, deposit. Each tour road gains Q divided by the length. Seventy-two divided by eighteen is four.",
      "Then each tour road gains Q ÷ length."
     ],
     [
@@ -226,11 +226,11 @@
   {
    "lines": [
     [
-     "Now many ants go round the map, one after another, and each uses the same update.",
+     "Now many ants go round the map, one after another, each using the same update.",
      "Ants go round one after another."
     ],
     [
-     "Ant six finds a shorter tour, so it adds more to each of its roads. That is about five, against four for the longer tours.",
+     "Ant six finds a shorter tour, so it adds about five to each road, against four for the long tours.",
      "A shorter tour adds more to each road."
     ],
     [
@@ -238,7 +238,7 @@
      "So the trail leans towards the shortest tour."
     ],
     [
-     "The first five ants all walked long tours, yet the colony still ends up favouring the short one.",
+     "The first five ants found only long tours, yet the colony ends up favouring the short one.",
      "The first ants found only long tours."
     ]
    ]

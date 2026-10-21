@@ -62,7 +62,7 @@
      "Two copies hold the tickets left."
     ],
     [
-     "Then the link between them is cut.",
+     "Then the link between them is cut. That is a network partition.",
      "The link between them is cut."
     ],
     [
@@ -74,11 +74,11 @@
      "Node B is asked to read."
     ],
     [
-     "If it refuses, the answer is never wrong, but it is not available.",
+     "If it refuses, it stays consistent, but it is not available.",
      "Refuse: right, but not available."
     ],
     [
-     "If it answers forty, it is available, but stale.",
+     "If it answers forty, it is available, but the answer is stale.",
      "Answer: available, but stale."
     ]
    ]
