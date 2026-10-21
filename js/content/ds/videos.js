@@ -89,6 +89,22 @@
         "Big partitions split, small ones merge",
       ],
     },
+    {
+      n: 6,
+      blurb:
+        "Lecture 6 in pictures: how distributed systems fail, the CAP choice, ACID, eventual consistency, linearizability and two-phase commit.",
+      chapters: [
+        "Distributed systems fail in four ways",
+        "A cut network forces a choice",
+        "A transaction is all or nothing",
+        "Isolation keeps payments apart",
+        "Replicas disagree, then converge",
+        "Linearizable: act like one copy",
+        "One copy of the truth costs waiting",
+        "Many nodes must agree on one answer",
+        "Ask first, then decide once",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
