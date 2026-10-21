@@ -50,14 +50,14 @@
       const wants = D4.tag(stage, { x: rig.pos.prop(0).x, y: 424, text: `wants ${S.p2.own}`, tone: "blue" });
       const must = D4.tag(stage, {
         x: rig.pos.prop(0).x,
-        y: 478,
+        y: 488,
         text: `must send ${S.p2.sends}`,
         tone: "blue",
         solid: true,
       });
       const chosen = D4.tag(stage, {
         x: rig.pos.prop(0).x,
-        y: 546,
+        y: 552,
         text: `chosen: ${S.p2.sends}`,
         tone: "green",
         solid: true,
