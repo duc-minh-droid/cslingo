@@ -50,7 +50,7 @@
      "The receiver cannot tell."
     ],
     [
-     "The cure is a check bit that depends on the data.",
+     "The fix is to add a check bit.",
      "Fix: add a check bit."
     ]
    ]
@@ -110,7 +110,7 @@
      "Divide the frame by the same pattern."
     ],
     [
-     "A clean frame leaves zero zero zero. Now try the two flips that fooled parity.",
+     "A clean frame leaves zero zero zero. Now try the flips that fooled parity.",
      "A clean frame divides exactly: 000."
     ],
     [
@@ -122,7 +122,7 @@
      "A burst of three is caught too."
     ],
     [
-     "More check bits catch longer bursts. Sixteen catch bursts up to sixteen.",
+     "Sixteen check bits catch every burst up to sixteen.",
      "More check bits catch longer bursts."
     ]
    ]
@@ -150,7 +150,7 @@
   {
    "lines": [
     [
-     "Three bit words are the corners of a cube. One flip is one step.",
+     "Three bit words sit on a cube. One flip is one step.",
      "One flip is one step."
     ],
     [
@@ -166,7 +166,7 @@
      "Nearest valid word is 000: fixed."
     ],
     [
-     "Now the nearest word is one one one, so the repair is wrong. Three apart fixes one flip.",
+     "Now one one one is nearest, so it is repaired wrongly. Three apart fixes only one flip.",
      "Two flips lead to the wrong word."
     ],
     [
@@ -190,15 +190,15 @@
      "Write each position in binary."
     ],
     [
-     "Check bit four guards positions whose binary starts with a one.",
+     "Check bit four guards positions starting with a one.",
      "p4 guards positions starting with 1."
     ],
     [
-     "It makes the ones in its group even. Here it is zero.",
+     "It makes its group even, so here it is zero.",
      "Its bit makes the 1s even."
     ],
     [
-     "Check bit two guards positions with a middle one, and here it is one.",
+     "Check bit two guards positions with a middle one. Here it is one.",
      "p2 guards positions with a middle 1."
     ],
     [
@@ -226,15 +226,15 @@
      "Recount each group: odd means failed."
     ],
     [
-     "The checks for four and two fail. The check for one passes.",
+     "Checks four and two fail, and check one passes.",
      "p4 and p2 fail; p1 passes."
     ],
     [
-     "Failures read as one one zero, which is six, the flipped position.",
+     "Read as binary, one one zero is six, the flipped position.",
      "Failures read as binary: 110 is 6."
     ],
     [
-     "So position six is flipped back, and the word is repaired.",
+     "Flip position six back, and the word is repaired.",
      "Flip position 6 back: fixed."
     ]
    ]
@@ -250,7 +250,7 @@
      "All fail: 111 means position 7."
     ],
     [
-     "The receiver flips position seven, which was correct. Now three bits are wrong.",
+     "It flips position seven, which was correct. Now three bits are wrong.",
      "The repair flips an innocent bit."
     ],
     [

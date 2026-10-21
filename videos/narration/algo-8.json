@@ -32,21 +32,21 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Phase eight. Cryptography and blockchain. This is how secrets and trust work online."
    ]
   },
   {
    "lines": [
     [
-     "Anything on the open wire, Eve can read.",
+     "Alice sends Bob SECRET along an open wire, and Eve can read it.",
      "Anything on the open wire, Eve can read."
     ],
     [
-     "The key is 5: each letter moves 5 along, so S becomes X.",
+     "A shift cipher with key five moves each letter five along, so S becomes X. Eve cannot read that.",
      "The key is 5: each letter moves 5 along, so S becomes X."
     ],
     [
-     "But how does Bob get the key without Eve seeing it?",
+     "But Bob needs the key too, and Eve would copy it from the wire.",
      "But how does Bob get the key without Eve seeing it?"
     ]
    ]
@@ -54,27 +54,27 @@
   {
    "lines": [
     [
-     "Both start with the same public paint.",
+     "Alice and Bob each start with the same public paint.",
      "Both start with the same public paint."
     ],
     [
-     "Each adds a secret paint of their own.",
+     "Each mixes in a secret paint of their own.",
      "Each adds a secret paint of their own."
     ],
     [
-     "They swap the mixtures. Eve can see those.",
+     "They swap the mixtures in public, so Eve sees both.",
      "They swap the mixtures. Eve can see those."
     ],
     [
-     "Each adds their own secret again: the very same colour.",
+     "Each adds their secret again, and both pots turn the same colour.",
      "Each adds their own secret again: the very same colour."
     ],
     [
-     "That colour is their shared key.",
+     "That shared colour becomes their key.",
      "That colour is their shared key."
     ],
     [
-     "Eve cannot unmix paint to find a secret.",
+     "Eve sees both mixtures, but she cannot unmix paint.",
      "Eve cannot unmix paint to find a secret."
     ]
    ]
@@ -82,31 +82,31 @@
   {
    "lines": [
     [
-     "Like the paint: p and g are public, a and b secret.",
+     "Twenty-three and five are public. Alice's secret is six, and Bob's is fifteen.",
      "Like the paint: p and g are public, a and b secret."
     ],
     [
-     "mod 23 keeps only the remainder after dividing by 23.",
+     "Alice works out five to the power six, keeping only the remainder after dividing by twenty-three.",
      "mod 23 keeps only the remainder after dividing by 23."
     ],
     [
-     "They swap A = 8 and B = 19 in public.",
+     "Alice gets eight, Bob gets nineteen, and they swap them in public.",
      "They swap A = 8 and B = 19 in public."
     ],
     [
-     "Each raises what they received to their own secret.",
+     "Each raises what they got to their own secret.",
      "Each raises what they received to their own secret."
     ],
     [
-     "Both get 2: a shared key that was never sent.",
+     "Both get two. That shared key was never sent.",
      "Both get 2: a shared key that was never sent."
     ],
     [
-     "Eve must try every power of 5 until she hits 8: that finds a.",
+     "Eve must try powers of five until one gives eight. That finds Alice's secret.",
      "Eve must try every power of 5 until she hits 8: that finds a."
     ],
     [
-     "With a 617-digit prime that search is hopeless.",
+     "With a real prime of six hundred and seventeen digits, that search is hopeless.",
      "With a 617-digit prime that search is hopeless."
     ]
    ]
@@ -114,27 +114,27 @@
   {
    "lines": [
     [
-     "Pick two secret primes: 5 and 11.",
+     "Bob picks two secret prime numbers, five and eleven.",
      "Pick two secret primes: 5 and 11."
     ],
     [
-     "Multiply them: n = 55 is public.",
+     "He multiplies them to get fifty-five, which is public.",
      "Multiply them: n = 55 is public."
     ],
     [
-     "Next z = (5 − 1) × (11 − 1) = 40, kept secret.",
+     "Next he takes one off each prime and multiplies, giving forty, which stays secret.",
      "Next z = (5 − 1) × (11 − 1) = 40, kept secret."
     ],
     [
-     "Pick e = 3: only 1 divides both 3 and 40.",
+     "He picks three, since only one divides both three and forty.",
      "Pick e = 3: only 1 divides both 3 and 40."
     ],
     [
-     "d = 27, because 3 × 27 = 81 = 2 × 40 + 1.",
+     "Twenty-seven pairs with it, because three times twenty-seven is two forties plus one.",
      "d = 27, because 3 × 27 = 81 = 2 × 40 + 1."
     ],
     [
-     "Publish (55, 3). Keep 27 secret.",
+     "The public key is fifty-five and three. The private key, twenty-seven, stays secret.",
      "Publish (55, 3). Keep 27 secret."
     ]
    ]
@@ -142,27 +142,27 @@
   {
    "lines": [
     [
-     "Bob shares his public key, (55, 3).",
+     "Bob shares his public key, fifty-five and three, along the open wire.",
      "Bob shares his public key, (55, 3)."
     ],
     [
-     "Alice locks 7 with it and gets 13.",
+     "Alice locks the number seven with it, and gets thirteen.",
      "Alice locks 7 with it and gets 13."
     ],
     [
-     "Bob unlocks 13 with his private key: back to 7.",
+     "Bob unlocks thirteen with his private key, and gets seven back.",
      "Bob unlocks 13 with his private key: back to 7."
     ],
     [
-     "Eve factors the tiny n in four tries: 5 × 11.",
+     "Eve can factor such a tiny number in four tries.",
      "Eve factors the tiny n in four tries: 5 × 11."
     ],
     [
-     "Then z = 40 and d = 27: she has the key.",
+     "Then she gets forty and twenty-seven, and has the key.",
      "Then z = 40 and d = 27: she has the key."
     ],
     [
-     "A real n has 617+ digits: nobody can factor that.",
+     "A real number has more than six hundred digits, and nobody can factor that.",
      "A real n has 617+ digits: nobody can factor that."
     ]
    ]
@@ -170,23 +170,23 @@
   {
    "lines": [
     [
-     "New question: was this data changed?",
+     "Next comes trust, and whether data was changed.",
      "New question: was this data changed?"
     ],
     [
-     "A hash turns data into a short fingerprint.",
+     "A hash turns data, like the word cat, into a short fingerprint.",
      "A hash turns data into a short fingerprint."
     ],
     [
-     "The same data always gives the same fingerprint.",
+     "Hash the same word again, and the fingerprint is exactly the same.",
      "The same data always gives the same fingerprint."
     ],
     [
-     "Change one letter, the whole fingerprint changes.",
+     "Change one letter, to make cot, and every digit of the fingerprint changes.",
      "Change one letter, the whole fingerprint changes."
     ],
     [
-     "And you cannot work backwards from it.",
+     "And there is no way back from the fingerprint to the data.",
      "And you cannot work backwards from it."
     ]
    ]
@@ -194,23 +194,23 @@
   {
    "lines": [
     [
-     "Each block stores the hash of the block before it.",
+     "In a chain, each block stores the hash of the block before it.",
      "Each block stores the hash of the block before it."
     ],
     [
-     "Edit one block and its hash changes.",
+     "Now someone edits the first block, and its hash changes.",
      "Edit one block and its hash changes."
     ],
     [
-     "The next block holds the old hash: the link breaks.",
+     "The next block still holds the old hash, so the link breaks.",
      "The next block holds the old hash: the link breaks."
     ],
     [
-     "Eve recomputes each later hash to repair the links.",
+     "Eve then recomputes each later hash, block by block, to repair the links.",
      "Eve recomputes each later hash to repair the links."
     ],
     [
-     "It looks valid again, but hashes only spot edits.",
+     "It looks valid again. Hashes can spot edits, but cannot prevent them.",
      "It looks valid again, but hashes only spot edits."
     ]
    ]
@@ -218,27 +218,27 @@
   {
    "lines": [
     [
-     "Try numbers (nonces) until the hash starts with 0.",
+     "A miner tries numbers, called nonces, until the hash starts with zero.",
      "Try numbers (nonces) until the hash starts with 0."
     ],
     [
-     "Every try gives a new, unpredictable hash.",
+     "Every try gives a new, unpredictable hash, so it is all guesswork.",
      "Every try gives a new, unpredictable hash."
     ],
     [
-     "Found it after 15 hashes.",
+     "The winner is found after fifteen hashes.",
      "Found it after 15 hashes."
     ],
     [
-     "Checking takes just 1 hash.",
+     "Checking it takes just one hash.",
      "Checking takes just 1 hash."
     ],
     [
-     "One hash in 16 starts with 0.",
+     "On average, one hash in sixteen starts with a zero.",
      "One hash in 16 starts with 0."
     ],
     [
-     "Two zeros: 1 in 256, so 16 times more work.",
+     "Two zeros happen one time in two hundred and fifty-six. That is sixteen times more work.",
      "Two zeros: 1 in 256, so 16 times more work."
     ]
    ]
@@ -246,15 +246,15 @@
   {
    "lines": [
     [
-     "Each block is sealed by its own proof of work.",
+     "Now each block is sealed by its own proof of work.",
      "Each block is sealed by its own proof of work."
     ],
     [
-     "Edit block 1: its seal and the link both break.",
+     "Edit block one, and the seal and link both break.",
      "Edit block 1: its seal and the link both break."
     ],
     [
-     "Forging it means mining block 1 again.",
+     "To forge it, Eve must mine block one again.",
      "Forging it means mining block 1 again."
     ],
     [
@@ -262,7 +262,7 @@
      "Then every later block must be mined again too."
     ],
     [
-     "Rewriting history means redoing all that work.",
+     "Here that costs fifty tries. Real blocks need trillions, so rewriting history means redoing all that work.",
      "Rewriting history means redoing all that work."
     ]
    ]
@@ -274,9 +274,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "A shared secret can be made without ever being sent.",
+    "Anyone can lock with the public key, but only Bob can open.",
+    "In a blockchain, hashes link the blocks, and edits cost real work."
    ]
   }
  ]
