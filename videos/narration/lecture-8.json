@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Lecture eight. The Ant System. This is how ants build tours, and how trails learn."
    ]
   },
   {
    "lines": [
     [
-     "Step 1: put the ants on random towns.",
+     "Each iteration has three steps. Step one puts the ants on random towns.",
      "Step 1: put the ants on random towns."
     ],
     [
-     "Step 2: every ant builds a whole tour.",
+     "Step two. Every ant builds a whole tour.",
      "Step 2: every ant builds a whole tour."
     ],
     [
-     "Step 3: roads the ants used get thicker.",
+     "Step three. The roads the ants used get thicker.",
      "Step 3: roads the ants used get thicker."
     ],
     [
-     "Repeat until done. Ants forget; trails remember.",
+     "Then the loop repeats. The ants forget, but the trails remember.",
      "Repeat until done. Ants forget; trails remember."
     ]
    ]
@@ -58,23 +58,23 @@
   {
    "lines": [
     [
-     "Its start town goes on the tabu list.",
+     "One ant starts on town T, and that town goes on its tabu list.",
      "Its start town goes on the tabu list."
     ],
     [
-     "It picks a town that is still allowed.",
+     "At each step, it picks a town that is still allowed.",
      "It picks a town that is still allowed."
     ],
     [
-     "A visited town is never picked again.",
+     "A town on the tabu list is never picked again.",
      "A visited town is never picked again."
     ],
     [
-     "Back home: tour length 74 km.",
+     "When nothing is allowed, the ant goes home. The tour is seventy-four kilometres long.",
      "Back home: tour length 74 km."
     ],
     [
-     "Next tour: the tabu list starts empty.",
+     "For the next tour, the tabu list starts empty.",
      "Next tour: the tabu list starts empty."
     ]
    ]
@@ -82,23 +82,23 @@
   {
    "lines": [
     [
-     "Each road gets a score.",
+     "At a town, the ant scores each road.",
      "Each road gets a score."
     ],
     [
-     "Closeness (heuristic) is 1 over distance.",
+     "Closeness, or the heuristic, is one over the distance, so nearer is higher.",
      "Closeness (heuristic) is 1 over distance."
     ],
     [
-     "Score: trail times closeness.",
+     "The score is the trail times the closeness.",
      "Score: trail times closeness."
     ],
     [
-     "A visited town scores zero.",
+     "A village already visited scores zero, however strong its trail.",
      "A visited town scores zero."
     ],
     [
-     "Each score's share of the total is its chance.",
+     "Each score's share of the total is its chance. Here that is twenty, forty, forty and zero percent.",
      "Each score's share of the total is its chance."
     ]
    ]
@@ -106,15 +106,15 @@
   {
    "lines": [
     [
-     "The ant draws a random number.",
+     "The ant draws a random number between zero and one.",
      "The ant draws a random number."
     ],
     [
-     "The slice it lands in wins.",
+     "The slice it lands in wins. Zero point three one falls in the Birch slice.",
      "The slice it lands in wins."
     ],
     [
-     "Unlikely roads can still win.",
+     "Unlikely roads can still win. Zero point zero eight lands in the small Ash slice.",
      "Unlikely roads can still win."
     ]
    ]
@@ -122,19 +122,19 @@
   {
    "lines": [
     [
-     "Same rule as before, with two dials.",
+     "Now the rule gets two dials. The score is trail to the power alpha, times closeness to the power beta.",
      "Same rule as before, with two dials."
     ],
     [
-     "Alpha trusts the trail; beta, closeness.",
+     "Alpha is trust in the trail. Beta is trust in closeness.",
      "Alpha trusts the trail; beta, closeness."
     ],
     [
-     "Alpha 0, beta 3: the nearest is favoured.",
+     "Alpha zero and beta three ignores the trail, and favours the nearest village, with eighty-two percent.",
      "Alpha 0, beta 3: the nearest is favoured."
     ],
     [
-     "Alpha 3, beta 0: the strongest trail is favoured.",
+     "Alpha three and beta zero ignores distance, and favours the strongest trail.",
      "Alpha 3, beta 0: the strongest trail is favoured."
     ]
    ]
@@ -142,23 +142,23 @@
   {
    "lines": [
     [
-     "This road carries a trail of 4.",
+     "Take one road, with a trail of four.",
      "This road carries a trail of 4."
     ],
     [
-     "Evaporation: half of it fades.",
+     "First, evaporation. Half fades away, which leaves two.",
      "Evaporation: half of it fades."
     ],
     [
-     "Each ant that used it adds Q over its tour length.",
+     "Then each ant on the road adds Q over its tour length. With Q at one hundred, tours of twenty-five, fifty and a hundred kilometres add four, two and one.",
      "Each ant that used it adds Q over its tour length."
     ],
     [
-     "Shorter tours leave more.",
+     "Shorter tours leave more trail.",
      "Shorter tours leave more."
     ],
     [
-     "New trail: 2 + 7 = 9.",
+     "The new trail is two plus seven, which is nine.",
      "New trail: 2 + 7 = 9."
     ]
    ]
@@ -166,7 +166,7 @@
   {
    "lines": [
     [
-     "At first the trails are thin and equal.",
+     "A colony of ten ants runs on ten villages. At first the trails are thin and equal.",
      "At first the trails are thin and equal."
     ],
     [
@@ -178,11 +178,11 @@
      "So more ants follow that trail."
     ],
     [
-     "More ants, more trail: it snowballs.",
+     "More ants add more trail, so it snowballs.",
      "More ants, more trail: it snowballs."
     ],
     [
-     "The colony settles on one short tour.",
+     "In fourteen iterations, the share of trail on the best tour climbs from forty to a hundred percent.",
      "The colony settles on one short tour."
     ]
    ]
@@ -190,27 +190,27 @@
   {
    "lines": [
     [
-     "Six ants finish. Which of them add trail?",
+     "Six ants have finished. The variants differ in which of them add trail.",
      "Six ants finish. Which of them add trail?"
     ],
     [
-     "Ant System: all ants add trail.",
+     "In the Ant System, all ants add trail.",
      "Ant System: all ants add trail."
     ],
     [
-     "Elitist rank: only the best 3.",
+     "In elitist rank, only the best three do.",
      "Elitist rank: only the best 3."
     ],
     [
-     "Max-Min style: only the best 1.",
+     "In the Max-Min style, only the best one does.",
      "Max-Min style: only the best 1."
     ],
     [
-     "Fewer depositors pile trail on the best tour.",
+     "Fewer depositors pile more trail onto the best tour. Its share rises from fifty-three to ninety, then ninety-seven percent.",
      "Fewer depositors pile trail on the best tour."
     ],
     [
-     "But more runs end on a poor tour.",
+     "But more runs end on a poor tour: three, five, then seventeen out of forty.",
      "But more runs end on a poor tour."
     ]
    ]
@@ -218,11 +218,11 @@
   {
    "lines": [
     [
-     "A print shop: five jobs, one press.",
+     "Ants are not only for tours. Here is a print shop, with five jobs and one press.",
      "A print shop: five jobs, one press."
     ],
     [
-     "The ant picks a job by the same rule.",
+     "The ant picks a job by the same rule as before.",
      "The ant picks a job by the same rule."
     ],
     [
@@ -230,11 +230,11 @@
      "It picks one job at a time, never twice."
     ],
     [
-     "Lateness: finish time minus due time.",
+     "The path is the schedule. Lateness is the finish time minus the due time.",
      "Lateness: finish time minus due time."
     ],
     [
-     "Average 54 minutes late, worst 70.",
+     "On average, a job is fifty-four minutes late, and the worst is seventy.",
      "Average 54 minutes late, worst 70."
     ]
    ]
@@ -242,13 +242,13 @@
   {
    "at": [
     0.9,
-    2,
+    2.0,
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "The loop is place, build, update, and repeat.",
+    "Score each road as trail times closeness, then draw by chance.",
+    "Update by evaporating, then adding Q over the tour length."
    ]
   }
  ]

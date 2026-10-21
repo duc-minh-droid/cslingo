@@ -32,25 +32,25 @@
     0.9
    ],
    "lines": [
-    "TITLE: one or two sentences that say what this lecture is about."
+    "Phase seven. Information theory and compression. This is how files get smaller."
    ]
   },
   {
    "lines": [
     [
-     "A fixed code spends 3 bits on every letter.",
+     "A fixed code gives every letter the same length, three bits each.",
      "A fixed code spends 3 bits on every letter."
     ],
     [
-     "That is 21 bits for BBADEBC.",
+     "So the message B B A D E B C costs twenty-one bits.",
      "That is 21 bits for BBADEBC."
     ],
     [
-     "But B turns up three times.",
+     "But B turns up three times, and two of its three bits are wasted.",
      "But B turns up three times."
     ],
     [
-     "Common letters get short codes: 15 bits.",
+     "Give B a one bit code, and the total drops to fifteen bits.",
      "Common letters get short codes: 15 bits."
     ]
    ]
@@ -58,19 +58,19 @@
   {
    "lines": [
     [
-     "News we expect tells us nothing: 0 bits.",
+     "News we expect tells us nothing, so it is worth zero bits.",
      "News we expect tells us nothing: 0 bits."
     ],
     [
-     "Half the chance: one yes-or-no answer, 1 bit.",
+     "A one in two chance is one yes or no answer, so one bit.",
      "Half the chance: one yes-or-no answer, 1 bit."
     ],
     [
-     "Each time the chance halves, one more bit.",
+     "Every time the chance halves, we add one more bit. One in sixteen needs four.",
      "Each time the chance halves, one more bit."
     ],
     [
-     "Rarer news tells us more.",
+     "The rarer the news, the more it tells us.",
      "Rarer news tells us more."
     ]
    ]
@@ -78,23 +78,23 @@
   {
    "lines": [
     [
-     "A source sends four symbols with these chances.",
+     "A source sends four symbols, with chances a half, a quarter, and two eighths.",
      "A source sends four symbols with these chances."
     ],
     [
-     "A typical eight: A four times, B twice.",
+     "A typical eight holds A four times, B twice, and C and D once.",
      "A typical eight: A four times, B twice."
     ],
     [
-     "Each one costs its surprise in bits.",
+     "Each symbol costs its surprise in bits, and the eight add up to fourteen.",
      "Each one costs its surprise in bits."
     ],
     [
-     "A fixed 2-bit code: 16 bits. Surprise: only 14.",
+     "A fixed two bit code needs sixteen bits. The surprise is only fourteen.",
      "A fixed 2-bit code: 16 bits. Surprise: only 14."
     ],
     [
-     "1.75 bits a symbol: the floor, if nothing is lost.",
+     "That averages one point seven five bits a symbol. This entropy is the floor for lossless codes.",
      "1.75 bits a symbol: the floor, if nothing is lost."
     ]
    ]
@@ -102,31 +102,31 @@
   {
    "lines": [
     [
-     "Codes sit side by side, with no gaps.",
+     "Codewords are sent with no gaps between them.",
      "Codes sit side by side, with no gaps."
     ],
     [
-     "01 could be A then B…",
+     "The bits zero one could be A followed by B.",
      "01 could be A then B…"
     ],
     [
-     "…or C. Two readings!",
+     "Or they could be C. That is two readings.",
      "…or C. Two readings!"
     ],
     [
-     "Fix it: no code may start another.",
+     "The fix is a rule. No code may start another.",
      "Fix it: no code may start another."
     ],
     [
-     "Put every code at a branch end.",
+     "Put every code at the end of a branch.",
      "Put every code at a branch end."
     ],
     [
-     "Follow the bits down. A leaf means a letter is done.",
+     "Follow the bits down. At a leaf, a letter is done, so this reads A, B, C.",
      "Follow the bits down. A leaf means a letter is done."
     ],
     [
-     "No code starts another.",
+     "So there is only one way to read it.",
      "No code starts another."
     ]
    ]
@@ -134,23 +134,23 @@
   {
    "lines": [
     [
-     "Each letter has a chance. Join the two smallest.",
+     "Each letter has a chance. Join the two smallest, C and E.",
      "Each letter has a chance. Join the two smallest."
     ],
     [
-     "Letters under it pay one more bit: +.20.",
+     "Both letters now sit one step deeper, so they pay one more bit.",
      "Letters under it pay one more bit: +.20."
     ],
     [
-     "Repeat with the two smallest left.",
+     "Repeat with the two smallest left. D and A join, then the two small groups join.",
      "Repeat with the two smallest left."
     ],
     [
-     "One node left: the tree is done.",
+     "Finally B joins, and one node is left. The tree is done.",
      "One node left: the tree is done."
     ],
     [
-     "1.98 bits a letter. This source's floor is 1.96.",
+     "That averages one point nine eight bits a letter. The floor is one point nine six.",
      "1.98 bits a letter. This source's floor is 1.96."
     ]
    ]
@@ -158,23 +158,23 @@
   {
    "lines": [
     [
-     "Common B sits one step from the root.",
+     "Common B sits just one step from the root.",
      "Common B sits one step from the root."
     ],
     [
-     "The path down is the code.",
+     "The path down to a letter is its code. B gets one bit, the others three.",
      "The path down is the code."
     ],
     [
-     "Spell BBADEBC with these codes.",
+     "Spell B B A D E B C, one codeword per letter. The fixed code sits underneath.",
      "Spell BBADEBC with these codes."
     ],
     [
-     "15 bits instead of 21.",
+     "The message takes fifteen bits instead of twenty-one.",
      "15 bits instead of 21."
     ],
     [
-     "Joined up, it still splits into the same codes.",
+     "Joined up, the bits still split back into the same codewords.",
      "Joined up, it still splits into the same codes."
     ]
    ]
@@ -182,27 +182,27 @@
   {
    "lines": [
     [
-     "No chances needed: it starts with just A and B.",
+     "LZW needs no chances. It starts with just A and B.",
      "No chances needed: it starts with just A and B."
     ],
     [
-     "Phrase plus next letter new? Send a code, learn it.",
+     "If the phrase plus the next letter is new, send a code and learn it.",
      "Phrase plus next letter new? Send a code, learn it."
     ],
     [
-     "Known? Keep growing. New? Send and learn.",
+     "A B is known, so the phrase grows. A B A is new, so send A B.",
      "Known? Keep growing. New? Send and learn."
     ],
     [
-     "Same again: grow while known, send when new.",
+     "Again, grow while the phrase is known, and send when it is new.",
      "Same again: grow while known, send when new."
     ],
     [
-     "Known again, then the text ends: send it.",
+     "B A is known, then the text ends, so it is sent.",
      "Known again, then the text ends: send it."
     ],
     [
-     "Nine letters became five codes.",
+     "So nine letters have become just five codes.",
      "Nine letters became five codes."
     ]
    ]
@@ -210,19 +210,19 @@
   {
    "lines": [
     [
-     "Only codes arrive, plus the A, B start.",
+     "Only the codes arrive, with the starting entries A and B.",
      "Only codes arrive, plus the A, B start."
     ],
     [
-     "Each code adds an entry: previous plus first letter.",
+     "Each code adds an entry, the previous chunk plus this chunk's first letter.",
      "Each code adds an entry: previous plus first letter."
     ],
     [
-     "Code 4 is not in yet: AB plus AB's first letter.",
+     "Code four is not in yet. It is A B plus the first letter of A B, so A B A.",
      "Code 4 is not in yet: AB plus AB's first letter."
     ],
     [
-     "Same text back. No dictionary sent.",
+     "The text comes back exactly, and no dictionary was ever sent.",
      "Same text back. No dictionary sent."
     ]
    ]
@@ -230,23 +230,23 @@
   {
    "lines": [
     [
-     "A GIF packs each row of pixels with LZW.",
+     "A GIF packs each row of coloured pixels with LZW.",
      "A GIF packs each row of pixels with LZW."
     ],
     [
-     "Each piece of the row gets one code.",
+     "LZW cuts the row into pieces, and each piece gets one code.",
      "Each piece of the row gets one code."
     ],
     [
-     "Repeats share codes: 18 pixels, 11 codes.",
+     "Eighteen pixels become just eleven codes, so the strip is shorter.",
      "Repeats share codes: 18 pixels, 11 codes."
     ],
     [
-     "Noise rarely repeats, so it saves little.",
+     "A noisy row hardly repeats, so eighteen pixels still need fifteen codes.",
      "Noise rarely repeats, so it saves little."
     ],
     [
-     "LZW feeds on repeats.",
+     "LZW only saves space where the data repeats.",
      "LZW feeds on repeats."
     ]
    ]
@@ -258,9 +258,9 @@
     3.1
    ],
    "lines": [
-    "RECAP ROW 1",
-    "RECAP ROW 2",
-    "RECAP ROW 3"
+    "Entropy is the floor for any code that loses nothing.",
+    "Huffman merges the two rarest nodes, and repeats.",
+    "LZW learns repeated phrases as it reads."
    ]
   }
  ]

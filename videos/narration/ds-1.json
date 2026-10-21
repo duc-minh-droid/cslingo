@@ -90,7 +90,7 @@
      "A cache keeps answers close."
     ],
     [
-     "A hit takes two milliseconds. A miss goes to the database and takes a hundred.",
+     "A hit takes two milliseconds. A miss takes a hundred.",
      "A hit takes 2 ms, a miss 100 ms."
     ],
     [
@@ -130,7 +130,7 @@
   {
    "lines": [
     [
-     "Six servers share a load of four hundred and twenty, seventy each.",
+     "Six servers share a load of four hundred and twenty. Each carries seventy, and can take a hundred.",
      "Six servers share the load, 70 each."
     ],
     [
@@ -138,11 +138,11 @@
      "One dies; five carry on at 84 each."
     ],
     [
-     "Another dies. Now it is one hundred and five each, over the limit of one hundred.",
+     "Another dies. Now each carries one hundred and five, over the limit.",
      "One more dies: 105 each, over 100."
     ],
     [
-     "Overloaded servers fall one by one, and the load on the rest keeps growing.",
+     "Overloaded servers fall one by one, pushing more load onto the rest.",
      "Overload makes them fall one by one."
     ],
     [
