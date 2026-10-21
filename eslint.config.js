@@ -94,6 +94,8 @@ export default [
       "tools/video-still.js",
       "tools/render-video.js",
       "tools/narrate.js",
+      "tools/narration-skeleton.js",
+      "tools/narration-check.js",
     ],
     languageOptions: {
       ecmaVersion: "latest",
