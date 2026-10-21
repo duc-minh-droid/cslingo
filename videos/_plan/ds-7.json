@@ -1,0 +1,349 @@
+{
+ "slug": "ds-7",
+ "dir": "d7",
+ "title": "Lecture 7 · The Paxos protocol",
+ "outline": "STATUS: complete. Lecture 7 video (Data Science, COM3021): 'The Paxos protocol', sub line 'How nodes agree with only a majority'. 11 scenes, about 122 s: title (4), why Paxos (10), three roles (11), proposal numbers (11), quorum (11.5), phase 1 prepare and promise (13), phase 2 accept (13), two proposers (14), safety (13), a log of rounds (12.5), recap (9). Story in the lessons' order: ds7-roles 7.1 (Paxos needs only a majority, proposers, acceptors, learners, unique increasing numbers, quorum of 3 of 5, any two majorities overlap) and ds7-rounds 7.2 (PREPARE and PROMISE, ACCEPT and ACCEPTED, learners after a majority, collisions, re-proposing an already accepted value, a log with one round per entry), workshop ds7-lab 7.W. Lessons: js/content/ds/ds-l7-01.js, ds-l7-02.js. All numbers are computed by a tiny Paxos simulation and asserted in videos/d7/common.js (D7).",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 7",
+  "title": "The Paxos protocol",
+  "sub": "How nodes agree with only a majority",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-why.js",
+   "kicker": "WHY PAXOS",
+   "title": [
+    "Two-phase commit",
+    "needs everyone"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.6,
+     3.2,
+     "Two-phase commit needs all five to say yes."
+    ],
+    [
+     3.4,
+     5.8,
+     "One crash and it is stuck waiting."
+    ],
+    [
+     6,
+     8.5,
+     "Paxos needs a majority: 3 of 5."
+    ],
+    [
+     8.6,
+     9.9,
+     "2 may crash."
+    ]
+   ],
+   "spec": "WHY PAXOS: two-phase commit (lecture 6) needs a yes from all five nodes, so one crash stalls it; Paxos needs a majority, 3 of 5, so two may crash. Data: D7.QUORUM."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-roles.js",
+   "kicker": "THREE ROLES",
+   "title": [
+    "Proposers suggest,",
+    "acceptors decide"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.6,
+     3,
+     "A node can play three roles."
+    ],
+    [
+     3.1,
+     5.1,
+     "Proposers suggest a value."
+    ],
+    [
+     5.2,
+     7.5,
+     "Acceptors decide which one is chosen."
+    ],
+    [
+     7.6,
+     10.3,
+     "Learners are only told the result."
+    ]
+   ],
+   "spec": "THREE ROLES: a proposer suggests a value, five acceptors decide which one is chosen, learners are told the result (lesson 7.1). The value 7 flows through the three panels; the acceptors turn green. Data: D7.ACCS, D7.R1.v."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-numbers.js",
+   "kicker": "PROPOSAL NUMBERS",
+   "title": [
+    "Every proposal has a",
+    "bigger number"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.5,
+     2.6,
+     "Each proposal gets a unique number."
+    ],
+    [
+     2.8,
+     5,
+     "Proposers never share a number."
+    ],
+    [
+     5.2,
+     7.4,
+     "A bigger number means newer."
+    ],
+    [
+     7.7,
+     10.4,
+     "The newer proposal beats the older."
+    ]
+   ],
+   "spec": "PROPOSAL NUMBERS: unique and increasing; proposer 1 uses 1, 3, 5, proposer 2 uses 2, 4, 6; a bigger number is newer and wins (lesson 7.1). The tags 'older' and 'newer: wins' mark 5 and 6."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-quorum.js",
+   "kicker": "QUORUM",
+   "title": [
+    "A majority is",
+    "enough"
+   ],
+   "dur": 11.5,
+   "caps": [
+    [
+     0.5,
+     3.1,
+     "A majority of 5 is 3: a quorum."
+    ],
+    [
+     3.2,
+     5.2,
+     "So 2 may crash."
+    ],
+    [
+     5.6,
+     8,
+     "Two majorities always overlap."
+    ],
+    [
+     8.2,
+     10.9,
+     "They share at least one acceptor."
+    ]
+   ],
+   "spec": "QUORUM: a majority of five is three, so two may crash; {A, B, C} and {C, D, E} are two majorities and share C, so any two majorities overlap (lesson 7.1). Data: D7.QUORUM (checked by brute force over every majority)."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-prepare.js",
+   "kicker": "PHASE 1",
+   "title": [
+    "Prepare,",
+    "then promise"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     2.5,
+     "Phase 1. Acceptor E is down."
+    ],
+    [
+     2.7,
+     4.7,
+     "PREPARE 1 goes to all."
+    ],
+    [
+     4.9,
+     7,
+     "Acceptors answer PROMISE."
+    ],
+    [
+     7.2,
+     9.6,
+     "3 promises make a quorum."
+    ],
+    [
+     9.8,
+     12.5,
+     "A promise: ignore older proposals."
+    ]
+   ],
+   "spec": "PHASE 1: PREPARE 1 goes to A to E (E has crashed), A to D answer PROMISE and will ignore older proposals; three promises are a quorum (lesson 7.2). Data: D7.R1."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-accept.js",
+   "kicker": "PHASE 2",
+   "title": [
+    "Accept, then",
+    "tell the learners"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     2.6,
+     "Phase 2: ask them to accept."
+    ],
+    [
+     2.8,
+     5,
+     "ACCEPT carries number and value."
+    ],
+    [
+     5.2,
+     7.5,
+     "Acceptors tell the learners."
+    ],
+    [
+     7.7,
+     10.5,
+     "A majority accepted: it is chosen."
+    ],
+    [
+     10.7,
+     12.7,
+     "The learners are told: 7."
+    ]
+   ],
+   "spec": "PHASE 2: ACCEPT 1, 7 goes to the acceptors that promised, A to D accept 7 and tell the learners with ACCEPTED; at the third one the value is chosen and the learners are told (lesson 7.2). Data: D7.R1."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-duel.js",
+   "kicker": "TWO PROPOSERS",
+   "title": [
+    "The bigger number",
+    "wins"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.5,
+     2.7,
+     "Two proposers can collide."
+    ],
+    [
+     2.9,
+     4.9,
+     "P1 asks A, B, C to promise 1."
+    ],
+    [
+     5.1,
+     7.1,
+     "P2 asks B to E to promise 2."
+    ],
+    [
+     7.3,
+     9.5,
+     "B and C ignore the older number."
+    ],
+    [
+     9.7,
+     11.7,
+     "P2 has a majority: 9 is chosen."
+    ],
+    [
+     11.9,
+     13.8,
+     "P1 must retry with 3."
+    ]
+   ],
+   "spec": "TWO PROPOSERS: P1 (number 1, value 7) prepares A, B, C; P2 (number 2, value 9) prepares B, C, D, E; B and C ignore P1's ACCEPT, P2 wins with four acceptances, P1 retries with number 3 (lesson 7.2). Data: D7.DUEL."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-safety.js",
+   "kicker": "SAFETY",
+   "title": [
+    "A chosen value",
+    "is never changed"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     3,
+     "P1 crashed after A and B accepted 7."
+    ],
+    [
+     3.2,
+     5.4,
+     "P2 asks B, C, D to promise 2."
+    ],
+    [
+     5.6,
+     7.9,
+     "B reports the 7 it accepted."
+    ],
+    [
+     8.1,
+     10.6,
+     "So P2 must send 7, not its own 9."
+    ],
+    [
+     10.8,
+     12.7,
+     "7 stays chosen: it is safe."
+    ]
+   ],
+   "spec": "SAFETY: P1 crashed after A and B accepted 7; P2 (number 2) wants 9, prepares B, C, D; B reports the 7 it accepted, so P2 must send 7 (lesson 7.2). Data: D7.SAFE."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-log.js",
+   "kicker": "A LOG OF ROUNDS",
+   "title": [
+    "One Paxos round",
+    "per log entry"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.5,
+     3,
+     "Each log entry is one Paxos round."
+    ],
+    [
+     3.2,
+     5.3,
+     "Round 1 chose +50: 100 → 150."
+    ],
+    [
+     7,
+     9.2,
+     "Round 2 chose −20: 150 → 130."
+    ],
+    [
+     9.4,
+     11.8,
+     "Every replica gets the same order."
+    ]
+   ],
+   "spec": "A LOG OF ROUNDS: one Paxos round per log entry; round 1 chooses +50, round 2 chooses -20; three replicas hold the same entries in the same order and the balance goes 100, 150, 130 (lesson 7.2). Data: D7.LOG."
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "rows": [
+   "A majority decides: 3 of 5, two may crash",
+   "Prepare and promise, then accept",
+   "Never change a value that may be chosen"
+  ],
+  "cta": "Next: Workshop 7.W"
+ },
+ "helpers": "videos/d7/common.js (D7): the simulation (D7.prepare, D7.accept, D7.pick), the asserted examples (D7.QUORUM, D7.R1, D7.DUEL, D7.SAFE, D7.LOG) and the rig D7.rig (proposers on the left, five acceptor cards in the middle, learners on the right). Drawing pieces come from d4/common*.js (VID.d4) and l5/common.js (VID.l5). Colour roles: blue = a proposer and its value, purple = protocol messages and numbers, green = promised, accepted, chosen, orange = older or abandoned, red = crashed or ignored, grey = neutral."
+}

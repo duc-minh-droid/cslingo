@@ -46,7 +46,7 @@
       [2.7, 4.7, `PREPARE ${R.n} goes to all.`],
       [4.9, 7.0, "Acceptors answer PROMISE."],
       [7.2, 9.6, `${R.learned} promises make a quorum.`],
-      [9.8, 12.5, "A promise: ignore older numbers."],
+      [9.8, 12.5, "A promise: ignore older proposals."],
     ],
     build(stage) {
       const rig = D7.rig(stage, { proposers: 1, learners: false });
@@ -63,7 +63,7 @@
       };
       const key2 = {
         tag: D4.tag(stage, { x: 782, y: 340, text: "PROMISE", tone: "green", solid: true }),
-        lines: ["ok, I will ignore", "lower numbers"].map((l, j) =>
+        lines: ["ok, I will ignore", "older proposals"].map((l, j) =>
           D4.label(stage, { x: 782, y: 396 + 36 * j, text: l, tone: "grey", fs: 30 }),
         ),
       };

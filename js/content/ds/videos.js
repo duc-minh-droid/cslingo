@@ -105,6 +105,22 @@
         "Ask first, then decide once",
       ],
     },
+    {
+      n: 7,
+      blurb:
+        "Lecture 7 in pictures: why Paxos needs only a majority, the three roles, proposal numbers, the two phases, collisions and a log of rounds.",
+      chapters: [
+        "Two-phase commit needs everyone",
+        "Proposers suggest, acceptors decide",
+        "Every proposal has a bigger number",
+        "A majority is enough",
+        "Prepare, then promise",
+        "Accept, then tell the learners",
+        "The bigger number wins",
+        "A chosen value is never changed",
+        "One Paxos round per log entry",
+      ],
+    },
   ];
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
