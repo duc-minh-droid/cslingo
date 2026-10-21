@@ -5,6 +5,23 @@
 Added 2026-10-20. The pipeline is built and the example clip is approved by the owner ("perfect"); the remaining job is to do the
 same to every video.
 
+### Phases and progress (updated as work is done)
+
+Work in this order; each phase ends with something that runs and is committed.
+
+1. **Phase 0, ship the silent videos.** Lecture 6 and 7 Data Science videos, the lesson fixes and the 28 px kicker go live first.
+   _Status: lecture 6 live; lecture 7 and the fixes in the final check._
+2. **Phase 1, voice pipeline ready.** Done: `tools/narration-skeleton.js` (a script per video with the whole recipe and one line per
+   caption), `tools/narration-check.js` (line counts, symbols, estimated length), `tools/tts/verify.py` (faster-whisper word-for-word
+   check, deletes bad clips), `tools/voice-video.sh <name>` (narrate, verify up to three rounds, record, poster), the title-card pill
+   moved so a voice-over caption cannot overlap it. In progress: the CPU TTS environment (`tools/tts/setup.sh`) and a speed test.
+3. **Phase 2, write the narration scripts** for all 25 videos (4 agents: `lecture-1..8`, `algo-1..5`, `algo-6..10`, `ds-1..7`;
+   brief in `videos/_plan/NARRATION_TASK.md`). _Status: running._
+4. **Phase 3, voice and record every video**, one at a time with `tools/voice-video.sh <name>`: needs about 1 to 2 hours of CPU per
+   video without a GPU, so run it in the background on a machine with the RTX 4060 if there is one.
+5. **Phase 4, review and ship.** The owner watches two or three finished videos before anything is merged, then update
+   `videos/README.md`, run `npm test`, and deploy in batches (the mp4s are about 6 MB each).
+
 ### The task
 
 Redo **every** recap video the way `videos/out/lecture-1-test.mp4` was made (that clip covers Lecture 1 scenes 0-1 only). Same
