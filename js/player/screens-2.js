@@ -37,10 +37,14 @@
       const s = sc.s,
         L = N.LESSONS[pl.S.mod.id];
       node.innerHTML = `<div class="pl-in pl-read">
-        <div class="lesson-step-n">${pl.S.mod.video ? "Recap video" : `Step ${sc.k + 1} of ${L.steps.length}`}</div>
+        ${pl.S.mod.video ? "" : `<div class="lesson-step-n">Step ${sc.k + 1} of ${L.steps.length}</div>`}
         <h1 class="lesson-title">${s.t}</h1>
-        <div class="lesson-body">${s.b}</div>
-        <div class="lesson-visual"></div>
+        ${
+          pl.S.mod.video
+            ? `<div class="lesson-visual"></div><div class="lesson-body">${s.b}</div>`
+            : `<div class="lesson-body">${s.b}</div>
+        <div class="lesson-visual"></div>`
+        }
         ${sc.Q ? `<div class="pl-qwrap"></div>` : ""}</div>`;
       const vis = qs(".lesson-visual", node);
       if (typeof s.v === "function") {

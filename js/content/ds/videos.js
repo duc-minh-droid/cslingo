@@ -5,8 +5,7 @@
    A lecture is added to VIDEOS once its mp4 and poster exist in videos/out/: {n, blurb, chapters: [scene titles]}.
    Chapters come from the built page: VPREFIX=ds node <scratchpad>/titles.mjs N, or VID.scenes titles of videos/ds-N.html. */
 (function () {
-  const N = NIC,
-    { el } = N;
+  const N = NIC;
   const L = N.LESSONS;
 
   const VIDEOS = [
@@ -151,20 +150,12 @@
           b: `<p>${voiced ? "A voice tells it, and the captions follow along: turn the sound on or just read." : "No sound: the pictures and captions tell it."} Pause or scrub any time.</p>
             <details class="pl-chapters"><summary>Chapters</summary><ol>${chapters.map((c) => `<li>${c}</li>`).join("")}</ol></details>`,
           v(box, life) {
-            const fig = el(`<figure class="pl-video">
-              <video controls playsinline preload="metadata" poster="${N.asset(poster)}" aria-label="Lecture ${n} recap video, about ${voiced ? mins : "two"} minutes, ${voiced ? "with voice-over" : "no sound"}">
-                <source src="${N.asset(src)}" type="video/mp4" />
-              </video>
-              <figcaption>${voiced ? "Narrated" : "Silent"} explainer for lecture ${n}. <a href="${N.asset(src)}" target="_blank" rel="noopener">Open the file</a></figcaption>
-            </figure>`);
-            box.appendChild(fig);
-            const v = fig.querySelector("video");
-            life.onCleanup(() => {
-              try {
-                v.pause();
-              } catch (e) {
-                /* the page is going away */
-              }
+            N.videoPlayer(box, {
+              src: N.asset(src),
+              poster: N.asset(poster),
+              label: `Lecture ${n} recap video, about ${voiced ? mins : "two"} minutes, ${voiced ? "with voice-over" : "no sound"}`,
+              caption: `${voiced ? "Narrated" : "Silent"} explainer for lecture ${n}. <a href="${N.asset(src)}" target="_blank" rel="noopener">Open the file</a>`,
+              life,
             });
           },
         },
