@@ -1,0 +1,912 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "Lecture one. Reliable, scalable and maintainable systems. This is what keeps a data system working."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f2674be3ca50f1ae.wav",
+     "at": 0.5,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.4,
+     4
+    ],
+    [
+     9.26,
+     5.8
+    ],
+    [
+     13.12,
+     8.8
+    ],
+    [
+     16.672,
+     10.8
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "One big server does all the work."
+    ],
+    [
+     5.4,
+     9.01,
+     "Too many requests get dropped."
+    ],
+    [
+     9.26,
+     12.87,
+     "One crash, and everything is down."
+    ],
+    [
+     13.12,
+     16.09,
+     "Even a repair means downtime."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/206dc995ad3026b6.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/a30f2eff2e09c3f3.wav",
+     "at": 5.4,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/9133cebba9ba4015.wav",
+     "at": 9.26,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/dceb2f85897ece84.wav",
+     "at": 13.12,
+     "len": 2.72
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     4.04,
+     3.3
+    ],
+    [
+     6.94,
+     4.7
+    ],
+    [
+     13.76,
+     7.4
+    ],
+    [
+     19.7,
+     9.9
+    ],
+    [
+     25.008,
+     12.2
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.79,
+     "Against crashes, keep a copy in each city."
+    ],
+    [
+     4.04,
+     6.69,
+     "Now the link is cut."
+    ],
+    [
+     6.94,
+     13.51,
+     "London sells a ticket; New York never hears."
+    ],
+    [
+     13.76,
+     19.45,
+     "Stay consistent: refuse to answer."
+    ],
+    [
+     19.7,
+     23.79,
+     "Stay available: answer, maybe stale."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1af76e66f8136f8c.wav",
+     "at": 0.5,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/5d09be9bc0c5dc15.wav",
+     "at": 4.04,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/41f72e4d856a469c.wav",
+     "at": 6.94,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/179793fed98a586c.wav",
+     "at": 13.76,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/be79fd112544b6f3.wav",
+     "at": 19.7,
+     "len": 3.84
+    }
+   ]
+  },
+  {
+   "dur": 23.429,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.99,
+     1.8
+    ],
+    [
+     6.21,
+     3.9
+    ],
+    [
+     10.07,
+     6.75
+    ],
+    [
+     14.17,
+     9
+    ],
+    [
+     18.03,
+     12
+    ],
+    [
+     23.429,
+     14.2
+    ]
+   ],
+   "caps": [
+    [
+     0.99,
+     5.96,
+     "A database stores data for tomorrow."
+    ],
+    [
+     6.21,
+     9.82,
+     "A cache keeps answers close."
+    ],
+    [
+     10.07,
+     13.92,
+     "A hit takes 2 ms, a miss 100 ms."
+    ],
+    [
+     14.17,
+     17.78,
+     "An index: 20 checks, not a million."
+    ],
+    [
+     18.03,
+     21.48,
+     "A batch job crunches it overnight."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d69dbcc9e456bc0a.wav",
+     "at": 0.99,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/15d1178dbd4b6f28.wav",
+     "at": 6.21,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/37c95f0f483848c8.wav",
+     "at": 10.07,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/63cced3c2cb2e627.wav",
+     "at": 14.17,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/d0421dd8f2185a45.wav",
+     "at": 18.03,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 25.124,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.4,
+     3
+    ],
+    [
+     10.3,
+     4.7
+    ],
+    [
+     15.44,
+     7.95
+    ],
+    [
+     20.5,
+     10
+    ],
+    [
+     25.124,
+     12.1
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "10,000 disks: about one dies every day."
+    ],
+    [
+     5.4,
+     10.05,
+     "A dead disk is a fault."
+    ],
+    [
+     10.3,
+     15.19,
+     "One copy: a dead disk is a failure."
+    ],
+    [
+     15.44,
+     20.25,
+     "Two copies: users notice nothing."
+    ],
+    [
+     20.5,
+     24.11,
+     "Faults must not become failures."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d1c125f7e588050b.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/618800d856feb93f.wav",
+     "at": 5.4,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/980ed77671e1e8e0.wav",
+     "at": 10.3,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/6932a38e11770da4.wav",
+     "at": 15.44,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/3deaa10821e755a0.wav",
+     "at": 20.5,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 33.111,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.24,
+     2.75
+    ],
+    [
+     12.94,
+     5.05
+    ],
+    [
+     18,
+     7.05
+    ],
+    [
+     23.78,
+     9.3
+    ],
+    [
+     27.56,
+     11.8
+    ],
+    [
+     33.111,
+     13.7
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.99,
+     "Six servers share the load, 70 each."
+    ],
+    [
+     7.24,
+     12.69,
+     "One dies; five carry on at 84 each."
+    ],
+    [
+     12.94,
+     17.75,
+     "One more dies: 105 each, over 100."
+    ],
+    [
+     18,
+     23.53,
+     "Overload makes them fall one by one."
+    ],
+    [
+     23.78,
+     27.31,
+     "The last one carries all 420."
+    ],
+    [
+     27.56,
+     32.13,
+     "One bug hits all six together."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/568dd6cf1b42a99f.wav",
+     "at": 0.5,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/4d491621425197a3.wav",
+     "at": 7.24,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/a520aa1e44fee107.wav",
+     "at": 12.94,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/453adeff7cbc2469.wav",
+     "at": 18,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/b04f99fe638b94a3.wav",
+     "at": 23.78,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/c6eca7bb8c99e998.wav",
+     "at": 27.56,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 33.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     5.8,
+     3
+    ],
+    [
+     10.78,
+     4.9
+    ],
+    [
+     15.44,
+     6.7
+    ],
+    [
+     20.66,
+     8.7
+    ],
+    [
+     26.2,
+     10.3
+    ],
+    [
+     33.344,
+     12.3
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "100 requests, each timed."
+    ],
+    [
+     5.8,
+     10.53,
+     "Most are quick; a few are slow."
+    ],
+    [
+     10.78,
+     15.19,
+     "The average is 250 ms."
+    ],
+    [
+     15.44,
+     20.41,
+     "p95: 95 in 100 are faster."
+    ],
+    [
+     20.66,
+     25.95,
+     "p99: 99 in 100 are faster."
+    ],
+    [
+     26.2,
+     31.25,
+     "The average hides the slowest."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0706a91a5e80d840.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/f13c0259a858c8ad.wav",
+     "at": 5.8,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/df17023ed9c21c0e.wav",
+     "at": 10.78,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/d118ead9fd62c85e.wav",
+     "at": 15.44,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/e475e11c7cf871e2.wav",
+     "at": 20.66,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/695dfed84958acef.wav",
+     "at": 26.2,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 45.093,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     4.81,
+     2.8
+    ],
+    [
+     9.07,
+     5.4
+    ],
+    [
+     14.61,
+     7.45
+    ],
+    [
+     19.75,
+     9.55
+    ],
+    [
+     24.49,
+     11.45
+    ],
+    [
+     34.43,
+     14.65
+    ],
+    [
+     40.69,
+     16.85
+    ],
+    [
+     45.093,
+     19.75
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     4.56,
+     "Approach 1: one write per post."
+    ],
+    [
+     4.81,
+     8.82,
+     "Reading means 3 lookups and a merge."
+    ],
+    [
+     9.07,
+     14.36,
+     "Approach 2: copy to each follower."
+    ],
+    [
+     14.61,
+     19.5,
+     "Reading is one lookup."
+    ],
+    [
+     19.75,
+     24.24,
+     "Reads outnumber posts 65 to 1."
+    ],
+    [
+     24.49,
+     34.18,
+     "So fan out: 345,000 writes a second."
+    ],
+    [
+     34.43,
+     40.44,
+     "A celebrity post takes 87 s, not 5."
+    ],
+    [
+     40.69,
+     44.14,
+     "Hybrid: celebrities merge on read."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9eec92088c708471.wav",
+     "at": 0.55,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/9e39608077981892.wav",
+     "at": 4.81,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/6b826bf19f22c910.wav",
+     "at": 9.07,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/a4021d8eb04cdd63.wav",
+     "at": 14.61,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/435169300660712c.wav",
+     "at": 19.75,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/8e1d5216c3706954.wav",
+     "at": 24.49,
+     "len": 9.44
+    },
+    {
+     "file": "videos/audio/clips/364964e66418899f.wav",
+     "at": 34.43,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/83ff1b923b003eb6.wav",
+     "at": 40.69,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 25.124,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     4.84,
+     3.3
+    ],
+    [
+     12.54,
+     6.2
+    ],
+    [
+     18.48,
+     9
+    ],
+    [
+     25.124,
+     11.9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Need 8 times the capacity of one machine."
+    ],
+    [
+     4.84,
+     12.29,
+     "One big machine costs about 4 times more."
+    ],
+    [
+     12.54,
+     18.23,
+     "One dies: nothing left, or 88% left."
+    ],
+    [
+     18.48,
+     23.77,
+     "Only scale out reaches 40x, but must coordinate."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bbe5c66ef2561361.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/7bba0a2d4849f81e.wav",
+     "at": 4.84,
+     "len": 7.2
+    },
+    {
+     "file": "videos/audio/clips/394645dfb4009d36.wav",
+     "at": 12.54,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/2388f1822d00f90b.wav",
+     "at": 18.48,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 25.194,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.75
+    ],
+    [
+     6.84,
+     3.95
+    ],
+    [
+     13.1,
+     6.3
+    ],
+    [
+     17.84,
+     8.35
+    ],
+    [
+     21.3,
+     10.5
+    ],
+    [
+     25.194,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "Easy to run, understand and change."
+    ],
+    [
+     6.84,
+     12.85,
+     "Every service uses every database."
+    ],
+    [
+     13.1,
+     17.59,
+     "Swap a database: edit all five."
+    ],
+    [
+     17.84,
+     21.05,
+     "A layer in between: 9 connections."
+    ],
+    [
+     21.3,
+     23.71,
+     "Now only the layer changes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/69b59cab7561725b.wav",
+     "at": 0.5,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/c5586be8d853204f.wav",
+     "at": 6.84,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/358ae255f1085a62.wav",
+     "at": 13.1,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/a290fbe9f1a38c2a.wav",
+     "at": 17.84,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/4dd5e4873730300c.wav",
+     "at": 21.3,
+     "len": 2.16
+    }
+   ]
+  },
+  {
+   "dur": 13.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.68,
+     2
+    ],
+    [
+     8.06,
+     3.1
+    ],
+    [
+     13.328,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8cdcfab0b820e283.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/434405ff97edd2fe.wav",
+     "at": 4.68,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/986fe31bfb6b1710.wav",
+     "at": 8.06,
+     "len": 3.68
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,713 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 10.96,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     10.96,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.23,
+     "Lecture two. Why evolutionary algorithms. This is about optimisation, and problems too hard to solve exactly."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0aa706a2c1b1a571.wav",
+     "at": 0.5,
+     "len": 8.48
+    }
+   ]
+  },
+  {
+   "dur": 31.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.3
+    ],
+    [
+     5.64,
+     2.6
+    ],
+    [
+     11.74,
+     5
+    ],
+    [
+     17.6,
+     8
+    ],
+    [
+     23.86,
+     9.9
+    ],
+    [
+     31.672,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "Three items. Aim for 100 kg in total."
+    ],
+    [
+     5.64,
+     11.49,
+     "Bits: 1 takes an item, 0 leaves it."
+    ],
+    [
+     11.74,
+     17.35,
+     "Fitness f(s): how far from 100 kg. Smaller is better."
+    ],
+    [
+     17.6,
+     23.61,
+     "Exhaustive search: try every subset."
+    ],
+    [
+     23.86,
+     30.91,
+     "Try all 8: 110 is the best, with f = 5."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/158690ed35a6b53b.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/a59c2edd043e783a.wav",
+     "at": 5.64,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/0437808490f53cab.wav",
+     "at": 11.74,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/129563e8c0203df5.wav",
+     "at": 17.6,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/c85133559f90417d.wav",
+     "at": 23.86,
+     "len": 6.8
+    }
+   ]
+  },
+  {
+   "dur": 21.78,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.3
+    ],
+    [
+     4.44,
+     2.6
+    ],
+    [
+     7.66,
+     6.3
+    ],
+    [
+     14.16,
+     8.7
+    ],
+    [
+     21.78,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "3 items make 8 possible solutions."
+    ],
+    [
+     4.44,
+     7.41,
+     "Each extra item doubles the count."
+    ],
+    [
+     7.66,
+     13.91,
+     "A real water network: 21 pipes, 16 sizes each."
+    ],
+    [
+     14.16,
+     20.73,
+     "Trying every design takes 600 million years."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8f9ad64a7d108208.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/9ac99722cc2033b5.wav",
+     "at": 4.44,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/f4770076ea107db8.wav",
+     "at": 7.66,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/75d566065ba68cfd.wav",
+     "at": 14.16,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 28.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.4,
+     3.2
+    ],
+    [
+     13.9,
+     6.6
+    ],
+    [
+     20.8,
+     8.4
+    ],
+    [
+     28.328,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "A tiny exponential against a polynomial."
+    ],
+    [
+     7.4,
+     13.65,
+     "At n = 44 the exponential overtakes."
+    ],
+    [
+     13.9,
+     20.55,
+     "Now a real run, with a bigger exponential."
+    ],
+    [
+     20.8,
+     27.69,
+     "Microseconds for a polynomial, years for an exponential."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/95a9a3845dee0ebf.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/31421d3b1230ece7.wav",
+     "at": 7.4,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/f7eddeb92dfb9c08.wav",
+     "at": 13.9,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/8378f7ad7aee674b.wav",
+     "at": 20.8,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 24.892,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.3
+    ],
+    [
+     7.4,
+     2.2
+    ],
+    [
+     11.98,
+     5.4
+    ],
+    [
+     16.64,
+     9.2
+    ],
+    [
+     24.892,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "Connect all 5 towns as cheaply as possible."
+    ],
+    [
+     7.4,
+     11.73,
+     "Prim: take the cheapest cable to a new town."
+    ],
+    [
+     11.98,
+     16.39,
+     "Keep adding the cheapest cable. No loops."
+    ],
+    [
+     16.64,
+     22.73,
+     "Fast and always optimal: an easy problem."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/58fc7e6bbac9889f.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/90eb5e28f598ea7a.wav",
+     "at": 7.4,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/866b6418db4b3876.wav",
+     "at": 11.98,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/3a2088aa32678808.wav",
+     "at": 16.64,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 33.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.3
+    ],
+    [
+     5.64,
+     1.6
+    ],
+    [
+     11.82,
+     3
+    ],
+    [
+     16.4,
+     5.6
+    ],
+    [
+     22.26,
+     9.2
+    ],
+    [
+     33.321,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "New rule: at most 2 cables per town."
+    ],
+    [
+     5.64,
+     11.57,
+     "But the best tree has 3 cables at C."
+    ],
+    [
+     11.82,
+     16.15,
+     "Run the same greedy method again."
+    ],
+    [
+     16.4,
+     22.01,
+     "An early cheap choice blocks cheaper ones later."
+    ],
+    [
+     22.26,
+     31.71,
+     "Greedy gets 20, but a tree costing 19 exists."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8433108109fb6d77.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/3fde244b4a124c48.wav",
+     "at": 5.64,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/c8e9351f94e17b4a.wav",
+     "at": 11.82,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/0f9ef9b40bb71748.wav",
+     "at": 16.4,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/e66195207f327a52.wav",
+     "at": 22.26,
+     "len": 9.2
+    }
+   ]
+  },
+  {
+   "dur": 30.023,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.28,
+     2.8
+    ],
+    [
+     12.38,
+     4.4
+    ],
+    [
+     16.88,
+     6.2
+    ],
+    [
+     22.26,
+     10.2
+    ],
+    [
+     30.023,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.03,
+     "Nearest neighbour: an instant, decent tour."
+    ],
+    [
+     6.28,
+     12.13,
+     "The EA starts from random tangles."
+    ],
+    [
+     12.38,
+     16.63,
+     "It keeps improving its best tour."
+    ],
+    [
+     16.88,
+     22.01,
+     "Given time, it overtakes the quick method."
+    ],
+    [
+     22.26,
+     28.35,
+     "Approximate: good answers, no guarantee."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c9dc2c1ce1526398.wav",
+     "at": 0.5,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/7e56f73082c3282f.wav",
+     "at": 6.28,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/8a7606e00ad68a77.wav",
+     "at": 12.38,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/eb77b5c5800644af.wav",
+     "at": 16.88,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/82c7ba596ab2d4b5.wav",
+     "at": 22.26,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 23.429,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.64,
+     2.4
+    ],
+    [
+     14.14,
+     5
+    ],
+    [
+     19.12,
+     8.6
+    ],
+    [
+     23.429,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "A population: 10 solutions, each with a fitness."
+    ],
+    [
+     7.64,
+     13.89,
+     "Select: fitter ones are more likely, not only the best."
+    ],
+    [
+     14.14,
+     18.87,
+     "Vary: children can be better or worse."
+    ],
+    [
+     19.12,
+     22.41,
+     "Next: who stays?"
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1e60100166230dc6.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/e939846d23810129.wav",
+     "at": 7.64,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/0e11e694848fdc96.wav",
+     "at": 14.14,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/e5fb2bc804170b5f.wav",
+     "at": 19.12,
+     "len": 3.04
+    }
+   ]
+  },
+  {
+   "dur": 25.101,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     5.8,
+     4.2
+    ],
+    [
+     12.94,
+     8.7
+    ],
+    [
+     20.56,
+     10.5
+    ],
+    [
+     25.101,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "Replace everyone: the old best can be lost."
+    ],
+    [
+     5.8,
+     12.69,
+     "Merge, keep the best 10: the best survives."
+    ],
+    [
+     12.94,
+     20.31,
+     "Replace the weakest: the best survives too."
+    ],
+    [
+     20.56,
+     23.85,
+     "Then repeat the loop."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2e006cb1c77a7cf3.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/0e4160f3eda8ede8.wav",
+     "at": 5.8,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/1a0855da56bf780f.wav",
+     "at": 12.94,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/689ce7d5bf3eb283.wav",
+     "at": 20.56,
+     "len": 3.04
+    }
+   ]
+  },
+  {
+   "dur": 16.881,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.2,
+     2.1
+    ],
+    [
+     7.9,
+     3.3
+    ],
+    [
+     16.881,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4e55dc699fbdc6d0.wav",
+     "at": 0.5,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/d86c56de8e65d8c8.wav",
+     "at": 4.2,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/c5f026a21b1a3ab2.wav",
+     "at": 7.9,
+     "len": 6.64
+    }
+   ]
+  }
+ ]
+}

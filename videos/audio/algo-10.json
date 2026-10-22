@@ -1,0 +1,982 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "Phase ten. Transformers and attention. This is how A I learned to pay attention."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/61a8717a5c8ca377.wav",
+     "at": 0.5,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 30.024,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.36,
+     2.5
+    ],
+    [
+     7.98,
+     4.6
+    ],
+    [
+     13.04,
+     6.5
+    ],
+    [
+     16.5,
+     8.5
+    ],
+    [
+     20.04,
+     10.1
+    ],
+    [
+     24.14,
+     12.1
+    ],
+    [
+     30.024,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.11,
+     "Text is cut into tokens."
+    ],
+    [
+     4.36,
+     7.73,
+     "Each token becomes a list of numbers."
+    ],
+    [
+     7.98,
+     12.79,
+     "The two banks get exactly the same numbers."
+    ],
+    [
+     13.04,
+     16.25,
+     "Nothing says which one came first."
+    ],
+    [
+     16.5,
+     19.79,
+     "Add a position pattern to every token."
+    ],
+    [
+     20.04,
+     23.89,
+     "Add them up, number by number."
+    ],
+    [
+     24.14,
+     28.07,
+     "Now the two banks are different."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/79f328f5d5fe5edd.wav",
+     "at": 0.5,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/0ea0511578dcaf62.wav",
+     "at": 4.36,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/44e23bf93f5cf78e.wav",
+     "at": 7.98,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/42e527d843283d99.wav",
+     "at": 13.04,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/3ffca03e8edfd05f.wav",
+     "at": 16.5,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/f894c3a57a8c3a6d.wav",
+     "at": 20.04,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/862154f933e216ee.wav",
+     "at": 24.14,
+     "len": 3.68
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     4.92,
+     2.9
+    ],
+    [
+     9.98,
+     5.5
+    ],
+    [
+     14.08,
+     7.7
+    ],
+    [
+     18.02,
+     9.9
+    ],
+    [
+     21.664,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "Imagine three words, each with a score."
+    ],
+    [
+     4.92,
+     9.73,
+     "Stretch the scores: the biggest grows most."
+    ],
+    [
+     9.98,
+     13.83,
+     "Divide by the total: the shares add to 1."
+    ],
+    [
+     14.08,
+     17.77,
+     "Bigger gaps give a sharper share-out."
+    ],
+    [
+     18.02,
+     21.07,
+     "Attention will use these shares."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7312925a449b8266.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/a05f2e6357184d0e.wav",
+     "at": 4.92,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/103fa8deb2e395b5.wav",
+     "at": 9.98,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/2c45441ebe6e7ef8.wav",
+     "at": 14.08,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/0bc4ae48a97292ce.wav",
+     "at": 18.02,
+     "len": 2.8
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     4.01,
+     2.8
+    ],
+    [
+     8.27,
+     5
+    ],
+    [
+     12.77,
+     7.2
+    ],
+    [
+     16.31,
+     9.6
+    ],
+    [
+     23.336,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     3.76,
+     "Which noun does “it” stand for?"
+    ],
+    [
+     4.01,
+     8.02,
+     "It looks at every word, itself included."
+    ],
+    [
+     8.27,
+     12.52,
+     "But some words matter more than others."
+    ],
+    [
+     12.77,
+     16.06,
+     "Its new meaning leans on “robot”."
+    ],
+    [
+     16.31,
+     22.24,
+     "Every word does this, all at the same time."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8a8f8f822f1ec876.wav",
+     "at": 0.55,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/e372ab96dd6f375b.wav",
+     "at": 4.01,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/b771dc3cfb360ec1.wav",
+     "at": 8.27,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/321e5db58558b875.wav",
+     "at": 12.77,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/9140df19a1f1ec9f.wav",
+     "at": 16.31,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.36,
+     2.6
+    ],
+    [
+     7.58,
+     4.5
+    ],
+    [
+     12,
+     6.4
+    ],
+    [
+     16.82,
+     8.3
+    ],
+    [
+     20.52,
+     10.1
+    ],
+    [
+     24.86,
+     11.9
+    ],
+    [
+     30,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.11,
+     "Query: what I am looking for."
+    ],
+    [
+     4.36,
+     7.33,
+     "Key: what I have to offer."
+    ],
+    [
+     7.58,
+     11.75,
+     "Compare the query of “barked” to each key."
+    ],
+    [
+     12,
+     16.57,
+     "Multiply the pairs, then add them up."
+    ],
+    [
+     16.82,
+     20.27,
+     "“dog” matches best: a score of 3."
+    ],
+    [
+     20.52,
+     24.61,
+     "Divide by 1.41 to keep scores small."
+    ],
+    [
+     24.86,
+     28.63,
+     "Softmax turns them into shares."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0a3af36996ea293e.wav",
+     "at": 0.5,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/1a9838d74aedd7d3.wav",
+     "at": 4.36,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/3ecb85c00e2cf12b.wav",
+     "at": 7.58,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/906fc2a3ed67a7cc.wav",
+     "at": 12,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/c415d4e1a7c77239.wav",
+     "at": 16.82,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/2050c26462b30ad1.wav",
+     "at": 20.52,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/3cd4d286ad1bb879.wav",
+     "at": 24.86,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 23.313,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.76,
+     3.3
+    ],
+    [
+     9.34,
+     5.6
+    ],
+    [
+     14.16,
+     7.8
+    ],
+    [
+     17.86,
+     10
+    ],
+    [
+     23.313,
+     12.3
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "Each word also carries a value: its content."
+    ],
+    [
+     4.76,
+     9.09,
+     "Scale each value by its share."
+    ],
+    [
+     9.34,
+     13.91,
+     "Add them up: new numbers for “barked”."
+    ],
+    [
+     14.16,
+     17.61,
+     "Do it for every word at once."
+    ],
+    [
+     17.86,
+     21.87,
+     "One new set of numbers per word."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ee6d0541a92f029d.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/c448cfbff4c2bd06.wav",
+     "at": 4.76,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/948b8277963ff7a7.wav",
+     "at": 9.34,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/84f3eff92ea040cb.wav",
+     "at": 14.16,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/74c34ec17e750a01.wav",
+     "at": 17.86,
+     "len": 3.76
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.605,
+     1.1
+    ],
+    [
+     6.785,
+     3.3
+    ],
+    [
+     9.445,
+     5.1
+    ],
+    [
+     12.665,
+     6.9
+    ],
+    [
+     16.765,
+     9.1
+    ],
+    [
+     20.945,
+     11.2
+    ],
+    [
+     26.68,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.61,
+     6.54,
+     "Each head has its own query, key and value."
+    ],
+    [
+     6.79,
+     9.2,
+     "One head learns what “it” means."
+    ],
+    [
+     9.45,
+     12.42,
+     "Another looks at the word before."
+    ],
+    [
+     12.67,
+     16.52,
+     "Others learn who acts and what is acted on."
+    ],
+    [
+     16.77,
+     20.7,
+     "Each head hands back 16 numbers per word."
+    ],
+    [
+     20.95,
+     24.64,
+     "Glued together, they make 64 numbers."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6acfc84ea8d2ee07.wav",
+     "at": 0.605,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/a51ead867e74dd79.wav",
+     "at": 6.785,
+     "len": 2.16
+    },
+    {
+     "file": "videos/audio/clips/fb3efe5386b2fce3.wav",
+     "at": 9.445,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/ef509407529e732a.wav",
+     "at": 12.665,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/f7af78bee0254007.wav",
+     "at": 16.765,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/37321462eed8361d.wav",
+     "at": 20.945,
+     "len": 3.44
+    }
+   ]
+  },
+  {
+   "dur": 26.679,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.68,
+     2.6
+    ],
+    [
+     8.54,
+     4.6
+    ],
+    [
+     12.4,
+     6.5
+    ],
+    [
+     17.38,
+     9.1
+    ],
+    [
+     21.4,
+     11.4
+    ],
+    [
+     26.679,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Two parts, each with Add & Norm."
+    ],
+    [
+     4.68,
+     8.29,
+     "Attention lets the words share information."
+    ],
+    [
+     8.54,
+     12.15,
+     "A skip path adds output to input."
+    ],
+    [
+     12.4,
+     17.13,
+     "Norm re-centres the numbers around zero."
+    ],
+    [
+     17.38,
+     21.15,
+     "The same network treats each word alone."
+    ],
+    [
+     21.4,
+     25.73,
+     "Same shape in and out, so layers stack."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7be48cd70a7c2137.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/124f205d464f34c6.wav",
+     "at": 4.68,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/7809de1f6aad6eee.wav",
+     "at": 8.54,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/0c48ae783d76fd92.wav",
+     "at": 12.4,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/2bbac428f29696ba.wav",
+     "at": 17.38,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/e4e816404629b88f.wav",
+     "at": 21.4,
+     "len": 4.08
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.92,
+     2.1
+    ],
+    [
+     8.14,
+     3.9
+    ],
+    [
+     11.04,
+     5.5
+    ],
+    [
+     14.5,
+     6.9
+    ],
+    [
+     19.08,
+     8.7
+    ],
+    [
+     25.34,
+     12.95
+    ],
+    [
+     30,
+     14.4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "Translating starts from a start token."
+    ],
+    [
+     4.92,
+     7.89,
+     "Every possible next word gets a share."
+    ],
+    [
+     8.14,
+     10.79,
+     "The likeliest word is written down."
+    ],
+    [
+     11.04,
+     14.25,
+     "Then it asks again."
+    ],
+    [
+     14.5,
+     18.83,
+     "Masked attention: no peeking at later words."
+    ],
+    [
+     19.08,
+     25.09,
+     "Append the word, then go round again."
+    ],
+    [
+     25.34,
+     28.63,
+     "The end token stops the loop."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b65488f020d67329.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/8b41fc198835a391.wav",
+     "at": 4.92,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/0377efe3c98ae728.wav",
+     "at": 8.14,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/68265a9df6bdf4f2.wav",
+     "at": 11.04,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/3cc4e6fc1cea3270.wav",
+     "at": 14.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f6cf94cea01e2b62.wav",
+     "at": 19.08,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/8d22110ccd5f7218.wav",
+     "at": 25.34,
+     "len": 3.04
+    }
+   ]
+  },
+  {
+   "dur": 27.075,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.96,
+     3
+    ],
+    [
+     10.54,
+     5
+    ],
+    [
+     16.24,
+     7.8
+    ],
+    [
+     20.98,
+     10.1
+    ],
+    [
+     27.075,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "A picture can be cut into patches."
+    ],
+    [
+     5.96,
+     10.29,
+     "Each patch is a token: 196 in all."
+    ],
+    [
+     10.54,
+     15.99,
+     "Every token scores every token: 196 × 196."
+    ],
+    [
+     16.24,
+     20.73,
+     "Half-size patches: four times the tokens."
+    ],
+    [
+     20.98,
+     25.95,
+     "But sixteen times the scores."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4c21cb24203e70f1.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/269829e1bc9fb732.wav",
+     "at": 5.96,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/078f64e00ba302ff.wav",
+     "at": 10.54,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/d344b530fbea6b15.wav",
+     "at": 16.24,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/a88eb92bde67edc1.wav",
+     "at": 20.98,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 11.656,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     3.8,
+     2
+    ],
+    [
+     7.5,
+     3.1
+    ],
+    [
+     11.656,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d219411e00d972d4.wav",
+     "at": 0.5,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/78802b0da4ac00ec.wav",
+     "at": 3.8,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/152aa59696c94fb1.wav",
+     "at": 7.5,
+     "len": 3.12
+    }
+   ]
+  }
+ ]
+}

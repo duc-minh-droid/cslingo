@@ -1,0 +1,842 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.79,
+     "Lecture six. Consistency and consensus. This is what it costs to make many machines agree."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b31ed63db4eea51d.wav",
+     "at": 0.5,
+     "len": 7.04
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     6.44,
+     3.5
+    ],
+    [
+     10.46,
+     5.9
+    ],
+    [
+     13.28,
+     8.1
+    ],
+    [
+     16.672,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "A node can crash."
+    ],
+    [
+     6.44,
+     10.21,
+     "A message can get lost."
+    ],
+    [
+     10.46,
+     13.03,
+     "A reply can arrive late."
+    ],
+    [
+     13.28,
+     15.61,
+     "The network can split in two."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/290b35215ea44802.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/de407dd9ecb902c5.wav",
+     "at": 6.44,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/6eb23d881e12edf8.wav",
+     "at": 10.46,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/fd25ea425b0836cd.wav",
+     "at": 13.28,
+     "len": 2.08
+    }
+   ]
+  },
+  {
+   "dur": 28.351,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.84,
+     2.9
+    ],
+    [
+     9.66,
+     5
+    ],
+    [
+     15.36,
+     7.2
+    ],
+    [
+     18.18,
+     9.2
+    ],
+    [
+     22.76,
+     11.4
+    ],
+    [
+     28.351,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Two copies hold the tickets left."
+    ],
+    [
+     4.84,
+     9.41,
+     "The link between them is cut."
+    ],
+    [
+     9.66,
+     15.11,
+     "A sale reaches only one copy."
+    ],
+    [
+     15.36,
+     17.93,
+     "Node B is asked to read."
+    ],
+    [
+     18.18,
+     22.51,
+     "Refuse: right, but not available."
+    ],
+    [
+     22.76,
+     27.41,
+     "Answer: available, but stale."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/afad83ad80e76c14.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/87c1522f76dbc3fd.wav",
+     "at": 4.84,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/a6dc3e4906c0fc72.wav",
+     "at": 9.66,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/06f90de49c86ed93.wav",
+     "at": 15.36,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/adf0b66cf5a2fc0c.wav",
+     "at": 18.18,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/beb7efdbe30f11c2.wav",
+     "at": 22.76,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.56,
+     3
+    ],
+    [
+     11.42,
+     5
+    ],
+    [
+     16.8,
+     7.7
+    ],
+    [
+     20.66,
+     9.8
+    ],
+    [
+     26.657,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Moving £30 is two writes."
+    ],
+    [
+     7.56,
+     11.17,
+     "A crash hits after the debit."
+    ],
+    [
+     11.42,
+     16.55,
+     "£30 has vanished."
+    ],
+    [
+     16.8,
+     20.41,
+     "One transaction undoes the debit."
+    ],
+    [
+     20.66,
+     25.23,
+     "All or nothing: the total stays £150."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e25a32be4cb85986.wav",
+     "at": 0.5,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/43f23d92a7036681.wav",
+     "at": 7.56,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/8b3a0b5d944569c4.wav",
+     "at": 11.42,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/40b626c0bb346bc4.wav",
+     "at": 16.8,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/fc54f54e0558c21e.wav",
+     "at": 20.66,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 23.545,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.16,
+     1.9
+    ],
+    [
+     8.62,
+     3.5
+    ],
+    [
+     12.56,
+     7.3
+    ],
+    [
+     16.26,
+     8.8
+    ],
+    [
+     23.545,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "Two shoppers pay £30."
+    ],
+    [
+     5.16,
+     8.37,
+     "Both read £100 first."
+    ],
+    [
+     8.62,
+     12.31,
+     "Both write £70: one is lost."
+    ],
+    [
+     12.56,
+     16.01,
+     "One at a time gives £40."
+    ],
+    [
+     16.26,
+     22.11,
+     "ACID: atomic, consistent, isolated, durable."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d7dd680fd3fecee7.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/f9d1b1cbf0d1c9ff.wav",
+     "at": 5.16,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/b04277aa6d97787c.wav",
+     "at": 8.62,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/a7c6a4fe4ef08f4c.wav",
+     "at": 12.56,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/694d95de865e550a.wav",
+     "at": 16.26,
+     "len": 5.6
+    }
+   ]
+  },
+  {
+   "dur": 18.112,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.04,
+     2.4
+    ],
+    [
+     7.74,
+     5
+    ],
+    [
+     13.04,
+     6.9
+    ],
+    [
+     18.112,
+     10.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.79,
+     "The write lands on one copy."
+    ],
+    [
+     4.04,
+     7.49,
+     "The others hear later."
+    ],
+    [
+     7.74,
+     12.79,
+     "A read now can be stale."
+    ],
+    [
+     13.04,
+     17.53,
+     "Soon every copy agrees."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bedc06bfcdf53d57.wav",
+     "at": 0.5,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/a8e13fe6fac3cdcd.wav",
+     "at": 4.04,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/46d88b52963f8910.wav",
+     "at": 7.74,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/0d0fe174a2dcbcde.wav",
+     "at": 13.04,
+     "len": 4.24
+    }
+   ]
+  },
+  {
+   "dur": 24.891,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.04,
+     3
+    ],
+    [
+     10.62,
+     6.1
+    ],
+    [
+     15.2,
+     9.2
+    ],
+    [
+     19.3,
+     11.3
+    ],
+    [
+     24.891,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.79,
+     "Many copies should act like one."
+    ],
+    [
+     4.04,
+     10.37,
+     "Each bar is one operation in time."
+    ],
+    [
+     10.62,
+     14.95,
+     "One flip explains every read."
+    ],
+    [
+     15.2,
+     19.05,
+     "Now B reads 0 after A read 1."
+    ],
+    [
+     19.3,
+     24.03,
+     "No flip fits: not linearizable."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8b8ed0ffa785e34f.wav",
+     "at": 0.5,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/591313db9b6c3883.wav",
+     "at": 4.04,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/043a2a7a78f6492c.wav",
+     "at": 10.62,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/64d4ff270ef8598d.wav",
+     "at": 15.2,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/26997da7109d5d9a.wav",
+     "at": 19.3,
+     "len": 4.48
+    }
+   ]
+  },
+  {
+   "dur": 26.796,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5,
+     2.6
+    ],
+    [
+     9.82,
+     4.8
+    ],
+    [
+     14.32,
+     6.9
+    ],
+    [
+     19.3,
+     10
+    ],
+    [
+     26.796,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.75,
+     "Two sites sell seat 14C."
+    ],
+    [
+     5,
+     9.57,
+     "Each books its own customer."
+    ],
+    [
+     9.82,
+     14.07,
+     "Neither knew: sold twice."
+    ],
+    [
+     14.32,
+     19.05,
+     "So Leeds must ask London first."
+    ],
+    [
+     19.3,
+     25.31,
+     "Asking costs 62 ms, not 2 ms."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cd2b4aca93da8285.wav",
+     "at": 0.5,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/929dbc8b0454ed1a.wav",
+     "at": 5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/cf9c3b3a19f3f315.wav",
+     "at": 9.82,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/911bac0c45ac879a.wav",
+     "at": 14.32,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/2f3f7bcace31d114.wav",
+     "at": 19.3,
+     "len": 5.76
+    }
+   ]
+  },
+  {
+   "dur": 18.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.56,
+     2.8
+    ],
+    [
+     9.02,
+     5
+    ],
+    [
+     13.52,
+     7.4
+    ],
+    [
+     18.321,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.31,
+     "Several databases must agree."
+    ],
+    [
+     5.56,
+     8.77,
+     "It just sends commit to all."
+    ],
+    [
+     9.02,
+     13.27,
+     "One conflicts, one never hears."
+    ],
+    [
+     13.52,
+     16.89,
+     "Now the databases disagree."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ff2a18b216509f37.wav",
+     "at": 0.5,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/71217972566c0c0d.wav",
+     "at": 5.56,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/21a50d7e30bf05e3.wav",
+     "at": 9.02,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/3d7c0d9f5de7389d.wav",
+     "at": 13.52,
+     "len": 3.12
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.72,
+     2.8
+    ],
+    [
+     9.58,
+     5
+    ],
+    [
+     14.08,
+     7.3
+    ],
+    [
+     16.98,
+     9.8
+    ],
+    [
+     21.664,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "First, ask every database."
+    ],
+    [
+     5.72,
+     9.33,
+     "Each votes, and holds its locks."
+    ],
+    [
+     9.58,
+     13.83,
+     "Any no means abort for all."
+    ],
+    [
+     14.08,
+     16.73,
+     "All three abort and unlock."
+    ],
+    [
+     16.98,
+     19.95,
+     "If all vote yes, all commit."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/87d8513aa10735e2.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/91747e85730e8f7d.wav",
+     "at": 5.72,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/6f2d2c96a03eb080.wav",
+     "at": 9.58,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/43bb5dfc665fe6b4.wav",
+     "at": 14.08,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/ed727631775b2efb.wav",
+     "at": 16.98,
+     "len": 2.72
+    }
+   ]
+  },
+  {
+   "dur": 16.881,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.04,
+     2
+    ],
+    [
+     10.54,
+     3.1
+    ],
+    [
+     16.881,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b62ad934dbe3fde7.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/4fb0da1ad3528d74.wav",
+     "at": 6.04,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/6bd947c657987ff9.wav",
+     "at": 10.54,
+     "len": 4.24
+    }
+   ]
+  }
+ ]
+}

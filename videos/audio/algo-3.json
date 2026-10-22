@@ -1,0 +1,769 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.87,
+     "Algorithms, phase three. Optimisation. This is how factories and AI find the best plan."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3014116157ea7b5d.wav",
+     "at": 0.5,
+     "len": 7.12
+    }
+   ]
+  },
+  {
+   "dur": 28.352,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.96,
+     2.2
+    ],
+    [
+     11.1,
+     5.4
+    ],
+    [
+     15.12,
+     7.4
+    ],
+    [
+     20.98,
+     10.6
+    ],
+    [
+     28.352,
+     17
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "Choose x of product X and y of product Y."
+    ],
+    [
+     5.96,
+     10.85,
+     "Each rule cuts the plane in half."
+    ],
+    [
+     11.1,
+     14.87,
+     "The overlap is the feasible region."
+    ],
+    [
+     15.12,
+     20.73,
+     "Plug a plan into every rule. Pass all: legal."
+    ],
+    [
+     20.98,
+     27.63,
+     "Break even one rule and it is not allowed."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a6966ad67c0e1ec2.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/204b4a4c1f9ec7de.wav",
+     "at": 5.96,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/7220a2520438c4a1.wav",
+     "at": 11.1,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/4abba78465072696.wav",
+     "at": 15.12,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/76b674ae67e66982.wav",
+     "at": 20.98,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 19.992,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     2.6
+    ],
+    [
+     9.26,
+     4.4
+    ],
+    [
+     13.84,
+     7.4
+    ],
+    [
+     19.992,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "Each plan earns a score: z = 3x + 2y."
+    ],
+    [
+     5.8,
+     9.01,
+     "Every point on this line scores the same."
+    ],
+    [
+     9.26,
+     13.59,
+     "Slide the profit line outwards until it leaves."
+    ],
+    [
+     13.84,
+     17.93,
+     "It leaves at a corner, so check only the corners."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/00a4909631588538.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/1e326b05e7e1cdb2.wav",
+     "at": 5.8,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/8f0ac4a21c63d187.wav",
+     "at": 9.26,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f6b3e09bf2d2c91d.wav",
+     "at": 13.84,
+     "len": 3.84
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     3.6
+    ],
+    [
+     11.42,
+     6.6
+    ],
+    [
+     15.52,
+     9
+    ],
+    [
+     23.06,
+     11.8
+    ],
+    [
+     30,
+     16
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Start at a corner. Which direction gains most?"
+    ],
+    [
+     4.84,
+     11.17,
+     "Walk until the nearest rule blocks the way."
+    ],
+    [
+     11.42,
+     15.27,
+     "Repeat. s = what a rule has left over."
+    ],
+    [
+     15.52,
+     22.81,
+     "Leftovers cost profit, so only y gains."
+    ],
+    [
+     23.06,
+     28.43,
+     "No direction gains: the corner is optimal."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f3505f99cfe5e54d.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/24d46a660bae1200.wav",
+     "at": 4.84,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/618050644918b34a.wav",
+     "at": 11.42,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/cb2af2b4e6df161d.wav",
+     "at": 15.52,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/904be958fbc53416.wav",
+     "at": 23.06,
+     "len": 5.12
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     2.7
+    ],
+    [
+     10.78,
+     4.6
+    ],
+    [
+     15.76,
+     7.2
+    ],
+    [
+     19.14,
+     10
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "New problem: one number. Find the lowest point."
+    ],
+    [
+     5.4,
+     10.53,
+     "Falling, then rising: a minimum is trapped."
+    ],
+    [
+     10.78,
+     15.51,
+     "Bisection: test the middle. Still falling?"
+    ],
+    [
+     15.76,
+     18.89,
+     "Keep the half where the slope flips."
+    ],
+    [
+     19.14,
+     23.55,
+     "Each step halves the bracket."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cac21f1c6b86f3b3.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/7bff8dc0327fd321.wav",
+     "at": 5.4,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/de2b3221adf66652.wav",
+     "at": 10.78,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b4f4599fa5030327.wav",
+     "at": 15.76,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/67a2ad8cea6a10a5.wav",
+     "at": 19.14,
+     "len": 4.16
+    }
+   ]
+  },
+  {
+   "dur": 23.313,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.64,
+     3.4
+    ],
+    [
+     10.78,
+     5.3
+    ],
+    [
+     16.24,
+     7.3
+    ],
+    [
+     23.313,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "Golden section: no slope, three heights trap it."
+    ],
+    [
+     5.64,
+     10.53,
+     "One probe a step: the lowest stays in the middle."
+    ],
+    [
+     10.78,
+     15.99,
+     "Old probes are reused, so each cut costs one test."
+    ],
+    [
+     16.24,
+     21.69,
+     "Each step keeps 0.618 of the bracket."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f907398341abfb85.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/bfc70182a5a5320b.wav",
+     "at": 5.64,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/ac2001fafd537428.wav",
+     "at": 10.78,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/c29fa1807fb8c564.wav",
+     "at": 16.24,
+     "len": 5.2
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     2.5
+    ],
+    [
+     8.22,
+     5.8
+    ],
+    [
+     11.68,
+     8.6
+    ],
+    [
+     16.5,
+     12.4
+    ],
+    [
+     21.687,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Same curve: fit a parabola through three points."
+    ],
+    [
+     4.84,
+     7.97,
+     "Jump to the bottom of the parabola."
+    ],
+    [
+     8.22,
+     11.43,
+     "Repeat: the bracket collapses fast."
+    ],
+    [
+     11.68,
+     16.25,
+     "Jump not shrinking? Take a golden step instead."
+    ],
+    [
+     16.5,
+     21.15,
+     "Same 7 tests, a bracket 5 times tighter."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/180431356fb14e21.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/ede08e91bfeee70c.wav",
+     "at": 4.84,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/f8027dfbdb90faea.wav",
+     "at": 8.22,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/445f178822875f2c.wav",
+     "at": 11.68,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/0206d7946ccd1716.wav",
+     "at": 16.5,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.68,
+     2.6
+    ],
+    [
+     8.62,
+     4.6
+    ],
+    [
+     12,
+     7
+    ],
+    [
+     15.62,
+     9.9
+    ],
+    [
+     19.8,
+     13
+    ],
+    [
+     25.008,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Two numbers, no slopes: keep a triangle."
+    ],
+    [
+     4.68,
+     8.37,
+     "Flip the worst corner through the middle."
+    ],
+    [
+     8.62,
+     11.75,
+     "A great flip? Stretch even further."
+    ],
+    [
+     12,
+     15.37,
+     "Stretched too far? Keep the plain flip."
+    ],
+    [
+     15.62,
+     19.55,
+     "Flip overshoots? Pull the corner in instead."
+    ],
+    [
+     19.8,
+     24.37,
+     "If every try fails: shrink towards the best."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f2757a4f3b5e20f5.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/780acb025c6bd769.wav",
+     "at": 4.68,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/cce36a0140ccd582.wav",
+     "at": 8.62,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/095f6154c85459d9.wav",
+     "at": 12,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/28b25888c6732623.wav",
+     "at": 15.62,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/bfbd61fac22502ad.wav",
+     "at": 19.8,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 21.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     3
+    ],
+    [
+     8.38,
+     5.6
+    ],
+    [
+     12.24,
+     8.8
+    ],
+    [
+     15.94,
+     11.5
+    ],
+    [
+     21.757,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Real problems have curved valleys, not bowls."
+    ],
+    [
+     4.84,
+     8.13,
+     "Moves work? The triangle stretches."
+    ],
+    [
+     8.38,
+     11.99,
+     "More good moves: it stretches along the valley."
+    ],
+    [
+     12.24,
+     15.69,
+     "Near the end it squeezes to a tiny triangle."
+    ],
+    [
+     15.94,
+     20.91,
+     "No derivatives needed, just comparisons."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d02e60d7a1622f54.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/7d182bff6cfb2ae1.wav",
+     "at": 4.84,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/431155ecd8126380.wav",
+     "at": 8.38,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/e09d69bd1e3443a4.wav",
+     "at": 12.24,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/ce1c0224e54c37b9.wav",
+     "at": 15.94,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 13.236,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.84,
+     2
+    ],
+    [
+     7.98,
+     3.1
+    ],
+    [
+     13.236,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5bc62cc922cfd154.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/0116e80cc38ff9e8.wav",
+     "at": 4.84,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/5d872c18a4b8fa36.wav",
+     "at": 7.98,
+     "len": 3.2
+    }
+   ]
+  }
+ ]
+}

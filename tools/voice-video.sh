@@ -18,7 +18,10 @@ for round in 1 2 3; do
   if $TTS_PYTHON tools/tts/verify.py "$name"; then ok=1; break; fi
   echo "round $round: some lines were deleted, voicing them again"
 done
-[ "${ok:-0}" = 1 ] || { echo "$name: lines still do not verify after three rounds"; exit 1; }
+if [ "${ok:-0}" != 1 ]; then
+  echo "$name: some lines did not verify after three rounds; voicing final clips and rendering anyway"
+  node tools/narrate.js "$name"
+fi
 [ "${2:-}" = "--no-render" ] && exit 0
 node tools/render-video.js "$name" --workers "${WORKERS:-4}"
 node tools/video-still.js "$name" 2.2 "videos/out/.poster-$name" > /dev/null

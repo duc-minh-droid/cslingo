@@ -1,0 +1,912 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Phase nine. Fourier transform and the F F T. This is how every signal splits into waves."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4aeb0bb1c4c564a1.wav",
+     "at": 0.5,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     5.88,
+     3.7
+    ],
+    [
+     11.26,
+     6.3
+    ],
+    [
+     15.76,
+     8.4
+    ],
+    [
+     20.016,
+     10.5
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     5.63,
+     "Count the waves in one second."
+    ],
+    [
+     5.88,
+     11.01,
+     "Two waves added make one wiggle."
+    ],
+    [
+     11.26,
+     15.51,
+     "Each bar: which wave, and how strong."
+    ],
+    [
+     15.76,
+     19.29,
+     "One signal, two descriptions."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f7bb55a962a448a4.wav",
+     "at": 0.66,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/932c81e65a81c99c.wav",
+     "at": 5.88,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/94d2d2c7cecbeec2.wav",
+     "at": 11.26,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/0f1b9ef9a2a50601.wav",
+     "at": 15.76,
+     "len": 3.28
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     4.92,
+     2
+    ],
+    [
+     8.14,
+     3.4
+    ],
+    [
+     12.48,
+     5.2
+    ],
+    [
+     16.82,
+     6.9
+    ],
+    [
+     22.92,
+     9.5
+    ],
+    [
+     30,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "Target: a square wave."
+    ],
+    [
+     4.92,
+     7.89,
+     "Start with one sine wave."
+    ],
+    [
+     8.14,
+     12.23,
+     "Add a weaker wave, 3 times faster."
+    ],
+    [
+     12.48,
+     16.57,
+     "Then 5 times faster, weaker still."
+    ],
+    [
+     16.82,
+     22.67,
+     "Keep adding: the corners sharpen."
+    ],
+    [
+     22.92,
+     28.77,
+     "A square wave needs only odd waves."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d59c40ba6860b88a.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/7a39077f146280ee.wav",
+     "at": 4.92,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/8230067a6e7311c0.wav",
+     "at": 8.14,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/da6fbf6219d93b77.wav",
+     "at": 12.48,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/37a8ea9554b85be4.wav",
+     "at": 16.82,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/1ddc9ec8b28439c9.wav",
+     "at": 22.92,
+     "len": 5.6
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.36,
+     3.2
+    ],
+    [
+     8.46,
+     5
+    ],
+    [
+     13.6,
+     7.5
+    ],
+    [
+     20.02,
+     11.1
+    ],
+    [
+     22.76,
+     12.6
+    ],
+    [
+     30,
+     16
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.11,
+     "To find the bars, take 8 samples."
+    ],
+    [
+     4.36,
+     8.21,
+     "Each sample scales a spinning arrow."
+    ],
+    [
+     8.46,
+     13.35,
+     "Zero makes no arrow. Negative flips it."
+    ],
+    [
+     13.6,
+     19.77,
+     "Right speed: they all lean right and add."
+    ],
+    [
+     20.02,
+     22.51,
+     "Now spin twice instead."
+    ],
+    [
+     22.76,
+     27.89,
+     "The arrows loop back and cancel."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2e0a951424365c57.wav",
+     "at": 0.66,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/8404af47091af954.wav",
+     "at": 4.36,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/c9bd06871ab9e450.wav",
+     "at": 8.46,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/71cfb50ed9b7f35b.wav",
+     "at": 13.6,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/f9e125b11633140a.wav",
+     "at": 20.02,
+     "len": 2.24
+    },
+    {
+     "file": "videos/audio/clips/9beb92b59fba521e.wav",
+     "at": 22.76,
+     "len": 4.88
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.68,
+     3.2
+    ],
+    [
+     10.78,
+     6.6
+    ],
+    [
+     15.52,
+     8.3
+    ],
+    [
+     20.1,
+     10
+    ],
+    [
+     25.008,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.43,
+     "Run the test at every spin speed."
+    ],
+    [
+     4.68,
+     10.53,
+     "Each test reads all 8 samples."
+    ],
+    [
+     10.78,
+     15.27,
+     "Eight tests give eight bars."
+    ],
+    [
+     15.52,
+     19.85,
+     "That is 8 × 8 = 64 products."
+    ],
+    [
+     20.1,
+     24.03,
+     "A real wave gives a mirror pair."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3406f7fddbdbbc10.wav",
+     "at": 0.66,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/989d9df7a3b78928.wav",
+     "at": 4.68,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/65b45940644087d6.wav",
+     "at": 10.78,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/0b527669cac8231a.wav",
+     "at": 15.52,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f6fe4c242b74d954.wav",
+     "at": 20.1,
+     "len": 3.68
+    }
+   ]
+  },
+  {
+   "dur": 23.313,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.935,
+     1.7
+    ],
+    [
+     4.875,
+     3.4
+    ],
+    [
+     8.735,
+     5.7
+    ],
+    [
+     12.355,
+     7.5
+    ],
+    [
+     17.415,
+     9.9
+    ],
+    [
+     23.313,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.94,
+     4.63,
+     "Take 8 samples in one second."
+    ],
+    [
+     4.88,
+     8.48,
+     "The dots fit a 1 Hz wave too."
+    ],
+    [
+     8.73,
+     12.11,
+     "Half the sample rate is the limit."
+    ],
+    [
+     12.36,
+     17.16,
+     "So 7 Hz folds back onto 1 Hz."
+    ],
+    [
+     17.41,
+     22.7,
+     "Sample faster than twice the wave."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/20ab9094ad854926.wav",
+     "at": 0.935,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/d58084324acec9dd.wav",
+     "at": 4.875,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/699a88dffd9e6394.wav",
+     "at": 8.735,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/cc22b0732c449ca2.wav",
+     "at": 12.355,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/7e1d0821ae6db23f.wav",
+     "at": 17.415,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.825,
+     1.5
+    ],
+    [
+     5.085,
+     3
+    ],
+    [
+     8.945,
+     4.5
+    ],
+    [
+     12.885,
+     6.7
+    ],
+    [
+     19.065,
+     9.3
+    ],
+    [
+     25.008,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.83,
+     4.83,
+     "The DFT repeats the window."
+    ],
+    [
+     5.08,
+     8.7,
+     "Whole cycles join: one clean bar."
+    ],
+    [
+     8.95,
+     12.63,
+     "Half a cycle more: the ends do not meet."
+    ],
+    [
+     12.88,
+     18.81,
+     "The jump needs many frequencies: the bars leak."
+    ],
+    [
+     19.06,
+     24.19,
+     "A smooth fade at both ends shrinks the leak."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6245e3e315f72132.wav",
+     "at": 0.825,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/cc8a740776b782ef.wav",
+     "at": 5.085,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/1f95f9a46f67b261.wav",
+     "at": 8.945,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/335f091024e3c4f5.wav",
+     "at": 12.885,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/172a74f09518eb2d.wav",
+     "at": 19.065,
+     "len": 4.88
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     1.43,
+     2.6
+    ],
+    [
+     6.57,
+     4.2
+    ],
+    [
+     10.11,
+     6
+    ],
+    [
+     13.89,
+     8.4
+    ],
+    [
+     21.664,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     1.43,
+     6.32,
+     "The DFT turns the wiggle into bars."
+    ],
+    [
+     6.57,
+     9.86,
+     "The hum is one pair of bars."
+    ],
+    [
+     10.11,
+     13.64,
+     "Delete both bars."
+    ],
+    [
+     13.89,
+     20.46,
+     "Go back: the hum fades away."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3781ad9ca6a72e86.wav",
+     "at": 1.43,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/867f6b824051d98a.wav",
+     "at": 6.57,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/022c5334f172ea88.wav",
+     "at": 10.11,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/8bfd4034e53c9bfc.wav",
+     "at": 13.89,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 28.398,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.825,
+     1.5
+    ],
+    [
+     5.405,
+     3.3
+    ],
+    [
+     9.265,
+     5
+    ],
+    [
+     13.525,
+     6.9
+    ],
+    [
+     19.545,
+     9.2
+    ],
+    [
+     28.398,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.83,
+     5.16,
+     "A full DFT does all 64 products."
+    ],
+    [
+     5.41,
+     9.02,
+     "Split into even and odd samples."
+    ],
+    [
+     9.27,
+     13.28,
+     "Two half-size DFTs cost 16 each."
+    ],
+    [
+     13.53,
+     19.3,
+     "One butterfly: one product, two answers."
+    ],
+    [
+     19.55,
+     26.44,
+     "32 plus 4 is 36 products, not 64."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/06873daf38cbc1b3.wav",
+     "at": 0.825,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f71a6428a3de318d.wav",
+     "at": 5.405,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/dac5a0ef91e6eccd.wav",
+     "at": 9.265,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/e884b8e40ab71a69.wav",
+     "at": 13.525,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/6582a2218a7d66d8.wav",
+     "at": 19.545,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 37.036,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     5,
+     2.5
+    ],
+    [
+     9.66,
+     4.2
+    ],
+    [
+     14.96,
+     7
+    ],
+    [
+     18.82,
+     8.7
+    ],
+    [
+     23.64,
+     11.3
+    ],
+    [
+     28.06,
+     13.1
+    ],
+    [
+     32.08,
+     14.4
+    ],
+    [
+     37.036,
+     16.8
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.75,
+     "Each half is a DFT too: split again."
+    ],
+    [
+     5,
+     9.41,
+     "Down to single samples."
+    ],
+    [
+     9.66,
+     14.71,
+     "Butterflies combine pairs, level by level."
+    ],
+    [
+     14.96,
+     18.57,
+     "Three levels of four: 12 butterflies."
+    ],
+    [
+     18.82,
+     23.39,
+     "The same answer as the direct DFT."
+    ],
+    [
+     23.64,
+     27.81,
+     "Direct: 18 minutes for a million samples."
+    ],
+    [
+     28.06,
+     31.83,
+     "The FFT: 0.02 seconds."
+    ],
+    [
+     32.08,
+     35.29,
+     "About 50,000 times less work."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/03adb7222649987d.wav",
+     "at": 0.5,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/94292ad2fe7d545b.wav",
+     "at": 5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/d37bc83f68955544.wav",
+     "at": 9.66,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/d2ac50bddd207d80.wav",
+     "at": 14.96,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/662aa61e2afdfeda.wav",
+     "at": 18.82,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/75bda4c2165f738e.wav",
+     "at": 23.64,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/3a21bc789295243e.wav",
+     "at": 28.06,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/a360ff8f42540972.wav",
+     "at": 32.08,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 14.976,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.28,
+     2
+    ],
+    [
+     9.26,
+     3.1
+    ],
+    [
+     14.976,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6d2b1a2356587497.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/8f1adb1608ca31a1.wav",
+     "at": 4.28,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/96d61f543105bb05.wav",
+     "at": 9.26,
+     "len": 4.8
+    }
+   ]
+  }
+ ]
+}

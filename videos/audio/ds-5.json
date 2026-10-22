@@ -1,0 +1,744 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.47,
+     "Lecture five. Partitioning. This is how data that is too big for one node gets split across many."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9a20fcee1215275c.wav",
+     "at": 0.5,
+     "len": 6.72
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.16,
+     2.9
+    ],
+    [
+     8.94,
+     5.4
+    ],
+    [
+     14.64,
+     8.2
+    ],
+    [
+     20.016,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "12 orders; room for eight per node."
+    ],
+    [
+     5.16,
+     8.69,
+     "A full copy per node does not fit."
+    ],
+    [
+     8.94,
+     14.39,
+     "Split: each order lives in one partition."
+    ],
+    [
+     14.64,
+     19.45,
+     "Each partition is also copied to another node."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/045dd8c0b82fce4a.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/4b90ad6afeec0603.wav",
+     "at": 5.16,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/f2f89242b6b7c9f3.wav",
+     "at": 8.94,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/237423ad06f70040.wav",
+     "at": 14.64,
+     "len": 4.56
+    }
+   ]
+  },
+  {
+   "dur": 19.992,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     4.92,
+     3
+    ],
+    [
+     9.82,
+     6.6
+    ],
+    [
+     14.32,
+     9.4
+    ],
+    [
+     19.992,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "Each node owns a range of keys."
+    ],
+    [
+     4.92,
+     9.57,
+     "Okafor falls in N to S, so node 3 takes it."
+    ],
+    [
+     9.82,
+     14.07,
+     "Khan to Mills: one node holds them all."
+    ],
+    [
+     14.32,
+     18.01,
+     "Neighbouring keys sit together."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d0dfe421f958108f.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/54e5ff4a9322778f.wav",
+     "at": 4.92,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/6905ae82e0767c83.wav",
+     "at": 9.82,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/565d1ae003b373bf.wav",
+     "at": 14.32,
+     "len": 3.44
+    }
+   ]
+  },
+  {
+   "dur": 20.108,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     5.88,
+     3
+    ],
+    [
+     10.7,
+     6.2
+    ],
+    [
+     14.4,
+     9.4
+    ],
+    [
+     20.108,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.63,
+     "Key by time: each node owns hours."
+    ],
+    [
+     5.88,
+     10.45,
+     "It is afternoon: writes go to 12 to 17."
+    ],
+    [
+     10.7,
+     14.15,
+     "Write after write, all on the same node."
+    ],
+    [
+     14.4,
+     18.17,
+     "One hot spot while three nodes sit idle."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9bcd197956945fff.wav",
+     "at": 0.5,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/60cf207c500b7838.wav",
+     "at": 5.88,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/e31d3185415c15d5.wav",
+     "at": 10.7,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/f91bb26449688bdd.wav",
+     "at": 14.4,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 16.556,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     3.8,
+     3
+    ],
+    [
+     7.34,
+     6
+    ],
+    [
+     11.52,
+     9.8
+    ],
+    [
+     16.556,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.55,
+     "A hash turns a key into a number."
+    ],
+    [
+     3.8,
+     7.09,
+     "Each node owns a range of hash values."
+    ],
+    [
+     7.34,
+     11.27,
+     "Keys arrive in order but land all over."
+    ],
+    [
+     11.52,
+     15.13,
+     "Eight keys: two on every node."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2b6fa33c8231a083.wav",
+     "at": 0.5,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/e2a80a45ce32e821.wav",
+     "at": 3.8,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/7ebed412bcdba583.wav",
+     "at": 7.34,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/8b9cbd5644af5cdc.wav",
+     "at": 11.52,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 20.132,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     3.4
+    ],
+    [
+     9.66,
+     6
+    ],
+    [
+     13.68,
+     8.8
+    ],
+    [
+     20.132,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "The same 16 users, laid out two ways."
+    ],
+    [
+     4.84,
+     9.41,
+     "Now ask for ids 101 to 104."
+    ],
+    [
+     9.66,
+     13.43,
+     "Key ranges: all four are on one node."
+    ],
+    [
+     13.68,
+     19.45,
+     "Hash: they are on four different nodes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0981742add89a477.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/703f9b046cb441a5.wav",
+     "at": 4.84,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/68baff4da8613c1e.wav",
+     "at": 9.66,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/ab99ac21b1a1ade5.wav",
+     "at": 13.68,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 18.204,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     6.44,
+     3.4
+    ],
+    [
+     9.02,
+     6
+    ],
+    [
+     14,
+     8.8
+    ],
+    [
+     18.204,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "Each partition indexes only its own cars."
+    ],
+    [
+     6.44,
+     8.77,
+     "Search for red cars."
+    ],
+    [
+     9.02,
+     13.75,
+     "Any partition may hold one, so ask all three."
+    ],
+    [
+     14,
+     17.13,
+     "Gather the answers into one list."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c9c5e4182935148c.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/af3f58db2590ae5a.wav",
+     "at": 6.44,
+     "len": 2.08
+    },
+    {
+     "file": "videos/audio/clips/af6578c6153da58f.wav",
+     "at": 9.02,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/56129ab685d04a63.wav",
+     "at": 14,
+     "len": 2.88
+    }
+   ]
+  },
+  {
+   "dur": 18.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     4.52,
+     3.6
+    ],
+    [
+     9.02,
+     7
+    ],
+    [
+     13.44,
+     10.2
+    ],
+    [
+     18.321,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.27,
+     "Or split the index itself, by term."
+    ],
+    [
+     4.52,
+     8.77,
+     "A search reads just one index partition."
+    ],
+    [
+     9.02,
+     13.19,
+     "Save a blue mini: two index partitions change."
+    ],
+    [
+     13.44,
+     16.81,
+     "Cheap reads, dearer writes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fce500cfa7e1a853.wav",
+     "at": 0.5,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/1f012251ed216cbc.wav",
+     "at": 4.52,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/4141256cc013ff26.wav",
+     "at": 9.02,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/f10701253117edd8.wav",
+     "at": 13.44,
+     "len": 3.12
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.08,
+     3.6
+    ],
+    [
+     11.34,
+     7.4
+    ],
+    [
+     16,
+     10.8
+    ],
+    [
+     20.016,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "Twelve items on three nodes. A fourth joins."
+    ],
+    [
+     5.08,
+     11.09,
+     "Hash mod N: N changed, so 9 of 12 keys move."
+    ],
+    [
+     11.34,
+     15.75,
+     "Fixed partitions: it steals 3 whole ones."
+    ],
+    [
+     16,
+     18.49,
+     "Three moves instead of nine."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/46cf1f6f9bacbe91.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/c9f25e6b167e461b.wav",
+     "at": 5.08,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/875d2bc64c3cab0b.wav",
+     "at": 11.34,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/3663d7e07b02af6b.wav",
+     "at": 16,
+     "len": 2.24
+    }
+   ]
+  },
+  {
+   "dur": 20.015,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     3
+    ],
+    [
+     9.82,
+     5.8
+    ],
+    [
+     14.72,
+     8.2
+    ],
+    [
+     20.015,
+     10.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Each partition has a size limit: 10 GB."
+    ],
+    [
+     4.84,
+     9.57,
+     "Data grows: P2 hits 12 GB, over the limit."
+    ],
+    [
+     9.82,
+     14.47,
+     "It splits; one half can move node."
+    ],
+    [
+     14.72,
+     17.93,
+     "Data shrinks: neighbours merge."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c25ff52856a31b89.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/c5b31ac948250b15.wav",
+     "at": 4.84,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/33695227ad87793c.wav",
+     "at": 9.82,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/1d17208e6e36d33a.wav",
+     "at": 14.72,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 16.765,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.04,
+     2
+    ],
+    [
+     11.66,
+     3.1
+    ],
+    [
+     16.765,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e7c5920f899c90d5.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/9f72d6a95b7ac7cd.wav",
+     "at": 6.04,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/3541da58f4b4b099.wav",
+     "at": 11.66,
+     "len": 3.6
+    }
+   ]
+  }
+ ]
+}
