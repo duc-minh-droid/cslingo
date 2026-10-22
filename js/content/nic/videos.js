@@ -128,7 +128,7 @@
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 5: 3 };
+  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,
