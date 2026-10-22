@@ -1,0 +1,285 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Algorithms, phase five. Convex hulls. This is how computers find the outline of a crowd."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Imagine seven pins, with a rubber band stretched round every one.",
+     "Stretch a rubber band round every pin."
+    ],
+    [
+     "Let go, and the band snaps onto the outer pins.",
+     "Let go. It snaps onto the outer pins."
+    ],
+    [
+     "The pins it touches are the corners of the convex hull.",
+     "The pins it touches are the hull corners."
+    ],
+    [
+     "A dent lets a segment poke outside the shape.",
+     "A dent lets a segment poke outside."
+    ],
+    [
+     "In a convex shape, every segment between two points stays inside.",
+     "A convex shape keeps every segment inside."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Walk from P to A to B, and see which way you turn.",
+     "Walk from p to a to b. Left or right?"
+    ],
+    [
+     "Multiply across and subtract. A positive answer means a left turn.",
+     "Multiply across, subtract: positive means left."
+    ],
+    [
+     "Now try a different path.",
+     "Now try a different path."
+    ],
+    [
+     "This time the answer is negative, and that means a right turn.",
+     "Negative means a right turn."
+    ],
+    [
+     "And one more path.",
+     "And one more path."
+    ],
+    [
+     "Here the answer is zero, which means a straight line.",
+     "Zero means a straight line."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now walk round the hull, one corner at a time.",
+     "Walk round the hull, corner by corner."
+    ],
+    [
+     "Going anticlockwise, every turn is a left turn.",
+     "Anticlockwise, every turn is a left turn."
+    ],
+    [
+     "If we go through F instead, we turn right.",
+     "Go through F and you turn right."
+    ],
+    [
+     "A right turn means a dent, not a corner.",
+     "Right turn: a dent, not a corner."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A computer has no rubber band. So way one is to wrap.",
+     "A computer has no rubber band. Way one: wrap."
+    ],
+    [
+     "The leftmost point must be on the hull, so we start there.",
+     "The leftmost point must be on the hull."
+    ],
+    [
+     "Now swing a line clockwise from a point r above A.",
+     "Swing a line clockwise from r."
+    ],
+    [
+     "Every point the line touches gets an angle.",
+     "Every point it touches gets an angle."
+    ],
+    [
+     "The smallest angle wins, so the first edge runs from A to G.",
+     "Smallest angle wins: A to G."
+    ],
+    [
+     "Repeat from G, starting the swing along the last edge.",
+     "Repeat from G. Start the swing along the last edge."
+    ],
+    [
+     "Each round, the first point touched is the next corner.",
+     "Each round, the first point touched is the next corner."
+    ],
+    [
+     "Back at A. That is one sweep per corner, five in all.",
+     "Back at A. One sweep per corner: 5 sweeps."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Way two is to sort the points first.",
+     "Way two: sort the points first."
+    ],
+    [
+     "The lowest point must be on the hull.",
+     "The lowest point must be on the hull."
+    ],
+    [
+     "Sort the other points by angle, sweeping anticlockwise.",
+     "Sort the rest by angle, sweeping anticlockwise."
+    ],
+    [
+     "Now walk the points in that order.",
+     "Walk the points in this order."
+    ],
+    [
+     "The path still has dents, at F and B.",
+     "The path still has dents."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start the stack with C and D.",
+     "Start the stack with C and D."
+    ],
+    [
+     "A left turn keeps the middle point.",
+     "Left turn: keep the middle point."
+    ],
+    [
+     "A right turn means a dent, so we pop it.",
+     "A right turn is a dent: pop it."
+    ],
+    [
+     "Another left turn, so we push B.",
+     "Left turn again: push B."
+    ],
+    [
+     "A right turn again. Pop B, then push A.",
+     "A right turn again: pop B, then push A."
+    ],
+    [
+     "The stack is now the hull. It took one pass after the sort.",
+     "The stack is the hull. One pass after the sort."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Take one thousand and twenty-four points, with only four corners.",
+     "1,024 points, and only 4 are corners."
+    ],
+    [
+     "One sweep checks every point.",
+     "One sweep checks all 1,024 points."
+    ],
+    [
+     "Four corners means four sweeps, so four thousand and ninety-six steps.",
+     "4 corners, 4 sweeps: 4,096 steps."
+    ],
+    [
+     "A sort halves the list again and again.",
+     "A sort halves the list again and again."
+    ],
+    [
+     "That makes ten halvings, since two to the power ten is one thousand and twenty-four.",
+     "Ten halvings: log₂ 1,024 = 10."
+    ],
+    [
+     "So the sort makes ten passes, about ten thousand two hundred and forty steps.",
+     "The sort makes 10 passes: about 10,240 steps."
+    ],
+    [
+     "With few corners, wrapping wins.",
+     "Few corners: wrapping wins."
+    ],
+    [
+     "Now make every point a corner.",
+     "Now every point is a corner."
+    ],
+    [
+     "At ten corners they tie. Beyond that, wrapping loses.",
+     "At 10 corners they tie. More, and wrapping loses."
+    ],
+    [
+     "Now the scan wins, and wrapping costs about one hundred times more.",
+     "Scan wins. Wrapping costs about 100 times more."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Try every pair of the seven points, and there are twenty-one.",
+     "Try every pair: 21 of them."
+    ],
+    [
+     "The farthest pair is A and E, and both are corners.",
+     "The farthest pair is A and E: two corners."
+    ],
+    [
+     "An inside point always loses to a corner.",
+     "An inside point always loses to a corner."
+    ],
+    [
+     "So we drop every pair that uses an inside point.",
+     "So drop every pair that uses an inside point."
+    ],
+    [
+     "Now take one thousand points, with ten corners.",
+     "1,000 points, 10 corners."
+    ],
+    [
+     "That leaves forty-five pairs to check, instead of nearly half a million.",
+     "45 pairs to check, not 499,500."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    1.8,
+    2.7,
+    3.6
+   ],
+   "lines": [
+    "One cross product tells left from right.",
+    "Wrapping swings a line, and costs n times h.",
+    "Scanning sorts first, then pops the dents, and costs n log n.",
+    "With few corners, wrap. With many corners, scan."
+   ]
+  }
+ ]
+}

@@ -1,99 +1,242 @@
 {
- "voice": "alice",
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
  "scenes": [
   {
    "at": [
     0.9
    ],
    "lines": [
-    "Lecture three. Local search against population search, and how searches get stuck on hills."
+    "Lecture three. Local search and population search. This is how a search gets stuck on a hill, and how it escapes."
    ]
   },
   {
    "lines": [
-    "Every evolutionary algorithm repeats the same loop.",
-    "Score everyone, then pick the fitter parents.",
-    "Mix two parents, then change one gene.",
-    "The child replaces the weakest. Then we repeat."
+    [
+     "Every evolutionary algorithm repeats the same loop. Here is one lap.",
+     "Every EA repeats the same loop."
+    ],
+    [
+     "Score everyone. Here the fitness is the number of ones. Then pick the fitter parents.",
+     "Score everyone, then pick the fitter parents."
+    ],
+    [
+     "Next, mix two parents together, and change one gene.",
+     "Mix two parents, then change one gene."
+    ],
+    [
+     "Last, the child replaces the weakest. Then the loop repeats.",
+     "The child replaces the weakest. Then repeat."
+    ]
    ]
   },
   {
    "lines": [
-    "Visit every city once, then return.",
-    "A tour is a string. Add up the hops to get its length.",
-    "Shorter is better, so we minimise.",
-    "A B C E D is shorter. Twenty-eight beats thirty-two."
+    [
+     "The task is to visit every city once, and then return home.",
+     "Visit every city once, then return."
+    ],
+    [
+     "A tour is a string of letters. Add up the hops between cities to get its length.",
+     "A tour is a string. Add up the hops."
+    ],
+    [
+     "Shorter is better, so we minimise the length. The length is the fitness.",
+     "Shorter is better, so we minimise."
+    ],
+    [
+     "The tour A B C E D has length twenty-eight. That beats the old tour, at thirty-two.",
+     "ABCED is shorter: 28 beats 32."
+    ]
    ]
   },
   {
    "lines": [
-    "Five cities have only twelve tours.",
-    "Each extra city multiplies the count.",
-    "Twenty cities? We cannot check them all."
+    [
+     "With five cities, there are only twelve different tours.",
+     "Five cities have only 12 tours."
+    ],
+    [
+     "Each extra city multiplies the count, first by five, then by six, then by seven.",
+     "Each extra city multiplies the count."
+    ],
+    [
+     "With twenty cities there are about sixty quadrillion tours. We cannot check them all.",
+     "Twenty cities? We cannot check them all."
+    ]
    ]
   },
   {
    "lines": [
-    "Start with one tour, and change it a little.",
-    "If it is worse, throw the change away.",
-    "If it is no worse, keep it, and carry on.",
-    "Repeat until time runs out."
+    [
+     "Start with one tour, and change it a little to make a mutant.",
+     "Start with one tour. Change it a little."
+    ],
+    [
+     "If the mutant is worse, throw the change away.",
+     "Worse? Throw the change away."
+    ],
+    [
+     "If it is no worse, keep it, and carry on from there.",
+     "No worse? Keep it and carry on."
+    ],
+    [
+     "Repeat this until time runs out.",
+     "Repeat until time runs out."
+    ]
    ]
   },
   {
    "lines": [
-    "Neighbouring solutions sit side by side.",
-    "Nearby solutions have similar fitness.",
-    "Hillclimbing climbs the hill it starts on.",
-    "It stops at a local peak, which may not be the best."
+    [
+     "Imagine every solution in a line, side by side. Neighbouring solutions sit next to each other.",
+     "Neighbouring solutions sit side by side."
+    ],
+    [
+     "Nearby solutions have similar fitness, so the line forms hills.",
+     "Nearby solutions have similar fitness."
+    ],
+    [
+     "Hillclimbing climbs the hill it starts on.",
+     "Hillclimbing climbs the hill it starts on."
+    ],
+    [
+     "It stops at a local peak, which may not be the best one.",
+     "It stops at a local peak, not the best."
+    ]
    ]
   },
   {
    "lines": [
-    "Here are four landscape shapes, with one climber on each.",
-    "Hillclimbing only ever walks uphill.",
-    "Only the one-peak shape always works."
+    [
+     "Here are four landscape shapes, with one climber on each. One peak, many peaks, a flat plateau, and a deceptive slope.",
+     "Four landscape shapes. One climber on each."
+    ],
+    [
+     "Hillclimbing only ever walks uphill, so it follows whatever slope it finds.",
+     "Hillclimbing only ever walks uphill."
+    ],
+    [
+     "Only the one-peak shape always works. The others leave the climber stuck, or heading the wrong way.",
+     "Only the one-peak shape always works."
+    ]
    ]
   },
   {
    "lines": [
-    "Start from one solution.",
-    "Every solution one mutation away is a neighbour.",
-    "A different operator gives different neighbours."
+    [
+     "Start from one solution, such as a tour or a string of bits.",
+     "Start from one solution."
+    ],
+    [
+     "Every solution that is one mutation away is a neighbour.",
+     "Every solution one mutation away is a neighbour."
+    ],
+    [
+     "A different operator gives different neighbours. A swap gives one set, and a bit flip another.",
+     "A different operator gives different neighbours."
+    ]
    ]
   },
   {
    "lines": [
-    "Hillclimbing is stuck on this hill.",
-    "A worse step is usually rejected.",
-    "Let's fast-forward: every one is rejected.",
-    "Then, one lucky roll: it steps downhill!",
-    "Then it climbs on, and keeps the best.",
-    "Tabu search always moves to its best neighbour.",
-    "But it cannot step back onto a crumb it just dropped.",
-    "So it walks on, over the valley.",
-    "Both methods can escape the small hill."
+    [
+     "Hillclimbing is stuck on the small hill on the left.",
+     "Hillclimbing is stuck on this hill."
+    ],
+    [
+     "Monte Carlo search, on top, usually rejects a worse step.",
+     "A worse step is usually rejected."
+    ],
+    [
+     "Fast-forward, and every worse step is rejected.",
+     "Fast-forward: all rejected."
+    ],
+    [
+     "Then one lucky roll of the die lets it step downhill.",
+     "One lucky roll: it steps downhill!"
+    ],
+    [
+     "From there it climbs on, keeping the best place it has seen.",
+     "Then it climbs on, keeping the best."
+    ],
+    [
+     "Below, tabu search always moves to its best neighbour.",
+     "Tabu always moves to its best neighbour."
+    ],
+    [
+     "But it may not step back onto a crumb, a place it just left.",
+     "But it cannot step back onto a crumb."
+    ],
+    [
+     "So it walks on, down into the valley and across it.",
+     "So it walks on, over the valley."
+    ],
+    [
+     "Both methods escape the small hill, and both end on the best peak.",
+     "Both can escape the small hill."
+    ]
    ]
   },
   {
    "lines": [
-    "One hiker is stuck on one hill.",
-    "A team starts on many hills.",
-    "Even a low score can climb the tallest hill.",
-    "The team gathers on the best hill.",
-    "And a team can select and recombine."
+    [
+     "A lone hiker climbs the small hill, and is stuck there.",
+     "One hiker is stuck on one hill."
+    ],
+    [
+     "Now a team of six starts out on three different hills.",
+     "A team starts on many hills."
+    ],
+    [
+     "Even a member with a low score can climb the tallest hill.",
+     "A low score can still climb the tallest hill."
+    ],
+    [
+     "The count of hills falls from three to two to one, as the team gathers on the best hill.",
+     "The team gathers on the best hill."
+    ],
+    [
+     "A team can also select the fitter members, and recombine them.",
+     "A team can select and recombine."
+    ]
    ]
   },
   {
    "at": [
     0.9,
-    3.4,
-    5.9
+    2.0,
+    3.1
    ],
    "lines": [
-    "Remember: one loop, score, pick, change, and replace.",
+    "Every evolutionary algorithm runs one loop. Score, pick, change and replace.",
     "Hillclimbing stops on the nearest hill.",
-    "A team of searchers, or a lucky downhill step, helps you escape."
+    "To escape, take a step downhill, or send a whole team."
    ]
   }
  ]

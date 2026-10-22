@@ -1,0 +1,239 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Algorithms, phase three. Optimisation. This is how factories and AI find the best plan."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A factory chooses x units of product X, and y units of product Y.",
+     "Choose x of product X and y of product Y."
+    ],
+    [
+     "Each rule cuts the plane in half. The forbidden half turns red.",
+     "Each rule cuts the plane in half."
+    ],
+    [
+     "The overlap of the allowed halves is the feasible region.",
+     "The overlap is the feasible region."
+    ],
+    [
+     "Now we plug a plan into every rule. If it passes them all, it is legal.",
+     "Plug a plan into every rule. Pass all: legal."
+    ],
+    [
+     "Break even one rule and the plan is not allowed. Three of the five plans fail.",
+     "Break even one rule and it is not allowed."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each plan earns a score, z equals three x plus two y.",
+     "Each plan earns a score: z = 3x + 2y."
+    ],
+    [
+     "Every point on this line scores the same.",
+     "Every point on this line scores the same."
+    ],
+    [
+     "Now slide the profit line outwards, until it leaves the region.",
+     "Slide the profit line outwards until it leaves."
+    ],
+    [
+     "It leaves at a corner, so we only need to check the corners.",
+     "It leaves at a corner, so check only the corners."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start at a corner, and ask which direction gains the most.",
+     "Start at a corner. Which direction gains most?"
+    ],
+    [
+     "Then walk until the nearest rule blocks the way. That brings us to the corner five, zero.",
+     "Walk until the nearest rule blocks the way."
+    ],
+    [
+     "Repeat. The letter s is what a rule has left over.",
+     "Repeat. s = what a rule has left over."
+    ],
+    [
+     "Leftovers cost profit, so now only y gains. The walk goes on along the material line.",
+     "Leftovers cost profit, so only y gains."
+    ],
+    [
+     "At the corner four, three, no direction gains. So it is optimal.",
+     "No direction gains: the corner is optimal."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A new problem has just one number. We want its lowest point.",
+     "New problem: one number. Find the lowest point."
+    ],
+    [
+     "If the curve falls and then rises, a minimum is trapped in between.",
+     "Falling, then rising: a minimum is trapped."
+    ],
+    [
+     "Bisection tests the middle, and asks whether the curve is still falling.",
+     "Bisection: test the middle. Still falling?"
+    ],
+    [
+     "Then we keep the half where the slope flips.",
+     "Keep the half where the slope flips."
+    ],
+    [
+     "Each step halves the bracket, and the minimum stays trapped inside.",
+     "Each step halves the bracket."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Golden section needs no slope. Three heights trap the minimum.",
+     "Golden section: no slope, three heights trap it."
+    ],
+    [
+     "Each step adds one probe, and the lowest point stays in the middle.",
+     "One probe a step: the lowest stays in the middle."
+    ],
+    [
+     "Old probes are reused, so each cut costs just one new test.",
+     "Old probes are reused, so each cut costs one test."
+    ],
+    [
+     "Each step keeps zero point six one eight of the bracket. This is the golden section.",
+     "Each step keeps 0.618 of the bracket."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "On the same curve, fit a parabola through three points.",
+     "Same curve: fit a parabola through three points."
+    ],
+    [
+     "Then jump straight to the bottom of the parabola.",
+     "Jump to the bottom of the parabola."
+    ],
+    [
+     "Repeat, and the bracket collapses fast.",
+     "Repeat: the bracket collapses fast."
+    ],
+    [
+     "If the jump is not shrinking enough, take a golden step instead.",
+     "Jump not shrinking? Take a golden step instead."
+    ],
+    [
+     "With the same seven tests, the bracket is five times tighter.",
+     "Same 7 tests, a bracket 5 times tighter."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "With two numbers and no slopes, we keep a triangle.",
+     "Two numbers, no slopes: keep a triangle."
+    ],
+    [
+     "Flip the worst corner through the middle of the best side.",
+     "Flip the worst corner through the middle."
+    ],
+    [
+     "If the flip is great, stretch even further.",
+     "A great flip? Stretch even further."
+    ],
+    [
+     "If the stretch goes too far, keep the plain flip.",
+     "Stretched too far? Keep the plain flip."
+    ],
+    [
+     "If the flip overshoots, pull the corner in instead.",
+     "Flip overshoots? Pull the corner in instead."
+    ],
+    [
+     "If every try fails, shrink the triangle towards the best corner.",
+     "If every try fails: shrink towards the best."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Real problems have curved valleys, not neat bowls.",
+     "Real problems have curved valleys, not bowls."
+    ],
+    [
+     "While the moves work, the triangle stretches.",
+     "Moves work? The triangle stretches."
+    ],
+    [
+     "With more good moves, it stretches along the valley.",
+     "More good moves: it stretches along the valley."
+    ],
+    [
+     "Near the end, it squeezes into a tiny triangle.",
+     "Near the end it squeezes to a tiny triangle."
+    ],
+    [
+     "No derivatives needed, just comparisons. Here it took eighty-four rounds.",
+     "No derivatives needed, just comparisons."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "The best plan is at a corner, and simplex walks there.",
+    "Trap the minimum, then shrink the trap.",
+    "With no slope available, flip the worst corner."
+   ]
+  }
+ ]
+}

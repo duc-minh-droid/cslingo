@@ -1,0 +1,283 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Phase eight. Cryptography and blockchain. This is how secrets and trust work online."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Alice sends Bob SECRET along an open wire, and Eve can read it.",
+     "Anything on the open wire, Eve can read."
+    ],
+    [
+     "A shift cipher with key five moves each letter five along, so S becomes X. Eve cannot read that.",
+     "The key is 5: each letter moves 5 along, so S becomes X."
+    ],
+    [
+     "But Bob needs the key too, and Eve would copy it from the wire.",
+     "But how does Bob get the key without Eve seeing it?"
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Alice and Bob each start with the same public paint.",
+     "Both start with the same public paint."
+    ],
+    [
+     "Each mixes in a secret paint of their own.",
+     "Each adds a secret paint of their own."
+    ],
+    [
+     "They swap the mixtures in public, so Eve sees both.",
+     "They swap the mixtures. Eve can see those."
+    ],
+    [
+     "Each adds their secret to the mixture they got, and the pots match.",
+     "Each adds their own secret again: the very same colour."
+    ],
+    [
+     "That shared colour becomes their key.",
+     "That colour is their shared key."
+    ],
+    [
+     "Eve sees both mixtures, but she cannot unmix paint.",
+     "Eve cannot unmix paint to find a secret."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Twenty-three and five are public. Alice's secret is six, and Bob's is fifteen.",
+     "Like the paint: p and g are public, a and b secret."
+    ],
+    [
+     "Alice works out five to the power six, keeping only the remainder after dividing by twenty-three.",
+     "mod 23 keeps only the remainder after dividing by 23."
+    ],
+    [
+     "Alice gets eight, Bob gets nineteen, and they swap them in public.",
+     "They swap A = 8 and B = 19 in public."
+    ],
+    [
+     "Each raises what they got to their own secret.",
+     "Each raises what they received to their own secret."
+    ],
+    [
+     "Both get two. That shared key was never sent.",
+     "Both get 2: a shared key that was never sent."
+    ],
+    [
+     "Eve must try powers of five until one gives eight.",
+     "Eve must try every power of 5 until she hits 8: that finds a."
+    ],
+    [
+     "With a real prime of six hundred and seventeen digits, that search is hopeless.",
+     "With a 617-digit prime that search is hopeless."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Bob picks two secret prime numbers, five and eleven.",
+     "Pick two secret primes: 5 and 11."
+    ],
+    [
+     "He multiplies them to get fifty-five, which is public.",
+     "Multiply them: n = 55 is public."
+    ],
+    [
+     "Next he takes one off each prime, multiplies, and keeps forty secret.",
+     "Next z = (5 − 1) × (11 − 1) = 40, kept secret."
+    ],
+    [
+     "He picks three, because three and forty share no factor except one.",
+     "Pick e = 3: only 1 divides both 3 and 40."
+    ],
+    [
+     "Twenty-seven pairs with it, because three times twenty-seven is two forties plus one.",
+     "d = 27, because 3 × 27 = 81 = 2 × 40 + 1."
+    ],
+    [
+     "The public key is fifty-five and three. The private key, twenty-seven, stays secret.",
+     "Publish (55, 3). Keep 27 secret."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Bob shares his public key, fifty-five and three, along the open wire.",
+     "Bob shares his public key, (55, 3)."
+    ],
+    [
+     "Alice locks the number seven with it, and gets thirteen.",
+     "Alice locks 7 with it and gets 13."
+    ],
+    [
+     "Bob unlocks thirteen with his private key, and gets seven back.",
+     "Bob unlocks 13 with his private key: back to 7."
+    ],
+    [
+     "Eve can factor such a tiny number in four tries.",
+     "Eve factors the tiny n in four tries: 5 × 11."
+    ],
+    [
+     "Then she gets forty and twenty-seven, and has the key.",
+     "Then z = 40 and d = 27: she has the key."
+    ],
+    [
+     "A real number has over six hundred digits, and nobody can factor it.",
+     "A real n has 617+ digits: nobody can factor that."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Next comes trust, and whether data was changed.",
+     "New question: was this data changed?"
+    ],
+    [
+     "A hash turns data, like the word cat, into a short fingerprint.",
+     "A hash turns data into a short fingerprint."
+    ],
+    [
+     "Hash the same word again, and the fingerprint is exactly the same.",
+     "The same data always gives the same fingerprint."
+    ],
+    [
+     "Change one letter, to make cot, and every digit changes.",
+     "Change one letter, the whole fingerprint changes."
+    ],
+    [
+     "And there is no way back from the fingerprint to the data.",
+     "And you cannot work backwards from it."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In a chain, each block stores the hash of the block before it.",
+     "Each block stores the hash of the block before it."
+    ],
+    [
+     "Now someone edits the first block, and its hash changes.",
+     "Edit one block and its hash changes."
+    ],
+    [
+     "The next block still holds the old hash, so the link breaks.",
+     "The next block holds the old hash: the link breaks."
+    ],
+    [
+     "Eve recomputes each later hash, block by block, to repair the links.",
+     "Eve recomputes each later hash to repair the links."
+    ],
+    [
+     "It looks valid again. Hashes can spot edits, but cannot prevent them.",
+     "It looks valid again, but hashes only spot edits."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A miner tries numbers, called nonces, until the hash starts with zero.",
+     "Try numbers (nonces) until the hash starts with 0."
+    ],
+    [
+     "Every try gives a new, unpredictable hash, so it is all guesswork.",
+     "Every try gives a new, unpredictable hash."
+    ],
+    [
+     "The winner is found after fifteen hashes.",
+     "Found it after 15 hashes."
+    ],
+    [
+     "Checking it takes just one hash.",
+     "Checking takes just 1 hash."
+    ],
+    [
+     "On average, one hash in sixteen starts with a zero.",
+     "One hash in 16 starts with 0."
+    ],
+    [
+     "Two zeros come one time in two hundred and fifty-six, so sixteen times more work.",
+     "Two zeros: 1 in 256, so 16 times more work."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now each block is sealed by its own proof of work.",
+     "Each block is sealed by its own proof of work."
+    ],
+    [
+     "Edit block one, and its seal and link break.",
+     "Edit block 1: its seal and the link both break."
+    ],
+    [
+     "To forge it, Eve must mine block one again.",
+     "Forging it means mining block 1 again."
+    ],
+    [
+     "Then every later block must be mined again too.",
+     "Then every later block must be mined again too."
+    ],
+    [
+     "Here that costs fifty tries. Real blocks need trillions, so rewriting history means redoing all that work.",
+     "Rewriting history means redoing all that work."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A shared secret can be made without ever being sent.",
+    "Anyone can lock with the public key, but only Bob can open.",
+    "In a blockchain, hashes link the blocks, and edits cost real work."
+   ]
+  }
+ ]
+}

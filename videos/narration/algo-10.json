@@ -1,0 +1,299 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Phase ten. Transformers and attention. This is how A I learned to pay attention."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The text is cut into pieces called tokens.",
+     "Text is cut into tokens."
+    ],
+    [
+     "Each token is looked up as a list of numbers.",
+     "Each token becomes a list of numbers."
+    ],
+    [
+     "The two copies of the word bank get exactly the same numbers.",
+     "The two banks get exactly the same numbers."
+    ],
+    [
+     "So nothing tells us which bank came first.",
+     "Nothing says which one came first."
+    ],
+    [
+     "So we add a position pattern to every token.",
+     "Add a position pattern to every token."
+    ],
+    [
+     "The two lists are added together, number by number.",
+     "Add them up, number by number."
+    ],
+    [
+     "Now the two banks are different, and ready for the model.",
+     "Now the two banks are different."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Imagine three words, with scores of two, one and zero.",
+     "Imagine three words, each with a score."
+    ],
+    [
+     "Stretch each score so it is positive, and the biggest grows most.",
+     "Stretch the scores: the biggest grows most."
+    ],
+    [
+     "Dividing by the total gives shares that add up to one.",
+     "Divide by the total: the shares add to 1."
+    ],
+    [
+     "Bigger gaps between the scores give a sharper split.",
+     "Bigger gaps give a sharper share-out."
+    ],
+    [
+     "Attention will use these shares in a moment.",
+     "Attention will use these shares."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In this sentence, the word it stands for a noun.",
+     "Which noun does “it” stand for?"
+    ],
+    [
+     "It looks at every word in the sentence, itself included.",
+     "It looks at every word, itself included."
+    ],
+    [
+     "But some words matter more, so each gets a different share.",
+     "But some words matter more than others."
+    ],
+    [
+     "Its new meaning leans mostly on robot.",
+     "Its new meaning leans on “robot”."
+    ],
+    [
+     "Every word does this at the same time. For seven words, that is forty-nine shares.",
+     "Every word does this, all at the same time."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each word makes a query, what it is looking for.",
+     "Query: what I am looking for."
+    ],
+    [
+     "It also makes a key, what it has to offer.",
+     "Key: what I have to offer."
+    ],
+    [
+     "Take the query of barked, and compare it with each key.",
+     "Compare the query of “barked” to each key."
+    ],
+    [
+     "For each key, multiply the pairs of numbers, then add them up.",
+     "Multiply the pairs, then add them up."
+    ],
+    [
+     "Dog matches best, with a score of three.",
+     "“dog” matches best: a score of 3."
+    ],
+    [
+     "Divide by one point four one, to keep the scores small.",
+     "Divide by 1.41 to keep scores small."
+    ],
+    [
+     "Softmax then turns the scores into shares.",
+     "Softmax turns them into shares."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each word also carries a value, which is its content.",
+     "Each word also carries a value: its content."
+    ],
+    [
+     "Scale each value by its share, so dog counts the most.",
+     "Scale each value by its share."
+    ],
+    [
+     "Add the scaled values up, and barked gets a new set of numbers.",
+     "Add them up: new numbers for “barked”."
+    ],
+    [
+     "The same is done for every word at once.",
+     "Do it for every word at once."
+    ],
+    [
+     "So every word ends up with one new set of numbers.",
+     "One new set of numbers per word."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Attention runs in several heads, each with its own query, key and value.",
+     "Each head has its own query, key and value."
+    ],
+    [
+     "One head learns who it refers to.",
+     "One head learns what “it” means."
+    ],
+    [
+     "Another head looks at the word just before.",
+     "Another looks at the word before."
+    ],
+    [
+     "Other heads learn who acts, and what is acted on.",
+     "Others learn who acts and what is acted on."
+    ],
+    [
+     "Each head hands back sixteen numbers for every word.",
+     "Each head hands back 16 numbers per word."
+    ],
+    [
+     "Glued together, the four make sixty-four numbers.",
+     "Glued together, they make 64 numbers."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A layer has two parts, each wrapped in Add and Norm.",
+     "Two parts, each with Add & Norm."
+    ],
+    [
+     "Attention lets the words share information with each other.",
+     "Attention lets the words share information."
+    ],
+    [
+     "A skip path adds the part's output to its input.",
+     "A skip path adds output to input."
+    ],
+    [
+     "Norm then re-centres the numbers around zero, and rescales them.",
+     "Norm re-centres the numbers around zero."
+    ],
+    [
+     "The feed-forward network treats each word on its own.",
+     "The same network treats each word alone."
+    ],
+    [
+     "The shape in and out is the same, so layers can stack.",
+     "Same shape in and out, so layers stack."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "To translate into German, the decoder starts from a start token.",
+     "Translating starts from a start token."
+    ],
+    [
+     "Every word it could write next gets a share.",
+     "Every possible next word gets a share."
+    ],
+    [
+     "The likeliest word is written down.",
+     "The likeliest word is written down."
+    ],
+    [
+     "Then it asks again, and writes the second word.",
+     "Then it asks again."
+    ],
+    [
+     "Masked attention stops a word peeking at later words.",
+     "Masked attention: no peeking at later words."
+    ],
+    [
+     "Each new word is added, and the loop goes round again, until the sentence is complete.",
+     "Append the word, then go round again."
+    ],
+    [
+     "When it writes the end token, the loop stops.",
+     "The end token stops the loop."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Transformers can read more than text. A picture can be cut into patches.",
+     "A picture can be cut into patches."
+    ],
+    [
+     "Each patch is a token, one hundred and ninety-six in all.",
+     "Each patch is a token: 196 in all."
+    ],
+    [
+     "Every token scores every token, which makes over thirty-eight thousand scores.",
+     "Every token scores every token: 196 × 196."
+    ],
+    [
+     "Halve the patch size, and there are four times as many tokens.",
+     "Half-size patches: four times the tokens."
+    ],
+    [
+     "But sixteen times as many scores, since the cost grows with the square.",
+     "But sixteen times the scores."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Attention weighs every word in the sentence.",
+    "Heads run side by side, and layers stack up.",
+    "The decoder writes one word at a time."
+   ]
+  }
+ ]
+}

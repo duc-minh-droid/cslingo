@@ -1,0 +1,247 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture two. Data models and NoSQL. The shape of your data decides how to store it."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One profile page needs data from six tables.",
+     "One profile page needs six tables."
+    ],
+    [
+     "So the page asks each table in turn, one lookup at a time.",
+     "The page asks each table in turn."
+    ],
+    [
+     "That makes six reads, and a shared key, a foreign key, joins the pieces.",
+     "Six reads, joined by a foreign key."
+    ],
+    [
+     "A document keeps the same profile in one place.",
+     "A document keeps it all together."
+    ],
+    [
+     "So one read gets the whole page.",
+     "One read gets the whole page."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Four hundred profiles all mention the same company.",
+     "One company, many profiles."
+    ],
+    [
+     "With tables, the name is stored once, so a rename changes one row.",
+     "Tables: change one row."
+    ],
+    [
+     "With documents, every profile holds its own copy, so all four hundred are rewritten.",
+     "Documents: rewrite all 400 copies."
+    ],
+    [
+     "If the rewrite misses one, that profile shows the old name.",
+     "Miss one and that profile is stale."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Documents can keep old and new shapes side by side.",
+     "Old and new shapes sit together."
+    ],
+    [
+     "The app just splits an old name when it reads it.",
+     "The app splits old names as it reads."
+    ],
+    [
+     "A table has one shape, so every row must be changed first.",
+     "A table must change every row first."
+    ],
+    [
+     "With a million rows, that takes a long time.",
+     "With a million rows that takes a long time."
+    ],
+    [
+     "Only then is the table ready.",
+     "Only then is the table ready."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the page needs the whole profile.",
+     "The page wants the whole profile."
+    ],
+    [
+     "From the document, that is one read.",
+     "One read from the document."
+    ],
+    [
+     "From the tables, it is six.",
+     "Six from the tables."
+    ],
+    [
+     "Now the page needs only the name.",
+     "Now it wants only the name."
+    ],
+    [
+     "The document still loads whole, twenty kilobytes for one small name.",
+     "A document loads whole: 20 KB for a sliver."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A graph stores things, called vertices, and the links between them, called edges.",
+     "A graph stores things and their links."
+    ],
+    [
+     "Each kind of link has a label, such as friend, lives in or works at.",
+     "Each kind of link has a label."
+    ],
+    [
+     "Each vertex lists its links in and out. Ben has one coming in, and two going out.",
+     "A vertex lists its links in and out."
+    ],
+    [
+     "To find a route, we walk along the edges.",
+     "To find a route, walk the edges."
+    ],
+    [
+     "Ana reaches Dee in three hops.",
+     "Three hops."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are five people, linked in a chain of friends.",
+     "Five people, linked in a chain."
+    ],
+    [
+     "In tables, each step is a join. In documents, a fetch. In a graph, a follow.",
+     "A join, a fetch, or a follow."
+    ],
+    [
+     "Friends of friends is two hops. Ana reaches Cy.",
+     "Two hops: friends of friends."
+    ],
+    [
+     "Now go on to a fourth hop.",
+     "Now add a fourth hop."
+    ],
+    [
+     "Tables and documents need one more block for each hop. The graph repeats the same move.",
+     "Queries grow, the graph walk does not."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "NoSQL means simple design, scaling out, and staying available.",
+     "NoSQL: simple, scales out, stays available."
+    ],
+    [
+     "A document store keeps the whole recipe in one place.",
+     "Document: the whole recipe."
+    ],
+    [
+     "In a key-value store, the partition key groups items, and the sort key puts them in order.",
+     "A partition key groups, a sort key orders."
+    ],
+    [
+     "In a wide-column store, each row keeps its own columns.",
+     "Wide-column: columns vary per row."
+    ],
+    [
+     "A graph store keeps things and labelled links.",
+     "Graph: things and labelled links."
+    ],
+    [
+     "Follow the links, and Pancakes and Waffles share Flour.",
+     "Pancakes and Waffles share Flour."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are four jobs, and four families.",
+     "Four jobs, four families."
+    ],
+    [
+     "A shopping cart, found by user id, fits key-value.",
+     "A cart by user id: key-value."
+    ],
+    [
+     "A whole product page fits a document.",
+     "A whole product page: document."
+    ],
+    [
+     "Friends of friends fits a graph.",
+     "Friends of friends: graph."
+    ],
+    [
+     "Events with varying columns fit wide-column.",
+     "Varying columns: wide-column."
+    ],
+    [
+     "Each job finds its family. Pick by the shape of the question.",
+     "Each job finds its family."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "If the data is a tree, use a document. If it is shared, use tables.",
+    "When the links are the data, use a graph.",
+    "Pick one of the four NoSQL families by the question you ask."
+   ]
+  }
+ ]
+}

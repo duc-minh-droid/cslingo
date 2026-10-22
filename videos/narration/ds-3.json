@@ -1,0 +1,255 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture three. Storage and retrieval. This is how a database keeps data on disk, and finds it again."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Some work is many small writes, such as orders.",
+     "Some work is many small writes."
+    ],
+    [
+     "Other work is one big read, scanning every row for one answer.",
+     "Other work is one big read."
+    ],
+    [
+     "The right design depends on the workload.",
+     "Design follows the workload."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A log is a file you only add to, one line at a time.",
+     "A log is a file you only add to."
+    ],
+    [
+     "A set adds a line at the end. The old bike line stays.",
+     "Set adds a line at the end."
+    ],
+    [
+     "A get scans the lines, and the last line for the key wins.",
+     "Get scans for the last line of a key."
+    ],
+    [
+     "A delete adds a tombstone line. Nothing is erased.",
+     "Delete adds a tombstone line."
+    ],
+    [
+     "The newest line for dock is the tombstone, so it says deleted.",
+     "The newest line says: deleted."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A write is one append, so one step.",
+     "A write is one append: one step."
+    ],
+    [
+     "A read scans every line, because the match could be the last.",
+     "A read scans every line."
+    ],
+    [
+     "Twice the data, twice the scan. That is big O of n.",
+     "Twice the data, twice the scan."
+    ],
+    [
+     "So a log needs an index to skip the scan.",
+     "We need an index."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Keep a map in memory, from each key to the byte offset where its line starts.",
+     "Keep a map in memory: key to byte offset."
+    ],
+    [
+     "To get mew, look up its offset.",
+     "Get mew: look up its offset."
+    ],
+    [
+     "Then jump straight there. One disk read, not nine.",
+     "One jump, one disk read."
+    ],
+    [
+     "A write appends a line, here for purr.",
+     "A write appends a line."
+    ],
+    [
+     "Then the map is updated, so purr points to the new line.",
+     "Every write updates the map."
+    ],
+    [
+     "So getting purr is still one jump.",
+     "Get purr: still one jump."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A log that only grows will fill the disk.",
+     "A log that only grows fills the disk."
+    ],
+    [
+     "So a file is closed at its size limit, and a new one opens.",
+     "So close a file at its size limit."
+    ],
+    [
+     "There are twelve records, but only three keys.",
+     "Many records, only three keys."
+    ],
+    [
+     "Compaction keeps the latest value of each key, so twelve records become three.",
+     "Compaction keeps the latest value per key."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The map must fit in memory, and only six of twelve keys do.",
+     "The whole map must fit in memory."
+    ],
+    [
+     "A range needs one lookup per key, because the map has no order.",
+     "A range needs one lookup per key."
+    ],
+    [
+     "Sorted keys sit side by side, so a range is one stretch.",
+     "Sorted keys sit side by side."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Three sorted segments, oldest on the left, each with every key once.",
+     "Three sorted segments, oldest left."
+    ],
+    [
+     "A ring marks the next key in each segment. The smallest is apple.",
+     "Take the smallest key first."
+    ],
+    [
+     "Apple is in two segments. The newest wins, so apple one is dropped.",
+     "Repeats: the newest wins."
+    ],
+    [
+     "For kiwi, the newest copy is a tombstone, so kiwi is written nowhere.",
+     "A newer tombstone deletes it."
+    ],
+    [
+     "Repeat for fig, mango and plum, until every segment is used up.",
+     "Repeat until every segment is used up."
+    ],
+    [
+     "Ten records went in. Four come out, sorted, with no old values.",
+     "One sorted segment, no old values."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "This segment is sorted by key, in three blocks of four.",
+     "A segment sorted by key."
+    ],
+    [
+     "So the index keeps just the first key of each block, three of twelve.",
+     "The index holds only some keys."
+    ],
+    [
+     "To find handbag, jump to the nearest indexed key before it, hand.",
+     "Jump to the key before it."
+    ],
+    [
+     "Then scan a short block. Two reads find handbag.",
+     "Scan a short block."
+    ],
+    [
+     "For a range, jump once, then read on until a key is past the end.",
+     "A range: one jump, read on."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Writes arrive in any order, and land in memory first.",
+     "Writes land in memory first."
+    ],
+    [
+     "A memtable is a tree. Smaller keys go left, bigger go right.",
+     "A tree keeps the keys in order."
+    ],
+    [
+     "When it is full, it is written to disk in order.",
+     "When full, write it out in order."
+    ],
+    [
+     "New writes go to a fresh memtable.",
+     "New writes get a new memtable."
+    ],
+    [
+     "A read checks memory first, then the newest segment.",
+     "Reads check memory, then newest."
+    ],
+    [
+     "The first hit wins. Fig is eleven, and the old eight is never read.",
+     "First hit wins: fig 11, not 8."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A log writes fast, but a read has to scan every line.",
+    "An index in memory jumps straight to the data.",
+    "Sorted segments merge easily, and need only a sparse index."
+   ]
+  }
+ ]
+}

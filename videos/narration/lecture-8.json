@@ -1,0 +1,255 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture eight. The Ant System. This is how ants build tours, and how trails learn."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each iteration has three steps. Step one puts the ants on random towns.",
+     "Step 1: put the ants on random towns."
+    ],
+    [
+     "Step two. Every ant builds a whole tour.",
+     "Step 2: every ant builds a whole tour."
+    ],
+    [
+     "Step three. The roads the ants used get thicker.",
+     "Step 3: roads the ants used get thicker."
+    ],
+    [
+     "Then the loop repeats. The ants forget, but the trails remember.",
+     "Repeat until done. Ants forget; trails remember."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One ant starts on town T, and that town goes on its tabu list.",
+     "Its start town goes on the tabu list."
+    ],
+    [
+     "At each step, it picks a town that is still allowed.",
+     "It picks a town that is still allowed."
+    ],
+    [
+     "A town on the tabu list is never picked again.",
+     "A visited town is never picked again."
+    ],
+    [
+     "When nothing is allowed, the ant goes home. The tour is seventy-four kilometres long.",
+     "Back home: tour length 74 km."
+    ],
+    [
+     "For the next tour, the tabu list starts empty.",
+     "Next tour: the tabu list starts empty."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "At a town, the ant scores each road.",
+     "Each road gets a score."
+    ],
+    [
+     "Closeness, or the heuristic, is one over the distance, so nearer is higher.",
+     "Closeness (heuristic) is 1 over distance."
+    ],
+    [
+     "The score is the trail times the closeness.",
+     "Score: trail times closeness."
+    ],
+    [
+     "A village already visited scores zero, however strong its trail.",
+     "A visited town scores zero."
+    ],
+    [
+     "Each score's share of the total is its chance. Here that is twenty, forty, forty and zero percent.",
+     "Each score's share of the total is its chance."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The ant draws a random number between zero and one.",
+     "The ant draws a random number."
+    ],
+    [
+     "The slice it lands in wins. Zero point three one falls in the Birch slice.",
+     "The slice it lands in wins."
+    ],
+    [
+     "Unlikely roads can still win. Zero point zero eight lands in the small Ash slice.",
+     "Unlikely roads can still win."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the rule gets two dials. The score is trail to the power alpha, times closeness to the power beta.",
+     "Same rule as before, with two dials."
+    ],
+    [
+     "Alpha is trust in the trail. Beta is trust in closeness.",
+     "Alpha trusts the trail; beta, closeness."
+    ],
+    [
+     "Alpha zero and beta three ignores the trail, and favours the nearest village, with eighty-two percent.",
+     "Alpha 0, beta 3: the nearest is favoured."
+    ],
+    [
+     "Alpha three and beta zero ignores distance, and favours the strongest trail.",
+     "Alpha 3, beta 0: the strongest trail is favoured."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Take one road, with a trail of four.",
+     "This road carries a trail of 4."
+    ],
+    [
+     "First, evaporation. Half fades away, which leaves two.",
+     "Evaporation: half of it fades."
+    ],
+    [
+     "Then each ant on the road adds Q over its tour length. With Q at one hundred, tours of twenty-five, fifty and a hundred kilometres add four, two and one.",
+     "Each ant that used it adds Q over its tour length."
+    ],
+    [
+     "Shorter tours leave more trail.",
+     "Shorter tours leave more."
+    ],
+    [
+     "The new trail is two plus seven, which is nine.",
+     "New trail: 2 + 7 = 9."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A colony of ten ants runs on ten villages. At first the trails are thin and equal.",
+     "At first the trails are thin and equal."
+    ],
+    [
+     "Short tours leave more trail.",
+     "Short tours leave more trail."
+    ],
+    [
+     "So more ants follow that trail.",
+     "So more ants follow that trail."
+    ],
+    [
+     "More ants add more trail, so it snowballs.",
+     "More ants, more trail: it snowballs."
+    ],
+    [
+     "In fourteen iterations, the share of trail on the best tour climbs from forty to a hundred percent.",
+     "The colony settles on one short tour."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Six ants have finished. The variants differ in which of them add trail.",
+     "Six ants finish. Which of them add trail?"
+    ],
+    [
+     "In the Ant System, all ants add trail.",
+     "Ant System: all ants add trail."
+    ],
+    [
+     "In elitist rank, only the best three do.",
+     "Elitist rank: only the best 3."
+    ],
+    [
+     "In the Max-Min style, only the best one does.",
+     "Max-Min style: only the best 1."
+    ],
+    [
+     "Fewer depositors pile more trail onto the best tour. Its share rises from fifty-three to ninety, then ninety-seven percent.",
+     "Fewer depositors pile trail on the best tour."
+    ],
+    [
+     "But more runs end on a poor tour: three, five, then seventeen out of forty.",
+     "But more runs end on a poor tour."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Ants are not only for tours. Here is a print shop, with five jobs and one press.",
+     "A print shop: five jobs, one press."
+    ],
+    [
+     "The ant picks a job by the same rule as before.",
+     "The ant picks a job by the same rule."
+    ],
+    [
+     "It picks one job at a time, never twice.",
+     "It picks one job at a time, never twice."
+    ],
+    [
+     "The path is the schedule. Lateness is the finish time minus the due time.",
+     "Lateness: finish time minus due time."
+    ],
+    [
+     "On average, a job is fifty-four minutes late, and the worst is seventy.",
+     "Average 54 minutes late, worst 70."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2.0,
+    3.1
+   ],
+   "lines": [
+    "The loop is place, build, update, and repeat.",
+    "Score each road as trail times closeness, then draw by chance.",
+    "Update by evaporating, then adding Q over the tour length."
+   ]
+  }
+ ]
+}

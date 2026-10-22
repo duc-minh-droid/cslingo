@@ -1,0 +1,828 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.71,
+     "Lecture three. Storage and retrieval. This is how a database keeps data on disk, and finds it again."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/df291feaec7208eb.wav",
+     "at": 0.5,
+     "len": 6.96
+    }
+   ]
+  },
+  {
+   "dur": 13.351,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.68,
+     4.9
+    ],
+    [
+     9.82,
+     8
+    ],
+    [
+     13.351,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Some work is many small writes."
+    ],
+    [
+     4.68,
+     9.57,
+     "Other work is one big read."
+    ],
+    [
+     9.82,
+     12.55,
+     "Design follows the workload."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0413c88d0aa18c37.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/1928d15483957d3f.wav",
+     "at": 4.68,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/d06980d9d1212a55.wav",
+     "at": 9.82,
+     "len": 2.48
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.16,
+     3.1
+    ],
+    [
+     10.38,
+     5.6
+    ],
+    [
+     14.64,
+     8.5
+    ],
+    [
+     19.3,
+     10.9
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "A log is a file you only add to."
+    ],
+    [
+     5.16,
+     10.13,
+     "Set adds a line at the end."
+    ],
+    [
+     10.38,
+     14.39,
+     "Get scans for the last line of a key."
+    ],
+    [
+     14.64,
+     19.05,
+     "Delete adds a tombstone line."
+    ],
+    [
+     19.3,
+     23.87,
+     "The newest line says: deleted."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bd031da374bcbd46.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/77eec32f0662b17e.wav",
+     "at": 5.16,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/f0493a081c0af3da.wav",
+     "at": 10.38,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/6356bf2d168f1eed.wav",
+     "at": 14.64,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/2f4c7c21342e6f24.wav",
+     "at": 19.3,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 18.414,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.12,
+     3.6
+    ],
+    [
+     8.7,
+     7.05
+    ],
+    [
+     13.68,
+     9.5
+    ],
+    [
+     18.414,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.87,
+     "A write is one append: one step."
+    ],
+    [
+     4.12,
+     8.45,
+     "A read scans every line."
+    ],
+    [
+     8.7,
+     13.43,
+     "Twice the data, twice the scan."
+    ],
+    [
+     13.68,
+     17.29,
+     "We need an index."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b7366e85323b6bef.wav",
+     "at": 0.5,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/632e4bb5e52a0ee4.wav",
+     "at": 4.12,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/ff30e454a8f4febb.wav",
+     "at": 8.7,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b9f146cb5433694b.wav",
+     "at": 13.68,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 26.679,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.963,
+     1.75
+    ],
+    [
+     7.303,
+     4.5
+    ],
+    [
+     9.963,
+     6.25
+    ],
+    [
+     14.383,
+     8.05
+    ],
+    [
+     18.082,
+     9.65
+    ],
+    [
+     22.343,
+     11.4
+    ],
+    [
+     26.679,
+     13.4
+    ]
+   ],
+   "caps": [
+    [
+     0.96,
+     7.05,
+     "Keep a map in memory: key to byte offset."
+    ],
+    [
+     7.3,
+     9.71,
+     "Get mew: look up its offset."
+    ],
+    [
+     9.96,
+     14.13,
+     "One jump, one disk read."
+    ],
+    [
+     14.38,
+     17.83,
+     "A write appends a line."
+    ],
+    [
+     18.08,
+     22.09,
+     "Every write updates the map."
+    ],
+    [
+     22.34,
+     25.07,
+     "Get purr: still one jump."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/97b27c3f720c2a67.wav",
+     "at": 0.963,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/a33d95bfa154a64f.wav",
+     "at": 7.303,
+     "len": 2.16
+    },
+    {
+     "file": "videos/audio/clips/db18bc56461d3df0.wav",
+     "at": 9.963,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/d65993af16a9bd1f.wav",
+     "at": 14.383,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/1276a7b521f81586.wav",
+     "at": 18.082,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/56c3e6a4693fed87.wav",
+     "at": 22.343,
+     "len": 2.48
+    }
+   ]
+  },
+  {
+   "dur": 19.9,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     3.93,
+     3.35
+    ],
+    [
+     8.67,
+     7.15
+    ],
+    [
+     12.77,
+     10.2
+    ],
+    [
+     19.9,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     3.68,
+     "A log that only grows fills the disk."
+    ],
+    [
+     3.93,
+     8.42,
+     "So close a file at its size limit."
+    ],
+    [
+     8.67,
+     12.52,
+     "Many records, only three keys."
+    ],
+    [
+     12.77,
+     18.7,
+     "Compaction keeps the latest value per key."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7e10de5dff07cc1f.wav",
+     "at": 0.55,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/02615419eec94dab.wav",
+     "at": 3.93,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/0a6e93cc75390398.wav",
+     "at": 8.67,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/bc3a3b3f3d168f43.wav",
+     "at": 12.77,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 16.649,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.605,
+     1.1
+    ],
+    [
+     5.425,
+     5.5
+    ],
+    [
+     11.125,
+     8.8
+    ],
+    [
+     16.649,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.61,
+     5.18,
+     "The whole map must fit in memory."
+    ],
+    [
+     5.43,
+     10.88,
+     "A range needs one lookup per key."
+    ],
+    [
+     11.13,
+     15.62,
+     "Sorted keys sit side by side."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/46a24f48cf52d8ca.wav",
+     "at": 0.605,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/8986c3c414248075.wav",
+     "at": 5.425,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/bdd2614ef7b9d0d5.wav",
+     "at": 11.125,
+     "len": 4.24
+    }
+   ]
+  },
+  {
+   "dur": 33.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.522,
+     0.95
+    ],
+    [
+     5.742,
+     3.1
+    ],
+    [
+     10.402,
+     4.85
+    ],
+    [
+     15.863,
+     7
+    ],
+    [
+     21.242,
+     9
+    ],
+    [
+     26.543,
+     11.6
+    ],
+    [
+     33.344,
+     14.2
+    ]
+   ],
+   "caps": [
+    [
+     0.52,
+     5.49,
+     "Three sorted segments, oldest left."
+    ],
+    [
+     5.74,
+     10.15,
+     "Take the smallest key first."
+    ],
+    [
+     10.4,
+     15.61,
+     "Repeats: the newest wins."
+    ],
+    [
+     15.86,
+     20.99,
+     "A newer tombstone deletes it."
+    ],
+    [
+     21.24,
+     26.29,
+     "Repeat until every segment is used up."
+    ],
+    [
+     26.54,
+     31.83,
+     "One sorted segment, no old values."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/340f01154ada1c71.wav",
+     "at": 0.522,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/377981fc8dbae229.wav",
+     "at": 5.742,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/39130f0c44f6cc93.wav",
+     "at": 10.402,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/9f65d1a21393d859.wav",
+     "at": 15.863,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/12943aab01cab415.wav",
+     "at": 21.242,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/98ad4e287b37ba76.wav",
+     "at": 26.543,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 25.007,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.522,
+     0.95
+    ],
+    [
+     5.022,
+     3
+    ],
+    [
+     10.162,
+     5.3
+    ],
+    [
+     15.462,
+     7
+    ],
+    [
+     19.883,
+     8.6
+    ],
+    [
+     25.007,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.52,
+     4.77,
+     "A segment sorted by key."
+    ],
+    [
+     5.02,
+     9.91,
+     "The index holds only some keys."
+    ],
+    [
+     10.16,
+     15.21,
+     "Jump to the key before it."
+    ],
+    [
+     15.46,
+     19.63,
+     "Scan a short block."
+    ],
+    [
+     19.88,
+     24.37,
+     "A range: one jump, read on."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e102a0639885962b.wav",
+     "at": 0.522,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/e4079902cf3d8e3b.wav",
+     "at": 5.022,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/dbcb03236159b101.wav",
+     "at": 10.162,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/56026baaefb669fd.wav",
+     "at": 15.462,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/26e8a0833feb6b8e.wav",
+     "at": 19.883,
+     "len": 4.24
+    }
+   ]
+  },
+  {
+   "dur": 28.329,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.85
+    ],
+    [
+     4.68,
+     2.95
+    ],
+    [
+     10.22,
+     5.3
+    ],
+    [
+     13.84,
+     8
+    ],
+    [
+     16.58,
+     10
+    ],
+    [
+     20.76,
+     12.4
+    ],
+    [
+     28.329,
+     14.6
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Writes land in memory first."
+    ],
+    [
+     4.68,
+     9.97,
+     "A tree keeps the keys in order."
+    ],
+    [
+     10.22,
+     13.59,
+     "When full, write it out in order."
+    ],
+    [
+     13.84,
+     16.33,
+     "New writes get a new memtable."
+    ],
+    [
+     16.58,
+     20.51,
+     "Reads check memory, then newest."
+    ],
+    [
+     20.76,
+     26.21,
+     "First hit wins: fig 11, not 8."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/52d3255fbbfac9a5.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/458611ecd9152ea5.wav",
+     "at": 4.68,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/fcf47ad90a8cce3d.wav",
+     "at": 10.22,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/191154bb099ffa49.wav",
+     "at": 13.84,
+     "len": 2.24
+    },
+    {
+     "file": "videos/audio/clips/9808747b475cc40f.wav",
+     "at": 16.58,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/5f1db927179915b8.wav",
+     "at": 20.76,
+     "len": 5.2
+    }
+   ]
+  },
+  {
+   "dur": 15.209,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     8.46,
+     3.1
+    ],
+    [
+     15.209,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6a2309aa459fc1cd.wav",
+     "at": 0.5,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/2d7125802f3d4a6f.wav",
+     "at": 5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/439a81927afa15ae.wav",
+     "at": 8.46,
+     "len": 4.56
+    }
+   ]
+  }
+ ]
+}

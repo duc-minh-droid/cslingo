@@ -1,0 +1,231 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture five. Partitioning. This is how data that is too big for one node gets split across many."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "There are twelve orders, but each node has room for only eight.",
+     "12 orders; room for eight per node."
+    ],
+    [
+     "So a full copy on every node does not fit.",
+     "A full copy per node does not fit."
+    ],
+    [
+     "Instead we split the data, and each order lives in exactly one partition.",
+     "Split: each order lives in one partition."
+    ],
+    [
+     "Each partition is also copied to another node, in case one fails.",
+     "Each partition is also copied to another node."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "With key ranges, each node owns a range of the keys.",
+     "Each node owns a range of keys."
+    ],
+    [
+     "Okafor falls between N and S, so node three takes it.",
+     "Okafor falls in N to S, so node 3 takes it."
+    ],
+    [
+     "A query from Khan to Mills finds every name on one node.",
+     "Khan to Mills: one node holds them all."
+    ],
+    [
+     "That is the benefit. Neighbouring keys sit together.",
+     "Neighbouring keys sit together."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the key is the time of the write. Each node owns some hours.",
+     "Key by time: each node owns hours."
+    ],
+    [
+     "It is the afternoon, so writes go to the node for twelve to seventeen.",
+     "It is afternoon: writes go to 12 to 17."
+    ],
+    [
+     "Write after write, they all land on the same node.",
+     "Write after write, all on the same node."
+    ],
+    [
+     "That is one hot spot, while three nodes sit idle.",
+     "One hot spot while three nodes sit idle."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A hash function turns a key into a number.",
+     "A hash turns a key into a number."
+    ],
+    [
+     "Each node owns a range of hash values.",
+     "Each node owns a range of hash values."
+    ],
+    [
+     "Keys arrive in order, but land all over the nodes.",
+     "Keys arrive in order but land all over."
+    ],
+    [
+     "Eight keys, and every node ends up with two.",
+     "Eight keys: two on every node."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are the same sixteen users, laid out two ways.",
+     "The same 16 users, laid out two ways."
+    ],
+    [
+     "Now ask for ids one hundred and one to one hundred and four.",
+     "Now ask for ids 101 to 104."
+    ],
+    [
+     "With key ranges, all four are on one node.",
+     "Key ranges: all four are on one node."
+    ],
+    [
+     "With hashing, they are on four different nodes. So range queries get expensive.",
+     "Hash: they are on four different nodes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each partition indexes only its own cars. This is a local index.",
+     "Each partition indexes only its own cars."
+    ],
+    [
+     "Now search for red cars.",
+     "Search for red cars."
+    ],
+    [
+     "Any partition may hold one, so we must ask all three.",
+     "Any partition may hold one, so ask all three."
+    ],
+    [
+     "Then we gather the answers into one list.",
+     "Gather the answers into one list."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The other way is to split the index itself, by term.",
+     "Or split the index itself, by term."
+    ],
+    [
+     "Now a search for red reads just one index partition.",
+     "A search reads just one index partition."
+    ],
+    [
+     "But saving a blue mini updates two index partitions.",
+     "Save a blue mini: two index partitions change."
+    ],
+    [
+     "So reads are cheap, and writes cost more.",
+     "Cheap reads, dearer writes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Twelve items sit on three nodes, and a fourth node joins.",
+     "Twelve items on three nodes. A fourth joins."
+    ],
+    [
+     "With hash modulo N, the N changes, so nine of the twelve keys move.",
+     "Hash mod N: N changed, so 9 of 12 keys move."
+    ],
+    [
+     "With fixed partitions, the new node steals three whole partitions.",
+     "Fixed partitions: it steals 3 whole ones."
+    ],
+    [
+     "Three moves, instead of nine.",
+     "Three moves instead of nine."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each partition has a size limit, here ten gigabytes.",
+     "Each partition has a size limit: 10 GB."
+    ],
+    [
+     "As data grows, partition two reaches twelve gigabytes, over the limit.",
+     "Data grows: P2 hits 12 GB, over the limit."
+    ],
+    [
+     "So it splits in two, and one half can move to another node.",
+     "It splits; one half can move node."
+    ],
+    [
+     "If data shrinks, small neighbours merge.",
+     "Data shrinks: neighbours merge."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Split big data into partitions, so that each node holds only a piece.",
+    "Key ranges keep keys in order. Hashes spread the load evenly.",
+    "When a new node joins, move whole partitions only."
+   ]
+  }
+ ]
+}

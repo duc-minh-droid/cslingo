@@ -1,0 +1,828 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.07,
+     "Lecture eight. The Ant System. This is how ants build tours, and how trails learn."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/04fe53cb4abe4038.wav",
+     "at": 0.5,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.77,
+     1.4
+    ],
+    [
+     6.95,
+     3.8
+    ],
+    [
+     10.49,
+     6.9
+    ],
+    [
+     14.27,
+     10.4
+    ],
+    [
+     20.016,
+     13.2
+    ]
+   ],
+   "caps": [
+    [
+     0.77,
+     6.7,
+     "Step 1: put the ants on random towns."
+    ],
+    [
+     6.95,
+     10.24,
+     "Step 2: every ant builds a whole tour."
+    ],
+    [
+     10.49,
+     14.02,
+     "Step 3: roads the ants used get thicker."
+    ],
+    [
+     14.27,
+     19.16,
+     "Repeat until done. Ants forget; trails remember."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/55a0033694116dfc.wav",
+     "at": 0.77,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/3a6b11ff24f098f7.wav",
+     "at": 6.95,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/a52846b20a2282e4.wav",
+     "at": 10.49,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/fd383ac00cde4335.wav",
+     "at": 14.27,
+     "len": 4.64
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.77,
+     1.4
+    ],
+    [
+     6.71,
+     3.9
+    ],
+    [
+     10.17,
+     6.2
+    ],
+    [
+     14.03,
+     9.4
+    ],
+    [
+     20.77,
+     11.7
+    ],
+    [
+     25.008,
+     14.2
+    ]
+   ],
+   "caps": [
+    [
+     0.77,
+     6.46,
+     "Its start town goes on the tabu list."
+    ],
+    [
+     6.71,
+     9.92,
+     "It picks a town that is still allowed."
+    ],
+    [
+     10.17,
+     13.78,
+     "A visited town is never picked again."
+    ],
+    [
+     14.03,
+     20.52,
+     "Back home: tour length 74 km."
+    ],
+    [
+     20.77,
+     24.3,
+     "Next tour: the tabu list starts empty."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/613c78a7585fb5cb.wav",
+     "at": 0.77,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/8edcef005044ebfc.wav",
+     "at": 6.71,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/ef2a67977b175895.wav",
+     "at": 10.17,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/687fcc24c24b2ac0.wav",
+     "at": 14.03,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/fe1f5269c8286750.wav",
+     "at": 20.77,
+     "len": 3.28
+    }
+   ]
+  },
+  {
+   "dur": 26.726,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     3.64,
+     3
+    ],
+    [
+     9.34,
+     5.5
+    ],
+    [
+     12.96,
+     7.8
+    ],
+    [
+     17.94,
+     10.8
+    ],
+    [
+     26.726,
+     13.7
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.39,
+     "Each road gets a score."
+    ],
+    [
+     3.64,
+     9.09,
+     "Closeness (heuristic) is 1 over distance."
+    ],
+    [
+     9.34,
+     12.71,
+     "Score: trail times closeness."
+    ],
+    [
+     12.96,
+     17.69,
+     "A visited town scores zero."
+    ],
+    [
+     17.94,
+     25.39,
+     "Each score's share of the total is its chance."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5f47756db13a91d3.wav",
+     "at": 0.5,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/f18d388e7ab593a9.wav",
+     "at": 3.64,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/c44b8debc9d104eb.wav",
+     "at": 9.34,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/f8b68015ca9b239f.wav",
+     "at": 12.96,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/99ed8631ab9084ea.wav",
+     "at": 17.94,
+     "len": 7.2
+    }
+   ]
+  },
+  {
+   "dur": 18.483,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.52,
+     3.4
+    ],
+    [
+     10.94,
+     6.6
+    ],
+    [
+     18.483,
+     9
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.27,
+     "The ant draws a random number."
+    ],
+    [
+     4.52,
+     10.69,
+     "The slice it lands in wins."
+    ],
+    [
+     10.94,
+     17.83,
+     "Unlikely roads can still win."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8a2792d0d8a4e997.wav",
+     "at": 0.66,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/29dd1f6f5fd85238.wav",
+     "at": 4.52,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/6c8a119b78d21276.wav",
+     "at": 10.94,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 28.119,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.64,
+     2.7
+    ],
+    [
+     12.62,
+     6.2
+    ],
+    [
+     20.24,
+     9.8
+    ],
+    [
+     28.119,
+     12.9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "Same rule as before, with two dials."
+    ],
+    [
+     7.64,
+     12.37,
+     "Alpha trusts the trail; beta, closeness."
+    ],
+    [
+     12.62,
+     19.99,
+     "Alpha 0, beta 3: the nearest is favoured."
+    ],
+    [
+     20.24,
+     26.01,
+     "Alpha 3, beta 0: the strongest trail is favoured."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/dfd0f72c26b6e226.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/7b417f59630a6b5e.wav",
+     "at": 7.64,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b585531c892f384a.wav",
+     "at": 12.62,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/f0b85120a415320d.wav",
+     "at": 20.24,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     3.48,
+     3
+    ],
+    [
+     7.98,
+     5.4
+    ],
+    [
+     19.2,
+     9.1
+    ],
+    [
+     22.34,
+     10.7
+    ],
+    [
+     26.657,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.23,
+     "This road carries a trail of 4."
+    ],
+    [
+     3.48,
+     7.73,
+     "Evaporation: half of it fades."
+    ],
+    [
+     7.98,
+     18.95,
+     "Each ant that used it adds Q over its tour length."
+    ],
+    [
+     19.2,
+     22.09,
+     "Shorter tours leave more."
+    ],
+    [
+     22.34,
+     25.95,
+     "New trail: 2 + 7 = 9."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/79df3e4cedc7a1dc.wav",
+     "at": 0.5,
+     "len": 2.48
+    },
+    {
+     "file": "videos/audio/clips/0b770dff77962f65.wav",
+     "at": 3.48,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/df4ad107a05c4ee5.wav",
+     "at": 7.98,
+     "len": 10.72
+    },
+    {
+     "file": "videos/audio/clips/abc3df568224d85d.wav",
+     "at": 19.2,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/f4abaf9049142724.wav",
+     "at": 22.34,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     7.56,
+     3.5
+    ],
+    [
+     10.22,
+     6
+    ],
+    [
+     13.12,
+     8.3
+    ],
+    [
+     17.14,
+     10.4
+    ],
+    [
+     25.008,
+     13.2
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "At first the trails are thin and equal."
+    ],
+    [
+     7.56,
+     9.97,
+     "Short tours leave more trail."
+    ],
+    [
+     10.22,
+     12.87,
+     "So more ants follow that trail."
+    ],
+    [
+     13.12,
+     16.89,
+     "More ants, more trail: it snowballs."
+    ],
+    [
+     17.14,
+     23.79,
+     "The colony settles on one short tour."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/04fe0be98f6d61e4.wav",
+     "at": 0.5,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/3fb2742abd7371e6.wav",
+     "at": 7.56,
+     "len": 2.16
+    },
+    {
+     "file": "videos/audio/clips/1fed0e3ce7b67714.wav",
+     "at": 10.22,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/32a2749e43cda6a4.wav",
+     "at": 13.12,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/4be6e56a327dc08b.wav",
+     "at": 17.14,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 33.436,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     6.04,
+     3.3
+    ],
+    [
+     9.66,
+     5.1
+    ],
+    [
+     13.04,
+     6.9
+    ],
+    [
+     16.98,
+     9
+    ],
+    [
+     26.2,
+     11.6
+    ],
+    [
+     33.436,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.79,
+     "Six ants finish. Which of them add trail?"
+    ],
+    [
+     6.04,
+     9.41,
+     "Ant System: all ants add trail."
+    ],
+    [
+     9.66,
+     12.79,
+     "Elitist rank: only the best 3."
+    ],
+    [
+     13.04,
+     16.73,
+     "Max-Min style: only the best 1."
+    ],
+    [
+     16.98,
+     25.95,
+     "Fewer depositors pile trail on the best tour."
+    ],
+    [
+     26.2,
+     32.61,
+     "But more runs end on a poor tour."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/14c6348802cf1f99.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/a7d5215cdb1ac22b.wav",
+     "at": 6.04,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/0d73107c827166be.wav",
+     "at": 9.66,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/dbe885c32eb7477f.wav",
+     "at": 13.04,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/38bd2beb6550ffe2.wav",
+     "at": 16.98,
+     "len": 8.72
+    },
+    {
+     "file": "videos/audio/clips/20b76996374d8178.wav",
+     "at": 26.2,
+     "len": 6.16
+    }
+   ]
+  },
+  {
+   "dur": 25.124,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.44,
+     3.1
+    ],
+    [
+     10.46,
+     5.9
+    ],
+    [
+     14.08,
+     9.3
+    ],
+    [
+     19.54,
+     11.6
+    ],
+    [
+     25.124,
+     13.7
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "A print shop: five jobs, one press."
+    ],
+    [
+     6.44,
+     10.21,
+     "The ant picks a job by the same rule."
+    ],
+    [
+     10.46,
+     13.83,
+     "It picks one job at a time, never twice."
+    ],
+    [
+     14.08,
+     19.29,
+     "Lateness: finish time minus due time."
+    ],
+    [
+     19.54,
+     24.19,
+     "Average 54 minutes late, worst 70."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/822741500ee28bc8.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/c7427d6c06d20b65.wav",
+     "at": 6.44,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/57c5c2591270cdff.wav",
+     "at": 10.46,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/e9060d725aef2dac.wav",
+     "at": 14.08,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/35bc18af58caf3c9.wav",
+     "at": 19.54,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 15.186,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.76,
+     2
+    ],
+    [
+     9.74,
+     3.1
+    ],
+    [
+     15.186,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7af83266f0d9faad.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/2f328c607e8c708b.wav",
+     "at": 4.76,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/0e5dfb9cd9cd3d01.wav",
+     "at": 9.74,
+     "len": 4.32
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,828 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.23,
+     "Algorithms, phase four. Minimum spanning trees. This is the cheapest way to connect everything."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/138233849fdadd1f.wav",
+     "at": 0.5,
+     "len": 6.48
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.08,
+     3
+    ],
+    [
+     9.18,
+     6.1
+    ],
+    [
+     14.56,
+     8.7
+    ],
+    [
+     20.016,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "Link every town. Each cable has a cost."
+    ],
+    [
+     5.08,
+     8.93,
+     "Add cables until every town is linked."
+    ],
+    [
+     9.18,
+     14.31,
+     "Five towns, four cables: always one fewer."
+    ],
+    [
+     14.56,
+     18.97,
+     "A fifth cable makes a loop. A tree has no loops."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/22a3600252495240.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/985b8c193227a58f.wav",
+     "at": 5.08,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/0518b97310d6108e.wav",
+     "at": 9.18,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/f0b50a294d8b1c5a.wav",
+     "at": 14.56,
+     "len": 4.16
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     3
+    ],
+    [
+     9.82,
+     5.7
+    ],
+    [
+     13.28,
+     7.5
+    ],
+    [
+     21.664,
+     11.1
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "The same five towns have 21 different spanning trees."
+    ],
+    [
+     5.32,
+     9.57,
+     "Each tree has a total cost, from 11 to 22."
+    ],
+    [
+     9.82,
+     13.03,
+     "The cheapest is the minimum spanning tree."
+    ],
+    [
+     13.28,
+     19.93,
+     "Bigger networks have far too many trees to try them all."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ccda8022ca1939c9.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/52960d4cc190737b.wav",
+     "at": 5.32,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/b6c88697bfb1f860.wav",
+     "at": 9.82,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/1fdfbddb3a9d61c4.wav",
+     "at": 13.28,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 33.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3.2
+    ],
+    [
+     10.54,
+     5.6
+    ],
+    [
+     15.12,
+     8
+    ],
+    [
+     20.98,
+     10.4
+    ],
+    [
+     26.52,
+     12.7
+    ],
+    [
+     33.344,
+     15.6
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Split the towns into X and the rest: a cut."
+    ],
+    [
+     5.4,
+     10.29,
+     "A tree must cross it. AC is the cheapest."
+    ],
+    [
+     10.54,
+     14.87,
+     "Suppose a tree uses the dearer cable AB."
+    ],
+    [
+     15.12,
+     20.73,
+     "Add AC: a loop. AB also crosses the cut."
+    ],
+    [
+     20.98,
+     26.27,
+     "Drop the dearer AB: the tree is cheaper."
+    ],
+    [
+     26.52,
+     32.53,
+     "Cheapest across a cut is safe: a cheapest tree uses it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4abac19567f346fc.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/d8a8aaa8ceaf108c.wav",
+     "at": 5.4,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/dd88719329e43716.wav",
+     "at": 10.54,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/09e3ce47d003fd67.wav",
+     "at": 15.12,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/edcfca25d7dcce48.wav",
+     "at": 20.98,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/fdc30cfa3793d98a.wav",
+     "at": 26.52,
+     "len": 5.76
+    }
+   ]
+  },
+  {
+   "dur": 23.359,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.84,
+     2.8
+    ],
+    [
+     8.62,
+     6.2
+    ],
+    [
+     12.72,
+     9.6
+    ],
+    [
+     18.02,
+     11.3
+    ],
+    [
+     23.359,
+     13.4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "Start anywhere. List the cables leaving the tree."
+    ],
+    [
+     4.84,
+     8.37,
+     "Take the cheapest one. A new town joins."
+    ],
+    [
+     8.62,
+     12.47,
+     "Repeat. A cable inside the tree is ignored."
+    ],
+    [
+     12.72,
+     17.77,
+     "DE 1 is the cheapest. E joins."
+    ],
+    [
+     18.02,
+     21.79,
+     "Every town is in. The cheapest tree costs 11."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9b1c73b7fe538279.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/a8a9f8ef01b063d1.wav",
+     "at": 4.84,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/8c4ba0d71fbf2e83.wav",
+     "at": 8.62,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/9ac98442fea8501f.wav",
+     "at": 12.72,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/0e62f44337b3048b.wav",
+     "at": 18.02,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 26.61,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.28,
+     3.1
+    ],
+    [
+     9.66,
+     6.6
+    ],
+    [
+     12.56,
+     8.5
+    ],
+    [
+     17.54,
+     11.1
+    ],
+    [
+     21.08,
+     13
+    ],
+    [
+     26.61,
+     15.2
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.03,
+     "Sort every cable by cost. Each town is its own group."
+    ],
+    [
+     6.28,
+     9.41,
+     "Take the cheapest cable that joins two groups."
+    ],
+    [
+     9.66,
+     12.31,
+     "Groups merge as cables join them."
+    ],
+    [
+     12.56,
+     17.29,
+     "A and B are already joined. Skip AB."
+    ],
+    [
+     17.54,
+     20.83,
+     "BD joins the last two groups."
+    ],
+    [
+     21.08,
+     24.85,
+     "Four cables suffice. The rest are never read."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6cc738d26096727e.wav",
+     "at": 0.5,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/38ee59d8152e832e.wav",
+     "at": 6.28,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/c71a53f4134ec197.wav",
+     "at": 9.66,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/aaf1b311eb8175b2.wav",
+     "at": 12.56,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/22372f67daeb1056.wav",
+     "at": 17.54,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/b253be4d0750ae99.wav",
+     "at": 21.08,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.28,
+     2.8
+    ],
+    [
+     7.58,
+     6.1
+    ],
+    [
+     10.4,
+     8.3
+    ],
+    [
+     14.26,
+     10.9
+    ],
+    [
+     18.344,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.03,
+     "Prim: the cut is the tree so far."
+    ],
+    [
+     4.28,
+     7.33,
+     "It takes the cheapest cable across the cut."
+    ],
+    [
+     7.58,
+     10.15,
+     "Kruskal: the cut is one group."
+    ],
+    [
+     10.4,
+     14.01,
+     "Same rule: the cheapest cable across."
+    ],
+    [
+     14.26,
+     17.71,
+     "Only safe choices, so the same tree."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ee1fcaffd5f1643d.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/54f60481e8be64c1.wav",
+     "at": 4.28,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/9406a0541c71501f.wav",
+     "at": 7.58,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/b15aca68d790fe17.wav",
+     "at": 10.4,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/0f6e19e89022f667.wav",
+     "at": 14.26,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.64,
+     4
+    ],
+    [
+     10.06,
+     7.4
+    ],
+    [
+     18.344,
+     10.8
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "Prim's array version counts towns. Kruskal's counts cables."
+    ],
+    [
+     5.64,
+     9.81,
+     "Few cables: Kruskal does far less."
+    ],
+    [
+     10.06,
+     16.63,
+     "Every pair linked: Prim wins. Same tree cost either way."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/69c243fce26a11cf.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/2191c00f983c6738.wav",
+     "at": 5.64,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/3e64eaee839e24a4.wav",
+     "at": 10.06,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 30.093,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.52,
+     2.9
+    ],
+    [
+     10.46,
+     5
+    ],
+    [
+     17.6,
+     8.4
+    ],
+    [
+     22.5,
+     11.5
+    ],
+    [
+     30.093,
+     13.6
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.27,
+     "Goal: the shortest round trip through every town."
+    ],
+    [
+     4.52,
+     10.21,
+     "A cheap start: the cheapest tree, cost W."
+    ],
+    [
+     10.46,
+     17.35,
+     "Walk round it. Every cable is used twice: 2W."
+    ],
+    [
+     17.6,
+     22.25,
+     "Skip towns already visited. Detours become direct legs."
+    ],
+    [
+     22.5,
+     28.27,
+     "Straight is never longer: tour at most 2W."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d38f35886c0a1763.wav",
+     "at": 0.5,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/c80b991b7c76cfe5.wav",
+     "at": 4.52,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/1bfea92ab6e5b0b0.wav",
+     "at": 10.46,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/a3f773a9dc0f75b2.wav",
+     "at": 17.6,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/1c47288e8665fe0c.wav",
+     "at": 22.5,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 21.571,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.6,
+     3.6
+    ],
+    [
+     11.02,
+     6.2
+    ],
+    [
+     15.28,
+     8.6
+    ],
+    [
+     21.571,
+     10.9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "Cut one cable from the best tour: a spanning tree is left."
+    ],
+    [
+     6.6,
+     10.77,
+     "W is the cheapest tree, so best is at least W."
+    ],
+    [
+     11.02,
+     15.03,
+     "Our tour costs at most the walk, 2W."
+    ],
+    [
+     15.28,
+     20.57,
+     "So it is never worse than twice the best."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0be425ffee08000a.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/acc8e8b39159807a.wav",
+     "at": 6.6,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/75389994f9eacdd6.wav",
+     "at": 11.02,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/732cef98ba8719e5.wav",
+     "at": 15.28,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 15.279,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.44,
+     2
+    ],
+    [
+     8.46,
+     3.1
+    ],
+    [
+     15.279,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/85a8b897733cc748.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/0f91ad6618f0bdb3.wav",
+     "at": 4.44,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/23892990bbed4861.wav",
+     "at": 8.46,
+     "len": 5.28
+    }
+   ]
+  }
+ ]
+}

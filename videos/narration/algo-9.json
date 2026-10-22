@@ -1,0 +1,279 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Phase nine. Fourier transform and the F F T. This is how every signal splits into waves."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Count the crests in one second. Five crests means five hertz.",
+     "Count the waves in one second."
+    ],
+    [
+     "Add a faster, weaker wave of twelve hertz, and the sum is one wiggle.",
+     "Two waves added make one wiggle."
+    ],
+    [
+     "Each bar shows which wave is inside, and how strong.",
+     "Each bar: which wave, and how strong."
+    ],
+    [
+     "One signal, described over time and by frequency.",
+     "One signal, two descriptions."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Our target is a square wave, with sharp corners.",
+     "Target: a square wave."
+    ],
+    [
+     "Start with one smooth sine wave.",
+     "Start with one sine wave."
+    ],
+    [
+     "Add a wave three times as fast, and a third as strong.",
+     "Add a weaker wave, 3 times faster."
+    ],
+    [
+     "Then one five times as fast, and weaker still.",
+     "Then 5 times faster, weaker still."
+    ],
+    [
+     "Keep adding more waves, and the sum gets closer to the square, with sharper corners.",
+     "Keep adding: the corners sharpen."
+    ],
+    [
+     "A square wave needs only the odd waves, one, three, five, and so on.",
+     "A square wave needs only odd waves."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "To find a bar, take eight samples of the wave.",
+     "To find the bars, take 8 samples."
+    ],
+    [
+     "A test arrow spins, and each sample scales it.",
+     "Each sample scales a spinning arrow."
+    ],
+    [
+     "A sample of zero makes no arrow, and a negative sample flips it.",
+     "Zero makes no arrow. Negative flips it."
+    ],
+    [
+     "Spin once, and the scaled arrows all lean right, so they add up. The total is four.",
+     "Right speed: they all lean right and add."
+    ],
+    [
+     "Now spin twice as fast.",
+     "Now spin twice instead."
+    ],
+    [
+     "This time the arrows loop round and cancel out, so the total is zero.",
+     "The arrows loop back and cancel."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Run the test at every spin speed, zero to seven.",
+     "Run the test at every spin speed."
+    ],
+    [
+     "Each test reads all eight samples, and its answer grows one orange bar.",
+     "Each test reads all 8 samples."
+    ],
+    [
+     "Eight tests give eight bars. Together they are the D F T.",
+     "Eight tests give eight bars."
+    ],
+    [
+     "Eight tests times eight samples is sixty-four products.",
+     "That is 8 × 8 = 64 products."
+    ],
+    [
+     "For a real wave, the bars come as a mirror pair.",
+     "A real wave gives a mirror pair."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Sample a seven hertz wave eight times a second.",
+     "Take 8 samples in one second."
+    ],
+    [
+     "But the dots fit a one hertz wave just as well.",
+     "The dots fit a 1 Hz wave too."
+    ],
+    [
+     "Half the sample rate, four hertz, is the limit.",
+     "Half the sample rate is the limit."
+    ],
+    [
+     "So the seven hertz wave folds back, and shows up as one hertz.",
+     "So 7 Hz folds back onto 1 Hz."
+    ],
+    [
+     "The cure is to sample faster than twice the wave. Then the bar stays at seven.",
+     "Sample faster than twice the wave."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The D F T acts as if the window repeats for ever.",
+     "The DFT repeats the window."
+    ],
+    [
+     "Whole cycles join up, giving one clean bar.",
+     "Whole cycles join: one clean bar."
+    ],
+    [
+     "Add half a cycle, and the ends no longer meet.",
+     "Half a cycle more: the ends do not meet."
+    ],
+    [
+     "The jump needs many frequencies to describe it, so the energy leaks into other bars.",
+     "The jump needs many frequencies: the bars leak."
+    ],
+    [
+     "A smooth fade at both ends, called a Hann window, shrinks the leak.",
+     "A smooth fade at both ends shrinks the leak."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The D F T turns the wiggle, hum and all, into bars.",
+     "The DFT turns the wiggle into bars."
+    ],
+    [
+     "The hum is just one pair of bars.",
+     "The hum is one pair of bars."
+    ],
+    [
+     "Delete both of them, the hum's bar and its mirror.",
+     "Delete both bars."
+    ],
+    [
+     "Then go back with the inverse D F T. The hum is gone, and the slow wave is untouched.",
+     "Go back: the hum fades away."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A direct D F T of eight samples does sixty-four products.",
+     "A full DFT does all 64 products."
+    ],
+    [
+     "Now split the samples into evens and odds.",
+     "Split into even and odd samples."
+    ],
+    [
+     "Each half size D F T costs sixteen products.",
+     "Two half-size DFTs cost 16 each."
+    ],
+    [
+     "A butterfly joins an even and an odd answer, using one product for two answers.",
+     "One butterfly: one product, two answers."
+    ],
+    [
+     "Thirty-two products for the halves, plus four for the butterflies, makes thirty-six, not sixty-four.",
+     "32 plus 4 is 36 products, not 64."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each half is a D F T too, so split it again.",
+     "Each half is a DFT too: split again."
+    ],
+    [
+     "Keep going down to single samples, each its own D F T.",
+     "Down to single samples."
+    ],
+    [
+     "Then butterflies combine pairs, one level at a time, climbing back up.",
+     "Butterflies combine pairs, level by level."
+    ],
+    [
+     "Three levels of four butterflies makes twelve.",
+     "Three levels of four: 12 butterflies."
+    ],
+    [
+     "The result is the same eight bars as the direct D F T.",
+     "The same answer as the direct DFT."
+    ],
+    [
+     "For a million samples, the direct way takes eighteen minutes.",
+     "Direct: 18 minutes for a million samples."
+    ],
+    [
+     "The F F T takes just point zero two seconds.",
+     "The FFT: 0.02 seconds."
+    ],
+    [
+     "That is about fifty thousand times less work.",
+     "About 50,000 times less work."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Any repeating signal is a sum of sine waves.",
+    "The D F T tests every frequency, and gives bars.",
+    "The F F T keeps halving the problem, and does far less work."
+   ]
+  }
+ ]
+}

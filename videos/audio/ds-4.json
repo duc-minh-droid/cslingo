@@ -1,0 +1,758 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.11,
+     "Lecture four. Replication. This is how copies of the data keep a system running, and what can go wrong with them."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/84348d45b9c06bcc.wav",
+     "at": 0.5,
+     "len": 7.36
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     6.2,
+     4
+    ],
+    [
+     10.38,
+     7
+    ],
+    [
+     15.68,
+     9.8
+    ],
+    [
+     20.016,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.95,
+     "600 requests a second, on one machine or three."
+    ],
+    [
+     6.2,
+     10.13,
+     "The big machine crashes: nothing is served."
+    ],
+    [
+     10.38,
+     15.43,
+     "A small one crashes: 400 are still served."
+    ],
+    [
+     15.68,
+     18.73,
+     "Scaling out survives failures."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/db05c4403458f083.wav",
+     "at": 0.5,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/b70137b3950f36db.wav",
+     "at": 6.2,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/b502949f65933d58.wav",
+     "at": 10.38,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/df79df7013344f8a.wav",
+     "at": 15.68,
+     "len": 2.8
+    }
+   ]
+  },
+  {
+   "dur": 18.343,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.16,
+     4.4
+    ],
+    [
+     10.86,
+     7.2
+    ],
+    [
+     18.343,
+     10.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "Replication: every node keeps a full copy."
+    ],
+    [
+     5.16,
+     10.61,
+     "Partitioning: each node keeps a piece."
+    ],
+    [
+     10.86,
+     17.03,
+     "When a node fails, the copies carry on."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ac3bfd8e70c7d0e4.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/01a60c417d00f442.wav",
+     "at": 5.16,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/d6880dd5fa3c70b7.wav",
+     "at": 10.86,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 18.414,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     6.68,
+     4.8
+    ],
+    [
+     12.62,
+     9
+    ],
+    [
+     18.414,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     6.43,
+     "Every write goes to the leader."
+    ],
+    [
+     6.68,
+     12.37,
+     "It sends each change on, in order, as a log."
+    ],
+    [
+     12.62,
+     16.87,
+     "Reads can go to any node, writes only to the leader."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f20db2d52cc63a50.wav",
+     "at": 0.66,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/755048c950c09f78.wav",
+     "at": 6.68,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/ce6dccf22765784a.wav",
+     "at": 12.62,
+     "len": 4
+    }
+   ]
+  },
+  {
+   "dur": 21.571,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     4.28,
+     3
+    ],
+    [
+     9.02,
+     5.9
+    ],
+    [
+     14.72,
+     8.9
+    ],
+    [
+     21.571,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.03,
+     "The leader stores the write in 5 ms."
+    ],
+    [
+     4.28,
+     8.77,
+     "Followers confirm at 35 and 95 ms."
+    ],
+    [
+     9.02,
+     14.47,
+     "Answer at once, or wait for the followers."
+    ],
+    [
+     14.72,
+     20.65,
+     "If the leader then crashes, only waiting keeps the write."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/13838fa52e88f12f.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/03eac3ec83ec0c5b.wav",
+     "at": 4.28,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/c6d123a781f844f5.wav",
+     "at": 9.02,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/0effef7021be27ad.wav",
+     "at": 14.72,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 20.039,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     3.64,
+     3
+    ],
+    [
+     6.3,
+     4.9
+    ],
+    [
+     9.76,
+     7.2
+    ],
+    [
+     14.26,
+     9.6
+    ],
+    [
+     20.039,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.39,
+     "A new follower needs a copy."
+    ],
+    [
+     3.64,
+     6.05,
+     "Take a snapshot of the leader."
+    ],
+    [
+     6.3,
+     9.51,
+     "Writes keep coming while it copies."
+    ],
+    [
+     9.76,
+     14.01,
+     "It asks for every change since."
+    ],
+    [
+     14.26,
+     18.51,
+     "Caught up: no pause in writes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b11a4c65e4667d98.wav",
+     "at": 0.5,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/2ea9aa56bc4cf922.wav",
+     "at": 3.64,
+     "len": 2.16
+    },
+    {
+     "file": "videos/audio/clips/d8e8c964989d288c.wav",
+     "at": 6.3,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/6a815cf04a9aec0a.wav",
+     "at": 9.76,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/aa4a7127a3b89b2f.wav",
+     "at": 14.26,
+     "len": 4
+    }
+   ]
+  },
+  {
+   "dur": 24.961,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     5.4,
+     3.6
+    ],
+    [
+     9.26,
+     6.5
+    ],
+    [
+     16.32,
+     8.7
+    ],
+    [
+     19.78,
+     10.1
+    ],
+    [
+     24.961,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "The leader wrote 20 changes; followers lag."
+    ],
+    [
+     5.4,
+     9.01,
+     "The leader crashes. Which follower takes over?"
+    ],
+    [
+     9.26,
+     16.07,
+     "Best: the most up-to-date follower."
+    ],
+    [
+     16.32,
+     19.53,
+     "B takes over."
+    ],
+    [
+     19.78,
+     23.71,
+     "The 2 changes no follower had are lost."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b408b664dd65e6df.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/b897c95775f64062.wav",
+     "at": 5.4,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/f15efd087425b04d.wav",
+     "at": 9.26,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/cd9f7023fc7afa13.wav",
+     "at": 16.32,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/8daff97fd7be3052.wav",
+     "at": 19.78,
+     "len": 3.68
+    }
+   ]
+  },
+  {
+   "dur": 28.329,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     2.92,
+     2.2
+    ],
+    [
+     8.7,
+     4.4
+    ],
+    [
+     14.96,
+     6.5
+    ],
+    [
+     21.22,
+     8.9
+    ],
+    [
+     28.329,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     2.67,
+     "A is the leader."
+    ],
+    [
+     2.92,
+     8.45,
+     "A is cut off; B and C think it died."
+    ],
+    [
+     8.7,
+     14.71,
+     "B is promoted, yet A still leads."
+    ],
+    [
+     14.96,
+     20.97,
+     "Both take a write for seat 12."
+    ],
+    [
+     21.22,
+     26.51,
+     "Split brain: two histories disagree."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a87a4fe14952a80b.wav",
+     "at": 0.5,
+     "len": 1.92
+    },
+    {
+     "file": "videos/audio/clips/1498b229acb80ba2.wav",
+     "at": 2.92,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/4736be2024f49e98.wav",
+     "at": 8.7,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/2470faec69b6998a.wav",
+     "at": 14.96,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/ecc7be7cdce1cfe0.wav",
+     "at": 21.22,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.715,
+     1.3
+    ],
+    [
+     4.015,
+     3.9
+    ],
+    [
+     8.675,
+     6.7
+    ],
+    [
+     11.415,
+     8.8
+    ],
+    [
+     16.672,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.72,
+     3.76,
+     "You post a comment to the leader."
+    ],
+    [
+     4.01,
+     8.43,
+     "Reload: a follower that lags still shows 3."
+    ],
+    [
+     8.68,
+     11.17,
+     "Your comment seems to be gone."
+    ],
+    [
+     11.42,
+     15.03,
+     "Fix: read your own recent posts from the leader."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fa4384d3e6c2d245.wav",
+     "at": 0.715,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/348db326c76af83c.wav",
+     "at": 4.015,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/b3f0ca0c462799eb.wav",
+     "at": 8.675,
+     "len": 2.24
+    },
+    {
+     "file": "videos/audio/clips/0be9863196b7bd2e.wav",
+     "at": 11.415,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 18.436,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.715,
+     1.3
+    ],
+    [
+     4.975,
+     3.1
+    ],
+    [
+     10.675,
+     5.6
+    ],
+    [
+     14.455,
+     9.5
+    ],
+    [
+     18.436,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.72,
+     4.72,
+     "Refresh: replica A says 7."
+    ],
+    [
+     4.97,
+     10.43,
+     "B says 6: time ran backwards."
+    ],
+    [
+     10.68,
+     14.21,
+     "Fix: keep each user on one replica."
+    ],
+    [
+     14.46,
+     17.11,
+     "Their view only moves forward."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d9886fe60eef71a9.wav",
+     "at": 0.715,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/6a7078b3f9d87a78.wav",
+     "at": 4.975,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/17651d3b0c4d2ee2.wav",
+     "at": 10.675,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/42461e60af7fdccb.wav",
+     "at": 14.455,
+     "len": 2.4
+    }
+   ]
+  },
+  {
+   "dur": 18.228,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7,
+     2
+    ],
+    [
+     10.62,
+     3.1
+    ],
+    [
+     18.228,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/64a71c30aa4e7d98.wav",
+     "at": 0.5,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/e6f20b816f24654b.wav",
+     "at": 7,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/a83aad4e9675efd7.wav",
+     "at": 10.62,
+     "len": 5.84
+    }
+   ]
+  }
+ ]
+}

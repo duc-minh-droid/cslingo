@@ -7,3 +7,6 @@ package-lock.json
 *.html
 *.json
 tools/tts/.venv/
+
+# written by tools/narrate.js (long timing arrays)
+videos/audio/*.js

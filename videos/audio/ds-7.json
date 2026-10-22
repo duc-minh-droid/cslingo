@@ -1,0 +1,814 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.75,
+     "Lecture seven. The Paxos protocol. This is how a group of machines agrees on one value, even when some fail."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/81c273eeb32b9f5f.wav",
+     "at": 0.5,
+     "len": 8
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     4.76,
+     3.4
+    ],
+    [
+     8.7,
+     6
+    ],
+    [
+     12.48,
+     8.6
+    ],
+    [
+     18.344,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "Two-phase commit needs all five to say yes."
+    ],
+    [
+     4.76,
+     8.45,
+     "One crash and it is stuck waiting."
+    ],
+    [
+     8.7,
+     12.23,
+     "Paxos needs a majority: 3 of 5."
+    ],
+    [
+     12.48,
+     16.41,
+     "2 may crash."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/dc6c4d9332908f67.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/804375518abb7b59.wav",
+     "at": 4.76,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/8240db7d4edb9648.wav",
+     "at": 8.7,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/4785ddcb587c6e78.wav",
+     "at": 12.48,
+     "len": 3.68
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     3.96,
+     3.1
+    ],
+    [
+     7.58,
+     5.2
+    ],
+    [
+     12.56,
+     7.6
+    ],
+    [
+     18.344,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.71,
+     "A node can play three roles."
+    ],
+    [
+     3.96,
+     7.33,
+     "Proposers suggest a value."
+    ],
+    [
+     7.58,
+     12.31,
+     "Acceptors decide which one is chosen."
+    ],
+    [
+     12.56,
+     16.49,
+     "Learners are only told the result."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a02883ea644b8b59.wav",
+     "at": 0.5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/fea3a4cecf441f29.wav",
+     "at": 3.96,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/acba0c8a81043ed0.wav",
+     "at": 7.58,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/fc8c54a26349b5a3.wav",
+     "at": 12.56,
+     "len": 3.68
+    }
+   ]
+  },
+  {
+   "dur": 21.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.32,
+     2.8
+    ],
+    [
+     12.46,
+     5.2
+    ],
+    [
+     15.84,
+     7.7
+    ],
+    [
+     21.757,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Each proposal gets a unique number."
+    ],
+    [
+     5.32,
+     12.21,
+     "Proposers never share a number."
+    ],
+    [
+     12.46,
+     15.59,
+     "A bigger number means newer."
+    ],
+    [
+     15.84,
+     20.89,
+     "The newer proposal beats the older."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e6817a7b1a5497c2.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/d46fee22eea86ce5.wav",
+     "at": 5.32,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/7a8f8d3ca9f05109.wav",
+     "at": 12.46,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/2801b8f32b1697de.wav",
+     "at": 15.84,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 18.227,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.84,
+     3.2
+    ],
+    [
+     7.98,
+     5.6
+    ],
+    [
+     14.24,
+     8.2
+    ],
+    [
+     18.227,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.59,
+     "A majority of 5 is 3: a quorum."
+    ],
+    [
+     4.84,
+     7.73,
+     "So 2 may crash."
+    ],
+    [
+     7.98,
+     13.99,
+     "Two majorities always overlap."
+    ],
+    [
+     14.24,
+     17.37,
+     "They share at least one acceptor."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2cfc7ea710c9a716.wav",
+     "at": 0.5,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/fcf96598eba6a4bf.wav",
+     "at": 4.84,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/4db035214666909e.wav",
+     "at": 7.98,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/4bc371190a281f66.wav",
+     "at": 14.24,
+     "len": 2.88
+    }
+   ]
+  },
+  {
+   "dur": 21.711,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     3.96,
+     2.7
+    ],
+    [
+     7.74,
+     4.9
+    ],
+    [
+     11.04,
+     7.2
+    ],
+    [
+     15.54,
+     9.8
+    ],
+    [
+     21.711,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.71,
+     "Phase 1. Acceptor E is down."
+    ],
+    [
+     3.96,
+     7.49,
+     "PREPARE 1 goes to all."
+    ],
+    [
+     7.74,
+     10.79,
+     "Acceptors answer PROMISE."
+    ],
+    [
+     11.04,
+     15.29,
+     "3 promises make a quorum."
+    ],
+    [
+     15.54,
+     19.95,
+     "A promise: ignore older proposals."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/520f200d52a6019f.wav",
+     "at": 0.5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/9e1ebf831ffbce49.wav",
+     "at": 3.96,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/5c6ca5550258c979.wav",
+     "at": 7.74,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/d95c4ab0df0a3eed.wav",
+     "at": 11.04,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/1553aa51a22eab90.wav",
+     "at": 15.54,
+     "len": 4.16
+    }
+   ]
+  },
+  {
+   "dur": 21.618,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.68,
+     2.8
+    ],
+    [
+     8.78,
+     5.2
+    ],
+    [
+     12.08,
+     7.7
+    ],
+    [
+     16.02,
+     10.7
+    ],
+    [
+     21.618,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Phase 2: ask them to accept."
+    ],
+    [
+     4.68,
+     8.53,
+     "ACCEPT carries number and value."
+    ],
+    [
+     8.78,
+     11.83,
+     "Acceptors tell the learners."
+    ],
+    [
+     12.08,
+     15.77,
+     "A majority accepted: it is chosen."
+    ],
+    [
+     16.02,
+     19.55,
+     "The learners are told: 7."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6009eb352f505e47.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/d4160fa2c9f3b707.wav",
+     "at": 4.68,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/80a4ec8e30f04841.wav",
+     "at": 8.78,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/ad4e6812c5187551.wav",
+     "at": 12.08,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/0fa3fd08c0f01394.wav",
+     "at": 16.02,
+     "len": 3.28
+    }
+   ]
+  },
+  {
+   "dur": 26.679,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     3.16,
+     2.9
+    ],
+    [
+     7.74,
+     5.1
+    ],
+    [
+     12.72,
+     7.3
+    ],
+    [
+     17.94,
+     9.7
+    ],
+    [
+     21.48,
+     11.9
+    ],
+    [
+     26.679,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     2.91,
+     "Two proposers can collide."
+    ],
+    [
+     3.16,
+     7.49,
+     "P1 asks A, B, C to promise 1."
+    ],
+    [
+     7.74,
+     12.47,
+     "P2 asks B to E to promise 2."
+    ],
+    [
+     12.72,
+     17.69,
+     "B and C ignore the older number."
+    ],
+    [
+     17.94,
+     21.23,
+     "P2 has a majority: 9 is chosen."
+    ],
+    [
+     21.48,
+     24.53,
+     "P1 must retry with 3."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0f5bd0ce00806ee1.wav",
+     "at": 0.5,
+     "len": 2.16
+    },
+    {
+     "file": "videos/audio/clips/c89c5620144b61a7.wav",
+     "at": 3.16,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/4876b27b4094f1cf.wav",
+     "at": 7.74,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b7e605ef7aa91b20.wav",
+     "at": 12.72,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/fa6c568600e6b85f.wav",
+     "at": 17.94,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/e28349a5672a7f3b.wav",
+     "at": 21.48,
+     "len": 2.8
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.68,
+     3.2
+    ],
+    [
+     10.46,
+     5.6
+    ],
+    [
+     15.28,
+     8.1
+    ],
+    [
+     19.94,
+     10.8
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "P1 crashed after A and B accepted 7."
+    ],
+    [
+     4.68,
+     10.21,
+     "P2 asks B, C, D to promise 2."
+    ],
+    [
+     10.46,
+     15.03,
+     "B reports the 7 it accepted."
+    ],
+    [
+     15.28,
+     19.69,
+     "So P2 must send 7, not its own 9."
+    ],
+    [
+     19.94,
+     23.55,
+     "7 stays chosen: it is safe."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b4f3e646360d7405.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/85caf865a70eeb2e.wav",
+     "at": 4.68,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/b67731629c27962e.wav",
+     "at": 10.46,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/f5363c65caecd1de.wav",
+     "at": 15.28,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/f44cbd1ab2f7dc9b.wav",
+     "at": 19.94,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 23.429,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.64,
+     3.2
+    ],
+    [
+     12.38,
+     7
+    ],
+    [
+     17.76,
+     9.4
+    ],
+    [
+     23.429,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "Each log entry is one Paxos round."
+    ],
+    [
+     5.64,
+     12.13,
+     "Round 1 chose +50: 100 → 150."
+    ],
+    [
+     12.38,
+     17.51,
+     "Round 2 chose −20: 150 → 130."
+    ],
+    [
+     17.76,
+     21.85,
+     "Every replica gets the same order."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/236cc548c197801b.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/934b0ec3ae5eade7.wav",
+     "at": 5.64,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/9c60de53dadf7fad.wav",
+     "at": 12.38,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/2bdd411b7836c154.wav",
+     "at": 17.76,
+     "len": 3.84
+    }
+   ]
+  },
+  {
+   "dur": 14.907,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.04,
+     2
+    ],
+    [
+     9.9,
+     3.1
+    ],
+    [
+     14.907,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8dbe604d983b0f96.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/d8da8c7dca538be5.wav",
+     "at": 6.04,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/7f11fe31628a2dfb.wav",
+     "at": 9.9,
+     "len": 3.2
+    }
+   ]
+  }
+ ]
+}

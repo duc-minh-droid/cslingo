@@ -1,0 +1,243 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Algorithms, phase one. Foundations and PageRank. This is how Google ranked the web."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Find the biggest number is only a wish. It does not say how.",
+     "“Find the biggest” is only a wish."
+    ],
+    [
+     "An algorithm settles the input, the steps, the comparison, the stopping point and the output in advance.",
+     "An algorithm answers every question in advance."
+    ],
+    [
+     "For an empty list, we decide in advance that the answer is none.",
+     "Even: what if the list is empty?"
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The loop scans once, and keeps the biggest number so far.",
+     "Scan once and keep the biggest so far."
+    ],
+    [
+     "After any number of items, best is the biggest of those items.",
+     "After k items, best is the biggest of those k."
+    ],
+    [
+     "A green tick shows the promise still holds after every step. That is the loop invariant.",
+     "It stays true after every step: the invariant."
+    ],
+    [
+     "At the end, the promise is the answer. It is nine.",
+     "At the end the promise is the answer: 9."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each square is one call of work. With n equal to eight, one loop makes eight.",
+     "Each square is one work() call. One loop: 8."
+    ],
+    [
+     "The inner loop grows, making a staircase. Zero plus one plus two, up to seven, is twenty-eight.",
+     "The inner loop grows: 0 + 1 + 2 + … + 7 = 28."
+    ],
+    [
+     "Let it run to n instead, and every square fills. Eight times eight is sixty-four.",
+     "Let it run to n instead: 8 × 8 = 64."
+    ],
+    [
+     "Halving goes eight, four, two, one. That is only three calls.",
+     "Halving: 8, 4, 2, 1 is only 3 calls."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now double n, from eight to sixteen.",
+     "Now double n, from 8 to 16."
+    ],
+    [
+     "One loop does twice the work. That is big O of n.",
+     "One loop: twice the work."
+    ],
+    [
+     "Nested loops do four times the work. That is big O of n squared.",
+     "Nested loops: four times the work."
+    ],
+    [
+     "The growing inner loop goes from twenty-eight to one hundred and twenty, about four times more.",
+     "Growing inner loop: 28 to 120, about ×4."
+    ],
+    [
+     "Halving gains just one call. That is big O of log n.",
+     "Halving: just one extra call."
+    ],
+    [
+     "The shape of the growth is the big O.",
+     "The shape of the growth is the Big-O."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Pages link to pages. Circles are pages, and arrows are links.",
+     "Pages link to pages."
+    ],
+    [
+     "Give every page twenty-five tokens of rank, one hundred in all.",
+     "Give every page 25 tokens of rank."
+    ],
+    [
+     "Each page pours its tokens equally down its links.",
+     "Each page pours its tokens down its links."
+    ],
+    [
+     "Page D has no links, so its twenty-five tokens vanish. The total drops to seventy-five.",
+     "D has no links, so its 25 tokens vanish."
+    ],
+    [
+     "The fix is that a dead end pours to every page, six and a quarter each.",
+     "Fix: a dead end pours to every page."
+    ],
+    [
+     "Now nothing is lost, and the total is one hundred again.",
+     "Now nothing is lost: the total is 100 again."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now A and B link only to each other. Nobody links to X.",
+     "A and B link only to each other."
+    ],
+    [
+     "The rank sloshes between A and B, round after round.",
+     "Rank sloshes between them, round after round."
+    ],
+    [
+     "X is starved, while A and B just swap the lead.",
+     "X is starved; A and B just swap the lead."
+    ],
+    [
+     "Suppose the rank could jump to any page.",
+     "What if the rank could jump anywhere?"
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A surfer follows a random link, eighty-five per cent of the time.",
+     "The surfer follows a link 85% of the time."
+    ],
+    [
+     "Otherwise, it teleports to a random page.",
+     "Otherwise it teleports to a random page."
+    ],
+    [
+     "Now count the visits over six hundred hops.",
+     "Count the visits over many hops."
+    ],
+    [
+     "The shares settle. A gets forty-nine per cent and B forty-six. That is the PageRank.",
+     "The shares settle: that is PageRank."
+    ],
+    [
+     "X is no longer starved. It gets five per cent, just from teleporting.",
+     "X is no longer starved: 5%, by teleporting."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the web is a table. Each column shows where one page sends its rank.",
+     "Each column is where one page sends its rank."
+    ],
+    [
+     "T has no links, so its column sums to zero. We fill it with a fifth each.",
+     "T's column sums to 0, so T pours 0.2 to all."
+    ],
+    [
+     "For teleporting, multiply by zero point eight five, then add a floor of zero point zero three.",
+     "Teleport: × 0.85, then add 0.15 ÷ 5 = 0.03."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start with the same rank on every page, a fifth each.",
+     "Start with equal rank on every page."
+    ],
+    [
+     "Each round, multiply the ranks by the matrix.",
+     "Each round: multiply by the matrix."
+    ],
+    [
+     "Early rounds swing a lot, then the ranks settle down.",
+     "Early rounds swing, then the ranks settle."
+    ],
+    [
+     "Page R ranks first. The same loop can rank billions of pages.",
+     "R ranks first. The same loop ranks billions."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A loop is correct when its promise stays true.",
+    "Double the input, and the work grows times two, times four, or plus one.",
+    "Share rank, teleport, and repeat until the ranks settle."
+   ]
+  }
+ ]
+}

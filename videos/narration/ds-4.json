@@ -1,0 +1,235 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture four. Replication. This is how copies of the data keep a system running, and what can go wrong with them."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Six hundred requests a second, on one big machine or on three small ones.",
+     "600 requests a second, on one machine or three."
+    ],
+    [
+     "Then the big machine crashes, and nothing is served.",
+     "The big machine crashes: nothing is served."
+    ],
+    [
+     "When one small machine crashes, the other two still serve four hundred.",
+     "A small one crashes: 400 are still served."
+    ],
+    [
+     "So scaling out survives failures.",
+     "Scaling out survives failures."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In replication, every node keeps a full copy of the data.",
+     "Replication: every node keeps a full copy."
+    ],
+    [
+     "In partitioning, each node keeps only a piece. That comes in the next lecture.",
+     "Partitioning: each node keeps a piece."
+    ],
+    [
+     "When a node fails, replication still has two copies of B, and partitioning has none.",
+     "When a node fails, the copies carry on."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A client changes its profile picture three times. Every write goes to the leader.",
+     "Every write goes to the leader."
+    ],
+    [
+     "The leader stores each one in a log, and sends it on, in order, to the followers.",
+     "It sends each change on, in order, as a log."
+    ],
+    [
+     "Reads can go to any node, but writes only go to the leader.",
+     "Reads can go to any node, writes only to the leader."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The leader stores a write in five milliseconds.",
+     "The leader stores the write in 5 ms."
+    ],
+    [
+     "The followers confirm at thirty-five and ninety-five milliseconds.",
+     "Followers confirm at 35 and 95 ms."
+    ],
+    [
+     "The leader can answer at once, or wait for one follower, or wait for both.",
+     "Answer at once, or wait for the followers."
+    ],
+    [
+     "If the leader crashes, answering at once loses the write. Waiting keeps it, but is slower.",
+     "If the leader then crashes, only waiting keeps the write."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A new follower needs a copy of the data.",
+     "A new follower needs a copy."
+    ],
+    [
+     "So we take a snapshot of the leader.",
+     "Take a snapshot of the leader."
+    ],
+    [
+     "Writes keep coming while the snapshot is copied.",
+     "Writes keep coming while it copies."
+    ],
+    [
+     "The follower then asks for every change since entry five.",
+     "It asks for every change since."
+    ],
+    [
+     "It applies them, and has caught up. Writes never paused.",
+     "Caught up: no pause in writes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The leader has written twenty changes, but the followers lag behind.",
+     "The leader wrote 20 changes; followers lag."
+    ],
+    [
+     "Then the leader crashes. Which follower should take over?",
+     "The leader crashes. Which follower takes over?"
+    ],
+    [
+     "Promoting A would lose five changes, B two, and C four. The most up to date wins.",
+     "Best: the most up-to-date follower."
+    ],
+    [
+     "So B takes over and becomes the leader.",
+     "B takes over."
+    ],
+    [
+     "The last two changes, which no follower had, are lost.",
+     "The 2 changes no follower had are lost."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here A is the leader.",
+     "A is the leader."
+    ],
+    [
+     "Then A is cut off. It is still running, but B and C think it died.",
+     "A is cut off; B and C think it died."
+    ],
+    [
+     "So B is promoted. But A does not know, so it still thinks it leads.",
+     "B is promoted, yet A still leads."
+    ],
+    [
+     "Now two clients write to seat twelve. Ann goes to A, and Bo goes to B.",
+     "Both take a write for seat 12."
+    ],
+    [
+     "The network heals, and the two histories disagree. That is split brain.",
+     "Split brain: two histories disagree."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "You post a comment, and it goes to the leader.",
+     "You post a comment to the leader."
+    ],
+    [
+     "You reload, but a follower that lags still shows three comments.",
+     "Reload: a follower that lags still shows 3."
+    ],
+    [
+     "Your own comment seems to be gone.",
+     "Your comment seems to be gone."
+    ],
+    [
+     "The fix is to read your own recent posts from the leader.",
+     "Fix: read your own recent posts from the leader."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "You refresh, and replica A says seven likes.",
+     "Refresh: replica A says 7."
+    ],
+    [
+     "You refresh again, and replica B says six. Time ran backwards.",
+     "B says 6: time ran backwards."
+    ],
+    [
+     "The fix is to keep each user on one replica.",
+     "Fix: keep each user on one replica."
+    ],
+    [
+     "Then their view only moves forward.",
+     "Their view only moves forward."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Copies keep the system up. One leader takes the writes, and passes them to the followers.",
+    "Waiting for followers is safer, but slower.",
+    "When the leader crashes, promote the freshest follower, and let users read their own writes."
+   ]
+  }
+ ]
+}

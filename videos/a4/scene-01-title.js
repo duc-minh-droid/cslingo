@@ -44,7 +44,7 @@
       const pill = h("div", {
         class: "v-tag solid c-green",
         text: "CSLingo · explainer",
-        style: { left: "400px", top: "850px" },
+        style: { left: "400px", top: "806px" },
       });
       stage.append(mascot, k, t, s, pill);
       return (lt) => {

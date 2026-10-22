@@ -1,0 +1,912 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Phase six. Error detection and correction. This is how data survives a noisy wire."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2b79ca2108f77c3c.wav",
+     "at": 0.5,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.32,
+     3.5
+    ],
+    [
+     9.9,
+     6
+    ],
+    [
+     14.32,
+     8.7
+    ],
+    [
+     18.344,
+     10.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "A message travels as bits."
+    ],
+    [
+     5.32,
+     9.65,
+     "Noise on the wire flips a bit."
+    ],
+    [
+     9.9,
+     14.07,
+     "The receiver cannot tell."
+    ],
+    [
+     14.32,
+     16.89,
+     "Fix: add a check bit."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/618e6363f4044f4a.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/c17ba0a3bdb27415.wav",
+     "at": 5.32,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/2aed5233e2d2128b.wav",
+     "at": 9.9,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/8d3e7b2658920a36.wav",
+     "at": 14.32,
+     "len": 2.32
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.605,
+     1.1
+    ],
+    [
+     4.145,
+     3.1
+    ],
+    [
+     8.565,
+     6.1
+    ],
+    [
+     12.745,
+     8.2
+    ],
+    [
+     17.805,
+     10.7
+    ],
+    [
+     23.336,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.61,
+     3.9,
+     "Count the 1s in the message."
+    ],
+    [
+     4.14,
+     8.31,
+     "Add a bit that makes the total even."
+    ],
+    [
+     8.56,
+     12.49,
+     "One flip makes the total odd: caught."
+    ],
+    [
+     12.74,
+     17.55,
+     "But which bit? Parity cannot say."
+    ],
+    [
+     17.8,
+     21.66,
+     "Two flips make it even again: missed."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bd3f44afc6276ea6.wav",
+     "at": 0.605,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/6223779631e6a9d7.wav",
+     "at": 4.145,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/e49eac4fdbf861a8.wav",
+     "at": 8.565,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/43b6cc9c5a841452.wav",
+     "at": 12.745,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/64f692f76e747540.wav",
+     "at": 17.805,
+     "len": 3.6
+    }
+   ]
+  },
+  {
+   "dur": 23.429,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.84,
+     3.3
+    ],
+    [
+     10.14,
+     5.6
+    ],
+    [
+     13.76,
+     7.7
+    ],
+    [
+     18.34,
+     9.9
+    ],
+    [
+     23.429,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.59,
+     "The CRC: a pattern both sides know."
+    ],
+    [
+     4.84,
+     9.89,
+     "Add one zero per check bit, then divide."
+    ],
+    [
+     10.14,
+     13.51,
+     "Line the pattern up under the next 1."
+    ],
+    [
+     13.76,
+     18.09,
+     "Too short to divide: that is the remainder."
+    ],
+    [
+     18.34,
+     22.11,
+     "Send the message plus the remainder."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cccd4e174d1cb92d.wav",
+     "at": 0.66,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/d130abebb269d647.wav",
+     "at": 4.84,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/b08000810d4c6e57.wav",
+     "at": 10.14,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/87f8eac401260dfe.wav",
+     "at": 13.76,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/cd5f65bfb8842ffb.wav",
+     "at": 18.34,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 26.796,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.6,
+     4.5
+    ],
+    [
+     11.1,
+     7.1
+    ],
+    [
+     16.72,
+     10.2
+    ],
+    [
+     21.3,
+     12.6
+    ],
+    [
+     26.796,
+     13.9
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.35,
+     "Divide the frame by the same pattern."
+    ],
+    [
+     4.6,
+     10.85,
+     "A clean frame divides exactly: 000."
+    ],
+    [
+     11.1,
+     16.47,
+     "These two flips change the remainder."
+    ],
+    [
+     16.72,
+     21.05,
+     "A burst of three is caught too."
+    ],
+    [
+     21.3,
+     25.63,
+     "More check bits catch longer bursts."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e9f0408e0507fa52.wav",
+     "at": 0.66,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/458fdc603fee02e4.wav",
+     "at": 4.6,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/d062d1bd0a66231f.wav",
+     "at": 11.1,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/655826bbc4752c17.wav",
+     "at": 16.72,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/45e6ea6c595da4ad.wav",
+     "at": 21.3,
+     "len": 4.08
+    }
+   ]
+  },
+  {
+   "dur": 23.103,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     2.9
+    ],
+    [
+     10.78,
+     6.4
+    ],
+    [
+     16.4,
+     9.5
+    ],
+    [
+     23.103,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "A download checks every frame."
+    ],
+    [
+     5.8,
+     10.53,
+     "Check fails, so ask for a resend."
+    ],
+    [
+     10.78,
+     16.15,
+     "A probe is minutes away."
+    ],
+    [
+     16.4,
+     21.85,
+     "Too slow, so it repairs itself."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c9cfa09c17434345.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/ff7b1d9e07a3d4fc.wav",
+     "at": 5.8,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/a3dcf21eade4009a.wav",
+     "at": 10.78,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/a1f5ff91c87cda39.wav",
+     "at": 16.4,
+     "len": 5.2
+    }
+   ]
+  },
+  {
+   "dur": 34.993,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     1.155,
+     2.1
+    ],
+    [
+     5.415,
+     3.95
+    ],
+    [
+     10.315,
+     6.1
+    ],
+    [
+     16.575,
+     9.6
+    ],
+    [
+     23.315,
+     12.1
+    ],
+    [
+     30.375,
+     13.9
+    ],
+    [
+     34.993,
+     15.2
+    ]
+   ],
+   "caps": [
+    [
+     1.16,
+     5.17,
+     "One flip is one step."
+    ],
+    [
+     5.42,
+     10.07,
+     "Only 000 and 111 are valid words."
+    ],
+    [
+     10.32,
+     16.33,
+     "Three steps apart: distance 3."
+    ],
+    [
+     16.58,
+     23.07,
+     "Nearest valid word is 000: fixed."
+    ],
+    [
+     23.32,
+     30.13,
+     "Two flips lead to the wrong word."
+    ],
+    [
+     30.38,
+     33.67,
+     "Repeating works but wastes bits."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8bbba36f2cfd865a.wav",
+     "at": 1.155,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/4bc7634e70ee9a88.wav",
+     "at": 5.415,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/b957a1a51e1e8df6.wav",
+     "at": 10.315,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/6e6f5f5d76a49dcc.wav",
+     "at": 16.575,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/363afc62522af8e3.wav",
+     "at": 23.315,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/97d4cc79ffc164dd.wav",
+     "at": 30.375,
+     "len": 3.04
+    }
+   ]
+  },
+  {
+   "dur": 35.062,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.44,
+     2.8
+    ],
+    [
+     8.62,
+     4.6
+    ],
+    [
+     11.44,
+     6.2
+    ],
+    [
+     15.3,
+     7.7
+    ],
+    [
+     18.84,
+     9.3
+    ],
+    [
+     23.58,
+     11.3
+    ],
+    [
+     29.68,
+     13.45
+    ],
+    [
+     35.062,
+     14.95
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "Hamming sends 4 useful bits in 7."
+    ],
+    [
+     4.44,
+     8.37,
+     "Check bits sit at positions 1, 2, 4."
+    ],
+    [
+     8.62,
+     11.19,
+     "Write each position in binary."
+    ],
+    [
+     11.44,
+     15.05,
+     "p4 guards positions starting with 1."
+    ],
+    [
+     15.3,
+     18.59,
+     "Its bit makes the 1s even."
+    ],
+    [
+     18.84,
+     23.33,
+     "p2 guards positions with a middle 1."
+    ],
+    [
+     23.58,
+     29.43,
+     "p1 guards positions ending in 1."
+    ],
+    [
+     29.68,
+     32.89,
+     "Every group now has an even count."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e20ea8680303e45e.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/7b51a96911047b30.wav",
+     "at": 4.44,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/aa35901590209584.wav",
+     "at": 8.62,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/362b1c39b6096527.wav",
+     "at": 11.44,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/0006dd878079ceed.wav",
+     "at": 15.3,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/7f5cd210c472af3a.wav",
+     "at": 18.84,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/bb3b1d239e855753.wav",
+     "at": 23.58,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/ba4f997cc9e4adb1.wav",
+     "at": 29.68,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 28.282,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     5.4,
+     3.3
+    ],
+    [
+     8.78,
+     5
+    ],
+    [
+     13.52,
+     8.8
+    ],
+    [
+     17.62,
+     10.6
+    ],
+    [
+     22.6,
+     12.3
+    ],
+    [
+     28.282,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "A clean word passes all three checks."
+    ],
+    [
+     5.4,
+     8.53,
+     "Noise flips position 6."
+    ],
+    [
+     8.78,
+     13.27,
+     "Recount each group: odd means failed."
+    ],
+    [
+     13.52,
+     17.37,
+     "p4 and p2 fail; p1 passes."
+    ],
+    [
+     17.62,
+     22.35,
+     "Failures read as binary: 110 is 6."
+    ],
+    [
+     22.6,
+     26.37,
+     "Flip position 6 back: fixed."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fd4ba1652a5bbfad.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/c2d1b107a699915e.wav",
+     "at": 5.4,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/804ad9aeff5eaaaa.wav",
+     "at": 8.78,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/3149827bfcc365f0.wav",
+     "at": 13.52,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/d659eaa7a8b2d64f.wav",
+     "at": 17.62,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b963ebd480e11afe.wav",
+     "at": 22.6,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 28.746,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     1.21,
+     2.2
+    ],
+    [
+     6.59,
+     5.5
+    ],
+    [
+     11.17,
+     7.6
+    ],
+    [
+     16.87,
+     9.1
+    ],
+    [
+     20.41,
+     10.8
+    ],
+    [
+     28.746,
+     12.2
+    ]
+   ],
+   "caps": [
+    [
+     1.21,
+     6.34,
+     "Two bits flip: positions 2 and 5."
+    ],
+    [
+     6.59,
+     10.92,
+     "All fail: 111 means position 7."
+    ],
+    [
+     11.17,
+     16.62,
+     "The repair flips an innocent bit."
+    ],
+    [
+     16.87,
+     20.16,
+     "Checks pass, yet the data is wrong."
+    ],
+    [
+     20.41,
+     27.3,
+     "Hamming fixes exactly one error."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/887c09e616c8af58.wav",
+     "at": 1.21,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/e4727c3c13b4bb02.wav",
+     "at": 6.59,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/e919e4841ad56f93.wav",
+     "at": 11.17,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/ac09d2cce1394649.wav",
+     "at": 16.87,
+     "len": 3.04
+    },
+    {
+     "file": "videos/audio/clips/404764a5b09a7d9e.wav",
+     "at": 20.41,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 13.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.92,
+     2
+    ],
+    [
+     8.94,
+     3.1
+    ],
+    [
+     13.328,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f7697ebf005aca36.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/6eef3106fec743a0.wav",
+     "at": 4.92,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/a523d31fd3924a1e.wav",
+     "at": 8.94,
+     "len": 2.72
+    }
+   ]
+  }
+ ]
+}

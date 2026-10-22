@@ -1,0 +1,699 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Algorithms, phase two. Search and routing. This is how maps and the internet find the way."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e2b6e1d1f4d331f3.wav",
+     "at": 0.5,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.2,
+     3.4
+    ],
+    [
+     8.7,
+     6.4
+    ],
+    [
+     15.84,
+     9.2
+    ],
+    [
+     21.687,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.95,
+     "A map is places joined by roads."
+    ],
+    [
+     4.2,
+     8.45,
+     "Each road has a cost. A route adds them up."
+    ],
+    [
+     8.7,
+     15.59,
+     "The fewest roads is not always the cheapest."
+    ],
+    [
+     15.84,
+     20.09,
+     "There are 7 routes. We need a method."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d2e2297ae154ebec.wav",
+     "at": 0.5,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/e361bbff141e982e.wav",
+     "at": 4.2,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/ed2f6bd4a9107160.wav",
+     "at": 8.7,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/7591fc0c17e9e7c3.wav",
+     "at": 15.84,
+     "len": 4
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.92,
+     2.4
+    ],
+    [
+     11.82,
+     8.15
+    ],
+    [
+     20.96,
+     14.75
+    ],
+    [
+     26.657,
+     18.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "Distance from A. Settle the smallest first."
+    ],
+    [
+     4.92,
+     11.57,
+     "Then check its roads. A shorter way replaces the old distance."
+    ],
+    [
+     11.82,
+     20.71,
+     "Repeat. The smallest waiting (tentative) distance is always final."
+    ],
+    [
+     20.96,
+     25.61,
+     "The green roads are the shortest routes: A to E costs 8."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ed56d4ae3b362eb9.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/bee7c5a75c203256.wav",
+     "at": 4.92,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/d2a25b12f8bcea37.wav",
+     "at": 11.82,
+     "len": 8.64
+    },
+    {
+     "file": "videos/audio/clips/a37dff3ba8e402c6.wav",
+     "at": 20.96,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 21.734,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.72,
+     4.8
+    ],
+    [
+     9.1,
+     6.8
+    ],
+    [
+     16.16,
+     9.8
+    ],
+    [
+     21.734,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "Any other way to C goes via B, and B is already further."
+    ],
+    [
+     5.72,
+     8.85,
+     "So the smallest waiting node is final."
+    ],
+    [
+     9.1,
+     15.91,
+     "A negative road can undercut a node that was settled."
+    ],
+    [
+     16.16,
+     19.93,
+     "So Dijkstra needs roads with no negative cost."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/423d0c96738623bb.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/33208b2ddc6afa68.wav",
+     "at": 5.72,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/d139a26781ce90e1.wav",
+     "at": 9.1,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/47eadc0401aace57.wav",
+     "at": 16.16,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 28.305,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.16,
+     2.5
+    ],
+    [
+     12.78,
+     4.6
+    ],
+    [
+     17.28,
+     6.6
+    ],
+    [
+     23.46,
+     12.4
+    ],
+    [
+     28.305,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "Same search, on a grid: every step costs 1."
+    ],
+    [
+     5.16,
+     12.53,
+     "A* adds a compass: score = cost so far g + a guess h."
+    ],
+    [
+     12.78,
+     17.03,
+     "h counts the cells to the goal, ignoring the wall."
+    ],
+    [
+     17.28,
+     23.21,
+     "It tries the lowest f first: straight at the goal, then round the wall."
+    ],
+    [
+     23.46,
+     26.83,
+     "It finds the way round the wall: cost 11."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/28ed050fe6f98fb2.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/9ae8bb766eaef68c.wav",
+     "at": 5.16,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/c3524250ecc9f14f.wav",
+     "at": 12.78,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/be400ebfcbe2f0a3.wav",
+     "at": 17.28,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/a18e9c4429c27e57.wav",
+     "at": 23.46,
+     "len": 3.12
+    }
+   ]
+  },
+  {
+   "dur": 24.961,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.4,
+     3.4
+    ],
+    [
+     14.3,
+     7.5
+    ],
+    [
+     19.04,
+     10.2
+    ],
+    [
+     24.961,
+     12.4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "Same grid, same wall. Dijkstra looks everywhere."
+    ],
+    [
+     7.4,
+     14.05,
+     "A* aims at the goal and expands far fewer cells."
+    ],
+    [
+     14.3,
+     18.79,
+     "But its guess must never be higher than the true cost left."
+    ],
+    [
+     19.04,
+     24.09,
+     "A guess that is too high can fool A*."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7e5cbf11643730ff.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/c7bc397623c4032e.wav",
+     "at": 7.4,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/bc729e3af0f00f08.wav",
+     "at": 14.3,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/ba2661f2597e6869.wav",
+     "at": 19.04,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3.2
+    ],
+    [
+     10.22,
+     7.4
+    ],
+    [
+     15.12,
+     8.8
+    ],
+    [
+     19.3,
+     10.4
+    ],
+    [
+     26.657,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Routers are the places. Every router learns the whole map."
+    ],
+    [
+     5.4,
+     9.97,
+     "Each runs Dijkstra and keeps only the first hop."
+    ],
+    [
+     10.22,
+     14.87,
+     "A packet for F. A's table says: next hop D."
+    ],
+    [
+     15.12,
+     19.05,
+     "D has its own table: next hop E."
+    ],
+    [
+     19.3,
+     25.39,
+     "E's table: F is one hop away. Every router uses its own table."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ea259f072bc7492d.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/d8e192344e74e07d.wav",
+     "at": 5.4,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/666d8eb71204388d.wav",
+     "at": 10.22,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/614901ab60a89aa9.wav",
+     "at": 15.12,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/6d7c94928deb3306.wav",
+     "at": 19.3,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 20.015,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.24,
+     4.2
+    ],
+    [
+     13.66,
+     7.4
+    ],
+    [
+     20.015,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.99,
+     "A sees only its neighbours. Each one says how far F is."
+    ],
+    [
+     7.24,
+     13.41,
+     "A adds its own road cost to each answer."
+    ],
+    [
+     13.66,
+     18.15,
+     "It keeps the smallest total, and the next hop: D."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ce2b2bd6eabc95dc.wav",
+     "at": 0.5,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/9a1de551ee5b2b78.wav",
+     "at": 7.24,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/4652b1db2c530166.wav",
+     "at": 13.66,
+     "len": 4.24
+    }
+   ]
+  },
+  {
+   "dur": 31.765,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7,
+     3
+    ],
+    [
+     13.5,
+     6.8
+    ],
+    [
+     20.96,
+     9.7
+    ],
+    [
+     24.34,
+     11
+    ],
+    [
+     31.765,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.75,
+     "A reaches C through B. B reaches C directly."
+    ],
+    [
+     7,
+     13.25,
+     "The B to C road breaks. B hears A's old news."
+    ],
+    [
+     13.5,
+     20.71,
+     "The cost creeps up, one step at a time."
+    ],
+    [
+     20.96,
+     24.09,
+     "Same story again, with one change."
+    ],
+    [
+     24.34,
+     30.99,
+     "Poisoned reverse: A says C is unreachable, because its route goes through B."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d6b07fa498261003.wav",
+     "at": 0.5,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/2995016c3b7d5b59.wav",
+     "at": 7,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/aaf10190a6569355.wav",
+     "at": 13.5,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/ddd63b1a361803a7.wav",
+     "at": 20.96,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/f3f9bfaa81dfe943.wav",
+     "at": 24.34,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 18.437,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.88,
+     2
+    ],
+    [
+     12.06,
+     3.1
+    ],
+    [
+     18.437,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/435d3145010ba012.wav",
+     "at": 0.5,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/ba0b57e9cdcce98a.wav",
+     "at": 5.88,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/0328c6914d50cd28.wav",
+     "at": 12.06,
+     "len": 4.64
+    }
+   ]
+  }
+ ]
+}

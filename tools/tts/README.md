@@ -9,11 +9,13 @@ Measured against this laptop (RTX 4060 Laptop, 8 GB VRAM, 24 GB RAM): all three 
 
 | Engine | Size | Fits 8 GB? | Good for |
 |---|---|---|---|
-| Qwen3-TTS 1.7B VoiceDesign | 1.7B | yes, in bf16 | **First choice.** Describe the narrator in words (`instruct`), no reference recording needed |
+| Qwen3-TTS 1.7B **Base** (voice clone) | 1.7B | yes, in bf16 | **What every recap video uses.** Clones `videos/voice-ref/narrator.wav`, so every line and every video has the same voice (VoiceDesign invents a slightly different voice per call) |
 | Chatterbox (original, 0.5B) | 0.5B | yes | Dramatic delivery (`exaggeration` 0.7+, `cfg_weight` ~0.3); can clone from a 10 s clip you have the right to use. Adds an inaudible watermark |
 | Kokoro | 82M | yes (runs on CPU too) | Fastest, very stable, but plain delivery; fixed voices |
 
 ## Setup (once)
+
+`bash tools/tts/setup.sh` does all of this on Linux, macOS and Git Bash (CUDA PyTorch when `nvidia-smi` exists). By hand on Windows:
 
 ```bash
 python -m venv tools/tts/.venv
@@ -50,3 +52,10 @@ Only clone from a recording you made or have permission to use. Do not clone a r
 3. In the narration script: `"music": {"file": "videos/music/<track>.mp3", "beats": "videos/music/<track>.beats.json", "start": 0, "volume": 0.18}`.
 4. `node tools/narrate.js <name>` stretches each scene so its cut lands on the next beat; `tools/render-video.js` mixes the
    music under the voice (ducked while the narrator speaks, faded out at the end), using only as much of the track as the video needs.
+
+## Voicing the recap videos
+
+`tools/voice-video.sh <name>` (voice, check with faster-whisper, record) and `tools/voice-all.sh <name> ...` (several, skipping finished ones) drive
+`tools/narrate.js`, `tools/tts/verify.py` and `tools/render-video.js`; they find `tools/tts/.venv` on Linux, macOS and Windows (Git Bash) by themselves.
+Clips are cached in `videos/audio/clips/` (git-ignored) by a hash of the text, so an interrupted run resumes where it stopped. The list of videos and the
+exact commands are in `TODO.md`.

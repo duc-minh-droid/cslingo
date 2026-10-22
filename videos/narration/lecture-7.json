@@ -1,0 +1,259 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture seven. Swarm intelligence. This is how many simple ants can find short routes together."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A colony is made of many ants, all identical and simple.",
+     "A colony is many identical, simple ants."
+    ],
+    [
+     "Each ant only reacts to what is near it.",
+     "Each one only reacts to what is near it."
+    ],
+    [
+     "There is nobody in the middle. No leader gives the orders.",
+     "No leader gives the orders."
+    ],
+    [
+     "Yet together, the ants can find short routes. This is called emergent behaviour.",
+     "Together they can find short routes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One scout ant is right sixty percent of the time.",
+     "One scout ant is right 60% of the time."
+    ],
+    [
+     "Now eleven scouts vote for a route, and the colony follows the majority.",
+     "Eleven scouts each vote for a route."
+    ],
+    [
+     "The majority is right seventy-five percent of the time.",
+     "The majority is right 75% of the time."
+    ],
+    [
+     "With thirty-one scouts, that climbs to eighty-seven percent.",
+     "With 31 scouts it climbs to 87%."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In the double bridge experiment, ants reach food by either of two equal bridges.",
+     "Ants use either of two equal bridges."
+    ],
+    [
+     "At first, the ants choose at random.",
+     "At first the ants choose at random."
+    ],
+    [
+     "Ants leave pheromone, and they prefer the stronger trail.",
+     "Ants leave pheromone and prefer strong trails."
+    ],
+    [
+     "Soon most ants use one bridge.",
+     "Soon most ants use one bridge."
+    ],
+    [
+     "Which one comes down to chance. These colonies settle on opposite bridges.",
+     "Which one is down to chance."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the experiment again, with one road twice as long.",
+     "One road is twice as long."
+    ],
+    [
+     "The ants walk at the same speed, so the short trip ends first.",
+     "Same speed: the short trip ends first."
+    ],
+    [
+     "Its pheromone is laid sooner, so more ants pick that road.",
+     "More pheromone, so more ants pick it."
+    ],
+    [
+     "Soon most ants take the short road.",
+     "Soon most ants take the short road."
+    ],
+    [
+     "In two hundred colonies, eighty-five percent end up on the short road.",
+     "85% of 200 colonies pick the short road."
+    ],
+    [
+     "A few lock onto the long road, through early bad luck.",
+     "A few lock onto the long road."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "An ant walks from the nest to the food, and leaves a scent mark.",
+     "An ant leaves a scent mark on the ground."
+    ],
+    [
+     "A later ant senses it, and follows.",
+     "A later ant senses it and follows."
+    ],
+    [
+     "Communicating through marks in the environment is called stigmergy.",
+     "That is stigmergy."
+    ],
+    [
+     "For ants, the scent is only a sign, not the work itself.",
+     "Scent is a sign, not the work."
+    ],
+    [
+     "Sometimes the work itself prompts others, as a growing pile attracts builders.",
+     "The work itself can prompt others."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each step, the ants using a trail add pheromone to it.",
+     "Each step, ants add pheromone."
+    ],
+    [
+     "Each step, a fifth of the pheromone evaporates.",
+     "Each step, a fifth of it evaporates."
+    ],
+    [
+     "The trail levels off where gain equals loss. Four ants a step give twenty, and two give ten.",
+     "It levels off where gain equals loss."
+    ],
+    [
+     "A new ant picks by share. Twenty out of thirty is sixty-seven percent, so stronger trails win.",
+     "Stronger trails get picked more."
+    ],
+    [
+     "If the ants stop, the trail fades away.",
+     "If the ants stop, the trail fades away."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the ants meet a map. An ant must visit all four towns, then go home.",
+     "Goal: visit every town, then go home."
+    ],
+    [
+     "At town A, each unvisited town gets a weight: pheromone divided by distance.",
+     "Weight = pheromone ÷ distance."
+    ],
+    [
+     "The weights become chances, and the ant picks by chance. Here it picks C.",
+     "A random pick, by those chances."
+    ],
+    [
+     "A tour memory stops the ant visiting a town twice.",
+     "Tour memory stops repeat visits."
+    ],
+    [
+     "From C it picks B, then only D is left. Then it goes home.",
+     "It visits every town, then goes home."
+    ],
+    [
+     "The tour length is four plus six plus three plus five, which makes eighteen.",
+     "Tour length: 4 + 6 + 3 + 5 = 18."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The tour is done, so now the trails update, in two steps.",
+     "Tour done. Now the trails update."
+    ],
+    [
+     "First, evaporation. In this example, every road keeps half of its pheromone.",
+     "In this example, each road keeps half."
+    ],
+    [
+     "Second, deposit. Each tour road gains Q divided by the length. Seventy-two divided by eighteen is four.",
+     "Then each tour road gains Q ÷ length."
+    ],
+    [
+     "Roads the ant skipped only lose pheromone.",
+     "Skipped roads only lose pheromone."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now many ants go round the map, one after another, each using the same update.",
+     "Ants go round one after another."
+    ],
+    [
+     "Ant six finds a shorter tour, so it adds about five to each road, against four for the long tours.",
+     "A shorter tour adds more to each road."
+    ],
+    [
+     "So the trail leans towards the shortest tour. It takes the lead, and keeps it.",
+     "So the trail leans towards the shortest tour."
+    ],
+    [
+     "The first five ants walked only long tours, yet the short tour wins in the end.",
+     "The first ants found only long tours."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2.0,
+    3.1
+   ],
+   "lines": [
+    "Simple ants with no boss can make a clever colony.",
+    "Trails build up, fade away, and guide the next ant.",
+    "Short routes get more pheromone, so they win."
+   ]
+  }
+ ]
+}

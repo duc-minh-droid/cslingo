@@ -1,0 +1,279 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture one. Reliable, scalable and maintainable systems. This is what keeps a data system working."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One big server does the work, up to six thousand requests a second.",
+     "One big server does all the work."
+    ],
+    [
+     "At nine thousand, it drops the extra three thousand.",
+     "Too many requests get dropped."
+    ],
+    [
+     "Then it crashes. Every request is turned away.",
+     "One crash, and everything is down."
+    ],
+    [
+     "Even a planned repair takes it offline.",
+     "Even a repair means downtime."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "So we keep a copy in London and in New York.",
+     "Against crashes, keep a copy in each city."
+    ],
+    [
+     "Then the link between them is cut.",
+     "Now the link is cut."
+    ],
+    [
+     "London sells a ticket and says four. New York never hears, and still says five.",
+     "London sells a ticket; New York never hears."
+    ],
+    [
+     "A customer asks New York. If it stays consistent, it refuses to answer.",
+     "Stay consistent: refuse to answer."
+    ],
+    [
+     "If it stays available, it answers five, which is stale.",
+     "Stay available: answer, maybe stale."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A database stores data today, so it is still there tomorrow.",
+     "A database stores data for tomorrow."
+    ],
+    [
+     "A cache keeps a copy of the answer close by.",
+     "A cache keeps answers close."
+    ],
+    [
+     "A hit takes two milliseconds. A miss takes a hundred.",
+     "A hit takes 2 ms, a miss 100 ms."
+    ],
+    [
+     "An index needs about twenty checks, instead of a million.",
+     "An index: 20 checks, not a million."
+    ],
+    [
+     "A batch job crunches the day's data overnight.",
+     "A batch job crunches it overnight."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Take ten thousand disks. About one dies every day.",
+     "10,000 disks: about one dies every day."
+    ],
+    [
+     "Over a week, seven die. Each dead disk is a fault.",
+     "A dead disk is a fault."
+    ],
+    [
+     "With one copy, a dead disk means no answer. That is a failure.",
+     "One copy: a dead disk is a failure."
+    ],
+    [
+     "With two copies, the other disk answers, and users notice nothing.",
+     "Two copies: users notice nothing."
+    ],
+    [
+     "Faults will happen. They must not become failures.",
+     "Faults must not become failures."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Six servers share a load of four hundred and twenty. Each carries seventy, and can take a hundred.",
+     "Six servers share the load, 70 each."
+    ],
+    [
+     "One dies. The other five carry eighty-four each, and the service survives.",
+     "One dies; five carry on at 84 each."
+    ],
+    [
+     "Another dies. Now each carries one hundred and five, over the limit.",
+     "One more dies: 105 each, over 100."
+    ],
+    [
+     "Overloaded servers fall one by one, pushing more load onto the rest.",
+     "Overload makes them fall one by one."
+    ],
+    [
+     "The last one cannot carry all four hundred and twenty.",
+     "The last one carries all 420."
+    ],
+    [
+     "A software bug is different. It hits all six servers at once.",
+     "One bug hits all six together."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A hundred requests, each timed, fall into bins by response time.",
+     "100 requests, each timed."
+    ],
+    [
+     "Most are quick. A few are slow, which makes a long tail.",
+     "Most are quick; a few are slow."
+    ],
+    [
+     "The blue line is the average, two hundred and fifty milliseconds.",
+     "The average is 250 ms."
+    ],
+    [
+     "The orange line is p ninety-five. Ninety-five in a hundred are faster.",
+     "p95: 95 in 100 are faster."
+    ],
+    [
+     "The red line is p ninety-nine. Ninety-nine in a hundred are faster.",
+     "p99: 99 in 100 are faster."
+    ],
+    [
+     "The slowest took over eight hundred milliseconds, and the average never shows it.",
+     "The average hides the slowest."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Cat writes a post. In the first approach, it is stored once.",
+     "Approach 1: one write per post."
+    ],
+    [
+     "When Ana reads, it takes three lookups and a merge.",
+     "Reading means 3 lookups and a merge."
+    ],
+    [
+     "In the second approach, the post is copied to each follower. Cat has five.",
+     "Approach 2: copy to each follower."
+    ],
+    [
+     "Now Ana's timeline is ready in her mailbox. Reading is one lookup.",
+     "Reading is one lookup."
+    ],
+    [
+     "Reads are far more common than posts, about sixty-five to one.",
+     "Reads outnumber posts 65 to 1."
+    ],
+    [
+     "So we copy on write. Four thousand six hundred posts, times seventy-five followers, is three hundred and forty-five thousand writes a second.",
+     "So fan out: 345,000 writes a second."
+    ],
+    [
+     "A celebrity with thirty million followers needs eighty-seven seconds. The goal is five.",
+     "A celebrity post takes 87 s, not 5."
+    ],
+    [
+     "So it is a hybrid. Celebrities are merged when you read.",
+     "Hybrid: celebrities merge on read."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Suppose we need eight times the capacity of one machine.",
+     "Need 8 times the capacity of one machine."
+    ],
+    [
+     "The big machine costs about four times more, thirty-four thousand pounds against eight thousand eight hundred.",
+     "One big machine costs about 4 times more."
+    ],
+    [
+     "If one dies, the big machine leaves nothing. The grid keeps eighty-eight per cent.",
+     "One dies: nothing left, or 88% left."
+    ],
+    [
+     "At forty times, no single machine is big enough. Only the grid can grow.",
+     "Only scale out reaches 40x, but must coordinate."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A maintainable system is easy to run, to understand, and to change.",
+     "Easy to run, understand and change."
+    ],
+    [
+     "Five services each use four databases. That is twenty connections.",
+     "Every service uses every database."
+    ],
+    [
+     "To replace one database, all five services must be edited.",
+     "Swap a database: edit all five."
+    ],
+    [
+     "A layer in between makes it nine connections.",
+     "A layer in between: 9 connections."
+    ],
+    [
+     "Now only the layer changes.",
+     "Now only the layer changes."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A fault is not a failure, if there is spare capacity.",
+    "When the load grows, add machines to share it.",
+    "Keep systems easy to run, to understand and to change."
+   ]
+  }
+ ]
+}

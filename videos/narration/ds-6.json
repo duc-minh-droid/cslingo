@@ -1,0 +1,259 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture six. Consistency and consensus. This is what it costs to make many machines agree."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Many machines, called nodes, talk over a network. A node can crash.",
+     "A node can crash."
+    ],
+    [
+     "A message can get lost, and that node never hears.",
+     "A message can get lost."
+    ],
+    [
+     "A reply can arrive very late.",
+     "A reply can arrive late."
+    ],
+    [
+     "Or the network can split in two.",
+     "The network can split in two."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two copies hold the tickets left for the show, forty each.",
+     "Two copies hold the tickets left."
+    ],
+    [
+     "Then the link between them is cut. That is a network partition.",
+     "The link between them is cut."
+    ],
+    [
+     "A sale of five tickets reaches only node A, which now says thirty-five.",
+     "A sale reaches only one copy."
+    ],
+    [
+     "Now node B is asked to read.",
+     "Node B is asked to read."
+    ],
+    [
+     "If it refuses, it stays consistent, but it is not available.",
+     "Refuse: right, but not available."
+    ],
+    [
+     "If it answers forty, it is available, but the answer is stale.",
+     "Answer: available, but stale."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Asha has one hundred pounds, and Ben has fifty. Moving thirty pounds is two writes.",
+     "Moving £30 is two writes."
+    ],
+    [
+     "A crash hits after the debit, before the credit.",
+     "A crash hits after the debit."
+    ],
+    [
+     "Now thirty pounds has vanished. The total is one hundred and twenty.",
+     "£30 has vanished."
+    ],
+    [
+     "Inside one transaction, the debit is undone.",
+     "One transaction undoes the debit."
+    ],
+    [
+     "It is all or nothing, so the total stays one hundred and fifty.",
+     "All or nothing: the total stays £150."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two shoppers each pay thirty pounds from a balance of one hundred.",
+     "Two shoppers pay £30."
+    ],
+    [
+     "Both read one hundred before either writes.",
+     "Both read £100 first."
+    ],
+    [
+     "Both write seventy, so one payment is lost.",
+     "Both write £70: one is lost."
+    ],
+    [
+     "One at a time gives the right answer, forty.",
+     "One at a time gives £40."
+    ],
+    [
+     "Together these make acid. Atomic, consistent, isolated and durable.",
+     "ACID: atomic, consistent, isolated, durable."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A write of thirty-five lands on one copy.",
+     "The write lands on one copy."
+    ],
+    [
+     "The others hear later, one hop at a time.",
+     "The others hear later."
+    ],
+    [
+     "A read now, at the third copy, still returns forty. It is stale.",
+     "A read now can be stale."
+    ],
+    [
+     "Soon every copy agrees. That is eventual consistency.",
+     "Soon every copy agrees."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The goal is that many copies act like one.",
+     "Many copies should act like one."
+    ],
+    [
+     "Each bar is one operation, spread over time. Client C is writing the value one.",
+     "Each bar is one operation in time."
+    ],
+    [
+     "One flip moment, inside the write, explains every read.",
+     "One flip explains every read."
+    ],
+    [
+     "Now client B reads zero, after client A read one.",
+     "Now B reads 0 after A read 1."
+    ],
+    [
+     "No flip moment fits. This history is not linearizable.",
+     "No flip fits: not linearizable."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two sites, London and Leeds, both sell seat fourteen C.",
+     "Two sites sell seat 14C."
+    ],
+    [
+     "Each books its own customer, Mia and Omar, without asking.",
+     "Each books its own customer."
+    ],
+    [
+     "Neither knew about the other, so the seat is sold twice.",
+     "Neither knew: sold twice."
+    ],
+    [
+     "So Leeds must ask London first, and Omar is refused.",
+     "So Leeds must ask London first."
+    ],
+    [
+     "Asking costs sixty-two milliseconds, not two, as the messages take thirty each way.",
+     "Asking costs 62 ms, not 2 ms."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One purchase touches several databases, and they must all agree.",
+     "Several databases must agree."
+    ],
+    [
+     "A coordinator just sends commit to all of them.",
+     "It just sends commit to all."
+    ],
+    [
+     "One commits, one hits a conflict, and one never hears.",
+     "One conflicts, one never hears."
+    ],
+    [
+     "Now the databases disagree about the purchase.",
+     "Now the databases disagree."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two-phase commit has two phases. First, ask every database to vote.",
+     "First, ask every database."
+    ],
+    [
+     "Each one votes, and holds its locks while it waits.",
+     "Each votes, and holds its locks."
+    ],
+    [
+     "Payments votes no, and any no means abort for all.",
+     "Any no means abort for all."
+    ],
+    [
+     "All three abort and unlock.",
+     "All three abort and unlock."
+    ],
+    [
+     "If all had voted yes, all would commit.",
+     "If all vote yes, all commit."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "When the network is cut, refuse to answer, or answer with stale data.",
+    "Act like one copy, so that no read goes back in time.",
+    "Two-phase commit means all say yes, or everything aborts."
+   ]
+  }
+ ]
+}

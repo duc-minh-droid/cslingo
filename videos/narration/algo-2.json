@@ -1,0 +1,219 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Algorithms, phase two. Search and routing. This is how maps and the internet find the way."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A map is a set of places joined by roads.",
+     "A map is places joined by roads."
+    ],
+    [
+     "Each road has a cost, and a route adds its costs up.",
+     "Each road has a cost. A route adds them up."
+    ],
+    [
+     "The fewest roads is not always the cheapest. Two roads cost nine, while four roads cost eight.",
+     "The fewest roads is not always the cheapest."
+    ],
+    [
+     "There are seven routes from A to E, so we need a method.",
+     "There are 7 routes. We need a method."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "We start at A. The smallest distance is settled first.",
+     "Distance from A. Settle the smallest first."
+    ],
+    [
+     "Then we check its roads. A shorter way replaces the old distance, like B dropping from four to three.",
+     "Then check its roads. A shorter way replaces the old distance."
+    ],
+    [
+     "Now we repeat. The smallest waiting distance is always final. Two more shortcuts bring D to six, and E to eight.",
+     "Repeat. The smallest waiting (tentative) distance is always final."
+    ],
+    [
+     "The green roads are the shortest routes. A to E costs eight.",
+     "The green roads are the shortest routes: A to E costs 8."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Any other way to C goes through B, which is already further away.",
+     "Any other way to C goes via B, and B is already further."
+    ],
+    [
+     "So the smallest waiting node is final.",
+     "So the smallest waiting node is final."
+    ],
+    [
+     "A negative road breaks this. B is settled at four, but going through C reaches B for only two.",
+     "A negative road can undercut a node that was settled."
+    ],
+    [
+     "So Dijkstra needs roads with no negative cost.",
+     "So Dijkstra needs roads with no negative cost."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the same search on a grid, where every step costs one.",
+     "Same search, on a grid: every step costs 1."
+    ],
+    [
+     "A star adds a compass. Each cell scores g, the cost so far, plus h, a guess of the distance left.",
+     "A* adds a compass: score = cost so far g + a guess h."
+    ],
+    [
+     "The guess h counts the cells to the goal, ignoring the wall.",
+     "h counts the cells to the goal, ignoring the wall."
+    ],
+    [
+     "It tries the lowest score first. That heads straight at the goal, and then round the wall.",
+     "It tries the lowest f first: straight at the goal, then round the wall."
+    ],
+    [
+     "It finds the way round the wall, at a cost of eleven.",
+     "It finds the way round the wall: cost 11."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Same grid, same wall. Dijkstra looks in every direction, and expands fifty-nine cells.",
+     "Same grid, same wall. Dijkstra looks everywhere."
+    ],
+    [
+     "A star aims at the goal, and expands only twenty cells. Both find the same cost of eleven.",
+     "A* aims at the goal and expands far fewer cells."
+    ],
+    [
+     "But its guess must never be higher than the true cost still to go.",
+     "But its guess must never be higher than the true cost left."
+    ],
+    [
+     "A guess that is too high can fool A star, and it may miss the best route.",
+     "A guess that is too high can fool A*."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the places are routers. Every router learns the whole map.",
+     "Routers are the places. Every router learns the whole map."
+    ],
+    [
+     "Each one runs Dijkstra, and keeps only the first hop of every route.",
+     "Each runs Dijkstra and keeps only the first hop."
+    ],
+    [
+     "A packet arrives for F. A's table says the next hop is D.",
+     "A packet for F. A's table says: next hop D."
+    ],
+    [
+     "D has its own table, and its next hop is E.",
+     "D has its own table: next hop E."
+    ],
+    [
+     "E's table says F is one hop away. Every router uses its own table.",
+     "E's table: F is one hop away. Every router uses its own table."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now a router has no map. A sees only its neighbours, and each says how far F is.",
+     "A sees only its neighbours. Each one says how far F is."
+    ],
+    [
+     "A adds the cost of its own road to each answer. That gives eight, nine and seven.",
+     "A adds its own road cost to each answer."
+    ],
+    [
+     "It keeps the smallest total, seven, and the next hop is D.",
+     "It keeps the smallest total, and the next hop: D."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Take a line of three routers. A reaches C through B, and B reaches C directly.",
+     "A reaches C through B. B reaches C directly."
+    ],
+    [
+     "The road from B to C breaks. B trusts A's old news, and thinks C is three away.",
+     "The B to C road breaks. B hears A's old news."
+    ],
+    [
+     "Each message adds one, so the cost creeps up, round and round, until sixteen means unreachable.",
+     "The cost creeps up, one step at a time."
+    ],
+    [
+     "Same story again, with one change.",
+     "Same story again, with one change."
+    ],
+    [
+     "With poisoned reverse, A tells B that C is unreachable, because A's route goes through B.",
+     "Poisoned reverse: A says C is unreachable, because its route goes through B."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Dijkstra settles the smallest waiting node, then relaxes its roads.",
+    "A star is Dijkstra plus a compass, the cost so far plus a guess.",
+    "Routers use a table from Dijkstra, or gossip with their neighbours."
+   ]
+  }
+ ]
+}

@@ -109,7 +109,9 @@ async function voiceAll(engine, texts) {
   if (!todo.length) return;
   if (engine === "fake") return todo.forEach((t) => silentWav(fileOf1(t), Math.max(1.4, (t.length * 0.075) / P.speed)));
   if (LOCAL.includes(engine)) {
-    const job = { engine, voice, speed: P.speed, lines: todo.map((t) => ({ text: t, out: fileOf1(t) })) };
+    // the voice drops the word after a hyphen ("eight-bit"), so the engine gets a space instead
+    const lines = todo.map((t) => ({ text: t.replace(/(\w)-(\w)/g, "$1 $2"), out: fileOf1(t) }));
+    const job = { engine, voice, speed: P.speed, lines };
     const r = run(PYTHON, [join(root, "tools", "tts", "speak.py")], {
       input: JSON.stringify(job),
       stdio: ["pipe", "inherit", "inherit"],
@@ -205,7 +207,11 @@ for (const [i, sc] of scenes.entries()) {
   timing.push({
     dur: +dur.toFixed(3),
     ...(warp ? { warp: warp.map(([n, o]) => [+n.toFixed(3), +o.toFixed(3)]) } : {}),
-    caps: lines.map((l, j) => [+starts[j].toFixed(2), +(starts[j] + clips[j].len + 0.25).toFixed(2), l.cap]),
+    // the recap card has its own words and a tag or button at the bottom where a caption would sit: voice only there
+    caps:
+      script.scenes[i].at && i === scenes.length - 1
+        ? []
+        : lines.map((l, j) => [+starts[j].toFixed(2), +(starts[j] + clips[j].len + 0.25).toFixed(2), l.cap]),
     clips: clips.map((c, j) => ({ file: c.file, at: +starts[j].toFixed(3), len: +c.len.toFixed(3) })),
   });
 }

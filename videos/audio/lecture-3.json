@@ -1,0 +1,786 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.35,
+     "Lecture three. Local search and population search. This is how a search gets stuck on a hill, and how it escapes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6f73f34e9b4da48d.wav",
+     "at": 0.5,
+     "len": 7.6
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.96,
+     2.8
+    ],
+    [
+     12.7,
+     6.2
+    ],
+    [
+     16.8,
+     9.4
+    ],
+    [
+     23.336,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "Every EA repeats the same loop."
+    ],
+    [
+     5.96,
+     12.45,
+     "Score everyone, then pick the fitter parents."
+    ],
+    [
+     12.7,
+     16.55,
+     "Mix two parents, then change one gene."
+    ],
+    [
+     16.8,
+     21.53,
+     "The child replaces the weakest. Then repeat."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/34c5abfbdb814360.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/992547ddbd43134a.wav",
+     "at": 5.96,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/909d36e5681f0cf8.wav",
+     "at": 12.7,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/de1c3df37d8805c9.wav",
+     "at": 16.8,
+     "len": 4.48
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     2.2
+    ],
+    [
+     10.94,
+     5.8
+    ],
+    [
+     16.56,
+     8.4
+    ],
+    [
+     25.008,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Visit every city once, then return."
+    ],
+    [
+     5.32,
+     10.69,
+     "A tour is a string. Add up the hops."
+    ],
+    [
+     10.94,
+     16.31,
+     "Shorter is better, so we minimise."
+    ],
+    [
+     16.56,
+     23.45,
+     "ABCED is shorter: 28 beats 32."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2ba60cba76d23e0e.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/ea5e1670628b0111.wav",
+     "at": 5.32,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/d99524cbb2b04b5c.wav",
+     "at": 10.94,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/a6c4a10f8d03132f.wav",
+     "at": 16.56,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 18.437,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.68,
+     3.8
+    ],
+    [
+     11.58,
+     6.2
+    ],
+    [
+     18.437,
+     9
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Five cities have only 12 tours."
+    ],
+    [
+     4.68,
+     11.33,
+     "Each extra city multiplies the count."
+    ],
+    [
+     11.58,
+     17.11,
+     "Twenty cities? We cannot check them all."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/12436c11264595ca.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/ed4f6a4671ef6def.wav",
+     "at": 4.68,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/4aafecf44c320345.wav",
+     "at": 11.58,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 16.671,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.52,
+     2.4
+    ],
+    [
+     8.14,
+     6.4
+    ],
+    [
+     11.92,
+     11.1
+    ],
+    [
+     16.671,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.27,
+     "Start with one tour. Change it a little."
+    ],
+    [
+     4.52,
+     7.89,
+     "Worse? Throw the change away."
+    ],
+    [
+     8.14,
+     11.67,
+     "No worse? Keep it and carry on."
+    ],
+    [
+     11.92,
+     14.65,
+     "Repeat until time runs out."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/38cdb02b39e02b6c.wav",
+     "at": 0.5,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/ffe7a8adedded913.wav",
+     "at": 4.52,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/4dd7fe9b76a0fbb3.wav",
+     "at": 8.14,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/bf9039be42d8b37e.wav",
+     "at": 11.92,
+     "len": 2.48
+    }
+   ]
+  },
+  {
+   "dur": 21.572,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.56,
+     3
+    ],
+    [
+     12.78,
+     5
+    ],
+    [
+     16.24,
+     7.8
+    ],
+    [
+     21.572,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Neighbouring solutions sit side by side."
+    ],
+    [
+     7.56,
+     12.53,
+     "Nearby solutions have similar fitness."
+    ],
+    [
+     12.78,
+     15.99,
+     "Hillclimbing climbs the hill it starts on."
+    ],
+    [
+     16.24,
+     20.09,
+     "It stops at a local peak, not the best."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2acf93ab610f9861.wav",
+     "at": 0.5,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/41ca38d2292b5ff5.wav",
+     "at": 7.56,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/056695701a47275b.wav",
+     "at": 12.78,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/625de52be5a280df.wav",
+     "at": 16.24,
+     "len": 3.6
+    }
+   ]
+  },
+  {
+   "dur": 23.313,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     9.48,
+     2.4
+    ],
+    [
+     15.26,
+     6.6
+    ],
+    [
+     23.313,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.23,
+     "Four landscape shapes. One climber on each."
+    ],
+    [
+     9.48,
+     15.01,
+     "Hillclimbing only ever walks uphill."
+    ],
+    [
+     15.26,
+     22.47,
+     "Only the one-peak shape always works."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/dd7f2fc26927f8d9.wav",
+     "at": 0.5,
+     "len": 8.48
+    },
+    {
+     "file": "videos/audio/clips/af127fee34ab3148.wav",
+     "at": 9.48,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/c6d04f52d234d9bf.wav",
+     "at": 15.26,
+     "len": 6.96
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     2.2
+    ],
+    [
+     9.18,
+     6.8
+    ],
+    [
+     16.672,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "Start from one solution."
+    ],
+    [
+     5.24,
+     8.93,
+     "Every solution one mutation away is a neighbour."
+    ],
+    [
+     9.18,
+     16.07,
+     "A different operator gives different neighbours."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c64ec88dacaaae6f.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/45f2df643b4cf206.wav",
+     "at": 5.24,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/6b0ce218fba6e308.wav",
+     "at": 9.18,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 41.772,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.28,
+     1.7
+    ],
+    [
+     8.78,
+     4.1
+    ],
+    [
+     12.88,
+     5.5
+    ],
+    [
+     16.98,
+     7
+    ],
+    [
+     21.24,
+     10
+    ],
+    [
+     25.82,
+     11.7
+    ],
+    [
+     30.48,
+     13.5
+    ],
+    [
+     34.66,
+     16.5
+    ],
+    [
+     41.772,
+     18
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.03,
+     "Hillclimbing is stuck on this hill."
+    ],
+    [
+     4.28,
+     8.53,
+     "A worse step is usually rejected."
+    ],
+    [
+     8.78,
+     12.63,
+     "Fast-forward: all rejected."
+    ],
+    [
+     12.88,
+     16.73,
+     "One lucky roll: it steps downhill!"
+    ],
+    [
+     16.98,
+     20.99,
+     "Then it climbs on, keeping the best."
+    ],
+    [
+     21.24,
+     25.57,
+     "Tabu always moves to its best neighbour."
+    ],
+    [
+     25.82,
+     30.23,
+     "But it cannot step back onto a crumb."
+    ],
+    [
+     30.48,
+     34.41,
+     "So it walks on, over the valley."
+    ],
+    [
+     34.66,
+     39.55,
+     "Both can escape the small hill."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0b83f0f707547cbd.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/b7b6f6a09d899861.wav",
+     "at": 4.28,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/a17ab95d39d1d611.wav",
+     "at": 8.78,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/f2305cb0f449b9bb.wav",
+     "at": 12.88,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/40413ba046703481.wav",
+     "at": 16.98,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/f61771c64530b59b.wav",
+     "at": 21.24,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/2ec25b69d1125554.wav",
+     "at": 25.82,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/4f7b4395c032d6ff.wav",
+     "at": 30.48,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/32d30008182c7cf3.wav",
+     "at": 34.66,
+     "len": 4.64
+    }
+   ]
+  },
+  {
+   "dur": 24.892,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.08,
+     2.6
+    ],
+    [
+     9.26,
+     4.5
+    ],
+    [
+     13.36,
+     6.6
+    ],
+    [
+     19.54,
+     9.4
+    ],
+    [
+     24.892,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "One hiker is stuck on one hill."
+    ],
+    [
+     5.08,
+     9.01,
+     "A team starts on many hills."
+    ],
+    [
+     9.26,
+     13.11,
+     "A low score can still climb the tallest hill."
+    ],
+    [
+     13.36,
+     19.29,
+     "The team gathers on the best hill."
+    ],
+    [
+     19.54,
+     24.03,
+     "A team can select and recombine."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/56b221dd4d5e3025.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/927f6e668e6bb6fb.wav",
+     "at": 5.08,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/84d5f0f31f616a7d.wav",
+     "at": 9.26,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/d26828b11dd2b8e4.wav",
+     "at": 13.36,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/dbd814eb612f0664.wav",
+     "at": 19.54,
+     "len": 4.24
+    }
+   ]
+  },
+  {
+   "dur": 15.232,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.24,
+     2
+    ],
+    [
+     10.3,
+     3.1
+    ],
+    [
+     15.232,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/21b55a593e5c6f55.wav",
+     "at": 0.5,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/96e5211517171f5d.wav",
+     "at": 7.24,
+     "len": 2.56
+    },
+    {
+     "file": "videos/audio/clips/e8fb335cc39e33a0.wav",
+     "at": 10.3,
+     "len": 3.92
+    }
+   ]
+  }
+ ]
+}
