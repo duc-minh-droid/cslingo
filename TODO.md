@@ -19,10 +19,64 @@ Work in this order; each phase ends with something that runs and is committed.
 3. **Phase 2, write the narration scripts** for all 25 videos (4 agents: `lecture-1..8`, `algo-1..5`, `algo-6..10`, `ds-1..7`;
    brief in `videos/_plan/NARRATION_TASK.md`). _Status: done, all 25 scripts pass `tools/narration-check.js` with no warnings
    (3.3 to 5.0 minutes each when narrated; `lecture-6` and `algo-5` have four recap rows, so do not regenerate their scripts)._
-4. **Phase 3, voice and record every video**, one at a time with `tools/voice-video.sh <name>`: needs about 1 to 2 hours of CPU per
-   video without a GPU, so run it in the background on a machine with the RTX 4060 if there is one.
-5. **Phase 4, review and ship.** The owner watches two or three finished videos before anything is merged, then update
-   `videos/README.md`, run `npm test`, and deploy in batches (the mp4s are about 6 MB each).
+4. **Phase 3, voice and record every video.** `lecture-5` is done and committed (the pilot: it took about 25 minutes of CPU here and
+   came out at 2:56 with the voice, the music and no caption on the recap card). The other 24 are **handed over to the owner**: this cloud
+   machine has no GPU (the voice runs about ten times slower than real time) and it is reclaimed whenever the session is idle, which killed a
+   background run. Commands are in "Run the rest yourself" below.
+5. **Phase 4, review and ship.** Watch two or three finished videos (`lecture-1` first: it is the approved example), then
+   `node tools/narrated-minutes.js --write`, `npm run check`, commit, PR, merge (steps below).
+
+### Run the rest yourself (24 videos, on the machine with the RTX 4060)
+
+Everything is on the branch `main-hcicsk` (the narration scripts for all 25 videos, the tools, the fixed title cards). From the repo root, in
+**Git Bash** (or any bash; the scripts find `tools/tts/.venv/Scripts/python` on Windows by themselves, or set `TTS_PYTHON`):
+
+```bash
+git fetch origin && git checkout main-hcicsk && git pull
+# once: the packages the checker and the renderer need (PyTorch with CUDA is already in the venv; if not: tools/tts/README.md)
+tools/tts/.venv/Scripts/python -m pip install -r tools/tts/requirements.txt     # faster-whisper, imageio-ffmpeg, qwen-tts ...
+npm install && npx playwright install chromium                                  # the recorder needs Chromium
+
+# one video first, then listen to it and look at it (lecture-1 is the approved example: compare with videos/out/lecture-1-test.mp4)
+tools/voice-video.sh lecture-1
+
+# the rest, one after another (finished videos are skipped, so you can stop and restart it any time)
+tools/voice-all.sh lecture-1 lecture-2 lecture-3 lecture-4 lecture-6 lecture-7 lecture-8 \
+  ds-1 ds-2 ds-3 ds-4 ds-5 ds-6 ds-7 \
+  algo-1 algo-2 algo-3 algo-4 algo-5 algo-6 algo-7 algo-8 algo-9 algo-10 2>&1 | tee voice-all.log
+```
+
+What `tools/voice-video.sh <name>` does: checks the script, voices every line with the cloned narrator (`tools/narrate.js`), checks each clip with
+faster-whisper (`tools/tts/verify.py`) and re-voices any that do not come back word for word (up to three rounds), then records
+`videos/out/<name>.mp4` with the music and writes `videos/out/<name>-poster.png`. Clips are cached in `videos/audio/clips/` (git-ignored), so an
+interrupted run resumes. Expect roughly 5 to 10 minutes of recording per video (`WORKERS=8 tools/voice-all.sh ...` uses more CPU cores for it) plus
+the voice; the GPU speed has not been measured, the CPU here needed about 15 to 40 minutes per video.
+
+When a few videos are finished (and each time you want to save progress):
+
+```bash
+node tools/narrated-minutes.js --write          # lists the narrated videos and puts their lengths into js/content/{nic,ds,algo}/videos.js
+npx prettier --write js/content/nic/videos.js js/content/ds/videos.js js/content/algo/videos.js
+npm run check                                   # lint, format, the whole suite (about 12 minutes)
+git add -A && git commit -m "Narrated videos: <names>" && git push
+```
+
+then open a pull request to `main` and merge it as for any change (the app switches each narrated video from "Silent explainer, two minutes" to
+"Narrated explainer, about N minutes" by itself). Each mp4 is about 5 to 10 MB.
+
+If something goes wrong:
+- **"lines still do not verify after three rounds"**: the log prints the wanted and the heard words. Edit that sentence in
+  `videos/narration/<name>.json` (shorter, no hyphen, a hard word spelled the way it sounds), keep the caption (second element) as it is, run
+  `tools/voice-video.sh <name>` again: only the changed line is voiced again.
+- **A line sounds wrong or a scene drags**: edit its spoken text the same way and re-run. Look at any moment of a narrated video with
+  `node tools/video-still.js <name> 10,60,120 /tmp/stills` (the page follows the voice once `tools/narrate.js` has run) and open the PNGs.
+- **Do not regenerate a script with `tools/narration-skeleton.js --force`** unless you mean to write it again: `lecture-6` and `algo-5` have four recap rows.
+- **To start a video over**: delete `videos/audio/<name>.json`, then run `tools/voice-video.sh <name>`. `git checkout videos/audio/<name>.js videos/audio/<name>.json videos/out/<name>.mp4` puts the silent version back.
+
+Things the writing agents flagged, worth a listen: "Dijkstra", "PageRank", "A star" and single letters read as letters (algo-1, algo-2, algo-3,
+algo-5); a few scenes where the speech is much longer than the animation (algo-5 scenes 4 and 7, about 46 to 50 s spoken against 17 s drawn);
+captions that start late or overlap in the silent versions (algo-1 scene 3, algo-2 scene 9, algo-5 scene 2: the narration re-times them anyway).
+The recap card has no caption on purpose (the voice only): its own tag sits where a caption would be.
 
 ### The task
 
@@ -30,8 +84,8 @@ Redo **every** recap video the way `videos/out/lecture-1-test.mp4` was made (tha
 voice, same delivery, same music treatment, same look, same tools and settings; "How the example was made" below is the recipe.
 
 Videos (25): `lecture-1` to `lecture-8` (Nature-Inspired), `algo-1` to `algo-10` (Algorithms) and `ds-1` to `ds-7` (Data Science), pages
-`videos/<name>.html`. Narration scripts (`videos/narration/<name>.json`) exist only for `lecture-1` to `lecture-6`; `lecture-7`,
-`lecture-8`, `algo-1` to `algo-10` and `ds-1` to `ds-7` still need theirs (the silent versions are recorded, wired into the app and live).
+`videos/<name>.html`. Narration scripts (`videos/narration/<name>.json`) now exist for all 25 (written 2026-10-21 in the delivery style below); the silent
+versions are recorded, wired into the app and live, and `lecture-5` is the first narrated one.
 The Data Science videos use the `ds-N` names, their audio stubs are `videos/audio/ds-N.js` and their scenes are in `videos/dN/`.
 
 **Inputs** (in the repo; `.vercelignore` keeps them off the deployed site):
@@ -147,8 +201,6 @@ Added 2026-10-21.
 - **Re-render every video after narration.** The scene text is now 28 px everywhere (the small kicker above each scene title was
   24 px and was raised to 28 px in `videos/video.css`), but the `.mp4` files already recorded still show the old size. Re-rendering
   for the voice-over picks the change up; until then nothing else needs doing.
-- **Voice-over for the nine newest videos.** `lecture-7`, `lecture-8` and `ds-1` to `ds-7` have no narration script yet (see the
-  videos list above); write them last, after the older ones have been approved.
 - **Data Science lecture 7 (Paxos) video** (`ds-7`): recorded and wired. Check on the live site that the bonus node after the
   lecture 7 boss quiz plays `videos/out/ds-7.mp4` and shows its poster.
 - **Remove the four stray files** `/log4.txt`, `/log5.txt`, `/log10.txt` and `/log11.txt` from the filesystem root of the

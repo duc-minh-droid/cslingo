@@ -96,6 +96,7 @@ export default [
       "tools/narrate.js",
       "tools/narration-skeleton.js",
       "tools/narration-check.js",
+      "tools/narrated-minutes.js",
     ],
     languageOptions: {
       ecmaVersion: "latest",

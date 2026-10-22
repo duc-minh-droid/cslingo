@@ -6,7 +6,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 name=$1
-export TTS_PYTHON=tools/tts/.venv/bin/python
+# the venv Python: tools/tts/.venv/bin/python (Linux, macOS) or tools/tts/.venv/Scripts/python (Windows), or set TTS_PYTHON yourself
+if [ -z "${TTS_PYTHON:-}" ]; then
+  if [ -e tools/tts/.venv/bin/python ]; then TTS_PYTHON=tools/tts/.venv/bin/python; else TTS_PYTHON=tools/tts/.venv/Scripts/python; fi
+fi
+export TTS_PYTHON
 export FFMPEG=${FFMPEG:-$($TTS_PYTHON -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')}
 node tools/narration-check.js "$name" | tail -3
 for round in 1 2 3; do
