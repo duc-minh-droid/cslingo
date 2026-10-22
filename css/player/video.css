@@ -1,0 +1,206 @@
+/* ---------- recap-video player (js/player/video.js) ---------- */
+/* square video as big as the screen allows: the full lesson column, but short enough that the control bar and Continue stay
+   on screen (topbar + title + bar + footer ~ 330 px) */
+.vp {
+  --p: 0%;
+  width: min(100%, 680px, max(280px, calc(100vh - 330px)));
+  width: min(100%, 680px, max(280px, calc(100dvh - 330px)));
+  margin: 4px auto 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* never wider than the column, whatever the video's own size */
+  gap: 10px;
+  outline: none;
+}
+.vp:focus-visible .vp-frame {
+  box-shadow:
+    0 0 0 4px var(--blue-dim),
+    0 6px 0 var(--line-2);
+  border-color: var(--blue);
+}
+.vp-frame {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 3px solid var(--line-2);
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--bg-2);
+  box-shadow: 0 6px 0 var(--line-2);
+}
+.vp-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  background: var(--bg-2);
+}
+:fullscreen.vp-frame {
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+:fullscreen.vp-frame video {
+  object-fit: contain;
+}
+/* big round play button over the poster; it fades out while the video plays */
+.vp-big {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 92px;
+  height: 92px;
+  margin: -46px 0 0 -46px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--teal-on);
+  box-shadow: 0 6px 0 var(--teal-lip);
+  cursor: pointer;
+  transition:
+    transform var(--dur-2, 0.2s) var(--ease-spring),
+    opacity var(--dur-2, 0.2s) ease;
+}
+.vp-big svg {
+  width: 44px;
+  height: 44px;
+  margin-left: 4px;
+}
+.vp[data-state="ended"] .vp-big svg {
+  margin-left: 0;
+}
+.vp-big:hover {
+  transform: scale(1.06);
+}
+.vp-big:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--teal-lip);
+}
+.vp-big:focus-visible {
+  outline: 4px solid var(--blue);
+  outline-offset: 4px;
+}
+.vp[data-state="playing"] .vp-big,
+.vp[data-state="paused"] .vp-big {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+/* control bar under the picture */
+.vp-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+.vp-btn {
+  flex: none;
+  min-width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 800 14px var(--sans);
+  cursor: pointer;
+}
+.vp-btn svg {
+  width: 24px;
+  height: 24px;
+}
+.vp-btn:hover {
+  background: var(--bg-2);
+  color: var(--text);
+}
+.vp-btn:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -3px;
+}
+.vp-play {
+  color: var(--teal-ink);
+}
+.vp-time {
+  flex: none;
+  font: 700 13px var(--mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.vp-time b {
+  color: var(--text);
+  font-weight: 800;
+}
+.vp-seek {
+  flex: 1;
+  min-width: 60px;
+  height: 28px;
+  margin: 0 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.vp-seek::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 8px;
+  background: linear-gradient(to right, var(--teal) var(--p), var(--line) var(--p));
+}
+.vp-seek::-moz-range-track {
+  height: 8px;
+  border-radius: 8px;
+  background: linear-gradient(to right, var(--teal) var(--p), var(--line) var(--p));
+}
+.vp-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 3px solid var(--teal);
+  box-shadow: 0 2px 0 var(--teal-lip);
+}
+.vp-seek::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 3px solid var(--teal);
+}
+.vp-seek:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.vp figcaption {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 700;
+}
+.vp figcaption a {
+  color: var(--blue-ink);
+}
+@media (max-width: 480px) {
+  .vp {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+  }
+  .vp-bar {
+    gap: 2px;
+    padding: 4px;
+  }
+  .vp-time span:not(.vp-dur) {
+    display: none;
+  }
+  .vp-time .vp-dur {
+    display: none;
+  }
+}
