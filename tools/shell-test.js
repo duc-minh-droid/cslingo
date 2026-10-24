@@ -10,7 +10,8 @@
    8. Course buttons scope Practice to that course; the dock, nodes and top bar say where they are to a screen reader.
    9. Keyboard: the skip link reaches the dock; the desktop rail only shows when it fits; an open popover survives a keyboard.
   10. A new day redraws the top bar; the sound switch follows the setting; the Profile overview and achievement progress show.
-  11. A course that cannot download shows "Couldn't load" and a Try again that works. */
+  11. A course that cannot download shows "Couldn't load" and a Try again that works.
+  13. Coming back from a finished lesson never scrolls the path back up to the next node (you may have skipped lessons). */
 /* global window, document, location, localStorage, NIC, requestAnimationFrame, getComputedStyle, setTimeout, innerWidth, Event */
 
 const BIG = { width: 1280, height: 800 };
@@ -577,6 +578,39 @@ export async function shellChecks(page) {
       if (await p.$(".gl-item.open")) bad("the open Glossary entry did not close");
     }
     if (errors.length) bad(`page errors on the Glossary: ${errors.join("; ")}`);
+    await ctx.close();
+  }
+
+  // 13. back from a finished lesson the path stays where it is when the next node is above (lessons were skipped)
+  {
+    const { p, ctx, errors } = await fresh(page, { width: 390, height: 844 });
+    await boot(p, "home", base);
+    const ids = await p.evaluate(() => [...document.querySelectorAll(".p-row[data-id]")].map((r) => r.dataset.id));
+    const done = Object.fromEntries(ids.slice(1).map((id) => [id, true])); // only the first lesson is left: "up next" is at the top
+    await p.evaluate((d) => localStorage.setItem("nic.lessonDone", JSON.stringify(d)), done);
+    await boot(p, "home", base);
+    await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await p.waitForTimeout(400);
+    const y0 = await p.evaluate(() => Math.round(window.scrollY));
+    const fin = await p.evaluate(() => {
+      const rows = [...document.querySelectorAll(".p-row[data-id]")].filter((r) => r.getBoundingClientRect().top > 120);
+      return rows.length ? rows[0].dataset.id : null;
+    });
+    await p.evaluate((id) => {
+      NIC.lastFinished = id;
+      location.hash = "#practice";
+    }, fin);
+    await p.waitForTimeout(500);
+    await p.evaluate(() => (location.hash = "#home"));
+    let lowest = y0;
+    for (let i = 0; i < 6; i++) {
+      await p.waitForTimeout(350);
+      lowest = Math.min(lowest, await p.evaluate(() => Math.round(window.scrollY)));
+    }
+    if (!fin || y0 < 1000) bad("the finished-lesson scroll check could not set up a long path");
+    else if (y0 - lowest > 40)
+      bad(`coming back from a finished lesson scrolled the path up by ${y0 - lowest}px (from ${y0})`);
+    if (errors.length) bad(`page errors on the finished-lesson check: ${errors.join("; ")}`);
     await ctx.close();
   }
 
