@@ -534,11 +534,11 @@ export async function shellChecks(page) {
       bad(`the video node is named "${r.label}"`);
     if (r.card && /-video$/.test(r.card)) bad(`"Up next" offers a recap video (${r.card})`);
     await p.evaluate(() => (location.hash = "l1-video"));
-    const step = await p.waitForSelector(".pl-video video", { timeout: 15000 }).catch(() => null);
+    const step = await p.waitForSelector(".vp video", { timeout: 15000 }).catch(() => null);
     if (!step) bad("the recap video did not open in the player");
     else if (
       !(await p.evaluate(() =>
-        document.querySelector(".pl-video video source").getAttribute("src").includes("videos/out/lecture-1.mp4"),
+        document.querySelector(".vp video source").getAttribute("src").includes("videos/out/lecture-1.mp4"),
       ))
     )
       bad("the recap video points at the wrong file");
