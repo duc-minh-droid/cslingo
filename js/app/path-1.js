@@ -443,20 +443,32 @@
       app.life.onCleanup(fx.onView(pops, { run: (n) => app.popNode(n, 0) }));
     }
     app.life.onCleanup(NIC.cast.idle(page));
-    // came back from a finished lesson: glide to the next node and nudge it
+    // came back from a finished lesson: glide DOWN to the next node and nudge it. If the next node is above you (you skipped some
+    // lessons), the page stays where it is and the lesson you just finished gets the nudge instead: it never scrolls back up.
     if (NIC.lastFinished) {
       const fin = NIC.lastFinished;
       NIC.lastFinished = null;
-      const target = qs(".p-row.cur", page) || qs(`.p-row[data-id="${fin}"]`, page);
+      const finRow = qs(`.p-row[data-id="${fin}"]`, page);
+      const target = qs(".p-row.cur", page) || finRow;
       if (target)
         setTimeout(() => {
-          target.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "center" });
-          setTimeout(() => {
-            fx.bump(qs(".p-node", target), { scale: 1.2 });
-            NIC.sfx.play("pop");
-            const mark = qs(`.p-row[data-id="${fin}"] .p-badge, .p-row.st-done[data-id="${fin}"] .p-face > svg`, page); // the check mark you just earned
-            if (mark && mark.isConnected) fx.springIn(mark, { from: 0, rot: -40, bounce: 0.6, delay: 0.12 });
-          }, 500);
+          const r = target.getBoundingClientRect();
+          const below = r.top + r.height / 2 > innerHeight / 2;
+          const focus = below ? target : finRow || target;
+          if (below) target.scrollIntoView({ behavior: fx.reduce() ? "auto" : "smooth", block: "center" });
+          setTimeout(
+            () => {
+              const node = qs(".p-node", focus);
+              if (node) fx.bump(node, { scale: 1.2 });
+              NIC.sfx.play("pop");
+              const mark = qs(
+                `.p-row[data-id="${fin}"] .p-badge, .p-row.st-done[data-id="${fin}"] .p-face > svg`,
+                page,
+              ); // the check mark you just earned
+              if (mark && mark.isConnected) fx.springIn(mark, { from: 0, rot: -40, bounce: 0.6, delay: 0.12 });
+            },
+            below ? 500 : 0,
+          );
         }, 200);
     } else if (!at) {
       // first visit: bring the current lesson on screen
