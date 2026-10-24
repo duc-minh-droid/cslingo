@@ -1,0 +1,926 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.83,
+     "Phase eight. Cryptography and blockchain. This is how secrets and trust work online."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a40ee83ec9fa8c7d.wav",
+     "at": 0.5,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     1.21,
+     2.2
+    ],
+    [
+     5.95,
+     5.1
+    ],
+    [
+     14.21,
+     9.2
+    ],
+    [
+     20.016,
+     11.4
+    ]
+   ],
+   "caps": [
+    [
+     1.21,
+     5.7,
+     "Anything on the open wire, Eve can read."
+    ],
+    [
+     5.95,
+     13.96,
+     "The key is 5: each letter moves 5 along, so S becomes X."
+    ],
+    [
+     14.21,
+     19.1,
+     "But how does Bob get the key without Eve seeing it?"
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/87ae3a8cef2102d7.wav",
+     "at": 1.21,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/3e9723f0ed268360.wav",
+     "at": 5.95,
+     "len": 7.76
+    },
+    {
+     "file": "videos/audio/clips/535a4cfcd165b6ad.wav",
+     "at": 14.21,
+     "len": 4.64
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     4.76,
+     3.6
+    ],
+    [
+     7.9,
+     6
+    ],
+    [
+     12.48,
+     8
+    ],
+    [
+     17.3,
+     9.7
+    ],
+    [
+     20.12,
+     11.1
+    ],
+    [
+     25.008,
+     13.4
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     4.51,
+     "Both start with the same public paint."
+    ],
+    [
+     4.76,
+     7.65,
+     "Each adds a secret paint of their own."
+    ],
+    [
+     7.9,
+     12.23,
+     "They swap the mixtures. Eve can see those."
+    ],
+    [
+     12.48,
+     17.05,
+     "Each adds their own secret again: the very same colour."
+    ],
+    [
+     17.3,
+     19.87,
+     "That colour is their shared key."
+    ],
+    [
+     20.12,
+     23.89,
+     "Eve cannot unmix paint to find a secret."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f98951e717e35d93.wav",
+     "at": 0.66,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/840d524f50a6a428.wav",
+     "at": 4.76,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/1eaf4728b829f28f.wav",
+     "at": 7.9,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/1218305f97799d16.wav",
+     "at": 12.48,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/e15c1142c0603087.wav",
+     "at": 17.3,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/887c68ad55ef1ffb.wav",
+     "at": 20.12,
+     "len": 3.52
+    }
+   ]
+  },
+  {
+   "dur": 36.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.688,
+     1.25
+    ],
+    [
+     6.787,
+     3.9
+    ],
+    [
+     13.848,
+     6.2
+    ],
+    [
+     18.428,
+     8
+    ],
+    [
+     21.808,
+     9.5
+    ],
+    [
+     25.988,
+     11.65
+    ],
+    [
+     30.168,
+     13.7
+    ],
+    [
+     36.664,
+     15.65
+    ]
+   ],
+   "caps": [
+    [
+     0.69,
+     6.54,
+     "Like the paint: p and g are public, a and b secret."
+    ],
+    [
+     6.79,
+     13.6,
+     "mod 23 keeps only the remainder after dividing by 23."
+    ],
+    [
+     13.85,
+     18.18,
+     "They swap A = 8 and B = 19 in public."
+    ],
+    [
+     18.43,
+     21.56,
+     "Each raises what they received to their own secret."
+    ],
+    [
+     21.81,
+     25.74,
+     "Both get 2: a shared key that was never sent."
+    ],
+    [
+     25.99,
+     29.92,
+     "Eve must try every power of 5 until she hits 8: that finds a."
+    ],
+    [
+     30.17,
+     35.22,
+     "With a 617-digit prime that search is hopeless."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/894c8d4d0dee2399.wav",
+     "at": 0.688,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/b8eb95c78d222e1c.wav",
+     "at": 6.787,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/8c61a8f04c22d5a2.wav",
+     "at": 13.848,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/73725a958de587cf.wav",
+     "at": 18.428,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/f1a088e0f76ded05.wav",
+     "at": 21.808,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/5f25a430539ffeba.wav",
+     "at": 25.988,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/1a1c16281eb48897.wav",
+     "at": 30.168,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 33.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.16,
+     2.4
+    ],
+    [
+     9.42,
+     4.1
+    ],
+    [
+     14.88,
+     6.5
+    ],
+    [
+     20.18,
+     9
+    ],
+    [
+     26.52,
+     11
+    ],
+    [
+     33.321,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "Pick two secret primes: 5 and 11."
+    ],
+    [
+     5.16,
+     9.17,
+     "Multiply them: n = 55 is public."
+    ],
+    [
+     9.42,
+     14.63,
+     "Next z = (5 − 1) × (11 − 1) = 40, kept secret."
+    ],
+    [
+     14.88,
+     19.93,
+     "Pick e = 3: only 1 divides both 3 and 40."
+    ],
+    [
+     20.18,
+     26.27,
+     "d = 27, because 3 × 27 = 81 = 2 × 40 + 1."
+    ],
+    [
+     26.52,
+     32.69,
+     "Publish (55, 3). Keep 27 secret."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ac0f86245536c694.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/1be4af411f0a3f75.wav",
+     "at": 5.16,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/89566d0900369e0d.wav",
+     "at": 9.42,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/365b1054d286b2ea.wav",
+     "at": 14.88,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/a05639bd26fe135f.wav",
+     "at": 20.18,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/cac2557ccc5e19dc.wav",
+     "at": 26.52,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     6.17,
+     3.4
+    ],
+    [
+     10.51,
+     5.8
+    ],
+    [
+     15.73,
+     7.8
+    ],
+    [
+     19.67,
+     9.6
+    ],
+    [
+     23.85,
+     11.2
+    ],
+    [
+     30,
+     13.4
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     5.92,
+     "Bob shares his public key, (55, 3)."
+    ],
+    [
+     6.17,
+     10.26,
+     "Alice locks 7 with it and gets 13."
+    ],
+    [
+     10.51,
+     15.48,
+     "Bob unlocks 13 with his private key: back to 7."
+    ],
+    [
+     15.73,
+     19.42,
+     "Eve factors the tiny n in four tries: 5 × 11."
+    ],
+    [
+     19.67,
+     23.6,
+     "Then z = 40 and d = 27: she has the key."
+    ],
+    [
+     23.85,
+     28.82,
+     "A real n has 617+ digits: nobody can factor that."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c870b98bb6977b48.wav",
+     "at": 0.55,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/7736407facfd78d6.wav",
+     "at": 6.17,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/72c2d66d5eb8f57a.wav",
+     "at": 10.51,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/07bf9e86316a0060.wav",
+     "at": 15.73,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/dde48481af9bdcd7.wav",
+     "at": 19.67,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/0b11efee5bd7f52b.wav",
+     "at": 23.85,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.3
+    ],
+    [
+     4.76,
+     1.95
+    ],
+    [
+     9.5,
+     4.1
+    ],
+    [
+     14.32,
+     7
+    ],
+    [
+     18.9,
+     9.1
+    ],
+    [
+     23.336,
+     11.1
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "New question: was this data changed?"
+    ],
+    [
+     4.76,
+     9.25,
+     "A hash turns data into a short fingerprint."
+    ],
+    [
+     9.5,
+     14.07,
+     "The same data always gives the same fingerprint."
+    ],
+    [
+     14.32,
+     18.65,
+     "Change one letter, the whole fingerprint changes."
+    ],
+    [
+     18.9,
+     22.51,
+     "And you cannot work backwards from it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/607322efe5a39232.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/091e56fbd99f9451.wav",
+     "at": 4.76,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/4d94d2f170b69386.wav",
+     "at": 9.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/4e89b84b577ceb76.wav",
+     "at": 14.32,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/0487b79d7f3a22c1.wav",
+     "at": 18.9,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 26.772,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     5.13,
+     3.3
+    ],
+    [
+     9.95,
+     5.5
+    ],
+    [
+     14.69,
+     7.9
+    ],
+    [
+     20.31,
+     10.8
+    ],
+    [
+     26.772,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     4.88,
+     "Each block stores the hash of the block before it."
+    ],
+    [
+     5.13,
+     9.7,
+     "Edit one block and its hash changes."
+    ],
+    [
+     9.95,
+     14.44,
+     "The next block holds the old hash: the link breaks."
+    ],
+    [
+     14.69,
+     20.06,
+     "Eve recomputes each later hash to repair the links."
+    ],
+    [
+     20.31,
+     25.6,
+     "It looks valid again, but hashes only spot edits."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/41134baa665d90fe.wav",
+     "at": 0.55,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/b72c79107f5aa4c7.wav",
+     "at": 5.13,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/6ec91211191da27d.wav",
+     "at": 9.95,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/5f9789d52236702c.wav",
+     "at": 14.69,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/ebb89f5f36bb708e.wav",
+     "at": 20.31,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 30.117,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.44,
+     2.6
+    ],
+    [
+     11.98,
+     6
+    ],
+    [
+     15.2,
+     7.3
+    ],
+    [
+     18.02,
+     9
+    ],
+    [
+     22.44,
+     11
+    ],
+    [
+     30.117,
+     13.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "Try numbers (nonces) until the hash starts with 0."
+    ],
+    [
+     6.44,
+     11.73,
+     "Every try gives a new, unpredictable hash."
+    ],
+    [
+     11.98,
+     14.95,
+     "Found it after 15 hashes."
+    ],
+    [
+     15.2,
+     17.77,
+     "Checking takes just 1 hash."
+    ],
+    [
+     18.02,
+     22.19,
+     "One hash in 16 starts with 0."
+    ],
+    [
+     22.44,
+     28.69,
+     "Two zeros: 1 in 256, so 16 times more work."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9f719f5ef08d4de7.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/1e639d295a7dd7f7.wav",
+     "at": 6.44,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/e36e44d858024f92.wav",
+     "at": 11.98,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/a88d186082879ca2.wav",
+     "at": 15.2,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/dd598d09d0e7fe69.wav",
+     "at": 18.02,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/7aa41529bbe11ed2.wav",
+     "at": 22.44,
+     "len": 6
+    }
+   ]
+  },
+  {
+   "dur": 25.193,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.44,
+     2.9
+    ],
+    [
+     8.14,
+     4.3
+    ],
+    [
+     12.08,
+     5.9
+    ],
+    [
+     16.1,
+     8.5
+    ],
+    [
+     25.193,
+     11.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "Each block is sealed by its own proof of work."
+    ],
+    [
+     4.44,
+     7.89,
+     "Edit block 1: its seal and the link both break."
+    ],
+    [
+     8.14,
+     11.83,
+     "Forging it means mining block 1 again."
+    ],
+    [
+     12.08,
+     15.85,
+     "Then every later block must be mined again too."
+    ],
+    [
+     16.1,
+     23.47,
+     "Rewriting history means redoing all that work."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3f9fa82e0389e019.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/a0986f1d5e81ccb7.wav",
+     "at": 4.44,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/815cbbf898de672f.wav",
+     "at": 8.14,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/8eafb56618382133.wav",
+     "at": 12.08,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/30af4270cefd45c0.wav",
+     "at": 16.1,
+     "len": 7.12
+    }
+   ]
+  },
+  {
+   "dur": 15,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.36,
+     2
+    ],
+    [
+     8.78,
+     3.1
+    ],
+    [
+     15,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0940acfaae88c2f3.wav",
+     "at": 0.5,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/17f08fa72ff00704.wav",
+     "at": 4.36,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/ed51dfed53659723.wav",
+     "at": 8.78,
+     "len": 4.64
+    }
+   ]
+  }
+ ]
+}

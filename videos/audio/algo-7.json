@@ -1,0 +1,870 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.27,
+     "Phase seven. Information theory and compression. This is how files get smaller."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6df778d3bb64b53f.wav",
+     "at": 0.5,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 21.688,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.72,
+     3.8
+    ],
+    [
+     10.7,
+     5.8
+    ],
+    [
+     15.6,
+     7.9
+    ],
+    [
+     21.688,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "A fixed code spends 3 bits on every letter."
+    ],
+    [
+     5.72,
+     10.45,
+     "That is 21 bits for BBADEBC."
+    ],
+    [
+     10.7,
+     15.35,
+     "But B turns up three times."
+    ],
+    [
+     15.6,
+     20.41,
+     "Common letters get short codes: 15 bits."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/941f78e15fc5fa4a.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/0bb50c6447c19687.wav",
+     "at": 5.72,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/13b6519c62cee20d.wav",
+     "at": 10.7,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/aacf98078852c566.wav",
+     "at": 15.6,
+     "len": 4.56
+    }
+   ]
+  },
+  {
+   "dur": 18.343,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     2.8
+    ],
+    [
+     9.98,
+     5.1
+    ],
+    [
+     13.76,
+     8.8
+    ],
+    [
+     18.343,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "News we expect tells us nothing: 0 bits."
+    ],
+    [
+     5.4,
+     9.73,
+     "Half the chance: one yes-or-no answer, 1 bit."
+    ],
+    [
+     9.98,
+     13.51,
+     "Each time the chance halves, one more bit."
+    ],
+    [
+     13.76,
+     16.81,
+     "Rarer news tells us more."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3d5759058c335691.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/081c31feca20e6db.wav",
+     "at": 5.4,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/cfe5bd5ed7f00b4b.wav",
+     "at": 9.98,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/5114c2c67c3a9250.wav",
+     "at": 13.76,
+     "len": 2.8
+    }
+   ]
+  },
+  {
+   "dur": 31.719,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.44,
+     2.5
+    ],
+    [
+     12.54,
+     4.5
+    ],
+    [
+     18.32,
+     9
+    ],
+    [
+     24.02,
+     11.2
+    ],
+    [
+     31.719,
+     13.2
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "A source sends four symbols with these chances."
+    ],
+    [
+     6.44,
+     12.29,
+     "A typical eight: A four times, B twice."
+    ],
+    [
+     12.54,
+     18.07,
+     "Each one costs its surprise in bits."
+    ],
+    [
+     18.32,
+     23.77,
+     "A fixed 2-bit code: 16 bits. Surprise: only 14."
+    ],
+    [
+     24.02,
+     30.91,
+     "1.75 bits a symbol: the floor, if nothing is lost."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e6c7927579eb7ba8.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/5f08864ab58fdb06.wav",
+     "at": 6.44,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/5f9412332f700076.wav",
+     "at": 12.54,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/19d19c85bfe66bc8.wav",
+     "at": 18.32,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/9e2e61f5c588ef98.wav",
+     "at": 24.02,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 29.93,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     3.72,
+     2.4
+    ],
+    [
+     8.14,
+     3.8
+    ],
+    [
+     11.92,
+     5.7
+    ],
+    [
+     15.86,
+     7.3
+    ],
+    [
+     18.92,
+     9
+    ],
+    [
+     25.58,
+     11.9
+    ],
+    [
+     29.93,
+     13.4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.47,
+     "Codes sit side by side, with no gaps."
+    ],
+    [
+     3.72,
+     7.89,
+     "01 could be A then B…"
+    ],
+    [
+     8.14,
+     11.67,
+     "…or C. Two readings!"
+    ],
+    [
+     11.92,
+     15.61,
+     "Fix it: no code may start another."
+    ],
+    [
+     15.86,
+     18.67,
+     "Put every code at a branch end."
+    ],
+    [
+     18.92,
+     25.33,
+     "Follow the bits down. A leaf means a letter is done."
+    ],
+    [
+     25.58,
+     28.15,
+     "No code starts another."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/853d8c6f4d8ae2bc.wav",
+     "at": 0.5,
+     "len": 2.72
+    },
+    {
+     "file": "videos/audio/clips/211f403280c405df.wav",
+     "at": 3.72,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/3870f48f64714f3a.wav",
+     "at": 8.14,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/b1d584013e7a4fd2.wav",
+     "at": 11.92,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/ef58346ed1de86bb.wav",
+     "at": 15.86,
+     "len": 2.56
+    },
+    {
+     "file": "videos/audio/clips/f3b3dc00b7a622b3.wav",
+     "at": 18.92,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/dda3a95ec34a2113.wav",
+     "at": 25.58,
+     "len": 2.32
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3
+    ],
+    [
+     10.3,
+     5.5
+    ],
+    [
+     14.64,
+     9.4
+    ],
+    [
+     19.14,
+     11.1
+    ],
+    [
+     26.657,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Each letter has a chance. Join the two smallest."
+    ],
+    [
+     5.4,
+     10.05,
+     "Letters under it pay one more bit: +.20."
+    ],
+    [
+     10.3,
+     14.39,
+     "Repeat with the two smallest left."
+    ],
+    [
+     14.64,
+     18.89,
+     "One node left: the tree is done."
+    ],
+    [
+     19.14,
+     24.99,
+     "1.98 bits a letter. This source's floor is 1.96."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5de1143242a97dbc.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/5271f1e946a89da7.wav",
+     "at": 5.4,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/cf2dbd38e5045742.wav",
+     "at": 10.3,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/414ed32b95babf0b.wav",
+     "at": 14.64,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/d10eb8d2083dbc7b.wav",
+     "at": 19.14,
+     "len": 5.6
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.77,
+     1.4
+    ],
+    [
+     4.55,
+     2.9
+    ],
+    [
+     11.21,
+     5.6
+    ],
+    [
+     17.55,
+     9.6
+    ],
+    [
+     21.57,
+     11
+    ],
+    [
+     26.68,
+     12.9
+    ]
+   ],
+   "caps": [
+    [
+     0.77,
+     4.3,
+     "Common B sits one step from the root."
+    ],
+    [
+     4.55,
+     10.96,
+     "The path down is the code."
+    ],
+    [
+     11.21,
+     17.3,
+     "Spell BBADEBC with these codes."
+    ],
+    [
+     17.55,
+     21.32,
+     "15 bits instead of 21."
+    ],
+    [
+     21.57,
+     25.58,
+     "Joined up, it still splits into the same codes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b147a58ca5b3515e.wav",
+     "at": 0.77,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/3e575ab180d28096.wav",
+     "at": 4.55,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/d21716509eaac459.wav",
+     "at": 11.21,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/da56382cce6b068f.wav",
+     "at": 17.55,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/01367e8ed1f52b4f.wav",
+     "at": 21.57,
+     "len": 3.76
+    }
+   ]
+  },
+  {
+   "dur": 31.718,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.84,
+     2.9
+    ],
+    [
+     12.14,
+     5.7
+    ],
+    [
+     18.32,
+     8
+    ],
+    [
+     22.18,
+     11.3
+    ],
+    [
+     26.68,
+     13.1
+    ],
+    [
+     31.718,
+     14.4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "No chances needed: it starts with just A and B."
+    ],
+    [
+     6.84,
+     11.89,
+     "Phrase plus next letter new? Send a code, learn it."
+    ],
+    [
+     12.14,
+     18.07,
+     "Known? Keep growing. New? Send and learn."
+    ],
+    [
+     18.32,
+     21.93,
+     "Same again: grow while known, send when new."
+    ],
+    [
+     22.18,
+     26.43,
+     "Known again, then the text ends: send it."
+    ],
+    [
+     26.68,
+     30.21,
+     "Nine letters became five codes."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cf27ec322383b66e.wav",
+     "at": 0.5,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/77c0e4d2ddddecb6.wav",
+     "at": 6.84,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/ed29dbe501b408f7.wav",
+     "at": 12.14,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/53b61a4aa5c778fa.wav",
+     "at": 18.32,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/5858845d9208980e.wav",
+     "at": 22.18,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/c4db3d6c422ea758.wav",
+     "at": 26.68,
+     "len": 3.28
+    }
+   ]
+  },
+  {
+   "dur": 24.961,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.08,
+     4.3
+    ],
+    [
+     11.1,
+     7.8
+    ],
+    [
+     18.08,
+     10.8
+    ],
+    [
+     24.961,
+     13.2
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "Only codes arrive, plus the A, B start."
+    ],
+    [
+     5.08,
+     10.85,
+     "Each code adds an entry: previous plus first letter."
+    ],
+    [
+     11.1,
+     17.83,
+     "Code 4 is not in yet: AB plus AB's first letter."
+    ],
+    [
+     18.08,
+     23.13,
+     "Same text back. No dictionary sent."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bf6a1c32bca0eb4e.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/2f83980000c481ac.wav",
+     "at": 5.08,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/4ca2258fa7123cac.wav",
+     "at": 11.1,
+     "len": 6.48
+    },
+    {
+     "file": "videos/audio/clips/39b207c0c1b9ffcc.wav",
+     "at": 18.08,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 27.075,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.16,
+     2.6
+    ],
+    [
+     10.46,
+     6.1
+    ],
+    [
+     15.12,
+     7.7
+    ],
+    [
+     21.22,
+     10.7
+    ],
+    [
+     27.075,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "A GIF packs each row of pixels with LZW."
+    ],
+    [
+     5.16,
+     10.21,
+     "Each piece of the row gets one code."
+    ],
+    [
+     10.46,
+     14.87,
+     "Repeats share codes: 18 pixels, 11 codes."
+    ],
+    [
+     15.12,
+     20.97,
+     "Noise rarely repeats, so it saves little."
+    ],
+    [
+     21.22,
+     25.63,
+     "LZW feeds on repeats."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/53e2b2d7ccd537df.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/859df17cdcba1722.wav",
+     "at": 5.16,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/6b9f24c970aad74f.wav",
+     "at": 10.46,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/764d149767c6efc9.wav",
+     "at": 15.12,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/8806618a6c8b2dcc.wav",
+     "at": 21.22,
+     "len": 4.16
+    }
+   ]
+  },
+  {
+   "dur": 13.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.52,
+     2
+    ],
+    [
+     8.7,
+     3.1
+    ],
+    [
+     13.328,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f1dfe9a2623b5269.wav",
+     "at": 0.5,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/a92403a2a5d67d9e.wav",
+     "at": 4.52,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/47abdc37ec5c85f4.wav",
+     "at": 8.7,
+     "len": 3.84
+    }
+   ]
+  }
+ ]
+}

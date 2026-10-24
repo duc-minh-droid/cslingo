@@ -1,0 +1,786 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "Algorithms, phase one. Foundations and PageRank. This is how Google ranked the web."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/30410abe07ccf8d1.wav",
+     "at": 0.5,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     2.5
+    ],
+    [
+     12.78,
+     8
+    ],
+    [
+     18.344,
+     10.3
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "“Find the biggest” is only a wish."
+    ],
+    [
+     5.32,
+     12.53,
+     "An algorithm answers every question in advance."
+    ],
+    [
+     12.78,
+     17.43,
+     "Even: what if the list is empty?"
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7e871cef71c990ad.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/9dc805fb0d4b88b9.wav",
+     "at": 5.32,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/c27a37bafd81e1be.wav",
+     "at": 12.78,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     2.8
+    ],
+    [
+     9.82,
+     6
+    ],
+    [
+     16.88,
+     10.3
+    ],
+    [
+     21.687,
+     12.3
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "Scan once and keep the biggest so far."
+    ],
+    [
+     5.24,
+     9.57,
+     "After k items, best is the biggest of those k."
+    ],
+    [
+     9.82,
+     16.63,
+     "It stays true after every step: the invariant."
+    ],
+    [
+     16.88,
+     20.97,
+     "At the end the promise is the answer: 9."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1022cacf8fee6913.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/963352da45aae862.wav",
+     "at": 5.24,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f5a71d43c8d02db8.wav",
+     "at": 9.82,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/b3075513fd07de36.wav",
+     "at": 16.88,
+     "len": 3.84
+    }
+   ]
+  },
+  {
+   "dur": 28.422,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.44,
+     3.4
+    ],
+    [
+     13.58,
+     7
+    ],
+    [
+     20.48,
+     9.8
+    ],
+    [
+     28.422,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "Each square is one work() call. One loop: 8."
+    ],
+    [
+     6.44,
+     13.33,
+     "The inner loop grows: 0 + 1 + 2 + … + 7 = 28."
+    ],
+    [
+     13.58,
+     20.23,
+     "Let it run to n instead: 8 × 8 = 64."
+    ],
+    [
+     20.48,
+     26.41,
+     "Halving: 8, 4, 2, 1 is only 3 calls."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/17b8f7270977df42.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/34b2fb9704b6cbe5.wav",
+     "at": 6.44,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/ff6a90e22b29811f.wav",
+     "at": 13.58,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/2e080c9e9c14699f.wav",
+     "at": 20.48,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 30.023,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     3.96,
+     2.9
+    ],
+    [
+     8.38,
+     5
+    ],
+    [
+     13.6,
+     7.6
+    ],
+    [
+     20.18,
+     9.6
+    ],
+    [
+     25.4,
+     11.9
+    ],
+    [
+     30.023,
+     13.6
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.71,
+     "Now double n, from 8 to 16."
+    ],
+    [
+     3.96,
+     8.13,
+     "One loop: twice the work."
+    ],
+    [
+     8.38,
+     13.35,
+     "Nested loops: four times the work."
+    ],
+    [
+     13.6,
+     19.93,
+     "Growing inner loop: 28 to 120, about ×4."
+    ],
+    [
+     20.18,
+     25.15,
+     "Halving: just one extra call."
+    ],
+    [
+     25.4,
+     28.05,
+     "The shape of the growth is the Big-O."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/7cb5222bc2e2d5b6.wav",
+     "at": 0.5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/6ed42f41ebcfb953.wav",
+     "at": 3.96,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/0b5d9627bd67bfd0.wav",
+     "at": 8.38,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/b46c931753ac4317.wav",
+     "at": 13.6,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/6d53cc70148000a3.wav",
+     "at": 20.18,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/7888e849f21234b2.wav",
+     "at": 25.4,
+     "len": 2.4
+    }
+   ]
+  },
+  {
+   "dur": 33.205,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.28,
+     2.3
+    ],
+    [
+     11.26,
+     4.3
+    ],
+    [
+     15.68,
+     6.6
+    ],
+    [
+     22.58,
+     8.9
+    ],
+    [
+     28.2,
+     12.2
+    ],
+    [
+     33.205,
+     14.7
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.03,
+     "Pages link to pages."
+    ],
+    [
+     6.28,
+     11.01,
+     "Give every page 25 tokens of rank."
+    ],
+    [
+     11.26,
+     15.43,
+     "Each page pours its tokens down its links."
+    ],
+    [
+     15.68,
+     22.33,
+     "D has no links, so its 25 tokens vanish."
+    ],
+    [
+     22.58,
+     27.95,
+     "Fix: a dead end pours to every page."
+    ],
+    [
+     28.2,
+     32.05,
+     "Now nothing is lost: the total is 100 again."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b1ed5300d615ad8b.wav",
+     "at": 0.5,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/0c87100d42b467bb.wav",
+     "at": 6.28,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/62c8a7cf4ea08a29.wav",
+     "at": 11.26,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/03ef12252e9a4d06.wav",
+     "at": 15.68,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/164d27cee51d59b1.wav",
+     "at": 22.58,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/ee9a97d71aaf10ca.wav",
+     "at": 28.2,
+     "len": 3.6
+    }
+   ]
+  },
+  {
+   "dur": 18.343,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     2.8
+    ],
+    [
+     9.74,
+     6.2
+    ],
+    [
+     14,
+     8.2
+    ],
+    [
+     18.343,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "A and B link only to each other."
+    ],
+    [
+     5.4,
+     9.49,
+     "Rank sloshes between them, round after round."
+    ],
+    [
+     9.74,
+     13.75,
+     "X is starved; A and B just swap the lead."
+    ],
+    [
+     14,
+     17.21,
+     "What if the rank could jump anywhere?"
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/03c7792e06beaefc.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/cde84813fa74077e.wav",
+     "at": 5.4,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/d59a4492ae094635.wav",
+     "at": 9.74,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/859a646da5200080.wav",
+     "at": 14,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     3.2
+    ],
+    [
+     8.86,
+     6.9
+    ],
+    [
+     12.48,
+     9.6
+    ],
+    [
+     19.38,
+     11.1
+    ],
+    [
+     26.657,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "The surfer follows a link 85% of the time."
+    ],
+    [
+     5.24,
+     8.61,
+     "Otherwise it teleports to a random page."
+    ],
+    [
+     8.86,
+     12.23,
+     "Count the visits over many hops."
+    ],
+    [
+     12.48,
+     19.13,
+     "The shares settle: that is PageRank."
+    ],
+    [
+     19.38,
+     25.31,
+     "X is no longer starved: 5%, by teleporting."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f220ee31b52f3eb7.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/2dad85af267a6182.wav",
+     "at": 5.24,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/38151b300b942b23.wav",
+     "at": 8.86,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/0824386c7bb43bd0.wav",
+     "at": 12.48,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/3015ea599f77cb33.wav",
+     "at": 19.38,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 20.108,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.36,
+     5.2
+    ],
+    [
+     12.78,
+     8.5
+    ],
+    [
+     20.108,
+     12.6
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.11,
+     "Each column is where one page sends its rank."
+    ],
+    [
+     6.36,
+     12.53,
+     "T's column sums to 0, so T pours 0.2 to all."
+    ],
+    [
+     12.78,
+     19.27,
+     "Teleport: × 0.85, then add 0.15 ÷ 5 = 0.03."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/00a51d6d42f06e68.wav",
+     "at": 0.5,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/19e566d3e23250e1.wav",
+     "at": 6.36,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/87c9c281db752c59.wav",
+     "at": 12.78,
+     "len": 6.24
+    }
+   ]
+  },
+  {
+   "dur": 19.9,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     2.2
+    ],
+    [
+     9.02,
+     5.8
+    ],
+    [
+     13.2,
+     9
+    ],
+    [
+     19.9,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Start with equal rank on every page."
+    ],
+    [
+     5.32,
+     8.77,
+     "Each round: multiply by the matrix."
+    ],
+    [
+     9.02,
+     12.95,
+     "Early rounds swing, then the ranks settle."
+    ],
+    [
+     13.2,
+     18.41,
+     "R ranks first. The same loop ranks billions."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4a71bf592d668343.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/cf05e440eb8344ef.wav",
+     "at": 5.32,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/24bfed5340904fb4.wav",
+     "at": 9.02,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/48f8f8140f5b68c5.wav",
+     "at": 13.2,
+     "len": 4.96
+    }
+   ]
+  },
+  {
+   "dur": 15.418,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     3.96,
+     2
+    ],
+    [
+     9.34,
+     3.1
+    ],
+    [
+     15.418,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a526d72c98c141fb.wav",
+     "at": 0.5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/1286087d8e58f362.wav",
+     "at": 3.96,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/20dcb7620d5c824c.wav",
+     "at": 9.34,
+     "len": 3.92
+    }
+   ]
+  }
+ ]
+}
