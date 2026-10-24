@@ -4,14 +4,14 @@ Animated explainers (square 1080 x 1080, on-screen captions; the narrated ones a
 
 | Video | Page | Length | Output |
 |---|---|---|---|
-| Lecture 1: What is NIC? | `lecture-1.html` | 1:52 | `out/lecture-1.mp4` |
-| Lecture 2: Why EAs? | `lecture-2.html` | 1:48 | `out/lecture-2.mp4` |
-| Lecture 3: Local vs population search | `lecture-3.html` | 1:59 | `out/lecture-3.mp4` |
-| Lecture 4: Selection and operators | `lecture-4.html` | 1:57 | `out/lecture-4.mp4` |
-| Lecture 5: Encodings | `lecture-5.html` | 1:42 | `out/lecture-5.mp4` |
-| Lecture 6: Genetic programming | `lecture-6.html` | 1:56 | `out/lecture-6.mp4` |
-| Lecture 7: Swarm intelligence and ant colonies | `lecture-7.html` | 2:09 | `out/lecture-7.mp4` |
-| Lecture 8: The Ant System in detail | `lecture-8.html` | 2:09 | `out/lecture-8.mp4` |
+| Lecture 1: What is NIC? | `lecture-1.html` | 3:34 | `out/lecture-1.mp4` |
+| Lecture 2: Why EAs? | `lecture-2.html` | 4:06 | `out/lecture-2.mp4` |
+| Lecture 3: Local vs population search | `lecture-3.html` | 3:56 | `out/lecture-3.mp4` |
+| Lecture 4: Selection and operators | `lecture-4.html` | 3:59 | `out/lecture-4.mp4` |
+| Lecture 5: Encodings | `lecture-5.html` | 2:55 | `out/lecture-5.mp4` |
+| Lecture 6: Genetic programming | `lecture-6.html` | 3:26 | `out/lecture-6.mp4` |
+| Lecture 7: Swarm intelligence and ant colonies | `lecture-7.html` | 4:16 | `out/lecture-7.mp4` |
+| Lecture 8: The Ant System in detail | `lecture-8.html` | 4:11 | `out/lecture-8.mp4` |
 
 - **Preview:** `python serve.py 8651`, then open `http://localhost:8651/videos/lecture-5.html` (space plays and pauses, ← → jump 1 s, `[` `]` jump scenes, the slider scrubs).
 - **Look at a frame:** `node tools/video-still.js lecture-5 s3@4.5,s5@8 /tmp/stills` (scene number `@` seconds into it, or absolute seconds; `info` lists the scenes).

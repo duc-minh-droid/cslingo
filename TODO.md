@@ -19,16 +19,15 @@ Work in this order; each phase ends with something that runs and is committed.
 3. **Phase 2, write the narration scripts** for all 25 videos (4 agents: `lecture-1..8`, `algo-1..5`, `algo-6..10`, `ds-1..7`;
    brief in `videos/_plan/NARRATION_TASK.md`). _Status: done, all 25 scripts pass `tools/narration-check.js` with no warnings
    (3.3 to 5.0 minutes each when narrated; `lecture-6` and `algo-5` have four recap rows, so do not regenerate their scripts)._
-4. **Phase 3, voice and record every video.** `lecture-5` is done and committed (the pilot: it took about 25 minutes of CPU here and
-   came out at 2:56 with the voice, the music and no caption on the recap card). The other 24 are **handed over to the owner**: this cloud
-   machine has no GPU (the voice runs about ten times slower than real time) and it is reclaimed whenever the session is idle, which killed a
-   background run. Commands are in "Run the rest yourself" below.
-5. **Phase 4, review and ship.** Watch two or three finished videos (`lecture-1` first: it is the approved example), then
-   `node tools/narrated-minutes.js --write`, `npm run check`, commit, PR, merge (steps below).
+4. **Phase 3, voice and record every video.** _Done 2026-10-22: Thomas ran `tools/voice-all.sh` on the RTX 4060 machine and pushed all
+   25 narrated videos (2:55 to 4:34 each, voice, music, no progress bar, no caption on the recap card)._
+5. **Phase 4, review and ship.** _Done: `node tools/narrated-minutes.js --write` put the lengths into the three `videos.js` manifests, so the app
+   calls every video narrated; full check, PR and merge follow the commit that added this line. Still to do by ear: listen to the flagged
+   words below, and re-voice anything that sounds wrong._
 
-### Run the rest yourself (24 videos, on the machine with the RTX 4060)
+### Re-voicing a video, or voicing a new one (on the machine with the RTX 4060)
 
-Everything is on the branch `main-hcicsk` (the narration scripts for all 25 videos, the tools, the fixed title cards). From the repo root, in
+Everything is on the branch `main-hcicsk` and in `main` once merged (all 25 narration scripts, the tools, the fixed title cards). From the repo root, in
 **Git Bash** (or any bash; the scripts find `tools/tts/.venv/Scripts/python` on Windows by themselves, or set `TTS_PYTHON`):
 
 ```bash
@@ -198,9 +197,6 @@ Notes from the tests:
 
 Added 2026-10-21.
 
-- **Re-render every video after narration.** The scene text is now 28 px everywhere (the small kicker above each scene title was
-  24 px and was raised to 28 px in `videos/video.css`), but the `.mp4` files already recorded still show the old size. Re-rendering
-  for the voice-over picks the change up; until then nothing else needs doing.
 - **Data Science lecture 7 (Paxos) video** (`ds-7`): recorded and wired. Check on the live site that the bonus node after the
   lecture 7 boss quiz plays `videos/out/ds-7.mp4` and shows its poster.
 - **Remove the four stray files** `/log4.txt`, `/log5.txt`, `/log10.txt` and `/log11.txt` from the filesystem root of the
