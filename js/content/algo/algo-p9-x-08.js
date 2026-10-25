@@ -7,7 +7,7 @@
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 9, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, mono, fc, dftC, TAU } = shared;
+  const { table, cap, fc, dftC, TAU, svgFig, tint } = shared;
   const PSEUDO = [
     "if N = 1: return x",
     "w ← 1,  W_N ← e^(−2πj/N)",
@@ -295,18 +295,79 @@
       );
     },
   });
+  const codeFig = () => {
+    const G = [
+      [0, 0, "A single sample is already its own spectrum: stop."],
+      [1, 1, "Get the turning arrow ready (it starts at 1)."],
+      [2, 2, "Deal the samples into two piles by position: evens and odds."],
+      [3, 4, "Solve each pile the same way: the function calls itself."],
+      [5, 8, "Glue the two answers together: each pass makes two outputs and turns the arrow one step further."],
+      [9, 9, "Hand back the finished spectrum."],
+    ];
+    return table(
+      ["Lines", "Pseudocode", "In plain words"],
+      G.map(([a, b, w]) => [
+        a === b ? a + 1 : `${a + 1} to ${b + 1}`,
+        `<code>${PSEUDO.slice(a, b + 1)
+          .map((l) => l.replace(/ /g, "&nbsp;"))
+          .join("<br>")}</code>`,
+        w,
+      ]),
+    );
+  };
+  /** Two butterflies for the samples 1, 2, 3, 4: even pile [4, -2], odd pile [6, -2]. */
+  const flyFig = () => {
+    const tile = (x, y, w, t, c) =>
+      `<rect x="${x}" y="${y}" width="${w}" height="30" rx="8" fill="${tint(c, 30)}" stroke="var(--${c})" stroke-width="2" class="fi"/><text x="${x + w / 2}" y="${y + 20}" class="fig-box">${t}</text>`;
+    const ln = (x1, y1, x2, y2, c) =>
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--${c})" stroke-width="2" class="draw"/>`;
+    const fly = (o, head, ye, yo, a, b, i) =>
+      `<text x="${o + 135}" y="14" class="fig-sub">${head}</text>${ln(o + 66, 50, o + 190, 50, "line-2")}${ln(o + 66, 50, o + 190, 150, "line-2")}${ln(o + 112, 150, o + 190, 150, "violet")}${ln(o + 112, 150, o + 190, 50, "violet")}${tile(o + 10, 35, 56, ye, "teal")}${tile(o + 10, 135, 56, yo, "amber")}${tile(o + 76, 135, 36, "× w", "violet")}${tile(o + 190, 35, 70, a, "blue")}${tile(o + 190, 135, 70, b, "blue")}<text x="${o + 225}" y="94" class="fig-sub">output ${i}</text><text x="${o + 225}" y="194" class="fig-sub">output ${i + 2}</text>`;
+    return (
+      svgFig(
+        560,
+        204,
+        "Two butterflies. With w = 1, the even result 4 and the odd result 6 give 10 and −2. With w = −j, the even result −2 and the odd result −2 give −2 + 2j and −2 − 2j.",
+        fly(0, "pass 0: w = 1", 4, 6, 10, "−2", 0) + fly(290, "pass 1: w = −j", "−2", "−2", "−2 + 2j", "−2 − 2j", 1),
+      ) + cap("Top output = even + w × odd. Bottom output = even − w × odd. Together: 10, −2 + 2j, −2, −2 − 2j.")
+    );
+  };
+  const treeFig = () => {
+    const C = ["blue", "teal", "amber", "violet"];
+    const lv = [0, 1, 2, 3].map((l) =>
+      Array.from({ length: 2 ** l }, (_, i) => [
+        90 + (i + 0.5) * (460 / 2 ** l),
+        12 + l * 52,
+        460 / 2 ** l - 8,
+        8 >> l,
+      ]),
+    );
+    const node =
+      (l) =>
+      ([cx, y, w, s], i) =>
+        `${l ? `<line x1="${lv[l - 1][i >> 1][0]}" y1="${y - 22}" x2="${cx}" y2="${y}" stroke="var(--line-2)" stroke-width="2"/>` : ""}<rect x="${cx - w / 2}" y="${y}" width="${w}" height="30" rx="8" fill="${tint(C[l], 30)}" stroke="var(--${C[l]})" stroke-width="2" class="fi"/><text x="${cx}" y="${y + 20}" class="fig-box">${s}</text>`;
+    return (
+      svgFig(
+        560,
+        190,
+        "A tree of recursive calls for 8 samples: 1 call of size 8, 2 of size 4, 4 of size 2 and 8 of size 1",
+        lv
+          .map(
+            (r, l) =>
+              r.map(node(l)).join("") +
+              `<text x="82" y="${32 + l * 52}" class="fig-sub" style="text-anchor:end">${2 ** l} call${l ? "s" : ""}</text>`,
+          )
+          .join(""),
+      ) + cap("Each box is one call, labelled with its number of samples. 1 + 2 + 4 + 8 = 15 calls, 4 levels deep.")
+    );
+  };
   L["a9-fftcode"] = {
     sum: "The workshop's <b>RecursiveFFT</b>: return at N = 1, split even and odd, recurse, then combine with butterflies. Time it against the direct DFT to see N² versus N log N.",
     steps: [
       {
         t: "The pseudocode",
-        b: `<p>The workshop gives the algorithm in ten lines. The input $x$ has $N$ samples, with $N$ a power of two, and the output $y$ is its spectrum.</p>`,
-        v: mono(
-          PSEUDO.map(
-            (l, i) =>
-              `<span style="color:var(--text-faint)">${String(i + 1).padStart(2)}</span>&ensp;${l.replace(/ /g, "&nbsp;")}`,
-          ).join("<br>"),
-        ),
+        b: `<p>In one breath: <b>deal the samples into two piles (even and odd positions), get each pile's spectrum by calling the same function on it, then glue the two answers together</b>. When a pile has just one sample there is nothing left to do.</p><p>The workshop gives this in ten lines. The input has N samples, with N a power of two, and the output is its spectrum. Read the right-hand column first: the code is that sentence written precisely.</p>`,
+        v: codeFig(),
         c: {
           q: "What does RecursiveFFT return when N = 1?",
           o: [
@@ -343,8 +404,8 @@
       },
       {
         t: "Combine with the twiddle",
-        b: `<p>Lines 6 to 9 run a loop for $k=0$ to $N/2-1$. Each pass fills <b>two</b> outputs from one multiplication:</p>$$y_k=y^{\\text{even}}_k+w\\,y^{\\text{odd}}_k\\qquad y_{k+N/2}=y^{\\text{even}}_k-w\\,y^{\\text{odd}}_k$$<p>and then turns $w$ by one more step: $w\\leftarrow w\\,W_N$, starting from $w=1$ (so $w=W_N^{k}$ in pass $k$).</p>`,
-        v: `<svg class="fig" viewBox="0 0 360 170" style="max-height:170px"><g class="fi"><circle cx="50" cy="45" r="16" fill="var(--panel-2)" stroke="var(--teal)" stroke-width="2"/><text x="50" y="50" class="fig-n">ye</text></g><g class="fi"><circle cx="50" cy="125" r="16" fill="var(--panel-2)" stroke="var(--amber)" stroke-width="2"/><text x="50" y="130" class="fig-n">yo</text></g><path d="M66 45 L290 45 M66 125 L290 125 M66 45 L290 125 M66 125 L290 45" stroke="var(--line-2)" stroke-width="2" fill="none" class="draw"/><rect x="150" y="113" width="42" height="24" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="171" y="130" class="fig-sub" style="fill:var(--violet)">×w</text><g class="fi"><text x="298" y="50" class="fig-box" style="text-anchor:start">y[k]</text><text x="298" y="130" class="fig-box" style="text-anchor:start">y[k+N/2]</text></g></svg>`,
+        b: `<p>After the two calls you hold a spectrum for the even pile and one for the odd pile. To build the full spectrum, take entry k from each. Turn the odd entry by an amount that depends on k (the <b>twiddle</b>), then <b>add</b> it to the even entry for output k and <b>subtract</b> it for output k + N/2. One multiplication, two outputs: a <b>butterfly</b>.</p><p>The loop does this for each k in turn and turns the twist one step further each pass (lines 6 to 9). For the samples 1, 2, 3, 4 the two passes are in the picture, and they produce exactly the spectrum 10, −2 + 2j, −2, −2 − 2j.</p><details class="math-more"><summary>Show the maths</summary><p>Lines 6 to 9 run for $k=0$ to $N/2-1$:</p>$$y_k=y^{\\text{even}}_k+w\\,y^{\\text{odd}}_k\\qquad y_{k+N/2}=y^{\\text{even}}_k-w\\,y^{\\text{odd}}_k$$<p>and then $w\\leftarrow w\\,W_N$, starting from $w=1$ (so $w=W_N^{k}$ in pass $k$).</p></details>`,
+        v: flyFig(),
         c: {
           q: "Why does the loop only run up to N/2 − 1?",
           o: [
@@ -363,15 +424,15 @@
       },
       {
         t: "Counting the calls",
-        b: `<p>The recursion makes one call for the whole problem, 2 for the halves, 4 for the quarters, and so on, down to $N$ calls of size 1: a total of $1+2+4+\\dots+N = 2N-1$ calls. The depth is $\\log_2 N + 1$. Each level of the tree does about $N$ units of combining work, which is where $O(N\\log N)$ comes from.</p>`,
-        v: table(
+        b: `<p>Each call makes two smaller calls, like a family tree. For 8 samples: one call for all 8, two for the halves of 4, four for the pairs and eight for the single samples. That is <b>1 + 2 + 4 + 8 = 15 calls</b>, four levels deep.</p><p>At every level the gluing handles each sample about once, so every level costs roughly the same, and the total work is (number of levels) × N. That is where N log N comes from.</p><details class="math-more"><summary>Show the maths</summary><p>$1+2+4+\\dots+N = 2N-1$ calls and $\\log_2 N + 1$ levels. Each level does about $N$ units of combining work, so the total is $O(N\\log N)$.</p>${table(
           ["N", "calls (2N − 1)", "levels (log₂ N + 1)"],
           [
             ["4", "7", "3"],
             ["8", "15", "4"],
             ["1,024", "2,047", "11"],
           ],
-        ),
+        )}</details>`,
+        v: treeFig(),
         c: {
           q: "How many RecursiveFFT calls are made in total for N = 8?",
           o: ["8", "15", "24"],

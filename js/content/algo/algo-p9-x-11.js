@@ -2,12 +2,191 @@
 (function () {
   const N = NIC;
   const { el, qs, predict, takeaways, header, fmt } = N;
+  const seg = (o, v, f) =>
+    N.seg(
+      o.map(([a, l]) => [String(a), l]),
+      String(v),
+      f,
+    );
   const L = N.LESSONS,
     F = N.fig,
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 10, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, cap, softmax } = shared;
+  const { table, softmax, barRows } = shared;
+  const COL = ["teal", "violet", "amber"];
+
+  // step 1: one cake, sliced by score. Token A's score moves; the slices always fill the whole bar
+  function cakeFig(box) {
+    let a = 2;
+    const sc = () => [a, 1, 0],
+      names = ["token A", "token B", "token C"];
+    const strip = el(
+      `<div style="display:flex;height:40px;border-radius:12px;overflow:hidden;border:2px solid var(--line);margin:10px 0 4px">${COL.map((c) => `<span style="flex:1 1 0;display:grid;place-items:center;background:var(--${c}-dim);border-right:2px solid var(--bg);font:900 13px var(--sans);transition:flex-grow .3s"></span>`).join("")}</div>`,
+    );
+    const note = el(`<div class="faint" style="font-size:13px"></div>`);
+    const show = () => {
+      const p = softmax(sc());
+      [...strip.children].forEach((s, i) => {
+        s.style.flexGrow = Math.max(0.02, p[i]);
+        s.textContent = p[i] > 0.07 ? Math.round(p[i] * 100) + "%" : "";
+      });
+      note.innerHTML = `Scores: ${sc()
+        .map((v, i) => `${names[i]} <b>${v}</b>`)
+        .join(" · ")}. One whole bar = 100%; the three slices always add up to it.`;
+    };
+    box.append(
+      N.slider("Score of token A (B stays 1, C stays 0)", -2, 6, 1, a, (v) => v),
+      strip,
+      note,
+    );
+    box.firstChild.onInput((v) => {
+      a = v;
+      show();
+    });
+    show();
+  }
+
+  // step 2: scores -> e^score -> shares, one stage at a time
+  function stagesFig(box) {
+    const sc = [2, 1, 0],
+      ex = sc.map(Math.exp),
+      tot = ex.reduce((s, v) => s + v),
+      p = softmax(sc);
+    const host = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:6px;min-height:40px"></div>`);
+    const bars = barRows(
+      host,
+      sc.map((_, i) => ["token " + "ABC"[i], COL[i]]),
+    );
+    const stage = [
+      () => {
+        sc.forEach((v, i) => bars(i, v / 8, "score " + v));
+        note.textContent = "1. Raw scores: bigger means a better match.";
+      },
+      () => {
+        ex.forEach((v, i) => bars(i, v / 8, v.toFixed(2)));
+        note.textContent =
+          "2. Exponentiate: a score of 2 becomes 7.39, a score of 0 becomes 1. All positive, gaps stretched.";
+      },
+      () => {
+        p.forEach((v, i) => bars(i, v, Math.round(v * 100) + "%"));
+        note.textContent = `3. Divide by the total (${tot.toFixed(2)}): shares of 67%, 24% and 9%, adding to 100%.`;
+      },
+    ];
+    box.append(
+      seg(
+        [
+          [0, "1 Scores"],
+          [1, "2 Exponentiate"],
+          [2, "3 Divide by total"],
+        ],
+        "0",
+        (v) => stage[v](),
+      ),
+      host,
+      note,
+    );
+    stage[0]();
+  }
+
+  // step 4: adding the same number to every score changes nothing
+  function shiftFig(box) {
+    const host = el(`<div style="padding:4px"></div>`),
+      host2 = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:6px;min-height:40px"></div>`);
+    const b1 = barRows(
+      host,
+      ["A", "B", "C"].map((t, i) => ["score " + t, "blue"]),
+    );
+    const b2 = barRows(
+      host2,
+      ["A", "B", "C"].map((t, i) => ["share " + t, COL[i]]),
+    );
+    const set = (k) => {
+      const sc = [2, 1, 0].map((v) => v + k);
+      sc.forEach((v, i) => b1(i, 0.15 + (v - k) / 3, "" + v));
+      softmax(sc).forEach((v, i) => b2(i, v, v.toFixed(2)));
+      const big = Math.exp(Math.max(...sc));
+      note.innerHTML = !isFinite(big)
+        ? `Computed naively, e<sup>${sc[0]}</sup> is too big for the computer (it overflows). Subtracting the largest score first still gives the same shares.`
+        : "The shares are the same. Only the gaps between scores matter.";
+    };
+    box.append(
+      seg(
+        [
+          [0, "scores 2, 1, 0"],
+          [5, "+5"],
+          [100, "+100"],
+          [1000, "+1000"],
+        ],
+        "0",
+        (v) => set(+v),
+      ),
+      host,
+      host2,
+      note,
+    );
+    set(0);
+  }
+
+  // step 5: the bigger the key vectors, the bigger the raw scores, unless we divide by the square root of d_k
+  function scaleFig(box) {
+    const host = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:6px;min-height:40px"></div>`);
+    const bars = barRows(host, [
+      ["raw scores", "rose"],
+      ["÷ √d_k", "teal"],
+    ]);
+    const set = (dk) => {
+      const r = Math.sqrt(dk),
+        raw = [2 * r, r, 0];
+      bars(0, softmax(raw)[0], `${Math.round(softmax(raw)[0] * 100)}%`);
+      bars(1, softmax(raw.map((v) => v / r))[0], `${Math.round(softmax(raw.map((v) => v / r))[0] * 100)}%`);
+      note.innerHTML = `Raw scores about <b>${raw.map((v) => +v.toFixed(1)).join(", ")}</b> give the top token that share of the weight. Divided by √${dk} = ${r}, the scores are back to 2, 1, 0.`;
+    };
+    box.append(
+      seg(
+        [
+          [1, "d_k = 1"],
+          [4, "d_k = 4"],
+          [16, "d_k = 16"],
+          [64, "d_k = 64"],
+        ],
+        "64",
+        (v) => set(+v),
+      ),
+      el(
+        `<div class="faint" style="font-size:13px;margin-top:6px">Share of the weight taken by the best-matching token:</div>`,
+      ),
+      host,
+      note,
+    );
+    set(64);
+  }
+
+  // 10.4 step 6 (registered here to keep that file short): the T x T grid of scores
+  function gridFig(box) {
+    let T = 3;
+    const host = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:6px"></div>`);
+    const show = () => {
+      const cell = Math.min(34, Math.floor(280 / T));
+      host.innerHTML = `<div style="display:inline-grid;grid-template-columns:repeat(${T},${cell}px);gap:2px">${Array.from({ length: T * T }, (_, i) => `<span style="height:${cell}px;border-radius:5px;background:var(--${i % T === Math.floor(i / T) ? "violet" : "blue"}-dim);border:1.5px solid var(--${i % T === Math.floor(i / T) ? "violet" : "blue"})"></span>`).join("")}</div>`;
+      note.innerHTML = `${T} words, each scored against all ${T}: ${T} × ${T} = <b>${T * T}</b> scores. One row is one word's question.`;
+    };
+    box.append(
+      N.slider("Number of words", 2, 16, 1, T, (v) => v),
+      host,
+      note,
+    );
+    box.firstChild.onInput((v) => {
+      T = v;
+      show();
+    });
+    show();
+  }
+  Object.assign(shared, { gridFig });
   reg({
     id: "a10-softmax",
     order: 2,
@@ -150,32 +329,30 @@
     steps: [
       {
         t: "Scores to probabilities",
-        b: `<p>Attention produces a list of raw scores, one per token, that can be any real numbers. We need <b>weights</b>: positive, adding up to 1, with bigger scores getting bigger shares. That is what softmax does:</p>$$\\operatorname{softmax}(z)_i=\\frac{e^{z_i}}{\\sum_{j=1}^{n}e^{z_j}}$$`,
-        v: F.flow([
-          { t: "Scores", s: "any numbers", c: "blue" },
-          { t: "e^score", s: "all positive", c: "violet" },
-          { t: "÷ total", s: "add up to 1", c: "amber" },
-          { t: "Weights", c: "teal" },
-        ]),
+        b: `<p>Attention gives each word a raw score for how well it matches. Scores can be any numbers, even negative, but to blend words together we need <b>shares</b>: never negative, and adding up to one whole, like slices of one cake. The bigger the score, the bigger the slice. Softmax is the recipe that does this.</p><p>Example: three tokens score 2, 1 and 0. Softmax gives them slices of about 67%, 24% and 9%. Move token A's score in the picture and watch the cake get re-cut.</p><details class="math-more"><summary>Show the maths</summary>$$\\operatorname{softmax}(z)_i=\\frac{e^{z_i}}{\\sum_{j=1}^{n}e^{z_j}}$$<p>Every $e^{z_i}$ is positive, so every share is positive, and dividing by the total makes them add up to 1.</p></details>`,
+        v: (box) => cakeFig(box),
         c: {
-          q: "Which of these can never be a softmax output?",
-          o: ["A weight of −0.2", "A weight of 0.99", "Three equal weights of one third"],
+          q: "Token A's score goes up while B and C stay the same. What happens to the shares of B and C?",
+          o: [
+            "Both get smaller, as A's slice grows",
+            "They stay the same, because their scores did not change",
+            "They get bigger, so the total stays 100%",
+          ],
           a: 0,
-          why: "Every e^z is positive, so every share is positive (and below 1 unless it is the only entry).",
+          why: "The slices always add up to one whole. If A's slice grows, the others must shrink, even though their own scores are unchanged.",
         },
       },
       {
         t: "Worked example: scores 2, 1, 0",
-        b: `<p>Exponentiate: $e^2=7.39$, $e^1=2.72$, $e^0=1$. The total is $11.11$. Divide each by it:</p>`,
-        v:
-          table(
-            ["score", "e<sup>score</sup>", "÷ 11.11"],
-            [
-              ["2", "7.39", "<b>0.67</b>"],
-              ["1", "2.72", "<b>0.24</b>"],
-              ["0", "1.00", "<b>0.09</b>"],
-            ],
-          ) + cap("A difference of just 1 is a ratio of e ≈ 2.7 between weights."),
+        b: `<p>Softmax works in two moves. First it turns every score into a positive size: a score of 2 becomes 7.39, a score of 1 becomes 2.72 and a score of 0 becomes 1. Then it divides each size by the total (11.11), so the three come out as 67%, 24% and 9%.</p><p>Step through the three stages in the picture. Notice that a score gap of just 1 makes a slice about 2.7 times bigger.</p><details class="math-more"><summary>Show the maths</summary><p>The sizes are $e^2=7.39$, $e^1=2.72$, $e^0=1$, with total $11.11$.</p>${table(
+          ["score", "e<sup>score</sup>", "÷ 11.11"],
+          [
+            ["2", "7.39", "<b>0.67</b>"],
+            ["1", "2.72", "<b>0.24</b>"],
+            ["0", "1.00", "<b>0.09</b>"],
+          ],
+        )}</details>`,
+        v: (box) => stagesFig(box),
         c: {
           q: "Scores [0, 0, 0, 0]. What are the softmax shares?",
           o: ["0.25 each", "0 each", "1 for the first and 0 for the rest"],
@@ -222,15 +399,15 @@
       },
       {
         t: "Shift invariance",
-        b: `<p>Adding the same constant $c$ to every score multiplies each exponential by $e^c$, and that factor cancels in the division. So softmax only depends on the <b>differences</b> between scores.</p><p>Programs use this: subtract the largest score before exponentiating, so the biggest exponent is $e^0=1$ and nothing overflows. Naive code would compute $e^{1000}$, which overflows to infinity and the shares cannot be computed.</p>`,
-        v: table(
+        b: `<p>Softmax only cares about the <b>gaps</b> between scores, not their size. If every score goes up by the same amount, nobody gains on anybody, so the shares stay exactly the same. Scores 2, 1, 0 and scores 1002, 1001, 1000 give identical shares.</p><p>Programs use this. A computer cannot hold a number as huge as e to the power 1000, so before exponentiating it subtracts the largest score from every score. The biggest becomes 0, the gaps are untouched, and nothing overflows. Try the buttons.</p><details class="math-more"><summary>Show the maths</summary><p>Adding a constant $c$ to every score multiplies each exponential by $e^c$, and that factor cancels in the division. After subtracting the maximum, the biggest exponent is $e^0=1$.</p>${table(
           ["scores", "after subtracting the max", "shares"],
           [
             ["2, 1, 0", "0, −1, −2", "0.67, 0.24, 0.09"],
             ["7, 6, 5", "0, −1, −2", "0.67, 0.24, 0.09"],
             ["1002, 1001, 1000", "0, −1, −2", "0.67, 0.24, 0.09"],
           ],
-        ),
+        )}</details>`,
+        v: (box) => shiftFig(box),
         c: {
           q: "Why subtract the maximum score before taking exponentials?",
           o: [
@@ -244,20 +421,17 @@
       },
       {
         t: "Why attention divides by √d_k",
-        b: `<p>Dot products of long vectors grow with the vector length: for $d_k$ numbers each of size about 1, scores have a size about $\\sqrt{d_k}$. Large scores push softmax towards <b>all-or-nothing</b>, where tiny changes in input give almost no gradient. So attention divides the scores by $\\sqrt{d_k}$ first. For $d_k=64$ that is $\\div 8$.</p>`,
-        v:
-          F.bars(
-            [
-              ["scores 16, 8, 0 (raw)", 0.9997, "rose"],
-              ["÷ 8  →  2, 1, 0", 0.665, "teal"],
-            ],
-            { max: 1, fmt: (v) => v.toFixed(2) },
-          ) + cap("Weight on the biggest score before and after scaling by √64 = 8."),
+        b: `<p>The longer the lists of numbers being compared, the bigger the raw match scores tend to get, simply because more terms are added up. Big scores make softmax <b>all-or-nothing</b>: one token takes almost the whole cake and the rest barely count, so learning gets stuck.</p><p>The cure is to shrink the scores before softmax, dividing by a number that grows with the list length. Pick a list length in the picture: with 64 numbers, the raw scores give the best token nearly everything, but dividing by 8 restores a sensible spread.</p><details class="math-more"><summary>Show the maths</summary><p>For $d_k$ numbers each of size about 1, dot-product scores have a size about $\\sqrt{d_k}$. So attention divides the scores by $\\sqrt{d_k}$ first. For $d_k=64$ that is $\\div 8$, and for $d_k=16$ it is $\\div 4$.</p></details>`,
+        v: (box) => scaleFig(box),
         c: {
-          q: "Keys have d<sub>k</sub> = 16. What are the raw scores divided by?",
-          o: ["4", "16", "256"],
+          q: "Attention skips the scaling step and the key vectors are very long. What goes wrong?",
+          o: [
+            "Softmax becomes all-or-nothing, with one token winning",
+            "The shares stop adding up to 100%, so the output shrinks",
+            "Every token ends up with the same share, whatever the scores",
+          ],
           a: 0,
-          why: "$\\sqrt{16}=4$.",
+          why: "Long vectors give large raw scores, large gaps, and softmax turns large gaps into near-total winners. The shares still add to 1 either way.",
         },
       },
       {

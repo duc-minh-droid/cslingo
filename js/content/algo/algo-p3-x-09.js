@@ -1,7 +1,7 @@
 /* algo-p3-x-09.js: 3.16 stopping (overflow) */
 (function () {
   const S = (NIC.shared.algoP3x = NIC.shared.algoP3x || {});
-  const { P2, ROSEN, contourCanvas, contourURL, nf, nmDraw, nmScene, nmSolve, tbl } = S;
+  const { P2, ROSEN, contourCanvas, contourURL, nf, nmDraw, nmIter, nmScene, nmSolve, tbl } = S;
   const N = NIC;
   const { el, qs, predict, takeaways, header } = N;
   const L = N.LESSONS;
@@ -82,6 +82,59 @@
       draw: nmDraw,
     });
   }
+  /* every round of the real run, replayed to count the evaluations it spent */
+  const COSTS = (() => {
+    let S = [
+      [-1, 1],
+      [-1.1, 1],
+      [-1, 1.1],
+    ]
+      .map((p) => ({ p, f: ROSEN(p) }))
+      .sort((a, b) => a.f - b.f);
+    return Array.from({ length: RUN6.it }, () => {
+      const r = nmIter(S, ROSEN);
+      S = r.next;
+      return r.ev;
+    });
+  })();
+  const CHEAP = Math.round((100 * COSTS.filter((c) => c <= 2).length) / COSTS.length),
+    SHR = COSTS.filter((c) => c === 5).length;
+  const TILE = { 1: "var(--teal)", 2: "var(--violet)", 3: "var(--amber)", 5: "var(--rose)" };
+  /** One tile per round, coloured by its evaluations; the slider replays the run and keeps the running bill. */
+  function roundsFig(host) {
+    host.innerHTML = "";
+    const box = el(
+      `<div role="img" aria-label="One coloured square per round of a real Nelder-Mead run: green 1 evaluation, purple 2, orange 3, red 5."><div data-t style="display:flex;flex-wrap:wrap;gap:4px;min-height:52px"></div><div class="controls" data-s></div><p class="mono" data-x style="min-height:3em;margin:6px 0"></p><div data-l style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px"></div></div>`,
+    );
+    host.appendChild(box);
+    qs("[data-l]", box).innerHTML = [
+      [1, "1 evaluation: reflect"],
+      [2, "2: stretch tried"],
+      [3, "3: contraction"],
+      [5, "5: shrink"],
+    ]
+      .map(
+        ([c, t]) =>
+          `<span><i style="display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px;background:${TILE[c]}"></i>${t}</span>`,
+      )
+      .join("");
+    const sl = N.slider("Rounds shown", 1, RUN6.it, 1, RUN6.it, (v) => String(v));
+    const draw = (k) => {
+      const part = COSTS.slice(0, k),
+        sum = part.reduce((a, b) => a + b, 3);
+      qs("[data-t]", box).innerHTML = part
+        .map(
+          (c, i) =>
+            `<span title="round ${i + 1}: ${c} evaluation${c > 1 ? "s" : ""}" style="width:14px;height:14px;border-radius:4px;background:${TILE[c]}"></span>`,
+        )
+        .join("");
+      qs("[data-x]", box).innerHTML =
+        `After <b>${k}</b> round${k > 1 ? "s" : ""}: <b>${sum}</b> evaluations in all (the first 3 are the starting corners), about ${(sum / k).toFixed(1)} per round.`;
+    };
+    sl.onInput(draw);
+    qs("[data-s]", box).appendChild(sl);
+    draw(RUN6.it);
+  }
   // prettier-ignore
 
   L["a3-nm-stop"] = {
@@ -93,13 +146,13 @@
       { t: "A trap: summing the values", b: `<p>The workshop code stops when the <b>sum</b> of the vertex values is below a tolerance. That only works because the Rosenbrock minimum has value 0. If the best possible value is 5, the sum of three vertices can never fall below 15, so the test never fires and the run only ends when the iteration limit hits.</p><p>The robust version compares the <i>spread</i> $\\max f-\\min f$ against the tolerance, which does not care where the minimum value sits.</p>`,
         v: tbl(["Function", "Best f", "Sum of 3 vertex values", "Sum test < 0.001?", "Spread test"], [["Rosenbrock", "0", "→ 0", "fires", "fires"], ["bowl + 5", "5", "→ 15", "never fires", "fires"]], 1),
         c: { q: "The minimum value of f is 5. A run stops when the sum of the three vertex values is below 0.001. What happens?", o: ["It never meets that test, so the iteration limit ends it", "It stops at once, since 15 is far from 0.001", "It stops when the simplex is as small as possible"], a: 0, why: "Near the minimum the three values are about 5 each, so the sum approaches 15 and never gets below 0.001. A spread test (max − min) would work." } },
-      { t: "The Rosenbrock test function", b: `<p>The standard test is a curved, banana-shaped valley:</p><p>$$f(\\mathbf{x})=\\sum_{i=1}^{D-1}100\\,(x_{i+1}-x_i^2)^2+\\sum_{i=1}^{D-1}(1-x_i)^2$$</p><p>It has its minimum at $x_i=1$ for all $i$, where $f=0$. In 2-D: $f(x,y)=100(y-x^2)^2+(1-x)^2$, so $f(1,1)=0$, $f(0,0)=1$, $f(-1,1)=4$. The valley floor is easy to reach and hard to follow, which is why it exposes weak optimisers. (The slide prints $x_{i+1}-x_i$; the usual form squares $x_i$.)</p>`,
+      { t: "The Rosenbrock test function", b: `<p>To compare optimisers, people use a famous obstacle course: a long, curved, banana-shaped valley. Finding the valley is easy, because its walls are steep. Following its floor down to the bottom is hard: the floor is almost flat and it bends, so the best direction keeps changing. Drag the picture to look from different sides. The orange dot is the lowest point, at (1, 1).</p><p>To get a feel for the scores: at (1, 1) it is 0, at (0, 0) it is 1 and at (−1, 1) it is 4. Weak optimisers either crawl along the floor or get thrown up the walls.</p><details class="math-more"><summary>Show the maths</summary><p>$$f(\\mathbf{x})=\\sum_{i=1}^{D-1}100\\,(x_{i+1}-x_i^2)^2+\\sum_{i=1}^{D-1}(1-x_i)^2$$</p><p>It has its minimum at $x_i=1$ for all $i$, where $f=0$. In 2-D: $f(x,y)=100(y-x^2)^2+(1-x)^2$, so $f(1,1)=0$, $f(0,0)=1$, $f(-1,1)=4$. (The slide prints $x_{i+1}-x_i$; the usual form squares $x_i$.)</p></details>`,
         v: (box, life) => { F.surface3d(box, life, { f: ROS01, height: 250, points: [{ x: 0.75, y: 0.5, c: "#ff9600", label: "minimum (1, 1)" }] }); },
-        c: { q: "For the 2-D Rosenbrock function, f(1, 1) is…", o: ["0, the global minimum", "100, the coefficient in front", "1, from the (1 − x)² term alone"], a: 0, hint: "y − x² = 1 − 1 = 0 and 1 − x = 0.", why: "Both terms vanish at (1, 1): 100(1 − 1)² + (1 − 1)² = 0. Since f is a sum of squares it cannot be negative." } },
+        c: { q: "A simplex is sitting on the floor of the banana valley, far from (1, 1). Why is progress slow there?", o: ["The floor is nearly flat and curves, so only small steps help", "All the points on the floor have exactly the same score as each other", "The valley walls are so gentle that uphill cannot be told from downhill"], a: 0, why: "Along the floor f barely changes, and the floor bends, so big steps overshoot into the steep walls. The simplex has to creep." } },
       { t: "Watch it on Rosenbrock", b: `<p>Snapshots from a real run started at $\\mathbf{x}_0=(-1,1)$, stopping when the vertices and their values are within $10^{-6}$. The triangle squeezes through the narrow valley and ends on ★. The exact number of rounds depends on the start and the tolerances.</p>`, v: (box, life) => rosenRunner(box, life) },
-      { t: "Efficiency: where the time goes", b: `<p>Often one evaluation of $f(\\mathbf{x})$ (a simulation, say) costs far more than the algorithm's own bookkeeping, so <b>count function evaluations</b>.</p><ul><li><b>Ordering:</b> after one vertex changes, insert it into the sorted list with insertion sort.</li><li><b>Centroid:</b> update the old one in $O(D)$ instead of re-summing: $C'=C-\\tfrac1D\\,x_{\\text{old}}+\\tfrac1D\\,x_{\\text{new}}$.</li><li><b>Shrink:</b> expensive ($D$ new evaluations), so it is rarely used in practice.</li></ul><p>Update example (2-D): $C=(1,2)$; swap $G=(0,1)$ for $(4,3)$: $C'=(1,2)-(0,0.5)+(2,1.5)=(3,3)$, the midpoint of $B=(2,3)$ and $(4,3)$.</p><p>The Rosenbrock run above: <b>${RUN6.it} rounds, ${RUN6.ev} evaluations</b>, about ${(RUN6.ev / RUN6.it).toFixed(1)} per round.</p>`,
-        v: F.bars([["reflect only", 1, "teal"], ["expansion", 2, "violet"], ["contraction", 3, "amber"], ["shrink (2-D)", 5, "rose"], ["this run, average", +(RUN6.ev / RUN6.it).toFixed(2), "blue"]], { max: 5, fmt: (v) => String(+v.toFixed(2)) }),
-        c: { q: "C = (1, 2) is the centroid of B and G = (0, 1). G is replaced by (4, 3). What is the updated centroid C′ using C′ = C − x_old/D + x_new/D, with D = 2?", o: ["(3, 3)", "(2.5, 2.5)", "(4, 3)"], a: 0, hint: "C − (0, 0.5) + (2, 1.5).", why: "(1, 2) − (0, 0.5) + (2, 1.5) = (3, 3). Check: B = (2, 3) and the new point (4, 3) have midpoint (3, 3)." } },
+      { t: "Efficiency: where the time goes", b: `<p>Each round of Nelder–Mead is cheap to think about but can be costly to run: every test point means one evaluation of f (a simulation, say), and that dwarfs the algorithm's own bookkeeping. So we count evaluations.</p><p>Below is the real banana-valley run. Each square is one round, coloured by how many evaluations it cost. Slide to watch the bill grow. ${CHEAP}% of the rounds cost 1 or 2 evaluations and ${SHR ? `only ${SHR} round${SHR === 1 ? "" : "s"} needed a shrink (5)` : "no round needed a shrink (5), the costly last resort"}, so the average is about ${(RUN6.ev / RUN6.it).toFixed(1)} per round (<b>${RUN6.it} rounds, ${RUN6.ev} evaluations</b> in all).</p><p>The bookkeeping stays cheap too. The one corner that changed is slid into its place in the sorted list, and the centroid is fixed by swapping that corner's share instead of adding every corner up again. Example: the centroid of (2, 3) and (0, 1) is (1, 2). Swap (0, 1) for (4, 3) and the new centroid is (3, 3).</p><details class="math-more"><summary>Show the maths</summary><ul><li><b>Ordering:</b> after one vertex changes, insert it into the sorted list with insertion sort.</li><li><b>Centroid:</b> update the old one in $O(D)$ instead of re-summing: $C'=C-\\tfrac1D\\,x_{\\text{old}}+\\tfrac1D\\,x_{\\text{new}}$.</li><li><b>Shrink:</b> expensive ($D$ new evaluations), so it is rarely used in practice.</li></ul><p>Update example (2-D): $C=(1,2)$; swap $G=(0,1)$ for $(4,3)$: $C'=(1,2)-(0,0.5)+(2,1.5)=(3,3)$, the midpoint of $B=(2,3)$ and $(4,3)$.</p></details>`,
+        v: (box) => roundsFig(box),
+        c: { q: "One corner of a 50-dimensional simplex is replaced. What is the cheapest way to get the new centroid?", o: ["Subtract the old corner's share and add the new one's", "Add up all the corners again and divide by the count", "Re-evaluate f at every corner, then average the results"], a: 0, why: "Only one corner changed, so only its share of the average changes: take the old share out and put the new one in. Re-adding all the corners costs far more, and re-evaluating f is the most expensive step of all." } },
       { t: "Does it always converge?", b: `<p>Some convergence results hold if (1) the angles between the simplex edges stay bounded away from 0 and $\\pi$ (the simplex never flattens) and (2) $f$ at a vertex decreases every iteration.</p><p>But there are no general guarantees. Convergence can occasionally be extremely slow even for well-behaved functions, and McKinnon (1998) built <b>two-dimensional strictly convex</b> examples where Nelder–Mead converges to a point that is not even stationary. A flattened "sliver" simplex is the typical symptom.</p>`,
         v: `<svg class="fig" viewBox="0 0 520 140" style="max-height:140px"><polygon points="40,100 130,100 85,32" fill="rgba(88,204,2,.16)" stroke="var(--teal)" stroke-width="3" class="fi"/><text x="85" y="128" class="fig-sub">healthy simplex</text><polygon points="270,98 420,88 345,92" fill="rgba(255,75,75,.18)" stroke="var(--rose)" stroke-width="3" class="fi"/><circle cx="270" cy="98" r="5" fill="var(--rose)"/><circle cx="420" cy="88" r="5" fill="var(--rose)"/><circle cx="345" cy="92" r="5" fill="var(--rose)"/><text x="345" y="128" class="fig-sub">flattened: edge angles near 0 or π</text><text x="470" y="62" class="fig-sub" style="fill:var(--rose)">stalls</text></svg>`,
         c: { q: "Which condition is needed for the lecture's convergence results?", o: ["The simplex never degenerates (angles stay away from 0 and π)", "The function has a gradient everywhere", "The starting simplex is exactly centred on the minimum"], a: 0, why: "A flattened simplex can only explore a line or plane, so it can miss descent directions. The guarantees assume it stays properly shaped and f keeps decreasing." } },

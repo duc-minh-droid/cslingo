@@ -299,6 +299,26 @@
      ============================================================ */
   const pFail = (n, p) => 1 - Math.pow(1 - p, n) - n * p * Math.pow(1 - p, n - 1); // chance a block has 2 or more flips
 
+  // a Hamming block of 2^r - 1 bits: check bits sit at the power-of-two positions; the learner slides r
+  function blockTiles(box) {
+    const sl = N.slider("Check bits", 2, 6, 1, 3),
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const draw = (r) => {
+      const n = 2 ** r - 1,
+        k = n - r,
+        w = n > 31 ? 13 : 24;
+      const tiles = Array.from(
+        { length: n },
+        (_, i) =>
+          `<i style="display:inline-block;width:${w}px;height:${w}px;margin:1.5px;border-radius:4px;background:${(i + 1) & i ? "var(--blue)" : "var(--amber)"}"></i>`,
+      ).join("");
+      out.innerHTML = `<div style="line-height:0;text-align:center">${tiles}</div><div class="callout" style="margin-top:8px"><b>${r}</b> yes/no checks give ${2 ** r} answers: "no error" or one of ${n} places. So the block is <b>${n}</b> bits: <b style="color:var(--amber-ink)">${r} check</b> (orange) and <b style="color:var(--blue-ink)">${k} data</b> (blue), ${Math.round((100 * k) / n)}% useful.</div>`;
+    };
+    sl.onInput(draw);
+    box.append(sl, out);
+    draw(3);
+  }
+
   L["a6-codes"] = {
     sum: "Detection codes (parity, CRC) are simple but need a resend; correction codes (Hamming and its descendants) are cleverer but work one-way. Longer Hamming codes waste less, but fail once a block takes two hits. Reed-Solomon, turbo and LDPC codes carry the same ideas into CDs, QR codes, phones and deep space.",
     // prettier-ignore
@@ -309,9 +329,9 @@
       { t: "Pick the right tool", b: `<p>Ask two questions: can the receiver talk back, and can a resend arrive in time? If both are yes, a cheap detecting code plus ARQ is enough. If either is no, spend the extra bits on correction.</p>`,
         v: table(["Situation", "Talk back?", "Resend in time?", "Use"], [["Web page download", "yes", "yes", "CRC + resend"], ["Live phone call", "yes", "no", "correction"], ["Probe near Neptune", "yes, but hours later", "no", "correction"], ["Radio station", "no", "n/a", "correction"]], 600),
         c: { q: "A video call has a back channel, but a resent packet would arrive after its frame was shown. What should it rely on?", o: ["A CRC and a resend", "Forward error correction", "Parity bits only", "Nothing: it must accept every error"], a: 1, why: "A resend is useless if it arrives too late, so the receiver needs enough redundancy to repair damage straight away." } },
-      { t: "Longer Hamming codes", b: `<p>$r$ check bits can name $2^r - 1$ positions, so a Hamming code has $n = 2^r - 1$ bits, of which $k = n - r$ carry data. Hamming(7,4), (15,11), (31,26)... each waste less: the rate $k/n$ climbs towards 1.</p>`,
-        v: F.bars([2, 3, 4, 5, 6].map((r) => { const n = 2 ** r - 1; return [`(${n},${n - r})`, (n - r) / n, r === 3 ? "teal" : "violet", `r = ${r}`]; }), { max: 1, fmt: (v) => v.toFixed(2) }),
-        c: { q: "A Hamming code uses 4 check bits. How many bits in a codeword, and how many carry data?", o: ["15 bits, 11 data", "16 bits, 12 data", "7 bits, 4 data", "31 bits, 26 data"], a: 0, why: "$2^4 - 1 = 15$ positions, leaving $15 - 4 = 11$ data bits: Hamming(15,11)." } },
+      { t: "Longer Hamming codes", b: `<p>A Hamming code asks yes/no questions about <i>where</i> a flipped bit is. With 3 check bits you get 3 answers, which can say "no error" or name one of 7 places: 8 outcomes. So the block has 7 bits, 3 checks and 4 data. With 4 check bits you can name 15 places, so the block has 15 bits and 11 of them are data.</p><p>Each extra check bit <b>doubles</b> the places you can name but costs only one bit. So longer blocks waste less: 4 of 7 bits are data, then 11 of 15, then 26 of 31. Slide the number of check bits and watch the block grow.</p><details class="math-more"><summary>Show the maths</summary><p>$r$ check bits can name $2^r - 1$ positions, so $n = 2^r - 1$ and $k = n - r$ bits carry data. Hamming(7,4), (15,11), (31,26)... have rate $k/n$ climbing towards 1.</p></details>`,
+        v: (box) => blockTiles(box),
+        c: { q: "Hamming(15,11) has more than twice the bits of Hamming(7,4). How do its check bits compare?", o: ["Just one more: 4 instead of 3", "Twice as many: 6 instead of 3", "The same number: 3 in both", "Far more: 8 instead of 3"], a: 0, why: "One extra check bit doubles the number of places that can be named (from 7 to 15), so the check bits barely grow while the data bits climb from 4 to 11." } },
       { t: "Why not make blocks huge?", b: `<p>Every Hamming codeword repairs <b>one</b> flip. A longer block holds more bits, so the chance of two or more flips in the <i>same</i> block rises, and then the repair goes wrong. Efficiency climbs; reliability falls.</p><p>Hamming(7,4) has minimum distance 3: it can correct 1 error <i>or</i> detect 2, not both at once. One extra overall parity bit makes distance 4, which corrects 1 and detects 2 (<b>SECDED</b>).</p>`,
         v: F.compare({ title: "Distance 3 (Hamming 7,4)", c: "amber", body: "corrects 1 error<br><i>or</i> detects 2<br>a double error is miscorrected" }, { title: "Distance 4 (SECDED)", c: "teal", body: "corrects 1 error<br><b>and</b> detects 2<br>a double error is flagged" }),
         c: { q: "Why does a very long Hamming block become unreliable on a noisy link?", o: ["Its check bits stop working above a limit of 15 bits", "It is likelier to take two flips and repairs only one", "Longer codewords can no longer be decoded at all", "Its code rate falls steadily towards zero as it grows"], a: 1, why: "The single-error repair is still perfect, but the more bits in a block the more likely it is to be hit twice. Then the syndrome points at the wrong place." } },

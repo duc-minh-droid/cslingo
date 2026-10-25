@@ -13,6 +13,92 @@
       )
       .join("")}</svg>`;
 
+  /* Figure helpers shared with the algo-p9-x files (NIC.shared.algoX). */
+  const sx = (NIC.shared.algoX = NIC.shared.algoX || {});
+  const svgFig = (w, h, label, body, maxH = h) =>
+    `<svg class="fig" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}" style="max-height:${maxH}px">${body}</svg>`;
+  const tint = (c, p = 26) => `color-mix(in srgb, var(--${c}) ${p}%, var(--panel-2))`;
+  /** The FFT split, shown: sample tiles divide into evens and odds, two half-size DFTs, butterflies; then an N slider. */
+  function splitFig(box, life) {
+    const STAGES = [
+      "Eight samples in a row. A direct DFT lets every sample take part in every output.",
+      "Deal them into two piles by position: even positions (0, 2, 4, 6) and odd positions (1, 3, 5, 7).",
+      "Each pile gets its own small DFT of just 4 samples: 4 × 4 = 16 products each, 32 instead of 64.",
+      "The small answers snap together: each pair (one from each pile) gives two outputs. The odd one is twisted, then added for the first output and subtracted for the other.",
+    ];
+    const LAB = [
+      ["even positions", "odd positions"],
+      ["4-point DFT of the even pile", "4-point DFT of the odd pile"],
+    ];
+    const lines = [0, 1, 2, 3]
+      .map((k) =>
+        [k, k + 4]
+          .map(
+            (o) =>
+              `<line x1="${64 + k * 56}" y1="136" x2="${50 + o * 64}" y2="214" stroke="var(--line-2)" stroke-width="2"/><line x1="${320 + k * 56}" y1="136" x2="${50 + o * 64}" y2="214" stroke="var(--violet)" stroke-width="2"/>`,
+          )
+          .join(""),
+      )
+      .join("");
+    const tiles = Array.from(
+      { length: 8 },
+      () =>
+        `<g class="sp-t" style="transition:transform .8s cubic-bezier(.4,0,.2,1)"><rect width="48" height="44" rx="9" stroke-width="2"/><text class="fig-box" x="24" y="28"></text></g>`,
+    ).join("");
+    const outs = Array.from(
+      { length: 8 },
+      (_, i) =>
+        `<g transform="translate(${28 + i * 64} 214)"><rect width="48" height="44" rx="9" fill="${tint("violet")}" stroke="var(--violet)" stroke-width="2"/><text class="fig-box" x="24" y="28">X${i}</text></g>`,
+    ).join("");
+    const pileBox = (x, t) =>
+      `<rect x="${x}" y="84" width="240" height="60" rx="12" fill="none" stroke="var(--line-2)" stroke-width="2" stroke-dasharray="6 5"/><text x="${x + 120}" y="76" class="fig-sub sp-l">${t}</text>`;
+    box.innerHTML =
+      svgFig(
+        560,
+        272,
+        "Eight sample tiles split into even and odd piles, each pile gets a four-point DFT, and butterflies combine the results into eight outputs",
+        `<g class="sp-p" style="opacity:0;transition:opacity .6s">${pileBox(32, "even positions")}${pileBox(288, "odd positions")}</g><g class="sp-o" style="opacity:0;transition:opacity .6s">${lines}${outs}</g>${tiles}`,
+        290,
+      ) +
+      `<div class="controls" style="justify-content:center;gap:8px"><button class="btn small" data-d="-1">Back</button><b class="sp-s" style="min-width:64px;text-align:center"></b><button class="btn small primary" data-d="1">Next</button></div><div class="fig-cap sp-c" style="min-height:3.2em"></div><hr style="border:0;border-top:2px solid var(--line);margin:14px 0 10px"><div class="controls" id="sp-sl" style="justify-content:center"></div><div class="sp-n"></div>`;
+    const q = (s) => box.querySelector(s);
+    let st = 0,
+      stop = () => {};
+    const draw = () => {
+      box.querySelectorAll(".sp-t").forEach((g, i) => {
+        const [x, y] = st ? [(i % 2 ? 296 : 40) + (i >> 1) * 56, 92] : [28 + i * 64, 14];
+        const c = st ? (i % 2 ? "amber" : "teal") : "blue";
+        g.style.transform = `translate(${x}px,${y}px)`;
+        g.firstChild.setAttribute("fill", tint(c));
+        g.firstChild.setAttribute("stroke", `var(--${c})`);
+        g.lastChild.textContent = st > 1 ? (i % 2 ? "O" : "E") + (i >> 1) : "x" + i;
+      });
+      q(".sp-p").style.opacity = st ? 1 : 0;
+      q(".sp-o").style.opacity = st > 2 ? 1 : 0;
+      box.querySelectorAll(".sp-l").forEach((t, k) => (t.textContent = LAB[+(st > 1)][k]));
+      q(".sp-s").textContent = `${st + 1} of 4`;
+      q(".sp-c").textContent = STAGES[st];
+      box.querySelector('[data-d="-1"]').disabled = !st;
+      box.querySelector('[data-d="1"]').disabled = st > 2;
+    };
+    box.querySelectorAll("[data-d]").forEach((b) =>
+      b.addEventListener("click", () => {
+        stop();
+        st = Math.max(0, Math.min(3, st + +b.dataset.d));
+        draw();
+      }),
+    );
+    sx.countFig(q(".sp-n"), q("#sp-sl"));
+    draw();
+    stop = life.interval(() => {
+      if (st < 3) {
+        st++;
+        draw();
+      } else stop();
+    }, 2800);
+  }
+  Object.assign(sx, { svgFig, tint, splitFig });
+
   /* ============ 9.2 The halving trick ============ */
   reg({
     id: "a9-fft",

@@ -20,6 +20,7 @@
     table,
     crcRegister,
     crcDiagram,
+    distLine,
   } = (NIC.shared.algoP6 = NIC.shared.algoP6 || {});
   const reg = (m) => N.register({ subject: "algo", lecture: 6, ...m });
   /* ============================================================
@@ -64,9 +65,9 @@
       { t: "The repetition code", b: `<p>Encode 0 as <b>000</b> and 1 as <b>111</b>. The receiver decodes by <b>majority vote</b>: any word with two or more 1s is read as 1. A single flip anywhere is repaired.</p>`,
         v: table(["Received", "Decoded", "Received", "Decoded"], [["000", "0", "111", "1"], ["001", "0", "110", "1"], ["010", "0", "101", "1"], ["100", "0", "011", "1"]], 420),
         c: { q: "The repetition code 000/111 is used and the receiver sees 101. What does it decode?", o: ["0", "1", "It cannot decide", "An error flag"], a: 1, why: "Majority vote: two 1s against one 0 gives 1. It trusts the majority, so two flips of 000 would be silently misread." } },
-      { t: "Distance sets the power", b: `<p>The <b>minimum distance</b> $d$ is the smallest distance between any two codewords. A code can <b>detect</b> up to $d-1$ errors, and <b>correct</b> up to $\\lfloor (d-1)/2 \\rfloor$. The repetition code has $d = 3$: it fixes 1 flip, or notices 2.</p>`,
-        v: table(["Minimum distance d", "Detects up to", "Corrects up to"], [["1", "0", "0"], ["2", "1", "0"], { c: ["3", "2", "1"], hl: true }, ["4", "3", "1"], ["5", "4", "2"]], 520),
-        c: { q: "A code has minimum distance 5 between its codewords. How many errors can it always correct?", o: ["1", "2", "4", "5"], a: 1, why: "It corrects up to ⌊(5 − 1) / 2⌋ = 2 errors. It could detect up to 4, but detection and correction share the same distance budget." } },
+      { t: "Distance sets the power", b: `<p>Think of the codewords as islands. The Hamming distance is the number of steps between two islands, and every flipped bit moves the received word one step away from where it started.</p><p>To <b>notice</b> an error, the word must not land on another island. If the nearest islands are $d$ steps apart, up to $d-1$ flips can never reach one. To <b>fix</b> it, the word must still be nearer to its own island than to any other, which holds while it has walked less than half the gap. Try the sliders. The repetition code (000 and 111) has $d = 3$: it fixes 1 flip, or notices 2.</p><details class="math-more"><summary>Show the maths</summary><p>With minimum distance $d$ a code can <b>detect</b> up to $d-1$ errors and <b>correct</b> up to $\\lfloor (d-1)/2 \\rfloor$.</p>${table(["Minimum distance d", "Detects up to", "Corrects up to"], [["1", "0", "0"], ["2", "1", "0"], { c: ["3", "2", "1"], hl: true }, ["4", "3", "1"], ["5", "4", "2"]], 520)}</details>`,
+        v: (box) => distLine(box),
+        c: { q: "Two codewords are 4 flips apart. A received word is 2 flips from one of them, so also 2 from the other. What can the receiver do?", o: ["Detect it, but not fix it", "Fix it, using the first codeword", "Fix it, using the second codeword", "Miss it, as it looks like a codeword"], a: 0, why: "It is not a codeword, so the error is noticed. But the word is equally near both codewords, so nothing says which one was sent: detection works, correction cannot." } },
       { t: "The price: rate", b: `<p>Repeating each bit $n$ times gives distance $n$ and a rate of $1/n$. Three copies corrects 1 flip but wastes two thirds of the bandwidth; five copies corrects 2 and wastes four fifths. Cleverer codes get the same correction for far less overhead, as Hamming(7,4) will show.</p>`,
         v: F.bars([["Repeat ×3 (d = 3)", 1 / 3, "rose", "fixes 1"], ["Repeat ×5 (d = 5)", 1 / 5, "rose", "fixes 2"], ["Hamming(7,4) (d = 3)", 4 / 7, "teal", "fixes 1"], ["Hamming(15,11) (d = 3)", 11 / 15, "teal", "fixes 1"]], { max: 1, fmt: (v) => v.toFixed(2) }) + `<div class="fig-cap">Code rate (data bits per bit sent). The longer Hamming code fixes the same single error with far less overhead.</div>`,
         c: { q: "A code repeats every bit 5 times. What fraction of the transmitted bits carry new information?", o: ["1/5", "2/5", "1/2", "5/1"], a: 0, why: "Each data bit is sent as 5 bits, so only one fifth of what is sent is new. The rate is 1/5." } },
@@ -346,7 +347,7 @@
     0,
     {
       t: "The same division as a shift register",
-      b: `<p>In hardware you do not write out long division. A short <b>shift register</b> with $r$ cells does it one bit at a time. The rule for drawing it: where a cell's bit is simply shifted along, the generator coefficient is <b>0</b> (a plain wire); where an XOR gate sits in front of a cell, the coefficient is <b>1</b>.</p><p>For 1101 ($x^3+x^2+1$) the coefficients of $x^0$ and $x^2$ are 1, so gates sit before $c_0$ and before $c_2$, and nothing before $c_1$.</p>`,
+      b: `<p>In hardware nobody writes out long division. A short row of memory cells, a <b>shift register</b>, does the same division one bit at a time: bits flow along the row, and now and then an XOR gate mixes in the bit that falls off the end.</p><p>The generator decides where the gates go. Where it has a <b>0</b> the bit simply moves along a plain wire; where it has a <b>1</b> there is an XOR gate in front of that cell. For 1101 the gates sit in front of the cells for x⁰ and x², with a plain wire at x¹. The next step runs it on real bits.</p><details class="math-more"><summary>Show the maths</summary><p>For 1101 ($x^3+x^2+1$) the coefficients of $x^0$ and $x^2$ are 1, so gates sit before $c_0$ and before $c_2$, and nothing before $c_1$. A register of $r$ cells divides by a polynomial of degree $r$.</p></details>`,
       v: crcDiagram(),
       c: {
         q: "In the register diagram, a cell has an XOR gate in front of it when…",
@@ -362,7 +363,7 @@
     },
     {
       t: "The bitwise algorithm, run on 1011011",
-      b: `<p>Zero a register $C$ of $r$ bits, then repeat $N + r$ times (message bits, then $r$ padding zeros): shift $C$ left, shifting in the next bit; if the bit that fell out was <b>1</b>, XOR $C$ with the last $r$ bits of $P$. For $P$ = 1101 that is <b>101</b>.</p><p>Step through the message <span class="mono">1011011</span>.</p>`,
+      b: `<p>Start with an empty register (all zeros). Feed in the message one bit at a time, then a few padding zeros. Each time the register shifts one place and takes in the new bit. If the bit that fell off the end was a <b>1</b>, the register is XORed with the tail of the generator (for 1101 that is <b>101</b>). When the last bit is in, whatever the register holds is the CRC.</p><p>Step through the message <span class="mono">1011011</span> and notice that the XOR happens only when a 1 falls out.</p><details class="math-more"><summary>Show the maths</summary><p>Zero a register $C$ of $r$ bits, then repeat $N + r$ times (message bits, then $r$ padding zeros): shift $C$ left, shifting in the next bit; if the bit that fell out was <b>1</b>, XOR $C$ with the last $r$ bits of $P$. For $P$ = 1101 that is <b>101</b>.</p></details>`,
       v: (box, life) => crcRun(box, life),
     },
   );

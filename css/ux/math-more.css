@@ -1,0 +1,55 @@
+/* "Show the maths": a lesson step leads with words and a picture; the formal derivation sits in this drawer, closed by
+   default. Use: <details class="math-more"><summary>Show the maths</summary> ... $$...$$ ... </details> */
+.math-more {
+  margin: 12px 0 4px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.math-more > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--violet-ink);
+  cursor: pointer;
+}
+.math-more > summary::-webkit-details-marker {
+  display: none;
+}
+.math-more > summary::before {
+  content: "∑";
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--violet-dim);
+  color: var(--violet-ink);
+  font-size: 15px;
+}
+.math-more > summary::after {
+  content: "";
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.math-more[open] > summary::after {
+  transform: rotate(-135deg);
+}
+.math-more > summary:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+.math-more > :not(summary) {
+  margin: 0 14px 12px;
+  overflow-x: auto;
+}

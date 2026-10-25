@@ -116,6 +116,110 @@
     return k / n;
   };
 
+  const { chip, pick, tint } = sh;
+  const PAL = ["var(--teal)", "var(--violet)", "var(--amber)", "var(--rose)"];
+  const msgTiles = (m, bits) => [...m].map((c) => [c, bits[c], PAL["ABCDXYZ".indexOf(c) % 4]]);
+
+  /** Slide the coin's bias: 20 flips fill up, a dot rides the entropy curve. */
+  function coinFig(box) {
+    const u = Array.from({ length: 20 }, mseed(123)),
+      out = el(`<div></div>`),
+      ctl = el(`<div class="controls"></div>`),
+      sl = N.slider("Chance of heads", 1, 99, 1, 90, (v) => v + "%");
+    const draw = (v) => {
+      const p = v / 100,
+        heads = u.filter((x) => x < p).length,
+        h = Hb(p);
+      out.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0">${u.map((x) => chip(x < p ? "H" : "T", x < p ? "var(--teal)" : "var(--amber)", 28)).join("")}</div>
+        <p class="faint">${heads} heads, ${20 - heads} tails. Always guessing the more common side is right about ${Math.max(heads, 20 - heads)} times in 20.</p>
+        ${curve(Hb, { x: [0.001, 0.999], y: [0, 1.05], xl: "chance of heads", yl: "surprise per flip (bits)", marks: [[p, h, "var(--teal)", ""]] })}
+        <p class="fig-cap">Unpredictability: <b>${h.toFixed(2)} bits</b> per flip, so about ${(20 * h).toFixed(0)} bits for these 20 flips.</p>`;
+    };
+    sl.onInput(draw);
+    ctl.appendChild(sl);
+    box.append(ctl, out);
+    draw(90);
+  }
+
+  /** A message laid out in bits: each tile is as wide as the bits it costs. rows: [[label, [[symbol, bits, colour]]]] */
+  const strip = (rows, max) =>
+    rows
+      .map(([lb, items]) => {
+        const tot = +items.reduce((a, i) => a + i[1], 0).toFixed(1);
+        return `<div style="margin:10px 0 4px"><div class="faint" style="font-weight:800;font-size:13px;margin-bottom:3px">${lb}: <b>${tot} bits</b></div><div style="display:flex">${items
+          .map(
+            ([s, b, c]) =>
+              `<span class="fi" style="width:${((b / max) * 100).toFixed(2)}%;box-sizing:border-box;border:2px solid var(--line-2);border-radius:5px;text-align:center;font:800 11px var(--sans);color:var(--ink);background:${tint(c)};overflow:hidden;padding:3px 0">${s}</span>`,
+          )
+          .join("")}</div></div>`;
+      })
+      .join("") + `<p class="fig-cap">Every tile is as wide as the bits it costs.</p>`;
+
+  /** Who gets the short words? Per letter: how often it appears, and how long its codeword is. opts: [[name, lengths, note?]] */
+  function usageFig(box, { p, opts, h2 = "its codeword (one box per bit)", best }) {
+    const out = pick(
+      box,
+      opts.map((o, i) => [String(i), o[0]]),
+      "0",
+      (v) => draw(+v),
+    );
+    const draw = (k) => {
+      const [, lens, note = ""] = opts[k],
+        L = lens.reduce((a, l, i) => a + p[i] * l, 0),
+        hd = (t) => `<small class="faint" style="font-weight:800">${t}</small>`;
+      out.innerHTML = `<div style="display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;margin:10px 0">${hd("")}${hd("how often it appears")}${hd(h2)}${p
+        .map(
+          (x, i) =>
+            `<b>${"ABCD"[i]}</b><span style="display:flex;align-items:center;gap:6px"><span style="flex:1;height:16px;border-radius:6px;border:2px solid var(--line);background:var(--bg-2);overflow:hidden"><span style="display:block;height:100%;width:${x * 100}%;background:var(--blue)"></span></span><span class="mono" style="min-width:34px;font-size:12.5px">${Math.round(x * 1000) / 10}%</span></span><span style="display:flex;gap:3px;min-width:${3 * 21}px">${Array.from({ length: lens[i] }, () => `<span style="width:18px;height:18px;border:2px solid var(--violet);border-radius:5px;background:${tint("var(--violet)", 30)}"></span>`).join("")}</span>`,
+        )
+        .join("")}</div>
+        <p class="fig-cap">${note ? note + " " : ""}Average: <b>${+L.toFixed(3)} bits</b> per letter${best ? ` (the best possible is ${best})` : ""}.</p>`;
+    };
+    draw(0);
+  }
+
+  /** Number line: no code can sit left of the entropy. Source 40/30/20/10: H = 1.85, Huffman 1.9, fixed 2, rounded up 2.4. */
+  const floorFig = () => {
+    const X = (v) => 20 + ((v - 1.6) / 0.9) * 400,
+      H0 = 1.8464,
+      dots = [
+        [H0, "var(--teal)", "entropy 1.85 (the floor)", -14, "end"],
+        [1.9, "var(--violet)", "Huffman 1.90", 24, "middle"],
+        [2.0, "var(--blue)", "fixed 2 bits: 2.00", -14, "start"],
+        [2.4, "var(--amber)", "rounded up: 2.40", 24, "middle"],
+      ];
+    return `<svg class="fig" viewBox="0 0 440 110" role="img" aria-label="Number line of average code length. Nothing can sit below the entropy 1.85; Huffman 1.90, a fixed 2-bit code 2.00 and rounded-up lengths 2.40 all sit above it">
+      <line x1="20" x2="420" y1="53" y2="53" stroke="var(--line-2)" stroke-width="3"/>
+      <rect x="${X(1.6)}" y="40" width="${X(H0) - X(1.6)}" height="26" fill="${tint("var(--rose)", 35)}"/><text x="${X(1.6) + 4}" y="78" class="fig-sub" style="text-anchor:start;fill:var(--rose-ink)">impossible</text>
+      ${dots.map(([v, c, t, dy, a]) => `<g class="fi"><circle cx="${X(v)}" cy="53" r="7" fill="${c}"/><text x="${X(v) + (a === "end" ? 4 : a === "start" ? -4 : 0)}" y="${53 + dy + (dy > 0 ? 8 : 0)}" class="fig-sub" style="text-anchor:${a};fill:var(--ink)">${t}</text></g>`).join("")}
+      <text x="420" y="104" class="fig-sub" style="text-anchor:end">average bits per letter</text></svg>`;
+  };
+
+  /** Ideal (fractional) length against the whole-bit length actually used. rows: [[letter, p, ideal, real]] */
+  const lenBars = (rows) => {
+    const u = 52,
+      x0 = 40;
+    const g = rows
+      .map(([s, p, id, re], i) => {
+        const y = 8 + i * 34,
+          over = re > id;
+        return `<g class="fi"><text x="${x0 - 12}" y="${y + 17}" class="fig-box" style="text-anchor:end">${s}</text>
+          <rect x="${x0}" y="${y + 3}" width="${id * u}" height="20" rx="4" fill="${tint("var(--violet)", 55)}"/>
+          <rect x="${x0 + Math.min(id, re) * u}" y="${y + 3}" width="${Math.abs(re - id) * u}" height="20" fill="${tint(over ? "var(--rose)" : "var(--teal)", 60)}"/>
+          <line x1="${x0 + re * u}" x2="${x0 + re * u}" y1="${y - 2}" y2="${y + 28}" stroke="var(--ink)" stroke-width="3"/>
+          <text x="${x0 + 4.15 * u}" y="${y + 17}" class="fig-sub" style="text-anchor:start">${(p * 100).toFixed(0)}%: ${id.toFixed(2)} → ${re} bits</text></g>`;
+      })
+      .join("");
+    const grid = [0, 1, 2, 3, 4]
+      .map(
+        (k) =>
+          `<line x1="${x0 + k * u}" x2="${x0 + k * u}" y1="2" y2="${rows.length * 34 + 4}" stroke="var(--line)"/><text x="${x0 + k * u}" y="${rows.length * 34 + 18}" class="fig-sub">${k}</text>`,
+      )
+      .join("");
+    return `<svg class="fig" style="max-width:560px" viewBox="0 0 ${x0 + 4.15 * u + 112} ${rows.length * 34 + 24}" role="img" aria-label="For each letter, its ideal code length in bits against the whole number of bits it is given">${grid}${g}</svg>
+      <p class="fig-cap">Purple: the ideal length. Red tail: rounded up (wasted). Green: given less than ideal. Black tick: the length used.</p>`;
+  };
+
   /* ============ 7.1 Redundancy and source coding ============ */
   reg({
     id: "a7-redundancy",
@@ -371,8 +475,8 @@
   L["a7-binary-entropy"] = {
     sum: "The two-outcome case shows the whole shape of entropy: fair means one bit, skew means less. Then we measure entropy from real counts.",
     steps: [
-      { t: "Two outcomes", b: `<p>For a coin that lands heads with probability $p$:</p><p>$$H(p) = -p\\log_2 p - (1-p)\\log_2 (1-p)$$</p><p>It is zero when the outcome is certain and largest, <b>1 bit</b>, at $p = \\tfrac12$.</p>`,
-        v: FG.plot([{ f: (x) => Hb(x), c: "blue", fill: true }], { x: [0.001, 0.999], y: [0, 1.05], marks: [[0.5, "1 bit at p = ½", "teal"], [0.1, "0.47", "amber"]], xl: "p", yl: "H(p) bits" }),
+      { t: "Two outcomes", b: `<p>A coin that nearly always lands heads is dull: guess "heads" every time and you are almost never wrong. A fair coin is the opposite, because nothing you know helps. <b>Entropy scores how unpredictable a source is</b>, in bits per flip.</p><p>A fair coin scores the maximum, <b>1 bit</b> per flip. A 90/10 coin scores about half a bit, and a coin that always lands heads scores zero. Slide the bias below: the flips fill up with one side and the dot slides down the curve.</p><details class="math-more"><summary>Show the maths</summary><p>For a coin that lands heads with probability $p$:</p><p>$$H(p) = -p\\log_2 p - (1-p)\\log_2 (1-p)$$</p><p>It is zero when the outcome is certain and largest, <b>1 bit</b>, at $p = \\tfrac12$.</p></details>`,
+        v: (box) => coinFig(box),
         c: { q: "At which bias is a coin's entropy at its maximum?", o: ["p = 0.5, the fair coin", "p = 0.9, the most predictable", "Any bias gives the same entropy"], a: 0, why: "A fair coin is the hardest to predict, so each flip carries the most information: 1 bit." } },
       { t: "Symmetric, and zero at the ends", b: `<p>Swap heads and tails and nothing changes: $H(p) = H(1-p)$. At the extremes the outcome is certain. The formula would ask for $0 \\cdot \\log_2 0$, so by convention <b>$0\\log_2 0 = 0$</b>: an impossible symbol adds nothing.</p>`,
         v: table(["P(heads)", "P(tails)", "H (bits)"], [["0.5", "0.5", Hb(0.5).toFixed(3)], ["0.25", "0.75", Hb(0.25).toFixed(3)], ["0.75", "0.25", Hb(0.75).toFixed(3)], ["0.1", "0.9", Hb(0.1).toFixed(3)], ["0.01", "0.99", Hb(0.01).toFixed(3)], ["0", "1", "0 (by convention)"]], 480),
@@ -392,5 +496,21 @@
     ],
     guide: ["Drag the <b>P(heads)</b> slider and watch the green dot ride the curve: it peaks at 50%.", "Set the bias to 20%, then 80%: same entropy.", "Choose <b>10</b> flips and press <b>Draw again</b> several times: the orange dot jumps around.", "Switch to <b>10,000</b> flips: it barely moves from the green dot."],
   };
-  Object.assign(sh, { table, H, norm, mseed, curve, huff, lzwEnc, lzwDec, Hb });
+  Object.assign(sh, {
+    table,
+    H,
+    norm,
+    mseed,
+    curve,
+    huff,
+    lzwEnc,
+    lzwDec,
+    Hb,
+    strip,
+    usageFig,
+    lenBars,
+    floorFig,
+    PAL,
+    msgTiles,
+  });
 })();

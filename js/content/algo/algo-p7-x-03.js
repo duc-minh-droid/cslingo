@@ -6,7 +6,30 @@
   const L = N.LESSONS,
     FG = N.fig;
   const reg = (m) => N.register({ subject: "algo", lecture: 7, ...m });
-  const { table, LEC_CODES, encode, decodeTree, lzwEnc, lzwDec } = sh;
+  const { table, LEC_CODES, encode, decodeTree, lzwEnc, lzwDec, costFig, lzwStepFig } = sh;
+  /** One row per new entry: previous string + first letter of this one = the entry the decoder adds. */
+  const decoderRows = () => {
+    const d = lzwDec([0, 1, 2, 4, 3], ["A", "B"]);
+    let prev = "";
+    return d.steps
+      .map((s) => {
+        const row = s.added
+          ? FG.cells(
+              [
+                { v: prev, sub: "previous", c: "violet" },
+                "+",
+                { v: s.e[0], sub: "first of " + s.e, c: "amber" },
+                "=",
+                { v: s.added[1], sub: "new entry " + s.added[0], c: "teal" },
+              ],
+              { label: "code " + s.k + (s.miss ? " (not built yet)" : ""), size: 52 },
+            )
+          : "";
+        prev = s.e;
+        return row;
+      })
+      .join("");
+  };
   /* ============ 7.8 The Huffman algorithm: cost, limits, uses ============ */
   const FIXED = { A: "000", B: "001", C: "010", D: "011", E: "100" };
   const decodeFixed = (bits) => {
@@ -171,8 +194,8 @@ repeat n - 1 times:
 return Extract-Min(Q)           # the root</pre>`,
         v: FG.flow([{ t: "sort", s: "O(n log n)" }, { t: "n − 1 merges", s: "each 2 extracts + 1 insert", c: "violet" }, { t: "root", s: "one node left", c: "teal" }]),
         c: { q: "How many times does the main loop run for n symbols?", o: ["n − 1 times: each merge removes one node", "n times, once for every symbol in the queue", "n log n times, once per queue operation"], a: 0, why: "Each merge turns two nodes into one, so n nodes need n − 1 merges to leave a single root." } },
-      { t: "Why O(n log n)", b: `<p>Sorting costs $O(n\\log n)$. The loop runs $n-1$ times and each pass does a couple of queue operations at $O(\\log n)$ apiece, so $O((n-1)\\log n)$. Add them:</p><p>$$O(n\\log n) + O\\bigl((n-1)\\log n\\bigr) \\approx O(n\\log n)$$</p>`,
-        v: table(["symbols n", "merges n − 1", "n log₂ n (approx.)", "n² for comparison"], [["8", "7", "24", "64"], ["26 (letters)", "25", "122", "676"], ["256", "255", "2,048", "65,536"], ["1,024", "1,023", "10,240", "1,048,576"]], 640),
+      { t: "Why O(n log n)", b: `<p>How much work is Huffman? Count the merges first. Every merge turns two nodes into one, so 8 symbols need exactly 7 merges: <b>one fewer than the number of symbols</b>. Each merge has to find the two smallest items and file the new node back in the right place, and with a sorted queue or a heap that takes about log₂ n small steps (3 for 8 symbols).</p><p>So the total is roughly (n − 1) merges times log₂ n steps: 7 × 3 = 21 for 8 symbols. Double the symbols to 16 and the work is 15 × 4 = 60, less than triple. Comparing every pair would quadruple it, from 64 to 256. Slide n and compare the two shapes.</p><details class="math-more"><summary>Show the maths</summary><p>Sorting costs $O(n\\log n)$. The loop runs $n-1$ times and each pass does a couple of queue operations at $O(\\log n)$ apiece, so $O((n-1)\\log n)$. Add them:</p><p>$$O(n\\log n) + O\\bigl((n-1)\\log n\\bigr) \\approx O(n\\log n)$$</p>${table(["symbols n", "merges n − 1", "n log₂ n (approx.)", "n² for comparison"], [["8", "7", "24", "64"], ["26 (letters)", "25", "122", "676"], ["256", "255", "2,048", "65,536"], ["1,024", "1,023", "10,240", "1,048,576"]], 640)}</details>`,
+        v: (box) => costFig(box),
         c: { q: "A source has 26 symbols. How many merges does Huffman perform?", o: ["25", "26", "52"], a: 0, why: "n − 1 = 25 merges." } },
       { t: "What the result guarantees", b: `<p>The Huffman code is <b>uniquely decodable</b> and <b>instantaneous</b> (prefix-free): each codeword can be recognised the moment its last bit arrives, with no look-ahead. Among codes that give each symbol a whole number of bits, its average length is the smallest possible.</p>`,
         v: table(["Property", "Meaning"], [["Uniquely decodable", "one bit stream can only mean one message"], ["Instantaneous (prefix-free)", "no codeword begins another, so decode without look-ahead"], ["Optimal", "minimum average length among symbol-by-symbol codes"]], 640),
@@ -417,22 +440,22 @@ return Extract-Min(Q)           # the root</pre>`,
       { t: "Encode A B A B A B A B A", b: `<p>Start with A = 0 and B = 1. At each step, find the <b>longest</b> match in the dictionary, output its code, and add the match plus the next symbol as a new entry.</p><p>Matches: A, B, AB, ABA, BA. Codes: <b>0 1 2 4 3</b>. New entries: AB = 2, BA = 3, ABA = 4, ABAB = 5.</p>`,
         v: table(["match w", "next symbol", "output", "new entry"], lzwEnc("ABABABABA", ["A", "B"]).steps.map(([w, code, add, idx]) => [`<b class="mono">${w}</b>`, add ? add.slice(-1) : "—", `<b>${code}</b>`, idx >= 0 ? `${idx} = ${add}` : "(end)"]), 560),
         c: { q: "How many codes does the encoder output for ABABABABA?", o: ["5", "9", "3"], a: 0, why: "Matches A, B, AB, ABA, BA: five codes for nine symbols." } },
-      { t: "The encoder, as pseudocode", b: `<p>Input: a message and the starting dictionary $D$. Output: a list of codes $S$.</p><pre style="margin:6px 0;overflow:auto">S = [ ];  w = ""
+      { t: "The encoder, as pseudocode", b: `<p>The encoder reads the message one letter at a time and keeps a running phrase, <b>w</b>. If the phrase plus the next letter is already in the dictionary, the phrase simply grows. The moment it meets something new it does two things: it <b>sends the code</b> of the phrase it had, and it <b>writes the new, longer phrase into the dictionary</b> so that next time that phrase can be sent in one go. Then it restarts from the letter that broke the streak. Step through ABABABABA to watch it. The pseudocode is in the maths drawer.</p><details class="math-more"><summary>Show the maths</summary><p>The same thing as pseudocode (the input is the message and the starting dictionary):</p><pre style="margin:6px 0;overflow:auto">S = [ ];  w = ""
 for each character c of the message:
     if w + c is in D:  w = w + c
     else:
         add w + c to D
         append code(w) to S
         w = c
-append code(w) to S</pre><p>The loop runs $n$ times, and each dictionary lookup takes about $\\log$ of the dictionary size, so the encoder costs roughly $O(n\\log n)$.</p>`,
-        v: FG.flow([{ t: "extend w", s: "while w + c is known" }, { t: "emit code(w)", s: "when it isn't", c: "violet" }, { t: "add w + c", s: "new entry", c: "teal" }, { t: "w = c", s: "restart" }]),
+append code(w) to S</pre><p>The loop runs $n$ times, and each dictionary lookup takes about $\\log$ of the dictionary size, so the encoder costs roughly $O(n\\log n)$.</p></details>`,
+        v: (box) => lzwStepFig(box),
         c: { q: "When does the encoder output a code?", o: ["When w + c is not in the dictionary", "After every single character", "Only at the end of the message"], a: 0, why: "While w + c is known the string just grows. The moment it isn't, code(w) is output and w + c becomes a new entry." } },
       { t: "Decode 0 1 2 4 3", b: `<p>The receiver starts with only A = 0 and B = 1 and no previous string. For each code: output its entry, then add <b>previous + first letter of this entry</b>.</p><p>Codes 0, 1, 2 give A, B, AB. Then <b>4</b> arrives, but the dictionary stops at 3. This is the encoder's entry that was used at once. Rule: previous + its own first letter = AB + A = <b>ABA</b>. Finally 3 = BA.</p>`,
         v: table(["receive", "output", "adds"], lzwDec([0, 1, 2, 4, 3], ["A", "B"]).steps.map((s) => ({ c: [`<b>${s.k}</b>`, `<b class="mono">${s.e}</b>${s.miss ? " <small>(not there yet)</small>" : ""}`, s.added ? `${s.added[0]} = ${s.added[1]}` : "—"], hl: s.miss })), 520),
         c: { q: "Code 4 arrives but the decoder's dictionary only reaches entry 3. The entry must be…", o: ["previous + the first letter of the previous string", "previous + the last letter of the previous string", "an error: the stream is corrupt"], a: 0, why: "Here the previous string is AB, so the entry is AB + A = ABA. The encoder created and used it in the same breath." } },
       { t: "Watch it decode", b: `<p>Press <b>play</b> or step with the arrows. The decoder looks each code up, adds a new entry, and keeps the previous string. It will ask when a code is not in the dictionary yet.</p>`,
         v: (box, life) => lzwDecodeRun(box, life) },
-      { t: "The decoder, as pseudocode", b: `<p>Input: the codes $S$ and the starting dictionary $D$. Output: the characters.</p><pre style="margin:6px 0;overflow:auto">p = ""
+      { t: "The decoder, as pseudocode", b: `<p>The decoder only ever needs <b>one rule</b>: every new dictionary entry is the previous string plus the first letter of the string just decoded. That is exactly what the encoder wrote down at that moment, one step behind. Each row below is that rule applied to the codes 0 1 2 4 3. In the row for code 4 the entry does not exist yet, but the rule still builds it. The pseudocode is in the maths drawer.</p><details class="math-more"><summary>Show the maths</summary><p>As pseudocode (the input is the codes and the starting dictionary):</p><pre style="margin:6px 0;overflow:auto">p = ""
 for each code s in S:
     if s is not in D:
         e = p + p[0];  add e to D          # the missing entry
@@ -440,8 +463,8 @@ for each code s in S:
         e = D[s]
         if p is not empty: add p + e[0] to D
     output e
-    p = e</pre><p>One pass over $n$ codes with a dictionary operation each: about $O(n\\log|D|)$.</p>`,
-        v: table(["Case", "Entry e", "Add to dictionary"], [["code known", "D[s]", "p + e[0] (skip for the first code)"], ["code unknown", "p + p[0]", "that same e"]], 520),
+    p = e</pre><p>One pass over $n$ codes with a dictionary operation each: about $O(n\\log|D|)$.</p>${table(["Case", "Entry e", "Add to dictionary"], [["code known", "D[s]", "p + e[0] (skip for the first code)"], ["code unknown", "p + p[0]", "that same e"]], 520)}</details>`,
+        v: decoderRows(),
         c: { q: "The decoder has p = \"AB\" and receives a known code whose entry is \"BA\". What does it add?", o: ["ABB (p plus the first letter of BA)", "ABBA (p plus all the letters of BA)", "BA (the entry that was just looked up)"], a: 0, why: "Always previous + first letter of the current entry: AB + B = ABB." } },
       { t: "Where LZW comes from", b: `<p>LZW is a <b>dictionary coder</b>: it uses no statistical knowledge of the data. The encoder develops a dictionary and sends indices; the decoder rebuilds the dictionary to undo it. Created by Abraham Lempel, Jacob Ziv and Terry Welch, and published by Welch in <b>1984</b>. Easy to implement in hardware, it is used in the Unix <code>compress</code> utility and the GIF format. Lempel received the IEEE Richard W. Hamming Medal in 2007.</p>`,
         v: table(["", "Dictionary coding family"], [["LZW", "this lecture; adaptive; Unix compress, GIF"], ["LZ77", "dictionary coder (the lecture lists it by name)"], ["Sequitur", "dictionary coder (also listed)"]], 560),

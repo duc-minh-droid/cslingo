@@ -78,6 +78,38 @@
     return ev;
   }
 
+  /** Pick a split of the towns: the cables across the gap light up and the cheapest one turns green. */
+  function cutExplorer(host, { pos, edges, cuts, w = 480, h = 260 }) {
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-a></div><div data-g></div><p class="mono" data-t style="min-height:3.6em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    const draw = (k) => {
+      const X = cuts[+k],
+        inX = (n) => X.includes(n);
+      const cross = edges.filter(([a, b]) => inX(a) !== inX(b)).sort((p, q) => p[2] - q[2]),
+        [a, b, wt] = cross[0],
+        hl = {};
+      cross.forEach(([p, q]) => (hl[`${p}-${q}`] = "amber"));
+      hl[`${a}-${b}`] = "teal";
+      const nodes = Object.fromEntries(
+        Object.entries(pos).map(([n, [x, y]]) => [n, { x, y, c: inX(n) ? "violet" : null }]),
+      );
+      qs("[data-g]", box).innerHTML = F.graph({ nodes, edges, hl, w, h });
+      qs("[data-t]", box).innerHTML =
+        `Violet group <b>{${X.join(", ")}}</b>, everyone else on the other side. Cables across the gap: ${cross.map(([p, q, c]) => `${p}–${q} (${c})`).join(", ")}. The cheapest, <b>${a}–${b} (${wt})</b>, is in the cheapest network.`;
+      N.fx.play(qs("[data-g]", box));
+    };
+    qs("[data-a]", box).appendChild(
+      N.seg(
+        cuts.map((c, i) => [String(i), `{${c.join(", ")}}`]),
+        "1",
+        draw,
+      ),
+    );
+    draw("1");
+  }
   /* ============ 4.1 Cut property ============ */
   L["a4-cut"] = {
     sum: "A <b>minimum spanning tree</b> connects every node using the cheapest possible set of edges. One rule, the <b>cut property</b>, tells you which edges are guaranteed to belong: split the nodes into two groups, and the cheapest edge crossing the split is always safe.",
@@ -124,16 +156,9 @@
       },
       {
         t: "The lemma, stated precisely",
-        b: `<p><b>Lemma.</b> Let $G = (V, E, w)$ be a weighted graph, let $X$ be a <b>non-empty proper subset</b> of $V$, and let $e$ be the shortest edge joining a vertex in $X$ to a vertex in $V \\setminus X$. Then $e$ must be part of the minimum spanning tree.</p><p>“Non-empty proper” means $X$ is neither empty nor all of $V$: there has to be something on both sides of the cut. Any such $X$ will do, so one graph has many cuts and many forced edges.</p>`,
-        v:
-          F.graph({
-            nodes: nodes({}, (k) => (["A", "B"].includes(k) ? "violet" : null)),
-            edges: EDGES,
-            hl: { "B-D": "amber", "B-C": "amber", "A-C": "amber" },
-            w: 480,
-            h: 260,
-          }) +
-          `<div class="fig-cap">X = {A, B}. Crossing edges: A–C (3), B–C (2), B–D (5). The lightest, B–C, is forced into the MST.</div>`,
+        b: `<p>Here is the idea in one sentence: <b>split the towns into any two groups, and the cheapest cable stretching across the gap always belongs to the cheapest network.</b> Any split will do, as long as both groups have at least one town.</p><p>Pick a split below. The cables that cross the gap light up in orange and the cheapest of them turns green. Every green cable you find is part of the cheapest network, which here has 4 cables and costs 11 in all.</p><details class="math-more"><summary>Show the maths</summary><p><b>Lemma.</b> Let $G = (V, E, w)$ be a weighted graph, let $X$ be a <b>non-empty proper subset</b> of $V$, and let $e$ be the shortest edge joining a vertex in $X$ to a vertex in $V \\setminus X$. Then $e$ must be part of the minimum spanning tree.</p><p>“Non-empty proper” means $X$ is neither empty nor all of $V$: there has to be something on both sides of the cut. Any such $X$ will do, so one graph has many cuts and many forced edges. For $X=\\{A,B\\}$ the crossing edges are A–C (3), B–C (2) and B–D (5), and the lightest, B–C, is forced into the MST.</p></details>`,
+        v: (box) =>
+          cutExplorer(box, { pos: POS, edges: EDGES, cuts: [["A"], ["A", "B"], ["A", "B", "C"], ["D", "E"], ["E"]] }),
         c: {
           q: "Which choice of X is not allowed in the lemma?",
           o: ["X = {A}, a single vertex", "X = every vertex of the graph", "X = {A, B, C}, a group of three"],
@@ -390,6 +415,7 @@
     });
   }
   Object.assign(partScope, {
+    cutExplorer,
     EDGES,
     NAMES,
     ek,

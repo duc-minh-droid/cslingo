@@ -7,25 +7,55 @@
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 10, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, cap, archSvg } = shared;
+  const { table, cap, archSvg, svgFig, tint } = shared;
+  const TAU = Math.PI * 2;
+  /** A circle of n stopping points (an arrow turning 1/n of a circle per step), with optional tags, diameters, highlights. */
+  const wheel = (n, { tags = {}, pairs = [], hl = [] } = {}) => {
+    const P = (p, r) => [150 + r * Math.cos((TAU * p) / n), 96 + r * Math.sin((TAU * p) / n)].map((v) => v.toFixed(1));
+    const ln = ([a, b]) =>
+      `<line x1="${P(a, 62)[0]}" y1="${P(a, 62)[1]}" x2="${P(b, 62)[0]}" y2="${P(b, 62)[1]}" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 4" class="draw"/>`;
+    const dot = (p) => {
+      const c = hl.includes(p) ? "amber" : "blue";
+      return `<circle cx="${P(p, 62)[0]}" cy="${P(p, 62)[1]}" r="8" fill="${tint(c, 55)}" stroke="var(--${c})" stroke-width="2" class="fi"/><text x="${P(p, 90)[0]}" y="${+P(p, 90)[1] + 4}" class="fig-sub">${tags[p] ?? p}</text>`;
+    };
+    return svgFig(
+      300,
+      192,
+      `A circle with ${n} equally spaced stopping points, numbered from 0 clockwise`,
+      `<circle cx="150" cy="96" r="62" fill="none" stroke="var(--line-2)" stroke-width="2"/>${pairs.map(ln).join("")}${Array.from({ length: n }, (_, p) => dot(p)).join("")}`,
+      190,
+    );
+  };
+  const bar = (x, y, w, h, c, t = "") =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${tint(c, 40)}" stroke="var(--${c})" stroke-width="2" class="fi"/>${t}`;
   const insertAfter = (id, title, step) => {
     const st = L[id] && L[id].steps;
     if (!st) return;
     const i = st.findIndex((s) => s.t === title);
     st.splice(i < 0 ? st.length : i + 1, 0, step);
   };
+  const binsFig = () => {
+    const bx = (k) => 30 + k * 2.5;
+    const tk = ([k, a, b]) =>
+      `<line x1="${bx(k)}" y1="84" x2="${bx(k)}" y2="98" stroke="var(--text-faint)" stroke-width="2"/><text x="${bx(k)}" y="116" class="fig-box">${a}</text><text x="${bx(k)}" y="132" class="fig-sub">${b}</text>`;
+    const T = [
+      [0, "bin 0", "0 Hz"],
+      [40, "bin 40", "120 Hz"],
+      [100, "bin 100", "300 Hz = half the rate"],
+      [160, "bin 160", "480 Hz"],
+      [200, "bin 200", "600 Hz = the rate"],
+    ];
+    return svgFig(
+      560,
+      146,
+      "A frequency axis for 200 bins at 600 samples per second. Bins 0 to 100 are new information; bins 100 to 200 mirror them.",
+      `<rect x="30" y="64" width="250" height="20" rx="4" fill="${tint("teal")}"/><rect x="280" y="64" width="250" height="20" rx="4" fill="${tint("rose")}"/><text x="155" y="78" class="fig-sub">new information</text><text x="405" y="78" class="fig-sub">mirror image</text>${T.map(tk).join("")}<path d="M${bx(40)} 60 Q ${bx(100)} 4 ${bx(160)} 60" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 4" class="draw"/><text x="280" y="26" class="fig-sub" style="fill:var(--violet-ink)">bin 160 is a copy of bin 40</text>`,
+    );
+  };
   insertAfter("a9-dft", "Three hand DFTs worth memorising (N = 4)", {
     t: "Bins, hertz and the mirror",
-    b: `<p>Bin $k$ answers for the frequency $k\\,f_s/N$, so the bins are $\\Delta f = f_s/N$ apart. To get <b>finer bins</b> record for longer (bigger $N$ at the same $f_s$).</p><p>For a real signal, bin $N-k$ mirrors bin $k$, so only bins $0$ to $N/2$ carry independent information. Bin $N/2$ is the <b>Nyquist</b> frequency, $f_s/2$.</p>`,
-    v: table(
-      ["Setting", "Result"],
-      [
-        ["fs = 600 Hz, N = 200", "bin spacing 600 / 200 = <b>3 Hz</b>"],
-        ["same, bin k = 40", "40 × 3 = <b>120 Hz</b>"],
-        ["same, last independent bin", "k = 100, i.e. 300 Hz (= fs/2)"],
-        ["same, bin 160", "mirror of bin 200 − 160 = 40"],
-      ],
-    ),
+    b: `<p>Record 200 samples at 600 per second and you have captured a third of a second. Bin 40 asks: how many times does a wave fit into that window? <b>40 times in a third of a second is 120 Hz.</b> Every bin is the same step apart (3 Hz here), so a <b>longer recording gives finer bins</b>.</p><p>The bins climb to half the sample rate (300 Hz here, the <b>Nyquist</b> frequency). Past that the picture repeats as a <b>mirror image</b>, so a real signal only carries new information in the first half.</p><details class="math-more"><summary>Show the maths</summary><p>Bin $k$ answers for the frequency $k\\,f_s/N$, so neighbouring bins are $\\Delta f = f_s/N$ apart. For a real signal, bin $N-k$ mirrors bin $k$, so only bins $0$ to $N/2$ are independent. Bin $N/2$ is at $f_s/2$.</p></details>`,
+    v: binsFig(),
     c: {
       q: "fs = 600 Hz and N = 200. Which frequency is bin k = 40?",
       o: ["40 Hz", "120 Hz", "15 Hz"],
@@ -49,80 +79,87 @@
   });
   insertAfter("a9-fft", "Where the waste is", {
     t: "Two symmetries of the twiddle",
-    b: `<p>Write $W_N = e^{-j2\\pi/N}$ (the "twiddle" kernel). The DFT is $X[k]=\\sum_n x[n]\\,W_N^{kn}$. Two facts about its powers hold all the redundancy:</p><p><b>Periodicity:</b> $W_N^{k(n+N)}=W_N^{kn}$, because $N$ steps of $1/N$ of a turn is a full turn. <b>Conjugate symmetry:</b> $(W_N^{kn})^{*}=W_N^{-kn}$.</p>`,
+    b: `<p>The DFT multiplies samples by a spinning arrow, and that arrow only ever points at a handful of places. An arrow that turns an eighth of a circle per step has just <b>8 stopping points</b>. Take 8 steps and you are back at the start, so step 11 lands exactly where step 3 did.</p><p>Arrows half a circle apart are exact opposites: one is the other with its sign flipped. So a DFT keeps multiplying by the same few values, and most of its products are <b>repeats or sign-flips</b> of each other. That is the waste the FFT removes.</p><details class="math-more"><summary>Show the maths</summary><p>Write $W_N = e^{-j2\\pi/N}$ (the "twiddle"). The DFT is $X[k]=\\sum_n x[n]\\,W_N^{kn}$. Two facts about its powers hold all the redundancy.</p><p><b>Periodicity:</b> $W_N^{k(n+N)}=W_N^{kn}$, because $N$ steps of $1/N$ of a turn is a full turn. <b>Conjugate symmetry:</b> $(W_N^{kn})^{*}=W_N^{-kn}$.</p></details>`,
     v:
-      table(
-        ["power p", "0", "1", "2", "3", "4", "5", "6", "7", "8"],
-        [["W₄ᵖ", "1", "−j", "−1", "j", "1", "−j", "−1", "j", "1"]],
-      ) + cap("For N = 4 the values repeat every 4 powers, so a huge number of products are copies of each other."),
+      wheel(8, { tags: { 0: "0 = 8", 3: "3 = 11" }, pairs: [[1, 5]], hl: [3] }) +
+      cap("Turning clockwise, step 11 lands on the same spot as step 3. Steps 1 and 5 are opposite."),
     c: {
-      q: "In an 8-point DFT, $W_8^{11}$ is the same number as…",
-      o: ["$W_8^{3}$", "$W_8^{-3}$", "$W_8^{11/8}$"],
+      q: "An arrow turns an eighth of a circle per step. After 11 steps, where is it compared with after 3 steps?",
+      o: ["In exactly the same place", "On the opposite side of the circle", "Eleven-eighths of a turn further round"],
       a: 0,
-      hint: "Powers repeat every N = 8, and 11 = 8 + 3.",
-      why: "$W_8^{11}=W_8^{8+3}=W_8^{3}$: periodicity.",
+      hint: "8 steps is one full circle, and 11 = 8 + 3.",
+      why: "8 steps bring the arrow back to the start, so 11 steps leave it where 3 steps did.",
     },
   });
   insertAfter("a9-fft", "The split that halves the work", {
     t: "Why the split is legal",
-    b: `<p>Split $X[k]$ into even samples $n=2r$ and odd samples $n=2r+1$. The index $r$ runs from <b>0 to N/2 − 1</b> in both sums:</p>$$X[k]=\\sum_{r=0}^{N/2-1}x[2r]\\,(W_N^{2})^{kr}+W_N^{k}\\sum_{r=0}^{N/2-1}x[2r+1]\\,(W_N^{2})^{kr}$$<p>Now $W_N^{2}=e^{-j2\\pi\\cdot 2/N}=e^{-j2\\pi/(N/2)}=W_{N/2}$, so each sum is a DFT of size $N/2$: this is <b>decimation in time</b>: $X[k]=X_e[k]+W_N^{k}X_o[k]$.</p>`,
-    v: F.flow([
-      { t: "N-point DFT", c: "rose" },
-      { t: "even samples", s: "N/2-point DFT", c: "teal" },
-      { t: "odd samples", s: "N/2-point DFT", c: "amber" },
-      { t: "X_e + W·X_o", s: "recombine", c: "violet" },
-    ]),
+    b: `<p>Deal the samples into two piles, the <b>even positions</b> and the <b>odd positions</b>. Each pile gets its own small DFT, and the two small answers snap together into the full one. Press <b>Next</b> in the picture to watch it happen.</p><p>Why is that allowed? Every output listens to all the samples with spinning arrows. Look only at the even samples: stepping from one to the next, the arrow turns twice as far, which is exactly how a DFT of half the size turns its arrow. The odd samples do the same, one step later, which is a fixed twist for each output. And the small answers repeat after half the outputs, so the same two small DFTs feed <b>every</b> output. That sharing is the saving.</p><details class="math-more"><summary>Show the maths</summary><p>Split $X[k]$ into even samples $n=2r$ and odd samples $n=2r+1$. The index $r$ runs from $0$ to $N/2-1$ in both sums:</p>$$X[k]=\\sum_{r=0}^{N/2-1}x[2r]\\,(W_N^{2})^{kr}+W_N^{k}\\sum_{r=0}^{N/2-1}x[2r+1]\\,(W_N^{2})^{kr}$$<p>Now $W_N^{2}=e^{-j2\\pi\\cdot 2/N}=e^{-j2\\pi/(N/2)}=W_{N/2}$, so each sum is a DFT of size $N/2$. This is <b>decimation in time</b>: $X[k]=X_e[k]+W_N^{k}X_o[k]$.</p></details>`,
+    v: (box, life) => shared.splitFig(box, life),
     c: {
-      q: "In the split, why does each half-sum become an N/2-point DFT?",
+      q: "After the two small DFTs, how are the 8 final outputs produced?",
       o: [
-        "Because $W_N^2$ equals $W_{N/2}$",
-        "Because half of the samples are thrown away",
-        "Because $W_N^k$ is always 1",
+        "Each pair of small results gives two outputs: a sum and a difference",
+        "The even pile gives outputs 0 to 3 and the odd pile gives outputs 4 to 7",
+        "Both piles are transformed again at full size, then averaged",
       ],
       a: 0,
-      why: "Squaring the twiddle halves the angle step's period, which is exactly the kernel of a DFT with N/2 points.",
+      hint: "Watch the last picture: each pair of tiles feeds two outputs.",
+      why: "Each pair (E<sub>k</sub>, O<sub>k</sub>) gives output k as E + w·O and output k + 4 as E − w·O. Every output needs both piles.",
     },
   });
+  const costFig = () => {
+    const R = [
+      ["no split", 64, 0],
+      ["1 split", 32, 8],
+      ["2 splits", 16, 16],
+      ["3 splits", 8, 24],
+    ];
+    const row = ([l, a, b], i) =>
+      `<text x="130" y="${34 + i * 40}" class="fig-box" style="text-anchor:end">${l}</text>${bar(140, 14 + i * 40, a * 6, 30, "rose")}${b ? bar(140 + a * 6, 14 + i * 40, b * 6, 30, "violet") : ""}<text x="${148 + (a + b) * 6}" y="${34 + i * 40}" class="fig-sub" style="text-anchor:start">total ${a + b}</text>`;
+    return svgFig(
+      560,
+      196,
+      "Multiplications for 8 samples after 0, 1, 2 and 3 splits: the small-DFT work shrinks while the gluing grows slowly",
+      R.map(row).join("") +
+        `<rect x="140" y="176" width="14" height="14" rx="3" fill="${tint("rose", 40)}" stroke="var(--rose)"/><text x="160" y="188" class="fig-sub" style="text-anchor:start">work inside the small DFTs</text><rect x="340" y="176" width="14" height="14" rx="3" fill="${tint("violet", 40)}" stroke="var(--violet)"/><text x="360" y="188" class="fig-sub" style="text-anchor:start">gluing the answers (8 per level)</text>`,
+    );
+  };
   insertAfter("a9-fft", "Recurse to the leaves", {
     t: "Counting the multiplications",
-    b: `<p>A direct N-point DFT costs $N^2$ multiplications. One split gives two half-size DFTs, each $(N/2)^2$, plus $N$ multiplications by the twiddles:</p>$$2\\left(\\tfrac{N}{2}\\right)^2+N=\\tfrac{N^2}{2}+N$$<p>Split again and again, $m$ times, and the count becomes $\\tfrac{N^2}{2^m}+mN$. Stop at size-1 problems, $m=\\log_2 N$: that is $N+N\\log_2 N\\approx O(N\\log N)$.</p>`,
-    v: table(
-      ["splits m", "count N²/2ᵐ + mN (N = 8)", "formula"],
-      [
-        ["0", "64", "N²"],
-        ["1", "32 + 8 = 40", "N²/2 + N"],
-        ["2", "16 + 16 = 32", "N²/4 + 2N"],
-        { c: ["3 (= log₂ 8)", "8 + 24 = 32", "N + N log₂N"], hl: true },
-      ],
-    ),
+    b: `<p>A direct DFT gives each of 8 outputs a product with each of 8 samples: <b>64 multiplications</b>. Deal the samples into two piles and each small DFT costs only 4 × 4 = 16, so the piles cost 32 between them, plus 8 to glue the answers together: <b>40 in all</b>.</p><p>Now do it again inside each pile, and again, until every pile is one sample. The small-DFT work halves with every split, while gluing costs only 8 per level. After 3 splits the bill is about 32 instead of 64, and for big N the saving is enormous, because the number of levels grows only like log₂ N.</p><details class="math-more"><summary>Show the maths</summary><p>A direct N-point DFT costs $N^2$ multiplications. One split gives two half-size DFTs, each $(N/2)^2$, plus $N$ for the twiddles:</p>$$2\\left(\\tfrac{N}{2}\\right)^2+N=\\tfrac{N^2}{2}+N$$<p>Split $m$ times and the count is $\\tfrac{N^2}{2^m}+mN$. Stop at size-1 problems, $m=\\log_2 N$: that is $N+N\\log_2 N\\approx O(N\\log N)$.</p></details>`,
+    v: costFig(),
     c: {
-      q: "N = 16 and one split. Using $N^2/2 + N$, how many multiplications?",
-      o: ["128", "144", "272"],
-      a: 1,
-      hint: "16² = 256, half of that is 128, then add 16.",
-      why: "$256/2 + 16 = 144$, down from 256.",
+      q: "Why does one split cut the cost of the small DFTs roughly in half?",
+      o: [
+        "Two half-size DFTs cost a quarter each",
+        "The even samples need no multiplications at all",
+        "Half of the outputs are thrown away as duplicates",
+      ],
+      a: 0,
+      hint: "Halving the size cuts the cost to a quarter, but there are two piles.",
+      why: "A DFT of half the size does a quarter of the products ((N/2)² = N²/4). Two of them cost N²/2, half the original.",
     },
   });
   insertAfter("a9-fft", "Butterflies climb back up", {
     t: "Numerical tricks with W",
-    b: `<p>The twiddles have extra structure that makes the butterfly cheap:</p><p>$W_2^0 = 1$ and $W_2^1 = -1$. In general $W_N^{N/2} = -1$ (half a turn) and so $W_N^{N/2+k} = -W_N^{k}$.</p><p>That is why a butterfly is <b>a + W·b and a − W·b</b>: the second output uses the twiddle for $k + N/2$, which is just $-W_N^k$, so one multiplication is shared by two outputs.</p>`,
-    v: F.cells(
-      [
-        { v: "W₈⁰ = 1", c: "teal" },
-        { v: "W₈¹", c: "blue" },
-        { v: "W₈² = −j", c: "violet" },
-        { v: "W₈³", c: "amber" },
-        { v: "W₈⁴ = −1", c: "rose", sub: "N/2" },
-        { v: "W₈⁵ = −W₈¹", c: "blue" },
-      ],
-      { size: 58 },
-    ),
+    b: `<p>Walk halfway round the circle and you stand on the exact opposite point. So the arrow for the second half of the outputs is the arrow for the first half with its sign flipped, at no extra cost.</p><p>That is what makes a butterfly cheap. It computes <b>a + w·b</b> and <b>a − w·b</b>: the product w·b is calculated <b>once</b> and used twice, added for one output and subtracted for the other.</p><details class="math-more"><summary>Show the maths</summary><p>$W_2^0 = 1$ and $W_2^1 = -1$. In general $W_N^{N/2} = -1$ (half a turn), so $W_N^{N/2+k} = -W_N^{k}$. The second output uses the twiddle for $k + N/2$, which is just $-W_N^k$, so one multiplication is shared by two outputs.</p></details>`,
+    v:
+      wheel(8, {
+        tags: { 5: "5 (opposite 1)" },
+        pairs: [
+          [0, 4],
+          [1, 5],
+          [2, 6],
+          [3, 7],
+        ],
+        hl: [1, 5],
+      }) + cap("Each dashed line joins two opposite stops: the same arrow with its sign flipped."),
     c: {
-      q: "N = 8. Which of these equals $W_8^{5}$?",
-      o: ["$-W_8^{1}$", "$W_8^{1}$", "$-W_8^{5}$"],
+      q: "An arrow turns an eighth of a circle per step. Step 5 is directly opposite which step?",
+      o: ["Step 1", "Step 3", "Step 4"],
       a: 0,
-      hint: "5 = 4 + 1 and 4 = N/2.",
-      why: "$W_8^{4+1}=W_8^4\\,W_8^1=-W_8^1$.",
+      hint: "Opposite means half a circle away, which is 4 steps.",
+      why: "Half of 8 steps is 4, and 5 − 4 = 1. So the arrow at step 5 is minus the arrow at step 1.",
     },
   });
   insertAfter("a9-fft", "The payoff, in numbers", {
@@ -390,59 +427,34 @@
       },
       {
         t: "Layer norm",
-        b: `<p><b>Layer normalisation</b> rescales each token's vector so its numbers have mean 0 and variance 1:</p>$$\\hat{x}_i=\\frac{x_i-\\mu}{\\sqrt{\\sigma^2+\\epsilon}}$$<p>(then a learned scale and shift). It keeps the numbers a layer sees in a steady range. For $x=[1,3,5,7]$: mean 4, variance 5, giving about $[-1.34,-0.45,0.45,1.34]$.</p>`,
-        v: F.compare(
-          {
-            title: "Before",
-            c: "blue",
-            body:
-              F.bars(
-                [
-                  ["x₁", 1, "blue"],
-                  ["x₂", 3, "blue"],
-                  ["x₃", 5, "blue"],
-                  ["x₄", 7, "blue"],
-                ],
-                { max: 7, fmt: (v) => v },
-              ) + "mean 4, variance 5",
-          },
-          {
-            title: "After layer norm",
-            c: "teal",
-            body:
-              F.bars(
-                [
-                  ["x̂₁", 0.0, "teal"],
-                  ["x̂₂", 0.45, "teal"],
-                  ["x̂₃", 0.9, "teal"],
-                  ["x̂₄", 1.34, "teal"],
-                ],
-                { max: 1.4, fmt: () => "" },
-              ) + "centred on 0 (bars show distance above the lowest)",
-          },
-        ),
+        b: `<p>Different tokens can arrive with numbers of very different size, and deep stacks drift. <b>Layer norm tidies each token on its own: slide its numbers so their average is 0, then stretch or shrink them to a standard spread.</b></p><p>Take [1, 3, 5, 7]. The average is 4, so subtracting it gives [−3, −1, 1, 3]. Those have a typical size of 2.24, so dividing by 2.24 gives about [−1.34, −0.45, 0.45, 1.34]. Whatever size the numbers arrived with, they leave on the same scale.</p><details class="math-more"><summary>Show the maths</summary><p>With the mean $\\mu$ and variance $\\sigma^2$ of the token's numbers:</p>$$\\hat{x}_i=\\frac{x_i-\\mu}{\\sqrt{\\sigma^2+\\epsilon}}$$<p>followed by a learned scale and shift. Here $\\mu=4$ and $\\sigma^2=5$, so $\\sigma\\approx 2.24$. The tiny $\\epsilon$ only stops a division by zero.</p></details>`,
+        get v() {
+          return shared.lnFig();
+        },
         c: {
-          q: "After layer norm, a token's numbers have…",
-          o: ["Mean 0 and variance 1", "All values between 0 and 1", "The same values as before"],
+          q: "One token arrives as [1, 3, 5, 7] and another as [10, 30, 50, 70]. After layer norm, how do they compare?",
+          o: [
+            "They come out almost identical",
+            "The second is ten times larger",
+            "The second keeps its larger average",
+          ],
           a: 0,
-          why: "That is the definition: subtract the mean, divide by the standard deviation.",
+          hint: "The second is the first multiplied by 10, and layer norm removes the average and the overall size.",
+          why: "Centring and dividing by the spread cancels the factor of 10: both give about [−1.34, −0.45, 0.45, 1.34].",
         },
       },
       {
         t: "The feed-forward network of a layer",
-        b: `<p>The second sublayer is a small network applied to <b>each token separately</b> with the same weights: a linear layer up to a wider size, a ReLU, and a linear layer back:</p>$$\\text{FFN}(x)=\\max(0,\\,xW_1+b_1)\\,W_2+b_2$$<p>In the original paper the hidden size was 2048 for $d_{\\text{model}}=512$, four times wider.</p>`,
-        v: F.flow([
-          { t: "512 numbers", c: "blue" },
-          { t: "Linear ↑", s: "→ 2048", c: "violet" },
-          { t: "ReLU", s: "max(0, ·)", c: "amber" },
-          { t: "Linear ↓", s: "→ 512", c: "teal" },
-        ]),
+        b: `<p>Attention has just let the tokens swap information. Now each token gets some private thinking time: its list of 512 numbers goes through a small network on its own. The list is <b>widened</b> to 2048 numbers (room to compute many features), the negative ones are <b>clipped to zero</b>, and it is <b>narrowed</b> back to 512.</p><p>The same weights are used for every token, and tokens do not talk to each other here. That is the division of labour: attention mixes, this part thinks.</p><details class="math-more"><summary>Show the maths</summary>$$\\text{FFN}(x)=\\max(0,\\,xW_1+b_1)\\,W_2+b_2$$<p>The clipping is the ReLU, $\\max(0,\\cdot)$. In the original paper the hidden size was 2048 for $d_{\\text{model}}=512$, four times wider.</p></details>`,
+        get v() {
+          return shared.ffnFig();
+        },
         c: {
           q: "What is the difference between attention and the feed-forward network?",
           o: [
-            "Attention mixes tokens together; the FFN treats each token alone",
-            "Attention treats each token alone; the FFN mixes tokens together",
-            "They are the same operation, just given different names in the paper",
+            "Attention mixes tokens; the FFN treats each token alone",
+            "Attention treats each token alone; the FFN mixes tokens",
+            "Both mix tokens, but the FFN does it more cheaply",
           ],
           a: 0,
           why: "Position-wise means the same small network is applied to every position independently.",

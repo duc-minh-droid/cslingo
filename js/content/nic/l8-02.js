@@ -81,6 +81,39 @@
     draw();
   }
 
+  // ---------- the two ingredients on three roads: thickness = pheromone, length = distance ----------
+  const TOWNS = [
+    ["Kell", 2, 1, [117, 55], "teal"],
+    ["Marl", 4, 6, [230, 105], "blue"],
+    ["Pell", 5, 3, [257, 211], "violet"],
+  ];
+  const CAPS = {
+    both: "Both ingredients: Marl is farther than Kell, but its thick trail makes it the favourite.",
+    tau: "Pheromone only: the busiest road wins, however far away it is.",
+    eta: "Distance only: the nearest village wins, whatever the colony has learned.",
+  };
+  function ingredients(box) {
+    const out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const draw = (mode) => {
+      const w = TOWNS.map(([, d, tau]) => (mode === "tau" ? tau : mode === "eta" ? 1 / d : tau / d)),
+        s = w.reduce((a, b) => a + b, 0);
+      out.innerHTML = `<svg class="fig" viewBox="0 0 400 235" style="max-height:235px" role="img" aria-label="The courier at Hob has three roads: Kell 2 km with a faint trail, Marl 4 km with a thick trail and Pell 5 km with a medium trail.">${TOWNS.map(([, , tau, [x, y], c]) => `<line x1="30" y1="105" x2="${x}" y2="${y}" stroke="var(--${c})" stroke-width="${2 + tau * 1.6}" stroke-linecap="round" opacity=".65"/>`).join("")}${TOWNS.map(([nm, d, tau, [x, y]]) => `<circle cx="${x}" cy="${y}" r="9" fill="var(--panel)" stroke="var(--line-2)" stroke-width="2.5"/><text x="${x + 16}" y="${y + 4}" class="fig-sub" style="text-anchor:start">${nm} · ${d} km · τ ${tau}</text>`).join("")}<circle cx="30" cy="105" r="19" fill="var(--panel)" stroke="var(--line-2)" stroke-width="3"/><text x="30" y="110" class="fig-n">Hob</text></svg><div class="nw8-strip">${TOWNS.map(([nm, , , , c], i) => `<div class="nw8-seg ${c}" style="flex:${Math.max(w[i] / s, 0.0001)}"><b>${nm}</b><small>${pct(w[i] / s)}</small></div>`).join("")}</div><p class="dim" style="text-align:center">${CAPS[mode]}</p>`;
+    };
+    box.append(
+      N.seg(
+        [
+          ["both", "Both ingredients"],
+          ["tau", "Pheromone only"],
+          ["eta", "Distance only"],
+        ],
+        "both",
+        draw,
+      ),
+      out,
+    );
+    draw("both");
+  }
+
   N.register({
     id: "l8-transition",
     lecture: 8,
@@ -140,15 +173,8 @@
     steps: [
       {
         t: "One rule, two ingredients",
-        b: `<p>$$p_{ij}^k=\\frac{[\\tau_{ij}]^{\\alpha}\\,[\\eta_{ij}]^{\\beta}}{\\sum_{h\\in J_i^k}[\\tau_{ih}]^{\\alpha}\\,[\\eta_{ih}]^{\\beta}}$$</p><p>The top is a <b>score</b> for town $j$. The bottom adds the scores of every town ant $k$ may still visit, so the probabilities sum to 1.</p>`,
-        v: F.compare(
-          { title: "τ: the pheromone", c: "blue", body: "learned and <b>global</b><br>changes as the colony runs" },
-          {
-            title: "η: the heuristic",
-            c: "violet",
-            body: "static, <b>local</b> knowledge<br>fixed before the run starts",
-          },
-        ),
+        b: `<p>An ant standing at a town has to pick where to go next, much as you would pick a route: it likes roads that <b>other ants have used a lot</b> (plenty of pheromone) and roads that are <b>short</b>. Every town it may still visit gets a score from those two things, and the chance of picking a town is its share of the total score.</p><p>Example: the courier at Hob can go to Kell (2 km, a faint trail), Marl (4 km, a thick trail) or Pell (5 km, a medium trail). With both ingredients the thick trail to Marl wins about 58% of the time, even though Kell is closer. Switch the ingredients below to see what each one does on its own.</p><details class="math-more"><summary>Show the maths</summary><p>$$p_{ij}^k=\\frac{[\\tau_{ij}]^{\\alpha}\\,[\\eta_{ij}]^{\\beta}}{\\sum_{h\\in J_i^k}[\\tau_{ih}]^{\\alpha}\\,[\\eta_{ih}]^{\\beta}}$$</p><p>The top is a <b>score</b> for town $j$: pheromone $\\tau$ (learned, global) times heuristic $\\eta$ (fixed, local). The bottom adds the scores of every town ant $k$ may still visit, so the probabilities sum to 1.</p></details>`,
+        v: (box) => ingredients(box),
         c: C(
           "Which ingredient does the colony update while it runs? | τ, the pheromone on each edge | η, the heuristic for each edge | Both of them, after every iteration | η is worked out once from the problem (distance). Only τ is rewritten by the update rule.",
         ),
@@ -340,19 +366,42 @@
     },
   });
 
+  // ---------- 8.3 pictures: a road's pheromone as blocks, and the dab an ant lays ----------
+  const pile = (...n) =>
+    F.cells(
+      n.flatMap((k, i) => Array(k).fill({ v: "", c: ["blue", "rose", "teal", "amber"][i] })),
+      { size: 24 },
+    );
+  function dab(box) {
+    const sl = N.slider("Tour length", 20, 100, 5, 25, (v) => `${v} km`),
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const blob = (x, q, c, lab) =>
+      `<circle cx="${x}" cy="62" r="${(10 * Math.sqrt(q)).toFixed(1)}" fill="color-mix(in srgb, var(--${c}) 28%, var(--panel-2))" stroke="var(--${c})" stroke-width="3"/><text x="${x}" y="62" dy="5" class="fig-n">${fm(q)}</text><text x="${x}" y="130" class="fig-sub" style="text-anchor:middle">${lab}</text>`;
+    const draw = (len) => {
+      const q = 100 / len;
+      out.innerHTML = `<svg class="fig" viewBox="0 0 400 145" style="max-height:150px" role="img" aria-label="A ${len} km tour lays ${fm(q)} on each road it used. A 50 km tour lays 2.">${blob(110, q, "teal", `${len} km tour: ${fm(q)} per road`)}${blob(300, 2, "blue", "50 km tour: 2 per road")}</svg><p class="dim" style="text-align:center">${len === 50 ? "Same length, same dab." : len < 50 ? "Shorter than 50 km, so a bigger dab." : "Longer than 50 km, so a smaller dab."}</p>`;
+    };
+    sl.onInput(draw);
+    box.append(sl, out);
+    draw(25);
+  }
+
   L["l8-update"] = {
     sum: "Pheromone evaporates by a factor (1 − ρ) and then every ant adds Q/L on each edge of its tour, so shorter tours leave stronger trails.",
     steps: [
       {
         t: "Evaporate, then deposit",
-        b: `<p>$$\\tau_{ij}(t+1)=(1-\\rho)\\,\\tau_{ij}(t)+\\Delta\\tau_{ij}(t),\\qquad \\Delta\\tau_{ij}=\\sum_k Quality^k$$</p><p>Here $\\rho$ (between 0 and 1) is the <b>evaporation rate</b>. An ant adds $Quality^k$ to every edge of its tour; an edge it did not use gets nothing from it.</p>`,
-        v: F.flow([
-          { t: "Evaporation", s: "τ → (1 − ρ)τ", c: "rose" },
-          { t: "Deposit", s: "+ Q/L from each ant", c: "teal" },
-          { t: "New τ(t+1)", c: "blue" },
+        b: `<p>Each time the ants have finished their tours, every road is updated in two moves. First some of its pheromone <b>evaporates</b>, on every road, used or not. Then each ant adds a fresh dab to every road <b>it used</b>, bigger for a shorter tour.</p><p>Example: a road holds 8 units and half evaporates, leaving 4. Two ants used it: one with a 25 km tour adds 4 and one with a 50 km tour adds 2 (the next step shows why a short tour adds more). The road ends the round with 4 + 4 + 2 = <b>10</b>. A road nobody used stays at 4 and keeps fading.</p><details class="math-more"><summary>Show the maths</summary><p>$$\\tau_{ij}(t+1)=(1-\\rho)\\,\\tau_{ij}(t)+\\Delta\\tau_{ij}(t),\\qquad \\Delta\\tau_{ij}=\\sum_k Quality^k$$</p><p>Here $\\rho$ (between 0 and 1) is the <b>evaporation rate</b>. An ant adds $Quality^k$ to every edge of its tour; an edge it did not use gets nothing from it.</p></details>`,
+        v: F.frames([
+          { t: "A road holds <b>8</b> units of pheromone.", v: pile(8) },
+          { t: "<b>Evaporate:</b> half fades (red). <b>4</b> are kept.", v: pile(4, 4) },
+          {
+            t: "<b>Deposit:</b> the 25 km ant adds 4 (green) and the 50 km ant adds 2 (orange). The road now holds <b>10</b>.",
+            v: pile(4, 0, 4, 2),
+          },
         ]),
         c: C(
-          "Which part of the update rule makes old pheromone fade? | The factor (1 − ρ) applied to the old τ | The sum of the ants' Quality values | The heuristic η | Multiplying by (1 − ρ) shrinks every trail each iteration. Deposits then add new pheromone on top.",
+          "An ant finishes its tour. Which roads lose some pheromone to evaporation? | Every road, whether used or not | Only the roads the ant did not use | Only the roads on the ant's tour | Only the road with the most pheromone | Evaporation fades every road each round. Only the roads that were used then get a deposit on top.",
         ),
       },
       {
@@ -373,21 +422,10 @@
       },
       {
         t: "Quality: Q divided by tour length",
-        b: `<p>For the TSP an ant with tour length $L_k$ has $Quality^k = Q/L_k$: the <b>inverse of the tour length</b> scaled by a constant $Q$. A short tour leaves a strong mark and a long one a weak mark. With $Q = 100$:</p>`,
-        v: F.bars(
-          [
-            ["L = 20 km", 5, "teal"],
-            ["L = 25 km", 4, "teal"],
-            ["L = 50 km", 2, "blue"],
-            ["L = 100 km", 1, "violet"],
-          ],
-          {
-            max: 5,
-            label: "Quality Q over L with Q equal to 100: 5 for a 20 km tour, 4 for 25 km, 2 for 50 km, 1 for 100 km",
-          },
-        ),
+        b: `<p>An ant that found a short tour deserves to be heard. So each ant takes a fixed number, <b>Q</b>, and divides it by the length of the tour it just drove. Short tour, big result; long tour, small result. The ant then lays that amount on <b>every road it used</b>. Halve the tour and the dab doubles.</p><p>With Q = 100 a 20 km tour lays 5 on each road, a 25 km tour lays 4, a 50 km tour lays 2 and a 100 km tour lays just 1. Slide the tour length and compare it with a 50 km tour.</p><details class="math-more"><summary>Show the maths</summary><p>For the TSP an ant with tour length $L_k$ has $Quality^k = Q/L_k$: the <b>inverse of the tour length</b> scaled by a constant $Q$. With $Q = 100$: $L=20$ gives 5, $L=25$ gives 4, $L=50$ gives 2 and $L=100$ gives 1.</p></details>`,
+        v: (box) => dab(box),
         c: C(
-          "Q = 100 and an ant finishes a 25 km tour. How much does it lay on each edge it used? | 4 | 0.25 | 2500 | Quality = Q/L = 100/25 = 4.",
+          "Ant A's tour is half as long as ant B's. Compared with B, how much does A lay on each road it used? | Twice as much | Half as much | The same amount | Four times as much | Quality is Q divided by the tour length, so halving the length doubles the result.",
         ),
       },
       {

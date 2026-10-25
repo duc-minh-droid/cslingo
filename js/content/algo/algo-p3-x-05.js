@@ -1,7 +1,7 @@
 /* algo-p3-x-05.js: 3.11 bisection (overflow) */
 (function () {
   const S = (NIC.shared.algoP3x = NIC.shared.algoP3x || {});
-  const { GR, NS, f3, nf, tbl } = S;
+  const { GR, NS, caption, f3, live, more, nf, tbl } = S;
   const N = NIC;
   const { el, qs, predict, takeaways, header } = N;
   const L = N.LESSONS;
@@ -202,20 +202,46 @@
   }
   const bisRows = bisect(GB, 1, 2, 6).rows;
   // prettier-ignore
+  const sweepFig = (box) => live(box, [["f", "seg", ["cub", "cos", "sq2"].map((k) => [k, BIS[k].n]), "cub"], ["p", "sl", "walker", 0, 1, 0.01, 0.5, (v) => Math.round(v * 100) + "%"]], (s) => {
+    const d = BIS[s.f], m = d.a + (d.b - d.a) * s.p, side = (x) => (d.g(x) < 0 ? "below" : "above"), crossed = side(m) !== side(d.a);
+    return rootSVG(d, d.a, d.b, m) + `<div class="callout ${crossed ? "teal" : "violet"}">The start (a) is ${side(d.a)} zero and the end (b) is ${side(d.b)}. The walker (m) is ${side(m)} zero: ${crossed ? "it has <b>already crossed</b> zero somewhere behind it." : "it has not crossed yet, so the crossing is still ahead."}</div>`;
+  });
+  /** Six bisection cuts as rows: each bracket, the dot at its middle (green above zero, red below), the half thrown away in red. */
+  // prettier-ignore
+  const ladder = () => {
+    const { rows, a, b } = bisect(GB, 1, 2, 6), all = [...rows, { a, b, m: null }], X = (v) => 70 + (v - 1) * 360;
+    const row = (r, i) => { const y = 24 + 28 * i, gone = r.keepRight ? [r.a, r.m] : [r.m, r.b];
+      return `<g class="fi"><text x="6" y="${y + 9}" class="fig-sub" style="text-anchor:start">${i ? "cut " + i : "start"}</text><rect x="${X(r.a)}" y="${y}" width="${X(r.b) - X(r.a)}" height="11" rx="5" fill="var(--violet)" opacity=".6"/>${r.m == null ? "" : `<rect x="${X(gone[0])}" y="${y}" width="${X(gone[1]) - X(gone[0])}" height="11" fill="var(--rose)" opacity=".4"/><circle cx="${X(r.m)}" cy="${y + 5.5}" r="6" fill="var(--${r.gm > 0 ? "teal" : "rose"})" stroke="var(--bg-2)" stroke-width="2"/>`}<text x="514" y="${y + 9}" class="fig-sub" style="text-anchor:end">width ${nf(r.b - r.a, 3)}</text></g>`; };
+    return `<svg class="fig" viewBox="0 0 520 ${28 * all.length + 30}" style="max-height:260px"><line x1="${X(1.5214)}" y1="12" x2="${X(1.5214)}" y2="${28 * all.length + 20}" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="4 3"/><text x="${X(1.5214)}" y="9" class="fig-sub" style="fill:var(--amber-ink,var(--amber))">root</text>${all.map(row).join("")}</svg>` + caption("Purple: the bracket. Red part: thrown away. Dot: green if g is above zero at the middle, red if below.");
+  };
+  // prettier-ignore
+  const halvFig = (s) => {
+    const n = Math.ceil(s.d * Math.log2(10));
+    return `<div class="stat-row"><div class="stat violet"><small>halvings</small><b>${n}</b></div><div class="stat amber"><small>width left (start 1)</small><b>${(2 ** -n).toExponential(1)}</b></div><div class="stat"><small>points to try one by one</small><b>${(10 ** s.d).toLocaleString("en-GB")}</b></div></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px">${Array.from({ length: n }, () => `<span style="width:14px;height:14px;border-radius:4px;background:var(--violet);opacity:.6"></span>`).join("")}</div>`;
+  };
+  const f1 = (x) => Math.exp(x) - 2;
+  // prettier-ignore
+  const minFig = (s) => {
+    const { a, b } = bisect(f1, 0, 1, s.k);
+    return `<div class="fig-cap">The curve f: its lowest point (orange)</div>` + F.plot([{ f: (x) => Math.exp(x) - 2 * x, c: "teal", dash: "0" }], { x: [0, 1.2], y: [0.4, 1.2], h: 150, vlines: [[a, "a", "violet"], [b, "b", "violet"]], marks: [[Math.LN2, "", "amber"]] })
+      + `<div class="fig-cap">Its slope: the lowest point is where the slope crosses zero</div>` + rootSVG({ g: f1, x: [0, 1.2], y: [-1.2, 1.2] }, a, b, null, 520, 150)
+      + `<div class="callout violet">At a the ground is ${f1(a) < 0 ? "falling" : "rising"} (slope ${nf(f1(a))}), at b it is ${f1(b) < 0 ? "falling" : "rising"} (slope ${nf(f1(b))}), so the lowest point is trapped in a bracket of width ${nf(b - a, 3)}. The true value is 0.693.</div>`;
+  };
+  // prettier-ignore
 
   L["a3-bisect"] = {
     sum: "To find where g(x) = 0 you only need a sign change. Bisection keeps a bracket [a, b] with g(a) and g(b) of opposite signs and halves it every step. Minimising a convex function is the same job applied to its derivative.",
     steps: [
-      { t: "A root is bracketed by a sign change", b: `<p>A root of $g(x)$ is <b>bracketed</b> by $a$ and $b$ if $g(a)<0$ and $g(b)>0$, or $g(a)>0$ and $g(b)<0$. A continuous curve cannot get from below zero to above zero without crossing it, so there must be a <b>zero-crossing</b> between $a$ and $b$.</p>`,
-        v: rootSVG(BIS.cub, 1, 2, null),
-        c: { q: "g is continuous with g(1) = −2 and g(2) = 4. What do you know?", o: ["A root lies somewhere between 1 and 2", "The root is exactly at 1.5", "There is no root, since the values differ so much"], a: 0, why: "The sign change guarantees at least one zero-crossing in [1, 2]. It does not say where; that is what the search is for." } },
-      { t: "Bisection: cut the bracket in half", b: `<p>Repeat until converged: take the midpoint $m=(a+b)/2$, evaluate $g(m)$, and move <b>the end that has the same sign as $g(m)$</b> up to $m$. The bracket still has a sign change, but is half as wide.</p><p>Worked example: $g(x)=x^3-x-2$ on $[1,2]$, where $g(1)=-2$ and $g(2)=4$.</p>`,
-        v: tbl(["Step", "a", "b", "m", "g(m)", "Move"], bisRows.map((r, i) => [i + 1, f3(r.a), f3(r.b), f3(r.m), (r.gm >= 0 ? "+" : "") + f3(r.gm), r.keepRight ? `a → ${f3(r.m)}` : `b → ${f3(r.m)}`])),
-        c: { q: "g(a) < 0 and g(m) < 0. Which end of the bracket moves to m?", o: ["a, because it has the same sign as g(m)", "b, because it is the larger end", "Neither: the bracket is now broken"], a: 0, why: "The root is between the ends with opposite signs. Replacing a by m keeps g(m) < 0 on the left and g(b) > 0 on the right." } },
+      { t: "A root is bracketed by a sign change", b: `<p>Picture a path that starts below sea level and ends above it. You cannot get from one side to the other without stepping on sea level somewhere: no teleporting. That is all a bracket is, two points where the curve sits on opposite sides of zero.</p><p>Example: g(1) = −2 is below zero and g(2) = 4 is above, so somewhere between 1 and 2 the curve is exactly zero. This does not say <i>where</i>; finding that is the job of the search. Slide the walker along the curve below.</p>${more(`<p>A root of $g(x)$ is <b>bracketed</b> by $a$ and $b$ if $g(a) \\lt 0$ and $g(b) \\gt 0$, or $g(a) \\gt 0$ and $g(b) \\lt 0$. A continuous curve cannot get from below zero to above zero without crossing it, so there must be a <b>zero-crossing</b> between $a$ and $b$.</p>`)}`,
+        v: (box) => sweepFig(box),
+        c: { q: "g is continuous with g(1) = −2 and g(2) = 4. What do you know?", o: ["The root is exactly at 1.5", "There is no root, since the values differ so much", "A root lies somewhere between 1 and 2"], a: 2, why: "The sign change guarantees at least one zero-crossing in [1, 2]. It does not say where; that is what the search is for." } },
+      { t: "Bisection: cut the bracket in half", b: `<p>Bisection is the game of guessing a number with "higher or lower", played on a curve. Look at the middle of the bracket and ask which side of zero the curve is on. The root hides in the half whose two ends are on <b>opposite</b> sides of zero, so throw the other half away. Then do it again.</p><p>Example: g(x) = x³ − x − 2 between 1 (below zero) and 2 (above). The middle, 1.5, is still below zero (−0.125), so the root is in [1.5, 2]. The next middle, 1.75, is above zero, so the root is in [1.5, 1.75]. Each row of the picture is half as wide as the one above, and the root (orange line) never escapes.</p>${more(`<p>Each step: take the midpoint $m=(a+b)/2$, evaluate $g(m)$, and move <b>the end that has the same sign as $g(m)$</b> up to $m$. The bracket still has a sign change, but is half as wide.</p><p>Worked example: $g(x)=x^3-x-2$ on $[1,2]$, where $g(1)=-2$ and $g(2)=4$.</p>${tbl(["Step", "a", "b", "m", "g(m)", "Move"], bisRows.map((r, i) => [i + 1, f3(r.a), f3(r.b), f3(r.m), (r.gm >= 0 ? "+" : "") + f3(r.gm), r.keepRight ? `a → ${f3(r.m)}` : `b → ${f3(r.m)}`]))}`)}`,
+        v: ladder(),
+        c: { q: "At the midpoint the curve is below zero, and it was also below zero at the left end. Where is the root?", o: ["In the left half, since both ends match", "In the right half, where the sign flips", "Exactly at the midpoint"], a: 1, why: "The root is in the half whose ends are on opposite sides of zero. Left end and midpoint are both below zero, so the sign flips between the midpoint and the right end." } },
       { t: "Watch it run", b: `<p>Press <b>play</b>, or step with the arrows. Before each cut, guess which end moves. The red zone is the half that gets thrown away.</p>`, v: (box, life) => bisectRun(box, life) },
-      { t: "How many halvings?", b: `<p>Each step halves the width, so after $n$ steps it is $(b-a)/2^n$. To reach a tolerance, $n \\ge \\log_2\\!\\big((b-a)/\\text{tol}\\big)$. Every step buys exactly one more binary digit of the answer, whatever the function looks like.</p><p>Width 1, tolerance 0.001: $2^{10}=1024$, so <b>10 steps</b>.</p>`,
-        v: F.bars([["start", 1, "violet"], ["3 steps", 1 / 8, "violet"], ["6 steps", 1 / 64, "violet"], ["10 steps", 1 / 1024, "teal", "≈ 0.001"]], { max: 1, fmt: (v) => v.toFixed(4) }),
-        c: { q: "A bracket is 16 wide. You want it no wider than 0.25. How many halvings are needed?", o: ["4", "6", "8"], a: 1, hint: "16 / 0.25 = 64 = 2 × 2 × 2 × 2 × 2 × 2.", why: "16 / 2⁶ = 0.25 exactly, so after 6 halvings the width is exactly 0.25. 6 is the smallest n with 2ⁿ ≥ 64." } },
+      { t: "How many halvings?", b: `<p>Each question in "higher or lower" halves what is left, like folding a sheet of paper. Ten folds and a 1-metre bracket is about a millimetre. Every halving buys exactly one more binary digit of the answer, whatever the function looks like.</p><p>Roughly <b>3.3 halvings per decimal digit</b>, because 2 multiplied by itself ten times is 1024, close to 1000. A bracket of width 1 needs 10 halvings to get within 0.001. Checking every point at that spacing would take 1000 evaluations. Move the slider to see the gap grow.</p>${more(`<p>After $n$ steps the width is $(b-a)/2^n$. To reach a tolerance, $n \\ge \\log_2\\!\\big((b-a)/\\text{tol}\\big)$.</p><p>Width 1, tolerance 0.001: $2^{10}=1024$, so <b>10 steps</b>.</p>`)}`,
+        v: (box) => live(box, [["d", "sl", "decimal digits of accuracy", 1, 12, 1, 3]], halvFig),
+        c: { q: "You found a root to 3 decimal places in 10 halvings. About how many more halvings give 3 more decimal places?", o: ["About 3 more", "About 10 more", "About 1000 more"], a: 1, why: "Three more digits means a bracket 1000 times narrower, and 2¹⁰ = 1024, so another 10 halvings. Each decimal digit costs about 3.3 halvings." } },
       { t: "When a bracket lies", b: `<p>The sign test is a promise only if its conditions hold:</p><ul><li><b>Same sign at both ends</b> proves nothing: there may be no root, or two.</li><li>A <b>pole</b> (like $1/x$) also flips sign, but there is no root.</li><li>A <b>double root</b> touches zero without crossing, so no sign change is ever seen.</li><li>With <b>several roots</b> inside, bisection finds one of them, not necessarily the one you want.</li></ul>`,
         v: F.frames([
           { t: "Same sign, two roots", v: F.plot([{ f: (x) => (x - 0.5) * (x - 1.5), c: "rose" }], { x: [0, 2], y: [-0.4, 0.8], h: 120, w: 260 }) },
@@ -224,9 +250,9 @@
           { t: "Three roots: finds one", v: F.plot([{ f: (x) => x ** 3 - x, c: "rose" }], { x: [-1.5, 1.5], y: [-2, 2], h: 120, w: 260 }) },
         ]),
         c: { q: "g(x) = 1/x on [−1, 1]: g(−1) = −1 and g(1) = 1. Can bisection find a root?", o: ["No: the sign change comes from a pole at 0, not a root", "Yes: there is a sign change, so a root must exist", "Yes, but only if you start at the midpoint"], a: 0, why: "The 'must be a zero-crossing' promise needs g to be continuous. 1/x jumps across 0 and never equals zero, and bisection would happily converge onto the pole." } },
-      { t: "From roots to minima", b: `<p>For a smooth convex $f$, the minimum is where $f'(x)=0$. So bracket a root of $g=f'$: you need $f'(a)<0<f'(b)$, which says <i>f is falling at a and rising at b</i>.</p><p>Example: $f(x)=e^x-2x$, so $f'(x)=e^x-2$, with $f'(0)=-1$ and $f'(1)\\approx0.72$. Bisection homes in on $\\ln 2\\approx0.693$.</p>${tbl(["Step", "a", "b", "m", "f′(m)"], bisect((x) => Math.exp(x) - 2, 0, 1, 4).rows.map((r, i) => [i + 1, f3(r.a), f3(r.b), f3(r.m), (r.gm >= 0 ? "+" : "") + f3(r.gm)]))}`,
-        v: F.plot([{ f: (x) => Math.exp(x) - 2, c: "violet", label: "f′(x) = eˣ − 2" }], { x: [0, 1.2], y: [-1.2, 1.2], h: 170, vlines: [[0, "a", "teal"], [1, "b", "teal"]], marks: [[Math.LN2, "min of f", "amber", 0]] }),
-        c: { q: "To bracket the minimum of a smooth convex f by bisecting f′, what must hold at the ends?", o: ["f′(a) < 0 and f′(b) > 0: falling at a, rising at b", "f(a) = f(b), so the ends are equal", "f(a) < 0 and f(b) > 0"], a: 0, why: "A minimum is where the slope goes from negative to positive. The bracket condition is on the derivative's signs." } },
+      { t: "From roots to minima", b: `<p>At the bottom of a smooth bowl the ground is flat. To the left of the bottom the ground falls, to the right it rises. So hunt for the place where the <b>slope</b> goes from negative to positive: that is a zero of the slope, and bisection can find it.</p><p>The bracket condition becomes: the ground is falling at a and rising at b. Example: f(x) = eˣ − 2x has slope −1 at 0 and +0.72 at 1, so its lowest point is trapped between. Slide the step counter and watch the bracket close in on 0.693.</p>${more(`<p>For a smooth convex $f$, the minimum is where $f'(x)=0$. So bracket a root of $g=f'$: you need $f'(a) \\lt 0 \\lt f'(b)$, which says <i>f is falling at a and rising at b</i>.</p><p>Example: $f(x)=e^x-2x$, so $f'(x)=e^x-2$, with $f'(0)=-1$ and $f'(1)\\approx0.72$. Bisection homes in on $\\ln 2\\approx0.693$.</p>${tbl(["Step", "a", "b", "m", "f′(m)"], bisect((x) => Math.exp(x) - 2, 0, 1, 4).rows.map((r, i) => [i + 1, f3(r.a), f3(r.b), f3(r.m), (r.gm >= 0 ? "+" : "") + f3(r.gm)]))}`)}`,
+        v: (box) => live(box, [["k", "sl", "bisection steps", 0, 6, 1, 0]], minFig),
+        c: { q: "To bracket the lowest point of a smooth bowl by bisecting its slope, what must hold at the two ends?", o: ["f(a) = f(b), so the ends are level", "The ground falls at a and rises at b", "f(a) < 0 and f(b) > 0"], a: 1, why: "A minimum is where the slope goes from negative to positive. The condition is on the slope at the ends, not on the heights f(a) and f(b)." } },
     ],
     guide: ["Pick a function. Press <b>Halve ▸</b> and watch the bracket (purple bar) shrink around the zero-crossing.", "Press <b>Run to width &lt; 0.001</b>, then check the last row: is |g(m)| small?", "Try the <b>1 / (x − 0.4)</b> function: it has a sign change but no root."],
   };

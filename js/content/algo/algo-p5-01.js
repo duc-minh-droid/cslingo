@@ -256,6 +256,21 @@
     },
   });
 
+  /** gift wrapping: one row of dots per round (each dot is one check); the learner slides the hull size */
+  function costDots(box) {
+    const n = 7,
+      sl = N.slider("Points on the hull", 3, 7, 1, 5),
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const draw = (h) => {
+      const rows = Array.from({ length: h }, (_, i) => (i ? n - i : n - 1));
+      const dots = (k) => `<i style="width:15px;height:15px;border-radius:50%;background:var(--teal)"></i>`.repeat(k);
+      out.innerHTML = `${rows.map((k, i) => `<div style="display:flex;align-items:center;gap:5px;margin:4px 0"><b style="width:66px;font-size:12.5px">round ${i + 1}</b>${dots(k)}<span class="faint" style="margin-left:6px">${k}</span></div>`).join("")}<div class="callout teal" style="margin-top:8px"><b>${rows.reduce((a, b) => a + b, 0)}</b> checks in total for ${n} points and a hull of ${h}. About n × h = ${n * h}.</div>`;
+    };
+    sl.onInput(draw);
+    box.append(sl, out);
+    draw(5);
+  }
+
   /* ============ 5.2 Gift wrapping ============ */
   L["a5-wrap"] = {
     sum: "Gift wrapping (Jarvis march) walks around the outside like wrapping a present: from each hull point, it swings a line around until it hits the point that keeps <b>every other point on one side</b>. The cost depends on the <b>size of the answer</b>, O(n·h).",
@@ -351,15 +366,8 @@
       },
       {
         t: "Adding up the cost",
-        b: `<p>One round per hull point. Round 1 checks the |S| − 1 other points. Round <i>i</i> after that checks the |S| − <i>i</i> points not yet on the hull, plus the start, so |S| − <i>i</i> + 1. Adding them up:</p><p>$$(|S|-1)+\\sum_{i=2}^{|H|}(|S|-i+1)=|S||H|-\\tfrac12|H|^2+\\tfrac12|H|-1 = O(|S|\\,|H|)$$</p><p>For 7 points and a hull of 5 that is 6+6+5+4+3 = 24 checks. Great when most points are inside; slow when they're all on the edge.</p>`,
-        v: F.bars(
-          [
-            ["h = 5 of 1000", 5000, "teal", "n·h"],
-            ["n log n", 10000, "violet"],
-            ["h = 1000 of 1000", 1000000, "rose", "n·h"],
-          ],
-          { max: 1000000, fmt: (v) => v.toLocaleString() },
-        ),
+        b: `<p>Every round of the march compares the point you stand on with every point that is not yet on the hull. So the work is simply <b>rounds × points looked at per round</b>.</p><p>Take the 7 points of the demo, 5 of them on the hull. Round 1 looks at the other 6. Each later round looks at the points still off the hull plus the start, so the loop can close: 6, 5, 4, 3. In total 6 + 6 + 5 + 4 + 3 = <b>24</b> checks. Slide the hull size and watch the staircase of checks grow.</p><p>More corners means more rounds, and every round costs about n. So the cost is roughly <b>n × h</b>: great when few points are on the hull, slow when most are.</p><details class="math-more"><summary>Show the maths</summary><p>Round 1 checks $|S|-1$ points and round $i \\ge 2$ checks $|S|-i+1$:</p><p>$$(|S|-1)+\\sum_{i=2}^{|H|}(|S|-i+1)=|S||H|-\\tfrac12|H|^2+\\tfrac12|H|-1 = O(|S|\\,|H|)$$</p></details>`,
+        v: (box) => costDots(box),
         c: {
           q: "A hull of 5 points among 1000. Which is the better estimate of gift wrapping's work?",
           o: ["About 5,000 checks", "About 1,000,000 checks", "About 10 checks"],

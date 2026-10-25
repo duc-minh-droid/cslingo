@@ -7,7 +7,83 @@
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 9, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, cap, fftIP, TAU } = shared;
+  const { table, cap, fftIP, TAU, svgFig, tint } = shared;
+  /** N slider with the operation counts of the direct DFT, one split and the full split (under the FFT split picture). */
+  shared.countFig = (out, ctl) => {
+    const sl = N.slider("Number of samples N", 2, 10, 1, 3, (m) => String(2 ** m)),
+      v = (x) => x.toLocaleString("en-GB");
+    const draw = (m) => {
+      const n = 2 ** m,
+        d = n * n;
+      out.innerHTML =
+        F.bars(
+          [
+            ["Direct DFT", d, "rose", v(d)],
+            ["One split", d / 2 + n, "amber", v(d / 2 + n)],
+            ["Split all the way", n * m, "teal", v(n * m)],
+          ],
+          { max: d, fmt: () => "" },
+        ) + cap(`${v(n)} samples: the full split does about ${(d / (n * m)).toFixed(1)} times less work.`);
+    };
+    sl.onInput(draw);
+    ctl.append(sl);
+    draw(3);
+  };
+  const bar = (x, y, w, h, c, t = "") =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${tint(c, 40)}" stroke="var(--${c})" stroke-width="2" class="fi"/>${t}`;
+  shared.lnFig = () => {
+    const P = [
+      ["1. Raw", [1, 3, 5, 7], 12],
+      ["2. Subtract the average", [-3, -1, 1, 3], 12],
+      ["3. Divide by the spread", [-1.34, -0.45, 0.45, 1.34], 24],
+    ];
+    const g = ([t, v, s], i) =>
+      `<g transform="translate(${i * 184 + 8} 0)"><line x1="0" y1="104" x2="170" y2="104" stroke="var(--line-2)" stroke-width="2"/>${v.map((x, j) => bar(12 + j * 40, x > 0 ? 104 - x * s : 104, 28, Math.abs(x) * s, x > 0 ? "blue" : "rose", `<text x="${26 + j * 40}" y="${x > 0 ? 98 - x * s : 118 - x * s}" class="fig-sub">${x < 0 ? "−" : ""}${Math.abs(x)}</text>`)).join("")}<text x="85" y="172" class="fig-box" style="font-size:12px">${t}</text></g>`;
+    return (
+      svgFig(
+        560,
+        184,
+        "Four numbers shown three times: raw, centred on zero, then scaled to a standard spread",
+        P.map(g).join(""),
+      ) + cap("Average 4, typical size 2.24 once centred: the numbers end up centred on 0 with a standard spread.")
+    );
+  };
+  /** Samples x window = tapered samples. */
+  const windowFig = () => {
+    const S = (u) => Math.sin(TAU * 2.25 * u),
+      Hn = (u) => 0.5 - 0.5 * Math.cos(TAU * u),
+      Hm = (u) => 0.54 - 0.46 * Math.cos(TAU * u);
+    const pan = (x0, fs, base, k, t) =>
+      fs
+        .map(
+          ([f, c, d]) =>
+            `<path d="M${Array.from({ length: 151 }, (_, i) => `${x0 + i} ${(base - k * f(i / 150)).toFixed(1)}`).join("L")}" fill="none" stroke="var(--${c})" stroke-width="2.5"${d ? ` stroke-dasharray="${d}"` : ""} class="draw"/>`,
+        )
+        .join("") +
+      `<line x1="${x0}" y1="${base}" x2="${x0 + 150}" y2="${base}" stroke="var(--line)"/><text x="${x0 + 75}" y="156" class="fig-box">${t}</text>`;
+    const op = (x, t) => `<text x="${x}" y="78" class="fig-n" style="font-size:26px">${t}</text>`;
+    return (
+      svgFig(
+        560,
+        166,
+        "A signal with 2.25 cycles, multiplied by a fade-in fade-out window, gives samples that start and end near zero",
+        pan(10, [[S, "teal"]], 70, 50, "1. The samples") +
+          op(190, "×") +
+          pan(
+            220,
+            [
+              [Hn, "blue"],
+              [Hm, "violet", "5 4"],
+            ],
+            124,
+            100,
+            "2. A fade in and out",
+          ) +
+          op(390, "=") +
+          pan(410, [[(u) => S(u) * Hn(u), "amber"]], 70, 50, "3. Ends meet near 0"),
+      ) + cap("Blue: Hann window. Dashed violet: Hamming, which never quite reaches 0.")
+    );
+  };
   reg({
     id: "a9-leak",
     order: 4,
@@ -295,24 +371,17 @@
       },
       {
         t: "Windows: Hann and Hamming",
-        b: `<p>The fix is to multiply the samples by a <b>window function</b> before the DFT. It fades the signal in and out so that the two ends nearly meet at zero and the seam jump disappears.</p><p>The two common ones are the <b>Hann</b> (often written Hanning) and <b>Hamming</b> windows:</p>$$w_{\\text{Hann}}[n]=0.5-0.5\\cos\\tfrac{2\\pi n}{N-1}\\qquad w_{\\text{Hamming}}[n]=0.54-0.46\\cos\\tfrac{2\\pi n}{N-1}$$`,
-        v: F.plot(
-          [
-            { f: () => 1, c: "dim", label: "none", dash: "5 4" },
-            { f: (t) => 0.5 - 0.5 * Math.cos(TAU * t), c: "teal", label: "Hann" },
-            { f: (t) => 0.54 - 0.46 * Math.cos(TAU * t), c: "violet", label: "Hamming" },
-          ],
-          { x: [0, 1], y: [0, 1.15], xl: "position in the window", h: 170 },
-        ),
+        b: `<p>Leakage comes from the jump at the seam, so the cure is simple: <b>fade the samples in and out</b>. Before the DFT, multiply each sample by a number that is 0 (or nearly) at the two ends and 1 in the middle. The signal now starts and finishes close to zero, so when the block repeats the ends meet smoothly and the jump disappears.</p><p>The two common fades are <b>Hann</b>, which reaches exactly 0 at both ends, and <b>Hamming</b>, which stops just short (at 0.08) and pushes the nearest side lobes down further.</p><details class="math-more"><summary>Show the maths</summary>$$w_{\\text{Hann}}[n]=0.5-0.5\\cos\\tfrac{2\\pi n}{N-1}\\qquad w_{\\text{Hamming}}[n]=0.54-0.46\\cos\\tfrac{2\\pi n}{N-1}$$</details>`,
+        v: windowFig(),
         c: {
-          q: "When do you apply a window?",
+          q: "What does a Hann window do to the samples near the two ends of the block?",
           o: [
-            "To the samples, before taking the DFT",
-            "To the spectrum, after the DFT",
-            "To the sampling clock, before recording",
+            "Shrinks them to nearly zero",
+            "Boosts them so the edges stand out",
+            "Leaves them alone and shifts the block",
           ],
           a: 0,
-          why: "Multiply each sample by the window value for its position, then transform. The window shapes the data the DFT sees.",
+          why: "The window is applied to the samples, before the DFT. Fading the ends to zero removes the jump where the block would repeat.",
         },
       },
       {
