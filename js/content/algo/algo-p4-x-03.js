@@ -33,6 +33,58 @@
   // prettier-ignore
   const cutFig = (X, hl, w = 330, h = 270, maxH) => F.graph({ nodes: Object.fromEntries(Object.entries(G6).map(([k, v]) => [k, { x: v[0], y: v[1], c: X.includes(k) ? "violet" : null }])), edges: E6, hl, w, h, maxH });
 
+  /** Stages of the exchange proof on the six-town graph (X = {A, D}, e = A-B, f = D-E). */
+  function proofFig(host, start) {
+    const T = ["A-D", "D-E", "B-E", "E-F", "C-F"];
+    const ST = [
+      [
+        "Tree T",
+        {
+          hl: Object.fromEntries(T.map((k) => [k, "blue"])),
+          t: "T (blue) links every town but does not use A–B. Its total is 31.",
+        },
+      ],
+      [
+        "Add e",
+        {
+          hl: { ...Object.fromEntries(T.map((k) => [k, "blue"])), "A-B": "amber" },
+          t: "Add e = A–B (orange). A and B were already joined through T, so this closes a loop.",
+        },
+      ],
+      [
+        "The loop",
+        {
+          hl: { "A-D": "rose", "D-E": "rose", "B-E": "rose", "A-B": "rose", "E-F": "blue", "C-F": "blue" },
+          t: "The loop A–D–E–B–A (red) leaves the violet group at A–B, so it must re-enter it at D–E: that is f.",
+        },
+      ],
+      [
+        "Swap",
+        {
+          hl: { "A-D": "blue", "B-E": "blue", "E-F": "blue", "C-F": "blue", "A-B": "teal" },
+          t: "Drop f = D–E (7), keep e = A–B (6). Still one connected network, now costing 30: cheaper than T.",
+        },
+      ],
+    ];
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-a></div><div data-g></div><p class="mono" data-t style="min-height:3.6em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    const draw = (k) => {
+      qs("[data-g]", box).innerHTML = cutFig(["A", "D"], ST[+k][1].hl, 330, 270);
+      qs("[data-t]", box).textContent = ST[+k][1].t;
+      N.fx.play(qs("[data-g]", box));
+    };
+    qs("[data-a]", box).appendChild(
+      N.seg(
+        ST.map((s, i) => [String(i), `${i + 1}. ${s[0]}`]),
+        start,
+        draw,
+      ),
+    );
+    draw(start);
+  }
   // prettier-ignore
   L["a4-proof"] = {
     sum: "Both algorithms rest on one lemma: the lightest edge across any cut belongs to the minimum spanning tree. The proof is an <b>exchange argument</b>: take any tree without that edge, swap one edge for it, and the total drops.",
@@ -40,14 +92,14 @@
       { t: "What “totally correct” means", b: `<p>Prim and Kruskal are designed to meet the specification: for every valid input they must deliver a <b>tree</b> whose total weight is as small as possible.</p><p>To be <b>totally correct</b>, an algorithm must satisfy the input-output relation for <b>every</b> valid input (and finish). Passing a few examples is not a proof.</p>`,
         v: F.flow(["Any weighted graph", { t: "Prim or Kruskal", c: "violet" }, { t: "A minimum spanning tree", s: "for every input", c: "teal" }]),
         c: { q: "Prim gives the right answer on 1000 test graphs. What can you conclude?", o: ["It is totally correct", "It passed those tests; only a proof covers every input", "It is correct on every graph with up to 1000 vertices"], a: 1, why: "Tests can find bugs but cannot show correctness for all inputs. The lemma below is what gives the proof." } },
-      { t: "The lemma", b: `<p><b>Lemma.</b> In a weighted graph $G = (V, E, w)$, let $X$ be a <b>non-empty proper subset</b> of $V$, and let $e$ be the shortest edge joining a vertex in $X$ to a vertex in $V \\setminus X$. Then $e$ must be part of the minimum spanning tree.</p><p>Here $X$ is the violet group. The edges that cross from violet to white are the candidates; $e$ is the lightest.</p>`,
-        v: cutFig(["A", "D"], { "A-B": "amber" }) + `<div class="fig-cap">X = {A, D}. Crossing edges: A–B (6), A–E (10), D–E (7). The lightest is A–B.</div>`,
+      { t: "The lemma", b: `<p>Take any network. Split the towns into two groups, neither empty. Look at the cables stretching across the gap: the cheapest of them is <b>always</b> part of the cheapest network. The next two steps show why. Pick a split below.</p><details class="math-more"><summary>Show the maths</summary><p><b>Lemma.</b> In a weighted graph $G = (V, E, w)$, let $X$ be a <b>non-empty proper subset</b> of $V$, and let $e$ be the shortest edge joining a vertex in $X$ to a vertex in $V \\setminus X$. Then $e$ must be part of the minimum spanning tree.</p><p>Here $X$ is the violet group. The edges that cross from violet to white are the candidates; $e$ is the lightest.</p></details>`,
+        v: (box) => NIC.shared.algoP4.cutExplorer(box, { pos: G6, edges: E6, cuts: [["A", "D"], ["C", "F"], ["E"], ["A", "B", "D"]], w: 330, h: 270 }),
         c: { q: "In the figure, which edge does the lemma force into the MST?", o: ["D–E (7)", "A–B (6)", "A–E (10)"], a: 1, why: "A–B is the lightest of the three edges crossing between {A, D} and the rest." } },
-      { t: "Proof, part 1: add e to any tree", b: `<p>Suppose $T$ is a spanning tree that <b>does not contain $e$</b>. We will show $T$ is not minimal.</p><p>Add $e$ to $T$. The two ends of $e$ were already joined through $T$, so the result contains a <b>cycle</b>. That cycle crosses the border of $X$ at $e$, and, since a cycle must come back, <b>at least one other edge $f$</b>.</p>`,
-        v: cutFig(["A", "D"], { "A-D": "blue", "D-E": "blue", "B-E": "blue", "E-F": "blue", "C-F": "blue", "A-B": "amber" }) + `<div class="fig-cap">Tree T in blue, extra edge e = A–B in orange. The cycle A–D–E–B–A crosses the border at A–B and at D–E.</div>`,
+      { t: "Proof, part 1: add e to any tree", b: `<p>Take any network T that does <i>not</i> use the cheapest crossing cable e. Now add e to it. The two ends of e were already joined through T, so adding e closes a loop. A loop that crosses the gap at e has to come back, so it must cross the gap at least once more, along some other cable f of T. Step through it.</p><details class="math-more"><summary>Show the maths</summary><p>Suppose $T$ is a spanning tree that <b>does not contain $e$</b>; we will show $T$ is not minimal. Adding $e$ to $T$ gives a <b>cycle</b>. That cycle crosses the border of $X$ at $e$ and, since a cycle must come back, <b>at least one other edge $f$</b>.</p></details>`,
+        v: (box) => proofFig(box, "0"),
         c: { q: "Why must the cycle contain a second edge across the border of X?", o: ["It returns to its start, so it crosses back", "Every cycle in a graph must have at least four edges", "Because the edge f is always lighter than the edge e"], a: 0, why: "A closed loop that leaves X must re-enter it, so it crosses the border an even number of times, at least twice." } },
-      { t: "Proof, part 2: swap e for f", b: `<p>Since $e$ is the <b>shortest</b> edge across the border, $w(e) < w(f)$. Remove $f$ from $T$ and put $e$ in its place. The new tree $T' = T - f + e$ is still connected, still has $n - 1$ edges, so it is a spanning tree, and it is <b>cheaper</b> than $T$.</p><p>So $T$ was not minimal. $T$ was an arbitrary tree without $e$, so every minimum spanning tree must contain $e$.</p>`,
-        v: F.compare({ title: "T (without e)", c: "rose", body: "total = 31 with D–E (7) on the cycle" }, { title: "T′ = T − D–E + A–B", c: "teal", body: "total = 30, still a spanning tree: <b>strictly cheaper</b>" }),
+      { t: "Proof, part 2: swap e for f", b: `<p>Now swap: remove f and keep e. Everything stays connected, because the rest of the loop still joins the two sides, and there are still the same number of cables. But e is cheaper than f, since e was the cheapest cable across the gap. So T was never the cheapest, and every cheapest network must use e.</p><p>In the example, swapping D–E (7) for A–B (6) turns a network costing 31 into one costing 30.</p><details class="math-more"><summary>Show the maths</summary><p>Since $e$ is the <b>shortest</b> edge across the border, $w(e) < w(f)$. Remove $f$ from $T$ and put $e$ in its place. The new tree $T' = T - f + e$ is still connected and still has $n - 1$ edges, so it is a spanning tree, and it is <b>cheaper</b> than $T$.</p><p>$T$ was an arbitrary tree without $e$, so every minimum spanning tree must contain $e$.</p></details>`,
+        v: (box) => proofFig(box, "3"),
         c: { q: "Why is T′ = T − f + e still a spanning tree?", o: ["Taking out f splits T in two and e rejoins the halves", "Because e is lighter than f, which makes the tree valid", "Because T′ has one more edge than T has, which helps"], a: 0, why: "f lies on the cycle, so taking it out leaves T connected through the rest of the cycle. Adding e keeps the edge count at n − 1 with no cycle." } },
       { t: "Prim is correct", b: `<p>At each stage Prim adds the shortest edge joining the growing tree to the vertices outside it. Take $X$ = the tree's vertices: by the lemma, that edge belongs to the MST.</p><p>So the output is always contained in the minimum spanning tree. And Prim only stops when <b>every vertex</b> is in, so the output touches every vertex, and must <b>be</b> the minimum spanning tree.</p>`,
         v: F.cells([{ v: "{A}", c: "violet" }, "→", { v: "{A C}", c: "violet" }, "→", { v: "{A C B}", c: "violet" }, "→", { v: "all of V", c: "teal" }], { label: "each X" }),
@@ -123,24 +175,66 @@
   /* ============ 4.7 Prim against Kruskal: running time ============ */
   // prettier-ignore
   const big = (x) => (x >= 1e6 ? (x / 1e6).toFixed(x >= 1e7 ? 0 : 1) + " M" : x >= 1e3 ? (x / 1e3).toFixed(x >= 1e4 ? 0 : 1) + " k" : String(Math.round(x)));
+  /** Work as area: Prim is a square of V^2, Kruskal a square of E log V, drawn to the same scale. */
+  function worksFig(host, { V, deg, free }) {
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-a></div><div data-g></div><p class="mono" data-t style="min-height:3.6em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    let d = deg;
+    const draw = () => {
+      const E = Math.min((V * (V - 1)) / 2, Math.round((V * d) / 2)),
+        prim = (V - 1) ** 2,
+        kr = E * Math.log2(V),
+        hi = Math.max(prim, kr);
+      const side = (x) => 170 * Math.sqrt(x / hi),
+        sp = side(prim),
+        sk = side(kr),
+        kwin = kr < prim;
+      const sq = (x, s, c, t, n) =>
+        `<rect x="${x}" y="${190 - s}" width="${s}" height="${s}" rx="6" fill="color-mix(in srgb, var(${c}) 30%, var(--panel-2))" stroke="var(${c})" stroke-width="3"/><text x="${x + s / 2}" y="206" class="fig-sub" style="text-anchor:middle;fill:var(--text);font-size:13px;font-weight:700">${t}: ${big(n)}</text>`;
+      qs("[data-g]", box).innerHTML =
+        `<svg class="fig" viewBox="0 0 440 215" style="max-height:215px" role="img" aria-label="Two squares whose areas are the work of Prim and of Kruskal. ${kwin ? "Kruskal's is smaller" : "Prim's is smaller"}.">${sq(40, sp, "--violet", "Prim", prim)}${sq(250, sk, "--teal", "Kruskal", kr)}</svg>`;
+      qs("[data-t]", box).innerHTML =
+        `${V.toLocaleString("en-GB")} towns, ${E.toLocaleString("en-GB")} cables (about ${((2 * E) / V).toFixed(0)} per town). <b>${kwin ? "Kruskal" : "Prim"}</b> does about <b>${(hi / Math.min(prim, kr)).toFixed(1)}×</b> less work.`;
+    };
+    if (free) {
+      const sl = N.slider("Roads per town", 2, 999, 1, d, (v) => String(v));
+      sl.onInput((v) => ((d = v), draw()));
+      qs("[data-a]", box).appendChild(
+        N.seg(
+          [
+            ["3", "Road map (3)"],
+            ["20", "Social network (20)"],
+            ["999", "Complete graph"],
+          ],
+          "3",
+          (v) => ((sl.value = d = +v), draw()),
+        ),
+      );
+      qs("[data-a]", box).appendChild(sl);
+    }
+    draw();
+  }
   // prettier-ignore
   L["a4-cost"] = {
     sum: "Prim's loops count vertices, so it costs <b>O(V²)</b> whatever the number of edges. Kruskal sorts the edges and costs <b>O(E log V)</b>. Which wins depends on how dense the graph is.",
     steps: [
-      { t: "Prim: counting the loops", b: `<p>The outer loop runs $|V| - 1$ times. On pass $i$ the select loop scans $|V| - i$ vertices and the update loop $|V| - i - 1$. Adding up:</p>$$\\sum_{i=1}^{|V|-1} \\big[2(|V| - i) - 1\\big] = (|V| - 1)^2$$<p>Nothing here mentions $|E|$. Even a graph with a handful of edges costs $O(|V|^2)$.</p>`,
-        v: F.bars([["V = 10", 81, "violet"], ["V = 20", 361, "violet"], ["V = 40", 1521, "violet"]], { unit: " steps" }) + `<div class="fig-cap">(V − 1)²: doubling V roughly quadruples the work.</div>`,
+      { t: "Prim: counting the loops", b: `<p>How long does Prim take? Each pass it scans the towns still outside the tree to choose one, then scans them again to update their notes. Fewer towns are left every pass, so the passes get cheaper, and stacked together they fill a square. The work grows like the square of the number of towns, whatever the number of cables. Slide to see it.</p><details class="math-more"><summary>Show the maths</summary><p>The outer loop runs $|V| - 1$ times. On pass $i$ the select loop scans $|V| - i$ vertices and the update loop $|V| - i - 1$. Adding up:</p>$$\\sum_{i=1}^{|V|-1} \\big[2(|V| - i) - 1\\big] = (|V| - 1)^2$$<p>Nothing here mentions $|E|$. Even a graph with a handful of edges costs $O(|V|^2)$.</p></details>`,
+        v: (box) => px.primWork(box),
         c: { q: "Prim takes about 400 steps on 21 vertices. About how many on 42 vertices?", o: ["About 800", "About 1 600", "About 400 000"], a: 1, why: "Doubling the vertices quadruples a quadratic cost: 400 × 4 = 1 600 (exactly 41² = 1 681)." } },
-      { t: "Kruskal: counting the work", b: `<p>Sorting the edges costs $O(|E| \\log |E|)$. The loop runs at most $|E|$ times, and each pass does two group lookups of cost $O(\\log |V|)$. So the total is $O(|E| \\log |E| + |E| \\log |V|)$.</p><p>Since $|E| \\le |V|^2/2$, we have $\\log |E| \\le 2 \\log |V|$, so the two terms are the same order: <b>$O(|E| \\log |V|)$</b>.</p>`,
-        v: F.flow([{ t: "Sort", s: "E log E", c: "violet" }, { t: "≤ E passes", s: "each 2 lookups, log V", c: "amber" }, { t: "Total", s: "E log V", c: "teal" }]),
-        c: { q: "A graph has 1 000 vertices. What is the largest log₂ |E| can be (about)?", o: ["About 10", "About 20", "About 1 000"], a: 1, why: "|E| is at most about 1 000 × 1 000 / 2 = 500 000 ≈ 2¹⁹. So log₂ |E| is about 19, twice log₂ 1 000 ≈ 10: same order." } },
-      { t: "Sparse graphs favour Kruskal", b: `<p>A road map has few roads per junction: $|E|$ is only a few times $|V|$. Take $|V| = 1024$ and $|E| = 2048$.</p><p>Kruskal: about $2048 \\times 10 \\approx 20\\,000$ steps. Prim's array version: about $1024^2 \\approx 1\\,000\\,000$. Kruskal does around <b>50 times</b> less work.</p>`,
-        v: F.bars([["Prim O(V²)", 1048576, "violet"], ["Kruskal O(E log V)", 20480, "teal"]], { fmt: big }) + `<div class="fig-cap">1 024 vertices, 2 048 edges (log₂ V = 10). Rule-of-thumb step counts.</div>`,
+      { t: "Kruskal: counting the work", b: `<p>Kruskal's bill has two parts. It sorts the cables (more cables, a longer list), then asks one quick “same group?” question per cable. Each question takes about as many steps as you can halve the number of towns before only one is left. So the work is roughly the number of cables times that halving count. Pick a size to compare a road map with a complete network.</p><details class="math-more"><summary>Show the maths</summary><p>Sorting the edges costs $O(|E| \\log |E|)$. The loop runs at most $|E|$ times, and each pass does two group lookups of cost $O(\\log |V|)$. So the total is $O(|E| \\log |E| + |E| \\log |V|)$.</p><p>Since $|E| \\le |V|^2/2$, we have $\\log |E| \\le 2 \\log |V|$, so the two terms are the same order: <b>$O(|E| \\log |V|)$</b>.</p></details>`,
+        v: (box) => px.kruskalWork(box),
+        c: { q: "A network keeps its towns but gains many more cables. What happens to Kruskal's work?", o: ["It stays the same, as the towns are unchanged", "It grows: there is more to sort and to check", "It falls, because a tree is easier to find"], a: 1, why: "Kruskal sorts the cables and may examine each one, so its work grows with the number of cables." } },
+      { t: "Sparse graphs favour Kruskal", b: `<p>A road map is sparse: each junction has only a few roads. Prim (the plain-list version) still compares every town with every town, about a million steps for 1,024 towns, even though there are hardly any roads to look at. Kruskal only has to sort and check the roads themselves, about 2,000 of them, so around 20,000 steps.</p><p>In the picture each square's area is the work. Prim's violet square dwarfs Kruskal's teal one: about 50 times the work.</p><details class="math-more"><summary>Show the maths</summary><p>$|V| = 1024$ and $|E| = 2048$. Kruskal: about $2048 \\times 10 \\approx 20\\,000$ steps. Prim's array version: about $1024^2 \\approx 1\\,000\\,000$. Kruskal does around <b>50 times</b> less work.</p></details>`,
+        v: (box) => worksFig(box, { V: 1024, deg: 4 }),
         c: { q: "A graph has 10 000 vertices and 15 000 edges. Which algorithm does less work?", o: ["Kruskal, by a large factor", "Prim, by a large factor", "They are about the same"], a: 0, why: "Kruskal: 15 000 × 13 ≈ 200 000 steps. Prim: 10 000² = 100 000 000. A factor of about 500." } },
-      { t: "Dense graphs favour Prim", b: `<p>Now take a nearly complete graph: every pair of 1 000 towns has a link, so $|E| \\approx 500\\,000$.</p><p>Kruskal must sort half a million edges: about $500\\,000 \\times 10 = 5\\,000\\,000$ steps. Prim still needs only about $1\\,000^2 = 1\\,000\\,000$. Prim wins by roughly a factor of five.</p><p>(Prim with a priority queue instead of the array costs $O(|E| \\log |V|)$, like Kruskal. The array version here is the one with $O(|V|^2)$.)</p>`,
-        v: F.bars([["Prim O(V²)", 998001, "violet"], ["Kruskal O(E log V)", 4978000, "teal"]], { fmt: big }) + `<div class="fig-cap">1 000 vertices, 499 500 edges.</div>`,
+      { t: "Dense graphs favour Prim", b: `<p>Now link every pair of 1,000 towns: nearly half a million cables. Kruskal has to sort them all, about five million steps. Prim does not care how many cables there are: it still needs only about a million. Now the teal square is the bigger one. (Prim with a priority queue instead of a plain list would match Kruskal; the version here is the simple one.)</p><details class="math-more"><summary>Show the maths</summary><p>$|E| \\approx 500\\,000$. Kruskal: about $500\\,000 \\times 10 = 5\\,000\\,000$ steps. Prim: about $1\\,000^2 = 1\\,000\\,000$. Prim wins by roughly a factor of five. Prim with a priority queue costs $O(|E| \\log |V|)$, like Kruskal; the array version is the one with $O(|V|^2)$.</p></details>`,
+        v: (box) => worksFig(box, { V: 1000, deg: 999 }),
         c: { q: "Every one of 1 000 cities is linked to every other. Which is cheaper, Prim's array version or Kruskal?", o: ["Prim: roughly a million steps against about five million", "Kruskal: a half-million sort beats a million steps", "They cost exactly the same"], a: 0, why: "Prim stays at about V² = 1 000 000. Kruskal's sort of 500 000 edges costs about 5 000 000." } },
-      { t: "Choosing: a rule of thumb", b: `<p>Compare $|V|^2$ with $|E| \\log |V|$. When $|E|$ is well below $|V|^2 / \\log |V|$, the graph is <b>sparse</b> and Kruskal does less work. When $|E|$ is close to $|V|^2$, it is <b>dense</b> and Prim's array version does less.</p><p>Both give the same tree, so the choice is purely about cost (and which data structures you have to hand).</p>`,
-        v: F.compare({ title: "Sparse: few edges", c: "teal", body: "road maps, power grids. <b>Kruskal</b>: E log V is small" }, { title: "Dense: nearly complete", c: "violet", body: "every pair linked. <b>Prim</b> array: V² is small" }),
+      { t: "Choosing: a rule of thumb", b: `<p>So which one? Compare the two squares. With few cables per town the teal square is small and Kruskal wins. When nearly every pair of towns is linked, the violet square is smaller and Prim wins. Both build the same tree, so only the cost differs. Choose a network, or slide the number of roads per town and watch the winner flip.</p><details class="math-more"><summary>Show the maths</summary><p>Compare $|V|^2$ with $|E| \\log |V|$. When $|E|$ is well below $|V|^2 / \\log |V|$, the graph is <b>sparse</b> and Kruskal does less work. When $|E|$ is close to $|V|^2$, it is <b>dense</b> and Prim's array version does less.</p><p>Both give the same tree, so the choice is purely about cost (and which data structures you have to hand).</p></details>`,
+        v: (box) => worksFig(box, { V: 1000, deg: 3, free: true }),
         c: { q: "Two networks have the same number of vertices. One has far fewer edges. Which statement is true?", o: ["Prim's time changes, since fewer edges means less to scan", "Prim's array version costs about the same, but Kruskal gets cheaper", "Kruskal's time is the same, since it only depends on vertices"], a: 1, why: "Prim's array loops count vertices only. Kruskal's cost grows with the number of edges it must sort." } },
     ],
     guide: ["Move the sliders for the number of vertices and the average degree.", "Use the three buttons to jump to a road map, a social network and a complete graph.", "Watch which bar is shorter and by what factor.", "Answer the questions after the demo."],

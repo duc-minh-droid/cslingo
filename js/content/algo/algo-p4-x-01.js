@@ -68,6 +68,50 @@
   // prettier-ignore
   const mini = (hl) => F.graph({ nodes: P5, edges: E5, hl, w: 380, h: 240, maxH: 150, r: 17 });
 
+  /** Three, four or five cables on the same five towns: stranded, spanning tree, loop. */
+  function cableFig(host) {
+    const CASE = {
+      3: {
+        hl: { "P-Q": "teal", "Q-R": "teal", "S-T": "amber" },
+        c: { P: "teal", Q: "teal", R: "teal", S: "amber", T: "amber" },
+        t: "3 cables: the towns split into two separate pieces. S and T are cut off from P, Q and R.",
+      },
+      4: {
+        hl: { "P-Q": "teal", "Q-R": "teal", "R-S": "teal", "S-T": "teal" },
+        c: { P: "teal", Q: "teal", R: "teal", S: "teal", T: "teal" },
+        t: "4 cables: every town can reach every other and there is no loop. This is a spanning tree.",
+      },
+      5: {
+        hl: { "P-Q": "teal", "S-T": "teal", "Q-R": "rose", "R-S": "rose", "Q-S": "rose" },
+        c: { P: "teal", T: "teal", Q: "rose", R: "rose", S: "rose" },
+        t: "5 cables: Q, R and S are now joined in a loop. One of those three cables is wasted.",
+      },
+    };
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-a></div><div data-g></div><p class="mono" data-t style="min-height:3.4em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    const draw = (k) => {
+      const d = CASE[k],
+        nodes = Object.fromEntries(Object.entries(P5).map(([n, v]) => [n, { x: v[0], y: v[1], c: d.c[n] }]));
+      qs("[data-g]", box).innerHTML = F.graph({ nodes, edges: E5, hl: d.hl, w: 380, h: 240, maxH: 230, r: 17 });
+      qs("[data-t]", box).textContent = d.t;
+      N.fx.play(qs("[data-g]", box));
+    };
+    qs("[data-a]", box).appendChild(
+      N.seg(
+        [
+          ["3", "3 cables"],
+          ["4", "4 cables"],
+          ["5", "5 cables"],
+        ],
+        "3",
+        draw,
+      ),
+    );
+    draw("3");
+  }
   /* ============ 4.1 Spanning trees: the problem ============ */
   // prettier-ignore
   L["a4-intro"] = {
@@ -82,8 +126,8 @@
           { t: "A tree: no cycle", v: F.graph({ nodes: P5, edges: E5, hl: { "P-Q": "teal", "Q-R": "teal", "R-S": "teal", "S-T": "teal" }, w: 380, h: 240, maxH: 120, r: 17 }) },
         ]),
         c: { q: "Which of these is a cycle?", o: ["A route that visits a series of towns and ends somewhere new", "A route that ends back at the town it began from", "Any set of edges that touches every vertex"], a: 1, why: "A cycle is a path that returns to its starting point, so one of its edges is always redundant for connecting its own towns." } },
-      { t: "What makes a spanning tree", b: `<p>A <b>spanning tree</b> of $G = (V, E)$ is a tree $(V', E')$ with $V' = V$ and $E' \\subseteq E$. It uses <b>every vertex</b> and keeps just enough edges to connect them: it is a <b>maximal cycle-free subgraph</b>.</p><p>With n vertices it always has exactly <b>n − 1 edges</b>. Fewer and something is cut off; one more and a loop appears.</p>`,
-        v: F.compare({ title: "Spanning tree", c: "teal", body: "all 5 towns, <b>4 edges</b>, no cycle, everything reachable" }, { title: "Not one", c: "rose", body: "5 edges is a cycle in disguise; 3 edges leaves a town stranded" }),
+      { t: "What makes a spanning tree", b: `<p>A spanning tree reaches every town using as few cables as possible. Use too few and some town is cut off. Use one too many and two towns are joined twice, which is a pointless loop. With five towns the sweet spot is exactly four cables, whichever cables you pick. Try the three cases.</p><p>In general, n towns need exactly n − 1 cables, whatever the cables cost.</p><details class="math-more"><summary>Show the maths</summary><p>A <b>spanning tree</b> of $G = (V, E)$ is a tree $(V', E')$ with $V' = V$ and $E' \\subseteq E$. It uses <b>every vertex</b> and keeps just enough edges to connect them: it is a <b>maximal cycle-free subgraph</b>. With $n=|V|$ vertices it always has exactly $n-1$ edges.</p></details>`,
+        v: (box) => cableFig(box),
         c: { q: "A connected network has 9 towns. How many cables does a spanning tree of it contain?", o: ["9", "8", "It depends on the costs"], a: 1, why: "n − 1 = 8, whatever the weights. The costs decide <i>which</i> 8, not how many." } },
       { t: "Many trees, one cheapest", b: `<p>The same five towns have many spanning trees, and their total costs differ. Three of them are shown. The one we want, the <b>minimum spanning tree</b>, has the smallest total weight $\\sum_{e \\in E'} w(e)$.</p><p>There are far too many trees to list for a big network, so we need a rule that builds the cheapest one directly.</p>`,
         v: F.frames([

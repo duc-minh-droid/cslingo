@@ -7,7 +7,76 @@
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 9, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, mono, cap, fc, fftIP, dftC, TAU } = shared;
+  const { table, cap, fc, fftIP, dftC, TAU, svgFig, tint } = shared;
+  const pth = (P) => P.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("");
+  /** The signal wound round a circle at two speeds, with the average point of each. */
+  const windFig = () => {
+    const panel = (cx, w, c, t, note) => {
+      const P = Array.from({ length: 301 }, (_, i) => {
+        const u = i / 300,
+          f = Math.sin(TAU * 3 * u),
+          a = TAU * w * u;
+        return [cx + 56 * f * Math.cos(a), 92 + 56 * f * Math.sin(a)];
+      });
+      const m = [0, 1].map((d) => P.reduce((s, p) => s + p[d] / 301, 0));
+      return `<line x1="${cx - 70}" y1="92" x2="${cx + 70}" y2="92" stroke="var(--line)"/><line x1="${cx}" y1="22" x2="${cx}" y2="162" stroke="var(--line)"/><path d="${pth(P)}" fill="none" stroke="var(--${c})" stroke-width="2.5" class="draw"/><circle cx="${m[0].toFixed(1)}" cy="${m[1].toFixed(1)}" r="6" fill="var(--amber)" stroke="var(--panel-2)" stroke-width="2"/><text x="${cx}" y="184" class="fig-box">${t}</text><text x="${cx}" y="200" class="fig-sub">${note}</text>`;
+    };
+    return (
+      svgFig(
+        560,
+        206,
+        "A 3 Hz signal wound round a circle 3 times a second gives a lopsided loop whose average point is off-centre; wound 2 times a second it is balanced around the centre",
+        panel(140, 3, "teal", "Wound 3 times a second", "lopsided: the average point is off-centre") +
+          panel(420, 2, "rose", "Wound 2 times a second", "balanced: the average point is at the centre"),
+      ) + cap("The signal wiggles 3 times a second. Orange dot: the average of all the points.")
+    );
+  };
+  /** Where the arrow points when it meets each of 8 samples, for three bins. */
+  const spinFig = () => {
+    const one = ([k, cx, sub]) => {
+      const P = Array.from({ length: 8 }, (_, n) => [(Math.PI * 2 * ((k * n) % 8)) / 8, n]).map(([a, n]) => [
+        cx + 56 * Math.cos(a),
+        80 + 56 * Math.sin(a),
+        a,
+        n,
+      ]);
+      const dot = ([x, y, a, n]) =>
+        `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${tint(k ? "blue" : "teal", 55)}" stroke="var(--${k ? "blue" : "teal"})" stroke-width="2" class="fi"/>${k ? `<text x="${(cx + 72 * Math.cos(a)).toFixed(1)}" y="${(84 + 72 * Math.sin(a)).toFixed(1)}" class="fig-sub">${n}</text>` : ""}`;
+      return `<circle cx="${cx}" cy="80" r="56" fill="none" stroke="var(--line)" stroke-width="2"/>${k ? `<path d="${pth(P)}" fill="none" stroke="var(--line-2)" stroke-dasharray="4 4"/>` : `<text x="${cx}" y="58" class="fig-sub">all 8 samples</text>`}${P.map(dot).join("")}<text x="${cx}" y="176" class="fig-box">bin ${k}</text><text x="${cx}" y="192" class="fig-sub">${sub}</text>`;
+    };
+    return (
+      svgFig(
+        560,
+        200,
+        "Three circles showing where the arrow points at samples 0 to 7: bin 0 never moves, bin 1 goes round once, bin 3 goes round three times",
+        [
+          [0, 100, "does not turn"],
+          [1, 280, "1/8 turn per sample"],
+          [3, 460, "3/8 turn per sample"],
+        ]
+          .map(one)
+          .join(""),
+      ) + cap("The dots are where the arrow points when it meets sample 0, 1, 2 ... 7.")
+    );
+  };
+  /** The 4-point DFT table drawn as arrows (right = 1, down = −j, left = −1, up = j). */
+  const matFig = () => {
+    const cell = (k, n) =>
+      `<g transform="translate(${96 + n * 60} ${52 + k * 44}) rotate(${((k * n) % 4) * 90})"><path d="M-15 0H13M6 -7L14 0L6 7" fill="none" stroke="var(--${k === 2 ? "amber" : "blue"})" stroke-width="3" stroke-linecap="round" class="fi"/></g>`;
+    const rows = [0, 1, 2, 3]
+      .map(
+        (k) =>
+          `<text x="40" y="${57 + k * 44}" class="fig-box">k = ${k}</text>${[0, 1, 2, 3].map((n) => cell(k, n)).join("")}`,
+      )
+      .join("");
+    const head = [0, 1, 2, 3].map((n) => `<text x="${96 + n * 60}" y="18" class="fig-sub">sample ${n}</text>`).join("");
+    return svgFig(
+      560,
+      216,
+      "A 4 by 4 table of arrows. Row 0 is all pointing right, row 1 turns a quarter more each step, row 2 alternates right and left, row 3 turns the other way",
+      `<rect x="10" y="118" width="300" height="44" rx="10" fill="${tint("amber", 18)}"/>${head}${rows}<g class="fig-sub" style="text-anchor:start"><text x="340" y="70">right: keep the sample</text><text x="340" y="94">left: flip its sign</text><text x="340" y="118">down or up: turn it a quarter</text><text x="340" y="150" style="fill:var(--amber-ink)">row 2 reads: add, subtract, add, subtract</text></g>`,
+    );
+  };
   reg({
     id: "a9-cft",
     order: 2,
@@ -255,39 +324,34 @@
     steps: [
       {
         t: "The continuous Fourier transform",
-        b: `<p>For a signal $f(t)$, the Fourier transform gives a new function $F(\\omega)$ of frequency, and the inverse transform gets the signal back:</p>$$F(\\omega)=\\int_{-\\infty}^{\\infty} f(t)\\,e^{-j\\omega t}\\,dt \\qquad f(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty} F(\\omega)\\,e^{j\\omega t}\\,d\\omega$$<p>Read the left one as a recipe: for each frequency $\\omega$, multiply the signal by a spinning arrow and add up everything (that is what the integral does).</p>`,
-        v: F.flow([
-          { t: "f(t)", s: "the signal", c: "blue" },
-          { t: "× e^(−jωt)", s: "spin at ω", c: "violet" },
-          { t: "∫ add up", s: "over all t", c: "amber" },
-          { t: "F(ω)", s: "how much ω", c: "teal" },
-        ]),
+        b: `<p>How much of a 3 Hz wave is hiding in a signal? Here is the recipe. <b>Wind the signal round a circle</b>, going round 3 times a second, so each moment becomes a point at some distance from the centre. Then find the <b>average point</b>. If the signal wiggles at 3 Hz, the winding lines its peaks up on one side and the average sits far from the centre: lots of 3 Hz in there. If not, the points spread all round and cancel, and the average sits at the centre: none.</p><p>Repeat for every winding speed and you have the Fourier transform: one answer per frequency.</p><details class="math-more"><summary>Show the maths</summary><p>For a signal $f(t)$ the transform $F(\\omega)$ and its inverse are:</p>$$F(\\omega)=\\int_{-\\infty}^{\\infty} f(t)\\,e^{-j\\omega t}\\,dt \\qquad f(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty} F(\\omega)\\,e^{j\\omega t}\\,d\\omega$$<p>The factor $e^{-j\\omega t}$ is the spinning arrow, and the integral adds up all the products.</p></details>`,
+        v: windFig(),
         c: {
-          q: "What does F(ω) measure?",
+          q: "In the winding picture, what shows that the signal contains a lot of the winding frequency?",
           o: [
-            "How much of frequency ω the signal contains",
-            "The value of the signal at the instant t = ω",
-            "The total length of time that the signal lasts",
+            "The average point sits far from the centre",
+            "The curve has the most loops",
+            "The average point sits exactly at the centre of the circle",
           ],
           a: 0,
-          why: "F is a function of frequency: it is large where the signal contains a lot of that frequency.",
+          why: "A match lines the peaks up on one side, so the average point is pulled away from the centre. A mismatch balances out and the average stays at the centre.",
         },
       },
       {
         t: "The spinning arrow",
-        b: `<p>The term $e^{-j\\theta}$ is just an arrow of length 1 at angle $-\\theta$ (Euler's formula): $e^{-j\\theta}=\\cos\\theta - j\\sin\\theta$.</p><p>With $\\theta=\\omega t$, the arrow spins as time goes on, faster for a bigger $\\omega$. Multiply the signal by this arrow: if the signal wiggles at the <b>same</b> frequency, its peaks line up with the arrow and everything adds. At a different frequency the arrows point everywhere and cancel.</p>`,
-        v: `<svg class="fig" viewBox="0 0 300 180" style="max-height:180px"><circle cx="90" cy="90" r="64" fill="none" stroke="var(--line)"/><line x1="14" y1="90" x2="170" y2="90" stroke="var(--line-2)"/><line x1="90" y1="20" x2="90" y2="160" stroke="var(--line-2)"/>${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<line x1="90" y1="90" x2="${90 + 56 * Math.cos((-TAU * i) / 8)}" y2="${90 + 56 * Math.sin((-TAU * i) / 8)}" stroke="var(--blue)" stroke-width="2" opacity="${0.35 + i * 0.09}" class="draw"/>`).join("")}<text x="200" y="70" class="fig-sub" style="text-anchor:start">e^(−jθ) = cos θ − j sin θ</text><text x="200" y="92" class="fig-sub" style="text-anchor:start">length 1, angle −θ</text><text x="200" y="114" class="fig-sub" style="text-anchor:start">e^(−jπ) = −1</text></svg>`,
+        b: `<p>Picture an arrow of length 1 that starts pointing right and turns steadily clockwise. A <b>faster frequency just means a faster turn</b>. Half a turn leaves it pointing the opposite way, and a full turn brings it home.</p><p>Multiply a signal by this turning arrow, sample by sample. If the signal wiggles at the <b>same</b> speed, each peak meets the arrow pointing the same way, so the products all add up. At a different speed they point every which way and cancel.</p><details class="math-more"><summary>Show the maths</summary><p>The arrow is $e^{-j\\theta}=\\cos\\theta - j\\sin\\theta$ (Euler's formula): length 1 at angle $-\\theta$. With $\\theta=\\omega t$ it spins faster for a bigger $\\omega$. For example $e^{-j\\pi}=\\cos\\pi - j\\sin\\pi=-1$.</p></details>`,
+        v: `<svg class="fig" viewBox="0 0 380 180" style="max-height:180px" role="img" aria-label="An arrow of length 1 shown at eight positions as it turns clockwise"><circle cx="90" cy="90" r="64" fill="none" stroke="var(--line)"/><line x1="14" y1="90" x2="170" y2="90" stroke="var(--line-2)"/><line x1="90" y1="20" x2="90" y2="160" stroke="var(--line-2)"/>${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<line x1="90" y1="90" x2="${90 + 56 * Math.cos((TAU * i) / 8)}" y2="${90 + 56 * Math.sin((TAU * i) / 8)}" stroke="var(--blue)" stroke-width="2" opacity="${0.35 + i * 0.09}" class="draw"/>`).join("")}<text x="196" y="70" class="fig-sub" style="text-anchor:start">turns clockwise</text><text x="196" y="92" class="fig-sub" style="text-anchor:start">always length 1</text><text x="196" y="114" class="fig-sub" style="text-anchor:start">half a turn: flipped</text></svg>`,
         c: {
-          q: "What is $e^{-j\\pi}$? (It is an arrow of length 1 turned by half a circle.)",
-          o: ["−1", "1", "j"],
+          q: "An arrow starts pointing right and turns clockwise by half a circle. Where does it point?",
+          o: ["Left, the opposite way", "Straight down", "Back to the right again"],
           a: 0,
-          hint: "cos π = −1 and sin π = 0.",
-          why: "$\\cos\\pi - j\\sin\\pi = -1 - 0 = -1$. Half a turn flips the arrow to point the other way.",
+          hint: "Half a circle is a turn of 180 degrees.",
+          why: "Half a turn flips the arrow to point the other way. In symbols that is $e^{-j\\pi}=-1$.",
         },
       },
       {
         t: "Computers only have samples",
-        b: `<p>Real recordings are <b>digital</b>: we do not have $f(t)$ for every instant, only $N$ samples <code>f[0], f[1], …, f[N−1]</code>, each separated by a sample time $T$ (so the sample rate is $f_s = 1/T$).</p><p>An integral over continuous time cannot be computed from that. We swap it for a <b>sum over the samples</b>.</p>`,
+        b: `<p>A recording is not a smooth curve. It is a <b>list of numbers</b>: one measurement every so often. Record every 0.01 seconds and you get 100 numbers a second. We cannot add up "every instant", but we <b>can add up a list</b>, so the integral becomes a sum over the samples.</p><p>The gap between samples is called T. The number of samples per second, the sample rate, is 1 divided by T.</p>`,
         v:
           (() => {
             const W = 460,
@@ -303,7 +367,7 @@
               },
             ).join(
               " ",
-            )}" fill="none" stroke="var(--line-2)" stroke-width="2" class="draw"/>${Array.from({ length: 9 }, (_, i) => `<line x1="${X(i)}" y1="75" x2="${X(i)}" y2="${Y(f(i))}" stroke="var(--teal)" opacity=".4"/><circle cx="${X(i)}" cy="${Y(f(i))}" r="4.5" fill="var(--teal)" class="fi"/>`).join("")}<path d="M${X(2)} 138 H${X(3)}" stroke="var(--amber)" stroke-width="3"/><text x="${(X(2) + X(3)) / 2}" y="132" class="fig-sub" style="fill:var(--amber)">T</text><text x="${X(0)}" y="20" class="fig-sub">f[0]</text><text x="${X(8)}" y="20" class="fig-sub">f[8]</text></svg>`;
+            )}" fill="none" stroke="var(--line-2)" stroke-width="2" class="draw"/>${Array.from({ length: 9 }, (_, i) => `<line x1="${X(i)}" y1="75" x2="${X(i)}" y2="${Y(f(i))}" stroke="var(--teal)" opacity=".4"/><circle cx="${X(i)}" cy="${Y(f(i))}" r="4.5" fill="var(--teal)" class="fi"/>`).join("")}<path d="M${X(2)} 138 H${X(3)}" stroke="var(--amber)" stroke-width="3"/><text x="${(X(2) + X(3)) / 2}" y="132" class="fig-sub" style="fill:var(--amber)">T</text><text x="${X(0)}" y="20" class="fig-sub">first</text><text x="${X(8)}" y="20" class="fig-sub">last</text></svg>`;
           })() + cap("N samples, each one T seconds after the last."),
         c: {
           q: "A signal is sampled every T = 0.01 seconds. What is the sample rate?",
@@ -315,18 +379,8 @@
       },
       {
         t: "The DFT formula",
-        b: `<p>Replace the integral with a sum over the samples, and only ask about the frequencies that fit the window: the <b>fundamental</b> and its <b>harmonics</b>, $\\omega_k = \\frac{2\\pi}{NT}k$ for $k = 0,1,\\dots,N-1$:</p>$$F[k]=\\sum_{n=0}^{N-1} f[n]\\,e^{-j2\\pi kn/N}$$<p>So there are <b>N outputs for N inputs</b>. Bin $k$ sits at $k\\,f_s/N$ Hz.</p>`,
-        v: table(
-          ["k", "angle step per sample", "frequency (N = 8, fs = 8000 Hz)"],
-          [
-            ["0", "0 (not spinning)", "0 Hz (DC)"],
-            ["1", "1/8 of a turn", "1000 Hz"],
-            ["2", "2/8 of a turn", "2000 Hz"],
-            { c: ["3", "3/8 of a turn", "3000 Hz"], hl: true },
-            ["4", "4/8 of a turn", "4000 Hz (Nyquist)"],
-            ["…", "…", "…"],
-          ],
-        ),
+        b: `<p>Do the same with the list. To ask about <b>bin k</b>, turn the arrow by k eighths of a circle (for 8 samples) between one sample and the next. Multiply each sample by the arrow where it has got to, then add up all 8 products.</p><p>Bin 0 does not turn at all, so it just adds the samples. Bin 1 goes round once over the whole list, bin 3 goes round three times. N samples in, <b>N bins out</b>, and bin k sits at k × (sample rate ÷ N) Hz.</p><details class="math-more"><summary>Show the maths</summary><p>Only ask about the frequencies that fit the window: the <b>fundamental</b> and its <b>harmonics</b>, $\\omega_k = \\frac{2\\pi}{NT}k$ for $k = 0,1,\\dots,N-1$:</p>$$F[k]=\\sum_{n=0}^{N-1} f[n]\\,e^{-j2\\pi kn/N}$$<p>Bin $k$ sits at $k\\,f_s/N$ Hz.</p></details>`,
+        v: spinFig(),
         c: {
           q: "N = 8 samples at fs = 8000 Hz. Which frequency is bin k = 3?",
           o: ["3 Hz", "3000 Hz", "375 Hz"],
@@ -336,43 +390,37 @@
       },
       {
         t: "Undoing it: the inverse DFT",
-        b: `<p>The transform loses nothing. Going back needs the same ingredients with the arrows turned the other way, and a $1/N$ to keep the size right:</p>$$f[n]=\\frac{1}{N}\\sum_{k=0}^{N-1} F[k]\\,e^{+j2\\pi kn/N}$$<p>In other words, the inverse DFT is <b>$1/N$ times the complex conjugate</b> of the forward DFT. It is what lets you edit a spectrum and turn it back into a signal.</p>`,
-        v: F.compare(
-          {
-            title: "Forward DFT",
-            c: "blue",
-            body: mono("F[k] = Σ f[n] · e<sup>−j2πkn/N</sup>") + "samples → frequencies",
-          },
-          {
-            title: "Inverse DFT",
-            c: "teal",
-            body: mono("f[n] = (1/N) Σ F[k] · e<sup>+j2πkn/N</sup>") + "frequencies → samples",
-          },
-        ),
+        b: `<p>The transform throws nothing away. Take every bin's wave, with its strength and timing, and <b>add them all back up</b>: you get the original samples. The only differences are that the arrows turn the opposite way and the total is divided by N.</p><p>That is what lets you edit a spectrum (delete a hum, say) and turn it back into a signal. In the picture, the samples 1, 2, 3, 4 go in, a spectrum comes out, and the inverse DFT returns exactly 1, 2, 3, 4.</p><details class="math-more"><summary>Show the maths</summary>$$f[n]=\\frac{1}{N}\\sum_{k=0}^{N-1} F[k]\\,e^{+j2\\pi kn/N}$$<p>In other words, the inverse DFT is $1/N$ times the complex conjugate of the forward DFT.</p></details>`,
+        v:
+          F.cells(
+            [1, 2, 3, 4].map((v) => ({ v, c: "blue" })),
+            { label: "samples" },
+          ) +
+          cap("forward DFT ↓") +
+          F.cells(
+            ["10", "−2 + 2j", "−2", "−2 − 2j"].map((v) => ({ v, c: "violet" })),
+            { label: "spectrum", size: 64 },
+          ) +
+          cap("inverse DFT ↓") +
+          F.cells(
+            [1, 2, 3, 4].map((v) => ({ v, c: "teal" })),
+            { label: "samples again" },
+          ),
         c: {
-          q: "How does the inverse DFT differ from the forward one?",
+          q: "You set one bin of a spectrum to zero and run the inverse DFT. What do you get?",
           o: [
-            "The exponent's sign flips and a 1/N factor appears",
-            "Nothing: applying the forward DFT twice undoes it",
-            "It only keeps the real part of each term",
+            "The signal with that frequency removed",
+            "The original signal, unchanged",
+            "An error, since the spectrum is incomplete",
           ],
           a: 0,
-          why: "Conjugate arrows (the plus sign) and a 1/N. Forward twice gives N times the reversed signal, not the original.",
+          why: "The inverse adds the waves back up, so a bin set to zero simply contributes nothing. That is how filtering in the frequency domain works.",
         },
       },
       {
         t: "The DFT as a matrix",
-        b: `<p>Write $W=e^{-j2\\pi/N}$. Then every output is $F[k]=\\sum_n W^{kn} f[n]$, which is a <b>matrix times a vector</b>: $F = \\mathbf{W} f$, where row $k$, column $n$ holds $W^{kn}$.</p><p>For $N=4$ the number $W=-j$ and its powers only ever take the values 1, −j, −1, j, so the whole matrix fits on paper:</p>`,
-        v:
-          table(
-            ["k \\ n", "n = 0", "n = 1", "n = 2", "n = 3"],
-            [
-              ["0", "1", "1", "1", "1"],
-              ["1", "1", "−j", "−1", "j"],
-              ["2", "1", "−1", "1", "−1"],
-              ["3", "1", "j", "−1", "−j"],
-            ],
-          ) + cap("f = [1, 2, 3, 4] gives F = [10, −2 + 2j, −2, −2 − 2j]. Row 0 just adds up the samples."),
+        b: `<p>Bin 0 is one row of instructions: "multiply every sample by this arrow, then add". Bin 1 is another row, and so on. Stack all N rows and you get a <b>square table of arrows</b>, one row per bin and one column per sample. Applying the DFT means multiplying the samples by this table.</p><p>For 4 samples the arrows can only point right, down, left or up, so the whole table fits on paper. Row 0 is all rightwards (just add), and row 2 alternates right and left: add, subtract, add, subtract.</p><details class="math-more"><summary>Show the maths</summary><p>Write $W=e^{-j2\\pi/N}$. Every output is $F[k]=\\sum_n W^{kn} f[n]$, a matrix times a vector: $F = \\mathbf{W} f$, with $W^{kn}$ in row $k$, column $n$. For $N=4$, $W=-j$ and its powers are $1, -j, -1, j$.</p><p>Example: $f=[1,2,3,4]$ gives $F=[10,\\,-2+2j,\\,-2,\\,-2-2j]$.</p></details>`,
+        v: matFig() + cap("f = [1, 2, 3, 4] gives F = [10, −2 + 2j, −2, −2 − 2j]. Row 0 just adds up the samples."),
         c: {
           q: "Row k = 2 of the N = 4 matrix is [1, −1, 1, −1]. What does that output compute?",
           o: [
@@ -405,15 +453,15 @@
       },
       {
         t: "Reading the playground",
-        b: `<p>Choose $N$, set the samples (or press a preset) and pick a bin $k$. The picture draws each term $f[n]\\,W^{kn}$ as a blue arrow, <b>tip to tail</b>. The orange arrow from the origin to the end of the chain is $F[k]$.</p><p>The table lists every output, and the stat shows that applying the inverse DFT gives your samples back.</p>`,
+        b: `<p>Pick the number of samples, set their values (or press a preset) and choose a bin. The picture draws each sample multiplied by its arrow as a blue arrow, laid <b>tip to tail</b>. The orange arrow from the start to the end of the chain is that bin's answer.</p><p>The table lists every bin, and the stat confirms that running the inverse DFT gives your samples back.</p>`,
         v: F.cells([
-          { v: "f[n]", sub: "samples", c: "blue" },
+          { v: "samples", c: "blue" },
           "→",
-          { v: "× W^kn", sub: "spin", c: "violet" },
+          { v: "× turning arrow", c: "violet" },
           "→",
           { v: "chain", sub: "tip to tail", c: "amber" },
           "→",
-          { v: "F[k]", sub: "the sum", c: "teal" },
+          { v: "bin's answer", sub: "the sum", c: "teal" },
         ]),
       },
     ],

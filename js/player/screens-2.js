@@ -54,6 +54,8 @@
           console.error(e);
         }
       } else if (s.v) vis.innerHTML = s.v;
+      // "Show the maths" drawers come after the picture: words, then the figure, then the formal maths
+      qsa(".lesson-body > .math-more", node).forEach((d) => vis.after(d));
       if (sc.Q) {
         pl.askQ(qs(".pl-qwrap", node), sc, { compact: true });
       } else foot("continue", { onGo: pl.next });

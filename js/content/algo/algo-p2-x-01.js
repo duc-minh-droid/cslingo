@@ -415,13 +415,59 @@
     },
   });
 
+  /* Honest-guess bars: the green part of a bar is the guess up to the truth, a red part is a guess past the truth. */
+  // prettier-ignore
+  function optFig(host) {
+    const rows = [["S", 3, 3], ["B", 4, 4]], sl = N.slider("Your estimate for A (A really has 2 left)", 0, 6, 1, 1), box = el(`<div class="fig-wrap"></div>`), say = el(`<div class="callout"></div>`);
+    host.append(box, sl, say);
+    const draw = (hA) => {
+      const u = 40, gx = 30;
+      let s = `<svg class="fig" viewBox="0 0 350 176" role="img" aria-label="Estimates against true costs: S 3 of 3, B 4 of 4, A ${hA} of 2">`;
+      [...rows, ["A", 2, hA]].forEach(([n, t, e], i) => {
+        const y = 26 + i * 56;
+        s += `<text x="${gx - 12}" y="${y + 18}" class="fig-n">${n}</text><rect x="${gx}" y="${y}" width="${6 * u}" height="24" rx="6" fill="var(--panel-2)" stroke="var(--line)" stroke-width="1.5"/>`;
+        s += `<rect x="${gx}" y="${y}" width="${Math.max(2, Math.min(e, t) * u)}" height="24" rx="6" fill="color-mix(in srgb, var(--teal) 55%, var(--panel-2))"/>`;
+        if (e > t) s += `<rect x="${gx + t * u}" y="${y}" width="${(e - t) * u}" height="24" rx="6" fill="color-mix(in srgb, var(--rose) 60%, var(--panel-2))"/>`;
+        s += `<line x1="${gx + t * u}" y1="${y - 6}" x2="${gx + t * u}" y2="${y + 30}" stroke="var(--text)" stroke-width="3"/><text x="${gx + t * u}" y="${y - 9}" class="fig-sub">truth ${t}</text><text x="${gx + 6 * u + 8}" y="${y + 17}" class="fig-w" style="text-anchor:start">guess ${e}</text>`;
+      });
+      box.innerHTML = s + "</svg>";
+      say.className = "callout " + (hA <= 2 ? "teal" : "rose");
+      say.innerHTML = hA <= 2 ? `A: guess ${hA} is at or below the truth 2, so it is <b>admissible</b>.` : `A: guess ${hA} is ${hA - 2} above the truth 2. A looks worse than it is, so A* may <b>skip a good road</b>.`;
+    };
+    sl.onInput(draw);
+    draw(1);
+  }
+
+  /* The Bellman-Ford idea as a four-stage story: ask the neighbours, add the link, keep the smallest. Shared with the distance-vector lesson. */
+  // prettier-ignore
+  function askFig(host) {
+    const NB = [["P", 45, 1, 6], ["Q", 125, 2, 3], ["R", 205, 4, 2]], tot = NB.map((n) => n[2] + n[3]), best = tot.indexOf(Math.min(...tot));
+    const CAP = ["Router x wants to reach y, but it can only talk to its three neighbours P, Q and R.", "Each neighbour tells x its own distance to y. x cannot see the rest of the map.", "x adds the cost of the link it would use to reach each neighbour.", `Smallest total: ${tot[best]}, via ${NB[best][0]}. That neighbour becomes x's next hop, although P has the cheapest link and R reports the shortest distance.`];
+    const box = el(`<div class="fig-wrap"></div>`), cap = el(`<div class="fig-cap"></div>`);
+    host.append(N.seg([[0, "1 Ask"], [1, "2 Hear back"], [2, "3 Add the link"], [3, "4 Keep the smallest"]], 0, (v) => draw(+v)), box, cap);
+    const pill = (x, y, t, c = "var(--line-2)") => `<rect x="${x - 17}" y="${y - 11}" width="34" height="22" rx="8" fill="var(--panel)" stroke="${c}" stroke-width="2"/><text x="${x}" y="${y + 4}" class="fig-box">${t}</text>`;
+    const draw = (st) => {
+      let s = `<svg class="fig" viewBox="0 0 480 250" role="img" aria-label="${CAP[st]}">`;
+      NB.forEach(([n, cy, c, d], i) => {
+        const win = st === 3 && i === best;
+        s += `<line x1="50" y1="125" x2="200" y2="${cy}" stroke="${win ? "var(--teal)" : "var(--line-2)"}" stroke-width="${win ? 5 : 3}"/><line x1="200" y1="${cy}" x2="430" y2="125" stroke="var(--line-2)" stroke-width="2.5" stroke-dasharray="6 6"/>`;
+        s += pill(125, (125 + cy) / 2, c) + pill(315, (125 + cy) / 2, st ? d : "?", st ? "var(--violet)" : "var(--line-2)");
+        s += `<circle cx="200" cy="${cy}" r="18" fill="color-mix(in srgb, ${win ? "var(--teal)" : "var(--violet)"} 25%, var(--panel-2))" stroke="${win ? "var(--teal)" : "var(--violet)"}" stroke-width="2.5"/><text x="200" y="${cy + 5}" class="fig-n">${n}</text>`;
+        if (st > 1) s += `<text x="200" y="${cy + 36}" class="fig-box" style="${win ? "" : "opacity:.8"}">${c} + ${d} = ${c + d}</text>`;
+      });
+      s += `<circle cx="50" cy="125" r="20" fill="color-mix(in srgb, var(--amber) 30%, var(--panel-2))" stroke="var(--amber)" stroke-width="2.5"/><text x="50" y="130" class="fig-n">x</text><circle cx="430" cy="125" r="20" fill="color-mix(in srgb, var(--rose) 25%, var(--panel-2))" stroke="var(--rose)" stroke-width="2.5"/><text x="430" y="130" class="fig-n">y</text>`;
+      box.innerHTML = s + `</svg>`;
+      cap.textContent = CAP[st];
+    };
+    draw(0);
+  }
   L["a2-admissible"] = {
     sum: "A heuristic is admissible when it never overestimates the true cost left. Then A* always returns a cheapest route. If h overestimates, a good route can look too expensive and be skipped. Euclidean distance is always safe; Manhattan distance is safe only when you cannot move diagonally.",
     // prettier-ignore
     steps: [
-      { t: "Admissible means optimistic", b: `<p>Let $h^*(n)$ be the <b>true</b> cheapest cost from n to the goal. A heuristic is <b>admissible</b> if</p><p>$$h(n) \\le h^*(n)\\quad\\text{for every node } n$$</p><p>It may guess too low (even 0) but never too high. Getting an admissible heuristic is the crucial ingredient for using A* in practice.</p>`,
-        v: table(["Node", "true cost left h*", "estimate h", "admissible?"], [["S", 3, 3, "yes (equal)"], ["A", 2, 1, "yes (lower)"], ["B", 4, 4, "yes (equal)"], { c: ["A", 2, 5, "no: 5 &gt; 2"], bad: true }]),
-        c: { q: "The true cost left from a node is 7. Which estimate is not admissible?", o: ["0", "6", "9"], a: 2, why: "9 is more than the true cost 7, so it overestimates. 0 and 6 are both at or below 7." } },
+      { t: "Admissible means optimistic", b: `<p>A <b>heuristic</b> is a guess at how much of the journey is left. It is <b>admissible</b> when the guess is <b>optimistic</b>: it may say "at least this much" and be too low, but it never says "more than it really is".</p><p>Think of a satnav that says "about 5 minutes" when the trip really takes 7: you still take the road. If it said "12 minutes" you might skip a road that was actually the best one. That is the danger of a guess that is too high.</p><p>For example, if a node truly has 7 left, estimates of 0, 4 or 7 are all fine, and an estimate of 9 is too pessimistic. Try it with node A below.</p><details class="math-more"><summary>Show the maths</summary><p>Let $h^*(n)$ be the <b>true</b> cheapest cost from n to the goal. A heuristic is <b>admissible</b> if</p><p>$$h(n) \\le h^*(n)\\quad\\text{for every node } n$$</p><p>It may guess too low (even 0) but never too high. Getting an admissible heuristic is the crucial ingredient for using A* in practice.</p></details>`,
+        v: (box) => optFig(box),
+        c: { q: "Node X really has 7 left to the goal and sits on the best route. Which estimate for X could make A* wrongly avoid it?", o: ["0, a blank guess", "9, above the truth", "6, just under the truth"], a: 1, why: "9 is more than the true 7, so X looks worse than it is and A* may expand other nodes first. Guesses of 0 and 6 are at or below the truth, so they are admissible." } },
       { t: "What goes wrong when h overestimates", b: `<p>The lecture's warning: if a node's estimate is <b>higher than its true cost</b>, A* thinks that node is poor value and avoids it, even when it sits on the cheapest route.</p><p>Here the cheapest route is S→A→G (cost 3). Give A the inflated estimate 6 (the truth is 2) and A* is put off.</p>`,
         v: adFig(adSearch(6)) + `<div class="fig-cap">With h(A) = 6 the search takes S→B→G, cost ${adSearch(6).cost}, instead of the cost-${AD_OPT} route.</div>`,
         c: { q: "In this story, why does A* skip the cheapest route?", o: ["A's f is inflated by the overestimate", "The edges leaving A have negative weights", "A* never visits any neighbour of the start"], a: 0, why: "f(A) = 1 + 6 = 7 looks worse than f(B) = 6, so B is expanded first." } },
@@ -453,5 +499,5 @@
       "Notice the values just above 2 that overestimate yet still succeed.",
     ],
   };
-  Object.assign(X, { reg, table, pseudo, INF, show, f1, gridSearch, HEUR, drawGrid });
+  Object.assign(X, { reg, table, pseudo, INF, show, f1, gridSearch, HEUR, drawGrid, askFig });
 })();

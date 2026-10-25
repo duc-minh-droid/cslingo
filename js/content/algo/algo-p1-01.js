@@ -23,6 +23,28 @@
   const flow = (items) =>
     `<div class="mini-row">${items.map((it) => (Array.isArray(it) ? `<span class="pill ${it[1] || ""}">${it[0]}</span>` : `<span class="pill">${it}</span>`)).join('<span class="arrow">→</span>')}</div>`;
 
+  /* A slider-driven staircase of dots: the "half a square" picture behind 0 + 1 + 2 + ... + (n-1). Also used by the link-state lesson (flip = the rows shrink instead of grow). */
+  // prettier-ignore
+  function stairs(host, { min = 2, max = 12, val = 8, flip = false, lab = "n", rl = (i) => "i = " + i, names = ["filled (the staircase)", "the whole square", "double it to "], cap = "" } = {}) {
+    const sl = N.slider(lab, min, max, 1, val), fig = el(`<div class="fig-wrap"></div>`), out = el(`<div></div>`);
+    host.append(sl, fig, out);
+    const tri = (n) => (n * (n - 1)) / 2;
+    const draw = (n, first) => {
+      const c = Math.min(26, Math.floor(300 / n)), gx = 78, W = gx + n * c + 36, H = n * c + 6;
+      let s = `<svg class="fig" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;margin:auto" role="img" aria-label="${n} rows of dots: ${tri(n)} filled dots out of ${n * n}">`;
+      for (let i = 0; i < n; i++) {
+        const k = flip ? n - 1 - i : i, y = i * c + c / 2 + 3;
+        s += `<text x="${gx - 8}" y="${y + 4}" class="fig-sub" style="text-anchor:end">${rl(i, n)}</text><text x="${gx + n * c + 6}" y="${y + 4}" class="fig-w" style="text-anchor:start">${k}</text>`;
+        for (let j = 0; j < n; j++) s += `<circle ${first && j < k ? 'class="fi" ' : ""}cx="${gx + j * c + c / 2}" cy="${y}" r="${c * 0.36}" ${j < k ? 'fill="var(--teal)" stroke="var(--teal-lip)"' : 'fill="none" stroke="var(--line-2)" stroke-dasharray="3 3"'} stroke-width="1.5"/>`;
+      }
+      fig.innerHTML = s + "</svg>";
+      const d = 2 * n;
+      out.innerHTML = `<div class="stat-row"><div class="stat teal"><small>${names[0]}</small><b>${tri(n)}</b></div><div class="stat"><small>${names[1]}</small><b>${n * n}</b></div><div class="stat violet"><small>${names[2]}${d}</small><b>${tri(d)} <small>(×${(tri(d) / tri(n)).toFixed(1)})</small></b></div></div><div class="fig-cap">${cap}</div>`;
+    };
+    sl.onInput((n) => draw(n, false));
+    draw(val, true);
+  }
+
   /* ================================================================
      1.1 — What is an algorithm?
      ================================================================ */
@@ -345,16 +367,21 @@
       },
       {
         t: "The growing inner loop is still quadratic",
-        b: `<p><code>for j in 0..i</code> looks gentler than a full nested loop — and it is, by a factor of two:</p><span class="key">$$0 + 1 + 2 + \\dots + (n-1) = \\frac{n(n-1)}{2} = \\frac{n^2}{2} - \\frac{n}{2}$$</span><p>As n grows the $\\tfrac{n^2}{2}$ term swamps the $-\\tfrac{n}{2}$, so this is <b>$O(n^2)$</b>. Big-O keeps the dominant term and throws away the constant: the <i>shape</i> of the growth is what survives.</p>`,
+        b: `<p>Picture the growing inner loop as a <b>staircase</b>. The first time round it does no jobs, the next time one job, then two, then three. A full nested loop would do the same number of jobs every time and fill a whole square. The staircase fills a bit under <b>half</b> of that square.</p>
+        <p>For example, with 4 rounds the staircase does 0 + 1 + 2 + 3 = <b>6</b> jobs and the full square does 4 × 4 = <b>16</b>. Slide <b>n</b> below and watch both grow.</p>
+        <span class="key">Half of something that grows like a square still grows like a square: double n and the work roughly quadruples. So this loop is still <b>quadratic</b>.</span>
+        <details class="math-more"><summary>Show the maths</summary><p>$$0 + 1 + 2 + \\dots + (n-1) = \\frac{n(n-1)}{2} = \\frac{n^2}{2} - \\frac{n}{2}$$</p><p>As n grows the $\\tfrac{n^2}{2}$ term swamps the $-\\tfrac{n}{2}$, so this is <b>$O(n^2)$</b>. Big-O keeps the dominant term and throws away the constant: the <i>shape</i> of the growth is what survives. For the same reason $5n + 100$ is $O(n)$.</p></details>`,
+        v: (box) =>
+          stairs(box, {
+            lab: "n (rounds of the outer loop)",
+            names: ["calls to work() (staircase)", "calls in a full n × n loop", "double n to "],
+            cap: "Each row is one round of the outer loop; each filled dot is one call to work(). Dashed dots are the half of the square the loop skips.",
+          }),
         c: {
-          q: "Is <code>5n + 100</code> really O(n)?",
-          o: [
-            "No: the extra 100 makes it grow faster than plain n does",
-            "Yes: the linear term dominates; constants drop out",
-            "No: it's O(5n), which grows five times faster than O(n)",
-          ],
+          q: "<code>for i in 0..n: for j in 0..i: work()</code> does 45 calls when n = 10. Roughly how many when n is doubled to 20?",
+          o: ["About 90, twice as many", "About 190, four times as many", "About 450, ten times as many"],
           a: 1,
-          why: "O(5n) isn't wrong mathematically, but convention writes O(n). Big-O is about shape, not constant speed — though 5× slower is still 5× slower in real life.",
+          why: "Quadratic work roughly quadruples when n doubles: the exact count is 20 × 19 / 2 = 190. Being half a square does not change the shape of the growth, and constants like the ½ are what Big-O throws away.",
         },
       },
       {
@@ -401,5 +428,5 @@
       "Answer the Predict question.",
     ],
   };
-  Object.assign(partScope, { PATS, table });
+  Object.assign(partScope, { PATS, table, stairs });
 })();

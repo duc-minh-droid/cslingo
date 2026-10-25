@@ -247,6 +247,23 @@
     },
   });
 
+  /* A 4 x 5 patch of grid: the straight line to the goal against the walk along the blocks. */
+  // prettier-ignore
+  function hFig(host) {
+    const box = el(`<div class="fig-wrap"></div>`), cap = el(`<div class="fig-cap"></div>`), P = (x, y) => [50 + x * 56, 232 - y * 52];
+    host.append(N.seg([["both", "Show both"], ["euclid", "Straight line (Euclidean)"], ["manh", "Along the grid (Manhattan)"]], "both", (v) => draw(v)), box, cap);
+    const draw = (m) => {
+      const [sx, sy] = P(0, 0), [gx, gy] = P(3, 4), on = (k) => (m === "both" || m === k ? 1 : 0.18);
+      let s = `<svg class="fig" viewBox="0 0 400 260" style="max-height:260px" role="img" aria-label="Goal 3 across and 4 up: straight line 5, along the grid 3 + 4 = 7">`;
+      for (let x = 0; x < 4; x++) for (let y = 0; y < 5; y++) s += `<circle cx="${P(x, y)[0]}" cy="${P(x, y)[1]}" r="4" fill="var(--line-2)"/>`;
+      s += `<path d="M${sx} ${sy} H${gx} V${gy}" fill="none" stroke="var(--blue)" stroke-width="6" stroke-linejoin="round" opacity="${on("manh")}"/><line x1="${sx}" y1="${sy}" x2="${gx}" y2="${gy}" stroke="var(--violet)" stroke-width="6" stroke-linecap="round" opacity="${on("euclid")}"/>`;
+      s += `<text x="${(sx + gx) / 2}" y="${sy + 22}" class="fig-box" opacity="${on("manh")}">3 across</text><text x="${gx + 12}" y="${(sy + gy) / 2 + 4}" class="fig-box" style="text-anchor:start" opacity="${on("manh")}">4 up</text><text x="${(sx + gx) / 2 - 12}" y="${(sy + gy) / 2 - 8}" class="fig-box" style="text-anchor:end" opacity="${on("euclid")}">straight: 5</text>`;
+      s += `<circle cx="${sx}" cy="${sy}" r="13" fill="color-mix(in srgb, var(--amber) 35%, var(--panel-2))" stroke="var(--amber)" stroke-width="3"/><text x="${sx}" y="${sy + 5}" class="fig-n">S</text><circle cx="${gx}" cy="${gy}" r="13" fill="color-mix(in srgb, var(--rose) 30%, var(--panel-2))" stroke="var(--rose)" stroke-width="3"/><text x="${gx}" y="${gy + 5}" class="fig-n">G</text>`;
+      box.innerHTML = s + "</svg>";
+      cap.textContent = m === "euclid" ? "As the crow flies: a 3-4-5 triangle, so 5." : m === "manh" ? "Walking the blocks: 3 across plus 4 up is 7." : "The straight line (5) is never longer than the walk along the grid (7).";
+    };
+    draw("both");
+  }
   L["a2-astar-code"] = {
     sum: "Turning A* into code needs four ingredients: a Node record (position, parent, g, h, f), a heuristic function, a neighbour generator and a priority queue. A closed set stops repeated work, and parent pointers give you the path at the end.",
     // prettier-ignore
@@ -254,9 +271,9 @@
       { t: "The Node record", b: `<p>Each cell the search touches becomes a <b>Node</b> that remembers its bookkeeping:</p><p><code>position</code>: the (x, y) cell.<br><code>parent</code>: the node we came from (for the path).<br><code>g</code>: cost from the start. <code>h</code>: heuristic to the goal. <code>f = g + h</code>.</p><p>Nodes are compared by <b>f</b>, so the priority queue can sort them.</p>`,
         v: pseudo(["class Node:", "    def __init__(self, position, parent=None):", "        self.position = position;  self.parent = parent", "        self.g = 0;  self.h = 0;  self.f = 0", "    def __lt__(self, other):   return self.f < other.f", "    def __eq__(self, other):   return self.position == other.position", "    def __hash__(self):        return hash(self.position)"], [4]),
         c: { q: "Why does the Node class define a comparison on f?", o: ["So the heap can order nodes by their score", "So two nodes at different cells are treated as equal", "So g is recomputed each time"], a: 0, why: "heapq compares items with &lt;. Defining it on f makes heappop return the node with the lowest f." } },
-      { t: "The heuristic function", b: `<p>Straight-line (Euclidean) distance is the usual choice for 8 directions:</p><p>$$h = \\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$$</p><p>The exercise then asks you to add <b>Manhattan</b> distance $|x_1 - x_2| + |y_1 - y_2|$ and compare how the two behave.</p>`,
-        v: pseudo(["def heuristic(a, b):", "    return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)", "", "def manhattan_distance(a, b):", "    return abs(a[0] - b[0]) + abs(a[1] - b[1])"]),
-        c: { q: "From (0, 0) to (3, 4), the Euclidean heuristic gives…", o: ["5", "7", "12"], a: 0, why: "√(3² + 4²) = √25 = 5. Manhattan would give 3 + 4 = 7." } },
+      { t: "The heuristic function", b: `<p>The search needs a quick guess of how far each cell is from the goal. There are two everyday ways to measure it: <b>as the crow flies</b> (the straight line, called Euclidean distance) or <b>by walking the blocks</b> (steps across plus steps up, called Manhattan distance).</p><p>For example, if the goal is 3 cells across and 4 up, the crow flies 5 but a walker on the grid takes 3 + 4 = 7 steps. A straight line is never longer than any real path, so with 8-direction movement it is a safe, optimistic guess. Switch between the two below.</p><p>The exercise then asks you to add the Manhattan version and compare how the two behave.</p><details class="math-more"><summary>Show the maths and the code</summary><p>$$h = \\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$$</p><p>Manhattan distance is $|x_1 - x_2| + |y_1 - y_2|$.</p>${pseudo(["def heuristic(a, b):", "    return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)", "", "def manhattan_distance(a, b):", "    return abs(a[0] - b[0]) + abs(a[1] - b[1])"])}</details>`,
+        v: (box) => hFig(box),
+        c: { q: "The goal is 3 cells across and 4 up from the start. What do the two guesses say?", o: ["Crow flies 7, grid steps 5", "Crow flies 5, grid steps 7", "Both guesses say 5"], a: 1, why: "The straight line is the 3-4-5 triangle's long side, 5. Walking along the grid costs 3 across plus 4 up, 7. The straight line can only be shorter, which is why it never overestimates." } },
       { t: "Neighbours: eight directions", b: `<p><code>get_neighbors</code> tries the 8 offsets around a node, and keeps those that are <b>inside the grid</b> and <b>not an obstacle</b> (value 1).</p><p>Straight moves cost 1, diagonal moves cost $\\sqrt{2}$, which is why Euclidean distance is the natural heuristic here.</p>`,
         v: nbFig,
         c: { q: "A cell in a corner of the grid, with no obstacles, has how many valid neighbours (8 directions)?", o: ["3", "5", "8"], a: 0, why: "Only the 3 offsets that stay inside the grid survive the boundary check: two straight, one diagonal." } },
@@ -394,6 +411,40 @@
     },
   });
 
+  /* Pick a router: its neighbours light up with the link cost, everything else is infinity. */
+  // prettier-ignore
+  function netPick(host) {
+    const fig = el(`<div class="fig-wrap"></div>`), say = el(`<div class="callout"></div>`);
+    host.append(N.seg(NNODES.map((n) => [n, n]), "A", (v) => draw(v)), fig, say);
+    const draw = (r) => {
+      const nb = NE0.filter((e) => e[0] === r || e[1] === r).map(([a, b, w]) => [a === r ? b : a, w]), hl = { [r]: "amber" }, sub = {};
+      nb.forEach(([n, w]) => { hl[n] = "teal"; hl[`${r}-${n}`] = "teal"; hl[`${n}-${r}`] = "teal"; sub[n] = "cost " + w; });
+      NNODES.filter((n) => n !== r && !sub[n]).forEach((n) => (sub[n] = "cost ∞"));
+      fig.innerHTML = netFig(NE0, { hl, sub });
+      fig.querySelectorAll("line.draw").forEach((l) => l.classList.remove("draw"));
+      say.className = "callout teal";
+      say.innerHTML = `Router <b>${r}</b> has ${nb.length} neighbours: ${nb.map(([n, w]) => `<b>${n}</b> (cost ${w})`).join(", ")}. To the others the direct cost is <b>infinity</b>: there is no link.`;
+    };
+    draw("A");
+  }
+
+  /* Pick a route from A to F: the cost adds up link by link, and fewer hops is not always cheaper. */
+  // prettier-ignore
+  function pathPick(host) {
+    const ROUTES = ["ADEF", "ABCF", "ACF", "ADCF"].map((s) => s.split("")), cost = (a, b) => NE0.find((e) => (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a))[2];
+    const fig = el(`<div class="fig-wrap"></div>`), say = el(`<div class="callout"></div>`), best = Math.min(...ROUTES.map((r) => r.slice(1).reduce((t, n, i) => t + cost(r[i], n), 0)));
+    host.append(N.seg(ROUTES.map((r, i) => [i, r.join(" → ")]), 0, (v) => draw(+v)), fig, say);
+    const draw = (i) => {
+      const p = ROUTES[i], ws = p.slice(1).map((n, k) => cost(p[k], n)), tot = ws.reduce((a, b) => a + b, 0), hl = { [p[0]]: "amber", F: "rose" };
+      p.forEach((n) => (hl[n] = hl[n] || "teal"));
+      p.slice(1).forEach((n, k) => (hl[`${p[k]}-${n}`] = "teal"));
+      fig.innerHTML = netFig(NE0, { hl });
+      fig.querySelectorAll("line.draw").forEach((l) => l.classList.remove("draw"));
+      say.className = "callout " + (tot === best ? "teal" : "amber");
+      say.innerHTML = `<b>${p.join(" → ")}</b>: ${ws.join(" + ")} = <b>${tot}</b> in ${ws.length} hops. ${tot === best ? "The cheapest of the four." : `${tot - best} more than the cheapest.`}`;
+    };
+    draw(0);
+  }
   L["a2-internet"] = {
     sum: "The Internet is a network of networks, run by layered protocols. A router works at the network layer: routing algorithms fill its forwarding table with a next hop for each destination, and forwarding then moves every packet one hop at a time. To design routing we model the network as a weighted graph.",
     // prettier-ignore
@@ -417,12 +468,12 @@
       { t: "Inside a router", b: `<p>A router has <b>input ports</b>, a <b>switching fabric</b>, <b>output ports</b>, and a <b>routing processor</b> that runs the routing algorithm and writes the forwarding table.</p><p>Packets stream through the fast path; the processor works in the background.</p>`,
         v: F.flow(["Input port", { t: "Switching fabric", c: "violet" }, "Output port"]) + `<div class="fig-cap">The routing processor sits above this path and updates the forwarding table it consults.</div>`,
         c: { q: "Which part of a router runs the routing algorithm?", o: ["The routing processor", "The output port", "The switching fabric"], a: 0, why: "The routing processor builds the tables. Ports and the fabric simply move packets." } },
-      { t: "Graph abstraction", b: `<p>To reason about routes we model the network as a graph $G = (N, E)$: <b>N</b> is the set of routers and <b>E</b> the set of links. For the six routers here, $N = \\{A, B, C, D, E, F\\}$ and E has ten links.</p><p>Each link has a <b>cost</b> $c(x, y)$: delay, price or congestion. If there is no link, $c(x, y) = \\infty$. Links are undirected, so $c(x, y) = c(y, x)$. If $(x, y) \\in E$, y is a <b>neighbour</b> of x.</p>`,
-        v: netFig(NE0) + `<div class="fig-cap">The six-router network used in this lesson. Numbers are link costs.</div>`,
-        c: { q: "In this network there is no direct link between A and E. What is c(A, E)?", o: ["0", "∞", "The cheapest path cost"], a: 1, why: "By definition c(x, y) is infinite when (x, y) is not an edge. Paths exist, but that is a different thing." } },
-      { t: "Path cost and least-cost paths", b: `<p>A <b>path</b> is a sequence of routers where each consecutive pair is a link. Its cost is the sum of its link costs:</p><p>$$c(x_1, \\dots, x_p) = c(x_1, x_2) + c(x_2, x_3) + \\dots + c(x_{p-1}, x_p)$$</p><p>The routing problem: find the <b>least-cost path</b> between routers.</p>`,
-        v: table(["Path from A to F", "cost"], [{ c: ["A → D → E → F", "2 + 3 + 2 = 7"], hl: true }, ["A → B → C → F", "3 + 2 + 4 = 9"], ["A → C → F", "6 + 4 = 10"], ["A → D → C → F", "2 + 5 + 4 = 11"]]),
-        c: { q: "In this network, what is the cost of the path A → B → C → E?", o: ["6", "9", "12"], a: 0, why: "A–B 3, B–C 2, C–E 1: 3 + 2 + 1 = 6." } },
+      { t: "Graph abstraction", b: `<p>To plan routes, draw the network as a picture: every router is a dot and every link is a line with a number on it, the link's <b>cost</b> (delay, price or congestion). Two routers joined by a line are <b>neighbours</b>.</p><p>If there is no line between two routers there is no direct link, and we say the cost is <b>infinity</b>: "not possible in one hop". Links work both ways, so the cost is the same in each direction.</p><p>For example, router A has three links, to B (cost 3), C (cost 6) and D (cost 2). It has no direct link to E or F. Pick a router below to see its neighbours.</p><details class="math-more"><summary>Show the maths</summary><p>The network is a graph $G = (N, E)$: <b>N</b> is the set of routers and <b>E</b> the set of links. For the six routers here, $N = \\{A, B, C, D, E, F\\}$ and E has ten links.</p><p>Each link has a <b>cost</b> $c(x, y)$. If there is no link, $c(x, y) = \\infty$. Links are undirected, so $c(x, y) = c(y, x)$. If $(x, y) \\in E$, y is a <b>neighbour</b> of x.</p></details>`,
+        v: (box) => netPick(box),
+        c: { q: "Look at the six-router network. Which pair of routers are NOT neighbours?", o: ["B and C", "A and E", "A and D"], a: 1, why: "Neighbours need a link between them. There is no A–E link, so its cost is infinity and a packet needs more than one hop. B–C and A–D are both links in the picture." } },
+      { t: "Path cost and least-cost paths", b: `<p>A <b>path</b> is a chain of links that takes you from one router to another. Its <b>cost</b> is what you get when you add up the numbers on the links you walk along. Routing is the job of finding the <b>cheapest</b> path.</p><p>The cheapest path is not always the one with the fewest hops. From A to F, A → C → F is only 2 hops but costs 6 + 4 = 10, while A → D → E → F is 3 hops and costs 2 + 3 + 2 = 7. Pick a route below to watch it add up.</p><details class="math-more"><summary>Show the maths</summary><p>$$c(x_1, \\dots, x_p) = c(x_1, x_2) + c(x_2, x_3) + \\dots + c(x_{p-1}, x_p)$$</p><p>The routing problem: find the <b>least-cost path</b> between routers.</p></details>`,
+        v: (box) => pathPick(box),
+        c: { q: "Two routes join the same pair of routers. One has 2 hops, the other has 3 hops. What does that tell you about their costs?", o: ["The 2-hop route always costs less", "The 3-hop route always costs less", "Nothing until you add the costs"], a: 2, why: "Cost is the sum of the link numbers, not the hop count. In this network A → C → F has 2 hops and costs 10, while A → D → E → F has 3 hops and costs 7." } },
       { t: "Ways to classify routing algorithms", b: `<p>Algorithms differ along three axes:</p>`,
         v: table(["Axis", "One end", "Other end"], [["Information", "<b>Global</b>: every router knows the whole topology and costs (link state)", "<b>Decentralised</b>: a router knows only its neighbours and exchanges information (distance vector)"], ["Change", "<b>Static</b>: routes change slowly", "<b>Dynamic</b>: routes change fast (periodic updates, link or node changes)"], ["Traffic", "<b>Load-sensitive</b>: costs follow congestion", "<b>Load-insensitive</b>: costs are fixed"]], 700),
         c: { q: "A router that only knows its neighbours and shares estimates with them is…", o: ["Global", "Decentralised", "Load-sensitive"], a: 1, why: "Decentralised algorithms such as distance vector never see the whole map." } },

@@ -2,12 +2,161 @@
 (function () {
   const N = NIC;
   const { el, qs, predict, takeaways, header } = N;
+  const seg = (o, v, f) =>
+    N.seg(
+      o.map(([a, l]) => [String(a), l]),
+      String(v),
+      f,
+    );
   const L = N.LESSONS,
     F = N.fig,
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 10, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
   const { table, softmax, grid } = shared;
+  const { barRows } = shared;
+  const HC = ["violet", "teal", "amber", "blue"];
+  const hc = (i) => HC[i % 4];
+
+  // step 2: the 512 numbers of a word are cut into h slices, one per head
+  function splitFig(box) {
+    const host = el(`<div style="padding:4px"></div>`);
+    const note = el(`<div style="font-weight:800;margin-top:8px"></div>`);
+    const show = (h) => {
+      host.innerHTML = `<div style="display:flex;gap:3px;height:44px">${Array.from({ length: h }, (_, i) => `<span style="flex:1 1 0;display:grid;place-items:center;border-radius:8px;background:var(--${hc(i)}-dim);border:2px solid var(--${hc(i)});font:900 ${h > 4 ? 12 : 14}px var(--sans)">${512 / h}</span>`).join("")}</div><div class="faint" style="font-size:12.5px;margin-top:4px">size of each head's working space (512 in total)</div>`;
+      note.innerHTML = `${h} head${h > 1 ? "s" : ""}, each working with <b>${512 / h}</b> numbers. ${h} &#215; ${512 / h} = 512, the same total however many heads.`;
+    };
+    box.append(
+      seg(
+        [
+          [1, "1 head"],
+          [2, "2 heads"],
+          [4, "4 heads"],
+          [8, "8 heads"],
+        ],
+        "8",
+        (v) => show(+v),
+      ),
+      host,
+      note,
+    );
+    show(8);
+  }
+
+  // step 3: eight heads work separately, get glued side by side, then mixed
+  function concatFig(box) {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = el(
+      `<svg viewBox="0 0 320 186" role="img" aria-label="Eight head outputs glued side by side into one row" style="width:100%;max-width:440px;display:block"></svg>`,
+    );
+    const rects = Array.from({ length: 8 }, () => {
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("width", 36);
+      r.setAttribute("height", 30);
+      r.setAttribute("rx", 7);
+      r.style.transition = "transform .45s, fill .3s, stroke .3s";
+      svg.appendChild(r);
+      return r;
+    });
+    const lab = (y, t) =>
+      `<text x="160" y="${y}" text-anchor="middle" style="font:800 12px var(--sans);fill:var(--text-dim)">${t}</text>`;
+    const caps = [
+      "The word goes to every head: 512 numbers in.",
+      "Each head runs its own attention in its own small space (64 numbers) and returns a result.",
+      "Glue: put the results side by side. Back to 512 numbers.",
+      "Mix: one last matrix lets the heads blend. Same size as the input.",
+    ];
+    const note = el(`<div style="font-weight:800;margin-top:6px;min-height:40px"></div>`);
+    const set = (k) => {
+      rects.forEach((r, i) => {
+        const x = k === 1 ? 6 + i * 39 : 16 + i * 36,
+          y = [26, 86 + (i % 2 ? 14 : -10), 146, 146][k],
+          c = k === 3 ? "blue" : hc(i);
+        r.style.transform = `translate(${x}px,${y}px)${k === 1 ? " scale(.85)" : ""}`;
+        r.style.fill = k === 0 ? "var(--bg-2)" : `var(--${c}-dim)`;
+        r.style.stroke = k === 0 ? "var(--line-2)" : `var(--${c})`;
+        r.style.strokeWidth = 2;
+      });
+      svg.querySelectorAll("text").forEach((t) => t.remove());
+      svg.insertAdjacentHTML(
+        "beforeend",
+        lab(
+          [18, 62, 138, 138][k],
+          [
+            "the word: 512 numbers",
+            "8 heads, 64 numbers each",
+            "glued side by side: 512 numbers",
+            "after W_O: 512 numbers",
+          ][k],
+        ),
+      );
+      note.textContent = caps[k];
+    };
+    box.append(
+      seg(
+        [
+          [0, "1 Input"],
+          [1, "2 Heads work"],
+          [2, "3 Glue"],
+          [3, "4 Mix"],
+        ],
+        "0",
+        (v) => set(+v),
+      ),
+      svg,
+      note,
+    );
+    set(0);
+  }
+
+  // step 5: parameters stay put, the score grid grows with the text
+  function costFig(box) {
+    let dm = 512,
+      T = 10;
+    const host = el(`<div style="padding:4px"></div>`);
+    const bars = barRows(host, [
+      ["1 head", "violet"],
+      ["8 heads", "teal"],
+      ["score grid", "amber"],
+    ]);
+    const show = () => {
+      const p = 4 * dm * dm;
+      bars(0, 1, p.toLocaleString());
+      bars(1, 1, p.toLocaleString());
+      bars(2, (T * T) / 1600, `${T * T}`);
+    };
+    box.append(
+      el(
+        `<div class="faint" style="font-size:13px">Attention parameters (top two bars) and scores per head (bottom bar)</div>`,
+      ),
+      seg(
+        [
+          [64, "d_model = 64"],
+          [512, "d_model = 512"],
+        ],
+        "512",
+        (v) => {
+          dm = +v;
+          show();
+        },
+      ),
+      seg(
+        [
+          [10, "10 words"],
+          [20, "20 words"],
+          [40, "40 words"],
+        ],
+        "10",
+        (v) => {
+          T = +v;
+          show();
+        },
+      ),
+      host,
+    );
+    show();
+  }
+
   reg({
     id: "a10-heads",
     order: 5,
@@ -48,7 +197,7 @@
         <div class="controls" id="r2"></div><div id="shp"></div></div>`);
       root.appendChild(card);
       qs("#r", card).append(
-        N.seg(
+        seg(
           [
             ["0", "Head 1"],
             ["1", "Head 2"],
@@ -64,7 +213,7 @@
         ),
       );
       qs("#r2", card).append(
-        N.seg(
+        seg(
           [
             ["64", "d_model = 64"],
             ["512", "d_model = 512"],
@@ -75,7 +224,7 @@
             draw();
           },
         ),
-        N.seg(
+        seg(
           [
             ["1", "1 head"],
             ["2", "2 heads"],
@@ -182,43 +331,31 @@
       },
       {
         t: "Split the work into h heads",
-        b: `<p>Each head $i$ has its own matrices $W_{Q,i},W_{K,i},W_{V,i}\\in\\mathbb{R}^{d_{\\text{model}}\\times d_h}$ with</p>$$d_h=\\frac{d_{\\text{model}}}{h}$$<p>For $d_{\\text{model}}=512$ and $h=8$, every head works with 64-number queries, keys and values. The input embeddings are shared by all heads.</p>`,
-        v: table(
+        b: `<p>Inside the model every word is a long list of numbers, 512 in the example. Instead of one big attention there are several small ones, called <b>heads</b>. Every head sees the whole word, but works in a smaller space: its own query, key and value filters squeeze the word down to a short list. Eight heads each work with 64 numbers (8 &#215; 64 = 512); a single head would work with all 512.</p><p>Smaller example: a 64-number word and 4 heads gives 16 numbers per head. Pick a head count in the picture.</p><details class="math-more"><summary>Show the maths</summary><p>Each head $i$ has its own matrices $W_{Q,i},W_{K,i},W_{V,i}\\in\\mathbb{R}^{d_{\\text{model}}\\times d_h}$ with</p>$$d_h=\\frac{d_{\\text{model}}}{h}$$<p>The input embeddings are shared by all heads.</p>${table(
           ["d<sub>model</sub>", "heads h", "d<sub>h</sub> = d<sub>model</sub> / h"],
           [
             ["512", "8", "64"],
             ["512", "1", "512"],
             ["64", "4", "16"],
           ],
-        ),
+        )}</details>`,
+        v: (box) => splitFig(box),
         c: {
-          q: "d<sub>model</sub> = 64 and h = 4. What is d<sub>h</sub>?",
-          o: ["16", "4", "256"],
+          q: "The model keeps the same word length but doubles the number of heads. What happens to the number of numbers each head works with?",
+          o: ["It halves", "It doubles", "It stays the same, because the word length is unchanged"],
           a: 0,
-          why: "64 / 4 = 16 numbers per head.",
+          why: "The total working space stays 512 but is shared between twice as many heads, so each gets half as many numbers (512 / 8 = 64 becomes 512 / 16 = 32).",
         },
       },
       {
         t: "Run in parallel, then concatenate",
-        b: `<p>Every head runs the normal attention and returns $Z_i\\in\\mathbb{R}^{T\\times d_h}$. The $h$ outputs are glued side by side (<b>concatenated</b>) into $T\\times d_{\\text{model}}$, and one last matrix $W_O$ mixes the heads together. The output is the same shape as the input, ready for the next layer.</p>`,
-        v: F.cells(
-          [
-            { v: "Z₁", sub: "T × 64", c: "violet" },
-            { v: "Z₂", sub: "T × 64", c: "teal" },
-            { v: "…", c: "dim" },
-            { v: "Z₈", sub: "T × 64", c: "amber" },
-            "→",
-            { v: "concat", sub: "T × 512", c: "blue" },
-            "→",
-            { v: "× W_O", sub: "T × 512", c: "rose" },
-          ],
-          { size: 62 },
-        ),
+        b: `<p>Every head runs its own attention and hands back a result for each word, 64 numbers in the example. The results are glued side by side (<b>concatenated</b>), which gives 8 &#215; 64 = 512 numbers per word, the same size as the input. One last mixing step then lets the heads blend with each other, and the layer's output can feed straight into the next layer.</p><details class="math-more"><summary>Show the maths</summary><p>Head $i$ returns $Z_i\\in\\mathbb{R}^{T\\times d_h}$. The $h$ outputs are concatenated into $T\\times d_{\\text{model}}$ and multiplied by one more matrix $W_O$.</p></details>`,
+        v: (box) => concatFig(box),
         c: {
-          q: "8 heads each return T × 64. What shape is the concatenation?",
-          o: ["T × 512", "T × 64", "8T × 64"],
+          q: "Each of 8 heads returns 64 numbers for a word. How many numbers per word after gluing the results side by side?",
+          o: ["512", "64", "72"],
           a: 0,
-          why: "Side by side: 8 × 64 = 512 columns for each of the T rows.",
+          why: "Side by side: 8 &#215; 64 = 512, the same as the word that went in.",
         },
       },
       {
@@ -253,14 +390,14 @@
       },
       {
         t: "What it costs",
-        b: `<p>With $W_Q,W_K,W_V$ and $W_O$ all of size about $d_{\\text{model}}\\times d_{\\text{model}}$, one attention layer has about $4\\,d_{\\text{model}}^2$ parameters, <b>whatever $h$ is</b>. Each head's score matrix is still $T\\times T$, so the sequence-length cost stays quadratic.</p>`,
-        v: table(
+        b: `<p>Splitting into heads is free in parameters: eight small filters hold exactly as many numbers as one big one, so 1 head and 8 heads have the same size. What does grow is the work on long texts: every head still scores every word against every word, so 10 words need 100 scores and 20 words need 400.</p><details class="math-more"><summary>Show the maths</summary><p>With $W_Q,W_K,W_V$ and $W_O$ all of size about $d_{\\text{model}}\\times d_{\\text{model}}$, one attention layer has about $4\\,d_{\\text{model}}^2$ parameters, <b>whatever $h$ is</b>. Each head's score matrix is still $T\\times T$, so the sequence-length cost stays quadratic.</p>${table(
           ["d<sub>model</sub>", "attention parameters 4·d²"],
           [
             ["64", "16,384"],
             ["512", "1,048,576"],
           ],
-        ),
+        )}</details>`,
+        v: (box) => costFig(box),
         c: {
           q: "Going from 1 head to 8 heads at the same d<sub>model</sub> changes the number of attention parameters by…",
           o: ["Nothing", "A factor of 8", "A factor of 64"],

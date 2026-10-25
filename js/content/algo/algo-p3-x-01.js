@@ -292,6 +292,47 @@
     ],
     NEED = [12, 10, 6];
   const reach = (x, d) => GM[d].reduce((s, a, j) => s + a * x[j], 0);
+  const more = (h) => `<details class="math-more"><summary>Show the maths</summary>${h}</details>`;
+  /** The promoter's table with one part lit at a time: dials (columns), score (cost row), limits (rows), gains (entries). */
+  function partsFig(box) {
+    const P = {
+      d: ["amber", "4 dials: £ thousands on radio, flyers, social and street team (x₁ … x₄)."],
+      s: ["teal", "The score: total cost, every £1k counts 1. We want it as small as possible."],
+      l: ["violet", "3 limits, one per district: the people reached must be at least the need."],
+      g: ["blue", "How much each £1k on a dial moves each limit. Negative entries pull a district down."],
+    };
+    const out = el(`<div class="fig-wrap"></div>`);
+    const draw = (on) => {
+      const c = (k, h) =>
+        `<span style="display:block;margin:-3px -7px;padding:3px 7px;border-radius:8px;${on === k ? `background:color-mix(in srgb,var(--${P[k][0]}) 30%,transparent)` : ""}">${h}</span>`;
+      out.innerHTML =
+        T(
+          ["", ...CH.map((n) => c("d", n)), "need"],
+          [
+            ["cost per £1k", ...CH.map(() => c("s", "1")), ""],
+            ...DI.map((d, i) => [
+              c("l", d),
+              ...GM[i].map((a) => c("g", `<span class="mono">${a}</span>`)),
+              c("l", `≥ ${NEED[i]}`),
+            ]),
+          ],
+        ) + `<div class="callout ${P[on][0]}">${P[on][1]}</div>`;
+    };
+    box.append(
+      N.seg(
+        [
+          ["d", "Dials"],
+          ["s", "Score"],
+          ["l", "Limits"],
+          ["g", "Entries"],
+        ],
+        "d",
+        draw,
+      ),
+      out,
+    );
+    draw("d");
+  }
   const rowTxt = (r) =>
     r
       .map((a, j) =>
@@ -319,9 +360,9 @@
       { t: "Feasible is not the same as best", b: `<p>Many plans pass every rule. They differ in <b>cost</b>. A plan that costs £9k and works is beaten by one that costs £6k and works.</p><p>So the question is never just <i>"does it work?"</i> but <i>"is any other working plan cheaper?"</i> Guessing can't answer that for sure, which is why we need a systematic method like simplex.</p>`,
         v: F.bars([["(3,1,2,2): fails North", 8, "rose", "infeasible"], ["(1,3,1,4): all rules hold", 9, "amber", "feasible"], ["(0,2,0,4): all rules hold", 6, "teal", "feasible, cheapest"]], { max: 9, fmt: (v) => "£" + v + "k" }) ,
         c: { q: "Plans B and C both satisfy every rule. B costs £9k and C costs £6k. What does that show?", o: ["C wins: both are feasible and C costs less", "B is better, because spending more must reach more people", "Neither can be judged until each is checked against the other"], a: 0, why: "Once a plan is feasible, the objective decides. Cheaper wins. (More spend does not always mean more reach: some entries are negative.)" } },
-      { t: "The general shape", b: `<p>Every LP has the same ingredients. With <b>n</b> variables and <b>m</b> constraints, the <b>standard form</b> is:</p><p>$$\\text{maximise } \\sum_{j=1}^{n} c_j x_j \\quad \\text{subject to } \\sum_{j=1}^{n} a_{ij} x_j \\le b_i \\ (i = 1 \\ldots m), \\quad x_j \\ge 0$$</p><p><b>c<sub>j</sub></b> weights each variable in the objective, <b>a<sub>ij</sub></b> says how much constraint i uses variable j, and <b>b<sub>i</sub></b> is constraint i's limit. Our promoter's problem has the same shape but minimises and uses ≥: step 3.3 shows how to convert.</p>`,
-        v: F.cells([{ v: "n = 4", sub: "variables xⱼ (channels)", c: "violet" }, { v: "m = 3", sub: "constraints (districts)", c: "blue" }, { v: "aᵢⱼ", sub: "the gain matrix", c: "amber" }, { v: "bᵢ", sub: "needs: 12, 10, 6", c: "teal" }], { size: 110 }),
-        c: { q: "The promoter has 3 districts and 4 channels. How many constraints m and variables n (not counting xⱼ ≥ 0)?", o: ["m = 3, n = 4", "m = 4, n = 3", "m = 7, n = 4"], a: 0, why: "One constraint per district gives m = 3, and one variable per channel gives n = 4. The sign rules xⱼ ≥ 0 are not counted in m." } },
+      { t: "The general shape", b: `<p>Every LP is the same shopping list in three parts: some <b>dials</b> you can turn, a <b>score</b> you want as good as possible, and <b>limits</b> the dials must respect. The promoter has 4 dials (money per channel), a score (total cost) and 3 limits (each district's minimum reach).</p><p>Tap a part below to light it up in the promoter's table. Textbooks call them the variables, the objective and the constraints, and write them in one tidy template, the <b>standard form</b>. The promoter minimises and uses ≥ where the template maximises with ≤: step 3.3 shows how to convert.</p>${more(`<p>With $n$ variables and $m$ constraints the standard form is</p><p>$$\\text{maximise } \\sum_{j=1}^{n} c_j x_j \\quad \\text{subject to } \\sum_{j=1}^{n} a_{ij} x_j \\le b_i \\ (i = 1 \\ldots m), \\quad x_j \\ge 0$$</p><p>$c_j$ weights variable $j$ in the objective (the cost per £1k), $a_{ij}$ says how much constraint $i$ uses variable $j$ (the table entries), and $b_i$ is constraint $i$'s limit (the needs 12, 10 and 6). The promoter has $n=4$ and $m=3$.</p>`)}`,
+        v: (box) => partsFig(box),
+        c: { q: "The promoter adds a fifth channel, a billboard. What changes in the model?", o: ["A new limit: one more row", "A new dial: one more column", "A new score: a second objective column"], a: 1, why: "Channels are things you choose, so each is a dial (a variable) and a column of the table. Rows come from districts, so a new channel adds no row." } },
     ],
     guide: ["Move the four spend sliders and watch the three district totals against their minimums.", "Find a feasible plan by hand. Then press <b>Show the cheapest plan</b> and compare its cost.", "Answer the questions after the demo."],
   };

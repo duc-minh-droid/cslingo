@@ -8,6 +8,42 @@
   const reg = (m) => N.register({ subject: S, lecture: 10, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
   const { cap, softmax, archSvg } = shared;
+  const seg = (o, v, f) =>
+    N.seg(
+      o.map(([a, l]) => [String(a), l]),
+      String(v),
+      f,
+    );
+
+  // masked self-attention: pick the word being written; later words are blocked
+  function maskFig(box) {
+    const W = ["Ich", "habe", "einen", "roten", "Apfel", "gegessen"],
+      n = W.length;
+    const host = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:8px;min-height:44px"></div>`);
+    const show = (cur) => {
+      const cell = (r, c) => {
+        const ok = c <= r,
+          on = r === cur;
+        return `<span style="height:30px;display:grid;place-items:center;border-radius:6px;font:900 13px var(--sans);background:var(--${ok ? "teal" : "bg-2"}${ok ? "-dim" : ""});border:2px solid var(--${on ? (ok ? "teal" : "rose") : "line"});opacity:${on ? 1 : 0.45};color:var(--${ok ? "teal-ink" : "text-dim"})">${ok ? "\u2713" : "\u2715"}</span>`;
+      };
+      host.innerHTML = `<div style="display:grid;grid-template-columns:64px repeat(${n},minmax(0,1fr));gap:3px;max-width:520px;align-items:center"><span></span>${W.map((w) => `<span class="faint" style="font:800 11px var(--sans);text-align:center;overflow:hidden">${w}</span>`).join("")}${W.map((w, r) => `<b style="font-size:12px;${r === cur ? "" : "opacity:.45"}">${w}</b>${W.map((_, c) => cell(r, c)).join("")}`).join("")}</div>`;
+      note.innerHTML = `Writing <b>${W[cur]}</b>: it may look at ${cur + 1} word${cur ? "s" : ""} (${W.slice(0, cur + 1).join(", ")})${cur < n - 1 ? `; the ${n - 1 - cur} later word${n - 1 - cur > 1 ? "s are" : " is"} blocked (weight exactly 0)` : ". Nothing is blocked for the last word"}.`;
+    };
+    box.append(
+      el(
+        `<div class="faint" style="font-size:13px;margin-bottom:4px">Rows: the word being written. Columns: the words it may look at.</div>`,
+      ),
+      seg(
+        W.map((w, i) => [i, w]),
+        "2",
+        (v) => show(+v),
+      ),
+      host,
+      note,
+    );
+    show(2);
+  }
   const STEPS = [
     { ctx: "<sos>", words: ["Ich", "Wir", "Das", "Es"], logits: [4, 2.5, 1.5, 1] },
     { ctx: "<sos> Ich", words: ["habe", "esse", "bin", "werde"], logits: [3.5, 3, 2, 1] },
@@ -237,14 +273,17 @@
       },
       {
         t: "Masked self-attention",
-        b: `<p>While it writes, the decoder must not look at words that do not exist yet. In <b>masked multi-head attention</b> a mask $M$ is added to the score matrix, with $-\\infty$ above the diagonal:</p>$$\\operatorname{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d_k}}+M\\right)V$$<p>After softmax the blocked cells are exactly 0. This also lets training process a whole sentence in parallel without cheating.</p>`,
-        v: `<svg class="fig" viewBox="0 0 300 170" style="max-height:170px">${[0, 1, 2, 3, 4, 5].map((r) => [0, 1, 2, 3, 4, 5].map((c) => `<rect x="${60 + c * 30}" y="${12 + r * 25}" width="26" height="21" rx="4" fill="${c > r ? "rgba(128,128,128,.3)" : "rgba(88,204,2,.45)"}" stroke="var(--line)" class="fi"/>`).join("")).join("")}<text x="150" y="168" class="fig-sub">grey = blocked (−∞ → weight 0)</text></svg>`,
+        b: `<p>When the decoder writes a sentence it only knows the words it has already written. The next word does not exist yet, so a word must never look ahead. <b>Masking</b> enforces this: when a word asks who to pay attention to, every later word is blocked and gets exactly zero weight.</p><p>Example: in "Ich habe einen roten Apfel gegessen", while writing <i>einen</i> the decoder may look at Ich, habe and einen, but not at roten, Apfel or gegessen. Pick each word in the picture and watch the blocked area change. The mask also lets training handle the whole sentence at once without any word peeking at the answer.</p><details class="math-more"><summary>Show the maths</summary><p>A mask $M$ is added to the score matrix, with $-\\infty$ above the diagonal and $0$ elsewhere:</p>$$\\operatorname{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d_k}}+M\\right)V$$<p>After softmax the blocked cells are exactly 0. For 6 tokens the mask blocks $5+4+3+2+1=15$ of the 36 cells.</p></details>`,
+        v: (box) => maskFig(box),
         c: {
-          q: "A sentence has 6 tokens. How many cells of the 6 × 6 score matrix does the causal mask block?",
-          o: ["15", "6", "21"],
+          q: "During training the decoder sees the whole target sentence at once. Why is the mask still needed?",
+          o: [
+            "Without it a word could peek at the very word it must predict",
+            "Without it the attention weights would stop adding up to 1, so every output would be wrong",
+            "Without it the model could not use more than one attention head, which would limit what it learns",
+          ],
           a: 0,
-          hint: "Count the cells above the diagonal: 5 + 4 + 3 + 2 + 1.",
-          why: "Row 1 blocks 5, row 2 blocks 4, … : 5+4+3+2+1 = 15. (21 is the allowed cells including the diagonal.)",
+          why: "The mask hides later words, so each position has to predict from earlier words only, just as it will when generating. The weights still add up to 1 either way.",
         },
       },
       {

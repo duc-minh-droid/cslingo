@@ -7,11 +7,77 @@
     FG = N.fig;
   const reg = (m) => N.register({ subject: "algo", lecture: 7, ...m });
   const lg2 = Math.log2;
-  const { table, H, norm, huff } = sh;
+  const { table, H, norm, huff, usageFig, lenBars, mseed, pick } = sh;
   /* ============ 7.5 Coding with the wrong model (KL divergence) ============ */
   const P0 = [0.5, 0.25, 0.125, 0.125];
   const KL = (p, q) => p.reduce((a, x, i) => a + (x > 0 ? x * lg2(x / q[i]) : 0), 0);
   const Lq = (p, q) => p.reduce((a, x, i) => a - (x > 0 ? x * lg2(q[i]) : 0), 0);
+  const MODELS = [
+    ["Right guess", P0],
+    ["Close guess", [0.4, 0.3, 0.2, 0.1]],
+    ["Uniform guess", [0.25, 0.25, 0.25, 0.25]],
+    ["Backwards guess", [0.125, 0.125, 0.25, 0.5]],
+  ];
+  /** Stacked bars: green = best possible (entropy), red = extra paid for the guess. rows: [[label, D]] */
+  const stackRows = (rows) => {
+    const h = H(P0),
+      sc = 4;
+    return `<div style="display:grid;gap:8px;margin:10px 0">${rows
+      .map(
+        ([lb, d]) =>
+          `<div style="display:grid;grid-template-columns:96px 1fr 110px;gap:8px;align-items:center;font-size:13px"><b>${lb}</b><span style="position:relative;display:flex;height:24px;border:2px solid var(--line);border-radius:8px;background:var(--bg-2);overflow:hidden"><span style="width:${(h / sc) * 100}%;background:var(--teal)"></span><span style="width:${(d / sc) * 100}%;background:var(--rose)"></span><span style="position:absolute;left:${(h / sc) * 100}%;top:0;bottom:0;border-left:3px dashed var(--ink)"></span></span><span class="mono">${(h + d).toFixed(2)} bits</span></div>`,
+      )
+      .join(
+        "",
+      )}</div><p class="fig-cap">Green: the best possible, ${h} bits. Red: the extra paid for the guess. The dashed line marks the floor.</p>`;
+  };
+  function klStack(box) {
+    const out = pick(
+      box,
+      MODELS.map((m, i) => [String(i), m[0]]),
+      "2",
+      (v) => draw(+v),
+    );
+    const draw = (k) => {
+      const q = MODELS[k][1];
+      out.innerHTML =
+        stackRows([[MODELS[k][0], KL(P0, q)]]) +
+        `<p class="fig-cap">${Lq(P0, q).toFixed(2)} bits actually paid = ${H(P0)} best possible + <b>${KL(P0, q).toFixed(2)}</b> penalty.</p>`;
+    };
+    draw(2);
+  }
+  function klRandom(box) {
+    let n = 0;
+    const out = el(`<div></div>`),
+      btn = el(`<div class="controls"><button class="btn small primary">Try random guesses</button></div>`);
+    const draw = () => {
+      const r = mseed(7 + n * 31),
+        rows = [["Right guess", 0]];
+      for (let i = 1; i < 6; i++) rows.push([`Guess ${i}`, KL(P0, norm(P0.map(() => 1 + Math.floor(r() * 9))))]);
+      out.innerHTML = stackRows(rows);
+    };
+    btn.firstChild.onclick = () => (n++, draw());
+    box.append(btn, out);
+    draw();
+  }
+  /** The work in Huffman: n - 1 merges of about log2 n small steps each, against comparing every pair (n by n). */
+  function costFig(box) {
+    const out = el(`<div></div>`),
+      ctl = el(`<div class="controls"></div>`),
+      sl = N.slider("Number of symbols n", 2, 32, 1, 8, (v) => v);
+    const grid = (cols, rows, c) =>
+      `<svg viewBox="0 0 ${cols * 7} ${rows * 7}" style="width:${cols * 12}px;max-width:100%;display:block" role="img" aria-label="${cols} by ${rows} squares">${Array.from({ length: cols * rows }, (_, i) => `<rect x="${(i % cols) * 7}" y="${Math.floor(i / cols) * 7}" width="6" height="6" rx="1.5" fill="${c}"/>`).join("")}</svg>`;
+    const draw = (n) => {
+      const m = n - 1,
+        s = Math.ceil(Math.log2(n));
+      out.innerHTML = `<p style="margin:10px 0 4px"><b>Huffman:</b> ${m} merges, each about ${s} small steps = <b>${m * s}</b></p>${grid(m, s, "var(--teal)")}
+        <p style="margin:12px 0 4px"><b>Comparing every pair:</b> ${n} by ${n} = <b>${n * n}</b></p>${grid(n, n, "var(--rose)")}`;
+    };
+    sl.onInput(draw);
+    ctl.appendChild(sl);
+    box.append(ctl, out);
+    draw(8);
+  }
   reg({
     id: "a7-kl",
     order: 5,
@@ -128,15 +194,15 @@
   L["a7-kl"] = {
     sum: "A code is only as good as the model behind it. Give it the wrong probabilities and the extra bits per symbol are exactly the KL divergence.",
     steps: [
-      { t: "A code built on a guess", b: `<p>Suppose you design a code for probabilities $q$, but the real data follow $p$. Symbol $x$ gets the ideal length for the model: $l_q(x) = -\\log_2 q(x)$. The symbols still turn up at their <b>true</b> rate, so the real average is</p><p>$$L = \\sum_x p(x)\\,\\bigl(-\\log_2 q(x)\\bigr)$$</p>`,
-        v: FG.flow([{ t: "true source p", s: "what actually happens" }, { t: "code designed for q", s: "length −log₂ q", c: "violet" }, { t: "cost", s: "L = Σ p (−log₂ q)", c: "rose" }]),
+      { t: "A code built on a guess", b: `<p>A code is built from a guess about how often each letter turns up. If the guess is right, the common letters get short words. If it is wrong, the wrong letters get them. But the letters keep appearing at their <b>real</b> rate, so you pay for a bad guess every single time.</p><p>Here A really appears half the time. Try three guesses: the right one averages 1.75 bits per letter, a uniform one 2, and a backwards one (it thinks D is the common letter) 2.625.</p><details class="math-more"><summary>Show the maths</summary><p>Suppose you design a code for probabilities $q$, but the real data follow $p$. Symbol $x$ gets the ideal length for the model: $l_q(x) = -\\log_2 q(x)$. The symbols still turn up at their <b>true</b> rate, so the real average is</p><p>$$L = \\sum_x p(x)\\,\\bigl(-\\log_2 q(x)\\bigr)$$</p></details>`,
+        v: (box) => usageFig(box, { p: P0, best: 1.75, h2: "word length the guess gave it", opts: [["Right guess", [1, 2, 3, 3], "The guess matches the data: common letters get short words."], ["Uniform guess", [2, 2, 2, 2], "The guess treats every letter alike."], ["Backwards guess", [3, 3, 2, 1], "The guess thinks D is the common letter."]] }),
         c: { q: "Which probabilities decide how <b>often</b> each codeword is used?", o: ["The true p: it is what the source really sends", "The assumed q, because the code was built from it", "Neither: codewords are used equally often"], a: 0, why: "Frequency of use comes from the data (p). The codeword lengths come from the model (q)." } },
-      { t: "Entropy plus a penalty", b: `<p>Add and subtract $\\log_2 p$ inside the sum:</p><p>$$L = \\underbrace{\\sum_x p\\,(-\\log_2 p)}_{H(p)} \\;+\\; \\underbrace{\\sum_x p\\,\\log_2\\frac{p}{q}}_{D_{\\mathrm{KL}}(p\\,\\|\\,q)}$$</p><p>The first part is the entropy: the best you could do. The second is the <b>KL divergence</b>: the price of using $q$ instead of $p$.</p>`,
-        v: FG.bars([["entropy H(p)", 1.75, "teal", "bits"], ["+ penalty D(p‖q)", 0.25, "rose"], ["= actual L", 2.0, "violet"]], { max: 2.2, fmt: (v) => v.toFixed(2) }) + `<div class="fig-cap">p = (½, ¼, ⅛, ⅛) coded with a uniform guess q = (¼, ¼, ¼, ¼).</div>`,
+      { t: "Entropy plus a penalty", b: `<p>Split what you pay into two parts. The first is the best anyone could do for this source, its entropy: what you would pay with a perfect guess. The second is the <b>extra</b> you pay for guessing wrong, and it has a name: the <b>KL divergence</b>.</p><p>So the bill is always <b>the best possible plus the penalty for the wrong guess</b>. Pick a guess below: the green part never changes because the source is the same. Only the red part grows as the guess gets worse.</p><details class="math-more"><summary>Show the maths</summary><p>Add and subtract $\\log_2 p$ inside the sum:</p><p>$$L = \\underbrace{\\sum_x p\\,(-\\log_2 p)}_{H(p)} \\;+\\; \\underbrace{\\sum_x p\\,\\log_2\\frac{p}{q}}_{D_{\\mathrm{KL}}(p\\,\\|\\,q)}$$</p><p>The first part is the entropy: the best you could do. The second is the KL divergence: the price of using $q$ instead of $p$.</p></details>`,
+        v: (box) => klStack(box),
         c: { q: "H(p) = 1.75 and D(p‖q) = 0.25. The real average length L is…", o: ["2.0 bits", "1.5 bits", "7 bits"], a: 0, why: "L = H + D = 1.75 + 0.25 = 2.0." } },
-      { t: "The penalty is never negative", b: `<p>Because $L \\ge H$ for every decodable code, $D_{\\mathrm{KL}}(p\\|q) \\ge 0$. It is <b>zero only when $q = p$</b>. A wrong model can only cost bits, never save them.</p><p>It is not symmetric: for $p = (\\tfrac12,\\tfrac14,\\tfrac18,\\tfrac18)$ and $q = (0.4, 0.3, 0.2, 0.1)$, $D(p\\|q) \\approx 0.051$ but $D(q\\|p) \\approx 0.054$. KL measures the cost of coding <i>p-data</i> with a <i>q-code</i>, which is not the same journey backwards.</p>`,
-        v: table(["Model q", "L (bits)", "D(p‖q)"], [["(½, ¼, ⅛, ⅛) = p", fmt(Lq(P0, P0), 3), "0"], ["(0.4, 0.3, 0.2, 0.1)", Lq(P0, [0.4, 0.3, 0.2, 0.1]).toFixed(3), KL(P0, [0.4, 0.3, 0.2, 0.1]).toFixed(3)], ["(¼, ¼, ¼, ¼) uniform", "2", "0.25"], ["(⅛, ⅛, ¼, ½) backwards", Lq(P0, [0.125, 0.125, 0.25, 0.5]).toFixed(3), "0.875"]], 520),
-        c: { q: "A model q matches the true p exactly. The penalty D(p‖q) is…", o: ["0", "1", "H(p)"], a: 0, why: "Matching the source is the best case. Then L = H and nothing is wasted." } },
+      { t: "The penalty is never negative", b: `<p>Could a wrong guess ever cost <i>less</i> than the best possible? No. If it could, entropy would not be the floor. So the penalty is never negative: zero for a perfect guess, positive for every other.</p><p>Press the button for random guesses. Every bar reaches the dashed line and none stops short of it. A wrong model can only cost bits, never save them.</p><details class="math-more"><summary>Show the maths</summary><p>Because $L \\ge H$ for every decodable code, $D_{\\mathrm{KL}}(p\\|q) \\ge 0$. It is <b>zero only when $q = p$</b>.</p><p>It is not symmetric: for $p = (\\tfrac12,\\tfrac14,\\tfrac18,\\tfrac18)$ and $q = (0.4, 0.3, 0.2, 0.1)$, $D(p\\|q) \\approx 0.051$ but $D(q\\|p) \\approx 0.054$. KL measures the cost of coding <i>p-data</i> with a <i>q-code</i>, which is not the same journey backwards.</p>${table(["Model q", "L (bits)", "D(p‖q)"], [["(½, ¼, ⅛, ⅛) = p", fmt(Lq(P0, P0), 3), "0"], ["(0.4, 0.3, 0.2, 0.1)", Lq(P0, [0.4, 0.3, 0.2, 0.1]).toFixed(3), KL(P0, [0.4, 0.3, 0.2, 0.1]).toFixed(3)], ["(¼, ¼, ¼, ¼) uniform", "2", "0.25"], ["(⅛, ⅛, ¼, ½) backwards", Lq(P0, [0.125, 0.125, 0.25, 0.5]).toFixed(3), "0.875"]], 520)}</details>`,
+        v: (box) => klRandom(box),
+        c: { q: "Someone claims a wrong guess q whose code averages <b>fewer</b> bits than the entropy of the data. What should you conclude?", o: ["It is possible: a lucky guess can slip under the entropy", "It cannot happen: no decodable code beats the entropy", "It is possible, but only for very long messages"], a: 1, why: "Entropy is the floor for every decodable code, so the penalty can never be negative. A claim like that means a mistake, or a code that is not decodable." } },
       { t: "Static, dynamic, adaptive: a KL view", b: `<p>Back to the three kinds of model:</p>`,
         v: table(["Model", "How q is chosen", "Typical penalty"], [["Static (ASCII, Morse)", "fixed in advance for all text", "D can stay large for text that doesn't match"], ["Dynamic (Huffman)", "count this text, send the table", "D close to 0 but the table costs bits"], ["Adaptive (LZW)", "learn as the text arrives", "starts high and falls as the model improves"]], 720),
         c: { q: "Which model has no mismatch penalty to start with, but pays to send its model?", o: ["Dynamic: fitted to this text, then sent", "Static: it is built to fit every possible text", "Adaptive: it already knows the text in advance"], a: 0, why: "A dynamic code is built from the text's own counts, so q ≈ p, but the table must travel with the data." } },
@@ -424,9 +490,9 @@
       { t: "Reading off the codewords", b: `<p>Walk from the root and write down the branch labels. The lecture's table is:</p><p><b>B = 1, A = 011, D = 010, E = 001, C = 000</b></p><p>B sits one step from the root, the other four three steps down. Swap the 0 and 1 labels at any merge and you get another valid code with the same lengths.</p>`,
         v: FG.cells([{ v: "B", sub: "1", c: "teal" }, { v: "A", sub: "011", c: "violet" }, { v: "D", sub: "010", c: "violet" }, { v: "E", sub: "001", c: "violet" }, { v: "C", sub: "000", c: "violet" }], { size: 62 }),
         c: { q: "Is B = 1 a prefix of any other codeword in this table?", o: ["No: all the others start with 0", "Yes: it is a prefix of the codeword for A", "It depends on which message is sent"], a: 0, why: "A, D, E and C all begin with 0, so the single bit 1 can only mean B. That is what keeps the code prefix-free." } },
-      { t: "Average length versus entropy", b: `<p>$L = 1(0.51) + 3(0.16 + 0.13 + 0.11 + 0.09) = 0.51 + 3(0.49) = \\mathbf{1.98}$ bits per symbol.</p><p>Entropy: $H = \\sum p\\log_2\\tfrac1p \\approx \\mathbf{1.964}$. So $L$ sits just above $H$ (by about 0.016), as it must. A fixed code for five letters costs 3 bits per symbol.</p>`,
-        v: FG.bars([["fixed-length code", 3, "dim", "bits"], ["Huffman L", 1.98, "teal"], ["entropy H", 1.964, "violet"]], { max: 3, fmt: (v) => v.toFixed(3) }),
-        c: { q: "Which relationship holds for Huffman's average length L and the entropy H?", o: ["L is a little above H", "L is a little below H", "L is far above H"], a: 0, why: "L ≥ H always. Here the gap is only about 0.016 bits per symbol." } },
+      { t: "Average length versus entropy", b: `<p>Does the code reach the entropy? Almost. Each letter has an <b>ideal</b> length that is a fraction of a bit, and Huffman has to use whole bits. In the picture the purple bar is the ideal and the black tick is the length actually used: B (51%) deserves 0.97 bits and gets 1, while C and E get a little less than their ideal and A and D a little more.</p><p>The overs and unders nearly cancel. The average is <b>1.98</b> bits per letter against an entropy of <b>1.964</b>, a gap of just 0.016. A fixed code for five letters would cost 3.</p><details class="math-more"><summary>Show the maths</summary><p>$L = 1(0.51) + 3(0.16 + 0.13 + 0.11 + 0.09) = 0.51 + 3(0.49) = \\mathbf{1.98}$ bits per symbol.</p><p>Entropy: $H = \\sum p\\log_2\\tfrac1p \\approx \\mathbf{1.964}$. So $L$ sits just above $H$ (by about 0.016), as it must.</p></details>`,
+        v: lenBars([["B", 0.51, 0.971, 1], ["A", 0.16, 2.644, 3], ["D", 0.13, 2.943, 3], ["E", 0.11, 3.184, 3], ["C", 0.09, 3.474, 3]]),
+        c: { q: "Huffman gives C an ideal length of 3.47 bits a 3-bit word. Is that a problem?", o: ["Yes: no letter may ever get fewer bits than its ideal length", "Yes: the code must be wrong and needs to be rebuilt", "No: only the average has to stay above H"], a: 2, why: "Individual letters can land above or below their ideal. What cannot happen is the average length beating the entropy, and here it sits just above it (1.98 against 1.964)." } },
       { t: "Encode BBADEBC", b: `<p>Look each letter up in the table and concatenate: B, B, A, D, E, B, C becomes</p><p><b class="mono">1 · 1 · 011 · 010 · 001 · 1 · 000</b> = <b class="mono">110110100011000</b></p><p>That is <b>15 bits</b>, against 21 with a fixed 3-bit code. The three Bs are the saving.</p>`,
         v: FG.cells(["B", "B", "A", "D", "E", "B", "C"].map((c) => ({ v: c, sub: LEC_CODES[c], c: c === "B" ? "teal" : "violet" })), { size: 52 }),
         c: { q: "How many bits does BBADEBC take with this Huffman code?", o: ["15", "21", "7"], a: 0, why: "1 + 1 + 3 + 3 + 3 + 1 + 3 = 15 bits." } },
@@ -438,5 +504,5 @@
     ],
     guide: ["Tap letters to build a message and see its bit string and saving against fixed 3-bit codes.", "Build BBADEBC (the default) and check it gives 15 bits.", "Press <b>Read next bit</b> repeatedly and watch the prefix grow and reset.", "Answer the questions after the demo."],
   };
-  Object.assign(sh, { LEC_CODES, encode, decodeTree });
+  Object.assign(sh, { LEC_CODES, encode, decodeTree, costFig });
 })();

@@ -7,7 +7,44 @@
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 9, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
-  const { table, mono, fftIP, TAU } = shared;
+  const { table, mono, cap, fftIP, TAU, svgFig, tint } = shared;
+  shared.ffnFig = () => {
+    const C = ["blue", "violet", "teal"];
+    const g = (c, t) =>
+      `<g transform="translate(${t * 184 + 8} 0)" class="fi"><polygon points="0,45 62,12 108,12 170,45 170,75 108,108 62,108 0,75" fill="${tint(c, 24)}" stroke="var(--${c})" stroke-width="2"/><text x="12" y="64" class="fig-sub" style="text-anchor:start">512</text><text x="85" y="64" class="fig-box">2048</text><text x="158" y="64" class="fig-sub" style="text-anchor:end">512</text><text x="85" y="132" class="fig-box">token ${t + 1}</text><text x="85" y="150" class="fig-sub">widen · clip · narrow</text></g>`;
+    return (
+      svgFig(
+        560,
+        184,
+        "The same widen, clip and narrow network applied to three tokens separately",
+        C.map(g).join(""),
+      ) + cap("The same weights for every token, and no token looks at another one here.")
+    );
+  };
+  /** A peak at (6, 8) in the spectrum, and the ripples it stands for in a 100-pixel picture. */
+  const seaFig = () => {
+    const ln = (x1, y1, x2, y2, c, w = 2, d = "") =>
+      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--${c})" stroke-width="${w}"${d ? ` stroke-dasharray="${d}"` : ""}/>`;
+    const stripes = Array.from({ length: 19 }, (_, i) => {
+      const o = (i - 9) * 15,
+        cx = 395 + o * 0.6,
+        cy = 99 - o * 0.8;
+      return ln(
+        (cx - 150 * 0.8).toFixed(1),
+        (cy - 150 * 0.6).toFixed(1),
+        (cx + 150 * 0.8).toFixed(1),
+        (cy + 150 * 0.6).toFixed(1),
+        "blue",
+        5,
+      );
+    }).join("");
+    return svgFig(
+      560,
+      214,
+      "Left, a spectrum with a peak 6 steps across and 8 steps up from the centre, 10 steps away. Right, a 100-pixel picture with ripples 10 pixels apart running at that angle.",
+      `<rect x="20" y="24" width="150" height="150" rx="8" fill="var(--bg-2)" stroke="var(--line-2)"/>${ln(20, 99, 170, 99, "line")}${ln(95, 24, 95, 174, "line")}${ln(95, 99, 137, 99, "teal")}${ln(137, 99, 137, 43, "teal")}${ln(95, 99, 137, 43, "amber", 3)}<circle cx="137" cy="43" r="7" fill="var(--amber)"/><circle cx="53" cy="155" r="6" fill="var(--text-faint)" opacity=".6"/><text x="116" y="116" class="fig-sub">6</text><text x="152" y="76" class="fig-sub">8</text><text x="95" y="196" class="fig-box">Spectrum: the peak is 10 steps out</text><clipPath id="sea-c"><rect x="320" y="24" width="150" height="150" rx="8"/></clipPath><rect x="320" y="24" width="150" height="150" rx="8" fill="var(--bg-2)" stroke="var(--line-2)"/><g clip-path="url(#sea-c)" opacity=".5">${stripes}</g><text x="395" y="196" class="fig-box">Picture, 100 px wide: 100 ÷ 10 = a ripple every 10 px</text>`,
+    );
+  };
   reg({
     id: "a9-2d",
     order: 8,
@@ -329,15 +366,26 @@
       },
       {
         t: "The cost",
-        b: `<p>For an $N\\times N$ image the direct 2-D sum has $N^2$ outputs each adding $N^2$ terms: $N^4$. Using 1-D transforms along rows and columns ($2N$ of them) with a direct DFT costs $2N\\cdot N^2=2N^3$. With the FFT each 1-D transform costs $N\\log_2 N$, giving $2N^2\\log_2 N$.</p>`,
-        v: table(
+        b: `<p>A 1024 × 1024 picture has about a million pixels. Done head-on, every output pixel adds up a contribution from every input pixel: a million times a million, roughly <b>a trillion</b> multiplications. Rows then columns is already far cheaper: 2048 small jobs, each over 1024 numbers. Using the FFT for each small job brings it down to about <b>20 million</b>, tens of thousands of times less than the head-on sum.</p><details class="math-more"><summary>Show the maths</summary><p>For an $N\\times N$ image the direct 2-D sum has $N^2$ outputs each adding $N^2$ terms: $N^4$. Using 1-D transforms along rows and columns ($2N$ of them) with a direct DFT costs $2N\\cdot N^2=2N^3$. With the FFT each 1-D transform costs $N\\log_2 N$, giving $2N^2\\log_2 N$.</p>${table(
           ["1024 × 1024 image", "operations"],
           [
             ["direct 2-D sum, N⁴", "≈ 1.1 × 10¹²"],
             ["rows + columns, direct DFT, 2N³", "≈ 2.1 × 10⁹"],
             { c: ["rows + columns, FFT, 2N² log₂N", "≈ 2.1 × 10⁷"], hl: true },
           ],
-        ),
+        )}</details>`,
+        v:
+          F.bars(
+            [
+              ["Head-on 2-D sum", 12.04, "rose", "≈ 1.1 trillion"],
+              ["Rows + columns, direct", 9.33, "amber", "≈ 2.1 billion"],
+              ["Rows + columns, FFT", 7.32, "teal", "≈ 21 million"],
+            ],
+            { max: 12.04, fmt: () => "" },
+          ) +
+          cap(
+            "Bars show the number of digits (a log scale): each method needs at least 100 times fewer operations than the one above.",
+          ),
         c: {
           q: "A 1024 × 1024 image is transformed by rows and then columns. How many 1-D FFTs are run in total?",
           o: ["1,024", "2,048", "1,048,576"],
@@ -362,15 +410,15 @@
       },
       {
         t: "Workshop task 2: the sea",
-        b: `<p>The workshop asks for two things on <code>waveRadar.csv</code>. <b>Task 1 (1-D):</b> transform just the first row. This gives the wavelengths seen along that single line.</p><p><b>Task 2 (2-D):</b> transform the whole image and analyse it. The peaks give the sea's dominant waves: a peak at $(u,v)$ in an $N\\times N$ image means a wavelength of $N/\\sqrt{u^2+v^2}$ pixels, travelling along the angle $\\arctan(v/u)$.</p>`,
-        v: table(
+        b: `<p>The sea picture is made of waves, and each wave shows up in the spectrum as one bright dot (with a mirror twin). Two things read straight off the dot. <b>How far it is from the centre</b> says how many ripples fit across the picture, so the wavelength is the picture's width divided by that distance. <b>Which way it points</b> from the centre is the direction the wave runs.</p><p>Example: in a 100-pixel picture a dot 6 steps across and 8 up is 10 steps from the centre (a 6-8-10 triangle). Ten ripples fit across, so the waves are 100 ÷ 10 = <b>10 pixels</b> apart.</p><p>The workshop's two tasks: transform just the first row (1-D) to see the wavelengths along one line, then the whole image (2-D) to find the sea's dominant waves.</p><details class="math-more"><summary>Show the maths</summary><p>A peak at $(u,v)$ in an $N\\times N$ image means a wavelength of $N/\\sqrt{u^2+v^2}$ pixels, travelling along the angle $\\arctan(v/u)$.</p>${table(
           ["Peak at (u, v)", "N", "Wavelength = N / √(u² + v²)"],
           [
             ["(6, 8)", "100", "100 / 10 = <b>10 px</b>"],
             ["(3, 4)", "50", "50 / 5 = <b>10 px</b>"],
             ["(0, 5)", "100", "100 / 5 = <b>20 px</b>, ripples run down the image"],
           ],
-        ),
+        )}</details>`,
+        v: seaFig(),
         c: {
           q: "In a 100 × 100 image the spectrum peaks at (u, v) = (6, 8). What is the wavelength?",
           o: ["10 pixels", "14 pixels", "100 pixels"],

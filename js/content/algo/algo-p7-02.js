@@ -4,6 +4,158 @@
   const N = NIC;
   const { el, qs, predict, takeaways, header, esc } = N;
   const L = N.LESSONS;
+  const sh = (NIC.shared.algoP7x = NIC.shared.algoP7x || {});
+
+  /* ---- figures shared with the other phase 7 files (published on NIC.shared.algoP7x) ---- */
+  const chip = (t, c = "var(--line-2)", w = 30) =>
+    `<span style="display:inline-grid;place-items:center;min-width:${w}px;height:30px;padding:0 6px;box-sizing:border-box;border:2px solid ${c};border-radius:9px;background:color-mix(in srgb, ${c} 18%, var(--panel-2));color:var(--ink);font:800 13px var(--mono)">${t}</span>`;
+  /** A controls row holding a segmented picker, plus an output area. draw(value) runs on every pick; call it once to start. */
+  const pick = (box, options, init, draw) => {
+    const out = el(`<div></div>`),
+      ctl = el(`<div class="controls"></div>`);
+    ctl.append(N.seg(options, init, draw));
+    box.append(ctl, out);
+    return out;
+  };
+  const tint = (c, n = 28) => `color-mix(in srgb, ${c} ${n}%, var(--panel-2))`;
+
+  const OPT = [1, 2, 3, 4].map((k) => [String(k), `1 in ${2 ** k}`]);
+  /** Surprise as yes/no questions: 16 squares halve until the event is the only one left. */
+  function halvingFig(box) {
+    const out = pick(box, OPT, "3", (v) => draw(+v));
+    const draw = (k) => {
+      const rows = Array.from({ length: k + 1 }, (_, i) => {
+        const y = 6 + i * 34;
+        const sq = Array.from(
+          { length: 16 },
+          (_, j) =>
+            `<rect x="${142 + j * 17}" y="${y}" width="15" height="24" rx="4" fill="${j >= 16 >> i ? "var(--bg-2)" : i === k ? "var(--amber)" : tint("var(--blue)", 35)}" stroke="var(--line-2)"/>`,
+        ).join("");
+        return `<g class="fi">${sq}<text x="136" y="${y + 16}" class="fig-sub" style="text-anchor:end">${i ? `after ${i} question${i > 1 ? "s" : ""}: ${16 >> i} left` : "all 16 squares"}</text></g>`;
+      }).join("");
+      out.innerHTML = `<svg class="fig" viewBox="0 0 414 ${k * 34 + 36}" role="img" aria-label="Sixteen squares, halved ${k} times until one is left">${rows}</svg>
+        <p class="fig-cap">Orange: the event (${16 >> k} of the 16 squares). Narrowing down to it takes <b>${k} yes/no answer${k > 1 ? "s" : ""}</b>: ${k} bit${k > 1 ? "s" : ""} of surprise.</p>`;
+    };
+    draw(3);
+  }
+
+  /** Where rounding puts 12 values, and what that costs in bits (rate) and in error (distortion). */
+  const YS = [0.08, 0.31, 0.12, 0.84, 0.22, 0.95, 0.05, 0.4, 0.18, 0.62, 0.27, 0.11],
+    STEPS = [0.05, 0.1, 0.2, 0.34, 0.5, 1];
+  const quant = (d) => {
+    const z = YS.map((y) => Math.round(y / d)),
+      cnt = {};
+    z.forEach((k) => (cnt[k] = (cnt[k] || 0) + 1));
+    const R = z.reduce((a, k) => a - Math.log2(cnt[k] / z.length), 0) / z.length;
+    const D = YS.reduce((a, y, i) => a + (y - z[i] * d) ** 2, 0) / YS.length;
+    return { z, R, D, P: 10 * Math.log10(1 / D), n: Object.keys(cnt).length };
+  };
+  function quantFig(box, mode) {
+    let si = 2,
+      lam = 100;
+    const out = el(`<div></div>`),
+      ctl = el(`<div class="controls"></div>`),
+      sl = N.slider("Rounding step", 0, STEPS.length - 1, 1, si, (v) => STEPS[v]);
+    sl.onInput((v) => ((si = v), draw()));
+    ctl.append(sl);
+    if (mode === "loss") {
+      const s2 = N.slider("Price of error", 10, 1000, 10, lam, (v) => v);
+      s2.onInput((v) => ((lam = v), draw()));
+      ctl.append(s2);
+    }
+    box.append(ctl, out);
+    function draw() {
+      const d = STEPS[si],
+        q = quant(d),
+        X = (i) => 30 + (i + 0.5) * 32.5,
+        Yy = (v) => 8 + (1 - v) * 150,
+        J = (s) => quant(STEPS[s]).R + lam * quant(STEPS[s]).D,
+        best = STEPS.map((_, s) => s).reduce((b, s) => (J(s) < J(b) ? s : b)),
+        stat = (c, t, v) => `<div class="stat ${c}"><small>${t}</small><b>${v}</b></div>`;
+      const grid = Array.from({ length: Math.floor(1 / d + 1e-9) + 1 }, (_, k) => Yy(k * d))
+        .map(
+          (y) => `<line x1="30" x2="420" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="${d < 0.1 ? 1 : 2}"/>`,
+        )
+        .join("");
+      const pts = YS.map(
+        (y, i) =>
+          `<line x1="${X(i)}" x2="${X(i)}" y1="${Yy(y)}" y2="${Yy(q.z[i] * d)}" stroke="var(--rose)" stroke-width="3"/><rect x="${X(i) - 5}" y="${Yy(q.z[i] * d) - 5}" width="10" height="10" fill="var(--amber)"/><circle cx="${X(i)}" cy="${Yy(y)}" r="5" fill="var(--blue)"/>`,
+      ).join("");
+      const stats = {
+        rate: stat("", "Different numbers used", q.n) + stat("teal", "Rate (bits per value)", q.R.toFixed(2)),
+        dist: stat("rose", "Error (mean squared)", q.D.toFixed(4)) + stat("", "Score (PSNR, dB)", q.P.toFixed(1)),
+        loss:
+          stat("teal", "Bits per value", q.R.toFixed(2)) +
+          stat("rose", "Error", q.D.toFixed(4)) +
+          stat("amber", "Total score", J(si).toFixed(2)),
+      };
+      const cap = {
+        rate: "Same colour, same number. Wider steps repeat numbers more, so fewer different numbers are in use and each is cheaper to write.",
+        dist: "Each red line is one value's error. Wider steps, longer lines.",
+        loss: `At this price the lowest total is at step <b>${STEPS[best]}</b>. ${best === si ? "You are on it." : si > best ? "Your step is coarser: cheap in bits but too much error." : "Your step is finer: accurate but too many bits."}`,
+      };
+      const nums = q.z
+        .map((z) => chip(z, ["var(--blue)", "var(--teal)", "var(--amber)", "var(--violet)", "var(--rose)"][z % 5], 26))
+        .join("");
+      out.innerHTML = `<svg class="fig" viewBox="0 0 430 170" style="max-width:560px" role="img" aria-label="Twelve values (blue dots) rounded to the nearest multiple of ${d} (orange squares); red lines show the error">${grid}${pts}</svg>
+        <p class="faint" style="margin:2px 0 6px"><b style="color:var(--blue-ink)">●</b> original value &nbsp; <b style="color:var(--amber-ink)">■</b> rounded value &nbsp; <b style="color:var(--rose-ink)">|</b> the error. Grid lines are the allowed rounded values.</p>
+        <div class="faint" style="font-weight:800;font-size:12.5px;margin-bottom:3px">the rounded numbers that get sent</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nums}</div>
+        <div class="stat-row">${stats[mode]}</div><p class="fig-cap">${cap[mode]}</p>`;
+    }
+    draw();
+  }
+
+  /** Step through the LZW encoder on ABABABABA: the phrase in hand, the dictionary, the codes sent. */
+  function lzwStepFig(box) {
+    const MSG = "ABABABABA",
+      d = ["A", "B"],
+      sent = [],
+      fr = [],
+      snap = (i, w, add, note) => fr.push({ i, w, d: d.slice(), sent: sent.slice(), add, note });
+    let w = "";
+    snap(0, w, -1, "The dictionary starts with the alphabet: A = 0, B = 1.");
+    for (const [i, c] of [...MSG].entries()) {
+      const old = w,
+        known = d.includes(w + c);
+      if (known) w += c;
+      else (sent.push(d.indexOf(w)), d.push(w + c), (w = c));
+      const grow = `Read <b>${c}</b>: <b>${w}</b> is already in the dictionary, so keep growing.`;
+      const emit = `Read <b>${c}</b>: <b>${old + c}</b> is new. Send the code for <b>${old}</b> (${d.indexOf(old)}), add <b>${old + c}</b> as entry ${d.length - 1}, restart from <b>${c}</b>.`;
+      snap(i + 1, w, known ? -1 : d.length - 1, known ? grow : emit);
+    }
+    sent.push(d.indexOf(w));
+    snap(
+      9,
+      "",
+      -1,
+      `End: send the code for what is left (<b>${w}</b> = ${d.indexOf(w)}). Nine letters became <b>${sent.length}</b> codes.`,
+    );
+    let k = 0;
+    const out = el(`<div></div>`),
+      nav = el(
+        `<div class="controls"><button class="btn small ghost">← Back</button><button class="btn small primary">Next →</button><span class="faint"></span></div>`,
+      ),
+      [back, next] = nav.querySelectorAll("button"),
+      row = (lb, h) =>
+        `<div style="margin:8px 0"><div class="faint" style="font-weight:800;font-size:12.5px;margin-bottom:3px">${lb}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${h}</div></div>`;
+    const draw = () => {
+      const f = fr[k],
+        tile = (c, j) => chip(c, j < f.i - f.w.length ? "var(--teal)" : j < f.i ? "var(--blue)" : undefined, 28),
+        ent = (e, j) =>
+          chip(`<small style="opacity:.6">${j}</small>&nbsp;${e}`, j === f.add ? "var(--amber)" : undefined, 40),
+        codes = f.sent.map((c) => chip(c, "var(--violet)")).join("") || `<span class="faint">none yet</span>`;
+      back.disabled = !k;
+      next.disabled = k === fr.length - 1;
+      nav.lastChild.textContent = `step ${k + 1} of ${fr.length}`;
+      out.innerHTML = `${row("message (green: already sent, blue: the phrase in hand)", [...MSG].map(tile).join(""))}${row("dictionary", f.d.map(ent).join(""))}${row("codes sent so far", codes)}<p class="fig-cap" style="min-height:3.2em">${f.note}</p>`;
+    };
+    back.onclick = () => (k--, draw());
+    next.onclick = () => (k++, draw());
+    box.append(nav, out);
+    draw();
+  }
+
+  Object.assign(sh, { chip, pick, tint, halvingFig, quantFig, lzwStepFig });
 
   /* ============ 7.3 LZW ============ */
   reg({
@@ -244,17 +396,17 @@
     steps: [
       {
         t: "Information is surprise",
-        b: `<p>A message that says what you already expected tells you nothing. A coin flip tells you something. Shannon's measure:</p><p>$$I(x) = -\\log_2 p(x)$$</p><p>Each halving of probability adds exactly <b>one bit</b> — that's why log₂ is the right unit.</p>`,
-        v: table(
+        b: `<p>Being told the sun rose this morning tells you nothing. Being told your lottery ticket won tells you a lot. <b>The rarer the news, the more it tells you</b>, and information theory counts that in bits.</p><p>Here is a way to count. I pick one of 16 squares and you hunt for it with yes/no questions, each cutting the possibilities in half. A 1-in-2 event takes one question, a 1-in-16 event takes four. <span class="key">The surprise of an event is the number of yes/no questions it takes to single it out.</span></p><details class="math-more"><summary>Show the maths</summary><p>Shannon's measure of surprise is</p><p>$$I(x) = -\\log_2 p(x)$$</p><p>Each halving of the probability adds exactly <b>one bit</b>, which is why log₂ is the right unit.</p>${table(
           ["p", "−log₂p", "meaning"],
           [
-            ["1", "0 bits", "certainty — no news"],
+            ["1", "0 bits", "certainty: no news"],
             ["1/2", "1 bit", "one yes/no"],
             ["1/4", "2 bits", ""],
             ["1/8", "3 bits", ""],
             ["1/16", "4 bits", ""],
           ],
-        ),
+        )}</details>`,
+        v: (box) => halvingFig(box),
       },
       {
         t: "Average the surprise → entropy",

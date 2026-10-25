@@ -384,18 +384,81 @@
     },
   });
 
+  /* Two candidate nodes and one slider: the weight decides which one the search expands next. */
+  // prettier-ignore
+  function epsFig(host) {
+    const C = [["P", 4, 6], ["Q", 8, 3]], sl = N.slider("Weight ε (how much the guess counts)", 1, 5, 0.5, 1, (v) => v.toFixed(1)), box = el(`<div class="fig-wrap"></div>`), say = el(`<div class="callout"></div>`);
+    host.append(sl, box, say);
+    const draw = (e) => {
+      const sc = C.map(([, g, h]) => g + e * h), win = sc[0] <= sc[1] ? 0 : 1, u = 8.4, gx = 20;
+      let s = `<svg class="fig" viewBox="0 0 470 170" role="img" aria-label="Node P scores ${sc[0]}, node Q scores ${sc[1]}; the lower score is expanded first">`;
+      s += `<rect x="${gx}" y="8" width="14" height="14" rx="4" fill="color-mix(in srgb, var(--blue) 45%, var(--panel-2))"/><text x="${gx + 20}" y="20" class="fig-sub" style="text-anchor:start">travelled so far</text><rect x="190" y="8" width="14" height="14" rx="4" fill="color-mix(in srgb, var(--amber) 55%, var(--panel-2))"/><text x="210" y="20" class="fig-sub" style="text-anchor:start">guess still to go, times ε</text>`;
+      C.forEach(([n, g, h], i) => {
+        const y = 52 + i * 62, w = h * e * u;
+        s += `<text x="${gx}" y="${y - 6}" class="fig-box" style="text-anchor:start">${n}: travelled ${g}, guesses ${h} left</text>`;
+        s += `<rect x="${gx}" y="${y}" width="${g * u}" height="30" rx="6" fill="color-mix(in srgb, var(--blue) 45%, var(--panel-2))"/><rect x="${gx + g * u}" y="${y}" width="${w}" height="30" rx="6" fill="color-mix(in srgb, var(--amber) 55%, var(--panel-2))"/>`;
+        s += `<rect x="${gx - 2}" y="${y - 2}" width="${g * u + w + 4}" height="34" rx="8" fill="none" stroke="${i === win ? "var(--teal)" : "none"}" stroke-width="3"/><text x="${gx + g * u + w + 10}" y="${y + 20}" class="fig-box" style="text-anchor:start">${g} + ${e} × ${h} = ${+sc[i].toFixed(1)}</text>`;
+      });
+      box.innerHTML = s + "</svg>";
+      say.className = "callout " + (win ? "violet" : "teal");
+      say.innerHTML = `With ε = ${e.toFixed(1)} the lower score wins: <b>${C[win][0]}</b> is expanded first. ${win ? "Q has walked further, but it looks closer to the goal, so the search is drawn to it." : "P has walked less and the guess is not weighted enough to change that."}`;
+    };
+    sl.onInput(draw);
+    draw(1);
+  }
+
+  /* A ruler from 0 to 5 x the cheapest cost: the green mark is the best route, the red mark the ceiling, the dot what the search returned. */
+  // prettier-ignore
+  function ceilFig(host) {
+    const box = el(`<div class="fig-wrap"></div>`), cap = el(`<div class="fig-cap"></div>`);
+    host.append(N.seg(WEPS.map((e) => [e, "ε = " + e]), 1, (v) => draw(+v)), box, cap);
+    const draw = (e) => {
+      const ceil = e * WOPT, got = WR[e].cost, u = 430 / (5 * WOPT), gx = 20, y = 70, px = (c) => gx + c * u;
+      let s = `<svg class="fig" viewBox="0 0 470 130" role="img" aria-label="Cheapest route ${WOPT}, ceiling ${+ceil.toFixed(1)}, returned ${got}">`;
+      s += `<rect x="${gx}" y="${y - 7}" width="430" height="14" rx="7" fill="var(--panel-2)" stroke="var(--line)" stroke-width="1.5"/><rect x="${px(WOPT)}" y="${y - 7}" width="${Math.max(2, (ceil - WOPT) * u)}" height="14" fill="color-mix(in srgb, var(--teal) 35%, var(--panel-2))"/>`;
+      s += `<line x1="${px(WOPT)}" y1="${y - 22}" x2="${px(WOPT)}" y2="${y + 22}" stroke="var(--teal)" stroke-width="4"/><line x1="${px(ceil)}" y1="${y - 22}" x2="${px(ceil)}" y2="${y + 22}" stroke="var(--rose)" stroke-width="4"/>`;
+      s += e === 1 ? `<text x="${px(WOPT)}" y="${y - 30}" class="fig-box">cheapest = ceiling: ${WOPT}</text>` : `<text x="${px(WOPT)}" y="${y - 30}" class="fig-box" style="text-anchor:end">cheapest ${WOPT}</text><text x="${px(ceil)}" y="${y - 30}" class="fig-box" style="text-anchor:start">ceiling ${+ceil.toFixed(1)}</text>`;
+      s += `<circle cx="${px(got)}" cy="${y}" r="9" fill="var(--violet)" stroke="var(--violet-lip)" stroke-width="2"/><text x="${px(got)}" y="${y + 40}" class="fig-box">returned ${got}</text></svg>`;
+      box.innerHTML = s;
+      cap.textContent = got === WOPT ? "The search still found a cheapest route." : `A route ${got - WOPT} dearer than the cheapest, comfortably under the ceiling.`;
+    };
+    draw(1);
+  }
+
+  /* Stacked bars: the link cost plus what the neighbour reports is the total, and the smallest total wins. Shared with the distance-vector lesson. */
+  // prettier-ignore
+  function totalsFig(host) {
+    const NB = [["B", 3, 5], ["C", 6, 3], ["D", 2, 5]], sl = N.slider("What D reports as its own distance to F", 0, 12, 1, 5), box = el(`<div class="fig-wrap"></div>`), say = el(`<div class="callout teal"></div>`);
+    host.append(sl, box, say);
+    const draw = (d) => {
+      const rows = NB.map(([n, c, r]) => [n, c, n === "D" ? d : r]), tot = rows.map((r) => r[1] + r[2]), min = Math.min(...tot), u = 24;
+      let s = `<svg class="fig" viewBox="0 0 470 156" role="img" aria-label="Totals via B ${tot[0]}, via C ${tot[1]}, via D ${tot[2]}">`;
+      rows.forEach(([n, c, r], i) => {
+        const y = 8 + i * 48, w = tot[i] === min;
+        s += `<text x="16" y="${y + 21}" class="fig-n">${n}</text><rect x="36" y="${y}" width="${c * u}" height="30" rx="6" fill="color-mix(in srgb, var(--blue) 45%, var(--panel-2))"/><text x="${36 + (c * u) / 2}" y="${y + 20}" class="fig-box">${c}</text>`;
+        if (r) s += `<rect x="${36 + c * u}" y="${y}" width="${r * u}" height="30" rx="6" fill="color-mix(in srgb, var(--amber) 55%, var(--panel-2))"/><text x="${36 + c * u + (r * u) / 2}" y="${y + 20}" class="fig-box">${r}</text>`;
+        s += `<rect x="34" y="${y - 2}" width="${(c + r) * u + 4}" height="34" rx="8" fill="none" stroke="${w ? "var(--teal)" : "none"}" stroke-width="3"/><text x="${36 + (c + r) * u + 12}" y="${y + 20}" class="fig-box" style="text-anchor:start">${c} + ${r} = ${c + r}</text>`;
+      });
+      box.innerHTML = s + "</svg>";
+      const best = rows.filter((r, i) => tot[i] === min).map((r) => r[0]);
+      say.innerHTML = `Blue: the link from A. Orange: what that neighbour says it still has to go. The smallest total is <b>${min}</b>, so A's next hop is <b>${best.join(" or ")}</b>.`;
+    };
+    sl.onInput(draw);
+    draw(5);
+  }
+  Object.assign(X, { totalsFig });
   L["a2-weighted"] = {
     sum: "What if you overestimate on purpose? Weighted A* ranks nodes by g + ε·h with ε above 1. It expands fewer nodes and finishes sooner, and the route it returns is guaranteed to cost no more than ε times the best. The A* family builds on this for deadlines and for maps that change.",
     // prettier-ignore
     steps: [
-      { t: "Overestimate on purpose", b: `<p>An honest h keeps A* optimal but can still leave it exploring a lot. What if you <b>turn up the weight on h</b>?</p><p>$$f(n) = g(n) + \\varepsilon\\, h(n),\\qquad \\varepsilon > 1$$</p><p>The search now favours nodes that are close to the goal and cares less about how far they are from the start.</p>`,
-        v: F.bars([["ε = 1  (ordinary A*)", 1, "teal", "balanced"], ["ε = 2", 2, "violet", "leans to the goal"], ["ε = 5", 5, "amber", "nearly greedy"]], { max: 5, fmt: (v) => "weight " + v }) ,
-        c: { q: "What does a bigger ε do to the ranking f = g + ε·h?", o: ["It makes the estimate to the goal count for more", "It makes the cost so far count for more", "It removes the estimate from the sum"], a: 0, why: "ε multiplies h only. The larger it is, the more h decides which node is expanded next." } },
+      { t: "Overestimate on purpose", b: `<p>Ordinary A* ranks every node by <b>how far it has already come plus its guess of how far is left</b>. Weighted A* does the same sum but makes the guess count for more, as if you were impatient: "I care more about getting close to the goal than about how far I have walked."</p><p>For example, node P has travelled 4 and guesses 6 left. Node Q has travelled 8 and guesses 3 left. With the normal weight P scores 10 and Q scores 11, so P goes first. Triple the weight on the guess and P scores 22 against Q's 17, so now Q goes first. Slide ε below to see where it flips.</p><p>The search heads straight for the goal and looks at fewer nodes. ε = 1 is ordinary A*, and the bigger ε is, the greedier it gets.</p><details class="math-more"><summary>Show the maths</summary><p>An honest h keeps A* optimal but can still leave it exploring a lot. Turning up the weight on h gives</p><p>$$f(n) = g(n) + \\varepsilon\\, h(n),\\qquad \\varepsilon > 1$$</p><p>The search favours nodes that are close to the goal and cares less about how far they are from the start.</p></details>`,
+        v: (box) => epsFig(box),
+        c: { q: "Node X has travelled 2 and guesses 8 left. Node Y has travelled 7 and guesses 4 left. With ε = 1 the search picks X (10 against 11). With ε = 3, which does it pick?", o: ["X, the one that walked least", "Neither, they tie", "Y, which looks closer"], a: 2, why: "With ε = 3, X scores 2 + 3 × 8 = 26 and Y scores 7 + 3 × 4 = 19. The lower score goes first, so the bigger weight on the guess pulls the search towards the node that looks closer to the goal." } },
       { t: "Greedier, faster, maybe worse", b: `<p>On the mud map below, the middle of the map is costly (orange). The straight route is short but muddy. Ordinary A* weighs the mud cost and walks round; a larger ε is lured straight through.</p>`,
         v: F.bars(WEPS.map((e, i) => [`ε = ${e}`, WR[e].expanded.length, ["teal", "violet", "violet", "amber", "amber"][i], `cost ${WR[e].cost}`]), { max: WR[1].expanded.length }) + `<div class="fig-cap">Cells expanded for each ε, with the cost of the route found. Dijkstra expands ${WDIJ.expanded.length}.</div>`,
         c: { q: "Going from ε = 1 to ε = 3 on the mud map, what changes?", o: ["Far fewer cells are expanded, and the route costs more", "More cells are expanded, and the route costs less", "Nothing: both settings give the same search"], a: 0, why: `Expansions fall from ${WR[1].expanded.length} to ${WR[3].expanded.length}, and the route cost rises from ${WR[1].cost} to ${WR[3].cost}.` } },
-      { t: "The guarantee: ε-suboptimal", b: `<p>The price of speed is bounded:</p><p>$$\\text{cost(solution)} \\le \\varepsilon \\cdot \\text{cost(optimal solution)}$$</p><p>A weighted A* answer is called <b>ε-suboptimal</b>. With ε = 1.5 you never pay more than 50% extra, usually much less.</p>`,
-        v: table(["ε", "bound ε × " + WOPT, "cost returned", "within bound?"], WEPS.map((e) => [e, +(e * WOPT).toFixed(1), WR[e].cost, WR[e].cost <= e * WOPT ? "yes" : "no"])),
+      { t: "The guarantee: ε-suboptimal", b: `<p>Speed has a price, but the price is capped. Weighted A* promises that the route it returns <b>never costs more than ε times the cheapest route</b>.</p><p>For example, if the cheapest route costs 40 minutes and ε = 1.5, you will never be handed a route over 60 minutes, and usually it is much closer to 40. With ε = 2 the ceiling is 80. Press the ε buttons below: the violet dot is the cost the search really returned on the mud map, the red mark is the ceiling.</p><details class="math-more"><summary>Show the maths</summary><p>$$\\text{cost(solution)} \\le \\varepsilon \\cdot \\text{cost(optimal solution)}$$</p><p>A weighted A* answer is called <b>ε-suboptimal</b>. With ε = 1.5 you never pay more than 50% extra, usually much less. The mud map, for each ε:</p>${table(["ε", "bound ε × " + WOPT, "cost returned", "within bound?"], WEPS.map((e) => [e, +(e * WOPT).toFixed(1), WR[e].cost, WR[e].cost <= e * WOPT ? "yes" : "no"]))}</details>`,
+        v: (box) => ceilFig(box),
         c: { q: "The cheapest route costs 40. Weighted A* runs with ε = 1.5. Which cost could never be returned?", o: ["44", "58", "63"], a: 2, why: "The bound is 1.5 × 40 = 60. A cost of 63 breaks it. Both 44 and 58 sit inside it." } },
       { t: "The A* family", b: `<p>Weighted A* is the seed of several variants the lecture lists:</p><p><b>Anytime A*</b>: return a quick answer with a big ε, then keep improving until time runs out.<br><b>ARA*</b> (anytime repairing A*): lower ε step by step and reuse earlier work instead of restarting.<br><b>D*</b>: a robot discovers a new obstacle and <i>repairs</i> its plan instead of planning from scratch.</p>`,
         v: F.flow(["ε = 3: answer in a blink", { t: "ε = 2: better", c: "violet" }, { t: "ε = 1.2: nearly best", c: "violet" }, { t: "ε = 1: optimal", c: "teal" }]),

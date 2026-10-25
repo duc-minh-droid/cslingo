@@ -185,26 +185,170 @@
   /* ============================================================
      6.4 CRC as polynomials
      ============================================================ */
+  // ---- figures for the polynomial view of CRC (6.4) and the distance picture (6.5) ----
+  const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  const pw = (e) => (e === 0 ? "1" : e === 1 ? "x" : "x" + String(e).replace(/\d/g, (d) => SUP[d]));
+  const polyStr = (bits) => bits.flatMap((b, i) => (b ? [pw(bits.length - 1 - i)] : [])).join(" + ") || "0";
+  // tap six bits and read off the polynomial: a 1 on place k is written x^k, a 0 leaves the power out
+  function bitPoly(box) {
+    const bits = [0, 0, 1, 1, 0, 1],
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const draw = () => {
+      const deg = bits.findIndex((b) => b);
+      out.innerHTML = `<div class="genome" style="display:flex;justify-content:center;gap:6px">${bits.map((b, i) => `<button class="gene ${b ? "good" : ""}" data-i="${i}" aria-label="place ${5 - i}, bit ${b}" style="min-width:46px;height:50px;flex-direction:column;font-size:17px"><span>${b}</span><small style="font-size:12px">${pw(5 - i)}</small></button>`).join("")}</div><div class="callout" style="margin-top:8px;text-align:center"><b>${bits.join("")}</b> is the polynomial <b>${polyStr(bits)}</b><br><span class="faint">${deg < 0 ? "no 1s at all" : `highest power ${5 - deg}: used as a generator it gives ${5 - deg} check bits`}</span></div>`;
+      out.querySelectorAll(".gene").forEach(
+        (g) =>
+          (g.onclick = () => {
+            bits[+g.dataset.i] ^= 1;
+            draw();
+          }),
+      );
+    };
+    box.appendChild(out);
+    draw();
+  }
+  // shift 1011 left: every power of its polynomial rises by the shift
+  function shiftFig(box) {
+    const M = [1, 0, 1, 1],
+      sl = N.slider("Shift left by", 0, 4, 1, 0, (v) => `${v} place${v === 1 ? "" : "s"}`),
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`);
+    const draw = (n) => {
+      const w = M.concat(Array(n).fill(0));
+      out.innerHTML =
+        F.cells(
+          w.map((b, i) => ({ v: b, sub: pw(w.length - 1 - i), c: i >= M.length ? "amber" : undefined })),
+          { label: "bits" },
+        ) +
+        `<div class="callout" style="margin-top:8px"><b>${polyStr(w)}</b>${n ? `<br><span class="faint">every power rose by ${n}, which is multiplying by ${pw(n)}</span>` : `<br><span class="faint">the message itself</span>`}</div>`;
+    };
+    sl.onInput(draw);
+    box.append(sl, out);
+    draw(0);
+  }
+  // the CRC idea on one real example: pad, divide, keep the leftover, glue it on, then check
+  function encodeRun(box, life) {
+    const M = "1100101",
+      P = "10011",
+      R = polyMod(M + "0000", P),
+      T = M + R,
+      bad = bitsOf(T);
+    bad[2] ^= 1;
+    const Bt = str(bad),
+      row = (s, l, c) =>
+        cellRow(
+          bitsOf(s).map((b, k) => cell(b, { w: 30, c: c && c(k) })),
+          l,
+        );
+    function* frames() {
+      yield { k: 0, cap: `The message is <b>${M}</b> and the agreed generator is <b>${P}</b>. We need 4 check bits.` };
+      yield { k: 1, cap: "<b>Step 1.</b> Make room: add 4 empty places (zeros) on the right of the message." };
+      yield {
+        k: 2,
+        cap: `<b>Step 2.</b> Divide by ${P} using XOR, with no carries. What is left over is <b>${R}</b>.`,
+      };
+      yield {
+        k: 3,
+        cap: `<b>Step 3.</b> Put the leftover into the empty places. The frame sent is <b>${T}</b>: it now divides by ${P} with nothing left over.`,
+      };
+      yield {
+        k: 4,
+        cap: `The receiver divides what arrives by ${P}. Nothing flipped, so the leftover is <b>${polyMod(T, P)}</b>: all clear.`,
+      };
+      yield { k: 5, cap: "A bit flips on the wire (red). The receiver divides the damaged frame by the generator." };
+      yield {
+        k: 6,
+        ask: {
+          q: "The receiver divides the damaged frame. What is left over?",
+          pick: ".c6-ch",
+          a: ["bad"],
+          why: "The damaged frame is no longer an exact multiple of the generator, so something is left over.",
+        },
+        mood: "love",
+        cap: `The leftover is <b>${polyMod(Bt, P)}</b>, not zero: the damage is <b>detected</b> (the leftover does not say which bit).`,
+      };
+    }
+    simpleRun(box, life, {
+      code: [
+        "add r zeros to the message",
+        "leftover = that number divided by the generator (XOR)",
+        "send message followed by the leftover",
+        "receiver: divide what arrives; non-zero leftover means damage",
+      ],
+      frames,
+      html: (f) =>
+        f.k === 0
+          ? row(M, "message") + row(P, "generator", () => "violet")
+          : f.k === 1
+            ? row(M + "0000", "message + room", (k) => (k >= 7 ? "amber" : ""))
+            : f.k === 2
+              ? row(M + "0000", "padded", (k) => (k >= 7 ? "amber" : "")) + row(R, "leftover", () => "violet")
+              : f.k === 3
+                ? row(T, "frame sent", (k) => (k >= 7 ? "teal" : ""))
+                : f.k === 4
+                  ? row(T, "received", (k) => (k >= 7 ? "teal" : "")) + row(polyMod(T, P), "leftover", () => "teal")
+                  : row(Bt, "received", (k) => (k === 2 ? "rose" : "")) +
+                    (f.k === 5
+                      ? chips([
+                          ["zero", "all zeros"],
+                          ["bad", "not all zeros"],
+                        ])
+                      : row(polyMod(Bt, P), "leftover", () => "rose")),
+    });
+  }
+  // two codewords d flips apart: slide d and the number of flips and see where the received word lands
+  function distLine(box) {
+    let d = 3;
+    const sd = N.slider("Distance between the two codewords", 1, 6, 1, d),
+      se = N.slider("Bits flipped in transit", 0, 3, 1, 1, (v) => v),
+      out = el(`<div class="fig-wrap" aria-live="polite"></div>`),
+      inp = qs("input", se);
+    const draw = () => {
+      inp.max = d;
+      const e = Math.min(+inp.value, d);
+      const msg =
+        e === 0
+          ? ["teal", "Nothing flipped: the word is clean."]
+          : e === d
+            ? ["rose", "It landed exactly on the other codeword, so it looks valid. The error is <b>missed</b>."]
+            : 2 * e < d
+              ? [
+                  "teal",
+                  `Not a codeword, so the error is <b>detected</b>. It is ${e} from A and ${d - e} from B: nearer A, so it is <b>corrected</b> to A.`,
+                ]
+              : 2 * e === d
+                ? [
+                    "amber",
+                    `Not a codeword, so it is <b>detected</b>. It is ${e} from both: the receiver <b>cannot tell</b> which was sent.`,
+                  ]
+                : [
+                    "amber",
+                    `Not a codeword, so it is <b>detected</b>. But it is nearer B (${d - e}) than A (${e}), so "correcting" it gives the <b>wrong</b> codeword.`,
+                  ];
+      const dot = (i) =>
+        `<div style="display:flex;flex-direction:column;align-items:center;min-width:54px"><small style="height:18px;font-size:12px;font-weight:800;color:var(--amber-ink)">${i === e ? "received" : ""}</small><div style="width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:900;border:3px solid ${i === e ? "var(--amber)" : i === 0 || i === d ? "var(--teal)" : "var(--line-2)"};background:${i === 0 || i === d ? "color-mix(in srgb, var(--teal) 18%, var(--panel-2))" : "var(--panel-2)"}">${i === 0 ? "A" : i === d ? "B" : ""}</div></div>`;
+      const line = `<div style="width:18px;height:3px;background:var(--line-2);align-self:flex-end;margin-bottom:20px"></div>`;
+      out.innerHTML =
+        `<div style="display:flex;justify-content:center;align-items:flex-end;flex-wrap:wrap">${Array.from({ length: d + 1 }, (_, i) => dot(i)).join(line)}</div><p class="dim" style="text-align:center;margin:4px 0 8px">A and B are codewords. Each step along the line is one flipped bit.</p>` +
+        `<div class="callout ${msg[0]}">${msg[1]}</div>`;
+    };
+    sd.onInput((v) => ((d = v), draw()));
+    se.onInput(draw);
+    box.append(sd, se, out);
+    draw();
+  }
+
   L["a6-crcpoly"] = {
     sum: "Write bits as the coefficients of a polynomial and CRC becomes algebra: shifting is multiplying by $x^n$, the check bits are the remainder of a division, and a good generator polynomial catches every short burst.",
     // prettier-ignore
     steps: [
-      { t: "Bits are polynomial coefficients", b: `<p>Read a bit string as the coefficients of a polynomial in $x$, with the leftmost bit on the highest power. The generator <b>1101</b> becomes</p>$$P(x) = 1\\cdot x^3 + 1\\cdot x^2 + 0\\cdot x^1 + 1\\cdot x^0 = x^3 + x^2 + 1$$<p>The <b>degree</b> of $P$ (here 3) is the number of CRC check bits.</p>`,
-        v: F.cells([{ v: "1", sub: "x³", c: "violet" }, { v: "1", sub: "x²", c: "violet" }, { v: "0", sub: "x¹" }, { v: "1", sub: "x⁰", c: "violet" }, "→", { v: "x³ + x² + 1", c: "amber", w: 110 }], { size: 48 }),
-        c: { q: "Which polynomial does the bit string 1011 represent?", o: ["$x^3+x+1$", "$x^3+x^2+1$", "$x^4+x^2+x$", "$x^3+x^2+x$"], a: 0, why: "Bits 1, 0, 1, 1 sit on $x^3, x^2, x^1, x^0$. The 0 on $x^2$ drops out, leaving $x^3 + x + 1$." } },
-      { t: "Shifting is multiplying", b: `<p>Shifting a bit string left by $n$ places (adding $n$ zeros) is the same as multiplying its polynomial by $x^n$. So "append $r$ zeros" becomes $M(x)\\cdot x^r$. Addition and subtraction are both XOR, because coefficients live in modulo-2 arithmetic.</p>`,
-        v: F.frames([
-          { t: "M = 1011 is $x^3+x+1$", v: F.cells(["1", "0", "1", "1"]) },
-          { t: "× x³ shifts three places: 1011000", v: F.cells(["1", "0", "1", "1", { v: "0", c: "amber" }, { v: "0", c: "amber" }, { v: "0", c: "amber" }]) },
-          { t: "Polynomial: $x^6+x^4+x^3$", v: F.cells([{ v: "x⁶", c: "teal", w: 40 }, "+", { v: "x⁴", c: "teal", w: 40 }, "+", { v: "x³", c: "teal", w: 40 }]) },
-        ]),
-        c: { q: "Shifting a bit string left by 4 places multiplies its polynomial by what?", o: ["$x^4$", "$x+4$", "$4x$", "$x^{16}$"], a: 0, why: "Each place left raises every power by one. Four places raises each power by 4: multiply by $x^4$." } },
-      { t: "The encoding rule", b: `<p>Pick a message $M(x)$ and a generator $P(x)$ of degree $r$. The check bits are the remainder of the shifted message, and the frame sent is the shifted message plus that remainder:</p>$$R(x) = M(x)\\,x^r \\bmod P(x),\\qquad T(x) = M(x)\\,x^r + R(x)$$<p>Since $T$ is the shifted message with its own remainder added (XOR), it divides by $P$ with remainder <b>0</b>. The receiver just divides what it gets.</p>`,
-        v: F.frames([
-          { t: "M = 1100101, P = 10011 ($x^4+x+1$, r = 4): shift → 11001010000", v: F.cells(["1", "1", "0", "0", "1", "0", "1", { v: "0", c: "amber" }, { v: "0", c: "amber" }, { v: "0", c: "amber" }, { v: "0", c: "amber" }]) },
-          { t: "Divide by 10011: remainder R = <b>0010</b>", v: F.cells([{ v: "0", c: "violet" }, { v: "0", c: "violet" }, { v: "1", c: "violet" }, { v: "0", c: "violet" }]) },
-          { t: "Frame T = 1100101 0010 (divides by 10011 exactly)", v: F.cells(["1", "1", "0", "0", "1", "0", "1", { v: "0", c: "teal" }, { v: "0", c: "teal" }, { v: "1", c: "teal" }, { v: "0", c: "teal" }]) },
-        ]),
+      { t: "Bits are polynomial coefficients", b: `<p>A polynomial is just another way of writing <i>which places hold a 1</i>. Number the places from the right: 0, 1, 2, 3... A 1 in place 3 is written <b>x³</b>, a 1 in place 2 is <b>x²</b>, and a 0 leaves its power out. Place 0 is written as a plain 1. So the bits <b>1101</b> become <b>x³ + x² + 1</b>.</p><p>Why bother? Because the same notation turns "shift" into "multiply" and "check" into "divide", and that is all a CRC is. Tap the bits below and watch the polynomial follow.</p><details class="math-more"><summary>Show the maths</summary><p>The generator <b>1101</b> becomes</p>$$P(x) = 1\\cdot x^3 + 1\\cdot x^2 + 0\\cdot x^1 + 1\\cdot x^0 = x^3 + x^2 + 1$$<p>The <b>degree</b> of $P$ (here 3) is the number of CRC check bits.</p></details>`,
+        v: (box) => bitPoly(box),
+        c: { q: "A generator polynomial has x⁴ as its highest power. How long is its bit string and how many check bits does it add?", o: ["5 bits long, 4 check bits", "4 bits long, 4 check bits", "5 bits long, 5 check bits", "4 bits long, 3 check bits"], a: 0, why: "Places 4 down to 0 make a 5-bit string, and the highest power (the degree) is the number of check bits: 4." } },
+      { t: "Shifting is multiplying", b: `<p>Adding zeros on the right pushes every 1 further left. Pushing a 1 one place left lifts its power by one: x³ becomes x⁴. That is exactly what multiplying by x does. Shift three places and every power rises by three: you have multiplied by x³.</p><p>So "add r zeros to make room for the check bits" is the same thing as multiplying the message by x<sup>r</sup>. Slide the shift below and watch every power rise together.</p><details class="math-more"><summary>Show the maths</summary><p>Shifting a bit string left by $n$ places multiplies its polynomial by $x^n$, so appending $r$ zeros gives $M(x)\\cdot x^r$. Addition and subtraction are both XOR, because the coefficients live in modulo-2 arithmetic.</p></details>`,
+        v: (box) => shiftFig(box),
+        c: { q: "The message 1011 (x³ + x + 1) is shifted left by 2 places to 101100. What happened to its x³ term?", o: ["It became x⁵: every power rose by 2", "It stayed x³ and two new terms were added", "It became x⁶, doubling the power", "It became x + 2"], a: 0, why: "Each place left lifts every power by one, so two places lift every power by 2: x³ becomes x⁵. The polynomial is x⁵ + x³ + x²." } },
+      { t: "The encoding rule", b: `<p>The sender does a long division and sends the leftover along with the message. Three moves: <b>1.</b> make room by adding zeros on the right, <b>2.</b> divide that longer number by the agreed generator (XOR, no carries) and keep the <b>leftover</b>, <b>3.</b> put the leftover into the empty places. The frame now divides by the generator <i>exactly</i>.</p><p>The receiver divides whatever arrives. A leftover of zero means the frame is probably fine; anything else means it was damaged. Step through a real example below.</p><details class="math-more"><summary>Show the maths</summary><p>Pick a message $M(x)$ and a generator $P(x)$ of degree $r$. The check bits are the remainder of the shifted message, and the frame sent is the shifted message plus that remainder:</p>$$R(x) = M(x)\\,x^r \\bmod P(x),\\qquad T(x) = M(x)\\,x^r + R(x)$$<p>Since $T$ is the shifted message with its own remainder added (XOR), it divides by $P$ with remainder <b>0</b>.</p></details>`,
+        v: (box, life) => encodeRun(box, life),
         c: { q: "A receiver divides a received frame by the generator and gets remainder 0101. What does it conclude?", o: ["The frame is clean, since the remainder is small", "It was corrupted; a clean one leaves 0", "The generator polynomial was chosen wrongly", "Only the last four bits of it are wrong"], a: 1, why: "A frame built as $T = M x^r + R$ is an exact multiple of $P$. Any non-zero remainder proves it changed in transit (and does not say where)." } },
       { t: "Reading real generators", b: `<p>Standards give the generator as a polynomial. To use it, write a 1 for each power that appears and a 0 for each that does not, from the highest power down. A degree-$r$ polynomial gives a bit string of <b>$r+1$ bits</b>.</p><p>CRC-CCITT is $x^{16}+x^{12}+x^5+1$: a 17-bit string with 1s at powers 16, 12, 5 and 0.</p>`,
         v: table(["Polynomial", "Powers present", "Bit string"], [[`$x^4+x^3+1$`, "4, 3, 0", "<span class=\"mono\">11001</span>"], [`$x^4+x+1$`, "4, 1, 0", "<span class=\"mono\">10011</span>"], [`$x^{16}+x^{12}+x^5+1$`, "16, 12, 5, 0", "<span class=\"mono\">10001000000100001</span>"]], 640),
@@ -349,4 +493,5 @@
       );
     },
   });
+  Object.assign(NIC.shared.algoP6, { distLine });
 })();

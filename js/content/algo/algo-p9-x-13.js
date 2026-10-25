@@ -2,12 +2,113 @@
 (function () {
   const N = NIC;
   const { el, qs, qsa, predict, takeaways, header } = N;
+  const seg = (o, v, f) =>
+    N.seg(
+      o.map(([a, l]) => [String(a), l]),
+      String(v),
+      f,
+    );
   const L = N.LESSONS,
     F = N.fig,
     S = "algo";
   const reg = (m) => N.register({ subject: S, lecture: 10, ...m });
   const shared = (NIC.shared.algoX = NIC.shared.algoX || {});
   const { table, cap } = shared;
+  const tile = (v, c, extra = "") =>
+    `<span style="display:inline-grid;place-items:center;min-width:46px;height:46px;padding:0 8px;border-radius:10px;background:var(--${c}-dim);border:2px solid var(--${c});font:900 17px var(--sans);${extra}">${v}</span>`;
+
+  // 10.9 step 3: three overlapping checks; the failing ones spell the position of the flipped bit
+  function hammingFig(box) {
+    const W = [1, 0, 0, 0, 0, 1, 1],
+      LAB = ["p1", "p2", "d1", "p3", "d2", "d3", "d4"],
+      CH = [1, 2, 4];
+    const host = el(`<div style="padding:4px"></div>`);
+    const show = (flip) => {
+      const r = W.map((b, i) => (i + 1 === flip ? 1 - b : b));
+      const bad = CH.filter((c) => r.reduce((s, b, i) => s + ((i + 1) & c ? b : 0), 0) % 2);
+      const pos = bad.reduce((a, b) => a + b, 0);
+      const G =
+        "display:grid;grid-template-columns:62px repeat(7,minmax(0,1fr)) 54px;gap:4px;align-items:center;max-width:560px";
+      const row = r
+        .map(
+          (b, i) =>
+            `<span style="text-align:center">${tile(b, i + 1 === flip ? "rose" : [0, 1, 3].includes(i) ? "amber" : "blue", "min-width:0;width:100%;box-sizing:border-box")}<div class="faint" style="font:800 11px var(--sans)">${i + 1} ${LAB[i]}</div></span>`,
+        )
+        .join("");
+      const checks = CH.map((c, k) => {
+        const ok = !bad.includes(c);
+        return `<b style="font-size:13px">Check ${k + 1}</b>${r.map((_, i) => `<i style="height:12px;border-radius:4px;background:var(--${(i + 1) & c ? (ok ? "teal" : "rose") : "bg-2"})"></i>`).join("")}<b style="font-size:13px;color:var(--${ok ? "teal" : "rose"}-ink)">${ok ? "pass" : "fail"}</b>`;
+      }).join("");
+      host.innerHTML = `<div style="${G}"><span></span>${row}<span></span>${checks}</div><div style="font-weight:800;margin-top:8px">${
+        pos
+          ? `Failing checks ${bad.map((c) => CH.indexOf(c) + 1).join(" and ")} are worth ${bad.join(" + ")} = <b>${pos}</b>: flip bit ${pos} back.`
+          : "All three checks pass: no error."
+      }</div>`;
+    };
+    box.append(
+      el(`<div class="faint" style="font-size:13px;margin-bottom:4px">Flip one bit of 1000011:</div>`),
+      seg([["0", "none"], ...W.map((_, i) => [i + 1, "bit " + (i + 1)])], "0", (v) => show(+v)),
+      host,
+    );
+    show(0);
+  }
+
+  // 10.9 step 5: RSA as a padlock, with real numbers computed live
+  function rsaFig(box) {
+    const modpow = (b, e, m) => {
+      let r = 1n;
+      for (b %= m; e > 0n; e >>= 1n, b = (b * b) % m) if (e & 1n) r = (r * b) % m;
+      return r;
+    };
+    let msg = 31,
+      st = 0;
+    const host = el(`<div style="padding:4px"></div>`),
+      note = el(`<div style="font-weight:800;margin-top:6px;min-height:44px"></div>`);
+    const show = () => {
+      const C = modpow(BigInt(msg), 17n, 2773n),
+        back = modpow(C, 157n, 2773n);
+      const dim = (on) => `opacity:${on ? 1 : 0.18};transition:opacity .3s`;
+      const arrow = (t, on) =>
+        `<span style="text-align:center;font:800 12px var(--sans);color:var(--text-dim);max-width:104px;${dim(on)}">${t}<br>&#8594;</span>`;
+      host.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap"><span style="text-align:center">${tile(msg, "blue")}<div class="faint" style="font:800 11px var(--sans)">message</div></span>${arrow("lock with the public key", st > 0)}<span style="text-align:center;${dim(st > 0)}">${tile(C, "amber")}<div class="faint" style="font:800 11px var(--sans)">on the wire</div></span>${arrow("unlock with the private key", st > 1)}<span style="text-align:center;${dim(st > 1)}">${tile(back, "teal")}<div class="faint" style="font:800 11px var(--sans)">unlocked</div></span></div>`;
+      note.textContent = [
+        `Bob wants to receive the number ${msg} in secret.`,
+        `Anyone can lock it using Bob's public key (17 and 2773): ${msg} becomes ${C}. A spy who sees ${C} cannot go backwards.`,
+        `Only Bob has the private key (157), and it turns ${C} back into ${back}.`,
+      ][st];
+    };
+    box.append(
+      seg(
+        [
+          [31, "message 31"],
+          [100, "message 100"],
+          [2000, "message 2000"],
+        ],
+        "31",
+        (v) => {
+          msg = +v;
+          show();
+        },
+      ),
+      el(`<div style="height:6px"></div>`),
+      seg(
+        [
+          [0, "1 Message"],
+          [1, "2 Lock"],
+          [2, "3 Unlock"],
+        ],
+        "0",
+        (v) => {
+          st = +v;
+          show();
+        },
+      ),
+      host,
+      note,
+    );
+    show();
+  }
+
   reg({
     id: "a10-recap",
     order: 9,
@@ -142,22 +243,14 @@
       },
       {
         t: "Hamming (7,4) worked example",
-        b: `<p>Data bits $d_1d_2d_3d_4=0011$. The parity bits are XORs: $p_1=d_1\\oplus d_2\\oplus d_4=1$, $p_2=d_1\\oplus d_3\\oplus d_4=0$, $p_3=d_2\\oplus d_3\\oplus d_4=0$. The 7-bit word is $p_1\\,p_2\\,d_1\\,p_3\\,d_2\\,d_3\\,d_4=1000011$. If one bit flips, the three parity checks fail in a pattern that names the position.</p>`,
-        v: F.cells([
-          { v: "1", sub: "p1", c: "amber" },
-          { v: "0", sub: "p2", c: "amber" },
-          { v: "0", sub: "d1", c: "blue" },
-          { v: "0", sub: "p3", c: "amber" },
-          { v: "0", sub: "d2", c: "blue" },
-          { v: "1", sub: "d3", c: "blue" },
-          { v: "1", sub: "d4", c: "blue" },
-        ]),
+        b: `<p>Hamming adds three check bits to four data bits. Each check watches a different, overlapping group of the seven positions. If one bit flips, exactly the checks that watch that position complain, and the complaining checks, read as a number (check 1 is worth 1, check 2 is worth 2, check 3 is worth 4), spell out <b>where</b> the bad bit is.</p><p>Example: the data 0011 is sent as the word 1000011. Flip bit 5 in the picture: checks 1 and 3 fail, and 1 + 4 = 5.</p><details class="math-more"><summary>Show the maths</summary><p>Data bits $d_1d_2d_3d_4=0011$. The parity bits are XORs: $p_1=d_1\\oplus d_2\\oplus d_4=1$, $p_2=d_1\\oplus d_3\\oplus d_4=0$, $p_3=d_2\\oplus d_3\\oplus d_4=0$. The 7-bit word is $p_1\\,p_2\\,d_1\\,p_3\\,d_2\\,d_3\\,d_4=1000011$. If one bit flips, the three parity checks fail in a pattern that names the position.</p></details>`,
+        v: (box) => hammingFig(box),
         c: {
-          q: "d1 d2 d3 d4 = 0 0 1 1. What is p1 = d1 ⊕ d2 ⊕ d4?",
-          o: ["1", "0", "2"],
+          q: "In the 7-bit word, bit 5 flips. Which parity checks fail?",
+          o: ["Checks 1 and 3", "Checks 2 and 3", "Only check 3"],
           a: 0,
-          hint: "0 ⊕ 0 ⊕ 1.",
-          why: "XOR of 0, 0 and 1 is 1.",
+          hint: "Check 1 watches positions 1, 3, 5, 7. Check 2 watches 2, 3, 6, 7. Check 3 watches 4, 5, 6, 7.",
+          why: "Position 5 is watched by check 1 and check 3 but not check 2, so those two fail, and 1 + 4 = 5 names the bad bit.",
         },
       },
       {
@@ -182,8 +275,7 @@
       },
       {
         t: "RSA worked example",
-        b: `<p>With $n=2773$ ($=47\\times59$) and private key $d=157$, a received ciphertext $C=587$ is decrypted by $M=C^{d}\\bmod n=587^{157}\\bmod 2773=\\mathbf{31}$. The matching public exponent is $e=17$, and indeed $31^{17}\\bmod 2773=587$. Computers do this with repeated squaring, not by writing out $587^{157}$.</p>`,
-        v: table(
+        b: `<p>RSA works like a padlock you can hand out. Anyone may snap it shut using the receiver's <b>public key</b>, but only the receiver's <b>private key</b> opens it. The message goes in as a number, the lock scrambles it into another number, and only the key holder can turn it back.</p><p>Example with tiny numbers (real ones have hundreds of digits): the message 31 locks to 587, and the private key turns 587 back into 31. Try other messages in the picture.</p><details class="math-more"><summary>Show the maths</summary><p>With $n=2773$ ($=47\\times59$) and private key $d=157$, a received ciphertext $C=587$ is decrypted by $M=C^{d}\\bmod n=587^{157}\\bmod 2773=\\mathbf{31}$. The matching public exponent is $e=17$, and indeed $31^{17}\\bmod 2773=587$. Computers do this with repeated squaring, not by writing out $587^{157}$.</p>${table(
           ["", "value"],
           [
             ["n = p × q", "47 × 59 = 2773"],
@@ -191,7 +283,8 @@
             ["private key", "d = 157"],
             { c: ["decrypt C = 587", "587<sup>157</sup> mod 2773 = <b>31</b>"], hl: true },
           ],
-        ),
+        )}</details>`,
+        v: (box) => rsaFig(box),
         c: {
           q: "In RSA, who needs the private exponent d?",
           o: ["The receiver, to decrypt", "The sender, to encrypt", "Everyone, to verify the public key"],

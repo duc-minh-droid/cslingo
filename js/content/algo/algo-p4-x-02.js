@@ -46,6 +46,85 @@
       frames: () => primFrames(W, v0),
     });
   }
+  /* ---------- pictures for the cost steps ---------- */
+  /** Prim's passes as bands of a square: pass i costs 2(V - i) - 1 steps, and the bands add up to (V - 1) squared. */
+  function primWork(host) {
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-s></div><div data-g style="display:grid;gap:3px;justify-content:center;margin:8px 0"></div><p class="mono" data-t style="min-height:3.4em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    const sv = N.slider("Towns", 3, 12, 1, 8, (v) => String(v)),
+      sp = N.slider("Pass shown", 0, 7, 1, 0, (v) => (v === 0 ? "all" : String(v)));
+    const draw = () => {
+      const V = sv.value,
+        n = V - 1,
+        pass = Math.min(sp.value, n);
+      qs("input", sp).max = n;
+      qs("[data-g]", box).style.gridTemplateColumns = `repeat(${n}, ${n > 9 ? 20 : 26}px)`;
+      const cell = (r, c) => {
+        const i = n - Math.max(r, c);
+        return `<span title="pass ${i}" style="height:${n > 9 ? 20 : 26}px;border-radius:5px;background:var(--violet);opacity:${pass && pass !== i ? 0.15 : 0.35 + 0.65 * (1 - (i - 1) / n)}"></span>`;
+      };
+      let cells = "";
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) cells += cell(r, c);
+      qs("[data-g]", box).innerHTML = cells;
+      const row = Array.from({ length: n }, (_, k) => 2 * (V - k - 1) - 1);
+      qs("[data-t]", box).innerHTML = pass
+        ? `Pass ${pass}: pick the nearest among ${V - pass} towns, then update ${V - pass - 1} of them: <b>${row[pass - 1]}</b> steps.`
+        : `${V} towns: ${row.join(" + ")} = <b>${n * n}</b> = ${n} × ${n}. Double the towns and the square grows about four times.`;
+    };
+    sv.onInput(() => {
+      sp.value = 0;
+      draw();
+    });
+    sp.onInput(draw);
+    qs("[data-s]", box).append(sv, sp);
+    draw();
+  }
+  /** Kruskal's bill: cables times the number of halvings, for a road map and for a complete network. */
+  function kruskalWork(host) {
+    host.innerHTML = "";
+    const box = el(
+      `<div><div class="controls" data-a></div><div data-h class="fig-cells" style="margin:8px 0"></div><div data-b></div><p class="mono" data-t style="min-height:3.4em;margin:6px 0 0"></p></div>`,
+    );
+    host.appendChild(box);
+    const draw = (k) => {
+      const V = +k,
+        lg = Math.log2(V),
+        full = (V * (V - 1)) / 2,
+        road = 2 * V;
+      const halves = Array.from({ length: lg + 1 }, (_, i) => V / 2 ** i);
+      qs("[data-h]", box).innerHTML = halves
+        .map(
+          (h, i) =>
+            `${i ? '<span class="op fi">→</span>' : ""}<span class="cell fi" style="--c:var(--blue);min-width:38px;background:color-mix(in srgb, var(--blue) 16%, var(--panel-2))">${h}</span>`,
+        )
+        .join("");
+      qs("[data-b]", box).innerHTML = F.bars(
+        [
+          ["road map: 2 cables per town", road * lg, "teal"],
+          ["every pair linked", full * lg, "violet"],
+        ],
+        { fmt: (v) => Math.round(v).toLocaleString("en-GB"), unit: " steps" },
+      );
+      qs("[data-t]", box).innerHTML =
+        `${V.toLocaleString("en-GB")} towns can be halved <b>${lg}</b> times. Steps ≈ cables × ${lg}: road map ${road.toLocaleString("en-GB")} cables, complete network ${full.toLocaleString("en-GB")}. Even sorting the complete network's cables needs only ${Math.log2(full).toFixed(1)} halvings, less than twice ${lg}.`;
+      N.fx.play(box);
+    };
+    qs("[data-a]", box).appendChild(
+      N.seg(
+        [
+          ["16", "16 towns"],
+          ["256", "256 towns"],
+          ["1024", "1,024 towns"],
+        ],
+        "256",
+        draw,
+      ),
+    );
+    draw("256");
+  }
   /* ============ 4.3 Prim in detail ============ */
   // prettier-ignore
   const NEAR0 = (() => { const f = primFrames(EDG.map((e) => e.slice()), "A"); return f[0].tags; })();
@@ -67,9 +146,9 @@
       { t: "When Prim gets stuck", b: `<p>Suppose the roads to H are blocked. The tree grows through the other seven vertices, but H still has cost <b>∞</b>. When every remaining vertex has cost ∞, no vertex can be selected and the algorithm stops with <b>“No spanning tree”</b>.</p><p>The network is not connected, so no spanning tree exists. The tree Prim built covers only A's connected piece.</p>`,
         v: F.graph({ nodes: Object.fromEntries(Object.entries(POS).map(([k, v]) => [k, { x: v[0], y: v[1], c: k === "H" ? "rose" : "teal", sub: k === "H" ? "∞" : undefined }])), edges: EDG.filter(([a, b]) => a !== "H" && b !== "H"), hl: { "D-E": "teal", "A-C": "teal", "B-D": "teal", "E-G": "teal", "A-B": "teal", "F-G": "teal" }, w: 480, h: 290 }),
         c: { q: "Prim has added 6 vertices and all remaining costs are ∞. What should it output?", o: ["The 6-vertex tree as the answer", "No spanning tree", "A tree with the missing edges guessed"], a: 1, why: "A spanning tree must reach every vertex. If some vertex has no edge into the tree, none exists." } },
-      { t: "Counting the work", b: `<p>The outer loop runs $|V| - 1$ times. On the $i$th pass the select loop looks at $|V| - i$ vertices and the update loop at $|V| - i - 1$. The total is</p>$$\\sum_{i=1}^{|V|-1} \\big[2(|V| - i) - 1\\big] = (|V| - 1)^2 = O(|V|^2)$$<p>This is a <b>quadratic</b> algorithm: it depends on the number of vertices, not the number of edges.</p>`,
-        v: F.bars([["pass 1", 13, "violet"], ["pass 2", 11, "violet"], ["pass 3", 9, "violet"], ["pass 4", 7, "violet"], ["pass 5", 5, "violet"], ["pass 6", 3, "violet"], ["pass 7", 1, "violet"]], { max: 13, unit: " steps" }) + `<div class="fig-cap">8 vertices: 13 + 11 + 9 + 7 + 5 + 3 + 1 = 49 = 7².</div>`,
-        c: { q: "A network has 101 vertices. Roughly how many steps does this version of Prim take?", o: ["About 100", "About 10 000", "About 1 000 000"], a: 1, why: "$(|V| - 1)^2 = 100^2 = 10\\,000$. Doubling the vertices would multiply the work by four." } },
+      { t: "Counting the work", b: `<p>How long does Prim take? Look at one pass. A town has just joined the tree. Prim scans the towns still outside to pick the nearest, then scans them again to update their notes. Every pass there are fewer towns left outside, so each pass is cheaper: with 8 towns the seven passes cost 13, 11, 9, 7, 5, 3 and 1 steps.</p><p>Stack those up and they fill a perfect 7 × 7 square (49 steps). So the work grows like the square of the number of towns, and it does not care how many cables there are. Slide the number of towns, or step through the passes.</p><details class="math-more"><summary>Show the maths</summary><p>The outer loop runs $|V| - 1$ times. On the $i$th pass the select loop looks at $|V| - i$ vertices and the update loop at $|V| - i - 1$. The total is</p>$$\\sum_{i=1}^{|V|-1} \\big[2(|V| - i) - 1\\big] = (|V| - 1)^2 = O(|V|^2)$$<p>This is a <b>quadratic</b> algorithm: it depends on the number of vertices, not the number of edges.</p></details>`,
+        v: (box) => primWork(box),
+        c: { q: "Why does Prim's cost not depend on how many cables there are?", o: ["Its loops run over towns, not over cables", "It only ever looks at the cheapest few cables", "The cables are sorted before the loops start"], a: 0, why: "Both the select loop and the update loop run over the towns still outside the tree. The cables are only read as a table of weights, so the work grows like the square of the number of towns." } },
     ],
     guide: ["Pick a start vertex (<b>Start A</b>, <b>Start D</b>...), then press <b>play</b> or <b>step forward</b>.", "Read the tag on each node: nearest·cost. Watch it update after every move.", "Try a different start vertex. Compare the final tree and total.", "Answer the questions after the demo."],
   };
@@ -168,9 +247,9 @@
       { t: "Two ways to finish", b: `<p><b>Success:</b> $|E_T| = |V| - 1$. The loop stops at once, and every edge still in the list is <b>never looked at</b>.</p><p><b>Failure:</b> the list R runs out with fewer than $|V| - 1$ edges chosen. The groups never became one, so the graph is disconnected and the output is <b>“No spanning tree”</b>.</p>`,
         v: F.compare({ title: "|ET| = |V| − 1", c: "teal", body: "spanning tree found, loop ends early, later edges unread" }, { title: "R empty, |ET| < |V| − 1", c: "rose", body: "some vertices unreachable: <b>no spanning tree</b>" }),
         c: { q: "Kruskal ends with the list empty and 5 edges chosen on a 9-vertex graph. What does that mean?", o: ["The graph is disconnected, so no spanning tree exists", "The tree is complete because 5 edges are always enough", "There was a bug in the sorting step of the algorithm"], a: 0, why: "A spanning tree on 9 vertices needs 8 edges. Running out of edges at 5 means some groups could never be joined." } },
-      { t: "The cost of Kruskal", b: `<p>Sorting the edges costs $O(|E| \\log |E|)$. The loop runs at most $|E|$ times, and with a good group structure each lookup costs $O(\\log |V|)$. So the total is $O(|E| \\log |E| + |E| \\log |V|)$.</p><p>A simple graph has $|E| \\le \\tfrac12 |V|(|V|-1) < |V|^2$, so $\\log |E| < 2 \\log |V|$ and the two logs are the same order. The result is <b>$O(|E| \\log |V|)$</b>.</p>`,
-        v: F.flow([{ t: "Sort edges", s: "O(E log E)", c: "violet" }, { t: "≤ E passes", s: "× O(log V) lookup", c: "amber" }, { t: "Total", s: "O(E log V)", c: "teal" }]),
-        c: { q: "Why can O(log |E|) be written as O(log |V|)?", o: ["Because |E| is at most about |V|², so log |E| ≤ 2 log |V|", "Because the number of edges always equals the number of vertices", "Because logarithms of large numbers all come out the same"], a: 0, why: "A simple graph has at most |V|(|V| − 1)/2 edges, so log |E| is at most twice log |V|, and constants do not change the order." } },
+      { t: "The cost of Kruskal", b: `<p>Kruskal's bill has two parts. First it sorts every cable by cost: the more cables, the longer the list. Then it walks down the list and, for each cable, asks “are these two towns already in the same group?”. Each of those questions is quick: it takes about as many steps as you can halve the number of towns before only one is left (for 1,024 towns, that is 10).</p><p>So the work is roughly the number of cables times that halving count. Few cables per town, as on a road map, means a small bill. Pick a number of towns to compare a road map with a complete network.</p><details class="math-more"><summary>Show the maths</summary><p>Sorting the edges costs $O(|E| \\log |E|)$. The loop runs at most $|E|$ times, and with a good group structure each lookup costs $O(\\log |V|)$. So the total is $O(|E| \\log |E| + |E| \\log |V|)$.</p><p>A simple graph has $|E| \\le \\tfrac12 |V|(|V|-1) < |V|^2$, so $\\log |E| < 2 \\log |V|$ and the two logs are the same order. The result is <b>$O(|E| \\log |V|)$</b>.</p></details>`,
+        v: (box) => kruskalWork(box),
+        c: { q: "A network keeps its towns but gains many more cables. What happens to Kruskal's work?", o: ["It grows: there is more to sort and to check", "It stays the same, as the towns are unchanged", "It falls, because a tree is easier to find"], a: 0, why: "Kruskal sorts the cables and may examine each one, so its work grows with the number of cables. The group lookups depend on the towns, but there is only one or two per cable." } },
     ],
     guide: ["Choose <b>Whole network</b> and step through Kruskal. Read the groups in the caption each time.", "Notice how many edges are never examined once 7 are chosen.", "Choose <b>Town H cut off</b> and run again to see the “No spanning tree” ending.", "Answer the questions after the demo."],
   };
@@ -198,4 +277,5 @@
       ], "Sort, test the groups, merge, stop at n − 1."));
     },
   });
+  Object.assign(px, { primWork, kruskalWork });
 })();

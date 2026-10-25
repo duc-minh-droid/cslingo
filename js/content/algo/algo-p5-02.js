@@ -18,6 +18,35 @@
     return `<svg viewBox="0 0 400 230" role="group" aria-label="Four points. R at the bottom left, S at the bottom, T up and to the right of S, and U further up and right. R, S and T are joined by a solid line, and a dashed line leads from T to U">${seg("R", "S")}${seg("S", "T")}${seg("T", "U", true)}${dots.join("")}</svg>`;
   };
 
+  /** Graham scan: the sort (n log2 n) against the scan (at most 2n pushes and pops) for a chosen n */
+  function timeSplit(box) {
+    const out = el(`<div aria-live="polite"></div>`);
+    const draw = (n) => {
+      const sort = Math.round(n * Math.log2(n)),
+        scan = 2 * n;
+      out.innerHTML =
+        F.bars(
+          [
+            ["Sort", sort, "violet", "about n log n"],
+            ["Scan", scan, "teal", "at most 2n"],
+          ],
+          { max: sort, fmt: (v) => v.toLocaleString() },
+        ) +
+        `<div class="callout">With ${n.toLocaleString()} points the scan is only about ${Math.round((100 * scan) / (sort + scan))}% of the work.</div>`;
+    };
+    const pick = N.seg(
+      [
+        [100, "100 points"],
+        [10000, "10,000 points"],
+        [1000000, "1,000,000 points"],
+      ],
+      10000,
+      (v) => draw(+v),
+    );
+    box.append(pick, out);
+    draw(10000);
+  }
+
   /* ============ 5.3 Graham scan ============ */
   /** Step-through Graham scan on a draggable copy of PTS: pivot, angle sort, then push/pop with the turn test. */
   function grahamRun(box, life) {
@@ -342,14 +371,8 @@
       },
       {
         t: "Where the time goes",
-        b: `<p>Every point is pushed once and popped at most once, so the scan is <b>O(n)</b>: at most 2n stack operations. The loop runs n − 2 times. The <b>sort</b> costs O(n log n), and that dominates.</p><p>$$O(n\\log n)+O(n)=O(n\\log n)$$</p><p>Compared with gift wrapping at O(n·h): Graham wins when the hull is big, and wrapping wins when it's tiny.</p>`,
-        v: F.cells([
-          { v: "sort", sub: "O(n log n)", c: "violet" },
-          "+",
-          { v: "scan", sub: "O(n)", c: "teal" },
-          "=",
-          { v: "total", sub: "O(n log n)", c: "amber" },
-        ]),
+        b: `<p>Graham's scan does two jobs. First it <b>sorts</b> the points by angle, then it <b>scans</b> them once with a stack. The scan is cheap because each point goes onto the stack once and comes off at most once: for 8 points that is 8 pushes and at most 8 pops, so at most 16 stack operations. Sorting 8 points takes about 8 × 3 = 24 comparisons.</p><p>Pick a number of points below. The scan grows in step with n, but the sort grows a little faster, so <b>the sort decides the total</b>. That is why the whole algorithm costs the same as sorting, O(n log n).</p><p>Compared with gift wrapping: Graham wins when the hull is big, and wrapping wins when it's tiny.</p><details class="math-more"><summary>Show the maths</summary><p>The loop runs $n-2$ times and makes at most $2n$ stack operations, so the scan is $O(n)$. The sort is $O(n\\log n)$, and that dominates:</p><p>$$O(n\\log n)+O(n)=O(n\\log n)$$</p></details>`,
+        v: (box) => timeSplit(box),
         c: {
           q: "The scan loop touches each point once but sometimes pops several. Why is its total still O(n)?",
           o: [

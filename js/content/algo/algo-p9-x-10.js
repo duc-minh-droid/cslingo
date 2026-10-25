@@ -2,6 +2,12 @@
 (function () {
   const N = NIC;
   const { el, qs, predict, takeaways, header, fmt } = N;
+  const seg = (o, v, f) =>
+    N.seg(
+      o.map(([a, l]) => [String(a), l]),
+      String(v),
+      f,
+    );
   const L = N.LESSONS,
     F = N.fig,
     S = "algo";
@@ -136,6 +142,81 @@
         s.host.innerHTML = f.html;
       },
     });
+  }
+
+  // animated bar rows (shared with the other Phase 10 files): set(i, fraction, text)
+  const barRows = (host, items) => {
+    host.innerHTML = items
+      .map(
+        ([l, c]) =>
+          `<div style="display:grid;grid-template-columns:84px 1fr 70px;gap:8px;align-items:center;margin:4px 0;font:800 13px var(--sans)"><span>${l}</span><span style="height:18px;border-radius:9px;background:var(--bg-2);overflow:hidden"><i style="display:block;height:100%;background:var(--${c});transform-origin:0 50%;transform:scaleX(0);transition:transform .3s"></i></span><b style="text-align:right"></b></div>`,
+      )
+      .join("");
+    const rows = [...host.children];
+    return (i, f, t) => {
+      rows[i].children[1].firstChild.style.transform = `scaleX(${Math.max(0.01, Math.min(1, f))})`;
+      rows[i].lastChild.textContent = t;
+    };
+  };
+  Object.assign(shared, { barRows });
+  const tile = (v, c) =>
+    `<span style="display:inline-block;min-width:26px;padding:4px 6px;margin:0 2px;border-radius:8px;background:var(--${c}-dim);border:2px solid var(--${c});font:900 14px var(--sans);text-align:center">${v}</span>`;
+
+  // 10.4 step 3: one word goes through three different learned filters
+  function lensFig(box) {
+    const Q = mm(X3, WQ3),
+      K = mm(X3, WK3),
+      V = mm(X3, WV3),
+      host = el(`<div style="padding:4px"></div>`);
+    const show = (t) => {
+      const row = (lab, c, arr, note) =>
+        `<div style="display:flex;align-items:center;gap:10px;margin:8px 0"><span style="width:92px;font:800 13px var(--sans);color:var(--${c}-ink)">&#8594; ${lab}</span><span>${arr.map((v) => tile(v, c)).join("")}</span><span class="faint" style="font-size:12.5px">${note}</span></div>`;
+      host.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><b style="width:92px">${TOK3[t]}</b><span>${X3[t].map((v) => tile(v, "blue")).join("")}</span><span class="faint" style="font-size:12.5px">the word as 4 numbers</span></div>${row("filter Q", "violet", Q[t], "query: what am I looking for?")}${row("filter K", "teal", K[t], "key: what can I be found by?")}${row("filter V", "amber", V[t], "value: what I hand over")}`;
+    };
+    box.append(
+      seg(
+        TOK3.map((w, i) => [i, w]),
+        "0",
+        (v) => show(+v),
+      ),
+      host,
+    );
+    show(0);
+  }
+
+  // 10.4 step 4: the output is a weighted blend of the values
+  function blendFig(box) {
+    const Q = mm(X3, WQ3),
+      K = mm(X3, WK3),
+      V = mm(X3, WV3),
+      w0 = softmax(K.map((k) => Q[2].reduce((s, v, i) => s + v * k[i], 0) / Math.sqrt(2)));
+    const W = { real: w0, even: [1 / 3, 1 / 3, 1 / 3], pick: [0, 1, 0] };
+    const host = el(`<div style="padding:4px"></div>`),
+      out = el(`<div style="margin-top:8px;font-weight:800"></div>`);
+    const bars = barRows(
+      host,
+      TOK3.map((t, j) => [t, ["blue", "teal", "amber"][j]]),
+    );
+    const set = (k) => {
+      const w = W[k];
+      w.forEach((x, j) => bars(j, x, `${r2(x)} · [${V[j].join(",")}]`));
+      const z = [0, 1].map((c) => w.reduce((s, a, j) => s + a * V[j][c], 0));
+      out.innerHTML = `new vector for <i>barked</i> = ${w.map((a, j) => `${r2(a)}&#215;[${V[j].join(",")}]`).join(" + ")} = ${tile(r2(z[0]), "violet")}${tile(r2(z[1]), "violet")}`;
+    };
+    box.append(
+      seg(
+        [
+          ["real", "barked's real weights"],
+          ["even", "Equal shares"],
+          ["pick", "Hard pick: dog only"],
+        ],
+        "real",
+        set,
+      ),
+      host,
+      out,
+    );
+    set("real");
   }
 
   reg({
@@ -321,13 +402,8 @@
       },
       {
         t: "Where q, k and v come from",
-        b: `<p>The token's embedding $x$ (a row of $d_{\\text{model}}$ numbers) is multiplied by <b>three different learned matrices</b>:</p>$$q=xW_Q\\qquad k=xW_K\\qquad v=xW_V$$<p>So one word gives three vectors, each shaped for a different job. The matrices are the parameters learned in training. Every token uses the same three matrices.</p>`,
-        v: F.flow([
-          { t: "x", s: "embedding", c: "blue" },
-          { t: "× W_Q", s: "→ query", c: "violet" },
-          { t: "× W_K", s: "→ key", c: "teal" },
-          { t: "× W_V", s: "→ value", c: "amber" },
-        ]),
+        b: `<p>Every word starts as one short list of numbers. The model pushes that same list through <b>three different learned filters</b>, and gets three versions of the word back: a <b>query</b> (what it is looking for), a <b>key</b> (what it can be found by) and a <b>value</b> (what it hands over if it is chosen).</p><p>Example: the word <i>the</i> starts as [1, 0, 1, 0]. Its query filter gives [2, 1], its key filter gives [1, 0] and its value filter gives [2, 1]. The filters were learned in training, and every word goes through the same three.</p><details class="math-more"><summary>Show the maths</summary><p>Each filter is a matrix, and the word's embedding $x$ (a row of $d_{\\text{model}}$ numbers) is multiplied by it:</p>$$q=xW_Q\\qquad k=xW_K\\qquad v=xW_V$$<p>The matrices $W_Q,W_K,W_V$ are the parameters learned in training and are shared by every token.</p></details>`,
+        v: (box) => lensFig(box),
         c: {
           q: "How many different weight matrices turn a token's embedding into q, k and v?",
           o: ["Three: W_Q, W_K and W_V", "One, shared by all three", "Two: one for queries and keys, one for values"],
@@ -337,13 +413,8 @@
       },
       {
         t: "Scale, softmax, blend",
-        b: `<p>For one query: score it against every key, <b>divide by $\\sqrt{d_k}$</b> (so long vectors do not make scores huge), apply <b>softmax</b> to get weights adding to 1, then add up the values weighted by those shares:</p>$$z=\\sum_j \\operatorname{softmax}_j\\!\\left(\\frac{q\\cdot k_j}{\\sqrt{d_k}}\\right) v_j$$<p>$z$ is the token's <b>contextual embedding</b>: a blend of the tokens it paid attention to.</p>`,
-        v: F.flow([
-          { t: "q · kⱼ", s: "scores", c: "violet" },
-          { t: "÷ √d_k", c: "amber" },
-          { t: "softmax", s: "weights", c: "blue" },
-          { t: "Σ wⱼ vⱼ", s: "contextual vector", c: "teal" },
-        ]),
+        b: `<p>For one word, attention is three moves. <b>Score</b>: compare its query with every key; a big number means a good match. <b>Share out</b>: shrink the scores a little, then softmax turns them into shares that add up to 1. <b>Blend</b>: build the new vector by taking each value in proportion to its share.</p><p>Example: if two values are [2, 0] and [0, 2] and each gets half the share, the new vector is [1, 1], halfway between them. Try the three share-outs below for the word <i>barked</i>.</p><details class="math-more"><summary>Show the maths</summary><p>Divide each score by $\\sqrt{d_k}$ so long vectors do not make scores huge, apply softmax, then add up the values weighted by those shares:</p>$$z=\\sum_j \\operatorname{softmax}_j\\!\\left(\\frac{q\\cdot k_j}{\\sqrt{d_k}}\\right) v_j$$<p>$z$ is the token's <b>contextual embedding</b>: a blend of the tokens it paid attention to.</p></details>`,
+        v: (box) => blendFig(box),
         c: {
           q: "The softmax weights for three tokens are 0.1, 0.7 and 0.2. The output z is…",
           o: ["0.1·v₁ + 0.7·v₂ + 0.2·v₃", "The value of the token with weight 0.7 only", "The sum of the three keys"],
@@ -358,8 +429,7 @@
       },
       {
         t: "All tokens at once: matrix form",
-        b: `<p>Stack the queries, keys and values as matrices with one row per token and everything happens in three matrix products:</p>$$\\operatorname{Attention}(Q,K,V)=\\operatorname{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right)V$$<p>$QK^\\top$ is a $T\\times T$ grid: every token scored against every token. That grid is why attention costs $O(T^2)$.</p>`,
-        v: table(
+        b: `<p>Every word asks its question at the same moment, so the model scores every word against every word. Lay the scores out as a square: one row per asking word, one column per word looked at. With 3 words that is 9 scores; with 10 words it is 100.</p><p>That square is why attention gets expensive on long texts: double the length and the square has four times as many cells.</p><details class="math-more"><summary>Show the maths</summary><p>Stack the queries, keys and values as matrices with one row per token and everything happens in three matrix products:</p>$$\\operatorname{Attention}(Q,K,V)=\\operatorname{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right)V$$<p>$QK^\\top$ is a $T\\times T$ grid, so the cost grows as $O(T^2)$.</p>${table(
           ["matrix", "shape (T tokens)"],
           [
             ["Q, K, V", "T × d<sub>k</sub> (V: T × d<sub>v</sub>)"],
@@ -367,12 +437,17 @@
             ["softmax rows", "T × T, each row adds to 1"],
             { c: ["output Z = A V", "T × d<sub>v</sub>"], hl: true },
           ],
-        ),
+        )}</details>`,
+        v: (box, life) => shared.gridFig(box, life),
         c: {
-          q: "A sentence has 10 tokens. How many scores are in the attention score matrix?",
-          o: ["20", "100", "10"],
-          a: 1,
-          why: "Every one of the 10 tokens is scored against every one of the 10: 10 × 10 = 100.",
+          q: "A text grows from 10 tokens to 20. How many more attention scores does one head have to compute?",
+          o: [
+            "Four times as many",
+            "Twice as many, since the text is twice as long",
+            "Ten more, one for each new token",
+          ],
+          a: 0,
+          why: "Every token is scored against every token: 10 × 10 = 100 becomes 20 × 20 = 400, four times as many.",
         },
       },
       {
