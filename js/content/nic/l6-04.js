@@ -180,17 +180,26 @@
       },
       {
         t: "The five choices",
-        b: `<p><b>Terminals:</b> X and random constants. <b>Functions:</b> +, −, ×, % (protected division). <b>Fitness:</b> the sum of absolute differences between the program's output and the data, over many X values in [−1, 1]. <b>Parameters:</b> population size M = 4 in the lecture example. <b>Termination:</b> error below 0.1.</p>`,
-        v: table(
+        b: `<p>Before the run you decide what programs are made of and how they are judged. The <b>building blocks</b> are X and random constants, joined by +, −, × and % (a "protected" division). A program is <b>judged by its error</b>: how far its curve strays from the data. Small gap, fit program. The run starts with 4 programs and stops as soon as one has an error below 0.1.</p><p>Pick a candidate below. The pink gap between its curve and the target is its error: <b>x + 1</b> hugs the target best of the four, and <b>x</b> alone strays furthest.</p><details class="math-more"><summary>Show the maths</summary><p>The fitness is the total size of the gap, measured over many X values in $[-1, 1]$:</p><p>$$\\text{error}=\\sum_{i}\\left|\\,\\text{program}(x_i)-\\text{target}(x_i)\\,\\right|\\cdot\\Delta x$$</p>${table(
           ["Choice", "Value"],
           [
             ["Terminals", "X, random constants"],
-            ["Functions", "+, −, ×, %"],
+            ["Functions", "+, −, ×, % (protected division)"],
             ["Fitness", "sum of absolute errors"],
             ["Parameters", "population M = 4"],
             ["Termination", "error &lt; 0.1"],
           ],
-        ),
+        )}</p></details>`,
+        v: (box) =>
+          sh.errFig(
+            box,
+            TARGET,
+            GEN0.map((t, i) => ({
+              n: ["x + 1", "x² + 1", "2", "x"][i],
+              f: (x) => evalT(t, { X: x }),
+              err: areaErr(t),
+            })),
+          ),
         c: {
           q: "Why is division “protected”?",
           o: [

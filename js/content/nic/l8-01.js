@@ -401,23 +401,6 @@
       h: 180,
     });
   };
-  const tabuFig = () =>
-    F.graph({
-      nodes: {
-        A: [40, 50],
-        B: [140, 30],
-        C: { x: 240, y: 70, c: "violet", sub: "now" },
-        D: [330, 40],
-        E: [300, 130],
-        F: [120, 130],
-      },
-      edges: "A-B B-C C-D C-E C-F".split(" ").map((e) => e.split("-")),
-      hl: { A: "teal", B: "teal", "A-B": "teal", "B-C": "teal" },
-      w: 380,
-      h: 170,
-      label: "Six towns. The ant has visited A, then B, and is now at C. D, E and F are still allowed.",
-    });
-
   L["l8-loop"] = {
     sum: "The Ant System loop: random placement, a full tour per ant using the transition rule, then a pheromone update, repeated until an end condition.",
     steps: [
@@ -439,10 +422,10 @@
       },
       {
         t: "The tabu list",
-        b: `<p>An ant at city $i$ must not revisit a town. Its <b>tabu list</b> holds the towns visited so far; the rest form $J_i^k$, the cities ant $k$ has <b>not</b> yet visited. Visited towns get probability <b>0</b>.</p>`,
-        v: tabuFig(),
+        b: `<p>While it builds a tour, an ant keeps a list of the towns it has already visited: the <b>tabu list</b>. Those towns are off limits. The ant may only choose among the towns it has not seen yet, and a visited town has <b>no chance at all</b> of being picked.</p><p>For example, an ant that has visited A, B and C out of six towns can still choose D, E or F. Tap an allowed town below to move the ant on, and watch the tabu list grow and the choices shrink until none are left and the tour ends.</p><details class="math-more"><summary>Show the maths</summary><p>For ant $k$ standing at city $i$, the cities it has <b>not</b> yet visited form the set $J_i^k$. Everything else is on the tabu list and gets probability $0$; only the towns in $J_i^k$ share the probability.</p></details>`,
+        v: (box) => NIC.shared.nicFig.walk(box),
         c: C(
-          "An ant has visited A, B and C in a round of six towns. How many towns are in $J$ (not yet visited)? | 3 | 2 | 4 | Six towns minus the three on the tabu list leaves D, E and F.",
+          "An ant has visited A, B and C in a round of six towns. How many towns can it still choose from? | 3 | 2 | 4 | Six towns minus the three on the tabu list leaves D, E and F.",
         ),
       },
       {

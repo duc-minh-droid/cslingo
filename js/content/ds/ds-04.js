@@ -407,16 +407,17 @@
       },
       {
         t: "Look at the distribution, not the average",
-        b: `<p>The same request can be fast one moment and slow the next (current load, network delays). So one number like the <b>average</b> isn't enough. Ask: <b>what fraction of users get acceptable performance?</b></p><p>A handy tool: <b>percentiles</b>. p95 = 500 ms means 95% of requests finished within 500 ms (and 5% took longer).</p><span class="analogy">"The average commute is 30 minutes" hides the people stuck for 2 hours. Those are the ones who complain.</span>`,
+        b: `<p>The same request can be fast one moment and slow the next (current load, network delays), so one number is not enough. The <b>average</b> can look healthy while a few people wait ten times longer, and they are the ones who complain. A better question: <b>what fraction of users get an acceptable wait?</b></p><p>Line the requests up from fastest to slowest and count along. The <b>95th percentile (p95)</b> is the wait you reach after counting 95% of the line. If p95 is 500 ms, 95 requests in 100 finished within 500 ms and 5 took longer. Sort the 20 requests below, then try p50, p90, p95 and p99.</p><span class="analogy">"The average commute is 30 minutes" hides the people stuck for 2 hours. Those are the ones who complain.</span><details class="math-more"><summary>Show the maths</summary><p>For $n$ sorted response times, the $p$th percentile is the value at position $\\lceil p\\,n/100 \\rceil$. With $n = 20$ and $p = 95$ that is position 19, which is 900 ms in the figure. Real systems count thousands of requests, so their p99 is not just the single slowest one.</p><p>Real response times are lumpy: most are quick and a few are very slow. The long right tail of this curve is what an average hides.</p></details>`,
+        v: (box, life) => partScope.plain.pct(box, life),
         c: {
-          q: "p99 = 1.2 s means…",
+          q: "100 requests are sorted from fastest to slowest, and the 95th one took 400 ms. What does that tell you?",
           o: [
-            "the average request took 1.2 s",
-            "99% of requests took ≤ 1.2 s, and 1% took longer",
-            "1% of requests took ≤ 1.2 s, and 99% took longer",
+            "The average request took 400 ms",
+            "95 requests took 400 ms or less and 5 took longer",
+            "95 requests took longer than 400 ms",
           ],
           a: 1,
-          why: "Percentiles tell you about the tail that averages hide.",
+          why: "A sorted position is a count: the 95th of 100 means 95 requests were at least that fast. It says nothing about the average.",
         },
       },
     ],

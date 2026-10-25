@@ -203,17 +203,6 @@
   );
   addV(
     "l1-monkey",
-    2,
-    FG.bars(
-      [
-        ["monkey (random)", 40, "rose", "≈ 10⁴⁰ tries"],
-        ["keep-if-better", 3.4, "teal", "a few thousand"],
-      ],
-      { max: 40, fmt: () => "" },
-    ) + `<div class="fig-cap">Bar length ∝ number of digits in the try count. The gap is 36 orders of magnitude.</div>`,
-  );
-  addV(
-    "l1-monkey",
     4,
     curve(multi, {
       marks: [
@@ -362,18 +351,6 @@
       ],
       { max: 100 },
     ) + `<div class="fig-cap">Score all 8, keep the smallest f. Guaranteed optimal, but only because 8 is tiny.</div>`,
-  );
-  addV(
-    "l2-optim",
-    4,
-    FG.bars(
-      [
-        ["3 items: 2³", 0.9, "teal", "8"],
-        ["30 items: 2³⁰", 9, "amber", "≈ 10⁹"],
-        ["timetable", 30, "rose", "≈ 10³⁰"],
-      ],
-      { max: 30, fmt: () => "" },
-    ) + `<div class="fig-cap">Bar length = number of digits. Each extra item doubles the search space.</div>`,
   );
   addV(
     "l2-optim",

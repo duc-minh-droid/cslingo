@@ -34,7 +34,7 @@
   /* ---------- helpers shared with the other Lecture 6 files (the right answer goes first: the engine shuffles) ---------- */
   const mc = (q, o, why) => ({ q, o, a: 0, why });
   const pr = (id, q, opts, why) => predict({ id, q, opts, a: 0, why });
-  const st = (t, b, v, c) => ({ t, b: `<p>${b}</p>`, v, c });
+  const st = (t, b, v, c) => ({ t, b: b.startsWith("<p>") ? b : `<p>${b}</p>`, v, c });
   const chip = (t, cls = "") => `<span class="ds6-chip mono ${cls}">${t}</span>`;
   const rep = (n) =>
     `<div class="ds6-node ${n.cls || ""}" data-k="${n.k || n.name}"><h4>${n.name}${n.sub ? `<small>${n.sub}</small>` : ""}</h4><div class="ds6-val">${n.val}</div>${n.tag ? `<div class="ds6-chips">${n.tag}</div>` : ""}</div>`;

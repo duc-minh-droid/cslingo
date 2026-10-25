@@ -441,8 +441,8 @@
       },
       {
         t: "The genome",
-        b: `<p>Each coordinate is <b>5 bits</b>: a sign bit and 4 bits of magnitude. So the chromosome has 3 × 7 × 5 = <b>105 bits</b>.</p>`,
-        v: row("X1 Y1 Z1 X2", ga(["+0010", "−1110", "+0001", "+0011"])),
+        b: `<p>Every coordinate is written with <b>five bits</b>. The first bit says plus or minus. The other four say how big, and each is worth a different amount: 8, 4, 2 and 1. A bit that is 1 adds its worth, a bit that is 0 adds nothing.</p><p>For example <code>−1011</code> has 1s at the 8, 2 and 1 places, so its size is 8 + 2 + 1 = 11 and the coordinate is −11. Tap the bits below to build other numbers. A wire end has three coordinates and there are 7 wires, so the chromosome holds 21 coordinates of 5 bits each: <b>105 bits</b>.</p><details class="math-more"><summary>Show the maths</summary><p>A coordinate with sign bit $s$ and magnitude bits $b_3b_2b_1b_0$ is</p><p>$$(-1)^s\\,(8b_3+4b_2+2b_1+b_0)$$</p><p>so it ranges from −15 to +15. The chromosome length is $3\\times7\\times5=105$ bits.</p></details>`,
+        v: (box) => sh.bitFig(box),
         c: {
           q: "What is the 5-bit pattern <code>−1011</code> as a number?",
           o: ["−11", "−5", "+11"],

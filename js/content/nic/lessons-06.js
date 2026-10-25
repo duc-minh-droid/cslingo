@@ -82,22 +82,6 @@
   );
   addV(
     "l2-approx",
-    1,
-    FG.cells(
-      [
-        { v: "16", sub: "diameters" },
-        "^",
-        { v: "21", sub: "pipes" },
-        "=",
-        { v: "1.9 × 10²⁵", c: "rose" },
-        "→",
-        { v: "≈ 600 million years", sub: "at 10⁹ per second", c: "rose" },
-      ],
-      { size: 60 },
-    ),
-  );
-  addV(
-    "l2-approx",
     2,
     FG.cells(
       [
@@ -161,19 +145,6 @@
       ],
       { size: 70 },
     ),
-  );
-  addV(
-    "l3-tsp",
-    4,
-    FG.bars(
-      [
-        ["5 cities", 12, "teal", "12 tours"],
-        ["10 cities", 181440, "amber", "181,440"],
-        ["20 cities", 6.08e16, "rose", "≈ 6 × 10¹⁶"],
-      ],
-      { max: 6.08e16, fmt: () => "" },
-    ) +
-      `<div class="fig-cap">(k − 1)! / 2 grows so fast the smaller bars vanish: 20 cities is already hopeless to enumerate.</div>`,
   );
   addV(
     "l3-hc",

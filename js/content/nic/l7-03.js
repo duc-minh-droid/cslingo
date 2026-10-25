@@ -391,15 +391,16 @@
       },
       {
         t: "Pick the next town",
-        b: `<p>An ant at A weighs each unvisited town by the pheromone on the road and the <b>next-hop distance</b>. More pheromone and a shorter hop make a town more attractive. This lesson uses weight = <b>τ ÷ d</b> (lecture 8 gives the full rule). The chance of a town is its weight ÷ the total.</p>`,
-        v: F.bars(
-          options(M4, T0, "A", ["A"]).map((x, i) => [
-            `${x.town}: τ ${T0[ek("A", x.town)]} ÷ d ${dd(M4, "A", x.town)}`,
-            Math.round(x.p * 100),
-            ["blue", "teal", "amber"][i],
-          ]),
-          { max: 100, unit: "%" },
-        ),
+        b: `<p>An ant at A has to choose among the towns it has not visited yet. Each road gets a <b>weight</b>: more pheromone on the road raises it, and a longer road lowers it. The ant then picks at random, and a town's chance is its share of the total weight.</p><p>For example, from A the road to B has pheromone 24 and length 3, the road to C has 40 and 4, and the road to D has 10 and 5. Pheromone divided by length gives weights 8, 10 and 2. They add up to 20, so the chances are 40%, 50% and 10%. Press Draw below to send ants out.</p><details class="math-more"><summary>Show the maths</summary><p>This lesson uses the simple rule weight = pheromone ÷ distance (lecture 8 gives the full rule):</p><p>$$w_j=\\frac{\\tau_{Aj}}{d_{Aj}},\\qquad P(j)=\\frac{w_j}{\\sum_h w_h}$$</p><p>Here $w_B=24\\div3=8$, $w_C=40\\div4=10$, $w_D=10\\div5=2$, and the total is 20.</p></details>`,
+        v: (box) =>
+          NIC.shared.nicFig.weights(
+            box,
+            options(M4, T0, "A", ["A"]).map((x) => ({
+              n: x.town,
+              tau: T0[ek("A", x.town)],
+              d: dd(M4, "A", x.town),
+            })),
+          ),
         c: {
           q: "Which road makes the next town the <b>most</b> attractive?",
           o: ["High pheromone and a short hop", "High pheromone and a long hop", "Low pheromone and a short hop"],

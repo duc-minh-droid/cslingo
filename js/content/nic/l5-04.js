@@ -22,6 +22,68 @@
       .join("")}</svg>`;
   };
 
+  /** For each gene of NZ0, the slice of the 0.1 to 2 range that keeps the ordering rule. Tap a bar to try a random value. */
+  const BAND = {
+    lo: [NZ0[1], NZ0[2], 0.1, 0.1, NZ0[3], NZ0[4]],
+    hi: [2, NZ0[0], NZ0[1], NZ0[4], NZ0[5], 2],
+  };
+  sh.bandFig = (box) => {
+    const out = box.appendChild(el(`<div class="fig-wrap" aria-live="polite"></div>`)),
+      tried = [];
+    const pos = (v) => (((v - 0.1) / 1.9) * 100).toFixed(1);
+    const draw = (msg) => {
+      out.innerHTML = `<div style="display:grid;gap:10px">${NZ0.map((v, i) => {
+        const w = (BAND.hi[i] - BAND.lo[i]) / 1.9,
+          t = tried[i];
+        return `<div style="display:grid;grid-template-columns:34px 1fr 44px;gap:10px;align-items:center;font-size:13px"><b>D${i + 1}</b><div data-i="${i}" style="position:relative;height:26px;border-radius:8px;background:var(--bg);border:2px solid var(--line);cursor:pointer" title="Tap to try a random value"><span style="position:absolute;top:0;bottom:0;left:${pos(BAND.lo[i])}%;width:${(w * 100).toFixed(1)}%;background:color-mix(in srgb, var(--teal) 40%, var(--panel));border-radius:6px"></span><span style="position:absolute;top:3px;width:14px;height:14px;margin-left:-7px;border-radius:50%;left:${pos(v)}%;background:var(--text);border:2px solid var(--panel)"></span>${t === undefined ? "" : `<span style="position:absolute;top:3px;width:14px;height:14px;margin-left:-7px;border-radius:50%;left:${pos(t)}%;background:var(--${t >= BAND.lo[i] && t <= BAND.hi[i] ? "teal" : "rose"});border:2px solid var(--panel)"></span>`}</div><b style="color:var(--teal-ink)">${Math.round(w * 100)}%</b></div>`;
+      }).join(
+        "",
+      )}</div><p class="dim" style="text-align:center;margin:10px 0 0">${msg || "Green: the values that keep the order. Black dot: the gene now. Tap a bar to try a random new value."}</p>`;
+      qsa("[data-i]", out).forEach(
+        (b) =>
+          (b.onclick = (e) => {
+            const i = +b.dataset.i,
+              r = b.getBoundingClientRect(),
+              v = 0.1 + 1.9 * Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+            tried[i] = v;
+            draw(
+              v >= BAND.lo[i] && v <= BAND.hi[i]
+                ? `D${i + 1} = ${v.toFixed(2)} is still valid.`
+                : `D${i + 1} = ${v.toFixed(2)} breaks the ordering (red).`,
+            );
+          }),
+      );
+    };
+    draw();
+  };
+
+  /** One 5-bit coordinate: a sign bit and four bits worth 8, 4, 2 and 1. Tap a bit to flip it. */
+  sh.bitFig = (box) => {
+    const out = box.appendChild(el(`<div class="fig-wrap" aria-live="polite"></div>`)),
+      W = [8, 4, 2, 1];
+    const bits = [1, 1, 0, 1, 1];
+    const draw = () => {
+      const on = W.filter((_, i) => bits[i + 1]),
+        n = on.reduce((a, b) => a + b, 0);
+      out.innerHTML = `<div style="display:flex;gap:8px;justify-content:center;margin-bottom:6px"><span style="width:52px;text-align:center;font-weight:800;font-size:12px;color:var(--text-dim)">sign</span>${W.map((w) => `<span style="width:52px;text-align:center;font-weight:800;font-size:12px;color:var(--text-dim)">worth ${w}</span>`).join("")}</div><div style="display:flex;gap:8px;justify-content:center">${bits
+        .map(
+          (b, i) =>
+            `<button class="btn" data-b="${i}" aria-pressed="${!!b}" style="width:52px;height:52px;padding:0;font-size:20px;${b ? "background:color-mix(in srgb, var(--blue) 25%, var(--panel))" : ""}">${i ? b : b ? "−" : "+"}</button>`,
+        )
+        .join(
+          "",
+        )}</div><p style="text-align:center;margin:12px 0 0;font-weight:800">${on.length ? on.join(" + ") : "0"} = ${n}, sign ${bits[0] ? "minus" : "plus"}: the coordinate is <span style="color:var(--blue-ink)">${bits[0] && n ? "−" : "+"}${n}</span></p><p class="dim" style="text-align:center;margin:6px 0 0">Tap any bit. Flipping a bit adds or removes its worth.</p>`;
+      qsa("[data-b]", out).forEach(
+        (b) =>
+          (b.onclick = () => {
+            bits[+b.dataset.b] ^= 1;
+            draw();
+          }),
+      );
+    };
+    draw();
+  };
+
   N.register({
     id: "l5-nozzle",
     lecture: 5,
@@ -259,20 +321,8 @@
       },
       {
         t: "What does random-gene mutation do?",
-        b: `<p>Replace one gene with a random value in the range. Most of the time that <b>breaks an ordering</b>. For this genotype the chance of staying valid is about 10% for D1, 47% for D2, 90% for D3, 63% for D4, 11% for D5 and 37% for D6: <b>43%</b> on average.</p>`,
-        v: `<div class="fig-bars">${[
-          ["D1", 10],
-          ["D2", 47],
-          ["D3", 90],
-          ["D4", 63],
-          ["D5", 11],
-          ["D6", 37],
-        ]
-          .map(
-            ([l, p]) =>
-              `<div class="fb-row"><span class="fb-l">${l}</span><span class="fb-track"><span class="fb-fill" style="--w:${p / 100};background:var(--teal)"></span></span><span class="fb-v">${p}%</span></div>`,
-          )
-          .join("")}</div>`,
+        b: `<p>Random-gene mutation swaps one gene for a fresh random number from the whole range. But the rule says every gene must sit between its neighbours, so only <b>part of the range is allowed</b>, and a random number often lands outside it.</p><p>For example D1 is 2 and must stay at least D2 = 1.8, so only the thin slice from 1.8 to 2 works: about 1 try in 10. D3 only has to be at most 1.8, so almost the whole range works. Tap a bar below to try a random value. Across the six genes only about <b>4 mutations in 10</b> keep the nozzle valid.</p><details class="math-more"><summary>Show the maths</summary><p>The chance a gene stays valid is the width of its allowed slice divided by the width of the range, $2-0.1=1.9$:</p><p>$$P(\\text{valid})=\\frac{\\text{allowed width}}{1.9}$$</p>${row("D1", "1.8 to 2: 0.2 ÷ 1.9 ≈ 11%")}${row("D2", "1.1 to 2: 0.9 ÷ 1.9 ≈ 47%")}${row("D3", "0.1 to 1.8: 1.7 ÷ 1.9 ≈ 89%")}${row("D4", "0.1 to 1.3: 1.2 ÷ 1.9 ≈ 63%")}${row("D5", "1.3 to 1.5: 0.2 ÷ 1.9 ≈ 11%")}${row("D6", "1.3 to 2: 0.7 ÷ 1.9 ≈ 37%")}<p>The average of the six is about <b>43%</b>.</p></details>`,
+        v: (box) => sh.bandFig(box),
         c: {
           q: "What is the likely effect of random-gene mutation on this genotype?",
           o: ["It usually breaks the ordering rule", "It always keeps the nozzle valid", "It never changes the shape"],

@@ -324,14 +324,8 @@
       },
       {
         t: "The trap: hash mod N",
-        b: `<p>A tempting rule is <b>node = hash mod N</b>. But when <b>N changes</b>, the answer changes for most keys, so almost everything moves. Going from 3 to 4 nodes moves <b>9 of 12</b> keys.</p>`,
-        v: F.bars(
-          [
-            ["Hash mod N, 3 to 4 nodes", 9, "rose", "of 12 move"],
-            ["Fixed partitions, 3 to 4 nodes", 3, "teal", "of 12 move"],
-          ],
-          { max: 12 },
-        ),
+        b: `<p>A tempting way to pick a node is <b>node = hash mod N</b>: deal the keys round the nodes like cards. It works until <b>N changes</b>. The rule itself contains N, so when a node joins, almost every key gets a new answer even though no key changed.</p><p>Example: 12 keys with hashes 0 to 11 on 3 nodes. Key 7 leaves remainder 1 when divided by 3, so it lives on node B. With 4 nodes the remainder is 3, so it jumps to node D. Only keys 0, 1 and 2 stay put: <b>9 of 12</b> keys move, when only 3 had to go to the new node. Try the other buttons.</p><details class="math-more"><summary>Show the maths</summary><p>The key with hash $h$ goes to node $h \\bmod N$. It stays put only if $h \\bmod 3 = h \\bmod 4$, which holds just for $h = 0, 1, 2$.</p><table class="t"><tr><th>Key hash</th><th>mod 3</th><th>mod 4</th><th>moves?</th></tr>${Array.from({ length: 12 }, (_, k) => `<tr class="${k % 3 === k % 4 ? "" : "bad"}"><td>${k}</td><td>${k % 3}</td><td>${k % 4}</td><td>${k % 3 === k % 4 ? "no" : "yes"}</td></tr>`).join("")}</table></details>`,
+        v: (box, life) => NIC.shared.ds.plain.mod(box, life),
         c: {
           q: 'Why does the rule "node = hash mod N" move so much data when a node is added?',
           o: [
