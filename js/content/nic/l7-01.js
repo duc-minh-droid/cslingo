@@ -204,15 +204,8 @@
       },
       {
         t: "Emergence by numbers",
-        b: `<p>A toy example. Each scout independently picks the better of two routes with probability 60%. The colony goes with the route most scouts chose. One scout is right <b>${majority(1, 0.6).toFixed(0)}%</b> of the time. Eleven scouts are right about <b>${majority(11, 0.6).toFixed(0)}%</b>, and thirty-one about <b>${majority(31, 0.6).toFixed(0)}%</b>.</p>`,
-        v: F.bars(
-          [
-            ["1 scout", majority(1, 0.6), "amber"],
-            ["11 scouts", majority(11, 0.6), "blue"],
-            ["31 scouts", majority(31, 0.6), "teal"],
-          ],
-          { max: 100, unit: "%", fmt: (v) => v.toFixed(0) },
-        ),
+        b: `<p>Here is how a crowd of unreliable members can still be reliable. Each scout picks the better of two routes only 60% of the time, barely better than a coin toss. The colony simply goes where most scouts point.</p><p>One scout is right <b>${majority(1, 0.6).toFixed(0)}%</b> of the time. Eleven scouts voting together are right about <b>${majority(11, 0.6).toFixed(0)}%</b>, and thirty-one about <b>${majority(31, 0.6).toFixed(0)}%</b>. Hold a few votes below and compare the three colony sizes: single scouts wander, big crowds rarely go wrong.</p><details class="math-more"><summary>Show the maths</summary><p>With $n$ independent scouts, each right with probability $p=0.6$, the colony is right when more than half of them are:</p><p>$$P(\\text{majority right})=\\sum_{k>n/2}\\binom{n}{k}\\,p^{k}(1-p)^{n-k}$$</p><p>This gives ${majority(1, 0.6).toFixed(0)}% for $n=1$, ${majority(11, 0.6).toFixed(0)}% for $n=11$ and ${majority(31, 0.6).toFixed(0)}% for $n=31$. It only helps while $p>\\tfrac12$: each vote must be better than a coin flip.</p></details>`,
+        v: (box) => NIC.shared.nicFig.vote(box),
         c: {
           q: "Each scout is right 60% of the time. Which colony is most likely to pick the better route?",
           o: ["A colony of 31 scouts", "A colony of 5 scouts", "A single scout alone"],
@@ -352,17 +345,6 @@
     },
   });
 
-  const fork = (a, b) => {
-    const pa = Math.round((a / (a + b)) * 100);
-    return F.bars(
-      [
-        [`Trail A (${a})`, pa, "blue"],
-        [`Trail B (${b})`, 100 - pa, "amber"],
-      ],
-      { max: 100, unit: "%", label: `Chance of picking each trail: A ${pa}%, B ${100 - pa}%` },
-    );
-  };
-
   L["l7-stig"] = {
     sum: "<b>Stigmergy</b> lets ants communicate through the environment. <b>Pheromone</b> trails build up, fade and pull other ants along.",
     steps: [
@@ -449,19 +431,8 @@
       },
       {
         t: "Gain against loss",
-        b: `<p>Each step a trail loses a fraction (evaporation) and gains from the ants. It levels off where the two balance, near <b>ants per step ÷ evaporation</b>. With 4 ants per step and 20% evaporation that is 4 ÷ 0.2 = <b>20</b>. When the ants stop, nothing refills it and the trail fades away.</p>`,
-        v: F.plot(
-          [
-            { pts: trail(4, 0.2, 40).map((v, i) => [i, v]), c: "blue", label: "ants keep walking" },
-            {
-              pts: trail(4, 0.2, 40, 20).map((v, i) => [i, v]),
-              c: "amber",
-              dash: "6 5",
-              label: "ants stop at step 20",
-            },
-          ],
-          { x: [0, 40], y: [0, 24], xl: "step", yl: "trail strength", h: 200 },
-        ),
+        b: `<p>Think of a trail as a <b>leaky bucket</b>. Every step the ants pour in some pheromone, and every step a fixed share of what is in the bucket leaks out. While the bucket is nearly empty little leaks, so the level climbs. As it fills, more leaks, until the leak exactly matches what the ants pour in. Then the level stops rising.</p><p>For example, with 4 ants per step and 20% leaking: at a level of 20, the leak is 20% of 20 = 4, the same as the inflow, so the level settles at <b>20</b>. When the ants stop, nothing refills the bucket and it drains away. Move the sliders below and watch where the line levels off.</p><details class="math-more"><summary>Show the maths</summary><p>Each step: new level = old level × (1 − evaporation) + ants. It stops changing when the level $T$ satisfies $T=T(1-\\rho)+a$, with $a$ ants per step and evaporation fraction $\\rho$. Solving gives</p><p>$$T=\\frac{a}{\\rho}$$</p><p>so 4 ants and 20% evaporation give $4\\div0.2=20$.</p></details>`,
+        v: (box, life) => NIC.shared.nicFig.bucket(box, life),
         c: {
           q: "All ants stop using a trail. What does its strength do?",
           o: [
@@ -475,8 +446,8 @@
       },
       {
         t: "More pheromone, higher chance",
-        b: `<p>Ants favour strong trails but are not forced to. The <b>chance</b> of a path is its share of the pheromone. With 30 on A and 10 on B, a new ant picks A with chance 30 ÷ 40 = <b>75%</b> and B with <b>25%</b>. Weak trails still get visits, which keeps some exploring going.</p>`,
-        v: fork(30, 10),
+        b: `<p>An ant is drawn to the stronger trail but is not forced onto it. Picture a strip cut into one slice per trail, each as wide as that trail's pheromone. The ant drops a pin at a random spot and takes the trail whose slice it hits. So a trail with three times the pheromone gets three times the visits, and a weak trail still gets some.</p><p>For example, with 30 on trail A and 10 on trail B, A owns 30 of the 40 units of strip: a <b>75%</b> chance, and B has 25%. Move the sliders and press Draw to see real picks.</p><details class="math-more"><summary>Show the maths</summary><p>The chance of a trail is its share of the total pheromone:</p><p>$$P(A)=\\frac{\\tau_A}{\\tau_A+\\tau_B}$$</p><p>With $\\tau_A=30$ and $\\tau_B=10$: $30\\div40=75\\%$ for A and 25% for B.</p></details>`,
+        v: (box) => NIC.shared.nicL7.pick(box),
         c: {
           q: "Trail A holds 40 and trail B holds 20. About how likely is a new ant to pick A?",
           o: ["About two chances in three", "About nine chances in ten", "About one chance in two"],

@@ -207,14 +207,8 @@
       },
       {
         t: "Performance of the simple database",
-        b: `<p><b>Write</b>: append to the end of a file, so <b>very fast</b>. <b>Read</b>: scan the whole file for the key, so <b>O(n)</b>: double the data, double the time.</p>`,
-        v: FG.bars(
-          [
-            ["write: append one line", 1, "teal", " step"],
-            ["read: scan n lines (n = 1000)", 1000, "rose", " steps"],
-          ],
-          { max: 1000 },
-        ),
+        b: `<p><b>Writing</b> is easy: add one line at the end of the file. <b>Reading</b> is harder: the database starts at the top and checks line after line until it has seen the <b>last</b> line for your key, and in the worst case that means every line. A file of 1,024 lines can cost up to 1,024 checks, and 2,048 lines up to 2,048. Drag the slider to double the file.</p><details class="math-more"><summary>Show the maths</summary><p>A write is one append, so it costs the same however big the file is: $O(1)$. A read scans up to all $n$ lines: <b>$O(n)$</b>. Double the data, double the time.</p></details>`,
+        v: (box, life) => NIC.shared.ds.plain.scan(box, life),
         c: {
           q: "A read scans a log of n lines. If n doubles, the scan time…",
           o: ["roughly doubles", "stays the same", "roughly squares"],

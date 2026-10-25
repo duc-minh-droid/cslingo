@@ -117,12 +117,8 @@
     steps: [
       {
         t: "The wheel",
-        b: `<p>Give each individual a slice of a roulette wheel <b>sized by its fitness</b>, then spin.</p><p><b>p<sub>i</sub> = f<sub>i</sub> / (sum of all f)</b></p><p>Example: fitnesses 2, 3, 5 (total 10):</p>`,
-        v: bars([
-          ["f = 2", 20],
-          ["f = 3", 30],
-          ["f = 5", 50],
-        ]),
+        b: `<p>Give each individual a slice of a roulette wheel <b>sized by its fitness</b>, then spin. The bigger your slice, the more likely the ball lands on you, but even a tiny slice still has a chance.</p><p>Example: three individuals with fitnesses 2, 3 and 5. Together that is 10, so the slices are 2, 3 and 5 tenths of the wheel: 20%, 30% and 50%.</p><details class="math-more"><summary>Show the maths</summary><p>Individual $i$ is picked with probability $p_i = \\dfrac{f_i}{\\sum_k f_k}$, its fitness divided by the total. For 2, 3, 5 the total is 10, so $p = 0.2,\\ 0.3,\\ 0.5$.</p></details>`,
+        v: (box) => (box.innerHTML = NIC.shared.lessons.wheelFig([2, 3, 5])),
       },
       {
         t: "Watch it run",
@@ -142,18 +138,13 @@
       },
       {
         t: "Problem 2: it depends on the exact numbers",
-        b: `<p>Add 100 to every fitness: 200, 100.4, 100.3, 100.2, 100.1. The ranking is the same, but now the best only gets 200/601 ≈ <b>33%</b>.</p><span class="key">Roulette depends on <b>absolute</b> fitness values, so you have to design the fitness numbers very carefully.</span>`,
+        b: `<p>Add the same number to every fitness. Nobody overtakes anybody, so you would expect nothing to change. But the slices are measured against the <b>total</b>, and the total just got much bigger. Drag the slider (try +100): the superfit individual's slice shrinks from nearly the whole wheel towards an equal share.</p><span class="key">Roulette depends on <b>absolute</b> fitness values, so you have to design the fitness numbers very carefully.</span><details class="math-more"><summary>Show the maths</summary><p>Before: $100/101\\approx 99\\%$. After adding 100 to everyone (200, 100.4, 100.3, 100.2, 100.1) the total is 601, so the best gets $200/601\\approx 33\\%$. Adding $c$ to every fitness changes $p_i$ to $(f_i+c)/(\\sum_k f_k + Pc)$, which tends to $1/P$ as $c$ grows.</p></details>`,
+        v: (box) => NIC.shared.lessons.shiftWheel(box),
         c: {
-          type: "match",
-          q: "A roulette wheel has four individuals with fitnesses 1, 3, 6 and 10. Match each fitness to its chance of being picked.",
-          pairs: [
-            ["f = 1", "5%"],
-            ["f = 3", "15%"],
-            ["f = 6", "30%"],
-            ["f = 10", "50%"],
-          ],
-          hint: "The wheel total is 1 + 3 + 6 + 10 = 20. Each slice is its fitness out of 20.",
-          why: "Each chance is f / (sum of all f), and the sum is 20. 1/20 = 5%, 3/20 = 15%, 6/20 = 30% and 10/20 = 50%.",
+          q: "Every fitness gets 100 added to it. What happens to the best individual's slice of a roulette wheel?",
+          o: ["It stays the same, the order is unchanged", "It shrinks towards an equal share", "It grows even bigger"],
+          a: 1,
+          why: "The total grows a lot while the best only gains the same 100 as everyone else, so its share of the wheel shrinks and every slice gets closer to equal.",
         },
       },
       {
@@ -187,25 +178,13 @@
       },
       {
         t: "Step 2: probability ∝ rank",
-        b: `<p><b>p<sub>i</sub> = rank<sub>i</sub> / (sum of ranks)</b>, and the sum of ranks = <b>P(P+1)/2</b>. For P = 4: sum = 10.</p>`,
-        v:
-          bars([
-            ["rank 4", 40],
-            ["rank 3", 30],
-            ["rank 2", 20],
-            ["rank 1", 10],
-          ]) + `<p class="dim" style="margin-top:6px">The superfit 100 now gets 40%, not 99%.</p>`,
+        b: `<p>Now hand out slices by rank. Rank 4 gets 4 blocks, rank 3 gets 3, and so on down to 1 block for the worst. Pile all the blocks together: 4 + 3 + 2 + 1 = 10. Your chance is your blocks out of the total, so the best gets 4 in 10, however far ahead of the others it really is. Change the population size to see the staircase grow.</p><details class="math-more"><summary>Show the maths</summary><p>$p_i = \\dfrac{\\text{rank}_i}{\\sum \\text{ranks}}$, and the ranks add up to $1+2+\\dots+P = \\dfrac{P(P+1)}{2}$. For $P=4$ the sum is 10, so the superfit 100 gets $4/10 = 40\\%$ instead of $99\\%$. For $P=5$ the sum is 15, so the best gets $5/15\\approx 33\\%$ and the worst $1/15\\approx 7\\%$.</p></details>`,
+        v: (box) => NIC.shared.lessons.rankBlocks(box),
         c: {
-          type: "match",
-          q: "A population of 5 uses linear rank selection (the best has rank 5). Match each rank to its chance of being picked.",
-          pairs: [
-            ["Rank 5 (the best)", "33%"],
-            ["Rank 3", "20%"],
-            ["Rank 2", "13%"],
-            ["Rank 1 (the worst)", "7%"],
-          ],
-          hint: "The ranks add up to 5 + 4 + 3 + 2 + 1 = 15. Each chance is its rank out of 15.",
-          why: "Sum of ranks = 5·6/2 = 15, so the chances are 5/15 = 33%, 3/15 = 20%, 2/15 ≈ 13% and 1/15 ≈ 7%.",
+          q: "In a population of 4 the best fitness is 100 and the others are about 0.3. How big a slice does rank selection give the best?",
+          o: ["About 99%, the same as roulette", "40%, only its rank counts", "25%, everyone gets the same"],
+          a: 1,
+          why: "Rank selection ignores how far ahead 100 is. The best just has the top rank, which is 4 blocks out of 10, so 40%.",
         },
       },
       {
@@ -214,13 +193,8 @@
       },
       {
         t: "The bias knob: rank<sup>b</sup>",
-        b: `<p>Use <b>rank<sup>b</sup></b> instead of rank. <b>b = 2</b> (high bias): 16, 9, 4, 1 out of 30, so the best gets 53%. <b>b = 0.5</b> (low bias) evens things out. <b>b = 0</b>: everyone equal.</p>`,
-        v: bars([
-          ["rank 4 (b=2)", 53.3, "var(--violet)"],
-          ["rank 3", 30, "var(--violet)"],
-          ["rank 2", 13.3, "var(--violet)"],
-          ["rank 1", 3.3, "var(--violet)"],
-        ]),
+        b: `<p>Plain rank selection has a fixed pressure. To tune it, make a high rank count for <b>more than its share</b>, or for less. The knob <b>b</b> does that: turn it up and the top ranks pull ahead, turn it down and everyone drifts towards equal. At b = 0 everyone has the same chance. Drag the slider and watch the bars.</p><details class="math-more"><summary>Show the maths</summary><p>Use $\\text{rank}^{\\,b}$ in place of the rank. For $b=2$ the weights are $16, 9, 4, 1$ out of $30$, so the best gets $53\\%$. For $b=0.5$ the bias is low and the shares are close together. For $b=0$ every weight is $1$.</p></details>`,
+        v: (box) => NIC.shared.lessons.biasFig(box),
         c: {
           q: "Increasing b does what to selection pressure?",
           o: ["Lowers it", "Raises it", "Nothing"],
@@ -272,7 +246,18 @@
       },
       {
         t: "Quick maths: how often does the best win?",
-        b: `<p>The best wins if it's drawn at least once: <b>P(best) = 1 − (1 − 1/P)<sup>t</sup></b>.</p><p>P = 4, t = 2: 1 − (3/4)² = 1 − 9/16 = <b>7/16 ≈ 44%</b>.</p>`,
+        b: `<p>With 4 individuals, a single random draw misses the best 3 times in 4. To lose, the best has to be missed by <b>every</b> draw in the tournament. With 2 draws that happens 9 times in 16, so the best wins the other 7 in 16 (about 44%). With more draws it is missed less and less often. Drag t, and press the button to run real tournaments and compare.</p><details class="math-more"><summary>Show the maths</summary><p>The best wins if it is drawn at least once, so $P(\\text{best}) = 1-\\left(1-\\tfrac{1}{P}\\right)^{t}$. For $P=4$, $t=2$: $1-(3/4)^2 = 1-9/16 = 7/16\\approx 44\\%$.</p></details>`,
+        v: (box) => NIC.shared.lessons.tournFig(box),
+        c: {
+          q: "In a tournament of 3 draws, why can the best individual still lose?",
+          o: [
+            "It was never drawn into the tournament",
+            "Its fitness is compared with the average",
+            "Ties are always decided against it",
+          ],
+          a: 0,
+          why: "The tournament only compares whoever was drawn. If all three draws miss the best, a weaker one wins, though that gets rarer as t grows.",
+        },
       },
       {
         t: "Pros and cons (from the slides)",

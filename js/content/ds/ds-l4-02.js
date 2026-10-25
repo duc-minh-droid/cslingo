@@ -237,15 +237,8 @@
       },
       {
         t: "Compare the three",
-        v: F.bars(
-          [
-            ["Asynchronous", 5, "amber"],
-            ["Semi-synchronous", 35, "blue"],
-            ["Synchronous (all)", 95, "teal"],
-          ],
-          { max: 100, unit: " ms" },
-        ),
-        b: `<p>Example: the leader takes 5 ms and the followers confirm after 30 ms and 90 ms.</p><table class="t"><tr><th>Mode</th><th>Leader waits for</th><th>Speed</th><th>Safety</th></tr><tr><td>Asynchronous</td><td>nobody</td><td>fastest</td><td>lowest</td></tr><tr><td>Semi-synchronous</td><td>one follower</td><td>medium</td><td>good</td></tr><tr><td>Synchronous (all)</td><td>every follower</td><td>slowest</td><td>highest</td></tr></table>`,
+        v: (box, life) => NIC.shared.ds.plain.sync(box, life),
+        b: `<p>The client waits for the <b>slowest follower the leader waits for</b>, and for nobody else. Say the leader needs 5 ms to store the write, follower A confirms 30 ms after the leader finishes and follower B 90 ms after. Switch between the three modes and watch the purple line: the moment the client is told.</p><details class="math-more"><summary>Show the maths</summary><p>Reply time = the leader's 5 ms + the slowest confirmation it waits for. Asynchronous: 5 ms. Semi-synchronous: 5 + 30 = 35 ms. Synchronous (all): 5 + 90 = 95 ms.</p><table class="t"><tr><th>Mode</th><th>Leader waits for</th><th>Speed</th><th>Safety</th></tr><tr><td>Asynchronous</td><td>nobody</td><td>fastest</td><td>lowest</td></tr><tr><td>Semi-synchronous</td><td>one follower</td><td>medium</td><td>good</td></tr><tr><td>Synchronous (all)</td><td>every follower</td><td>slowest</td><td>highest</td></tr></table></details>`,
         c: {
           type: "order",
           q: "Order the modes from the quickest answer to the slowest.",

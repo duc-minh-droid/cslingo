@@ -57,11 +57,8 @@
       ),
       st(
         "Isolation: no interference",
-        "When many users read and write at once, <b>isolation</b> makes concurrent transactions not interfere. Without it, two withdrawals of £30 from £100 can both read 100 and both write 70, losing one of them.",
-        F.compare(
-          { title: "No isolation", c: "rose", body: "both read 100, both write 70: balance <b>70</b>" },
-          { title: "Isolated", c: "teal", body: "one after the other: 100, then 70, then <b>40</b>" },
-        ),
+        '<p>When many users read and write at once, <b>isolation</b> makes concurrent transactions behave as if they ran one at a time, so they cannot trip over each other.</p><p>Picture two cashiers taking £30 from the same £100 account at the same moment. Each reads the balance, takes off 30 and writes the answer back. If their steps interleave, both read 100 and both write 70: £60 left the account but the balance fell by only £30, and one withdrawal is lost. Run one after the other and the balance goes 100, 70, 40. Step through both below.</p><details class="math-more"><summary>Show the maths</summary><p>Each withdrawal is a read-modify-write: <b>new balance = old balance − 30</b>. Interleaved: both read 100, so both write 100 − 30 = 70. One after the other: 100 − 30 = 70, then 70 − 30 = 40.</p></details>',
+        (box, life) => NIC.shared.ds.plain.lost(box, life),
         mc(
           "Two shoppers each pay £30 from the same £100 balance at the same moment, and the balance ends at £70. Which property failed?",
           ["Isolation", "Durability", "Availability"],

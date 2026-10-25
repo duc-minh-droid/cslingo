@@ -109,14 +109,21 @@
       },
       {
         t: "Ants against GA and annealing",
-        b: `<p>A comparison ran the Ant Colony System (ACS) for 1250 iterations with 20 ants, averaged over 15 runs. <b>Shortest tour</b> and <b>number of tours examined</b>, from the lecture's table:</p>`,
-        v: table(
+        b: `<p>A comparison pitted the Ant Colony System (ACS) against a genetic algorithm (GA) and simulated annealing (SA) on the same maps. The ants found tours as short or shorter, while looking at <b>far fewer tours</b>.</p><p>On the 50-town map, Eil50, the ACS found a tour of 425 after examining about 1,800 tours. The GA needed 25,000 tours to reach 428 and SA needed about 68,500 to reach 443. The bars show how many tours each one examined.</p><details class="math-more"><summary>Show the full table</summary><p>The ACS ran for 1250 iterations with 20 ants, averaged over 15 runs. Shortest tour and number of tours examined, from the lecture's table:</p>${table(
           ["Problem", "ACS length", "ACS tours", "GA length", "GA tours", "SA length", "SA tours"],
           [
             ["Eil50", 425, "1,830", 428, "25,000", 443, "68,512"],
             ["Eil75", 535, "3,480", 545, "80,000", 580, "173,250"],
             ["KroA100", "21,282", "4,820", "21,761", "103,000", "n/a", "n/a"],
           ],
+        )}</details>`,
+        v: F.bars(
+          [
+            ["Ants (ACS)", 1830, "teal"],
+            ["Genetic algorithm", 25000, "blue"],
+            ["Annealing", 68512, "violet"],
+          ],
+          { max: 68512, fmt: (v) => v.toLocaleString("en-GB"), unit: " tours" },
         ),
         c: C(
           "On Eil50 the ACS examined 1,830 tours and the GA 25,000. Roughly how many times fewer tours did the ACS examine? | About 14 times | About 3 times | About 140 times | 25,000 / 1,830 is about 25 / 1.8, which is just under 14.",
@@ -462,11 +469,15 @@
       },
       {
         t: "A heuristic: earliest due date",
-        b: `<p>Each step uses the transition rule with pheromone <b>and</b> a heuristic. For scheduling, a natural local hint is the <b>due date</b>: the sooner a job is due, the more attractive. Use $\\eta_j = 100/\\text{due}_j$.</p>`,
-        v: F.bars(
+        b: `<p>Each step of the ant's walk mixes pheromone with a rule of thumb. For scheduling a natural rule of thumb is the <b>due date</b>: the sooner a job is due, the stronger its pull, so the ant leans towards the urgent jobs.</p><p>For example, job L is due at minute 20 and job B at minute 100, so L pulls five times as hard as B. The ruler below puts each job at its due time and draws it bigger the sooner it is due. The strip shows how a draw would go if only this rule counted.</p><details class="math-more"><summary>Show the maths</summary><p>The heuristic for job $j$ is</p><p>$$\\eta_j=\\frac{100}{\\text{due}_j}$$</p>${F.bars(
           KEYS.map((k) => [`${k}, due ${JOBS[k][2]}`, +(100 / JOBS[k][2]).toFixed(2), "blue"]),
           { fmt: (v) => v.toFixed(2), label: "Heuristic eta equals 100 over due time: L 5, W 3.33, P 2, T 1.25, B 1" },
-        ),
+        )}</details>`,
+        v: (box) =>
+          NIC.shared.nicFig.dueRuler(
+            box,
+            KEYS.map((k) => ({ k, due: JOBS[k][2] })),
+          ),
         c: C(
           "Which job has the smallest η, so is the least attractive by the heuristic alone? | B, due at 100 | L, due at 20 | W, due at 30 | η = 100/due is smallest for the biggest due time, and B has the latest due time of 100.",
         ),

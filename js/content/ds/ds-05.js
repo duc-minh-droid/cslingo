@@ -41,7 +41,18 @@
       },
       {
         t: "Why Twitter chose approach 2",
-        b: `<p>Approach 1 couldn't keep up with timeline reads, which happen <b>about two orders of magnitude</b> more often than posts (300k vs 4.6k). So Twitter moved the work to write time.</p><span class="key">Average ~75 followers per tweet: 4.6k tweets/s × 75 = <b>345k writes/s</b> to timeline caches. Big, but manageable, and reads become cheap.</span>`,
+        b: `<p>Both approaches multiply by the number of followers somewhere. The question is <b>which side of the app is rarer</b>, because that is the side that should do the multiplying.</p><p>Posting is rare (4.6k a second). Opening the timeline is common (300k a second), about 65 times as often. Say each user follows about 75 people and has about 75 followers.</p><p><b>Merge on read</b>: each of the 300k opens fetches from 75 accounts, about <b>22.5 million lookups a second</b>. <b>Fan out on write</b>: each of the 4.6k posts is copied into 75 mailboxes, about <b>345 thousand writes a second</b>, and every open is one cheap lookup. Approach 1 couldn't keep up, so Twitter moved the work to write time. Drag the slider to watch the gap open.</p><details class="math-more"><summary>Show the maths</summary><p>Timeline reads happen about two orders of magnitude more often than posts (300k against 4.6k).</p><span class="key">Average ~75 followers per tweet: 4.6k tweets/s × 75 = <b>345k writes/s</b> to timeline caches. Big, but manageable, and reads become cheap.</span><p>With $f$ followers each, in thousands per second: merge on read costs $4.6 + 300f$, fan-out costs $4.6f + 300$. At $f = 75$ that is about 22,500 against 645. Every follow has one follower and one followee, so on average people follow as many accounts as follow them.</p></details>`,
+        v: (box, life) => partScope.plain.fan(box, life),
+        c: {
+          q: "Timeline opens are far more common than posts. Why does fan-out on write cut the total work?",
+          o: [
+            "It stores each tweet once instead of many times",
+            "It removes the need for any lookup when reading",
+            "It does the multiplying on the rarer operation",
+          ],
+          a: 2,
+          why: "Fan-out pays the follower multiplier once per post (rare) so each open (common) is a single lookup.",
+        },
       },
       {
         t: "The celebrity problem → hybrid",
@@ -337,9 +348,9 @@
       { title: "② Same speed, more load", c: "teal", body: "how many more machines do we need?" },
     ),
   );
-  addV(
-    "ds-load",
-    4,
+  const ld = L["ds-load"].steps[4];
+  ld.b = ld.b.replace(
+    "</details>",
     FG.plot([{ f: gammaPdf, c: "teal", fill: true }], {
       x: [0, 1000],
       xl: "response time (ms)",
@@ -350,8 +361,7 @@
         [554, "p95 554", "amber"],
         [754, "p99 754", "rose"],
       ],
-    }) +
-      `<div class="fig-cap">The long right tail is why the average hides the slow requests. Half of users wait under 218 ms, but 1 in 100 waits over 750 ms.</div>`,
+    }) + `<div class="fig-cap">Half of users wait under 218 ms, but 1 in 100 waits over 750 ms.</div></details>`,
   );
   addV(
     "ds-twitter",
@@ -398,17 +408,6 @@
       r: 22,
     }) +
       `<div class="fig-cap">Post once, and a copy lands in every follower's mailbox. Expensive to post, instant to read.</div>`,
-  );
-  addV(
-    "ds-twitter",
-    3,
-    FG.bars(
-      [
-        ["posts per second", 4.6, "violet", "k"],
-        ["timeline reads per second", 300, "teal", "k"],
-      ],
-      { max: 300 },
-    ) + `<div class="fig-cap">Reads outnumber posts about 65 to 1, so it pays to do the work once at post time.</div>`,
   );
   Object.assign(partScope, { addV });
 })();

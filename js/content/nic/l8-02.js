@@ -161,13 +161,6 @@
     },
   });
 
-  const barsP = (items) =>
-    `<div class="nw8-strip">${items.map(([t, v, c]) => `<div class="nw8-seg ${c}" style="flex:${Math.max(v, 0.0001)}"><b>${t}</b><small>${v}</small></div>`).join("")}</div>`;
-  const roulette = (items) => {
-    let acc = 0;
-    return `<div class="nw8-roul">${items.map(([t, p, c]) => `<div class="nw8-seg ${c}" style="flex:${p}"><b>${t}</b><small>${(acc += p).toFixed(1)}</small></div>`).join("")}</div><p class="dim" style="text-align:center">numbers show where each slice ends on the 0 to 1 line</p>`;
-  };
-
   L["l8-transition"] = {
     sum: "The transition rule picks the next town with probability proportional to pheromone to the power α times heuristic to the power β, restricted to towns not yet visited.",
     steps: [
@@ -181,8 +174,7 @@
       },
       {
         t: "The heuristic: η = 1/d",
-        b: `<p>For a travelling salesperson, a sensible local hint is that <b>shorter roads are better</b>, so $\\eta_{ij}=1/d_{ij}$. Half the distance gives double the attraction. The exponent β then stretches the gap: with $\\beta=2$, a road half as long is $2^2=4$ times as attractive.</p>`,
-        v: F.bars(
+        b: `<p>For a travelling salesperson there is a hint that needs no learning: <b>shorter roads are better</b>. So the pull of a road is one divided by its length, and halving the distance doubles the pull.</p><p>For example, a 2 km road pulls twice as hard as a 4 km road and four times as hard as an 8 km road. A second dial can stretch the gap: if distance counts "twice over", halving the distance makes a road 4 times as attractive. Drag the slider below and watch how the shares of the five roads shift (the pheromone is the same on all of them).</p><details class="math-more"><summary>Show the maths</summary><p>The heuristic for the road from $i$ to $j$ is</p><p>$$\\eta_{ij}=\\frac{1}{d_{ij}}$$</p><p>and the exponent $\\beta$ (the slider) stretches the gap: with $\\beta=2$, a road half as long is $2^2=4$ times as attractive. The values of $\\eta$:</p>${F.bars(
           [
             ["d = 2 km", 0.5, "teal"],
             ["d = 4 km", 0.25, "blue"],
@@ -196,20 +188,16 @@
             label:
               "Heuristic eta equals 1 over d: 0.5 for 2 km, 0.25 for 4 km, 0.2 for 5 km, 0.125 for 8 km, 0.1 for 10 km",
           },
-        ),
+        )}</details>`,
+        v: (box) => NIC.shared.nicFig.pull(box),
         c: C(
           "Two villages have the same pheromone, one 2 km away and one 4 km away. With β = 2, how much likelier is the nearer one? | 4 times | 2 times | 8 times | Its η is double, and squaring doubles to four. Equal pheromone cancels out.",
         ),
       },
       {
         t: "Tabu towns score zero",
-        b: `<p>Visited towns are on the <b>tabu list</b>, so their probability is 0. Only towns in $J_i^k$ share the probability. Remove a town and the rest are divided by a smaller total, so their shares <b>rise</b>.</p>`,
-        v: `<div class="nw8-stripwrap"><p class="dim">Scores of four towns; the third is tabu</p>${barsP([
-          ["Pell", 6, "teal"],
-          ["Rudd", 3, "blue"],
-          ["Sowe (tabu)", 0, "rose"],
-          ["Kell", 1, "violet"],
-        ])}</div>`,
+        b: `<p>Towns the ant has already visited are on the <b>tabu list</b> and score zero, so they can never be picked. The towns left share the whole probability between them, so take one town away and every other town gets a <b>bigger slice</b>.</p><p>For example, four towns score 6, 3, 4 and 1. With the third one tabu, the scores left add up to 6 + 3 + 1 = 10, so the first town has 6 out of 10: 60%. Tap a town below to put it on the tabu list, or take it off, and watch the slices change.</p><details class="math-more"><summary>Show the maths</summary><p>Only the towns in $J_i^k$ (not yet visited) share the probability, and tabu towns have $p=0$. Dividing by the sum over allowed towns makes the probabilities add to 1 again:</p><p>$$p_j=\\frac{\\text{score}_j}{\\sum_{h\\in J_i^k}\\text{score}_h}$$</p></details>`,
+        v: (box) => NIC.shared.nicFig.tabuScores(box),
         c: C(
           "Three towns are allowed, with scores 6, 3 and 1. A fourth town is tabu. What is the probability of the town scoring 6? | 0.6 | 0.3 | 0.9 | The tabu town adds nothing. The total is 6 + 3 + 1 = 10, and 6/10 = 0.6.",
         ),
@@ -227,12 +215,17 @@
       },
       {
         t: "Rolling the dice",
-        b: `<p>Probabilities are turned into a choice with a <b>roulette wheel</b>, as in fitness-proportional selection. Draw a random number $u$ between 0 and 1 and take the slice it lands in. Likely towns win often, but unlikely ones still get a chance.</p>`,
-        v: roulette([
-          ["Kell", 0.5, "teal"],
-          ["Marl", 0.3, "blue"],
-          ["Pell", 0.2, "violet"],
-        ]),
+        b: `<p>The rule gives every town a chance, but the ant still has to pick one. It spins a <b>roulette wheel</b>, the same trick as fitness-proportional selection: lay the towns end to end on a strip from 0 to 1, each as wide as its chance, throw a marker at a random spot and take the slice it lands in. Likely towns win often, but unlikely ones still get a turn.</p><p>For example, Kell 0.5, Marl 0.3 and Pell 0.2 cut the strip at 0.5 and 0.8, so a throw at 0.83 lands in Pell's slice. Press Draw below to throw the marker yourself.</p><details class="math-more"><summary>Show the maths</summary><p>Draw a random number $u$ between 0 and 1 and pick the first town whose running total of probabilities passes $u$:</p><p>$$j=\\min\\Big\\{m:\\ \\sum_{h\\le m}p_h>u\\Big\\}$$</p></details>`,
+        v: (box) =>
+          NIC.shared.nicFig.spin(
+            box,
+            [
+              { n: "Kell", w: 0.5, c: "teal" },
+              { n: "Marl", w: 0.3, c: "blue" },
+              { n: "Pell", w: 0.2, c: "violet" },
+            ],
+            { ends: true },
+          ),
         c: C(
           "The probabilities are 0.5, 0.3 and 0.2 for Kell, Marl and Pell, in that order. The draw is u = 0.83. Which town is chosen? | Pell | Marl | Kell | Kell covers 0 to 0.5, Marl covers 0.5 to 0.8 and Pell covers 0.8 to 1. 0.83 is past 0.8.",
         ),
@@ -274,8 +267,8 @@
       s.onInput((v) => ((st[key] = v), draw()));
       c.append(s);
     };
-    mk("τ now", 0, 10, 1, "tau");
-    mk("ρ", 0.1, 0.9, 0.1, "rho");
+    mk("Pheromone now", 0, 10, 1, "tau");
+    mk("Evaporation ρ", 0.1, 0.9, 0.1, "rho");
     mk("Q", 50, 200, 50, "Q");
     function draw() {
       const rows = ANTS.map((len, k) => {
@@ -406,16 +399,8 @@
       },
       {
         t: "Evaporation with ρ",
-        b: `<p>If nobody deposits on an edge, its pheromone falls by the same <b>fraction</b> every iteration. With $\\rho = 0.5$ a trail of 8 goes 8, 4, 2, 1. Evaporation is how the colony <b>forgets</b> poor choices.</p>`,
-        v: F.bars(
-          [
-            ["start", 8, "blue"],
-            ["after 1", 4, "blue"],
-            ["after 2", 2, "violet"],
-            ["after 3", 1, "violet"],
-          ],
-          { max: 8, label: "A trail of 8 with rho 0.5 and no deposits: 8, 4, 2, 1" },
-        ),
+        b: `<p>Pheromone does not last. If nobody lays more on a road, it loses the <b>same share</b> of what it holds every round, so it fades quickly at first and then ever more slowly. That is how the colony <b>forgets</b> roads that stopped being useful.</p><p>For example, if half evaporates each round, a road holding 8 goes 8, 4, 2, 1. Drag the slider below to change the share that is lost and watch the road fade.</p><details class="math-more"><summary>Show the maths</summary><p>With evaporation rate $\\rho$ (the share lost, between 0 and 1) and nothing deposited:</p><p>$$\\tau_{ij}(t+1)=(1-\\rho)\\,\\tau_{ij}(t)$$</p><p>With $\\rho=0.5$ a trail of 8 goes 8, 4, 2, 1. After $n$ rounds it holds $(1-\\rho)^n$ of what it started with.</p></details>`,
+        v: (box) => NIC.shared.nicFig.fade(box),
         c: C(
           "An edge has τ = 8 and nobody uses it. With ρ = 0.25, what is τ after one iteration? | 6 | 2 | 7.75 | (1 − 0.25) × 8 = 0.75 × 8 = 6.",
         ),
@@ -430,7 +415,7 @@
       },
       {
         t: "Try the ledger for one road",
-        b: `<p>Pick which ants used the road. The sliders set the old pheromone, $\\rho$ and $Q$. Watch evaporation and deposits combine into the new value.</p>`,
+        b: `<p>Tick which ants used the road, then set how much pheromone it holds now, how much of it evaporates and how loud each ant's dab is. The new value is <b>what survives evaporation, plus one dab from every ant that used the road</b>. Try a road nobody used, then one that every ant used.</p><details class="math-more"><summary>Show the maths</summary><p>With $\\rho$ the evaporation rate and $Q$ the scale of a dab, the ledger computes</p><p>$$\\tau(t+1)=(1-\\rho)\\,\\tau(t)+\\sum_{k\\text{ used it}}\\frac{Q}{L_k}$$</p></details>`,
         v: (box) => ledger(box),
         c: C(
           "Two ants use a road: one with a 25 km tour and one with a 50 km tour. Q = 100. What is Δτ for that road? | 6 | 3 | 75 | Qualities are 100/25 = 4 and 100/50 = 2. Δτ is their sum, 4 + 2 = 6.",
@@ -438,7 +423,7 @@
       },
       {
         t: "Positive feedback, and how ρ shapes it",
-        b: `<p>Roads on good tours get more pheromone, so more ants use them, so they get more again: <b>positive feedback</b>. Evaporation is the brake. This chart is the <b>average of 20 runs</b> of our ten-village colony, in a deliberately greedy set-up (only the best ant deposits, α = 2, β = 1): a fast-forgetting colony ($\\rho=0.9$) commits early, and settles for a worse round than a slow-forgetting one.</p>`,
+        b: `<p>Roads on good tours collect more pheromone, so more ants use them, so they collect even more: <b>positive feedback</b>. Evaporation is the brake, and how hard it brakes matters. The chart is the <b>average of 20 runs</b> of our ten-village colony in a deliberately greedy set-up where only the best ant lays pheromone. A colony that forgets almost everything each round commits to its first lucky tour and settles for a worse result than one that forgets slowly.</p><details class="math-more"><summary>Show the maths</summary><p>The two curves compare $\\rho=0.9$ (fast forgetting) with $\\rho=0.05$ (slow forgetting), with $\\alpha=2$, $\\beta=1$ and only the best ant depositing. With $\\rho=0.9$ only 10% of the old trail survives each round, so the newest deposit dominates at once.</p></details>`,
         v: rhoCurves(),
         c: C(
           "In that chart, which colony settles for the longer best round? | The one with ρ = 0.9, which committed to early tours | The one with ρ = 0.05, which waited too long | Both end the same; the lines only differ at the start | When ρ is high the newest tour dominates the trails at once, so an early lucky tour can capture the colony before better ones are found.",
@@ -446,11 +431,8 @@
       },
       {
         t: "What Q does and doesn't do",
-        b: `<p>$Q$ is just a <b>scale</b>. If every ant uses the same $Q$, doubling it doubles every deposit, so the <b>ratio</b> between a short tour's mark and a long tour's mark is unchanged. It only decides how loud new deposits are next to the old pheromone.</p>`,
-        v: F.compare(
-          { title: "Q = 100", c: "blue", body: "20 km ant lays 5<br>100 km ant lays 1<br>ratio 5 : 1" },
-          { title: "Q = 200", c: "teal", body: "20 km ant lays 10<br>100 km ant lays 2<br>ratio 5 : 1" },
-        ),
+        b: `<p>Q is only a <b>volume knob</b>. If every ant uses the same Q, doubling it doubles every dab, so a short tour still lays the same multiple of what a long tour lays. It changes how loud the new dabs are next to the old pheromone, not which tour wins.</p><p>For example, with Q = 100 a 20 km tour lays 5 and a 100 km tour lays 1: five to one. With Q = 200 they lay 10 and 2: still five to one. Flip between the two below.</p><details class="math-more"><summary>Show the maths</summary><p>Two ants with tours $L_1$ and $L_2$ lay $Q/L_1$ and $Q/L_2$. Their ratio does not contain $Q$:</p><p>$$\\frac{Q/L_1}{Q/L_2}=\\frac{L_2}{L_1}$$</p></details>`,
+        v: (box) => NIC.shared.nicFig.qScale(box),
         c: C(
           "All ants share the same Q, and you double it. What stays the same? | Each ant's deposit relative to the others' | The total pheromone sitting on each edge | The speed at which old pheromone evaporates | Each deposit doubles, so ratios between ants are unchanged. Edge totals change, and evaporation depends on ρ alone.",
         ),

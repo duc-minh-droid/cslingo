@@ -355,4 +355,26 @@
       "Answer the questions after the demo.",
     ],
   };
+
+  // ---------- 7.3 helper: two trails, the chance of each is its share of the pheromone ----------
+  sh.pick = (box) => {
+    const nf = NIC.shared.nicFig,
+      out = box.appendChild(el(`<div></div>`)),
+      ctl = el(`<div class="controls"></div>`);
+    let a = 30,
+      b = 10;
+    const items = () => [
+      { n: `Trail A: ${a}`, w: a, c: "blue" },
+      { n: `Trail B: ${b}`, w: b, c: "amber" },
+    ];
+    const sA = N.slider("Pheromone on A", 1, 40, 1, a),
+      sB = N.slider("Pheromone on B", 1, 40, 1, b);
+    ctl.append(sA, sB);
+    out.append(ctl);
+    const sp = nf.spin(out, items(), {
+      hint: "Each slice is as wide as its trail's pheromone. Press <b>Draw</b> to send ants.",
+    });
+    sA.onInput((v) => ((a = v), sp.set(items())));
+    sB.onInput((v) => ((b = v), sp.set(items())));
+  };
 })();
