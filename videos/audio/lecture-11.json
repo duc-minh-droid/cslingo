@@ -1,0 +1,803 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "Lecture eleven. Flocking. This is how a few simple rules make a flock, with no leader."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b69fcd8f4aa40490.wav",
+     "at": 0.5,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 16.695,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.08,
+     3.6
+    ],
+    [
+     11.26,
+     6.4
+    ],
+    [
+     16.695,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "A flock moves as one, with no leader."
+    ],
+    [
+     5.08,
+     11.01,
+     "A predator strikes: nearby birds swerve away."
+    ],
+    [
+     11.26,
+     15.59,
+     "Then the flock pulls back together."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4706c68a6c6a5b43.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/8a7e026fa8e0b78f.wav",
+     "at": 5.08,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/002ec9a82ef3fe7d.wav",
+     "at": 11.26,
+     "len": 4.08
+    }
+   ]
+  },
+  {
+   "dur": 18.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.76,
+     3.6
+    ],
+    [
+     11.82,
+     6.5
+    ],
+    [
+     18.321,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.51,
+     "Too close: the two birds push apart."
+    ],
+    [
+     6.76,
+     11.57,
+     "Too far: they pull together."
+    ],
+    [
+     11.82,
+     17.03,
+     "In between, the two urges cancel out."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c8e78c2dc4b6d7f1.wav",
+     "at": 0.5,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/86f85684c8c6f52f.wav",
+     "at": 6.76,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/abd5cf059246fd24.wav",
+     "at": 11.82,
+     "len": 4.96
+    }
+   ]
+  },
+  {
+   "dur": 23.429,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.92,
+     3.9
+    ],
+    [
+     11.26,
+     5.8
+    ],
+    [
+     18.08,
+     8
+    ],
+    [
+     23.429,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "A boid only senses flockmates nearby."
+    ],
+    [
+     6.92,
+     11.01,
+     "Inside its radius: 4 flockmates."
+    ],
+    [
+     11.26,
+     17.83,
+     "It knows each one's distance and direction."
+    ],
+    [
+     18.08,
+     22.81,
+     "It sees all round, even behind it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f1e40818eb088ad0.wav",
+     "at": 0.5,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/07bec74f2c2e6482.wav",
+     "at": 6.92,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/7165abce0a9c15de.wav",
+     "at": 11.26,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/6947968de3ecc639.wav",
+     "at": 18.08,
+     "len": 4.48
+    }
+   ]
+  },
+  {
+   "dur": 23.243,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.6,
+     2.8
+    ],
+    [
+     15.58,
+     5.3
+    ],
+    [
+     18.72,
+     7.7
+    ],
+    [
+     23.243,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "Rule 1, separation: don't crowd."
+    ],
+    [
+     6.6,
+     15.33,
+     "The closer a flockmate, the harder the push."
+    ],
+    [
+     15.58,
+     18.47,
+     "So the boid steers away."
+    ],
+    [
+     18.72,
+     21.05,
+     "Now nobody is too close."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8f86cd1521b6318d.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/38e354c2eb8505f4.wav",
+     "at": 6.6,
+     "len": 8.48
+    },
+    {
+     "file": "videos/audio/clips/547f81de10931241.wav",
+     "at": 15.58,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/e7d5653f05ba76d6.wav",
+     "at": 18.72,
+     "len": 2.08
+    }
+   ]
+  },
+  {
+   "dur": 19.992,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.72,
+     2.9
+    ],
+    [
+     9.34,
+     5.1
+    ],
+    [
+     13.52,
+     7.7
+    ],
+    [
+     19.992,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "Rule 2, alignment: match your neighbours."
+    ],
+    [
+     5.72,
+     9.09,
+     "On average, its neighbours head east."
+    ],
+    [
+     9.34,
+     13.27,
+     "It turns a little towards them each step."
+    ],
+    [
+     13.52,
+     18.89,
+     "Soon they all head the same way."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8367b49c5b16fe55.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/301d6008fb8b6a50.wav",
+     "at": 5.72,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/1543938d11cdb894.wav",
+     "at": 9.34,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/df2907e22e142b3d.wav",
+     "at": 13.52,
+     "len": 5.12
+    }
+   ]
+  },
+  {
+   "dur": 18.321,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.08,
+     2.9
+    ],
+    [
+     10.22,
+     5.1
+    ],
+    [
+     13.52,
+     7.7
+    ],
+    [
+     18.321,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.83,
+     "Rule 3, cohesion: stay with the group."
+    ],
+    [
+     5.08,
+     9.97,
+     "It finds the centre of its neighbours."
+    ],
+    [
+     10.22,
+     13.27,
+     "And steers towards that centre."
+    ],
+    [
+     13.52,
+     16.73,
+     "The group closes up."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/55933442bcf73b2f.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/04268034a798a58f.wav",
+     "at": 5.08,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/c2b9b9fe3d153219.wav",
+     "at": 10.22,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/c18cf78e25850a33.wav",
+     "at": 13.52,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.84,
+     3.1
+    ],
+    [
+     10.62,
+     5.2
+    ],
+    [
+     16.08,
+     9.1
+    ],
+    [
+     23.336,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "Each boid adds up its three pushes."
+    ],
+    [
+     6.84,
+     10.37,
+     "The sum turns it."
+    ],
+    [
+     10.62,
+     15.83,
+     "All boids do this at the same time."
+    ],
+    [
+     16.08,
+     21.61,
+     "Out of the chaos, one flock forms."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/acdef325c6cefd2b.wav",
+     "at": 0.5,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/0f4c1744283e7bd3.wav",
+     "at": 6.84,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/ccebd10d27f6e2c4.wav",
+     "at": 10.62,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/505e30f3377c877c.wav",
+     "at": 16.08,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 20.016,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.6
+    ],
+    [
+     7.64,
+     3.5
+    ],
+    [
+     11.74,
+     6.1
+    ],
+    [
+     15.44,
+     8.9
+    ],
+    [
+     20.016,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "Start them packed: they burst apart."
+    ],
+    [
+     7.64,
+     11.49,
+     "Then they gather again."
+    ],
+    [
+     11.74,
+     15.19,
+     "Two flocks meet head-on."
+    ],
+    [
+     15.44,
+     18.41,
+     "They join and fly on as one flock."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3347992e3f8bb16b.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/ca622f14ef4a418e.wav",
+     "at": 7.64,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/3152ece72810e001.wav",
+     "at": 11.74,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/3bb4c6b047375751.wav",
+     "at": 15.44,
+     "len": 2.72
+    }
+   ]
+  },
+  {
+   "dur": 26.772,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.96,
+     3.1
+    ],
+    [
+     13.1,
+     5.3
+    ],
+    [
+     21.36,
+     7.7
+    ],
+    [
+     26.772,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "An agent senses its world with sensors."
+    ],
+    [
+     5.96,
+     12.85,
+     "What it senses right now is its percept."
+    ],
+    [
+     13.1,
+     21.11,
+     "Then it acts with actuators: here, a turn."
+    ],
+    [
+     21.36,
+     25.93,
+     "The others move too, so it senses again."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/845359497bc9012d.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/62ad1dd0614ff5a2.wav",
+     "at": 5.96,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/e5f0010662867c02.wav",
+     "at": 13.1,
+     "len": 7.76
+    },
+    {
+     "file": "videos/audio/clips/50ee17d0e9528fbc.wav",
+     "at": 21.36,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.6,
+     2.9
+    ],
+    [
+     11.02,
+     5.7
+    ],
+    [
+     16.16,
+     7.7
+    ],
+    [
+     20.98,
+     10.3
+    ],
+    [
+     30,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "Many agents can work together."
+    ],
+    [
+     6.6,
+     10.77,
+     "If all 10 talk to each other: 45 links."
+    ],
+    [
+     11.02,
+     15.91,
+     "Talking only to neighbours: 10 links."
+    ],
+    [
+     16.16,
+     20.73,
+     "One central monitor watches for faults."
+    ],
+    [
+     20.98,
+     27.79,
+     "If it breaks, one bad agent infects them all."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/08fa522d5674ddc1.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/99cb1f0eb6a4e4f8.wav",
+     "at": 6.6,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/057f23fbe882e988.wav",
+     "at": 11.02,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/2b91f63f32cda0b3.wav",
+     "at": 16.16,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/9b8675dc659c9263.wav",
+     "at": 20.98,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 15.302,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.68,
+     2
+    ],
+    [
+     9.5,
+     3.1
+    ],
+    [
+     15.302,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6f1d798972471722.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/ebebb7e767c498d3.wav",
+     "at": 4.68,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/dcb1cba015c71f64.wav",
+     "at": 9.5,
+     "len": 4.08
+    }
+   ]
+  }
+ ]
+}

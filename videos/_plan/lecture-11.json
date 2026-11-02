@@ -1,0 +1,386 @@
+{
+  "slug": "lecture-11",
+  "dir": "l11",
+  "title": "Flocking",
+  "outline": "Lecture 11 video (Nature-Inspired Computation, ECM3412): 'Flocking'. 12 scenes, 123 s: title (4), a flock has no leader (10), not too close, not too far (10), what a boid senses (10), rule 1 separation (10), rule 2 alignment (10), rule 3 cohesion (10), the three rules together make a flock (14), burst apart, then join up (12), a boid is a tiny agent (11), many agents: keep it local (14), recap (9). Story: a flock moves as one with no leader, and a predator strike only breaks it for a moment (scene 2, lesson 11.1); a flock balances attraction against repulsion: too close they push apart, too far they pull together, in between they hold steady (scene 3, 11.1). Reynolds' boids (1987): each boid senses only the flockmates inside its perception radius, all round, with distance and bearing (scene 4, 11.2), and follows three local rules: separation (steer away from flockmates closer than 20, harder the closer: 1 - d/20), alignment (turn towards the neighbours' average heading), cohesion (steer towards the neighbours' centre) (scenes 5-7, 11.2); each tick every boid adds the three pushes, turns and moves, and a scattered crowd becomes one polarised flock (scene 8, 11.2 and 11.3); the same rules make a packed start burst apart (flash expansion) and two flocks join when they meet (scene 9, 11.3). An agent senses its environment with sensors and acts with actuators, its percept is what it senses now; a boid is a tiny agent in a world that keeps changing (scene 10, 11.4). A multi-agent system scales by talking only to neighbours (45 links for 10 agents all-to-all, 10 on a ring), and a central fault monitor is a single point of failure (scene 11, 11.5). Not covered: the slime mould, swarming vs formation, the environmental template (compass blend), V-formation range, environment property lists (observable / deterministic / dynamic / sequential), organisations (flat / hierarchy / team / coalition), heterogeneous agents, PSO teaser, the boss quiz; the recap points to Workshop 11.W (the boids lab).\n\nLESSONS the facts come from: l11-flock 11.1, l11-boids 11.2, l11-behave 11.3, l11-agents 11.4, l11-mas 11.5, l11-wlab 11.W; js/content/nic/l11-01.js (the boids kernel and sandbox, 11.1), l11-02.js (11.1 figures and 11.2), l11-03.js (11.3 and 11.4), l11-workshop.js (11.5 and 11.W), boss-nic-11.js (l11-boss); bank js/bank/nic-48.js and nic-49.js.\n\nTHE SIMULATION (videos/l11/common.js). The boids kernel is a line-for-line port of the app's (l11-01.js): a 600 x 360 wrap-around world, constant speed 2.4 per tick, perception radius 70, separation distance 20; a boid's pushes are separation 0.9 ws sum over flockmates within 20 of -(dx/d)(1 - d/20), alignment 0.08 wa (average neighbour velocity - own velocity), cohesion 0.004 wc (average neighbour offset); new velocity = old + the three pushes, renormalised to speed 2.4; all boids update at once. Groups = clusters joined below 40; polarisation = |sum of unit headings| / N (1 = all the same way); spread = RMS distance from the circular-mean centre. EVERY FLOCK IS SIMULATED ONCE WHEN THE PAGE LOADS from a seeded mulberry32 rng (the lesson's) and logged tick by tick (L11.RUN.*); scenes draw frame t from the log (L11.at interpolates fractional ticks), so seeking anywhere is exact and deterministic. Runs and their asserted numbers: FORM (40 boids, scattered, seed 29): polarisation 0.06 and 21 groups at tick 0, 0.9 first at tick 191, 0.99 and 1 group at tick 420; focus boid 37, show tick 119 (6 neighbours, pushes 0.22 / 0.13 / 0.11, sum 0.18); the agent: boid 36 at tick 60 senses 4 flockmates, nearest 40 away on its right, turns right 6 degrees. SCARE (50 boids, seed 2, 600 warm-up ticks): polarisation 1.00, one group; strike at tick 120 at the flock centre; dip 0.22 at tick 140, up to 4 groups; 0.9 again at tick 253; 0.99, one group at 360. BURST (60 boids packed, seed 5): spread 15 -> 155 at tick 100 (about ten times), groups 1 -> 10 -> 1 (tick 160). MEET (40 boids in two flocks, seed 21): 2 groups -> 1 from tick 32, polarisation 0.00 -> 0.98 at tick 100. Close-ups (boid 0 is the focus): SEP (separation only) flockmates 5, 15, 25 away push 0.75, 0.25, 0; net push (0, 0.45); no pair within 20 by tick 15; ALI (alignment only) the focus heads north, four flockmates east, all agree at 60 degrees by tick 40; COH (cohesion only) three of four flockmates on its right, the focus leans right 0 -> 42 degrees by tick 30, spread 37 -> 17. Lesson figure data: the 13 flockmates of 11.2 (radius 30/50/70/80 -> 0/1/2/4 inside, nearest 45 away 27 degrees left), the balance of 11.1 (push below 2.5 lengths, pull above 3.5, steady at 3; 'Let go' moves a quarter of the way each step), links n(n-1)/2 (10 -> 45, 20 -> 190, 100 -> 4950), the toy fault ring of 11.5 (monitor down: 1, 3, 5, 7, 9, 10 infected; monitor up: 5 isolated at step 3; neighbours watching: isolated at step 1).\n\nVIDEO-WIDE CONVENTIONS. Colours: red = separation / push apart / repulsion / a fault; blue = alignment / heading / polarisation; green = cohesion / pull together / attraction / cheap neighbour links; purple = the one highlighted boid (focus, the agent) and the sum of its pushes; orange = the perception radius and the flockmates inside it (the percept); grey = other boids, neutral. Boids are the app's dart shape (L11.dartPath), drawn by L11.field (flock windows) or L11.dart (hand-placed figures). Layout: every flock scene puts its window at the top of the stage (936 wide, about 470-520 high) and its stats/tags/equation in a row below (y about 494-560); the agent and MAS scenes use a figure on the left and a column on the right. 'Polarisation' is defined on screen in scene 2 ('1 = all head the same way') and reused in scenes 6, 8 and 9. The same RUN.FORM flock is the sum/formation of scene 8 and the agent of scene 10; the three rule close-ups share the same window size and timing pattern (frozen explanation until about 4.8-5.2 s, then the real run plays).",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 11",
+    "title": "Flocking",
+    "sub": "How three simple rules make a flock",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 11",
+      "title": [
+        "Flocking"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Title card (finished): VID.titleCard with the titleCard fields."
+    },
+    {
+      "n": 2,
+      "file": "scene-02-flock.js",
+      "kicker": "FLOCKING",
+      "title": [
+        "Many birds, one flock,",
+        "and no leader"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          3.1,
+          "A flock moves as one, with no leader."
+        ],
+        [
+          3.6,
+          6,
+          "A predator strikes: nearby birds swerve away."
+        ],
+        [
+          6.4,
+          9.6,
+          "Then the flock pulls back together."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.1, l11-flock): a flock is a leaderless group that moves as one; poke it (a predator strike) and the birds near the strike swerve away, the flock breaks up for a moment, then regroups by itself. This is the app's own 'A flock to poke' demo, run for real: L11.RUN.SCARE (50 boids, all three rules, R 70, already flocking after 600 unlogged warm-up ticks; a predator strike at tick 120 at the flock's centre, pushing boids within 150 away for 20 ticks). COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). The flock window: const fv = L11.field(stage, {x: 0, y: 0, w: 936, h: 500, zoom: 1.56, size: 24}) (shows the whole 600-wide world; the flock is about 250 px across). Below it, left: const pol = L11.stat(stage, {x: 0, y: 528, w: 400, h: 80, label: 'polarisation', tone: 'blue'}) and next to it L11.tag(stage, {x: 420, y: 548, text: '1 = all head the same way', tone: 'blue'}) (the definition, on screen before it matters); right: const grp = L11.stat(stage, {x: 700, y: 528, w: 236, h: 80, label: 'groups', tone: 'grey'}). A grey tag L11.tag(stage, {x: 16, y: 16, text: 'no leader', tone: 'grey', solid: true}) sits on the window's top-left corner.\n\nDATA (asserted in common.js): const R = L11.RUN.SCARE; R.polar[k] and R.groups[k] per tick: 1.00 and 1 before the strike; R.fear = {at: 120, x, y, t: 20}; lowest polarisation R.dip = 0.22 at tick R.dipAt = 140, at most 4 groups; back to 0.9 at tick R.back = 253; 0.99 and 1 group at tick 360. Show polarisation with two decimals (R.polar[k].toFixed(2)) and groups as an integer, k = Math.round(tick).\n\nTIMELINE (local s). tick = 36 * (t - 0.4), clamped 0..360 (so the strike lands at t = 3.73, the dip at 4.29, recovery 0.9 at 7.43, the end at 10.4 is never reached: the scene ends at tick 344). 0.2-0.7 the window fades in with boids (fv.update({run: R, tick, cam: 'centre', k: ramp(t, 0.2, 0.7)})); 0.6-1.0 the two stats pop (k), 1.0 the 'no leader' tag pops, 1.3 the definition tag. 3.6-5.4 fv.update({..., fear: 1}) shows the red strike ring growing from the strike point (the helper draws it for 40 ticks from R.fear.at). The stats follow the log every frame; bump the polarisation stat (bump: flash(t, 4.1, 4.6)) at the dip and the groups stat (flash(t, 7.3, 7.8)) when it is back to 1. Nothing else moves: let the flock do the explaining."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-balance.js",
+      "kicker": "PULL IN, PUSH OUT",
+      "title": [
+        "Not too close,",
+        "not too far"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          3.2,
+          "Too close: the two birds push apart."
+        ],
+        [
+          3.6,
+          6.2,
+          "Too far: they pull together."
+        ],
+        [
+          6.5,
+          9.6,
+          "In between, the two urges cancel out."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.1, step 'Pull in, push out'): a flock balances two urges: attraction (pull together) and repulsion (do not crowd). Too close and repulsion wins, too far and attraction wins, and at a comfortable gap the two cancel and the pair holds steady. The lesson's two-animal example in body lengths: 1 length apart they push apart, 6 apart they pull together, about 3 apart they hold steady; 'Let go' moves the gap a quarter of the way to 3 each step (L11.BAL.settle). COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). const svg = L5.svg(stage). A ruler of body lengths: 1 length = 96 px, 0 at x0 = 84, so 8 lengths end at x 852; three bands under the birds (rects 22 px high at y 330, sticker-flat, no gradients): 0-2.5 lengths filled var(--rose) at 0.35 opacity, 2.5-3.5 var(--panel-2), 3.5-8 var(--teal) at 0.35; under each band a 28 px label (L11.label): 'too close' (red ink, centred under 0-2.5), 'just right' (grey, under 3), 'too far' (green ink, under 3.5-8) at y 366; small grey tick marks at every whole length with numbers 0..8 at y 410 (28 px, grey). Two boids drawn with L11.dart(svg, {size: 84}): the left one purple at x0 (84, 260) heading right (r 0), the right one grey at x = x0 + 96 d, y 260, heading left (r 180). A distance tag above the gap: L11.tag(stage, {x: centre of the gap - 60, y: 150, text: `${d.toFixed(1)} lengths`, tone: 'grey'}) (update its text and x every frame; offset via set({x})). Urge arrows (L11.vec(svg, {w: 9, head: 24})): when d < 2.5 two red arrows pointing OUTWARDS from each bird (from the bird's outer side, 90 px long, y 260) and a red tag 'repulsion' above the left bird; when d > 3.5 two green arrows pointing INWARDS (towards each other, 90 px) and a green tag 'attraction'; when 2.5 <= d <= 3.5 no arrows and a grey solid tag 'steady' over the gap. Use L11.BAL.mode(d) ('push' | 'pull' | 'steady') to choose; never hard-code which arrows show.\n\nDATA (asserted in common.js): L11.BAL.mode(1) = 'push', mode(3) = 'steady', mode(6) = 'pull'; const A = L11.BAL.settle(1) (14 values from 1.0 to within 0.05 of 3), const B = L11.BAL.settle(6) (16 values from 6.0 down to 3.04). Between two values interpolate linearly; step every 0.16 s.\n\nTIMELINE (local s). 0.2-0.8 ruler, bands and labels fade in; 0.5-1.0 the two birds pop at d = 1. 1.0-1.6 the red arrows draw on (k) with a small shake of both birds (x offset 3 * sin(t * 40) * flash(t, 1.0, 1.6)); 1.8-4.0 'let go': d follows A (step i at 1.8 + 0.16 i), the arrows shrink as d nears 2.5 and vanish when the mode turns 'steady' (about 2.4 s in, d about 2.5), the 'steady' tag pops. 3.6-4.1 the grey bird slides out to d = 6 (ease inOut), the green arrows draw on 4.1-4.6; 4.7-7.3 let go: d follows B, arrows vanish once d <= 3.5 and 'steady' pops again. 7.3-10 hold at the settled gap (about 3.04, shown as '3.0 lengths'); the 'just right' band pulses once with a 4 px grey outline (flash 7.4-8.2). The caption for 'in between' reads while the pair holds steady."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-sense.js",
+      "kicker": "WHAT A BOID SEES",
+      "title": [
+        "A boid only senses",
+        "its neighbours"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          2.6,
+          "A boid only senses flockmates nearby."
+        ],
+        [
+          2.9,
+          5.5,
+          "Inside its radius: 4 flockmates."
+        ],
+        [
+          5.8,
+          7.8,
+          "It knows each one's distance and direction."
+        ],
+        [
+          8,
+          9.7,
+          "It sees all round, even behind it."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.2, step 'What a boid can sense'): a boid senses only the flockmates inside its perception radius, in all directions (nobody hides behind anyone), and for each one it knows the distance and the bearing. The lesson figure's own data: one boid and 13 flockmates; growing the radius 30 -> 50 -> 70 -> 80 brings in 0, 1, 2, 4 flockmates; the nearest is 45 away, 27 degrees to its left. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Scale the lesson's offsets by 1.6 around the focus at (468, 300): flockmate j sits at (468 + 1.6 * L11.MATES[j][0], 300 + 1.6 * L11.MATES[j][1]) (x 228..772, y 140..436: all inside the stage with margin). const svg = L5.svg(stage). The perception circle: an SVG circle centred (468, 300), radius 1.6 * R, stroke var(--amber) 4 px dashed '12 9', fill color-mix(in srgb, var(--amber) 10%, transparent) (draw it under the boids). The 13 flockmates: L11.dart(svg, {size: 34}) heading right (r 0), tone 'grey', or 'orange' once inside the current radius (L11.SENSE.inR(R)[j]). The focus: L11.dart(svg, {size: 46}) purple at (468, 300), r 0, ring 1. A counter: const cnt = L11.stat(stage, {x: 0, y: 540, w: 320, h: 80, label: 'senses', tone: 'orange'}) showing the number inside; a radius tag L11.tag(stage, {x: 340, y: 560, text: `radius ${R}`, tone: 'orange'}).\n\nDATA (asserted in common.js): L11.MATES (13 offsets); L11.SENSE.R = [30, 50, 70, 80], L11.SENSE.count = [0, 1, 2, 4]; the nearest flockmate L11.SENSE.near = {xy: [40, -20], d: 45, bearing: 27, side: 'left'}; behind the boid sits L11.MATES[2] = [-60, 20] (inside radius 80). The shown count is always L11.SENSE.inR(R).filter(Boolean).length for the R being drawn (assert it equals the storyboard count at 30, 50, 70, 80 in build()).\n\nTIMELINE (local s). 0.2-1.2 the 13 grey flockmates pop (L11.seq, 0.05 s apart), 0.6 the focus pops with its purple ring. 1.4-1.8 the circle appears at R 30 (count 0). The radius then GROWS in steps, each eased over 0.4 s: 2.4 -> 50 (one turns orange), 3.2 -> 70 (two), 4.0 -> 80 (four); each flockmate turns orange the moment the circle reaches it (compare its distance with the current animated R) and pops (scale bump 1.25 over 0.3 s); the stat counts along and bumps. 5.8-6.4 a dashed grey line (L11.vec with dash, no head... use a plain SVG line, 4 px dashed) from the focus to the nearest flockmate, and an orange tag '45 away · 27 degrees left' (words, no degree glyph) at (500, 120). 6.4-7.2 a small arc (SVG path, blue, 4 px) between the focus's heading line (a short grey line straight ahead, 120 px) and the line to the nearest, to show the bearing. 8.0-8.6 the flockmate behind (MATES[2]) gets a purple ring (scale pulse) and a grey tag 'behind: still seen' below it at (300, 360) roughly (keep it inside the stage and off the other boids). Hold to 10."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-separation.js",
+      "kicker": "RULE 1",
+      "title": [
+        "Separation:",
+        "don't crowd"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          2.5,
+          "Rule 1, separation: don't crowd."
+        ],
+        [
+          2.8,
+          5,
+          "The closer a flockmate, the harder the push."
+        ],
+        [
+          5.3,
+          7.4,
+          "So the boid steers away."
+        ],
+        [
+          7.7,
+          9.6,
+          "Now nobody is too close."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.2, step 'Rule 1: separation'): a boid steers away from any flockmate that is too close (within the separation distance 20), and the closer the flockmate the harder the push: strength 1 - d / 20, so a flockmate 5 away pushes 0.75, one 15 away 0.25, one 25 away not at all. Run for real: L11.RUN.SEP, separation only (weights 1 / 0 / 0): the focus (boid 0) heading east with flockmates 5 above, 15 below and 25 behind. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Close-up window: const fv = L11.field(stage, {x: 0, y: 0, w: 936, h: 520, zoom: 4.5, size: 40}) (the red separation circle is 90 px in radius; the close flockmate starts 22 px from the focus, half under it: that is the point). fv.update({run: L11.RUN.SEP, tick, cam: 'centre', focus: 0, ring: 1, sepRing, arrows: {sep}, arrowScale: 260, trail: tick > 0 ? 20 : 0}). Distance tags next to each flockmate at tick 0, placed from fv.boid(j) (parent px): L11.tag(stage, {x, y, text, tone}) with text `${d} away · push ${p}` from L11.CLOSE.SEP.mates: '5 away · push 0.75' (red, solid), '15 away · push 0.25' (red), '25 away · push 0' (grey); put each tag 60 px above or below its boid so none overlaps another boid or the circle's centre. A small red tag 'separation distance 20' at the circle's lower edge. Bottom row (y 548): a red stat L11.stat(stage, {x: 0, y: 548, w: 360, h: 80, label: 'closest', tone: 'red'}) showing the closest pair distance at the current tick (compute with L11.dist over L11.frame(R, Math.round(tick)), rounded), and a green tick (L5.tick) + 'nobody within 20' green tag that pops when it first exceeds 20.\n\nDATA (asserted in common.js): L11.CLOSE.SEP.mates = [{j: 1, d: 5, push: 0.75}, {j: 2, d: 15, push: 0.25}, {j: 3, d: 25, push: 0}]; L11.CLOSE.SEP.push = [0, 0.45] (down: away from the close one above, partly cancelled by the one below); closest pair 5 at tick 0, more than 20 by tick 15; the focus's heading turns from 90 to 96 degrees (clockwise from north) by tick 20 (L11.hdg).\n\nTIMELINE (local s). Frozen at tick 0 until 5.2. 0.2-0.7 window and boids (k); 0.8-1.3 the purple ring and the red separation circle (sepRing 0 -> 1); 1.6 / 2.2 / 2.8 the three distance tags pop (0.4 s each, nearest first); 3.4-4.2 the red push arrow draws on (arrows.sep 0 -> 1) and bumps; hold. 5.2-8.4 play: tick = 6.25 * (t - 5.2) (0 -> 20; the flockmates fly apart fast, so stop at 20 to keep them in the window), the tags fade out 5.2-5.5, the arrow follows the live push (it shrinks to nothing as the flockmates leave the circle), the purple trail shows the focus swerving down. 7.6 the closest stat is above 20: green tick and 'nobody within 20' pop. Hold to 10."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-alignment.js",
+      "kicker": "RULE 2",
+      "title": [
+        "Alignment:",
+        "match your neighbours"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          2.6,
+          "Rule 2, alignment: match your neighbours."
+        ],
+        [
+          2.9,
+          4.8,
+          "On average, its neighbours head east."
+        ],
+        [
+          5.1,
+          7.4,
+          "It turns a little towards them each step."
+        ],
+        [
+          7.7,
+          9.6,
+          "Soon they all head the same way."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.2, step 'Rule 2: alignment'): a boid steers towards the AVERAGE HEADING of the flockmates it senses, turning part of the way on every tick; the lesson's example, run for real: L11.RUN.ALI, alignment only (weights 0 / 1 / 0): the focus (boid 0) heads north, its four flockmates head east; they all turn towards each other's headings and agree (about 60 degrees from north) by tick 40. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Window: const fv = L11.field(stage, {x: 0, y: 0, w: 936, h: 520, zoom: 3, size: 40}); fv.update({run: L11.RUN.ALI, tick, cam: 'centre', focus: 0, ring: 1, radius, hood, trail: tick > 0 ? 30 : 0}). Heading arrows (L11.vec(fv.svg, {tone: 'blue', w: 6, head: 18})): one short blue arrow (60 px) in front of every flockmate along its heading (from fv.boid(j): x, y and r in degrees), and one long blue arrow (130 px) from the focus along the neighbours' AVERAGE heading, L11.hood(R, tick, 0).heading (degrees, 0 = right), labelled with a blue tag 'average heading' at its tip. The focus's own heading: a purple arrow (L11.vec, tone 'purple', 100 px) along fv.boid(0).r. Bottom row (y 548): L11.stat(stage, {x: 0, y: 548, w: 420, h: 80, label: 'polarisation', tone: 'blue'}) = R.polar[k].toFixed(2) (polarisation was defined in scene 2: 1 = all head the same way) and, at 7.7, a blue solid tag 'all the same way' at x 460.\n\nDATA (asserted in common.js): L11.CLOSE.ALI.push = [0.19, 0.19] at tick 0 (the turn it makes), 4 neighbours; R.polar[0] and R.polar[40] (read them, do not type them); at tick 40 the focus heads 60 degrees (L11.hdg(L11.frame(R, 40)[0]) === 60) and all five headings agree within 4 degrees: assert both again in build().\n\nTIMELINE (local s). Frozen at tick 0 until 4.8. 0.2-0.7 window and boids; 0.9-1.4 purple ring and the orange perception circle (radius 0 -> 1) with the four neighbours turning orange (hood 1 from 1.2); 1.6 the purple heading arrow of the focus draws on. 2.9-3.5 the short blue arrows draw on over the four flockmates (L11.seq 0.1 s apart); 3.7-4.4 the long blue 'average heading' arrow draws on from the focus. 4.8-8.8 play: tick = 10 * (t - 4.8) (0 -> 40); the blue arrows follow the live headings (they swing a little too, the flockmates also align), the purple arrow swings from north towards the blue one; the polarisation stat climbs. 7.7 'all the same way' pops; hold."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-cohesion.js",
+      "kicker": "RULE 3",
+      "title": [
+        "Cohesion:",
+        "stay with the group"
+      ],
+      "dur": 10,
+      "caps": [
+        [
+          0.5,
+          2.6,
+          "Rule 3, cohesion: stay with the group."
+        ],
+        [
+          2.9,
+          4.8,
+          "It finds the centre of its neighbours."
+        ],
+        [
+          5.1,
+          7.4,
+          "And steers towards that centre."
+        ],
+        [
+          7.7,
+          9.6,
+          "The group closes up."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.2, step 'Rule 3: cohesion'): a boid steers towards the AVERAGE POSITION (the centre) of the flockmates it senses; with most neighbours on its right it leans right. Run for real: L11.RUN.COH, cohesion only (weights 0 / 0 / 1): everyone heads north; three of the focus's four flockmates are on its right. The focus leans right (heading 0 -> 42 degrees by tick 30) and the group closes up (spread 37 -> 17). COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Window: const fv = L11.field(stage, {x: 0, y: 0, w: 936, h: 520, zoom: 3, size: 40}); fv.update({run: L11.RUN.COH, tick, cam: 'centre', focus: 0, ring: 1, radius, hood, arrows: {coh}, arrowScale: 380, trail: tick > 0 ? 30 : 0}) (cam 'centre' follows the group, which drifts up about 55 world units over 30 ticks; the closing-up shows as the boids getting nearer each other and the spread stat). The neighbours' centre: from L11.hood(R, tick, 0).centre (a world point), drawn at fv.px(c.x, c.y) as a green target: an L11.token(stage, {tone: 'green', size: 30}) with a green ring (an SVG circle r 26, 4 px, var(--teal)) and a green tag 'centre' 34 px below it. Thin green dashed lines (SVG, 3 px) from each orange neighbour to the centre appear first (they show what is averaged), then fade. Bottom row (y 548): L11.stat(stage, {x: 0, y: 548, w: 360, h: 80, label: 'spread', tone: 'green'}) = Math.round(R.spread[k]).\n\nDATA (asserted in common.js): L11.CLOSE.COH.push = [0.11, 0.04] (right and a little down: towards the centre) at tick 0, 4 neighbours; spread 37 at tick 0 and 17 at tick 30; the focus heading 42 degrees at tick 30 (assert again in build()).\n\nTIMELINE (local s). Frozen at tick 0 until 4.8. 0.2-0.7 window and boids; 0.9-1.4 purple ring, orange circle, neighbours orange (hood 1 from 1.2). 2.9-3.5 the dashed lines from the neighbours meet at the centre; 3.5-3.9 the green target and 'centre' tag pop; 4.2-4.7 the green cohesion arrow draws on from the focus (arrows.coh 0 -> 1) pointing at the centre; the dashed lines fade 4.4-4.8. 5.1-8.7 play: tick = 8.33 * (t - 5.1) (0 -> 30); the target moves with the group, the arrow follows the live push, the trail shows the focus curving right; the spread stat falls 37 -> 17 (bump at 8.7). Hold to 10."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-together.js",
+      "kicker": "BOIDS",
+      "title": [
+        "Three rules together",
+        "make a flock"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.5,
+          2.8,
+          "Each boid adds up its three pushes."
+        ],
+        [
+          3.1,
+          4.6,
+          "The sum turns it."
+        ],
+        [
+          5.2,
+          8.8,
+          "All boids do this at the same time."
+        ],
+        [
+          9.1,
+          13.7,
+          "Out of the chaos, one flock forms."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.2 'Putting the three together' and 11.3 'They polarise themselves'): every tick each boid senses its flockmates, works out the three pushes (separation, alignment, cohesion), ADDS them, turns and moves; all boids do this at once, and a scattered crowd with random headings becomes one flock heading one way, with no leader. Run for real: L11.RUN.FORM, 40 boids scattered with random headings, all three rules at weight 1, radius 70 (the app's defaults). COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Window: const fv = L11.field(stage, {x: 0, y: 0, w: 936, h: 470, zoom: 1.56, size: 24}). Beat 1 (the sum) is drawn on the run itself at R.show: fv.update({run: R, tick: R.show, cam: 'focus', focus: R.focus, ring: 1, radius: 1, hood: 1, dim: 0.5, arrows: {sep, ali, coh, sum}, arrowScale: 500}) (the arrows are then about 110 (red), 65 (blue), 55 (green) px and the purple sum 90 px). Under the window, an equation row at y 494, height 76: L11.chip(stage, {x: 0, y: 494, w: 220, h: 76, text: 'separation', tone: 'red', fs: 30}), L11.mark('plus', 240, 532, 34, 'grey'), chip {x: 260, w: 200, text: 'alignment', tone: 'blue'}, plus at 480, chip {x: 500, w: 190, text: 'cohesion', tone: 'green'}, L11.mark('equals', 710, 532, 34, 'grey'), chip {x: 730, w: 206, text: 'turn', tone: 'purple', solid: true}. Beat 2 replaces the equation row by two stats at y 494: const pol = L11.stat(stage, {x: 0, y: 494, w: 440, h: 80, label: 'polarisation', tone: 'blue'}) = R.polar[k].toFixed(2) and const grp = L11.stat(stage, {x: 470, y: 494, w: 300, h: 80, label: 'groups', tone: 'grey'}) = R.groups[k].\n\nDATA (asserted in common.js): const R = L11.RUN.FORM; R.focus = 37 (the highlighted boid), R.show = 119 (a tick where its three pushes are all clearly visible: sizes 0.22 / 0.13 / 0.11, at least 45 degrees apart, sum 0.18 pointing at least 22 degrees off each of them; it senses 6 flockmates there); R.polar[0] = 0.06 with 21 groups at tick 0; polarisation first reaches 0.9 at tick R.p90 = 191; 0.99 and 1 group at tick 420. L11.pushes(R, R.show, R.focus) gives sep / ali / coh / sum vectors (the field draws them).\n\nTIMELINE (local s). Beat 1, frozen at tick R.show: 0.2-0.7 window and boids; 0.6-1.0 purple ring, orange circle, neighbours orange (others dimmed to 0.5). The three pushes draw on one after another with their chips: red 1.0-1.5 (chip 'separation' pops), blue 1.5-2.0 ('alignment'), green 2.0-2.5 ('cohesion'), the plus signs between them; 3.1-3.7 the purple SUM arrow draws on and the 'turn' chip pops with the equals sign. 3.8-4.6 play ticks R.show -> R.show + 12 (15 ticks/s) so the focus visibly turns along the purple arrow, arrows live. 4.6-5.0 the window fades to o 0.2 and the equation row out; 5.0-5.3 it fades back in at tick 0 (cam 'centre', focus R.focus with ring 1, radius 1 only, no hood, no arrows: the arrows would flicker every tick) and the two stats pop. Beat 2, 5.0-13.4: tick = 50 * (t - 5.0) (0 -> 420): the scattered boids swirl into small groups that merge and polarise; the stats follow the log (polarisation passes 0.9 at t 8.82: bump it; groups reach 1 at t 13.4: bump it). Hold 13.4-14 on one flock."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-behave.js",
+      "kicker": "WHAT FLOCKS DO",
+      "title": [
+        "Burst apart,",
+        "then join up"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.6,
+          3.2,
+          "Start them packed: they burst apart."
+        ],
+        [
+          3.5,
+          5.8,
+          "Then they gather again."
+        ],
+        [
+          6.1,
+          8.6,
+          "Two flocks meet head-on."
+        ],
+        [
+          8.9,
+          11.7,
+          "They join and fly on as one flock."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.3, l11-behave): the same three rules give rich group behaviour with no extra rules. FLASH EXPANSION: 60 boids started packed into a 36-unit square burst outwards (separation pushes hard), the spread grows about ten times (15 -> 155 by tick 100), then cohesion and alignment pull them back into one flock (1 group again at tick 160). JOINING: two flocks heading for each other meet and become one flock heading one way (2 groups -> 1 at tick 32, polarisation 0.00 -> 0.98 by tick 100). Both are real runs: L11.RUN.BURST and L11.RUN.MEET. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Two windows side by side: const left = L11.field(stage, {x: 0, y: 60, w: 456, h: 340, zoom: 0.95, size: 16}), const right = L11.field(stage, {x: 480, y: 60, w: 456, h: 340, zoom: 0.95, size: 16}) (zoom must stay >= 456 / 600 and >= 340 / 360). Tags above them at y 6: L11.tag(stage, {x: 0, y: 6, text: 'packed start', tone: 'grey'}), L11.tag(stage, {x: 480, y: 6, text: 'two flocks meet', tone: 'grey'}). Stats under each at y 420: left L11.stat(stage, {x: 0, y: 420, w: 456, h: 80, label: 'spread', tone: 'red'}) = Math.round(R.spread[k]) a red solid tag 'flash expansion' at (0, 532) that pops at the burst, and a grey tag `groups ${g}` at (300, 532) that follows R.groups[k]. Right: L11.stat(stage, {x: 480, y: 420, w: 456, h: 80, label: 'groups', tone: 'green'}) = R.groups[k] and L11.stat(stage, {x: 480, y: 520, w: 456, h: 80, label: 'polarisation', tone: 'blue'}) = R.polar[k].toFixed(2). cam 'start' for the burst (the camera stays on the packing point so the explosion is centred) and 'centre' for the meeting. The window that is not playing is dimmed to o 0.45 (and its stats to 0.6); both stay on screen.\n\nDATA (asserted in common.js): BURST: spread 15 at tick 0, 155 at tick 100; groups 1, 10, 1 at ticks 0, 100, 160. MEET: groups 2 at tick 0, 1 from tick R.merge = 32 to the end; polarisation 0.00 at tick 0, 0.98 at tick 100.\n\nTIMELINE (local s). 0.2-0.6 both windows fade in (right one already dimmed), showing tick 0 of each run. LEFT plays 0.8-5.8: tick = 32 * (t - 0.8) (0 -> 160); 'flash expansion' pops at 1.8; spread stat follows (bump at 3.9, tick 100); the groups tag follows. 5.9-6.1 left dims, right brightens. RIGHT plays 6.1-11.7: tick = 36 * (t - 6.1) (0 -> 200): the two flocks fly at each other, merge at tick 32 (t 7.0: groups stat bumps and turns solid green), polarisation reaches 0.98 at tick 100 (t 8.9: bump). Hold to 12."
+    },
+    {
+      "n": 10,
+      "file": "scene-10-agent.js",
+      "kicker": "AGENTS",
+      "title": [
+        "A boid is",
+        "a tiny agent"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.5,
+          2.8,
+          "An agent senses its world with sensors."
+        ],
+        [
+          3.1,
+          5,
+          "What it senses right now is its percept."
+        ],
+        [
+          5.3,
+          7.4,
+          "Then it acts with actuators: here, a turn."
+        ],
+        [
+          7.7,
+          10.6,
+          "The others move too, so it senses again."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.4, l11-agents): an AGENT perceives its environment through SENSORS and acts on it through ACTUATORS; its PERCEPT is what it senses at one instant; it acts, the world changes, and the loop goes round again. A boid is a tiny agent: its sensors report the flockmates inside its radius (distance and bearing), its actuator is a turn, and its world keeps changing because every other boid moves too. The app's own percept/action readout (lesson 11.4 demo) for boid 36 of L11.RUN.FORM at tick 60: 4 flockmates within 70, the nearest 40 away on its right; action: turn right by 6 degrees this tick. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). Left: a close window following the agent: const fv = L11.field(stage, {x: 0, y: 40, w: 440, h: 440, zoom: 2.2, size: 30}); fv.update({run: L11.RUN.FORM, tick, cam: 'focus', focus: A.i, ring: 1, radius, hood, dim: 0.6, trail: tick > A.tick ? 20 : 0}) with const A = L11.RUN.FORM.agent. Right: a loop of four plain cards (L11.card, w 440, h 84, fs 30) at x 496, y 40 / 150 / 260 / 370: 'sensors: look around' (orange), 'percept: 4 flockmates' (orange), 'actuators: turn right' (purple), 'the world changes' (grey); grey L5.arrow arrows down the left side of the cards between them (x 480) and a grey return arrow from the last card back up to the first along the right edge (L5.arrow(924, 412, 924, 82, 'grey', 1, {w: 6, head: 18, bow: -26}); draw it on with L5.drawOn). The active card is set({plain: false}) (solid sticker), the others plain. Under the window: an orange tag `nearest ${A.d} away, ${A.side}` at (0, 500) and a purple tag `turn right ${A.turn} degrees` at (0, 560) (no degree glyph). The card texts use the numbers from A (A.n flockmates; 'turn right' from the sign of A.turn).\n\nDATA (asserted in common.js): A = {tick: 60, i: 36, n: 4, d: 40, side: 'on its right', turn: 6}; L11.percept(R, tick, A.i) gives the live percept if you want to show it changing in the last beat (at tick 61 it already senses 5).\n\nTIMELINE (local s). 0.2-0.7 the window at tick A.tick (frozen) and the purple agent with its ring; the four cards appear one by one 0.5-1.4 (plain grey-ish). SENSE 0.8-2.8: card 1 active; the orange circle grows in (radius 0 -> 1, 1.2-1.8) and the four flockmates inside turn orange (hood 1 at 1.8), the rest dim. PERCEPT 3.1-5.0: card 2 active; a dashed line to the nearest one and the 'nearest 40 away, on its right' tag pop (3.4). ACT 5.3-7.4: card 3 active; the 'turn right 6 degrees' tag pops (5.5); play ticks A.tick -> A.tick + 8 over 5.8-7.2 (the trail shows the turn). WORLD 7.7-10.6: card 4 active; play ticks A.tick + 8 -> A.tick + 60 over 7.7-10.2 (radius and hood live: neighbours drift in and out of the circle, showing the percept keeps changing; the two tags fade out 7.7-8.0); the return arrow draws on 8.6-9.4 and card 1 lights again at 9.6. Hold to 11."
+    },
+    {
+      "n": 11,
+      "file": "scene-11-many.js",
+      "kicker": "MULTI-AGENT SYSTEMS",
+      "title": [
+        "Many agents:",
+        "keep it local"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.5,
+          2.6,
+          "Many agents can work together."
+        ],
+        [
+          2.9,
+          5.4,
+          "If all 10 talk to each other: 45 links."
+        ],
+        [
+          5.7,
+          7.4,
+          "Talking only to neighbours: 10 links."
+        ],
+        [
+          7.7,
+          10,
+          "One central monitor watches for faults."
+        ],
+        [
+          10.3,
+          13.6,
+          "If it breaks, one bad agent infects them all."
+        ]
+      ],
+      "spec": "IDEA (lesson 11.5, l11-mas): a multi-agent system uses many agents together. It SCALES because each agent talks only to its direct neighbours: 10 agents all talking to each other need 10 x 9 / 2 = 45 links, neighbours on a ring need only 10. A faulty agent can INFECT others, so faults must be detected; detection is often CENTRALISED, which is a SINGLE POINT OF FAILURE: the lesson's toy ring of 10 agents, agent 0 faulty, the monitor breaks and the fault spreads to 3, 5, 7, 9, 10 agents in five steps. All numbers from L11.LINKS, L11.links and L11.fault (the lesson's own toy rule). COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. In THIS scene (no boids, no headings) the agents are blue discs, an infected agent is red, the monitor is blue; every-pair links are red (costly), neighbour links green (cheap).\n\nLAYOUT (stage px). const rg = L11.ring(stage, {cx: 290, cy: 320, r: 230, n: 10, size: 60}) (agent 0 at the top, clockwise). Right column x 600..936: const all = L11.stat(stage, {x: 600, y: 60, w: 336, h: 80, label: 'all talk', tone: 'red'}) (text String(L11.LINKS.all) = '45'), const nb = L11.stat(stage, {x: 600, y: 170, w: 336, h: 80, label: 'neighbours', tone: 'green'}) ('10'), and later const inf = L11.stat(stage, {x: 600, y: 330, w: 336, h: 80, label: 'infected', tone: 'red'}) (`${n} of 10`). A grey tag 'single point of failure' (red, solid) at (600, 440) pops when the monitor breaks. The faulty agent 0 gets a red tag 'faulty' above it at (250, 14).\n\nDATA (asserted in common.js): L11.LINKS = {n: 10, all: 45, ring: 10, n100: 4950}; L11.fault('hub', true, s).inf = the infected agents after step s (counts L11.FAULT.broken = [1, 3, 5, 7, 9, 10, 10]); with a working monitor L11.FAULT.hub shows 5 isolated at step 3 (not shown in this scene).\n\nTIMELINE (local s). 0.3-1.3 the ten agents pop (rg.update({k})). 2.9-5.0 every-pair links draw (all 0 -> 1) and the 'all talk' stat counts up 0 -> 45 with them (Math.round(45 * all)). 5.4-5.8 the red links fade (all 1 -> 0, use o via all), 5.7-6.7 the green neighbour links draw round the ring (ring 0 -> 1) and the 'neighbours' stat counts 0 -> 10. 7.7-8.4 the monitor pops in the centre (hub 0 -> 1) with dashed blue spokes (spokes 0 -> 1); 8.6 agent 0 turns red and the 'faulty' tag pops; the 'infected' stat pops at '1 of 10'. 9.6-10.0 the monitor breaks (broken 0 -> 1: it greys out, red cross) and 'single point of failure' pops. 10.3-12.8 five steps 0.5 s apart: at step s the agents in L11.fault('hub', true, s).inf turn red with a bump (V.flash over 0.3 s) and the stat shows the count. Hold to 14 with all ten red."
+    },
+    {
+      "n": 12,
+      "file": "scene-12-recap.js",
+      "kicker": "RECAP",
+      "title": [
+        "Remember"
+      ],
+      "dur": 9,
+      "caps": [],
+      "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l8/scene-11-recap.js (and videos/l5/scene-10-recap.js): kicker 'RECAP' (a .v-kicker at x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), Sprout (V.mascot('sprout', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / blue / orange), in each row a 340 x 140 animated pictogram on the left (a div at left 16, top 10 with transform scale(1.1), origin 0 0, its SVG made with L5.svg(pic, 340, 140); L11.dart / L11.vec / L11.tag / L11.card / L5.arrow all take that div or its svg as parent) and the bold label (36 px, up to 2 lines of at most 24 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 11.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), each pictogram starts 0.4 s after its row; EVERY PICTOGRAM PLAYS ONCE AND THEN HOLDS ITS FINISHED STATE (no loop, no blank or reset frame); all three are finished by 6.5. 5.6-6.2 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing moves in the last 2.5 seconds but Sprout's bob: the video ends on a calm, complete frame. No captions. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+    }
+  ],
+  "recap": {
+    "file": "scene-12-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "No leader: many\nsimple birds, one flock",
+        "tone": "purple",
+        "pictogram": "Seven grey boids (L11.dart, size 26) scattered over the 340 x 140 box with random headings (fixed list, e.g. -150, 40, 110, -60, 170, 20, -100 degrees). Pass: they pop (0.1-0.6, 0.05 s apart); 0.9-2.4 every heading eases to 0 (right) while they drift right by 30 px and pull a little closer together (positions lerp to a loose V); at 2.6 a small grey tag 'no leader' pops under the group (all seven stay grey: none of them is in charge). Holds that picture."
+      },
+      {
+        "head": "Separation, alignment,\ncohesion",
+        "tone": "blue",
+        "pictogram": "A purple boid (L11.dart size 34) at (110, 80) heading right, three grey flockmates around it, and its three push arrows drawn with L11.vec from the boid: red pointing down-left (away from the close flockmate above-right), blue pointing up-right (the average heading), green pointing right (towards the centre), each 70 px; then a purple sum arrow. Pass: boids pop 0.1-0.5; red 0.8-1.2, blue 1.3-1.7, green 1.8-2.2 draw on; the purple sum 2.5-3.0; then the purple boid turns to the sum's heading (3.0-3.5). Holds."
+      },
+      {
+        "head": "An agent senses,\nthen acts",
+        "tone": "orange",
+        "pictogram": "A purple boid at (80, 75) with an orange dashed circle (radius 56) and two orange flockmates inside it, one grey outside; to the right two small cards: 'sense' (orange) and 'act' (purple) with a grey L5.arrow between them and a grey return arrow under them (bow 20). Pass: boid and circle pop 0.1-0.6 (circle grows), the two flockmates turn orange 0.8; 'sense' card pops 1.0; arrow draws 1.4-1.8; 'act' pops 1.9 and the purple boid turns 20 degrees right (2.0-2.5); the return arrow draws 2.7-3.3. Holds."
+      }
+    ],
+    "cta": "Next: Workshop 11.W",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l8/scene-11-recap.js (and videos/l5/scene-10-recap.js): kicker 'RECAP' (a .v-kicker at x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), Sprout (V.mascot('sprout', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours purple / blue / orange), in each row a 340 x 140 animated pictogram on the left (a div at left 16, top 10 with transform scale(1.1), origin 0 0, its SVG made with L5.svg(pic, 340, 140); L11.dart / L11.vec / L11.tag / L11.card / L5.arrow all take that div or its svg as parent) and the bold label (36 px, up to 2 lines of at most 24 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 11.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), each pictogram starts 0.4 s after its row; EVERY PICTOGRAM PLAYS ONCE AND THEN HOLDS ITS FINISHED STATE (no loop, no blank or reset frame); all three are finished by 6.5. 5.6-6.2 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing moves in the last 2.5 seconds but Sprout's bob: the video ends on a calm, complete frame. No captions. COLOURS (whole video): red = separation / push apart / repulsion / a fault spreading; blue = alignment / heading (which way a boid points) and polarisation; green = cohesion / pull together / attraction / a healthy agent or link; purple = the ONE highlighted boid (the focus, the agent) and the sum of its pushes; orange = what the focus senses: its perception radius (dashed orange circle) and the flockmates inside it (the percept); grey = every other boid, neutral. Every label is 28 px or more; symbols (+, =, ticks, crosses, arrows) are SVG (L11.mark, L11.vec, L5.tick / L5.cross / L5.arrow), never glyphs. Draw functions are pure: pass everything every frame. Boid motion comes ONLY from the precomputed logs in L11.RUN (seeded, simulated once at load): draw frame t with fv.update({run, tick: TPS * (t - t0)}) and never step a simulation inside update(t). Const names in the spec: const V = window.VID, L11 = V.l11, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  "helpers": "FILES: videos/l11/common.js (pure data, no DOM: the app's boids kernel ported line for line, every flock of the video simulated ONCE at load from a seeded rng and logged tick by tick, plus the lesson figures' data; every storyboard number asserted at load), common-2.js (drawing basics copied from the lecture 8 kit: tags, chips, stats, discs, tokens, cards, labels, signs; plus boid darts and updatable arrows), common-3.js (the two big figures: L11.field, a window onto a precomputed flock, and L11.ring, the agents ring). Everything hangs off window.VID.l11; scenes start with const V = window.VID, L11 = V.l11, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V. videos/lecture-11.html loads engine.js, cards.js, l5/common.js (for L5: tick, cross, arrow, drawOn, svg, tone), then l11/common.js, common-2.js, common-3.js, then scene-01 ... scene-12, audio/lecture-11.js. Every helper file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered between frames; no Math.random, Date or timers, and NEVER step a simulation in a scene: read the logs.\n\nA. DATA (common.js): L11.rng, L11.same / L11.close / L11.check (throw clear Errors), L11.seq, L11.K {W 600, H 360, SPEED 2.4, SEP_R 20, LINK 40, TOUCH 8, FEAR_R 150}, L11.wrap; the kernel L11.make / sense / step / polar / groups / spread / centre / heading / tooClose / dist; L11.run(o) -> a log; reading a log: L11.at(R, tick) (fractional tick, interpolated: use it to draw), L11.frame(R, k), L11.pushes(R, tick, i) -> {nb, sep, ali, coh, sum}, L11.hood(R, tick, i) -> {n, heading (deg, 0 = right), centre (world)}, L11.percept(R, tick, i) -> {n, near: {j, d, side}, turn}, L11.trail(R, tick, i, len, every), L11.firstTick(R, key, test), L11.hdg(boid) (degrees clockwise from north). Runs: L11.RUN.FORM (40, scattered; .focus 14, .show 130, .p90 191, .agent {tick 60, i 36, n 4, d 40, side 'on its right', turn 6}), L11.RUN.SCARE (50, settled, strike .fear at 120; .dip 0.22 at .dipAt 140; .back 253), L11.RUN.BURST (60 packed; spread 15 -> 155), L11.RUN.MEET (40 in two flocks; .merge 32), L11.RUN.SEP / ALI / COH (close-ups, boid 0 is the focus) and L11.CLOSE {SEP {mates [{j, d, push}], push}, ALI {push, agree}, COH {push}}. Each run R has R.n, R.ticks, R.P {R, ws, wa, wc} and per-tick arrays R.polar, R.groups, R.spread. Lesson figures: L11.MATES + L11.SENSE {R, count, near, inR(R)}, L11.BAL {push 2.5, pull 3.5, steady 3, mode(d), settle(d0)}, L11.links(n), L11.LINKS {n 10, all 45, ring 10, n100 4950}, L11.fault(mode, broken, t) -> {inf, iso}, L11.FAULT {hub, broken, ring}.\n\nB. DRAWING BASICS (common-2.js): L11.tag(parent, {x, y, text, tone, solid, fs, h}) -> {set({text, tone, solid, k, x, y, s, o}), el}; L11.chip(parent, {x, y, w, h, text, tone, fs, solid, radius}) -> {set({text, tone, solid, ghost, k, x, y, s, sx, o, ring, ringK}), el}; L11.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, o, x, y}); L11.disc(parent, {x, y, size, text, tone}) (centre x, y); L11.token(parent, {tone, size}) -> set({x, y, s, o, tone}); L11.card(parent, {x, y, w, h, text, tone, plain, fs}) -> set({text, tone, plain, k, x, y, s, o}); L11.label(parent, {x, y, w, text, tone, fs, align}) -> set({text, tone, k, x, y, o, bold}); SVG (append to your own L5.svg layer): L11.boid(x, y, size, tone, heading) (a static dart), L11.dart(svg, {tone, size}) -> {set({x, y, r, tone, o, s, ring}), el} (a dart you move yourself), L11.vec(svg, {tone, w, head}) -> {set({x1, y1, x2, y2, k, o, tone, dash, w, head}), el} (an updatable arrow), L11.mark(kind, x, y, size, tone) with kind 'times' | 'plus' | 'minus' | 'equals'; tools: L11.along(a, b, f, inset), L11.fit(nodes, box, pad), L11.tone(name), L11.TONES, L11.dartPath(size).\n\nC. THE FIGURES (common-3.js): const fv = L11.field(parent, {x, y, w, h, zoom, size, max, panel}) (keep zoom >= w / 600 and >= h / 360: the world wraps round); fv.update({run, tick, cam: 'centre' | 'focus' | 'start' | {x, y}, focus, ring, radius, R, sepRing, hood, dim, arrows: {sep, ali, coh, sum}, arrowScale, trail, trailK, fear, tone, tones(i), k, o}); fv.px(wx, wy) -> parent px; fv.boid(i) -> {x, y, r} after the last update; fv.el, fv.svg. const rg = L11.ring(parent, {cx, cy, r, n, size}); rg.update({k, all, ring, tones(i), bump(i), hub, hubTone, hubText, spokes, broken, o}); rg.pt(i), rg.hubPt.\n\nNOTES FOR SCENE AUTHORS: drive every flock with tick = TPS * (t - t0) as the spec says and pass it to fv.update every frame (fractional ticks are fine and smooth). Read numbers from the run logs and assert them again in build() with L11.same (e.g. L11.same(R.groups[420], 1, 'scene 8: one flock at the end')); never type a result. Arrows in the field are capped at 150 px; pick arrowScale so the key arrow is 60-150 px long (check with a still). The field clips to its window; tags you place near boids come from fv.boid(j) after an update in the same frame (update the field first, then place the tags). Text >= 28 px, 12 px margin inside the stage. Stills: node tools/video-still.js lecture-11 s5@3 <your folder> (export PLAYWRIGHT_CHROMIUM_PATH first on Windows)."
+}
