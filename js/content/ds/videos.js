@@ -120,10 +120,42 @@
         "One Paxos round per log entry",
       ],
     },
+    {
+      n: 8,
+      blurb: "Lecture 8 in pictures: from batch jobs to event streams, and how brokers deliver messages safely.",
+      chapters: [
+        "A batch job needs an end",
+        "Smaller windows, shorter waits",
+        "An event records what happened",
+        "Don't poll: push each event",
+        "Drop, buffer or push back",
+        "Memory forgets, disk remembers",
+        "A broker holds the messages",
+        "Share the work, or send to all",
+        "No ack? Deliver it again",
+      ],
+    },
+    {
+      n: 9,
+      blurb:
+        "Lecture 9 in pictures: gradient descent, full and mini batches, and learning online as the world changes.",
+      chapters: [
+        "Every guess has a cost",
+        "Step downhill, against the slope",
+        "The learning rate sets the step size",
+        "Full batch: all the data, one update",
+        "The world changes, the model does not",
+        "Retraining on everything gets heavy",
+        "Smaller batches: more, noisier steps",
+        "Learn from each record, then let it go",
+        "The learning rate sets how fast it adapts",
+        "Three shifts that make a model decay",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 5, 2: 4, 3: 4, 4: 4, 5: 3, 6: 4, 7: 4 };
+  const NARRATED = { 1: 5, 2: 4, 3: 4, 4: 4, 5: 3, 6: 4, 7: 4, 8: 4, 9: 5 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

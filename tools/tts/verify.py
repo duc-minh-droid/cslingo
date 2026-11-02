@@ -103,6 +103,9 @@ HOMOPHONES = {
     frozenset({"boids", "boyds"}),
     frozenset({"grey", "gray"}),
     frozenset({"odour", "odor"}),
+    frozenset({"gigabytes", "gb"}),
+    frozenset({"ack", "act"}),
+    frozenset({"acked", "act"}),
 }
 
 

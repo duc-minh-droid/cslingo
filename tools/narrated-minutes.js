@@ -9,7 +9,7 @@ import { root } from "./video-lib.js";
 
 const COURSES = [
   ["lecture", "nic", 12],
-  ["ds", "ds", 7],
+  ["ds", "ds", 9],
   ["algo", "algo", 10],
 ];
 const write = process.argv.includes("--write");

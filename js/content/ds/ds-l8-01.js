@@ -332,7 +332,7 @@
           "ds8-streams-1",
           "Choose <b>Every 6 hours</b> and press <b>Play the day</b>. About how long does the average post wait before it is processed?",
           ["About 3 hours", "About 6 hours", "About 14 hours"],
-          "Posts land at random points inside each 6-hour window, so on average they wait about half a window: the demo shows 3 h 16 min. Daily runs give about 14 hours.",
+          "Posts land at random points inside each 6-hour window, so on average they wait about half a window: the demo shows about 3 and a quarter hours. Daily runs give about 14 hours.",
         ),
       );
       root.appendChild(

@@ -1,0 +1,828 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.91,
+     "Lecture eight. Stream processing. This is how events flow from producers to consumers."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4857d25701dc5f80.wav",
+     "at": 0.5,
+     "len": 6.16
+    }
+   ]
+  },
+  {
+   "dur": 23.359,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.96,
+     3.6
+    ],
+    [
+     12.3,
+     6.3
+    ],
+    [
+     18.32,
+     9
+    ],
+    [
+     23.359,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "A batch job reads three log files."
+    ],
+    [
+     5.96,
+     12.05,
+     "The input is bounded, so the job finishes."
+    ],
+    [
+     12.3,
+     18.07,
+     "But posts keep arriving: the data is unbounded."
+    ],
+    [
+     18.32,
+     22.33,
+     "The end never comes, so the job waits forever."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/094e6b9747125535.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/33cf495fe0d9b8b5.wav",
+     "at": 5.96,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/39a06979785657eb.wav",
+     "at": 12.3,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/32a0fd1050c6fcd5.wav",
+     "at": 18.32,
+     "len": 3.76
+    }
+   ]
+  },
+  {
+   "dur": 21.665,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.92,
+     3.9
+    ],
+    [
+     9.66,
+     6.8
+    ],
+    [
+     14.72,
+     9.5
+    ],
+    [
+     21.665,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.67,
+     "A daily batch run: every post waits for midnight."
+    ],
+    [
+     4.92,
+     9.41,
+     "Run every 6 hours and the wait shrinks."
+    ],
+    [
+     9.66,
+     14.47,
+     "Every hour: no post waits more than 54 minutes."
+    ],
+    [
+     14.72,
+     20.57,
+     "No windows at all: each post is handled as it arrives."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c44ba804c761a771.wav",
+     "at": 0.5,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/4e9f5305f6f6dfdd.wav",
+     "at": 4.92,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/b7b4a76040be0c39.wav",
+     "at": 9.66,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/79c215d863b23f11.wav",
+     "at": 14.72,
+     "len": 5.6
+    }
+   ]
+  },
+  {
+   "dur": 21.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.92,
+     3.4
+    ],
+    [
+     11.1,
+     5.8
+    ],
+    [
+     14.72,
+     8.3
+    ],
+    [
+     21.757,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "An event: mo_17 liked post 4821."
+    ],
+    [
+     6.92,
+     10.85,
+     "It carries a timestamp: when it happened."
+    ],
+    [
+     11.1,
+     14.47,
+     "It is immutable: it cannot be edited."
+    ],
+    [
+     14.72,
+     19.93,
+     "A change of mind is a new event."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/66f4976c921ecf4e.wav",
+     "at": 0.5,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/564c28f564f4da0c.wav",
+     "at": 6.92,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/85ce2fe4ffb9acdb.wav",
+     "at": 11.1,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/2a0454a508b37212.wav",
+     "at": 14.72,
+     "len": 4.96
+    }
+   ]
+  },
+  {
+   "dur": 26.796,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.64,
+     3.2
+    ],
+    [
+     11.02,
+     6
+    ],
+    [
+     17.36,
+     8.6
+    ],
+    [
+     21.7,
+     10.9
+    ],
+    [
+     26.796,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "A producer makes events; a consumer uses them."
+    ],
+    [
+     5.64,
+     10.77,
+     "Polling: the consumer asks again and again."
+    ],
+    [
+     11.02,
+     17.11,
+     "720 checks an hour find only 12 events."
+    ],
+    [
+     17.36,
+     21.45,
+     "Better: a messaging system pushes each event."
+    ],
+    [
+     21.7,
+     24.83,
+     "One event can go to many consumers."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fdc61a8c66902c71.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/c50bf888e948d61a.wav",
+     "at": 5.64,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/bcd94be518e703d3.wav",
+     "at": 11.02,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/c58554d42d6a01ba.wav",
+     "at": 17.36,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/fb64a2e64a57457c.wav",
+     "at": 21.7,
+     "len": 2.88
+    }
+   ]
+  },
+  {
+   "dur": 26.424,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.96,
+     3.2
+    ],
+    [
+     12.06,
+     5.8
+    ],
+    [
+     15.44,
+     8.4
+    ],
+    [
+     19.06,
+     10.8
+    ],
+    [
+     26.424,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.71,
+     "6 messages a second arrive, but only 4 are handled."
+    ],
+    [
+     7.96,
+     11.81,
+     "Buffer: the queue just keeps growing."
+    ],
+    [
+     12.06,
+     15.19,
+     "Drop: what does not fit is thrown away."
+    ],
+    [
+     15.44,
+     18.81,
+     "Backpressure: the producer must wait."
+    ],
+    [
+     19.06,
+     25.07,
+     "After 10 s: 20 waiting, 14 dropped, 14 held back."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/96c6333488d113d4.wav",
+     "at": 0.5,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/e081938f7f957df9.wav",
+     "at": 7.96,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/71fc4f0447142f16.wav",
+     "at": 12.06,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/ac04a8c96705f582.wav",
+     "at": 15.44,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/132f6076a612cb94.wav",
+     "at": 19.06,
+     "len": 5.76
+    }
+   ]
+  },
+  {
+   "dur": 19.899,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.44,
+     3.2
+    ],
+    [
+     8.06,
+     5.6
+    ],
+    [
+     11.84,
+     8
+    ],
+    [
+     19.899,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "m3 and m4 wait in the broker's memory."
+    ],
+    [
+     4.44,
+     7.81,
+     "The lower broker also writes them to disk."
+    ],
+    [
+     8.06,
+     11.59,
+     "Both brokers crash: memory is wiped."
+    ],
+    [
+     11.84,
+     18.09,
+     "After the restart, only the disk copies are left."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4120e49ab70b1555.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/a83ebf595350d669.wav",
+     "at": 4.44,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/26deffb23993fecd.wav",
+     "at": 8.06,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/7efa20d2f7233517.wav",
+     "at": 11.84,
+     "len": 6
+    }
+   ]
+  },
+  {
+   "dur": 26.796,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     8.17,
+     2.5
+    ],
+    [
+     11.07,
+     4.8
+    ],
+    [
+     15.33,
+     6.5
+    ],
+    [
+     19.67,
+     8.8
+    ],
+    [
+     26.796,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     7.92,
+     "m1 goes to A and B either way."
+    ],
+    [
+     8.17,
+     10.82,
+     "Then consumer B goes offline."
+    ],
+    [
+     11.07,
+     15.08,
+     "Sent directly, m2 and m3 are lost to B."
+    ],
+    [
+     15.33,
+     19.42,
+     "The broker kept them and hands them over."
+    ],
+    [
+     19.67,
+     24.88,
+     "With a broker, consumers can come and go."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a32e08e8dbbf8833.wav",
+     "at": 0.55,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/6ffa853742e28d51.wav",
+     "at": 8.17,
+     "len": 2.4
+    },
+    {
+     "file": "videos/audio/clips/96112c501e72fed6.wav",
+     "at": 11.07,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/d9feea242ba71ce0.wav",
+     "at": 15.33,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/77695cbf3d90164b.wav",
+     "at": 19.67,
+     "len": 4.96
+    }
+   ]
+  },
+  {
+   "dur": 20.039,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.77,
+     1.4
+    ],
+    [
+     5.51,
+     3.9
+    ],
+    [
+     10.49,
+     7
+    ],
+    [
+     14.43,
+     9.5
+    ],
+    [
+     20.039,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.77,
+     5.26,
+     "Load balancing: each message goes to one consumer."
+    ],
+    [
+     5.51,
+     10.24,
+     "4 messages, 4 deliveries: they share the work."
+    ],
+    [
+     10.49,
+     14.18,
+     "Fan-out: each message goes to every consumer."
+    ],
+    [
+     14.43,
+     17.88,
+     "The same 4 messages: 8 deliveries."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8693160456e84414.wav",
+     "at": 0.77,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/67eed927a2d5a750.wav",
+     "at": 5.51,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/b9df011052df4e19.wav",
+     "at": 10.49,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/d3c61d707feda867.wav",
+     "at": 14.43,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 28.282,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.66,
+     1.2
+    ],
+    [
+     5.32,
+     2.6
+    ],
+    [
+     8.14,
+     4.2
+    ],
+    [
+     11.44,
+     5.7
+    ],
+    [
+     15.78,
+     8
+    ],
+    [
+     20.12,
+     10.4
+    ],
+    [
+     23.58,
+     12.6
+    ],
+    [
+     28.282,
+     14.5
+    ]
+   ],
+   "caps": [
+    [
+     0.66,
+     5.07,
+     "m1 goes to Consumer 2, m2 to Consumer 1."
+    ],
+    [
+     5.32,
+     7.89,
+     "Each sends an ack when it is done."
+    ],
+    [
+     8.14,
+     11.19,
+     "Then m3 and m4 go out."
+    ],
+    [
+     11.44,
+     15.53,
+     "Consumer 2 crashes: no ack for m3."
+    ],
+    [
+     15.78,
+     19.87,
+     "So the broker delivers m3 again."
+    ],
+    [
+     20.12,
+     23.33,
+     "Consumer 1 did m4 before m3."
+    ],
+    [
+     23.58,
+     26.47,
+     "Redelivery can change the order."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/bc52d85e98640e0b.wav",
+     "at": 0.66,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/acd313b0921e242c.wav",
+     "at": 5.32,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/1020201aa4552a4b.wav",
+     "at": 8.14,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/0728897f6d026a1a.wav",
+     "at": 11.44,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/58b89decd57bd472.wav",
+     "at": 15.78,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/8ee7248943e942b1.wav",
+     "at": 20.12,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/de0d8cc617ed2655.wav",
+     "at": 23.58,
+     "len": 2.64
+    }
+   ]
+  },
+  {
+   "dur": 13.56,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.68,
+     2
+    ],
+    [
+     9.26,
+     3.1
+    ],
+    [
+     13.56,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1428031ed23cee2d.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/3c62b17213fa84ba.wav",
+     "at": 4.68,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/f968a76167008688.wav",
+     "at": 9.26,
+     "len": 2.96
+    }
+   ]
+  }
+ ]
+}

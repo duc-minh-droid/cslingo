@@ -1,0 +1,372 @@
+{
+ "slug": "ds-8",
+ "dir": "d8",
+ "title": "Lecture 8 · Stream processing",
+ "outline": "Lecture 8 video (Data Science, COM3021): 'Stream processing', sub line 'How events flow from producers to consumers'. 11 scenes, 124.5 s: title (4), a batch job needs an end (12), shrink the window (13), events (11), producers, consumers and push (13), a producer that is too fast (13), crashes: memory against disk (11), direct messaging against a broker (12), load balancing against fan-out (12), acknowledgements and redelivery (14.5), recap (9). Story in the lessons' order: ds8-streams 8.1 (batch reads BOUNDED input and writes derived output; social media data is UNBOUNDED, a batch job would wait forever; batches over fixed windows look at the past, shrinking the window to nothing gives stream processing; an EVENT is a small, self-contained, immutable record with a timestamp; a PRODUCER (publisher, sender) generates it once, many CONSUMERS (subscribers, recipients) process it; polling a database every 5 s costs 720 checks an hour (708 empty with 12 events), so consumers should be NOTIFIED) -> scenes 2 to 5; ds8-brokers 8.2 (a messaging system PUSHES messages, publish/subscribe; producers faster than consumers: DROP, BUFFER or BACKPRESSURE, 6/s against 4/s for 10 s gives 20 waiting / 14 dropped / 46 of 60 sent; a crash loses messages kept only in memory, writing to disk keeps them; DIRECT messaging (UDP multicast, TCP) loses messages for an offline consumer, a MESSAGE BROKER (a server, a database optimised for message streams) holds them, tolerates clients that come and go, and deletes a message once delivered) -> scenes 5 to 8; ds8-consumers 8.3 (LOAD BALANCING gives each message to one consumer, FAN-OUT to all; a consumer ACKNOWLEDGES a message when it has finished; without the ack the broker REDELIVERS it to another consumer, which can change the ORDER: Consumer 1 processes m2, m4, m3, m5) -> scenes 9 and 10; workshop ds8-lab 8.W (run a broker) -> the recap's call to action. Not covered (time): the three encodings (JSON 74 bytes, text 36, binary 13: D8.EVENT.bytes is there if wanted), databases against brokers beyond 'deleted once delivered', topic subscriptions (#weather + #traffic = 5 of 8), the worked time of load balancing (12 orders of 3 s: 36 s -> 12 s), messages processed twice (beyond the slides), the boss quiz (Pedalpoint). LESSONS: js/content/ds/ds-l8-01.js (8.1, ds8-streams), ds-l8-02.js (8.2, ds8-brokers), ds-l8-03.js (8.3, ds8-consumers), ds-l8-workshop.js (8.W ds8-lab and the app's broker simulation), boss-ds-8.js; bank js/bank/ds-43.js, ds-44.js. NOTE: the 8.1 lesson text says the 6-hour average wait is '3 h 16 min'; computed it is 195.5 min, which the app's own formatter rounds to 3 h 15 min. The video shows WORST waits only (23 h 36 min, 5 h 42 min, 54 min, 0), which are exact. COLOUR ROLES (fixed for the whole video): blue = an event / message and the producer that makes it (a message handed out but not yet acked); purple = the broker / messaging system, and the batch runs on the day line; green = processed, delivered, acknowledged, safe (on disk); orange = waiting (queued, a post not yet processed, a held-back producer, a message waiting for redelivery); red = lost, dropped, crashed, offline; grey = neutral (idle consumers, files, wires). SHARED LAYOUT: scenes 8, 9, 10 use one rig, D8.flow: producers on the left (x 12..202), the purple broker in the middle (x 290..550) with its queue as a row of chips, consumers on the right (x 656..924) with a row of chips of what reached them in arrival order. MESSAGE FLOWS ARE DETERMINISTIC: D8.sim runs each scripted story once at load into an event log (hops with t0/t1, marks, snapshots), asserted against the numbers in the specs; a scene draws frame t from the log with D8.flow(...).set(t) or D8.at(log, t), never stepping anything itself. The example data (the day of 12 posts, mo_17 liking post 4821, 6/s against 4/s, the m1..m5 ack story) comes straight from the lessons.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 8",
+  "title": "Stream processing",
+  "sub": "How events flow from producers to consumers",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-batch.js",
+   "kicker": "BATCH",
+   "title": [
+    "A batch job",
+    "needs an end"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     3.4,
+     "A batch job reads three log files."
+    ],
+    [
+     3.6,
+     6,
+     "The input is bounded, so the job finishes."
+    ],
+    [
+     6.3,
+     8.8,
+     "But posts keep arriving: the data is unbounded."
+    ],
+    [
+     9,
+     11.6,
+     "The end never comes, so the job waits forever."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.1, steps 'Batch processing: bounded input' and 'Unbounded data'): a batch job reads a BOUNDED input to its end, knows it has finished and writes a new output file (derived data); an unbounded source (social media posts) never ends, so a batch job would wait forever. DATA: D8.BATCH (files 4,000 / 2,500 / 3,500 lines, cum 4,000 / 6,500 / 10,000, output 'views per page'), D8.FEED(n) for the posts (09:07 ana likes, 09:14 raj shares, 09:21 li posts ...), D8.fmtN for the commas. LAYOUT (stage px): LEFT HALF (x 12..450) the batch. Three file pictograms D8.file(x, 120, 92, 'grey') at x 70, 190, 310 (one D4.svg layer), each with a 28 px grey D4.label of its lines under it at y 196 ('4,000', '2,500', '3,500' from D8.BATCH.files). A job node D4.node(stage, {x: 60, y: 260, w: 300, h: 150, name: 'Batch job', value: '0', unit: 'lines read', icon: 'server', tone: 'purple'}). An output file D8.file(360, 480, 92, 'green') with a green tag 'views per page' under it at (300, 576) (about 230 px wide: it stays inside x 12..450). RIGHT HALF (x 486..924) the feed: a D4.card(stage, {x: 486, y: 12, w: 438, h: 616, plain: true}) titled by a blue tag 'New posts' at (705, 52); inside, a column of up to 7 blue post packets (D4.packet, text D8.FEED(n).text, fs 28) that slide in from the bottom and push the older ones up (row pitch 70 px, newest at y 560); a counter tag under the title 'posts so far: n' (grey). TIMELINE (local s): 0.3-0.9 the three files pop (D4.seq stagger 0.12) with their labels; 0.8 the job node pops. 1.0-3.4 the job reads file i (i = 0, 1, 2) during 1.0 + 0.8 i .. 1.8 + 0.8 i: that file is drawn purple (keep a grey and a purple copy of each file pictogram and switch them with V.show) and bumps; the node value counts up to D8.BATCH.cum[i] (format with D8.fmtN, linear inside each file) and the file turns green when done. 3.5 the value holds at 10,000; the node unit changes to 'finished' and the node turns green (tone green) with a bump; a green L5.tick pops beside it (at x 390, y 300). 4.0-4.6 an arrow (L5.arrow, grey) draws from the node to the output file, 4.4 the output file and its tag 'views per page' pop. 6.0 the right card pops; 6.3-11.8 new posts arrive one every 0.7 s (n = 1, 2, 3 ...), each sliding up 70 px over 0.35 s (E.out) and popping in at the bottom; the counter counts with them. at 6.6 the output file and its tag fade to 0 and the orange tag 'waiting for the end' pops at (230, 560) (one line, about 300 px) and pulses gently (s 1 + 0.04 flash) every 1.4 s until the end; an orange dashed arrow from the feed card to that tag (L5.arrow with dash) draws on at 6.8-7.3. 9.0 a grey tag 'no end' with a red L5.cross pops at the bottom of the feed card (705, 600) and stays. Hold to the end. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-window.js",
+   "kicker": "SHRINK THE WINDOW",
+   "title": [
+    "Smaller windows,",
+    "shorter waits"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     3.7,
+     "A daily batch run: every post waits for midnight."
+    ],
+    [
+     3.9,
+     6.6,
+     "Run every 6 hours and the wait shrinks."
+    ],
+    [
+     6.8,
+     9.3,
+     "Every hour: no post waits more than 54 minutes."
+    ],
+    [
+     9.5,
+     12.6,
+     "No windows at all: each post is handled as it arrives."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.1, step 'Shrink the window' and the 'A day of posts' demo): batches over fixed windows always look at the past; shrink the window (daily, every 6 hours, hourly) and the worst wait shrinks with it; with no windows at all every event is handled as it arrives: stream processing. DATA: D8.DAY (12 posts; windows Daily / Every 6 hours / Hourly / Stream with worstText 23 h 36 min, 5 h 42 min, 54 min, 0 min), D8.postState, D8.processed. LAYOUT: one D8.dayline(stage, {x: 40, y: 300, w: 856}) for the whole scene (posts are discs above the axis at y 248, purple run lines across the axis, hour labels 00:00 .. 24:00 at y 364, the blue dashed 'now' line). Above it, a window tag at (468, 60): solid purple, text = the window's name ('Daily', 'Every 6 hours', 'Hourly'), solid blue 'Stream' in the last phase. Under the axis at (468, 470) a stat tag 'worst wait: ' + worstText (orange, solid false; green and solid for the stream: 'worst wait: 0 min'); next to the dayline's right end nothing else. At the bottom (468, 560) a grey count tag 'processed: k of 12' from D8.processed(W, now). TIMELINE (local s): PHASE A daily 0.3-3.7: 0.3 axis and labels (k), the window tag 'Daily' pops, runsK 0.5-0.8 (the single run at 24:00); now sweeps 0 -> 24 during 0.8-3.0 (E.lin); waitK = 1 so each post shows its orange wait bar to 'now' (they all stretch until midnight); at now = 24 every post turns green (that is the run); 3.1 the stat tag pops 'worst wait: 23 h 36 min'. PHASE B every 6 hours 3.9-6.6: at 3.9 the window tag flips to 'Every 6 hours' (pop), the stat tag text changes to '5 h 42 min' at the same moment (a window's worst wait is a property of the window), runsK 3.9-4.3 pops four run lines; now restarts at 0 and sweeps to 24 during 4.3-6.3: posts appear orange and turn green at the next run line, wait bars short. PHASE C hourly 6.8-9.3: same with W 1 (24 thin run lines, runsK 6.8-7.2), stat '54 min', sweep 7.2-9.0. PHASE D stream 9.5-12.6: W 0: run lines fade out (runsK 0 by 9.8), window tag 'Stream' blue, stat tag green solid 'worst wait: 0 min'; sweep 9.8-11.8: every post is green the moment it appears (no wait bars); 12.0 a green L5.tick pops beside the stat tag. Between phases the posts disappear (now = 0 shows none) so each phase starts clean. focus: -1 (no ring). CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-event.js",
+   "kicker": "EVENTS",
+   "title": [
+    "An event records",
+    "what happened"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.5,
+     3.2,
+     "An event: mo_17 liked post 4821."
+    ],
+    [
+     3.4,
+     5.6,
+     "It carries a timestamp: when it happened."
+    ],
+    [
+     5.8,
+     8,
+     "It is immutable: it cannot be edited."
+    ],
+    [
+     8.3,
+     10.6,
+     "A change of mind is a new event."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.1, step 'Events'): an event is a small, self-contained, immutable record of something that happened, usually with a timestamp; changing your mind appends a NEW event, the old one stays. DATA: D8.EVENT (user mo_17, action like, post 4821, time 09:15:02; undo: mo_17 unlike 4821 at 09:20:41). LAYOUT: the event as a big blue card D4.card(stage, {x: 168, y: 40, w: 600, h: 300, tone: 'blue', plain: true}) (or a D4.node 'Event' with layout 'slots'); inside it four rows of 'field: value' pairs drawn as a grey D4.label (field, anchor 'r' at x 400) and a blue solid D4.tag (value, anchor 'l' at x 420): user mo_17 (y 100), action like (y 160), post 4821 (y 220), time 09:15:02 (y 280) with a D8.clock(370, 280, 44, 'blue', 9) left of the time label. A D8.lock(730, 70, 64, 'grey') at the card's top-right corner and a grey tag 'immutable' under it at (730, 140) (the lock spans x 698..762, the tag about 170 px wide). Under the card, a stream lane: a grey track (D4.bar or a grey rounded rect) at y 470 from x 60 to 876 with a 28 px grey label 'event stream' at (140, 420); event chips on it are blue packets: 'mo_17 like 4821' at (300, 470) and later 'mo_17 unlike 4821' at (640, 470), each with a 28 px grey time label under it (09:15:02, 09:20:41) at y 530. TIMELINE: 0.3 card pops; 0.8, 1.2, 1.6 the user, action and post rows pop (D4.seq); 2.0-2.4 the card shrinks a copy into the stream: a blue packet 'mo_17 like 4821' flies from the card's centre to (300, 470) during 2.2-2.9 and stays. 3.4 the time row pops with the clock (the clock hand sweeps from 0 to 9 o'clock over 3.4-4.0 by redrawing with the hour, or just pops) and the time label under the stream chip pops. 4.6 the lock pops (E.pop) with its 'immutable' tag. 5.8-6.4 an orange tag 'unlike' slides from the right towards the 'like' value (attempted edit), 6.4 it bumps into it and bounces back while a red L5.cross pops over it and the card shakes (x 5 sin, flash 6.4-6.9); 7.0 the orange tag fades out; the 'like' value never changes. 8.3-8.9 a new blue packet 'mo_17 unlike 4821' flies in from the right edge to (640, 470) and its time label 09:20:41 pops; 9.2 green L5.tick discs pop over both stream chips ('both stay'). Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-push.js",
+   "kicker": "PRODUCERS AND CONSUMERS",
+   "title": [
+    "Don't poll:",
+    "push each event"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     3,
+     "A producer makes events; a consumer uses them."
+    ],
+    [
+     3.2,
+     5.8,
+     "Polling: the consumer asks again and again."
+    ],
+    [
+     6,
+     8.4,
+     "720 checks an hour find only 12 events."
+    ],
+    [
+     8.6,
+     10.8,
+     "Better: a messaging system pushes each event."
+    ],
+    [
+     10.9,
+     12.7,
+     "One event can go to many consumers."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.1, steps 'Producers and consumers' and 'Polling or notification?'; lesson 8.2 'Messaging systems push'): a producer generates an event once, consumers process it; a consumer polling a database every 5 s makes 720 checks an hour and with 12 events an hour at least 708 come back empty; a messaging system instead PUSHES each event to the consumers (publish/subscribe), one event to many consumers. DATA: D8.POLL (every 5, perHour 12, checks 720, empty 708, consumers 'Notify the author', 'Count likes', 'Rank the feed'), D8.pollAt(f) for the running counters, D8.EVENT for the event text. LAYOUT, PART 1 (0-8.4): a producer node D4.node(stage, {x: 12, y: 220, w: 200, h: 150, name: 'Phone app', icon: 'phone', tone: 'blue'}) with a blue tag 'producer' under it (112, 400); a database pictogram D8.db(420, 290, 120, 'grey') with a grey label 'database' (420, 380); a consumer node D4.node(stage, {x: 640, y: 220, w: 284, h: 150, name: 'Consumer', icon: 'server', tone: 'grey'}) with a grey tag 'consumer' (782, 400). Grey wires (D4.wire) producer -> database and consumer -> database. Counters under the picture: three tags in a row at y 520: 'checks: n' (grey) at x 200, 'found: n' (green) at x 468, 'empty: n' (red) at x 736 (D4.tag anchor 'c'). PART 2 (8.6-13): the database cross-fades into a purple node 'Messaging system' (D4.node, x 300, y 230, w 300, h 130, tone purple, icon server) and the single consumer is replaced by three consumer cards (D4.card, x 660, w 264, h 96, y 60 / 272 / 484, grey, plain false, text = D8.POLL.consumers[i]); the counters fade out; three wires from the system to the cards. TIMELINE: 0.3 producer, database and consumer pop with their role tags; 1.0-1.8 a blue packet 'like' (D4.packet) flies from the producer into the database (it stays inside as a small blue disc on the db). 3.2-5.8 polling: every 0.35 s a small grey packet 'new?' flies consumer -> database (0.3 s) and a reply comes back: a red L5.cross pops over the consumer's left edge for an empty reply; at the 4th poll the reply is the blue 'like' packet (found 1) instead; meanwhile the counters run from D8.pollAt(f) with f = ramp(t, 3.2, 8.2, E.lin) (checks 0 -> 720, found 0 -> 12, empty 0 -> 708); a tag 'every 5 s' (grey) pops above the consumer-database wire at 3.3. 8.2 the counters hold at 720 / 12 / 708 (the red empty tag bumps). 8.6-9.2 the database becomes the purple messaging system, the three consumer cards pop (D4.seq stagger 0.12). 9.3-10.6 the producer sends one new blue 'like' packet into the system (9.3-9.9) and the system pushes three copies, one along each wire, arriving at 10.6; each card turns blue on arrival (plain false, tone blue) with a small bump; 11.0 a purple tag 'push' pops above the system (450, 200) and a green L5.tick pops on each card (one after another 11.0, 11.2, 11.4). Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-flood.js",
+   "kicker": "TOO FAST",
+   "title": [
+    "Drop, buffer",
+    "or push back"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.5,
+     3,
+     "6 messages a second arrive, but only 4 are handled."
+    ],
+    [
+     3.2,
+     5.6,
+     "Buffer: the queue just keeps growing."
+    ],
+    [
+     5.8,
+     8.2,
+     "Drop: what does not fit is thrown away."
+    ],
+    [
+     8.4,
+     10.6,
+     "Backpressure: the producer must wait."
+    ],
+    [
+     10.8,
+     12.8,
+     "After 10 s: 20 waiting, 14 dropped, 14 held back."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.2, step 'When producers are too fast' and the 'A producer that is too fast' demo): a producer at 6 messages a second, a consumer at 4 a second: the extra 2 a second must go somewhere: BUFFER them (the queue grows by 2 a second: 20 after 10 s), DROP what does not fit a queue of 10 (14 thrown away), or apply BACKPRESSURE (flow control: the producer is told to wait; it sends only 46 of 60, 14 held back, none lost). DATA: D8.FLOOD (p 6, c 4, secs 10, cap 10, end {buffer {q 20}, drop {drop 14}, back {sent 46, held 14}}, steps per second). LAYOUT: three D8.floodLane rows, ALL running at once from the same clock: lane 'Buffer' at y 20, lane 'Drop' at y 220, lane 'Backpressure' at y 420 (each lane: name tag at the left, producer disc '6/s', 24 queue slots, a red dashed limit after slot 10 for drop and back, consumer disc '4/s', a counter tag under the slots). Highlight the lane the caption talks about with a ring: draw a rounded rect (V.h div, 4 px solid border in the lane's colour: orange for Buffer, red for Drop, orange for Backpressure, no fill, radius 24) around the lane (x 4..932, lane y - 6 .. y + 186) that pops in at the caption start and out at its end; the other lanes stay at full opacity (no dimming of text). TIMELINE: 0.3-0.9 the three lanes pop (k, D4.seq stagger 0.15); the discs '6/s' and '4/s' carry the rates (the stage has no room for more). The simulation clock: sec = 10 * ramp(t, 1.4, 10.4, E.lin) (one simulated second every 0.9 s), so the queues fill second by second (arrivals first, then the consumer takes 4: D8.floodLane draws both halves); countK 1 from 1.4. Ring on Buffer 3.2-5.6, on Drop 5.8-8.2, on Backpressure 8.4-10.6. 10.4 every lane holds its final state (buffer 20 waiting, drop 6 waiting with 14 dropped, back 6 waiting with 14 held back); 10.8 the three counter tags bump in turn (s 1 + 0.15 flash, 10.8 / 11.1 / 11.4) and a solid green tag 'none lost' pops after the Backpressure counter (x of its right end + 110, same y) at 11.6. Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-crash.js",
+   "kicker": "CRASHES",
+   "title": [
+    "Memory forgets,",
+    "disk remembers"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.5,
+     3,
+     "m3 and m4 wait in the broker's memory."
+    ],
+    [
+     3.2,
+     5.4,
+     "The lower broker also writes them to disk."
+    ],
+    [
+     5.6,
+     7.8,
+     "Both brokers crash: memory is wiped."
+    ],
+    [
+     8,
+     10.6,
+     "After the restart, only the disk copies are left."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.2, step 'When nodes crash'): if the broker keeps waiting messages only in memory, a crash loses them; if it also writes them to disk, it reloads them on restart and delivers them (a trade-off: a disk write for every message). DATA: D8.CRASH (delivered m1 m2, waiting m3 m4, memory {lost m3 m4, consumer m1 m2}, disk {afterRestart m3 m4, consumer m1 m2 m3 m4}). LAYOUT: two rows, each a small rig. Row tags at the left: grey tag 'memory only' at (120, 40) and 'memory + disk' at (120, 360). Row 1 (y 70..290): a broker node D4.node(stage, {x: 12, y: 80, w: 420, h: 190, name: 'Broker', icon: 'server', tone: 'purple', layout: 'slots'}); in its body a D8.ram(110, 210, 70, 'orange') pictogram and a D4.chips row of 2 chips (w 70, h 52, texts m3 m4, orange solid) right of it at x 170; a consumer node D4.node(stage, {x: 620, y: 80, w: 304, h: 190, name: 'Consumer', layout: 'slots'}) with a 4-chip row (w 60, h 48) showing m1 m2 green solid, then empty ghost slots; a grey wire broker -> consumer. Row 2 (y 390..610): the same, but the row-2 broker is wider (w 560, x 12..572) and its body also holds a D8.disk(400, 530, 66, 'green') pictogram with its own 2-chip row right of it (x 446, chips w 52, h 48, gap 8: m3 m4 green solid, shown from 4.0); the row-2 consumer at x 620 as in row 1. Wires: a grey D4.wire from each broker's right edge to its consumer's left edge, at the card's mid height. TIMELINE: 0.3 both rows pop; m1 and m2 already sit green in both consumers; 0.6 the memory chips m3 m4 pop orange in both brokers (with the RAM pictogram). 3.2-4.2 in row 2 copies of m3 and m4 fly from the memory chips to the disk (two small blue packets, 0.5 s each, 0.2 s apart) and appear as green chips by the disk; a green tag 'on disk' pops under the disk at 4.3. 5.6 both brokers crash: down 0..1 over 5.6-5.9 (red, bolt); the memory chips in both rows shrink to nothing (s 1 -> 0, 5.8-6.3) and the RAM pictograms turn grey (redraw or fade to 0.85 with a grey copy); the disk chips stay. 8.0 both brokers restart (down back to 0, tone purple, bump). Row 1: the memory is empty: two red ghost chips with 'm3' 'm4' red text appear in the consumer's slots 3 and 4 with a red L5.cross over them and a red tag 'lost' at (772, 300). Row 2: 8.0-8.6 the disk chips copy back into memory (orange), 8.7-9.4 two blue packets fly broker -> consumer and the consumer's slots 3 and 4 fill green m3 m4; 9.6 a green tag 'nothing lost' pops at (772, 352), just above the row-2 consumer (the row-1 'lost' tag sits at (772, 300)). Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-broker.js",
+   "kicker": "DIRECT OR BROKER",
+   "title": [
+    "A broker holds",
+    "the messages"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     2.3,
+     "m1 reaches A and B either way."
+    ],
+    [
+     2.5,
+     4.6,
+     "Then consumer B goes offline."
+    ],
+    [
+     4.8,
+     6.3,
+     "Sent directly, m2 and m3 are lost to B."
+    ],
+    [
+     6.5,
+     8.6,
+     "The broker kept them and hands them over."
+    ],
+    [
+     8.8,
+     11.6,
+     "With a broker, consumers can come and go."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.2, steps 'Direct messaging' and 'Message brokers'): direct messaging (producer straight to consumers, e.g. UDP multicast or TCP) is fast, but a consumer that is offline misses what is sent meanwhile; a message broker is a server that producers write to and consumers read from: it keeps the messages for the absent consumer and delivers them when it is back, so clients can come and go; it deletes a message once it is delivered. DATA: D8.OFFLINE.direct and D8.OFFLINE.broker (the same script: m1 at 0.8, B offline 2.4-6.4, m2 at 3.2, m3 at 3.8, m4 at 8.2; direct: B got m1 m4, lost m2 m3; broker: B got m1 m2 m3 m4, the queue ends empty). LAYOUT: two flow rigs, one above the other: const top = D8.flow(stage, D8.OFFLINE.direct, {box: {y: 40, h: 270}, consNames: ['Consumer A', 'Consumer B'], prodNames: ['Producer']}) and const bot = D8.flow(stage, D8.OFFLINE.broker, {box: {y: 360, h: 280}, consNames: ['Consumer A', 'Consumer B'], prodNames: ['Producer']}); call top.set(t, ...) and bot.set(t, ...) every frame (the logs already hold the right times: no scene-side scheduling of messages). Row tags: grey solid-false tag 'direct' at (97, 22) and a purple tag 'via a broker' at (110, 344) (above the producer cards). The broker queue shows m2 and m3 waiting (orange) for B while B is down; the direct rig's packets to B turn red and fade (lost); B's chip rows show the arrivals (green, red for lost). TIMELINE: 0.3 both rigs pop (k ramp 0.3-0.8, wiresK 0.4-0.9) and the row tags; from then on fl.set draws everything from the logs. 2.4 B crashes in both rigs (the rig pops a bolt; B turns red). 4.9 a red tag 'lost to B' pops at (430, 292), under the direct wires and clear of the packets. 6.4 B comes back (the rig turns it grey again) and the broker's two waiting chips fly to B (from the log). 8.2-9.4 m4 reaches both consumers in both rigs. 9.6 a green L5.tick (size 44) pops at the top-right corner of the bottom Consumer B card, and a purple tag 'deleted once delivered' pops at (430, 336), between the two rows (the broker's queue is empty by then). Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-share.js",
+   "kicker": "MANY CONSUMERS",
+   "title": [
+    "Share the work,",
+    "or send to all"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.5,
+     3.7,
+     "Load balancing: each message goes to one consumer."
+    ],
+    [
+     3.9,
+     5.5,
+     "4 messages, 4 deliveries: they share the work."
+    ],
+    [
+     5.8,
+     9.3,
+     "Fan-out: each message goes to every consumer."
+    ],
+    [
+     9.5,
+     11.7,
+     "The same 4 messages: 8 deliveries."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.3, steps 'Two ways to share a topic', 'Load balancing shares the work', 'Fan-out broadcasts'): with several consumers on one topic, load balancing hands each message to ONE consumer (they share the work), fan-out hands each message to ALL of them (independent consumers each see the whole broadcast). DATA: D8.SHARE.lb and D8.SHARE.fan (two producers: Producer 1 sends m1 and m3, Producer 2 sends m2 and m4; lb: Consumer 1 gets m2 m4, Consumer 2 gets m1 m3, 4 deliveries, all done by 3.8; fan: both get m1..m4, 8 deliveries, starting at D8.SHARE.offset = 5.6 and done by 9.4). LAYOUT: two flow rigs over the SAME picture (the same geometry): const a = D8.flow(stage, D8.SHARE.lb, {box: {y: 60, h: 580}}) and const b = D8.flow(stage, D8.SHARE.fan, {box: {y: 60, h: 580}}); show a while t < 5.5 (a.set(t, {k}) and b.el hidden: wrap each rig's elements in its own container div so V.show(container, 0 | 1) switches them; build each rig into its own full-size absolutely positioned div: const ca = V.h('div', {style: {position: 'absolute', left: '0px', top: '0px', width: '936px', height: '640px'}}); stage.append(ca); D8.flow(ca, ...)), then cross over at 5.5-5.7 to b (b.set(t, ...) uses the scene time directly: its log starts at 5.6). A mode tag at (468, 24): purple solid 'load balancing' then 'fan-out' (flip at 5.6 with a pop), and a deliveries counter tag at (430, 560), in the gap under the broker card, text 'deliveries: n' where n = the number of deliver hops of the active log with t1 <= t (grey, green and solid once it reaches 4 / 8). TIMELINE: 0.3 rig a pops (k), the mode tag pops; 0.8-3.8 m1..m4 fly from the producers to the broker and on to ONE consumer each (from the log); 3.9 the counter bumps at 4 (green). 5.5 cross to rig b (k already 1, chip rows empty again); 6.4-9.4 the same four messages, each copied to BOTH consumers; 9.4 the counter reaches 8 (green, bump); 9.8 the consumers' chip rows each show m1..m4 green; a green L5.tick pops at each consumer's top-right corner (9.8, 10.0). Hold. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-acks.js",
+   "kicker": "ACKNOWLEDGEMENTS",
+   "title": [
+    "No ack?",
+    "Deliver it again"
+   ],
+   "dur": 14.5,
+   "caps": [
+    [
+     0.5,
+     2.4,
+     "m1 goes to Consumer 2, m2 to Consumer 1."
+    ],
+    [
+     2.6,
+     4,
+     "Each sends an ack when it is done."
+    ],
+    [
+     4.2,
+     5.5,
+     "Then m3 and m4 go out."
+    ],
+    [
+     5.7,
+     7.8,
+     "Consumer 2 crashes: no ack for m3."
+    ],
+    [
+     8,
+     10,
+     "So the broker delivers m3 again."
+    ],
+    [
+     10.2,
+     12.4,
+     "Consumer 1 did m4 before m3."
+    ],
+    [
+     12.6,
+     14.2,
+     "Redelivery can change the order."
+    ]
+   ],
+   "spec": "IDEA (lesson 8.3, steps 'Acknowledgements and redelivery' and 'Redelivery changes the order', the slide's own story): a consumer tells the broker it has finished a message with an acknowledgement (ack); only then does the broker delete it; if no ack comes (the consumer crashed), the broker delivers the message to another consumer, and with load balancing that can change the order: Consumer 1 processes m2, m4, m3, m5. DATA: D8.ACKS (load balancing, one message at a time, round robin from Consumer 2; times: m1 to Consumer 2 and m2 to Consumer 1 arrive 1.8 / 2.1, acks fly 2.6-3.2 and 2.9-3.5 (the broker deletes m1, m2), m3 to Consumer 2 arrives 4.8, m4 to Consumer 1 arrives 5.1, Consumer 2 crashes at D8.ACKS.times.crash = 5.6, noticed at .noticed = 6.4 (m3 turns orange in the queue: redelivery pending), Consumer 1's ack for m4 flies 7.4-8.0, m3 is redelivered (orange packet) 8.0-8.6 to Consumer 1, ack m3 10.0-10.6, m5 published at 10.0 and delivered 10.6-11.2, ack m5 12.4-13.0). Final: Consumer 1 done m2 m4 m3 m5, Consumer 2 done m1. LAYOUT: const fl = D8.flow(stage, D8.ACKS, {box: {y: 20, h: 500}, prodNames: ['Producer']}); call fl.set(t, {k: ramp(t, 0.3, 0.8, E.lin)}) every frame (packets, queue chips, chip rows and the crash all come from the log). Under the rig, a key row at y 580: three small tags: blue solid 'no ack yet' (x 160), green solid 'acked' (x 420), orange solid 'redelivered' (x 690); pop them at 0.6 / 2.6 / 6.4 (when each colour first appears). TIMELINE: everything from the log. Extra emphasis: 5.6-6.0 Consumer 2's bolt pops (the rig does it) and its m3 chip turns red; 6.4 the broker's m3 chip gets its orange ring (the rig does it) and the broker card bumps (broker: {bump: flash(t, 6.4, 6.8)}); 10.4-11.0 an orange ring (D4.chips ring) pops around Consumer 1's third chip (m3) and an orange L5.arrow curls from the m3 chip over the m4 chip (bow -30) to show m3 came after m4 (draw on 10.4-11.0, L5.drawOn); 12.6 Consumer 1's chip row bumps (s 1 + 0.08 flash 12.6-13.0). Hold to the end. CONVENTIONS FOR EVERY SCENE: const V = window.VID, D4 = V.d4, D8 = V.d8, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. Read the API comments at the top of videos/d8/common.js, common-2.js, common-3.js and videos/d4/common-2.js, common-3.js first: they are the contract. Colours (whole video): blue = an event / message and its producer (a message delivered, no ack yet); purple = the broker / messaging system and the batch runs; green = processed, delivered, acked, safe; orange = waiting, queued, held back, redelivered; red = lost, dropped, crashed; grey = neutral. Text 28 px or more, never faded below 0.8 opacity; 12 px margin inside the 936 x 640 stage; symbols (ticks, crosses, arrows, locks, bolts) are SVG (L5.tick / L5.cross / L5.arrow, D4.bolt, D8.lock ...), never glyphs. update(t) is pure; numbers come from D8 (assert what you show with D8.same at the top of the scene); captions must describe what is ALREADY on screen, in the order it appears (a voice-over will read them later), so keep each caption's start at or after the moment its picture appears."
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "rows": [
+   "Batch ends; a stream never does",
+   "A broker buffers, keeps and pushes",
+   "No ack? It is delivered again"
+  ],
+  "points": [
+   {
+    "head": "Batch ends;\na stream never does",
+    "tone": "blue",
+    "pictogram": "A grey file pictogram (D8.file, size 70) at (60, 70) with a green L5.tick popping beside it at (120, 40) (the batch finished); to its right a row of five small blue discs (D4.disc size 26) that slide in from the right one after another (0.3 s apart) along y 70 from x 340 to x 170 and stop in a queue (the stream keeps coming; the last one stops at 2.4). Plays once, holds."
+   },
+   {
+    "head": "A broker buffers,\nkeeps and pushes",
+    "tone": "purple",
+    "pictogram": "A blue disc 'P' (size 50) at (40, 70), a purple broker square (D4.card 90 x 70, purple, solid false) at (170, 70) and two grey consumer discs at (310, 40) and (310, 100); two blue dots fly P -> broker (0.4-1.0), sit in the broker as orange dots (queued), then fly to the consumers (1.6-2.2), which turn green. Plays once, holds."
+   },
+   {
+    "head": "No ack?\nIt is delivered again",
+    "tone": "orange",
+    "pictogram": "Two consumer discs at (250, 40) and (250, 100) and a purple broker card at (80, 70); a blue dot 'm3' flies to the top consumer (0.3-0.8), which turns red with a small D4.bolt (1.0); the dot turns orange and flies back to the broker (1.4-1.9), then to the lower consumer (2.1-2.6), which turns green with a green 'ack' tag (2.8). Plays once, holds."
+   }
+  ],
+  "cta": "Next: Workshop 8.W",
+  "spec": "RECAP (bare scene like videos/d7/scene-11-recap.js and videos/l5/scene-10-recap.js: copy its structure, card geometry {x 72, w 936, h 180, tops 240 / 444 / 648}, appear times 0.8 / 1.9 / 3.0, pictograms drawn at 340 x 140, Pebble via V.mascot('pebble', ...) at the top, the call-to-action sticker 'Next: Workshop 8.W' at 6.8). Three rows, each a bold line (the head) and a pictogram that plays ONCE and holds its finished state; the video ends on a calm, complete frame. Row tones: blue, purple, orange. The pictograms are described in points[]."
+ },
+ "helpers": "FILES: videos/d8/common.js (pure data, no DOM: the lesson examples and the broker simulation D8.sim, every number asserted at load), common-2.js (pictograms D8.file / db / disk / ram / lock / clock, D8.edge, the day line D8.dayline for scene 3, the flood lane D8.floodLane for scene 6), common-3.js (the three message stories D8.OFFLINE, D8.SHARE, D8.ACKS simulated and asserted, then the flow rig D8.flow for scenes 8 to 10). Everything hangs off window.VID.d8; the small stickers come from the lecture 4 kit window.VID.d4 (tags, packets, labels, discs, cards, bars, chips, wires, node cards, bolt, person, phone, server) and VID.l5 (tick, cross, arrow, drawOn, svg). videos/ds-8.html loads l5/common.js, d4/common.js, common-2.js, common-3.js, then d8/common.js, common-2.js, common-3.js, then scene-01 ... scene-11, audio/ds-8.js. Every helper file starts with an API comment listing every signature, option and return value: READ THEM FIRST, they are the contract. A. DATA: D8.BATCH, D8.FEED(n), D8.DAY + D8.doneAt / postState / processed / fmtH, D8.EVENT, D8.POLL + D8.pollAt(f), D8.flood + D8.FLOOD (hist, steps, end), D8.CRASH, D8.sim(o) -> log {hops, marks, snaps, end}, D8.at(log, t) -> {s, fly}, D8.firstMark, and (in common-3.js) the stories D8.OFFLINE {direct, broker}, D8.SHARE {lb, fan, offset}, D8.ACKS (+ .times). B. DRAWING: D8.dayline(stage, {x, y, w}).set({k, W, runsK, now, postsK, waitK, focus}); D8.floodLane(stage, {y, pol, name}).set({k, sec, countK}); D8.flow(stage, log, {box, prodNames, consNames, brokerName, slots, chipsPer}).set(t, {k, wiresK, queueK, chipsK, packets, prod, broker, cons}) with .prod / .broker / .cons nodes, .qrow / .crow chip rows, .wire, .downAt, .arrivals. All draw calls are pure: call them every frame from update(t) with everything you want to see; nothing is remembered; no Math.random, Date or timers."
+}
