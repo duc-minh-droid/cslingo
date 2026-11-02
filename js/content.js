@@ -48,6 +48,8 @@
     "css/nw/nw6-programs.css",
     "css/nw/nw7-ants.css",
     "css/nw/nw8-aco.css",
+    "css/nw/nw11-flock.css",
+    "css/nw/nw12-pso.css",
     ...CODELAB,
   ];
   const GROUPS = {
@@ -104,6 +106,16 @@
       "js/content/nic/l8-03.js",
       "js/content/nic/l8-workshop.js",
       "js/content/nic/boss-nic-78.js",
+      "js/content/nic/l11-01.js",
+      "js/content/nic/l11-02.js",
+      "js/content/nic/l11-03.js",
+      "js/content/nic/l11-workshop.js",
+      "js/content/nic/boss-nic-11.js",
+      "js/content/nic/pso-01.js",
+      "js/content/nic/pso-02.js",
+      "js/content/nic/pso-03.js",
+      "js/content/nic/pso-workshop.js",
+      "js/content/nic/boss-nic-12.js",
       "js/content/nic/videos.js",
     ],
     ds: [

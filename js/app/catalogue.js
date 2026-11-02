@@ -23,6 +23,8 @@
         6: "Lecture 6 — Genetic programming",
         7: "Lecture 7 — Swarm intelligence & ant colonies",
         8: "Lecture 8 — Ant colony detail & applications",
+        11: "Lecture 11 — Swarm intelligence: flocking",
+        12: "Lecture 12 — Particle swarm optimisation",
       },
     },
     ds: {
