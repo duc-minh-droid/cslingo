@@ -42,6 +42,8 @@
         5: "Lecture 5 — Partitioning",
         6: "Lecture 6 — Consistency & consensus",
         7: "Lecture 7 — The Paxos consensus protocol",
+        8: "Lecture 8 — Stream processing",
+        9: "Lecture 9 — Batch and online machine learning",
       },
     },
     algo: {
