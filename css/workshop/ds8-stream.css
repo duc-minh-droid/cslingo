@@ -1,0 +1,285 @@
+/* Data Science Lecture 8 (stream processing): lesson figures, demos and the 8.W broker workshop. Classes prefixed ds8-.
+   Motion is transform/opacity only, with a reduced-motion override at the end. */
+.ds8-lanes {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0;
+}
+.ds8-lane {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 2px dashed var(--line);
+  transition: opacity var(--dur-2) ease;
+}
+.ds8-lane:last-child {
+  border-bottom: 0;
+}
+.ds8-lane > b {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text);
+}
+.ds8-lane.down {
+  opacity: 0.5;
+}
+.ds8-lane.down > b::after {
+  content: " (offline)";
+  font-weight: 800;
+  color: var(--rose-ink);
+}
+.ds8-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 28px;
+  align-items: center;
+}
+.ds8-empty {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  font-weight: 800;
+}
+.ds8-chip {
+  --c: var(--line-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--c);
+  background: color-mix(in srgb, var(--c) 16%, var(--panel));
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+.ds8-chip small {
+  font-weight: 800;
+  color: var(--text-dim);
+  font-size: 10.5px;
+}
+.ds8-chip.blue {
+  --c: var(--blue);
+}
+.ds8-chip.teal {
+  --c: var(--teal);
+}
+.ds8-chip.rose {
+  --c: var(--rose);
+}
+.ds8-chip.amber {
+  --c: var(--amber);
+}
+.ds8-chip.violet {
+  --c: var(--violet);
+}
+.ds8-chip.gone {
+  border-style: dashed;
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.ds8-chip.new {
+  animation: ds8-in var(--dur-3) var(--ease-spring);
+}
+@keyframes ds8-in {
+  from {
+    transform: scale(0.6) translateY(-6px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* event card with encodings */
+.ds8-code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+}
+.ds8-note {
+  font-weight: 800;
+  font-size: 13px;
+  margin: 6px 0 0;
+  min-height: 20px;
+  color: var(--text);
+}
+.ds8-note.ok {
+  color: var(--teal-ink);
+}
+.ds8-note.bad {
+  color: var(--rose-ink);
+}
+
+/* cards used in the demos and the workshop */
+.ds8-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 8px 0;
+}
+.ds8-card {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  box-shadow: 0 3px 0 var(--line);
+  min-width: 0;
+  color: var(--text);
+}
+.ds8-card h4 {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  font-weight: 900;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.ds8-card h4 small {
+  font-weight: 800;
+  color: var(--text-faint);
+}
+.ds8-card .ds8-ln {
+  font-size: 12.5px;
+  font-weight: 800;
+  min-height: 18px;
+}
+.ds8-card .controls {
+  margin-top: 6px;
+  gap: 6px;
+}
+.ds8-card.busy {
+  border-color: var(--blue);
+}
+.ds8-card.down {
+  border-style: dashed;
+  border-color: var(--rose);
+  opacity: 0.75;
+}
+.ds8-card.full {
+  border-color: var(--amber);
+}
+.ds8-card.ok {
+  border-color: var(--teal);
+}
+
+/* queue slots (capacity) */
+.ds8-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0;
+}
+.ds8-slot {
+  width: 30px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px dashed var(--line-2);
+}
+.ds8-slot.on {
+  border-style: solid;
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 22%, var(--panel));
+}
+.ds8-slot.over {
+  border-style: solid;
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 22%, var(--panel));
+}
+
+/* message-by-consumer matrix for fan-out */
+.ds8-mx {
+  display: grid;
+  gap: 3px;
+  margin: 6px 0;
+  font-size: 12px;
+  font-weight: 800;
+}
+.ds8-mx span {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--line);
+  color: var(--text);
+}
+.ds8-mx span.y {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 22%, var(--panel));
+}
+.ds8-mx span.h {
+  border: 0;
+  color: var(--text-dim);
+}
+
+.ds8-log {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 3px;
+}
+.ds8-log li {
+  border-left: 4px solid var(--line-2);
+  padding: 2px 8px;
+}
+.ds8-log li.ok {
+  border-color: var(--teal);
+}
+.ds8-log li.no {
+  border-color: var(--rose);
+}
+.ds8-log li.warn {
+  border-color: var(--amber);
+}
+
+.ds8-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+.ds8-tag {
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+.ds8-tag.on {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  color: var(--blue-ink);
+}
+
+@media (max-width: 520px) {
+  .ds8-lane {
+    grid-template-columns: 74px minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds8-chip.new {
+    animation: none;
+  }
+  .ds8-lane {
+    transition: none;
+  }
+}
