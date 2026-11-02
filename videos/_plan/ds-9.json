@@ -1,0 +1,425 @@
+{
+ "slug": "ds-9",
+ "dir": "d9",
+ "title": "Lecture 9 · Batch and online machine learning",
+ "outline": "Lecture 9 video (Data Science, COM3021): 'Batch and online machine learning' (title card 'Batch vs online'). 12 scenes, 126 s: title (4), the cost (10), gradient descent (12), learning rate (11), an epoch (12), concept drift (9), retraining (10), mini-batches (14), online learning (11), how fast to adapt (13), data shifts (11), recap (9).\nSTORY in the lessons' order. 9.1 ds9-descent (js/content/ds/ds-l9-01.js): the courier model minutes = w × km has one weight; a 1 km trip that took 4 minutes gives the cost (w − 4)², a bowl with its bottom at w = 4 (scene 2); the gradient (slope 2(w − 4)) points uphill and gradient descent steps against it, new w = w − learning rate × slope: 10, 7, 5.5, 4.75, 4.375 at rate 0.25 (scene 3); the learning rate sets the step: 0.1 creeps, 0.75 zigzags in, 1.1 diverges (scene 4); an epoch is one forward pass and one backpropagation pass over the training data; full batch learning uses all the data, the true gradient, one update per epoch (four trips, w 6 -> 5.1 -> 4.605) (scene 5). 9.2 ds9-batches (ds-l9-02.js): data is not static, concept drift makes a deployed model stale (roadworks: 4 -> 6 min per km; the lesson's own drift figure uses a film site, the video keeps the courier and the app's roadworks stream so one example runs through) (scene 6); retraining on everything gets more costly every week and must fit in memory (2 GB a week: 20 GB at week 10, 66 GB > 64 GB at week 33), recent data only (a 4-week window, 8 GB, incremental learning) (scene 7); mini-batches give an estimate of the gradient, trips ÷ batch size updates per epoch, the smaller the batch the greater the randomness (the app's race: 24 trips, rate 0.02, one epoch: 1, 3 and 24 updates, losses 133.38, 33.02, 1.9) (scene 8). 9.3 ds9-online (ds-l9-03.js): a stream allows one pass only; online learning updates on every new observation from that single point (stochastic gradient descent): w 4 -> 4.36 on a 3 km, 15 min trip (scene 9); the learning rate sets how fast it adapts (roadworks: 0.02 catches up in 2 records, 0.004 needs 23) and bad data hits at once (a 2 km trip logged as 90 min sends w to 10.59) so online models need closer monitoring (scene 10); covariate shift (masks), prior probability shift (flu 12 in 20 -> 4 in 20), concept drift (roadworks) cause model decay (scene 11). Recap and 'Next: Workshop 9.W' (ds9-lab, ds-l9-workshop.js). Boss quiz boss-ds-9.js; bank js/bank/ds-45.js, ds-46.js. Vault: study-vault/Data Science/Topics/9 - Batch and Online Learning.md. Not covered (too much for one video): how often and how much to retrain (cadence trade-off), the gradient-estimate scatter figure, the loss-against-learning-rate trade-off plot (only named through the race), the maths boxes.\nNUMBERS: every figure comes from videos/d9/common.js (VID.d9, D9), which ports the lessons' own code line for line (seeded rng, trips, stream, epoch with the same shuffle, sgd) and asserts the values quoted here and in the specs when the page loads.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nSHARED LOOK: charts are D9.plot sticker panels (axes and tick numbers 28 px grey); the cost bowl is always a grey curve with a green best dot at the bottom and a blue ball; data are purple (chips, dots, D9.parcel); text stickers are D4.tag / D4.label / D4.chips / D4.card from videos/d4/common-2.js; pictograms are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, L5.arrow). The courier example (minutes = w × km, best w = 4) runs through the whole video; scenes 6, 10 and 11 reuse the same roadworks stream (4 -> 6 per km).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 9",
+  "title": "Batch vs online",
+  "sub": "Learning from all the data, or as it arrives",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-cost.js",
+   "kicker": "THE COST",
+   "title": [
+    "Every guess",
+    "has a cost"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     1.7,
+     "A courier app predicts minutes = w × km."
+    ],
+    [
+     1.9,
+     3.6,
+     "This trip: 1 km in 4 minutes."
+    ],
+    [
+     4,
+     5.7,
+     "Guess w = 7: 3 minutes off, so the cost is 9."
+    ],
+    [
+     5.9,
+     7.8,
+     "Every guess has a cost: together they make a bowl."
+    ],
+    [
+     8.1,
+     9.8,
+     "The bottom, w = 4, is the best weight."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.1 step 1, ds9-descent): learning means lowering a cost. The courier model is minutes = w × km with ONE weight w. A 1 km test trip really took 4 minutes; the guess w = 7 predicts 7 minutes, 3 off, and the cost (squared error) is 3² = 9. Every w has a cost (w − 4)²: a bowl whose bottom, w = 4, cost 0, is the best weight. DATA: D9.BOWL = {km 1, min 4, guess 7, pred 7, err 3, cost 9, best 4}; the curve is D9.cost1.\nLAYOUT: left column x 12..296 for stickers, right the plot: const p = D9.plot(stage, {x: 312, y: 12, w: 612, h: 616, xr: [0, 10], yr: [0, 40], xticks: [0, 2, 4, 6, 8, 10], yticks: [0, 20, 40], xlab: \"weight w\", ylab: \"cost\"}).\nTIMELINE. 0.3-0.7 a blue tag 'minutes = w × km' (D4.tag x 154, y 50, fs 30) pops. 1.2-1.7 the trip: D9.parcel (size 70) at (60, 160) in a D4.svg layer, pops with E.pop, and a purple tag '1 km · 4 min' (D4.tag x 190, y 160, anchor c) next to it. 1.6-2.1 the plot pops (k) with axes. 3.4 a blue tag 'guess w = 7' (x 154, y 280) pops; 3.7 a blue tag 'predicts 7 min' (y 360); 3.9 a red tag '3 min off' (y 440); 4.0 a red solid tag 'cost 3² = 9' (y 520) and, on the plot, the BALL (dots: {at: [7, 9], tone: blue, r: 18}) drops in from above (y offset with E.out) with a dashed red seg (7, 0) -> (7, 9) under it (its height is the cost). 5.8-7.6 the ball slides along the bowl: w goes 7 -> 10 (5.8-6.3), 10 -> 0 (6.3-7.2), 0 -> 4 (7.2-7.9) (E.inOut per leg), the ball sits at (w, D9.cost1(w)) and the grey bowl curve (curves: {fn: D9.cost1, from: lo, to: hi, tone: grey, w: 6}) is drawn only over the range of w visited so far (lo = min, hi = max of the path up to t: compute it from the legs, no state); the red tag at y 520 now reads 'cost ' + D9.fm(cost, 1) live while sliding (the three tags above it fade to o 0 at 5.8, the guess tag reads 'w = ' + D9.fm(w, 1) live); the red dashed seg follows the ball. 7.9-8.3 at w = 4 the ball rests at the bottom, the red seg is gone, a green dashed mark {x: 4} rises and a green ring (dots ring: true on the ball, tone green under it r 26 hollow) pops; a green solid tag 'best: w = 4, cost 0' pops at p.pt(4, 0) + (0, -110). Hold to 10.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-descent.js",
+   "kicker": "GRADIENT DESCENT",
+   "title": [
+    "Step downhill,",
+    "against the slope"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     1,
+     2.6,
+     "The slope shows which way is uphill: 12 at w = 10."
+    ],
+    [
+     3,
+     4.8,
+     "Step against it: 10 − 0.25 × 12 = 7."
+    ],
+    [
+     5,
+     7.6,
+     "The slope is smaller now, so each step is smaller too."
+    ],
+    [
+     8.5,
+     9.8,
+     "10, 7, 5.5, 4.75, 4.375: the distance halves."
+    ],
+    [
+     10,
+     11.7,
+     "The ball settles at the bottom, w = 4."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.1 steps 2-3): the gradient is the slope of the cost where the ball stands; gradient descent steps AGAINST it by learning rate × slope: new w = w − 0.25 × slope. From w = 10: slope 12, step 3, w = 7; slope 6, step 1.5, w = 5.5; slope 3, w = 4.75; slope 1.5, w = 4.375. Each step halves the distance to 4 (6, 3, 1.5, 0.75, 0.375). DATA: D9.DESC = {eta 0.25, ws [10, 7, 5.5, 4.75, 4.375], slopes [12, 6, 3, 1.5], steps [3, 1.5, 0.75, 0.375], dist [6, 3, 1.5, 0.75, 0.375]}.\nLAYOUT: the plot on the left: const p = D9.plot(stage, {x: 12, y: 12, w: 620, h: 616, xr: [0, 11], yr: [0, 40], xticks: [0, 2, 4, 6, 8, 10], yticks: [0, 20, 40], xlab: \"weight w\", ylab: \"cost\"}); grey bowl curve {fn: D9.cost1, tone: grey}; the best spot: a green dot {at: [4, 0], tone: green, r: 10} and a green dashed mark {x: 4}. The right panel x 648..924 holds a column of the weights: five blue tags 'w = 10', 'w = 7', 'w = 5.5', 'w = 4.75', 'w = 4.375' (D4.tag x 786, y 150 + 96 i, fs 30) and above them ONE orange tag (x 786, y 46, fs 28) that shows the current step sum.\nTIMELINE. 0.2-0.7 the plot pops (k, axes) with the bowl and the best spot. 0.5-0.9 the BALL (blue r 18) pops at (10, 36) and the tag 'w = 10' pops. 0.9-1.6 the slope: a dashed orange tangent through the ball (segs {a: [8.2, 36 − 12 × 1.8], b: [11, 36 + 12 × 1], tone: orange, dash: true, w: 5}, k draws it on) and an orange tag 'slope 12' at p.pt(10, 36) + (-120, -40). STEP j (j = 0..3, D9.DESC): t0 = [2.4, 4.6, 6.1, 7.4][j]; t0 .. t0 + 0.5 the orange tag at the top reads 'w − 0.25 × slope' as numbers ('10 − 0.25 × 12 = 7', '7 − 0.25 × 6 = 5.5', '5.5 − 0.25 × 3 = 4.75', '4.75 − 0.25 × 1.5 = 4.375', built with D9.fm from ws, eta, slopes) with a bump, and an orange step arrow (segs, head: true, w: 6) draws on at the ball's height from (ws[j], cost) to (ws[j+1], cost); t0 + 0.5 .. t0 + 1.0 the ball hops along the bowl to (ws[j+1], cost) (follow the curve: w by E.inOut, cost = D9.cost1(w), plus a small 18 px arc), a small hollow blue dot (r 8) stays at every place the ball has been; at t0 + 1.0 the next 'w = …' tag pops; the tangent (slope of the new w, half the previous length) re-aims at the new ball position at t0 + 1.0 .. t0 + 1.3 and its orange label reads 'slope 6', 'slope 3', 'slope 1.5'. After the last step (8.4) the tangent and arrow fade. 8.1-9.8 the four distances to 4 are shown as red horizontal segs on the w axis from each visited w to 4 (y = 1, w 8), popping one after another 8.2, 8.5, 8.8, 9.1 (they halve). 10.0-10.6 the ball gets a green ring and a green tag 'nearly 4' pops at p.pt(4.375, 0) + (40, -90). Hold to 12.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-rate.js",
+   "kicker": "LEARNING RATE",
+   "title": [
+    "The learning rate",
+    "sets the step size"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2,
+     "Same bowl, same start, three learning rates."
+    ],
+    [
+     2.2,
+     4.2,
+     "Each step is learning rate × slope."
+    ],
+    [
+     4.6,
+     6.4,
+     "1.1 is too big: each jump lands further out. It diverges."
+    ],
+    [
+     6.6,
+     8.4,
+     "0.75 jumps past the bottom but still settles."
+    ],
+    [
+     8.6,
+     10.7,
+     "0.1 is safe but slow: it creeps down."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.1 step 4): the learning rate sets the step size. Too small creeps, a bit too big zigzags across the bottom but settles, much too big lands further away each time and diverges. Same bowl (w − 4)², same start w = 10, six steps each. DATA: D9.RATES.view = {x: [−6, 14], y: [0, 100]}; D9.RATES.runs = [{eta 0.1, ws 10, 8.8, 7.84, 7.072, 6.458, 5.966, 5.573, shown 7, tag 'slow'}, {eta 0.75, ws 10, 1, 5.5, 3.25, 4.375, 3.813, 4.094, shown 7, tag 'zigzags in'}, {eta 1.1, ws 10, −3.2, 12.64, −6.368 …, shown 3 (the third step leaves the chart), tag 'diverges'}].\nLAYOUT: three plots side by side, i = 0, 1, 2 for eta 0.1, 0.75, 1.1: D9.plot(stage, {x: 12 + 308 i, y: 120, w: 296, h: 430, xr: view.x, yr: view.y, xticks: [4], pad: {l: 18, r: 14, t: 14, b: 50}}) (no y ticks, the only x tick is the best weight 4); each has the grey bowl {fn: D9.cost1}, a green best dot {at: [4, 0], r: 9} and a green dashed mark {x: 4}. Above each plot an orange tag 'rate 0.1' / 'rate 0.75' / 'rate 1.1' (D4.tag x 160 + 308 i, y 92, fs 30). Top centre an orange tag 'step = rate × slope' (D4.tag x 468, y 30, fs 30). Under each plot the verdict tag (x 160 + 308 i, y 600): grey 'slow', green 'zigzags in', red solid 'diverges'.\nTIMELINE. 0.3-1.0 the three plots pop (D9.seq stagger 0.15). 1.0, 1.15, 1.3 the rate tags pop. 1.5-1.8 the three balls (blue r 15) pop at (10, 36). 2.2-2.6 the 'step = rate × slope' tag pops. STEPS: all three runs step together, step j (j = 1..6) from t0 = 2.6 + 0.85 (j − 1) for 0.55 s: the ball flies in a straight line (plus a 14 px arc) from (ws[j−1], cost) to (ws[j], cost) (E.inOut); behind it an orange path (segs from point to point, w 4) and small hollow blue dots (r 6) at every landing. The 1.1 run: steps 1 and 2 as above (−3.2, 12.64, each landing higher on the other wall); its step 3 (t0 = 4.3) flies off the chart towards (−6.368, 107.5): the ball leaves the plot top-left, turns red and fades (o 0) by 4.9; from 4.5 its whole orange path turns red; 4.6 its red solid 'diverges' tag pops. The 0.75 run zigzags across the bottom (1, 5.5, 3.25, 4.375, 3.81, 4.09); 6.7 its green 'zigzags in' tag pops. The 0.1 run creeps (8.8, 7.84 … 5.57, still far from 4 after six steps); 8.5 its grey 'slow' tag pops. Hold to 11.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-epoch.js",
+   "kicker": "AN EPOCH",
+   "title": [
+    "Full batch: all the data,",
+    "one update"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     1.8,
+     "Four trips; the model starts at w = 6."
+    ],
+    [
+     2,
+     4,
+     "Forward pass: predict every trip and measure the error."
+    ],
+    [
+     4.4,
+     5.6,
+     "Backward pass: the errors make one gradient, 18."
+    ],
+    [
+     5.8,
+     7.6,
+     "One update: w = 6 − 0.05 × 18 = 5.1."
+    ],
+    [
+     8,
+     9.6,
+     "That was one epoch. Epoch 2 takes w to 4.605."
+    ],
+    [
+     9.8,
+     11.8,
+     "Full batch uses all the data: the true gradient."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.1 steps 5-7): an EPOCH is one forward pass (predict every training trip, measure the errors) and one backward pass (backpropagation: turn the errors into the gradient) over all the training data. FULL BATCH learning uses ALL the data, so it computes the TRUE gradient and makes exactly ONE update per epoch. DATA: D9.EPOCH = {trips [[1, 4], [2, 8], [3, 12], [2, 8]] (km, real minutes), w0 6, eta 0.05, epochs[0] = {w 6, preds [6, 12, 18, 12], errs [2, 4, 6, 4], grad 18, nw 5.1}, epochs[1] = {w 5.1, preds [5.1, 10.2, 15.3, 10.2], errs [1.1, 2.2, 3.3, 2.2], grad 9.9, nw 4.605}}. Show errors with a plus sign ('+2').\nLAYOUT: a table on the left, four rows i = 0..3 at y 92 + 100 i: a purple parcel (D9.parcel size 50 at x 40) and four D4.chips cells per row (one D4.chips per row, n 4, x 76, w 120, h 72, gap 14, fs 32): purple '1 km', purple '4 min', blue predicted, red error. Column labels above (D4.label y 44, fs 28, grey): 'trip', 'real', 'predicted', 'error'. The right panel x 640..924: blue tag 'w = 6' (D4.tag x 782, y 70, fs 34), orange tag for the gradient (x 782, y 250), orange tag for the update sum (x 782, y 340, fs 28), grey tag for the counter 'epoch 1 · 1 update' (x 782, y 450).\nTIMELINE. 0.3-1.0 the rows pop (D9.seq stagger 0.12), predicted and error cells as ghosts; the 'w = 6' tag pops. FORWARD 1.3-3.4: a blue down-arrow (L5.arrow, w 7) draws on along the left of the table (x 22, from y 70 to y 440) with a blue label 'forward pass' (D4.label rotated? no: put it at x 300, y 470, fs 28, blue); row i at 1.5 + 0.45 i: the predicted cell becomes solid blue '6', '12', '18', '12' (flip from the ghost) and then its red error cell '+2', '+4', '+6', '+4' pops. BACKWARD 3.5-4.4: an orange up-arrow draws on along the right edge of the table (x 618, y 440 -> y 70) with an orange label 'backward pass' (x 300, y 510); the four red error cells flash in reverse order (3.6, 3.7, 3.8, 3.9) and small red copies fly from each into the gradient tag position (3.7-4.3), which pops as orange solid 'gradient 18' at 4.3. UPDATE 5.4-6.2: the orange tag '6 − 0.05 × 18 = 5.1' pops, the 'w = 6' tag flips to 'w = 5.1' with a bump at 6.0, the grey counter 'epoch 1 · 1 update' pops at 6.2. EPOCH 2 6.4-8.0: the predicted and error cells flip to the epoch-2 values together at 6.6 (5.1, 10.2, 15.3, 10.2 and +1.1, +2.2, +3.3, +2.2), the gradient tag flips to 'gradient 9.9' at 7.2, the sum to '5.1 − 0.05 × 9.9 = 4.605' at 7.4, 'w = 4.605' and the counter 'epoch 2 · 1 update' at 7.8. 9.6-10.2 a green D9.brace (up: false) spans the four rows on the left (vertical? use a tall green rounded outline: D4.card plain tone green, x 6, y 60, w 612, h 410, o 1, behind the rows) and a green solid tag 'all the data: the true gradient' pops at (300, 560). Hold to 12.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-drift.js",
+   "kicker": "CONCEPT DRIFT",
+   "title": [
+    "The world changes,",
+    "the model does not"
+   ],
+   "dur": 9,
+   "caps": [
+    [
+     1.6,
+     3,
+     "The model learned 4 minutes per km."
+    ],
+    [
+     3.2,
+     5.2,
+     "Then roadworks: each km now takes about 6."
+    ],
+    [
+     5.9,
+     7.2,
+     "The model still says 4: 8 minutes off at 4 km."
+    ],
+    [
+     7.4,
+     8.8,
+     "The world changed, not the model: concept drift."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.2 step 1 and 9.3's roadworks): data is not static. A model trained once and deployed assumes the world stays as it was; when the relationship between input and output changes (concept drift), it is wrong on every trip until it is UPDATED with new data. Courier example from the app's roadworks stream: 4 minutes per km becomes about 6. DATA: D9.DRIFT = {old: 8 records {x km, y minutes} at 4 per km (first: 2 km, 7.8 min), now: 8 records at 6 per km (first: 3 km, 16.1 min), model 4, real 6, gapAt4 8, errOld ≈ 0.7, errNow ≈ 4.3}.\nLAYOUT: const p = D9.plot(stage, {x: 12, y: 12, w: 620, h: 616, xr: [0, 4.5], yr: [0, 28], xticks: [1, 2, 3, 4], yticks: [0, 8, 16, 24], xlab: \"km\", ylab: \"minutes\"}). Right panel x 650..924: a blue tag 'model: 4 per km' (D4.tag x 787, y 70), a green tag 'real: 4 per km' (y 160), a red tag 'roadworks' (y 280), a red solid tag 'concept drift' (y 520).\nTIMELINE. 0.2-0.7 the plot pops. 0.6-1.4 the 8 old records pop as purple dots (r 11, D9.seq stagger 0.1). 1.2-1.8 the blue model line {fn: (x) => 4 x, tone: blue, w: 7} draws on (k) and the blue tag pops. 1.8-2.3 the green dashed truth line {fn: (x) => real x, dash: true, w: 5} appears on top of it and the green tag 'real: 4 per km' pops. 2.9-3.2 the red 'roadworks' tag pops; the old dots fade to o 0.35. 3.2-4.4 the green dashed line rotates: real = lerp(4, 6, E.inOut(k)), its tag reads 'real: ' + D9.fm(real, 1) + ' per km' (ends 'real: 6 per km'). 4.4-5.6 the 8 new records pop as purple dots on and around the new line (stagger 0.12). 5.8-6.3 at 4 km a red seg (4, 16) -> (4, 24) (w 7) draws on and a red tag '8 min off' pops at p.pt(4, 20) + (-110, 0); the blue line pulses once (flash on its width). 7.2-7.5 the red solid 'concept drift' tag pops. Hold to 9.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-retrain.js",
+   "kicker": "RETRAINING",
+   "title": [
+    "Retraining on everything",
+    "gets heavy"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     1,
+     2.8,
+     "Each week adds 2 GB of new data."
+    ],
+    [
+     3,
+     4.6,
+     "Retrain on all of it: week 10 reads 20 GB."
+    ],
+    [
+     4.8,
+     6.1,
+     "The pile keeps growing every week."
+    ],
+    [
+     6.3,
+     7.8,
+     "Week 33 needs 66 GB: more than the 64 GB of memory."
+    ],
+    [
+     8.2,
+     9.8,
+     "Recent data only: the last 4 weeks, 8 GB each time."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.2 steps 2-3): the simple fix for drift is to retrain regularly on ALL the data, but the data keeps growing, so every retrain costs more and full batch training needs it all to FIT IN MEMORY. Training on RECENT data only (a window, incremental learning) costs the same every time and lets old data matter less. DATA: D9.GROW = {perWeek 2, mem 64, read(k) = 2k, week10 20, total10 110, over 33, overGB 66, win 4, winGB 8}.\nLAYOUT: one tile per week of data, a row of 33 purple tiles (one D4.chips: x 28, y 220, n 33, w 22, h 64, gap 4, fs 0, radius 8, lip 4, tone purple): tile i spans x 28 + 26 i .. + 22, so tiles 1..32 lie inside the memory frame and tile 33 (x 860..882) outside it. The memory frame: a grey plain D4.card x 18, y 196, w 836, h 112 (behind the tiles), a D9.memchip (size 64) at (60, 150) and a grey label 'memory: 64 GB' (D4.label x 100, y 150, anchor l, fs 30). Top: a grey tag 'week 1' (D4.tag x 468, y 50, fs 32). Under the row: a purple tag 'this retrain reads 2 GB' (x 468, y 400, fs 32) and a grey tag 'all retrains so far: 2 GB' (x 468, y 480, fs 28).\nTIMELINE. 0.3-0.8 frame, chip, memory label and the week tag pop; all tiles start as ghosts (row.set(i, {ghost: true})). 1.0-2.8 weeks 1..10 arrive, one every 0.2 s (week k at 1.0 + 0.2 (k − 1)): tile k pops solid purple (E.pop), the week tag reads 'week k', the purple tag 'this retrain reads ' + read(k) + ' GB', the grey tag 'all retrains so far: ' + (k (k + 1)) + ' GB' (= sum of read(1..k)). Hold week 10 (20 GB, 110 GB) 2.8-4.6 with a bump on the purple tag at 3.0. 4.6-6.0 weeks 11..33 arrive fast (23 tiles, 0.06 s each, same updates). At week 33 (6.0): its tile (outside the frame) turns red solid, a red L5.cross (size 34) pops over it, the purple tag turns red solid 'this retrain reads 66 GB', and a red tag 'does not fit in memory' pops at (468, 560). 7.6-8.2 THE WINDOW: the red tag, the cross and the grey total fade; tiles 1..29 fade to o 0.3 (they no longer feed the model), the last 4 tiles (30..33) stay solid purple and get a green D9.brace over them (up: true, from x 28 + 26·29 to 28 + 26·33 − 4, y 200) and tile 33 turns purple again; the memory question is gone, the purple tag reads 'this retrain reads 8 GB' (tone purple) and a green solid tag 'last 4 weeks: 8 GB' pops at (760, 130). Hold to 10.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-batches.js",
+   "kicker": "MINI-BATCHES",
+   "title": [
+    "Smaller batches:",
+    "more, noisier steps"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     1.6,
+     "24 trips, one epoch, three batch sizes."
+    ],
+    [
+     1.8,
+     4.4,
+     "One at a time: an update after every trip."
+    ],
+    [
+     4.7,
+     6.6,
+     "Batches of 8: an update after every 8 trips."
+    ],
+    [
+     7.3,
+     9.2,
+     "Small batches are noisy: some steps go uphill."
+    ],
+    [
+     10.7,
+     12.2,
+     "Full batch: one step, with the true gradient."
+    ],
+    [
+     12.4,
+     13.8,
+     "After one epoch the losses are 133, 33 and 1.9."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.2 steps 5-7, the app's batch-size race): a MINI-BATCH uses part of the data per update, so it computes an ESTIMATE of the gradient; one epoch makes (trips ÷ batch size) updates. Smaller batch = more updates per epoch but more randomness: convergence is less stable and some updates go UPHILL. Full batch makes one update with the true gradient. DATA: D9.RACE (the app's race: trips(24, 4, 7), start w 10, loss 270.45, learning rate 0.02, the first epoch, seed 100): runs[0] B 24: 1 update (w 8.20, loss 133.38); runs[1] B 8: 3 updates (w 8.13, 7.30, 6.06; losses 129.02, 82.59, 33.02); runs[2] B 1: 24 updates (w 7.66, 5.21, 5.22, 4.35 … jittering between 3.81 and 4.32, final loss 1.9); RACE.ups = the 0-based updates of B 1 that raise the loss ([2, 8, 9, 11, 12, 14, 15, 18, 21, 23]); RACE.jump = the biggest (update 19, 1.9 -> 2.39); RACE.best 4.01 (loss RACE.min 1.68); RACE.view = {x: [3, 10.5], y: [0, 280]}. Show losses with D9.fm(l, 2) except in the final caption ('133', '33', '1.9': D9.fm(l, 0) for the first two, D9.fm(l, 1) for the last).\nLAYOUT: TOP STRIP: 24 trips as one D4.chips (x 288, y 12, n 24, w 22, h 40, gap 4, fs 0, radius 8, lip 4, tone purple), ghosts until seen. THREE ROWS r = 0, 1, 2 in the order ONE AT A TIME (runs[2]), BATCH OF 8 (runs[1]), FULL BATCH (runs[0]), top y = 70 + 190 r: on the left a tag with the name (D4.tag x 140, y top + 50, fs 30: purple 'one at a time', purple 'batches of 8', purple 'full batch (24)') and a grey counter tag under it ('0 updates' … x 140, y top + 120, fs 28); on the right a plot D9.plot(stage, {x: 288, y: top, w: 636, h: 176, xr: view.x, yr: view.y, xticks: [4, 6, 8, 10], pad: {l: 20, r: 16, t: 10, b: 44}}) with the grey bowl {fn: (w) => D9.loss(RACE.d, w) (precompute it once in build as pts!), tone: grey}, the green best dot at (RACE.best, RACE.min) r 8. Each plot has a blue ball (r 14) at the run's current (w, loss) and a thin blue path (segs w 3 or a curve of pts) through every point it has stepped to.\nTIMELINE. 0.3-1.0 strip and rows pop (stagger 0.15); 1.2 the three balls pop at (10, 270.45). 1.6-10.6 the trips are seen one by one: seen(t) = 24 × ramp(t, 1.6, 10.6, E.lin) (0.375 s per trip); chip i turns solid purple when seen > i. A run with batch size B makes update u (u = 1 .. 24 / B) when seen reaches u × B: its ball hops (0.3 s, E.inOut, straight line plus a 10 px arc) from step u − 1 to step u (steps[u − 1].w, .l), its counter reads 'u updates'. When the 8-batch updates, the 8 strip chips of that batch flash a purple ring (row.set ring: 'purple', ringK flash). Every uphill update of the one-at-a-time run (u − 1 in RACE.ups) flashes its ball red (dots ring tone red, V.flash over the hop) and a red tag 'uphill' pops briefly above the ball for the biggest one (RACE.jump.i, at about 8.7). The full batch ball waits and hops once at 10.6 (to 8.2, 133.38), smoothly. 10.9-11.6 a loss tag pops at the right end of each row (D4.tag at x 860, y top + 40, fs 28, blue): 'loss 1.9', 'loss 33.02', 'loss 133.38'. Hold to 14.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-online.js",
+   "kicker": "ONLINE LEARNING",
+   "title": [
+    "Learn from each record,",
+    "then let it go"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     1,
+     2.8,
+     "On a stream, records arrive one at a time."
+    ],
+    [
+     3.4,
+     5,
+     "Each one makes one small update: 4 → 4.36."
+    ],
+    [
+     5.2,
+     7.4,
+     "Then the record is gone: one pass, nothing stored."
+    ],
+    [
+     7.6,
+     10.6,
+     "Always adjusting: this is stochastic gradient descent."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.3 steps 1-2): with a STREAM, data never stops arriving and is not kept: multiple passes are no longer possible, each record is processed in ONE pass. ONLINE learning updates the weight whenever a new observation arrives, from that single data point (a mini-batch of size 1: stochastic gradient descent), so the model is always adjusting. DATA: D9.ONLINE = {eta 0.02, rows: record 1 {x 3, y 15, w 4, pred 12, grad −18, nw 4.36}, then (1 km, 5 min), (2, 9), (4, 19), (2, 10); ws2 [4, 4.36, 4.39, 4.4, 4.63, 4.69]}.\nLAYOUT: a grey conveyor belt across the stage: two grey lines (D4.svg layer) at y 380 and 392 from x 12 to 924 with small grey rollers (circles r 8) every 80 px. The MODEL: a blue D4.card (x 358, y 250, w 220, h 120, tone blue, plain: false, fs 40) whose text is 'w = 4' then 'w = 4.36' …; a blue label 'model' above it (D4.label x 468, y 226). Records: one purple tag per record (D4.tag fs 30, solid) '3 km · 15 min', '1 km · 5 min', '2 km · 9 min', '4 km · 19 min', '2 km · 10 min' that ride along the belt at y 336 (positioned with set({x, y}) absolute: give no x, y at creation). Counters top: a purple tag 'seen: 0' (x 120, y 40) and a grey tag 'stored: 0' (x 816, y 40). A row of weights at the bottom: D4.chips (x 108, y 548, n 6, w 112, h 64, gap 8, fs 30, tone blue) with texts ws2, ghosts until reached (chip 0 '4' solid from the start).\nTIMELINE. 0.3-0.9 belt, model card, label, counters and the first weight chip pop. RECORD 1 (slow): 1.0 pops at x 90 on the belt; 1.0-2.0 rides to the model (x 468, E.inOut); 2.1 a blue tag '4 × 3 = 12 min' pops above the model (x 468, y 160); 2.6 an orange tag 'gradient −18' pops (x 690, y 160); 3.0 an orange tag '4 − 0.02 × (−18) = 4.36' (x 468, y 470, fs 28); 3.3 the card flips to 'w = 4.36' with a bump and weight chip 1 pops solid; 3.6-4.4 the record rides on to x 840 and fades out (o 0) there; 'seen: 1' at 4.4, 'stored: 0' bumps; the three tags of record 1 fade at 4.6. RECORDS 2-5 (fast): record r (r = 1..4) from t0 = 4.8 + 1.2 (r − 1): rides in t0 .. t0 + 0.4, at t0 + 0.45 the card shows the next weight (D9.fm(ws[r + 1], 2)) with a bump and chip r + 1 pops, rides out and fades t0 + 0.6 .. t0 + 1.0; 'seen' counts up, 'stored' stays 0 and bumps each time. 9.6-10.2 a green tick (L5.tick, size 40) pops beside 'stored: 0' and the bottom row of chips gets a blue D9.brace under it (y 620). Hold to 11.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-adapt.js",
+   "kicker": "HOW FAST TO ADAPT",
+   "title": [
+    "The learning rate sets",
+    "how fast it adapts"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2.1,
+     "Two online models learn from the same stream."
+    ],
+    [
+     2.3,
+     4.4,
+     "Roadworks at record 40: each km now takes 6, not 4."
+    ],
+    [
+     4.7,
+     6.4,
+     "Rate 0.02 catches up in 2 records; 0.004 needs 23."
+    ],
+    [
+     7,
+     8.2,
+     "But a fast learner trusts every record."
+    ],
+    [
+     8.4,
+     10.6,
+     "One bad record, 90 min for 2 km: w jumps to 10.59."
+    ],
+    [
+     10.8,
+     12.8,
+     "Bad data hits at once: watch online models closely."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.3 steps 3-4): how fast should an online model adapt? The LEARNING RATE controls it: a high rate catches up with a real change quickly but also chases noise; a low rate is steady but slow. And bad data has an IMMEDIATE impact, so online learning needs closer monitoring. DATA: D9.ADAPT (the roadworks stream, 80 records, 4 -> 6 min per km at record 40 (0-based index 40, plot x = index + 1)): runs[0] eta 0.004 (ws: 80 weights, catch 23, wob 0.10), runs[1] eta 0.02 (catch 2, wob 0.44); D9.GLITCH (40 records, record 20 (index 19) is a 2 km trip logged as 90 min): ws (eta 0.02, 40 weights), before 4.03, jump 10.59, back 5; slow (eta 0.004) 5.29.\nLAYOUT: TOP plot const a = D9.plot(stage, {x: 12, y: 12, w: 912, h: 330, xr: [0, 80], yr: [2, 8], xticks: [0, 40, 80], yticks: [4, 6], xlab: \"record\", ylab: \"weight w\"}); BOTTOM plot const b = D9.plot(stage, {x: 12, y: 360, w: 912, h: 268, xr: [0, 40], yr: [0, 12], xticks: [0, 20, 40], yticks: [4, 10], xlab: \"record\", ylab: \"weight w\"}). Traces as curves of pts [[i + 1, ws[i]]] (with [0, 4] in front): eta 0.004 grey w 5, eta 0.02 blue w 5; the truth as a green dashed curve (top: [[0, 4], [40, 4], [40, 6], [80, 6]]; bottom: y = 4).\nTIMELINE. 0.2-0.7 the top plot pops; 0.5-1.0 the green dashed truth draws on. 0.8-3.6 both traces draw on together (k = ramp(t, 0.8, 3.6, E.lin)); texts in the plot at their left start: grey 'rate 0.004' and blue 'rate 0.02' (plot texts at (10, 4.6) and (10, 3.3), anchor start, pop 1.0). When the draw reaches record 40 (2.2): a red dashed mark {x: 40} and a red tag 'roadworks' at a.pt(40, 8) + (0, 22) pop. 4.0-4.6 two tags: blue 'caught up in 2' at a.pt(46, 6.6), grey 'needs 23' at a.pt(63, 4.9) (D4.tag fs 28; numbers from runs[i].catch). 6.6-7.0 the bottom plot pops with its green dashed y = 4. 7.0-9.4 its blue trace (eta 0.02) draws on (k over 7.0-9.4, E.lin); when it reaches record 20 (8.2): a red dot {at: [20, 11.4], tone: red, r: 12} with a red tag '2 km logged as 90 min' at b.pt(20, 11.4) + (220, 0), a red dashed mark {x: 20}, and the trace jumps to 10.59: a red tag D9.fm(GLITCH.jump) at b.pt(20, 10.59) + (-70, 0) pops at 8.4. 9.6-10.0 a grey tag 'back after 5 records' at b.pt(31, 8) (number from GLITCH.back). Hold to 13.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 11,
+   "file": "scene-11-shifts.js",
+   "kicker": "DATA SHIFTS",
+   "title": [
+    "Three shifts that",
+    "make a model decay"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     1.6,
+     3.4,
+     "Covariate shift: the inputs change, like faces in masks."
+    ],
+    [
+     3.9,
+     5.6,
+     "Prior shift: same symptoms; before, 12 in 20 had flu."
+    ],
+    [
+     5.9,
+     6.9,
+     "In the pandemic, only 4 in 20."
+    ],
+    [
+     7.8,
+     9.4,
+     "Concept drift: the rule itself changes, 4 → 6 per km."
+    ],
+    [
+     9.6,
+     10.8,
+     "Each one makes a trained model decay."
+    ]
+   ],
+   "spec": "IDEA (lesson 9.3 steps 5-7): three kinds of data shift cause MODEL DECAY. Covariate shift: the INPUTS change, the rule does not (a face-recognition model trained on uncovered faces cannot identify people wearing masks). Prior probability shift: the TARGET changes, the inputs look the same (fever and a cough: 12 in 20 patients had flu before, 4 in 20 during the pandemic). Concept drift: the RELATIONSHIP between input and output changes (roadworks: 4 -> 6 minutes per km, scene 6's data). DATA: D9.SHIFT = {prior: {n 20, before 12, during 4}, concept: {from 4, to 6}}; D9.DRIFT for the dots.\nLAYOUT: three columns c = 0, 1, 2 at x0 = 12 + 308 c, each a grey plain D4.card (x x0, y 92, w 296, h 440); a purple tag over each (D4.tag x x0 + 148, y 50, fs 30): 'covariate shift', 'prior shift', 'concept drift'; under each a grey solid tag (y 590, fs 28): 'inputs change', 'targets change', 'the rule changes'. Column 0: two rows of three D9.face (size 64) at y 190 (no mask) and y 400 (mask), x x0 + 68 + 80 i; grey labels 'trained on' (y 128) and 'now' (y 320). Column 1: 20 patient dots (r 14) in a 5 x 4 grid (x x0 + 52 + 48 i, y 190 + 52 j) drawn in a D4.svg layer; a flu patient is a solid purple dot, any other a hollow grey one; a label under the grid (y 450) '12 of 20 have flu' then '4 of 20 have flu' (purple ink), with a grey label above (y 128) 'before' then 'pandemic'. Column 2: a small D9.plot (x x0 + 8, y 120, w 280, h 300, xr [0, 4.5], yr [0, 28], xticks: [], pad {l: 16, r: 12, t: 10, b: 20}, frame: false) with D9.DRIFT.old dots (purple r 8), the blue model line 4x, and the green dashed truth line rotating 4 -> 6, then D9.DRIFT.now dots; a label (y 450) 'about 6 min per km' (green ink).\nTIMELINE. COLUMN 0: 0.3-0.8 card and tag pop; 0.8-1.4 the three uncovered faces and 'trained on' (D9.seq stagger 0.1); 1.6-2.2 the same three faces appear below with masks and 'now'; 2.4 a red L5.cross (size 40) pops at the right of the masked row ('who is this?': the model fails); 2.8 'inputs change' pops. COLUMN 1: 3.6 card and tag; 3.8-4.6 the 20 dots pop (12 flu = solid purple), label '12 of 20 have flu' and 'before'; 5.0-5.8 eight of the flu dots turn hollow grey one after another (stagger 0.1), the labels flip to 'pandemic' and '4 of 20 have flu' at 5.8; 6.2 'targets change'. COLUMN 2: 7.0 card and tag; 7.1-7.6 the small plot with the old dots and both lines at 4; 7.8-8.6 the green dashed line rotates to 6 and the new dots pop; 8.6 the label; 9.0 'the rule changes'. 9.6-10.2 the three bottom tags bump together (V.flash) and turn red solid ('model decay': the caption names it). Hold to 11.\nCOLOURS (whole video, VID.d9 tones): blue = the MODEL (its weight w, the ball on the cost bowl, the model's line or weight trace, the model card); green = the TRUTH / the best (the bottom of the bowl w = 4, the true gradient, the real minutes per km as a DASHED green line, 'fits'); purple = the DATA (trips and records as chips, dots or D9.parcel, batches, weeks of data, GB); orange = the STEP (the slope as a dashed tangent, the downhill step arrow, the learning rate, 'learning rate × slope'); red = wrong / bad (an error or cost gap, divergence, the bad record, data that does not fit in memory, an uphill step); grey = neutral (axes, the cost bowl curve itself, a frozen or old model, plain labels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D9.parcel, D9.face, D9.memchip, D9.brace, L5.tick, L5.cross, plot segs with head: true), never glyphs; update(t) pure (all motion from the precomputed logs in d9/common.js; never run gradient descent inside a scene except reading D9.cost1 / D9.loss for a curve); every number on screen and in captions comes from D9 (build caption strings with D9.fm from the D9 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  }
+ ],
+ "recap": {
+  "n": 12,
+  "file": "scene-12-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Step downhill:\nlearning rate × slope",
+    "tone": "blue",
+    "pictogram": "A small grey bowl (path of (w − 4)² over a 300 x 130 box) with a green dot at its bottom; a blue ball (r 12) at the top-right hops three times down the bowl (1.0-1.4, 1.6-2.0, 2.2-2.6: the D9.DESC weights 10, 7, 5.5, 4.75 scaled into the box), each hop with a short orange arrow above it; then a green ring pops round the ball (2.8). Holds that picture."
+   },
+   {
+    "head": "Full batch, mini-batch\nor one at a time",
+    "tone": "purple",
+    "pictogram": "Eight purple chips in a row (w 30, h 30, gap 8). Three brace stages in turn: one purple D9.brace under all eight with a blue tag '1 update' (1.0); then two braces of four, '2 updates' (2.0); then eight small braces, '8 updates' (3.0); the chips flash once per stage. Holds the last stage."
+   },
+   {
+    "head": "Online: adapt as data\ndrifts, watch bad data",
+    "tone": "green",
+    "pictogram": "A small plot box: a green dashed line steps up from 4 to 6 half way along (1.0-1.6), a blue line follows it with a short lag (1.4-2.6: an exponential catch-up, no noise), then a red dot pops above the blue line near the end with the blue line spiking to it and back (2.8-3.4). Holds."
+   }
+  ],
+  "cta": "Next: Workshop 9.W",
+  "spec": "RECAP (bare scene, full 1080 x 1080, no caption): build it like videos/l5/scene-10-recap.js and videos/d7/scene-11-recap.js (three cards with a small animated SVG pictogram at the left and the bold head line at the right, Pebble via V.mascot('pebble', {size: 150}) at the top with a title 'Remember', and the call-to-action sticker 'Next: Workshop 9.W' (workshop ds9-lab 9.W 'Keep the courier model fresh') at the bottom). Rows slide in at 0.8, 1.8, 2.8; each pictogram plays ONCE after its row appears and then HOLDS its finished state (no loop, nothing blank on the last frame); the CTA pops at 6.4. Pictograms are drawn with D4.svg / D9 pieces in the video's tones."
+ },
+ "helpers": "videos/d9/common.js (D9 data, no DOM): ports of the lessons' rng, gauss, trips, loss, grad, best, epoch, stream, sgd, run; cost1 / slope1 (the one-trip bowl); D9.fm, D9.same, D9.close; the asserted examples D9.BOWL (s2), D9.DESC (s3), D9.RATES (s4), D9.EPOCH (s5), D9.DRIFT (s6), D9.GROW (s7), D9.RACE (s8), D9.ONLINE (s9), D9.ADAPT and D9.GLITCH (s10), D9.SHIFT (s11) (fields listed in the file's header). videos/d9/common-2.js (drawing): D9.plot(parent, {x, y, w, h, xr, yr, xticks, yticks, xlab, ylab, pad, frame}) -> p.update({k, axes, curves: [{fn | pts, from, to, tone, w, dash, k, o}], dots: [{at, tone, r, s, o, hollow, ring}], segs: [{a, b, tone, w, dash, head, k, o, clip}], marks: [{x | y, tone, dash, k, o}], texts: [{at, text, tone, fs, anchor, dy, o}]}), p.pt(vx, vy) / p.px / p.py (parent px), p.area; pictograms D9.parcel, D9.face({mask}), D9.memchip, D9.brace; D9.seq. Stickers come from videos/d4/common-2.js (D4.tag, D4.label, D4.disc, D4.card, D4.chips, D4.svg, D4.at, D4.seq) and videos/l5/common.js (L5.tick, L5.cross, L5.arrow). The page loads l5/common.js, d4/common.js, d4/common-2.js, d4/common-3.js, d9/common.js, d9/common-2.js."
+}

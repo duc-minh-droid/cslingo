@@ -1,0 +1,295 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture nine. Batch and online machine learning. How a model learns from all the data, or as it arrives."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A courier app predicts minutes as w times kilometres.",
+     "A courier app predicts minutes = w × km."
+    ],
+    [
+     "One test trip was one kilometre, and took four minutes.",
+     "This trip: 1 km in 4 minutes."
+    ],
+    [
+     "Guess w is seven. That is three minutes off, so the cost is nine.",
+     "Guess w = 7: 3 minutes off, so the cost is 9."
+    ],
+    [
+     "Every guess has a cost, and together they make a bowl.",
+     "Every guess has a cost: together they make a bowl."
+    ],
+    [
+     "At the bottom, w is four. That is the best weight.",
+     "The bottom, w = 4, is the best weight."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "At w equals ten, the slope is twelve. It points uphill.",
+     "The slope shows which way is uphill: 12 at w = 10."
+    ],
+    [
+     "So step the other way. Ten minus zero point two five times twelve is seven.",
+     "Step against it: 10 − 0.25 × 12 = 7."
+    ],
+    [
+     "Here the slope is smaller, so the next step is smaller too.",
+     "The slope is smaller now, so each step is smaller too."
+    ],
+    [
+     "Ten, seven, five point five. Each step halves the distance to four.",
+     "10, 7, 5.5, 4.75, 4.375: the distance halves."
+    ],
+    [
+     "The ball settles at the bottom, near w equals four.",
+     "The ball settles at the bottom, w = 4."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Same bowl, same start, and three learning rates.",
+     "Same bowl, same start, three learning rates."
+    ],
+    [
+     "Each step is the learning rate times the slope.",
+     "Each step is learning rate × slope."
+    ],
+    [
+     "One point one is too big. Each jump lands further out, and it diverges.",
+     "1.1 is too big: each jump lands further out. It diverges."
+    ],
+    [
+     "Zero point seven five jumps past the bottom, but still settles.",
+     "0.75 jumps past the bottom but still settles."
+    ],
+    [
+     "Zero point one is safe but slow. It creeps down.",
+     "0.1 is safe but slow: it creeps down."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Four trips, and the model starts at w equals six.",
+     "Four trips; the model starts at w = 6."
+    ],
+    [
+     "The forward pass predicts every trip and measures each error.",
+     "Forward pass: predict every trip and measure the error."
+    ],
+    [
+     "The backward pass turns the errors into one gradient, eighteen.",
+     "Backward pass: the errors make one gradient, 18."
+    ],
+    [
+     "One update, with rate zero point zero five, takes w from six to five point one.",
+     "One update: w = 6 − 0.05 × 18 = 5.1."
+    ],
+    [
+     "That was one epoch. Epoch two takes w to four point six zero five.",
+     "That was one epoch. Epoch 2 takes w to 4.605."
+    ],
+    [
+     "Full batch uses all the data, so it gets the true gradient.",
+     "Full batch uses all the data: the true gradient."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The model learned four minutes per kilometre.",
+     "The model learned 4 minutes per km."
+    ],
+    [
+     "Then come roadworks, and each kilometre now takes about six.",
+     "Then roadworks: each km now takes about 6."
+    ],
+    [
+     "The model still says four. At four kilometres, it is eight minutes off.",
+     "The model still says 4: 8 minutes off at 4 km."
+    ],
+    [
+     "The world changed, not the model. That is concept drift.",
+     "The world changed, not the model: concept drift."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One fix is retraining. Each week adds two gigabytes of data.",
+     "Each week adds 2 GB of new data."
+    ],
+    [
+     "Retrain on all of it, and week ten reads twenty gigabytes.",
+     "Retrain on all of it: week 10 reads 20 GB."
+    ],
+    [
+     "The pile keeps growing every week.",
+     "The pile keeps growing every week."
+    ],
+    [
+     "Week thirty-three needs sixty-six gigabytes, more than the sixty-four of memory.",
+     "Week 33 needs 66 GB: more than the 64 GB of memory."
+    ],
+    [
+     "So train on recent data only. Four weeks is eight gigabytes, and it fits.",
+     "Recent data only: the last 4 weeks, 8 GB each time."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Twenty-four trips, one epoch, and three batch sizes.",
+     "24 trips, one epoch, three batch sizes."
+    ],
+    [
+     "One at a time makes an update after every trip.",
+     "One at a time: an update after every trip."
+    ],
+    [
+     "Batches of eight update once every eight trips.",
+     "Batches of 8: an update after every 8 trips."
+    ],
+    [
+     "Small batches only estimate the gradient, so they are noisy. Some steps go uphill.",
+     "Small batches are noisy: some steps go uphill."
+    ],
+    [
+     "The full batch takes one step, with the true gradient.",
+     "Full batch: one step, with the true gradient."
+    ],
+    [
+     "After one epoch, the losses are about one hundred and thirty-three, thirty-three, and one point nine.",
+     "After one epoch the losses are 133, 33 and 1.9."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "On a stream, records arrive one at a time.",
+     "On a stream, records arrive one at a time."
+    ],
+    [
+     "Each one makes one small update. Here w goes from four to four point three six.",
+     "Each one makes one small update: 4 → 4.36."
+    ],
+    [
+     "Then the record is gone. One pass, and nothing is stored.",
+     "Then the record is gone: one pass, nothing stored."
+    ],
+    [
+     "The model keeps adjusting. This is stochastic gradient descent.",
+     "Always adjusting: this is stochastic gradient descent."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two online models learn from the same stream.",
+     "Two online models learn from the same stream."
+    ],
+    [
+     "At record forty, roadworks start. Each kilometre now takes six, not four.",
+     "Roadworks at record 40: each km now takes 6, not 4."
+    ],
+    [
+     "The faster rate catches up in two records. The slower one needs twenty-three.",
+     "Rate 0.02 catches up in 2 records; 0.004 needs 23."
+    ],
+    [
+     "But a fast learner trusts every record.",
+     "But a fast learner trusts every record."
+    ],
+    [
+     "One bad record logs two kilometres as ninety minutes. The weight jumps to ten point five nine.",
+     "One bad record, 90 min for 2 km: w jumps to 10.59."
+    ],
+    [
+     "Bad data hits at once, so watch online models closely.",
+     "Bad data hits at once: watch online models closely."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Covariate shift. The inputs change, like faces in masks.",
+     "Covariate shift: the inputs change, like faces in masks."
+    ],
+    [
+     "Prior probability shift. The symptoms stay the same. Before, twelve in twenty had flu.",
+     "Prior probability shift: same symptoms; before, 12 in 20 had flu."
+    ],
+    [
+     "In the pandemic, only four in twenty.",
+     "In the pandemic, only 4 in 20."
+    ],
+    [
+     "Concept drift. The rule itself changes, from four to six per kilometre.",
+     "Concept drift: the rule itself changes, 4 → 6 per km."
+    ],
+    [
+     "Each one makes a trained model decay.",
+     "Each one makes a trained model decay."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    1.9,
+    2.9
+   ],
+   "lines": [
+    "Step downhill, by the learning rate times the slope.",
+    "Learn from all the data, mini-batches, or one record at a time.",
+    "Online models adapt as data drifts. Watch for bad data."
+   ]
+  }
+ ]
+}

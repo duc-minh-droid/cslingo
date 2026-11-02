@@ -1,0 +1,255 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture eight. Stream processing. This is how events flow from producers to consumers."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A batch job reads three log files, ten thousand lines in all.",
+     "A batch job reads three log files."
+    ],
+    [
+     "The input is bounded, so the job reaches the end, finishes, and writes its output.",
+     "The input is bounded, so the job finishes."
+    ],
+    [
+     "But posts keep arriving, one after another. This data is unbounded.",
+     "But posts keep arriving: the data is unbounded."
+    ],
+    [
+     "There is no last post, so the job waits forever.",
+     "The end never comes, so the job waits forever."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Run the batch once a day, and every post waits for midnight.",
+     "A daily batch run: every post waits for midnight."
+    ],
+    [
+     "Run it every six hours, and the worst wait shrinks.",
+     "Run every 6 hours and the wait shrinks."
+    ],
+    [
+     "Run it every hour, and no post waits more than fifty-four minutes.",
+     "Every hour: no post waits more than 54 minutes."
+    ],
+    [
+     "With no windows at all, each post is handled as it arrives. That is stream processing.",
+     "No windows at all: each post is handled as it arrives."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A stream is made of events. Here, the user mo seventeen liked post forty-eight twenty-one.",
+     "An event: mo_17 liked post 4821."
+    ],
+    [
+     "The event carries a timestamp, the moment it happened.",
+     "It carries a timestamp: when it happened."
+    ],
+    [
+     "And it is immutable. Nobody can edit it.",
+     "It is immutable: it cannot be edited."
+    ],
+    [
+     "If mo changes their mind, an unlike is added as a new event. Both stay.",
+     "A change of mind is a new event."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The phone app is the producer. A consumer uses its events.",
+     "A producer makes events; a consumer uses them."
+    ],
+    [
+     "With polling, the consumer asks again and again, and mostly finds nothing.",
+     "Polling: the consumer asks again and again."
+    ],
+    [
+     "Every five seconds is seven hundred and twenty checks an hour, for only twelve events.",
+     "720 checks an hour find only 12 events."
+    ],
+    [
+     "It is better to be told. A messaging system pushes each event.",
+     "Better: a messaging system pushes each event."
+    ],
+    [
+     "And one event can go to many consumers.",
+     "One event can go to many consumers."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the producer is too fast. It sends six messages a second, and only four are handled.",
+     "6 messages a second arrive, but only 4 are handled."
+    ],
+    [
+     "A buffer keeps them all, so the queue just grows.",
+     "Buffer: the queue just keeps growing."
+    ],
+    [
+     "Dropping throws away whatever does not fit.",
+     "Drop: what does not fit is thrown away."
+    ],
+    [
+     "With backpressure, the producer is told to wait.",
+     "Backpressure: the producer must wait."
+    ],
+    [
+     "After ten seconds, twenty wait in the buffer, fourteen are dropped, and fourteen are held back.",
+     "After 10 s: 20 waiting, 14 dropped, 14 held back."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two brokers hold m three and m four in memory.",
+     "m3 and m4 wait in the broker's memory."
+    ],
+    [
+     "The lower broker also writes them to disk.",
+     "The lower broker also writes them to disk."
+    ],
+    [
+     "Both brokers crash, and memory is wiped.",
+     "Both brokers crash: memory is wiped."
+    ],
+    [
+     "After the restart, only the disk copies are left, so the lower one still delivers them.",
+     "After the restart, only the disk copies are left."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "On top, the producer sends directly. Below, through a broker. Either way, m one reaches both.",
+     "m1 goes to A and B either way."
+    ],
+    [
+     "Then consumer B goes offline.",
+     "Then consumer B goes offline."
+    ],
+    [
+     "Sent directly, m two and m three are lost to B.",
+     "Sent directly, m2 and m3 are lost to B."
+    ],
+    [
+     "The broker kept them, and hands them over when B is back.",
+     "The broker kept them and hands them over."
+    ],
+    [
+     "It deletes each message once it is delivered. So consumers can come and go.",
+     "With a broker, consumers can come and go."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "With load balancing, each message goes to just one consumer.",
+     "Load balancing: each message goes to one consumer."
+    ],
+    [
+     "Four messages make four deliveries. The consumers share the work.",
+     "4 messages, 4 deliveries: they share the work."
+    ],
+    [
+     "With fan-out, each message goes to every consumer.",
+     "Fan-out: each message goes to every consumer."
+    ],
+    [
+     "So the same four messages make eight deliveries.",
+     "The same 4 messages: 8 deliveries."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "M one goes to consumer two, and m two to consumer one.",
+     "m1 goes to Consumer 2, m2 to Consumer 1."
+    ],
+    [
+     "Each sends an ack when it has finished.",
+     "Each sends an ack when it is done."
+    ],
+    [
+     "Then m three and m four go out.",
+     "Then m3 and m4 go out."
+    ],
+    [
+     "Consumer two crashes, so m three is never acked.",
+     "Consumer 2 crashes: no ack for m3."
+    ],
+    [
+     "The broker delivers m three again, to consumer one.",
+     "So the broker delivers m3 again."
+    ],
+    [
+     "Consumer one did m four before m three.",
+     "Consumer 1 did m4 before m3."
+    ],
+    [
+     "So redelivery can change the order.",
+     "Redelivery can change the order."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A batch job ends. A stream never does.",
+    "A broker buffers messages, keeps them, and pushes them on.",
+    "Without an ack, the message is delivered again."
+   ]
+  }
+ ]
+}

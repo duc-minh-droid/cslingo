@@ -1,0 +1,74 @@
+{
+  "findings": [
+    {
+      "scene": "scene-06-drift.js",
+      "severity": "should",
+      "problem": "The red '8 min off' tag sits on the green dashed truth line (and next to the new dots at 3 km): the line runs through the sticker, so the gap label is hard to read and looks cluttered.",
+      "fix": "Anchor the tag by its right edge just left of the red gap, above the green line at the top of the gap (y = 24 min), where the plot is empty.",
+      "evidence": "s6@6.4, s6@8.8 (lens: clarity)"
+    },
+    {
+      "scene": "scene-07-retrain.js",
+      "severity": "should",
+      "problem": "After the window takes over (7.6-8.2) the memory frame, chip and label fade out and the red warnings leave, so the bottom half of the stage is empty except one purple tag; the picture never says that the 4-week window now fits in memory, which is the point of the fix.",
+      "fix": "Keep the memory frame and label on screen (week 33 slides back inside it) and, where 'does not fit in memory' was, pop a green solid 'fits in memory' tag with a green tick.",
+      "evidence": "s7@9.8 against s7@6.5 (lens: clarity)"
+    },
+    {
+      "scene": "scene-08-batches.js",
+      "severity": "should",
+      "problem": "On a loss axis 0..280 the one-at-a-time ball sits near loss 2 from about 3 s on, so its uphill steps (tenths of a unit) are invisible; only one 'uphill' tag and brief red flashes back up the caption 'some steps go uphill'.",
+      "fix": "Add a red counter in the one-at-a-time panel ('1 uphill' ... '10 uphill', from RACE.ups) that pops at the first uphill update and bumps at each one, so the noise is countable on screen.",
+      "evidence": "s8@6, s8@9, s8@13.8 (lens: clarity)"
+    },
+    {
+      "scene": "scene-12-recap.js",
+      "severity": "should",
+      "problem": "Row 1 pictogram: the ball stops at w = 4.75 and the green 'settled' ring is drawn round the ball beside the green best dot, so the finished picture reads as 'stopped short of the bottom'.",
+      "fix": "Hop through all five D9.DESC weights (10, 7, 5.5, 4.75, 4.375) and put the green ring round the best dot, which now encloses the ball.",
+      "evidence": "s12@4, s12@8.9 (lens: clarity)"
+    },
+    {
+      "scene": "scene-11-shifts.js",
+      "severity": "should",
+      "problem": "The caption says 'Prior shift', but the lesson (and the boss quiz) name it 'prior probability shift'; a learner would not match the exam term.",
+      "fix": "Caption: 'Prior probability shift: same symptoms; before, 12 in 20 had flu.' (the 30 px tag keeps the short 'prior shift', it cannot fit the full name in a 296 px column).",
+      "evidence": "js/content/ds/ds-l9-03.js 'Shift 2: prior probability shift' (lens: facts)"
+    },
+    {
+      "scene": "scene-11-shifts.js",
+      "severity": "nit",
+      "problem": "The three cards are 440 px tall but their content ends at the label (y 450), leaving about 70 px of empty card at the bottom of each column.",
+      "fix": "Shorten the cards to 400 px and move the bottom 'inputs change' tags up to y 550.",
+      "evidence": "s11@10.8 (lens: clarity)"
+    },
+    {
+      "scene": "scene-08-batches.js",
+      "severity": "nit",
+      "problem": "The last caption lists the losses 133, 33 and 1.9 in bottom-to-top row order while the rows read top to bottom (1.9, 33.02, 133.38).",
+      "fix": "Let the narration name each row with its loss; the loss tags on each row already pair them.",
+      "evidence": "s8@13.8 (lens: clarity)"
+    },
+    {
+      "scene": "scene-09-online.js",
+      "severity": "nit",
+      "problem": "As record 1 rides on after the update it slides behind the model card, so for a moment its text is cut off ('3 km · 15 mi').",
+      "fix": "Acceptable as 'passing through the model'; could fade the record as it enters the card.",
+      "evidence": "s9@3.8 (lens: clarity)"
+    },
+    {
+      "scene": "scene-02-cost.js",
+      "severity": "nit",
+      "problem": "At the end both a green 'cost 0' tag in the left column and a green 'best: w = 4, cost 0' tag on the plot say the same thing.",
+      "fix": "Leave it: the left tag is the live readout that ends at 0.",
+      "evidence": "s2@9.8 (lens: clarity)"
+    },
+    {
+      "scene": "video",
+      "severity": "nit",
+      "problem": "Brand and technical checks pass: no white, gradients, blur, filters, timers or randomness in videos/d9; same PNG md5 for s4@5, s8@9, s10@9, s12@8.9 rendered in two orders; eslint and prettier clean; info total 126 s with no page errors; first frames of each scene look normal. Total 126 s is slightly over the 95-120 s band of the review brief but inside the series' 130 s cap.",
+      "fix": "None.",
+      "evidence": "md5 of rev-d9/detA vs detB; node tools/video-still.js ds-9 info (lens: brand)"
+    }
+  ]
+}
