@@ -1,0 +1,261 @@
+/* Lecture 12 (particle swarm optimisation): lesson demos and workshop styles (classes prefixed nw12-). */
+.nw12-demo .controls {
+  align-items: flex-end;
+}
+.nw12-demo .grid.two {
+  align-items: start;
+}
+.nw12-map {
+  display: block;
+  margin: 0 auto;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.fig.nw12-map {
+  overflow: hidden;
+}
+.nw12-pt {
+  cursor: pointer;
+}
+.nw12-lab {
+  font: 800 11px var(--sans);
+  fill: var(--text);
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+}
+.nw12-lab2 {
+  font: 800 13px var(--sans);
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+}
+.nw12-star {
+  font: 900 26px var(--sans);
+  fill: var(--amber);
+  paint-order: stroke;
+  stroke: var(--amber-lip);
+  stroke-width: 1.5px;
+}
+.nw12-legend {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.nw12-k {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 6px;
+  margin: 0 5px 1px 10px;
+  vertical-align: middle;
+}
+.nw12-k:first-child {
+  margin-left: 0;
+}
+.nw12-k.blue {
+  background: var(--blue);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.nw12-k.violet {
+  background: none;
+  border: 3px solid var(--violet);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.nw12-k.star {
+  width: auto;
+  height: auto;
+  color: var(--amber-ink);
+  font-size: 15px;
+  line-height: 1;
+  margin-left: 10px;
+}
+.nw12-k.teal {
+  background: var(--teal);
+  height: 6px;
+}
+.nw12-k.amber,
+.nw12-k.ca {
+  background: var(--amber);
+  height: 6px;
+}
+.nw12-k.grey {
+  background: var(--text-dim);
+  height: 6px;
+}
+.nw12-k.cb {
+  background: var(--blue);
+  height: 6px;
+}
+.nw12-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.nw12-stats .wk-stat {
+  flex: 1 1 110px;
+}
+.nw12-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.nw12-rules h3 {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 15px;
+}
+.nw12-rule {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  font-size: 13px;
+}
+.nw12-rule small {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.nw12-rule span {
+  font-weight: 900;
+  color: var(--text-dim);
+}
+.nw12-rule.on {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 14%, var(--panel));
+}
+.nw12-rule.on span {
+  color: var(--teal-ink);
+}
+.nw12-pc {
+  align-items: flex-end;
+}
+.nw12-tbl {
+  margin-top: 8px;
+  overflow-x: auto;
+}
+.nw12-tbl table {
+  width: 100%;
+  font-size: 13px;
+}
+.nw12-note {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+.nw12-dials {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+.nw12-dial {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 4px 0 var(--line);
+}
+.nw12-dial b {
+  font-size: 16px;
+  color: var(--blue-ink);
+}
+.nw12-dial span {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.nw12-bits {
+  overflow-x: auto;
+}
+.nw12-brow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 5px 0;
+}
+.nw12-brow b {
+  flex: 0 0 150px;
+  font-size: 13px;
+}
+.nw12-brow.g {
+  padding: 4px 0;
+  border-bottom: 2px dashed var(--line);
+}
+.nw12-bit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 36px;
+  padding: 0 4px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-2);
+  font: 900 15px var(--sans);
+  color: var(--text-dim);
+  line-height: 1;
+}
+.nw12-bit small {
+  font-size: 9.5px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+.nw12-bit.on {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 20%, var(--panel));
+  color: var(--teal-ink);
+}
+.nw12-bit.diff {
+  border-color: var(--rose);
+  box-shadow: 0 3px 0 var(--rose);
+}
+.nw12-bit.s1 {
+  border-color: var(--blue);
+  color: var(--blue-ink);
+}
+.nw12-bit.s2 {
+  border-color: var(--amber);
+  color: var(--amber-ink);
+}
+.nw12-bit.s3 {
+  border-color: var(--violet);
+  color: var(--violet-ink);
+}
+.nw12-prob {
+  position: relative;
+  height: 14px;
+  margin: 14px 0 10px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+.nw12-prob i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--teal) 60%, var(--panel));
+}
+.nw12-prob b {
+  position: absolute;
+  top: -22px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--text-dim);
+}
