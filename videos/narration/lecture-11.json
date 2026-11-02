@@ -1,0 +1,247 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture eleven. Flocking. This is how a few simple rules make a flock, with no leader."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Fifty birds fly as one flock, and nobody leads them.",
+     "A flock moves as one, with no leader."
+    ],
+    [
+     "A predator strikes the middle. The nearest birds swerve away, and the flock breaks up.",
+     "A predator strikes: nearby birds swerve away."
+    ],
+    [
+     "Then the groups find each other again, with no one in charge.",
+     "Then the flock pulls back together."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One body length apart is too close. Repulsion pushes the two birds apart.",
+     "Too close: the two birds push apart."
+    ],
+    [
+     "Six lengths apart is too far. Attraction pulls them together.",
+     "Too far: they pull together."
+    ],
+    [
+     "At about three lengths, push and pull cancel, and the pair holds steady.",
+     "In between, the two urges cancel out."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Reynolds called his simulated birds boids. A boid senses only the flockmates near it.",
+     "A boid only senses flockmates nearby."
+    ],
+    [
+     "With a radius of eighty, four flockmates fall inside.",
+     "Inside its radius: 4 flockmates."
+    ],
+    [
+     "For each one, it knows the distance and the direction. The nearest is forty-five away, a little to its left.",
+     "It knows each one's distance and direction."
+    ],
+    [
+     "It senses all round, so a flockmate behind it still counts.",
+     "It sees all round, even behind it."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Rule one is separation. Closer than twenty, a flockmate is too close.",
+     "Rule 1, separation: don't crowd."
+    ],
+    [
+     "The closer it is, the harder it pushes. Five away pushes zero point seven five, and twenty-five away pushes nothing.",
+     "The closer a flockmate, the harder the push."
+    ],
+    [
+     "So the boid steers away from the close one.",
+     "So the boid steers away."
+    ],
+    [
+     "Soon nobody is within twenty.",
+     "Now nobody is too close."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Rule two is alignment. The boid turns to match its neighbours.",
+     "Rule 2, alignment: match your neighbours."
+    ],
+    [
+     "It heads north, and its four neighbours head east.",
+     "On average, its neighbours head east."
+    ],
+    [
+     "Each step, it turns part of the way towards their average heading.",
+     "It turns a little towards them each step."
+    ],
+    [
+     "Soon all five head the same way, and polarisation reaches one.",
+     "Soon they all head the same way."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Rule three is cohesion. The boid stays with its group.",
+     "Rule 3, cohesion: stay with the group."
+    ],
+    [
+     "It finds the centre of its neighbours. Most of them are on its right.",
+     "It finds the centre of its neighbours."
+    ],
+    [
+     "So it steers right, towards that centre.",
+     "And steers towards that centre."
+    ],
+    [
+     "Everyone does the same, and the group closes up.",
+     "The group closes up."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each tick, a boid adds its three pushes. Separation, alignment and cohesion.",
+     "Each boid adds up its three pushes."
+    ],
+    [
+     "The sum is one arrow, and it turns the boid.",
+     "The sum turns it."
+    ],
+    [
+     "All forty boids do this at once, each using only its own neighbours.",
+     "All boids do this at the same time."
+    ],
+    [
+     "The scattered crowd becomes one flock, all heading one way, with no leader.",
+     "Out of the chaos, one flock forms."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Start sixty boids packed together, and separation flings them apart. The spread grows about ten times.",
+     "Start them packed: they burst apart."
+    ],
+    [
+     "Then cohesion and alignment pull them back into a flock.",
+     "Then they gather again."
+    ],
+    [
+     "Now two flocks fly straight at each other.",
+     "Two flocks meet head-on."
+    ],
+    [
+     "They merge, and fly on as one flock.",
+     "They join and fly on as one flock."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A boid is a tiny agent. An agent senses its world through sensors.",
+     "An agent senses its world with sensors."
+    ],
+    [
+     "What it senses right now is its percept. Here, four flockmates, the nearest one forty away on its right.",
+     "What it senses right now is its percept."
+    ],
+    [
+     "Then it acts through actuators. For a boid, the action is a turn. This tick, it turns right six degrees.",
+     "Then it acts with actuators: here, a turn."
+    ],
+    [
+     "The others move too, so the world changes, and it senses again.",
+     "The others move too, so it senses again."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A multi-agent system has many agents working together. Here there are ten.",
+     "Many agents can work together."
+    ],
+    [
+     "If all ten talk to each other, that takes forty-five links.",
+     "If all 10 talk to each other: 45 links."
+    ],
+    [
+     "Talking only to neighbours takes just ten links, so it scales.",
+     "Talking only to neighbours: 10 links."
+    ],
+    [
+     "One agent turns faulty. A central monitor watches for faults.",
+     "One central monitor watches for faults."
+    ],
+    [
+     "If the monitor breaks, the fault spreads until all ten are infected. That is a single point of failure.",
+     "If it breaks, one bad agent infects them all."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A flock has no leader, only simple local rules.",
+    "Separation, alignment and cohesion add up to one turn.",
+    "An agent senses its world, then acts, again and again."
+   ]
+  }
+ ]
+}

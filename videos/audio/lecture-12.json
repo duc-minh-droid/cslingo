@@ -1,0 +1,797 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.43,
+     "Lecture twelve. Particle swarm optimisation. This is how a swarm of simple guesses finds the best spot."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/db6cec7afb637a3f.wav",
+     "at": 0.5,
+     "len": 7.68
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.68,
+     2.8
+    ],
+    [
+     11.82,
+     5.2
+    ],
+    [
+     16.4,
+     7.4
+    ],
+    [
+     22.9,
+     9.4
+    ],
+    [
+     30,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Each dot is a particle: one guess at the answer."
+    ],
+    [
+     4.68,
+     11.57,
+     "Its guess is a position: two numbers on the map."
+    ],
+    [
+     11.82,
+     16.15,
+     "The odour where it stands is its fitness."
+    ],
+    [
+     16.4,
+     22.65,
+     "Each particle also has a velocity: its next move."
+    ],
+    [
+     22.9,
+     28.67,
+     "No particle sees the map, only the odour underfoot."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/407052c2f9212a0e.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/ad15a71e2aca3ad9.wav",
+     "at": 4.68,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/6e1991c8e73e6ea3.wav",
+     "at": 11.82,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/28e7a25422c8df29.wav",
+     "at": 16.4,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/887e86c46383d5fa.wav",
+     "at": 22.9,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 23.452,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     4.49,
+     3.2
+    ],
+    [
+     11.55,
+     6.2
+    ],
+    [
+     17.73,
+     9.2
+    ],
+    [
+     23.452,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     4.24,
+     "To move, a particle adds its velocity to its position."
+    ],
+    [
+     4.49,
+     11.3,
+     "(3, 5) plus (2, −1) lands on (5, 4)."
+    ],
+    [
+     11.55,
+     17.48,
+     "With no pulls, every dot just flies straight on."
+    ],
+    [
+     17.73,
+     22.38,
+     "Nothing steers them towards the scent."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f7440e3517dfe932.wav",
+     "at": 0.55,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/d461d8b7b09ffa79.wav",
+     "at": 4.49,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/46eb58e9a9d5d8ee.wav",
+     "at": 11.55,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/6a120f8ba4e15ed7.wav",
+     "at": 17.73,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 31.719,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     3.88,
+     2.6
+    ],
+    [
+     7.82,
+     4.5
+    ],
+    [
+     13.6,
+     6.3
+    ],
+    [
+     19.38,
+     8.3
+    ],
+    [
+     24.76,
+     11.6
+    ],
+    [
+     31.719,
+     16
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.63,
+     "Follow one particle for one step."
+    ],
+    [
+     3.88,
+     7.57,
+     "Grey: the velocity it already has."
+    ],
+    [
+     7.82,
+     13.35,
+     "Purple: a pull towards its own best spot, p."
+    ],
+    [
+     13.6,
+     19.13,
+     "Orange: a pull towards the swarm's best spot, g."
+    ],
+    [
+     19.38,
+     24.51,
+     "Added head to tail, they make the new velocity."
+    ],
+    [
+     24.76,
+     31.09,
+     "Its new odour, 25, does not beat 52, so p stays."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cf07181a6966f200.wav",
+     "at": 0.5,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/ebd202017d9d88db.wav",
+     "at": 3.88,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/c45ca188bd630cfa.wav",
+     "at": 7.82,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/a7a7b3dc44cdf063.wav",
+     "at": 13.6,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/9891a2ac7fb7461d.wav",
+     "at": 19.38,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/1c757646afc37e61.wav",
+     "at": 24.76,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 39.822,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     8.73,
+     3.1
+    ],
+    [
+     17.07,
+     5.2
+    ],
+    [
+     20.21,
+     6.8
+    ],
+    [
+     26.39,
+     8.6
+    ],
+    [
+     33.29,
+     10.4
+    ],
+    [
+     39.822,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     8.48,
+     "One dimension: x is 4, its best 7, the swarm's 2."
+    ],
+    [
+     8.73,
+     16.82,
+     "c₁, c₂ set how hard; z₁, z₂ are random draws."
+    ],
+    [
+     17.07,
+     19.96,
+     "It keeps its velocity of 1."
+    ],
+    [
+     20.21,
+     26.14,
+     "The pull to its own best adds 3."
+    ],
+    [
+     26.39,
+     33.04,
+     "The pull to the swarm's best adds minus 2."
+    ],
+    [
+     33.29,
+     38.66,
+     "New velocity 2, so it moves from 4 to 6."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/026ed3ad22df03ef.wav",
+     "at": 0.55,
+     "len": 7.68
+    },
+    {
+     "file": "videos/audio/clips/e17cf9180b15de79.wav",
+     "at": 8.73,
+     "len": 7.84
+    },
+    {
+     "file": "videos/audio/clips/fb6dcb82115fc185.wav",
+     "at": 17.07,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/493d1095edd82ed8.wav",
+     "at": 20.21,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/1d58710392f9316e.wav",
+     "at": 26.39,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/6e9bb5567a2f1569.wav",
+     "at": 33.29,
+     "len": 5.12
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.76,
+     2.8
+    ],
+    [
+     8.62,
+     5.2
+    ],
+    [
+     12.32,
+     8.8
+    ],
+    [
+     16.672,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "z₁ and z₂ are fresh random numbers every step."
+    ],
+    [
+     4.76,
+     8.37,
+     "Roll again and the same particle lands elsewhere."
+    ],
+    [
+     8.62,
+     12.07,
+     "Each hollow dot is one possible landing spot."
+    ],
+    [
+     12.32,
+     15.77,
+     "This spread stops the swarm settling too soon."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/447e1c4a62de1a16.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/ae76b826bd8840dd.wav",
+     "at": 4.76,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/b14ce769f693fcd2.wav",
+     "at": 8.62,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/28b4207527e9ab2f.wav",
+     "at": 12.32,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 23.359,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.77,
+     1.4
+    ],
+    [
+     4.63,
+     5
+    ],
+    [
+     11.21,
+     7.6
+    ],
+    [
+     15.07,
+     10.2
+    ],
+    [
+     17.89,
+     12.1
+    ],
+    [
+     23.359,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.77,
+     4.38,
+     "All 14 particles take that step together."
+    ],
+    [
+     4.63,
+     10.96,
+     "The swarm's best climbed: 66, 78, 85, then 99."
+    ],
+    [
+     11.21,
+     14.82,
+     "Pulled to their own bests and the swarm's, they gather."
+    ],
+    [
+     15.07,
+     17.64,
+     "They swarm around the food and keep searching."
+    ],
+    [
+     17.89,
+     22.06,
+     "Nobody saw the map, yet the swarm found the food."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6b80ffda1489f8d2.wav",
+     "at": 0.77,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/2f693900dadb0fab.wav",
+     "at": 4.63,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/8463ebb645abe0d0.wav",
+     "at": 11.21,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/e1968da685c2cfee.wav",
+     "at": 15.07,
+     "len": 2.32
+    },
+    {
+     "file": "videos/audio/clips/02c700352ecdb357.wav",
+     "at": 17.89,
+     "len": 3.92
+    }
+   ]
+  },
+  {
+   "dur": 26.75,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     8.52,
+     2.6
+    ],
+    [
+     13.58,
+     4.8
+    ],
+    [
+     18,
+     10.3
+    ],
+    [
+     22.98,
+     12.1
+    ],
+    [
+     26.75,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.27,
+     "Here each particle keeps 60% of its old velocity."
+    ],
+    [
+     8.52,
+     13.33,
+     "Step 7: odour 97, a good enough answer."
+    ],
+    [
+     13.58,
+     17.75,
+     "Step 19: the swarm has shrunk to almost a point."
+    ],
+    [
+     18,
+     22.73,
+     "Then 8 steps with no new best, then the step limit."
+    ],
+    [
+     22.98,
+     26.11,
+     "Any one of the four rules can end the run."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a2ce00f81186fe9a.wav",
+     "at": 0.5,
+     "len": 7.52
+    },
+    {
+     "file": "videos/audio/clips/43b8058aedbdd82d.wav",
+     "at": 8.52,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/8b62559285673c49.wav",
+     "at": 13.58,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/c09fdc2315610c8a.wav",
+     "at": 18,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/7af424dada90c57e.wav",
+     "at": 22.98,
+     "len": 2.88
+    }
+   ]
+  },
+  {
+   "dur": 35.131,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.55,
+     1
+    ],
+    [
+     6.17,
+     4.2
+    ],
+    [
+     10.75,
+     5.8
+    ],
+    [
+     18.29,
+     7.8
+    ],
+    [
+     24.95,
+     10.4
+    ],
+    [
+     29.69,
+     12.9
+    ],
+    [
+     35.131,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.55,
+     5.92,
+     "A bit is 0 or 1: adding 0.7 makes no sense."
+    ],
+    [
+     6.17,
+     10.5,
+     "Binary PSO keeps v between 0 and 1."
+    ],
+    [
+     10.75,
+     18.04,
+     "The two pulls add 0.2 and 0.1: v is now 0.8."
+    ],
+    [
+     18.29,
+     24.7,
+     "Draw rand(): 0.55 is below 0.8, so the bit is 1."
+    ],
+    [
+     24.95,
+     29.44,
+     "So v is the chance of a 1, drawn every step."
+    ],
+    [
+     29.69,
+     33.22,
+     "Here 16 of 20 draws come out as 1."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5c79f8c69bf6e9cd.wav",
+     "at": 0.55,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/9664e3e29acd6adb.wav",
+     "at": 6.17,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/8516f869b36a020f.wav",
+     "at": 10.75,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/439506af80e44532.wav",
+     "at": 18.29,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/b0624388d1dc40ab.wav",
+     "at": 24.95,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/dae65c0e2838a2e3.wav",
+     "at": 29.69,
+     "len": 3.28
+    }
+   ]
+  },
+  {
+   "dur": 13.538,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     3.96,
+     2
+    ],
+    [
+     9.66,
+     3.1
+    ],
+    [
+     13.538,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6d0152dc7355ab9f.wav",
+     "at": 0.5,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/47eaaf45ea01b398.wav",
+     "at": 3.96,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/39aa5adc8835616a.wav",
+     "at": 9.66,
+     "len": 2.96
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,247 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture twelve. Particle swarm optimisation. This is how a swarm of simple guesses finds the best spot."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each blue dot is a particle, one guess at the answer.",
+     "Each dot is a particle: one guess at the answer."
+    ],
+    [
+     "Its guess is a position, two numbers on the map. This one is at six point four, five point eight.",
+     "Its guess is a position: two numbers on the map."
+    ],
+    [
+     "The odour where it stands is its fitness. Here that is eleven.",
+     "The odour where it stands is its fitness."
+    ],
+    [
+     "Each particle also has a velocity, a small grey arrow. It is the next move.",
+     "Each particle also has a velocity: its next move."
+    ],
+    [
+     "Now the map fades. No particle can see it, only the odour underfoot.",
+     "No particle sees the map, only the odour underfoot."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "To move, a particle adds its velocity to its position.",
+     "To move, a particle adds its velocity to its position."
+    ],
+    [
+     "The position three, five, plus the velocity two, minus one, lands on five, four.",
+     "(3, 5) plus (2, −1) lands on (5, 4)."
+    ],
+    [
+     "With c one and c two at zero, there are no pulls. Every dot flies straight on.",
+     "With no pulls, every dot just flies straight on."
+    ],
+    [
+     "Nothing steers them towards the scent, so no dot finds the food.",
+     "Nothing steers them towards the scent."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now follow one particle for a single step.",
+     "Follow one particle for one step."
+    ],
+    [
+     "The grey arrow is the velocity it already has.",
+     "Grey: the velocity it already has."
+    ],
+    [
+     "The purple arrow pulls it towards its own best spot so far, called p.",
+     "Purple: a pull towards its own best spot, p."
+    ],
+    [
+     "The orange arrow pulls it towards the swarm's best spot, called g.",
+     "Orange: a pull towards the swarm's best spot, g."
+    ],
+    [
+     "Head to tail, the three arrows make the new velocity, and the particle moves.",
+     "Added head to tail, they make the new velocity."
+    ],
+    [
+     "Its new odour, twenty-five, does not beat fifty-two. So p stays where it was.",
+     "Its new odour, 25, does not beat 52, so p stays."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The same sum in one dimension. The particle is at four, its best at seven, the swarm's best at two.",
+     "One dimension: x is 4, its best 7, the swarm's 2."
+    ],
+    [
+     "c one and c two set how hard each pull is. z one and z two are random, between zero and one.",
+     "c₁, c₂ set how hard; z₁, z₂ are random draws."
+    ],
+    [
+     "First, it keeps its velocity of one.",
+     "It keeps its velocity of 1."
+    ],
+    [
+     "Two times a half times seven minus four. The pull to its own best adds three.",
+     "The pull to its own best adds 3."
+    ],
+    [
+     "Two times a half times two minus four. The pull to the swarm's best adds minus two.",
+     "The pull to the swarm's best adds minus 2."
+    ],
+    [
+     "So the new velocity is two, and the particle moves from four to six.",
+     "New velocity 2, so it moves from 4 to 6."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "z one and z two are drawn fresh at every step.",
+     "z₁ and z₂ are fresh random numbers every step."
+    ],
+    [
+     "Roll again, and the same particle lands somewhere else.",
+     "Roll again and the same particle lands elsewhere."
+    ],
+    [
+     "Each hollow dot is one possible landing spot.",
+     "Each hollow dot is one possible landing spot."
+    ],
+    [
+     "This spread stops the swarm settling too soon.",
+     "This spread stops the swarm settling too soon."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now all fourteen particles take that step together.",
+     "All 14 particles take that step together."
+    ],
+    [
+     "The swarm's best odour climbed. Sixty-six, seventy-eight, eighty-five, then ninety-nine.",
+     "The swarm's best climbed: 66, 78, 85, then 99."
+    ],
+    [
+     "Pulled to their own bests and the swarm's, they gather.",
+     "Pulled to their own bests and the swarm's, they gather."
+    ],
+    [
+     "They circle the food and keep searching.",
+     "They swarm around the food and keep searching."
+    ],
+    [
+     "Nobody saw the map, yet the swarm found the food.",
+     "Nobody saw the map, yet the swarm found the food."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In this run, each particle keeps only sixty percent of its old velocity. That extra setting is called w.",
+     "Here each particle keeps 60% of its old velocity."
+    ],
+    [
+     "At step seven the odour reaches ninety-seven. That is good enough.",
+     "Step 7: odour 97, a good enough answer."
+    ],
+    [
+     "By step nineteen the swarm has shrunk to almost a point.",
+     "Step 19: the swarm has shrunk to almost a point."
+    ],
+    [
+     "Then eight steps pass with no new best, and then the step limit.",
+     "Then 8 steps with no new best, then the step limit."
+    ],
+    [
+     "Any one of the four rules can end the run.",
+     "Any one of the four rules can end the run."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A bit is zero or one, so adding zero point seven makes no sense.",
+     "A bit is 0 or 1: adding 0.7 makes no sense."
+    ],
+    [
+     "Binary PSO keeps the velocity between zero and one.",
+     "Binary PSO keeps v between 0 and 1."
+    ],
+    [
+     "The two pulls add zero point two and zero point one, so v is now zero point eight.",
+     "The two pulls add 0.2 and 0.1: v is now 0.8."
+    ],
+    [
+     "A random draw of zero point five five is below zero point eight, so the bit becomes one.",
+     "Draw rand(): 0.55 is below 0.8, so the bit is 1."
+    ],
+    [
+     "So v is the chance of a one, drawn again every step.",
+     "So v is the chance of a 1, drawn every step."
+    ],
+    [
+     "Here, sixteen of twenty draws come out as one.",
+     "Here 16 of 20 draws come out as 1."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A particle is a guess plus a velocity.",
+    "The velocity adds three arrows. Keep going, own best, and swarm best.",
+    "For bits, the velocity is the chance of a one."
+   ]
+  }
+ ]
+}

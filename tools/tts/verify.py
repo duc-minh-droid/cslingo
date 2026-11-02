@@ -99,6 +99,10 @@ HOMOPHONES = {
     frozenset({"q", "queue", "cue"}),
     frozenset({"r", "are"}),
     frozenset({"u", "you"}),
+    frozenset({"boid", "boyd"}),
+    frozenset({"boids", "boyds"}),
+    frozenset({"grey", "gray"}),
+    frozenset({"odour", "odor"}),
 }
 
 

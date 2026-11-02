@@ -1,0 +1,359 @@
+{
+  "slug": "lecture-12",
+  "dir": "l12",
+  "title": "Particle swarm optimisation",
+  "outline": "Lecture 12 video (Nature-Inspired Computation, ECM3412): 'Particle swarm optimisation'. 10 scenes, 122 s: title (4), a particle is a guess on a scent map (12), position + velocity and the no-pull drift (13), the three arrows of the velocity update on the 2-D map (16), the same sum in one dimension with numbers (13), the dice z1 and z2 (11), the swarm finds the food (15), four stopping rules (14), binary PSO: velocity as the chance of a 1 (15), recap (9).\n\nSTORY (lessons' order). 12.1 (l12-swarm): PSO (1995) borrows how a flock finds food; a particle is one candidate solution: a position (the guess) plus a velocity, no mass or volume; the fitness is the odour of the food where the particle stands; nobody sees the map, the swarm shares only remembered best positions (scene 2; the payoff, the cornfield vector, is scene 7). 12.2 (l12-vectors): PSO was built for continuous problems, a position is a vector of real numbers; each step x = x + v, one dimension at a time ((3, 5) + (2, -1) = (5, 4)); with no pulls (c1 = c2 = 0) every particle just flies straight on and nothing is learned (scene 3). 12.3 (l12-velocity): new velocity v = v + c1 z1 (p - x) + c2 z2 (g - x): the velocity it already has (grey), a pull towards its own best p (purple), a pull towards the swarm's best g (orange), laid head to tail on the map (scene 4); the lesson's 1-D worked example x 4, v 1, p 7, g 2, c1 = c2 = 2, z1 = z2 = 0.5: +3 and -2, new v 2, new x 6 (scene 5); c1 and c2 weight personal against global experience; z1, z2 are two fresh draws from U(0, 1) every step, so the same particle lands somewhere else each time, which prevents premature convergence (scene 6); every particle does this every step and the swarm gathers round the food that nobody saw (scene 7). 12.4 (l12-settings): four termination criteria: maximum iterations, an acceptable solution, no improvement for N iterations, a normalised swarm radius near zero; with the plain formula (w = 1) the swarm keeps circling, and the lesson's marked EXTRA, keeping only a share w < 1 of the old velocity ('Momentum kept'), lets it settle (scene 8 uses the lesson's own stopFig run, w = 0.6, and says so on screen). 12.5 (l12-binary): a bit is 0 or 1, so adding a real velocity makes no sense; traditional binary PSO keeps the same update rule, holds the velocity between 0 and 1 and reads it as the chance of a 1: bit = 1 if rand() < v; the lesson's bit: v 0.5, pulls +0.2 and +0.1, v 0.8, draw 0.55 < 0.8 so the bit becomes 1 (scene 9). Recap and 'Next: Workshop 12.W' (l12-wlab). Lesson ids: l12-swarm 12.1, l12-vectors 12.2, l12-velocity 12.3, l12-settings 12.4, l12-binary 12.5, l12-wlab 12.W, boss l12-boss; files js/content/nic/pso-01.js, pso-02.js, pso-03.js, pso-workshop.js, boss-nic-12.js; bank js/bank/nic-50.js and nic-51.js. Not covered (too much for one video): no mass or volume, discrete representations beyond the bit, lbest neighbourhoods and the other dials (swarm size, c too low / too high), geometric binary PSO (mask recombination in Hamming space), the ACO-versus-PSO summary.\n\nTHE ALGORITHM, EXACTLY AS THE APP (js/content/nic/pso-01.js newSwarm / step, ported line for line to videos/l12/common.js and cross-checked against the app's own code: identical positions to 1e-12 for all three runs). The map: 10 x 10, fitness = the sum of three hills [x, y, height, width]: food peak (7.4, 7.2, 1, 0.8), broad decoy (2.4, 2.8, 0.7, 1.9), weak bump (7.6, 1.8, 0.35, 0.9); odour = round(100 x fitness) (the food peak is 100). A swarm: seeded mulberry32 rng; each particle starts at a random position with a random velocity in (-vs/2, vs/2) per dimension and p = x; g = the best p. One step, for each particle and each dimension j in turn: draw z1 then z2, v = w v + c1 z1 (p - x) + c2 z2 (g - x), clamp v to -3..3 (the app's speed cap, VMAX = 3), x = x + v, at a wall clamp x to 0..10 and set that v component to 0; then score every particle, update each p, and only then g (gbest, the whole swarm). The lecture's formula is w = 1 (the app's default and every scene except 8). The speed cap is part of the app's simulation but not of the lessons' text, so it is applied but never shown or mentioned: the step drawn as arrows in scenes 4 and 6 and the 20 dice rolls of scene 6 are asserted to be uncapped. Binary PSO (pso-workshop.js bitStep): the same rule with v clamped to 0..1, then bit = 1 if rand() < v.\n\nTHE EXAMPLE DATA (all computed in videos/l12/common.js when the page loads and asserted; a wrong number throws an Error). L12.RUN = the app's first demo 'Release the swarm' (lesson 12.1: seed 5, 14 particles, c1 = c2 = 2, w = 1), 24 steps recorded: swarm best odour 66, 78, 85, 99 after steps 0, 1, 2, 3, then 99 to the end (g = (7.44, 7.10) from step 3); dots within 2.5 of the food: 3 at the start, 13 at step 12 (9 within 1.5). L12.FOCUS = RUN particle 1 on step 9 (chosen because its three arrows point three different ways, p and g lie apart and the step is not speed-capped): x (5.67, 7.13), v (-3.00, 2.19), own best p (3.85, 3.09) odour 52, swarm best g (7.44, 7.10) odour 99, dice z1 = (0.45, 0.57), z2 = (0.94, 0.12) (dimension 1, dimension 2), pull to p (-1.62, -4.61), pull to g (3.33, -0.01), new v (-1.29, -2.44), new x (4.38, 4.69) odour 25 < 52, so p stays; head-to-tail points a = x + v (2.67, 9.31), b = a + pull to p (1.05, 4.70), c = b + pull to g = new x. L12.CLOUD = 20 other dice rolls for that same particle and step (rng 3; the first 20 of 61 rolls that the speed cap and the walls leave alone, so each landing is exactly the head-to-tail sum): 20 different landing spots. L12.DRIFT = lesson 12.2's no-pull swarm (seed 7, 8 particles, vs 4, c1 = c2 = 0), 5 steps: straight lines, 4 of 8 end on a wall. L12.POS: (3, 5) + (2, -1) = (5, 4). L12.ONED: x 4, v 1, p 7, g 2, c1 = c2 = 2, z1 = z2 = 0.5: +3, -2, new v 2, new x 6. L12.STOP = lesson 12.4's stopFig run (seed 24, 10 particles, c1 = c2 = 1, w = 0.6), 50 steps: best odour 49 at the start, 94 at step 6, 97 at step 7; the four rules first fire at: acceptable solution (odour 95 or more) step 7, swarm radius under 5% step 19, no improvement for 8 steps step 46, maximum 50 steps step 50; all ten particles end on the food (7.40, 7.20); with w = 1 the radius rule never fires. L12.BIT: x 0, v 0.5, p 1, g 1, c1 = c2 = 1, z1 0.2, z2 0.1: +0.2, +0.1, v 0.8, draw 0.55 < 0.8: bit 1. L12.DRAWS: 20 draws with v = 0.8 (rng 21): 11111001111111101101, 16 of 20 are 1.\n\nVIDEO-WIDE CONVENTIONS. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V. LAYOUT: the scent map is always the same 10 x 10 field drawn by L12.field (green heat cells, a panel with a lip), at x 12, y 12, 616 px square in scenes 2, 3, 7 and 8, with a right-hand panel from x 648 to x 924; scenes 4 and 6 show the SAME zoomed window view [0.5, 2, 8.5, 10] (77 px per unit) at x 12, y 12, size 616, so the followed particle, its arrows, p and g are big. The same swarm (L12.RUN) is seen in scene 2 (its start), scenes 4 and 6 (frame 8, one particle followed) and scene 7 (released, steps 0 to 12). Terms are defined on screen before they are used: 'particle', 'fitness' / 'odour' (scene 2), 'velocity' (scene 2), 'own best p' and 'swarm best g' (scene 4, tags), 'c1, c2' and 'z1, z2' (scene 5, tags), 'w' (scene 8, tag), 'rand()' (scene 9, tag). Captions are plain sentences of at most 12 words, each starts only when the picture it describes is on screen; the video will get a voice-over that reads the captions, so each caption describes what is on screen at that moment, in order. Subscripts in labels and captions use the Unicode characters c₁ c₂ z₁ z₂. scene-01-title.js is finished: do not replace it.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 12",
+    "title": "Particle swarm optimisation",
+    "sub": "How a swarm of simple guesses finds the best spot",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 12",
+      "title": [
+        "Particle swarm optimisation"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Title card (finished): VID.titleCard({kicker: 'Nature-Inspired · Lecture 12', title: 'Particle swarm optimisation', sub: 'How a swarm of simple guesses finds the best spot', who: 'sprout', dur: 4})."
+    },
+    {
+      "n": 2,
+      "file": "scene-02-particle.js",
+      "kicker": "A PARTICLE",
+      "title": [
+        "Each dot is a guess",
+        "on a scent map"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.5,
+          2.6,
+          "Each dot is a particle: one guess at the answer."
+        ],
+        [
+          2.8,
+          5,
+          "Its guess is a position: two numbers on the map."
+        ],
+        [
+          5.2,
+          7.2,
+          "The odour where it stands is its fitness."
+        ],
+        [
+          7.4,
+          9.2,
+          "Each particle also has a velocity: its next move."
+        ],
+        [
+          9.4,
+          11.7,
+          "No particle sees the map, only the odour underfoot."
+        ]
+      ],
+      "spec": "IDEA: a particle is one candidate solution: a position (two numbers on this map) plus a velocity; its fitness is the odour where it stands; nobody can see the map. The swarm is L12.RUN at its start (frame 0), the same swarm scene 7 releases. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP: const map = L12.field(stage, {x: 12, y: 12, size: 616}) (the full 10 x 10 scent map, 61.6 px per unit) unless the spec says otherwise; the right-hand panel runs from x 648 to x 924 (276 px wide) for tags and stats. Each frame: const F = L12.RUN.frames[0]; map.update({k, heat, dots: F.x.map((x, i) => ({x, tone: 'blue', r: 13, s: popOf(i), focus: i === 11 && t > 2.6})), vecs: (velocity arrows) F.x.map((x, i) => ({a: x, b: [x[0] + F.v[i][0], x[1] + F.v[i][1]], tone: 'grey', w: 5, head: 14, k: velK}))}). The start velocities are small (0.2 to 0.5 map units, 12 to 30 px): draw them true to size, do not scale them up. map.vecs has 6 arrows by default: create the map with {vecs: 14}.\n\nDATA (asserted in common.js; read from L12.RUN.frames[0]): 14 particles; particle 11 at (6.36, 5.78), odour 11; odour of particles 0, 6, 8: 66 at (6.90, 7.73), 49 at (2.73, 1.23), 0 at (4.08, 9.86). Print positions with L12.fmt(v, 1) ('6.4', '5.8').\n\nTIMELINE. 0.2-0.8 the map pops (k) with the heat at 1. 0.6-1.2 legend tag in the panel, L12.tag(stage, {x: 648, y: 12, text: 'green = scent', tone: 'green'}). 0.9-2.0 the 14 dots pop one after another (L12.seq(t, 0.9, 0.07, 0.3, i), s = E.pop). 2.6-3.2 particle 11 gets the focus outline and a blue tag in the panel 'position (6.4, 5.8)' (L12.tag at x 648, y 120, tone blue) with a thin grey L12.arrow (in a full-stage L5.svg layer above the map) from the tag's left edge to map.pt(F.x[11]); the tag's text comes from L12.fmt. 5.0-5.6 a green tag 'odour 11 = fitness' under it (x 648, y 200), then 5.6-6.6 small green odour tags pop next to particles 0, 6 and 8 on the map (L12.tag fs 28 at map.pt(x) + (18, -48)): '66', '49', '0', 0.2 s apart. 7.2-8.4 every dot's grey velocity arrow draws on (velK = ramp(t, 7.2, 8.4)) and a grey tag 'velocity = next move' pops in the panel (x 648, y 280). 9.2-10.4 the heat fades from 1 to 0.08 (the map 'disappears': the dots, their odour tags and the arrows stay) and a grey tag 'nobody sees the map' pops at the map's top-left inside (map.pt([0.4, 9.6])). Hold to 12.0 (all tags stay)."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-drift.js",
+      "kicker": "THE MOVE",
+      "title": [
+        "New position =",
+        "position + velocity"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          1,
+          3,
+          "To move, a particle adds its velocity to its position."
+        ],
+        [
+          3.2,
+          5.6,
+          "3, 5 plus 2, minus 1 lands on 5, 4."
+        ],
+        [
+          6.2,
+          9,
+          "With no pulls, every dot just flies straight on."
+        ],
+        [
+          9.2,
+          12.6,
+          "Nothing steers them towards the scent."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.2. A position is a vector of real numbers and each step the particle adds its velocity to it, one dimension at a time: x(t+1) = x(t) + v. Part A: the lesson's numbers (3, 5) + (2, -1) = (5, 4). Part B: the lesson's no-pull swarm: with c1 = c2 = 0 every particle flies in a straight line until a wall stops it, and nothing finds the food. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP: const map = L12.field(stage, {x: 12, y: 12, size: 616}) (the full 10 x 10 scent map, 61.6 px per unit) unless the spec says otherwise; the right-hand panel runs from x 648 to x 924 (276 px wide) for tags and stats. Part A uses map.update({grid: 1}) (faint unit grid) and the heat at 0.35; part B the heat at 1 and no grid.\n\nDATA (asserted): L12.POS = {x: [3, 5], v: [2, -1], nx: [5, 4]}. L12.DRIFT (seed 7, 8 particles, vs 4, c1 = c2 = 0, w = 1), 5 steps: positions from L12.at(L12.DRIFT, s) for s in 0..5; 4 of the 8 end on a wall (they slide along it or stop: the app's wall rule). Tails: L12.trail(L12.DRIFT, i, s, 5) (the whole path so far).\n\nTIMELINE. PART A. 0.2-0.8 the map pops with the grid. 0.8-1.2 a blue dot at (3, 5) (focus) and, in the panel, a blue chip '(3, 5)' (L12.chip w 240 h 76 fs 36 at x 660, y 40, tone blue) labelled by a small grey L12.label 'position' above it. 1.6-2.6 the grey arrow (3, 5) -> (5, 4) draws on (map vecs, tone grey, w 7) and a grey chip '(2, −1)' with label 'velocity' (x 660, y 170) and an L12.mark('plus') between the chips. 3.2-4.2 the dot slides along the arrow to (5, 4) (E.inOut), a blue hollow ring stays at (3, 5) (rings, tone blue, dash) and a blue solid chip '(5, 4)' with label 'new position' pops at (x 660, y 300), an L12.mark('equals') above it. 4.4-5.6 the two numbers of each chip pulse in turn (first coordinates 4.4-4.9, second 5.0-5.5: a V.flash ring, chip.set({ring: 'blue', ringK})) to show it is done one dimension at a time. 5.6-6.1 part A fades out (chips, arrow, dot, grid; o -> 0) and the heat rises to 1. PART B. 6.0-6.5 the eight DRIFT dots pop at frame 0 with their start velocity as grey arrows (vecs, w 5, head 14) and a grey tag 'c₁ = c₂ = 0: no pulls' in the panel (x 648, y 40). 6.6-11.6 the swarm plays steps 0 -> 5 (s = 5 x ramp(t, 6.6, 11.6, E.lin)): dots from L12.at, faint blue tails (o 0.45, w 5), the grey arrows follow each dot (a = its position, b = position + its current velocity from L12.DRIFT.frames[floor(s)].v; a dot stopped by a wall has no arrow). 11.8-12.4 a red tag 'no dot finds the food' pops in the panel (x 648, y 130) and the food's spot gets a dashed grey ring (rings, x: L12.FOOD, tone grey, r 34, dash: true). Hold to 13."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-arrows.js",
+      "kicker": "THE VELOCITY",
+      "title": [
+        "Three arrows make",
+        "the new velocity"
+      ],
+      "dur": 16,
+      "caps": [
+        [
+          0.5,
+          2.4,
+          "Follow one particle for one step."
+        ],
+        [
+          2.6,
+          4.3,
+          "Grey: the velocity it already has."
+        ],
+        [
+          4.5,
+          6.1,
+          "Purple: a pull towards its own best spot, p."
+        ],
+        [
+          6.3,
+          7.9,
+          "Orange: a pull towards the swarm's best spot, g."
+        ],
+        [
+          8.3,
+          11,
+          "Added head to tail, they make the new velocity."
+        ],
+        [
+          11.6,
+          15.4,
+          "Its new odour, 25, does not beat 52, so p stays."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.3, the heart of PSO. A particle's new velocity is the sum of three vectors: the velocity it already has (grey, keep going), a pull towards its own best position p (purple: c₁ z₁ (p − x)) and a pull towards the swarm's best position g (orange: c₂ z₂ (g − x)). Laid head to tail on the map they end exactly on the new position; then the particle moves there and is scored; its new odour (25) does not beat its own best (52), so p stays where it was (the memory keeps the better spot). All of it is one real step of the swarm (L12.FOCUS = particle 1 of L12.RUN on step 9), not made-up numbers; it was chosen because the three arrows point three different ways and the step is not speed-capped (asserted). COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP (zoomed, the same window as scene 6): const map = L12.field(stage, {x: 12, y: 12, size: 616, view: [0.5, 2, 8.5, 10], vecs: 8}) (77 px per unit); the right-hand panel runs from x 648 to 924. The other 13 particles of frame 8 (L12.RUN.frames[8].x; the field clips the ones outside the window) are drawn faint (o 0.3) the whole time.\n\nDATA (L12.FOCUS, asserted): x0 (5.67, 7.13) the particle now; v0 (-3.00, 2.19) its velocity; p (3.85, 3.09), odour 52 (pfOld); g (7.44, 7.10), odour 99 (gf); cog = pull to p (-1.62, -4.61); soc = pull to g (3.33, -0.01); head-to-tail points a = x0 + v0 = (2.67, 9.31), b = a + cog = (1.05, 4.70), c = b + soc = new x (4.38, 4.69) (asserted equal); new velocity v (-1.29, -2.44) (not capped); new odour f 25 < 52, so p stays (pNew = p, pfNew 52). Use these fields, never typed numbers.\n\nTIMELINE. 0.2-0.8 the map pops, the faint swarm with it. 0.8-1.3 the followed particle at x0 (blue, focus, r 15). 1.4-2.0 the purple ring at p (rings, r 22) and a purple tag in the panel 'own best p: 52' (L12.tag x 648, y 20; text from L12.FOCUS.pfOld); 1.8-2.4 the orange star at g (star, size 48) and an orange tag 'swarm best g: 99' (x 648, y 92). 2.6-3.6 the grey arrow x0 -> a draws on (vecs, w 8, head 22, k = ramp) and a grey tag 'keep going' (x 648, y 200). 4.0-6.0 a faint dashed purple guide line x0 -> p (vecs, tone purple, w 3, dash, o 0.5, head 1) shows where the pull points; 4.5-5.5 the purple arrow a -> b draws on, purple tag 'pull to own best' (x 648, y 272). 5.9-7.9 the faint dashed orange guide x0 -> g; 6.3-7.3 the orange arrow b -> c draws on, orange tag 'pull to swarm best' (x 648, y 344). 8.3-9.3 the blue dashed arrow x0 -> c (the new velocity, w 7, dash) draws on and a blue solid tag 'new velocity' (x 648, y 430); the three coloured arrows stay. 9.6-11.0 the particle slides from x0 to c (E.inOut), leaving a dashed blue ring at x0 (rings tone blue dash, o 0.6). 11.2-11.8 a green tag 'odour 25' pops next to it (at map.pt(c) + (24, -60)). 11.8-12.4 a purple tag '25 < 52: p stays' pops in the panel (x 648, y 520) and the purple ring at p pulses once (V.flash on its radius, 12.0-12.8); the star stays. Hold to 16.0."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-numbers.js",
+      "kicker": "THE NUMBERS",
+      "title": [
+        "The same sum,",
+        "in one dimension"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          1,
+          2.9,
+          "One dimension: x is 4, its best 7, the swarm's 2."
+        ],
+        [
+          3.1,
+          5,
+          "c₁, c₂ set how hard; z₁, z₂ are random draws."
+        ],
+        [
+          5.2,
+          6.7,
+          "It keeps its velocity of 1."
+        ],
+        [
+          6.8,
+          8.4,
+          "The pull to its own best adds 3."
+        ],
+        [
+          8.6,
+          10.2,
+          "The pull to the swarm's best adds minus 2."
+        ],
+        [
+          10.4,
+          12.7,
+          "New velocity 2, so it moves from 4 to 6."
+        ]
+      ],
+      "spec": "IDEA: the lesson's worked example of the velocity update (12.3 'Add them up'), the same three arrows as scene 4 on a number line, with every number shown: v(new) = v + c₁ z₁ (p − x) + c₂ z₂ (g − x) = 1 + 2 × 0.5 × (7 − 4) + 2 × 0.5 × (2 − 4) = 1 + 3 − 2 = 2; x(new) = 4 + 2 = 6. It also defines c₁, c₂ (constants: how hard each pull is) and z₁, z₂ (random numbers between 0 and 1). COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). The number line: const nl = L12.numLine(stage, {x: 48, y: 470, w: 840, min: 0, max: 10}) (84 px per unit; numbers under it). Markers in your own L5.svg(stage) layer: the particle a blue dot r 16 at (nl.px(4), 470); p a purple hollow ring r 22 (stroke 6) at nl.px(7); g an orange L12.star size 46 at nl.px(2), each with a tag above at y 380 ('x = 4' blue, 'p = 7' purple, 'g = 2' orange, L12.tag fs 30 centred on the point with L12.tagW). The arrows (const a = L12.arrow(svg, {w: 9, head: 24})): grey 4 -> 5 at y 320, purple 5 -> 8 at y 250, orange 8 -> 6 at y 180 (each lane higher, as the lesson's figure), with faint vertical dashed grey drop lines from each arrow's start down to the line; each arrow's label sits just above its middle: 'v = 1' (grey), '+3' (purple), '−2' (orange) (L12.label fs 30, tone = the arrow's). The two definitions at the top: a grey tag 'c₁ = c₂ = 2: pull strength' (x 12, y 12) and a grey tag 'z₁ = z₂ = 0.5: random, 0 to 1' (x 12, y 84) with a grey L5.dice (size 56, face 3) to its right. The working, top right: purple tag '2 × 0.5 × (7 − 4) = 3' (x 520, y 12) and orange tag '2 × 0.5 × (2 − 4) = −2' (x 520, y 84). The result under the line: blue solid tag 'new v = 1 + 3 − 2 = 2' (x 60, y 560) and blue solid tag 'new x = 4 + 2 = 6' (x 520, y 560).\n\nDATA (L12.ONED, asserted): x 4, v 1, p 7, g 2, c1 = c2 = 2, z1 = z2 = 0.5, cog 3, soc -2, nv 2, nx 6. Build every label from these fields (L12.fmt) and assert them again in the scene.\n\nTIMELINE. 0.2-0.8 the number line pops. 0.6-1.6 the particle, p and g pop with their tags (0.3 s apart). 3.1-3.7 the c tag pops, 3.6-4.2 the z tag and its dice (the dice shakes once, 3.6-4.2, V.place r). 5.2-6.2 the grey arrow 4 -> 5 draws on, its drop line and 'v = 1'. 6.8-7.8 the purple tag '2 × 0.5 × (7 − 4) = 3' pops, then the purple arrow 5 -> 8 draws on with '+3'. 8.6-9.6 the orange tag '2 × 0.5 × (2 − 4) = −2', then the orange arrow 8 -> 6 with '−2'. 10.4-10.9 'new v = 1 + 3 − 2 = 2' pops; 10.9-11.9 the blue dot slides from 4 to 6 along the line (E.inOut), a dashed blue ring stays at 4, and 'new x = 4 + 2 = 6' pops at 11.6. Hold to 13."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-dice.js",
+      "kicker": "THE DICE",
+      "title": [
+        "Fresh dice each step:",
+        "no two steps the same"
+      ],
+      "dur": 11,
+      "caps": [
+        [
+          0.9,
+          2.6,
+          "z₁ and z₂ are fresh random numbers every step."
+        ],
+        [
+          2.8,
+          5,
+          "Roll again and the same particle lands elsewhere."
+        ],
+        [
+          5.2,
+          8.6,
+          "Each hollow dot is one possible landing spot."
+        ],
+        [
+          8.8,
+          10.7,
+          "This spread stops the swarm settling too soon."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.3 'Why two random draws': z₁ and z₂ are drawn fresh from 0..1 for every particle, dimension and step, so the same particle, with the same p and g, lands somewhere different each time; the spread helps prevent premature convergence. The same zoomed map, particle and step as scene 4 (L12.FOCUS), with 20 other dice rolls (L12.CLOUD). COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP: exactly scene 4's window: L12.field(stage, {x: 12, y: 12, size: 616, view: [0.5, 2, 8.5, 10]}); the faint swarm of frame 8 (o 0.3), the followed particle at x0, the purple ring at p, the orange star at g (as scene 4 before the move). Panel x 648..924: a grey L5.dice (size 90) at (786, 80) in a L5.svg layer, and under it two tags: purple 'z₁ = 0.45, 0.57' (x 648, y 150) and orange 'z₂ = 0.94, 0.12' (x 648, y 222) (z₁ and z₂ for dimension 1, dimension 2; purple and orange because z₁ scales the pull to p and z₂ the pull to g).\n\nDATA (asserted): L12.FOCUS.z = [[z1, z2] dimension 1, [z1, z2] dimension 2] = [[0.45, 0.94], [0.57, 0.12]] and the real landing L12.FOCUS.x (4.38, 4.69); L12.CLOUD.pts[k] = {z: [[z1, z2], [z1, z2]], x: landing} for k = 0..19 (rng 3: the first 20 rolls the app's speed cap and walls leave alone, so every landing is exactly x0 + the three arrows with those dice; 20 different spots). Tag texts: 'z₁ = ' + L12.fmt(z[0][0]) + ', ' + L12.fmt(z[1][0]); 'z₂ = ' + L12.fmt(z[0][1]) + ', ' + L12.fmt(z[1][1]) (two decimals).\n\nTIMELINE. 0.2-0.8 the map pops with x0, p and g. 0.8-1.8 the real step: the blue dashed new-velocity arrow x0 -> FOCUS.x draws on, a blue dot appears at FOCUS.x (r 11), the dice shows face 4 and the z tags show the real draws. 2.8-5.2 THREE SLOW ROLLS, 0.8 s each (roll k = 0, 1, 2 from 2.8 + 0.8 k): the dice shakes and turns through faces (one L5.dice per face, V.show the current one; while shaking face = 1 + (k x 7 + floor(t x 12)) mod 6, then it settles on face 1 + (k mod 6) for 0.3 s), the z tags switch to CLOUD.pts[k].z, the dashed blue arrow re-aims from x0 to CLOUD.pts[k].x (draws on in 0.25 s) and a hollow blue ghost (ghosts, r 9) pops there and stays. 5.2-8.3 the other 17 rolls, fast: 0.18 s each (k = 3..19), the arrow snapping to each landing, a ghost popping each time, the z tags still following. 8.5-8.9 the arrow fades out, leaving 21 landings (20 ghosts and the real blue dot). 8.8-9.4 a grey tag 'same particle, 20 rolls' (x 648, y 320) and a green tag 'spread = more searching' (x 648, y 392). Hold to 11."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-swarm.js",
+      "kicker": "THE SWARM",
+      "title": [
+        "Every particle, every step:",
+        "the swarm finds the food"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          1.4,
+          4.8,
+          "All 14 particles take that step together."
+        ],
+        [
+          5,
+          7.4,
+          "The swarm's best climbed: 66, 78, 85, then 99."
+        ],
+        [
+          7.6,
+          10,
+          "Pulled to their own bests and the swarm's, they gather."
+        ],
+        [
+          10.2,
+          11.9,
+          "They swarm around the food and keep searching."
+        ],
+        [
+          12.1,
+          14.7,
+          "Nobody saw the map, yet the swarm found the food."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.1's cornfield vector (rooster effect), the payoff of scenes 2-6: every particle does the step of scene 4 at once, every step; the swarm's best climbs to the food peak and the dots gather round it, though no particle ever saw the map. This is the app's own first demo ('Release the swarm': L12.RUN, seed 5, 14 particles, c1 = c2 = 2, w = 1), steps 0 to 12, the same swarm as scene 2. With the plain formula (w = 1) the swarm does not shrink to a point: it keeps circling the food. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP: const map = L12.field(stage, {x: 12, y: 12, size: 616}) (the full 10 x 10 scent map, 61.6 px per unit) unless the spec says otherwise; the right-hand panel runs from x 648 to x 924 (276 px wide) for tags and stats. Panel: L12.stat(stage, {x: 648, y: 12, w: 276, h: 80, label: 'step', tone: 'grey'}), L12.stat(stage, {x: 648, y: 108, w: 276, h: 80, label: 'best', tone: 'green'}) (the swarm's best odour), a small orange L12.star (size 36) in the panel at (676, 238) with an L12.label 'swarm best g' next to it (x 704, y 220, align left, tone orange) as a legend.\n\nDATA (asserted): const R = L12.RUN; the play head s (0..12) gives const A = L12.at(R, s) (A.x = positions, exact straight-line blends) and the bests from R.frames[A.k] (they change only when a step lands); best odour R.frames[k].best = 66, 78, 85, 99 for k = 0..3, then 99; g = R.frames[k].g (moves at steps 1, 2 and 3, then stays at (7.44, 7.10)); dots within 2.5 of the food: 3 at step 0, 13 at step 12 (9 within 1.5). The step stat shows A.k (or 12 at the end).\n\nTIMELINE. 0.2-0.8 the map pops with the 14 dots at frame 0 and the two stats ('0', '66'); 0.9-1.4 the orange star at g (frame 0) and the legend. 1.4-5.0 STEPS 1-3, SLOW (1.2 s each: s = 3 x ramp(t, 1.4, 5.0, E.lin)): faint blue tails (L12.trail(R, i, s, 1.5), o 0.4, w 5); at each landing (s crosses 1, 2, 3) the best stat updates to the new value with a V.flash bump (0.4 s) and the star jumps to the new g with a small pop. 5.0-11.75 STEPS 4-12 at 0.75 s each (s = 3 + 9 x ramp(t, 5.0, 11.75, E.lin)). 12.0-12.6 a green tag '13 of 14 near the food' pops in the panel (x 648, y 300) and a dashed green ring of radius 2.5 map units (rings, r = 2.5 x map.s, tone green, dash) appears round L12.FOOD (pass the ring radius in px). Hold to 15 (the dots stand still at frame 12)."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-stop.js",
+      "kicker": "WHEN TO STOP",
+      "title": [
+        "Four rules decide",
+        "when the search ends"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.8,
+          2.4,
+          "Here each particle keeps 60% of its old velocity."
+        ],
+        [
+          2.6,
+          4.5,
+          "Step 7: odour 97, a good enough answer."
+        ],
+        [
+          4.8,
+          8.6,
+          "Step 19: the swarm has shrunk to almost a point."
+        ],
+        [
+          10.3,
+          11.9,
+          "Then 8 steps with no new best, then the step limit."
+        ],
+        [
+          12.1,
+          13.8,
+          "Any one of the four rules can end the run."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.4's four termination criteria, shown firing on the lesson's own run (stopFig: L12.STOP, seed 24, 10 particles, c1 = c2 = 1, w = 0.6). The lessons present w as an EXTRA beyond the slides ('Momentum kept'): with the plain formula the swarm keeps circling and the radius rule never fires (asserted); keeping only 60% of the old velocity lets the swarm settle, so here it shrinks onto the food. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nTHE MAP: const map = L12.field(stage, {x: 12, y: 12, size: 616}) (the full 10 x 10 scent map, 61.6 px per unit) unless the spec says otherwise; the right-hand panel runs from x 648 to x 924 (276 px wide) for tags and stats. A grey tag on the map's lower edge inside it: 'extra: w = 0.6 keeps 60% of v' (L12.tag at x 28, y 556). Panel (x 648..924): L12.stat {x: 648, y: 12, w: 276, h: 72, label: 'step', tone: 'grey'}; L12.stat {x: 648, y: 96, w: 276, h: 72, label: 'spread', tone: 'blue'} (text = Math.round(100 x rad) + '%'); then four rule tiles, L12.card {x: 648, w: 276, h: 100, fs: 28, plain: true, tone: 'grey'} at y 190, 302, 414, 526, in the app's order of firing here: 'odour 95 or more' (acceptable solution), 'spread under 5%' (swarm radius near zero), '8 steps, no new best' (no improvement), '50 steps' (maximum iterations); each tile has the rule's short name as its text on two lines ('Good enough\\nodour 95+', 'Radius ~ 0\\nspread < 5%', 'No new best\\nfor 8 steps', 'Step limit\\n50 steps'; use white-space pre-line on the card element) and, when it fires, turns solid red (card.set({plain: false, tone: 'red'}) and the card's solid look: background var(--c), colour var(--c-on)) with an L12.tag 'stop' or a small L5.cross and the step it fired at ('at step 7').\n\nDATA (asserted): const R = L12.STOP; play head s 0..50, L12.at(R, s) for the dots, R.frames[k].g for the star, best R.frames[k].best (49 at 0, 94 at 6, 97 at 7, 100 from 10), spread R.frames[k].rad (1.00 at 0, first under 0.05 at step 19, 0.000 from 43); R.fired = {good: 7, rad: 19, stale: 46, max: 50}; L12.RULES gives the four names in the app's order. All ten particles end on the food (7.40, 7.20).\n\nTIMELINE. 0.2-0.8 the map with the 10 dots (frame 0), star, stats and the four grey tiles pop. 0.8-1.4 the w tag pops. 1.2-10.2 the run plays 0 -> 50 at 0.18 s a step (s = 50 x ramp(t, 1.2, 10.2, E.lin)); tails L12.trail(R, i, s, 1.5) faint; the step and spread stats follow frame A.k. Each tile fires when s reaches its step (t = 1.2 + 0.18 x step: good at step 7 -> t 2.46, rad at 19 -> t 4.62, stale at 46 -> t 9.48, max at 50 -> t 10.2): a 0.4 s pop (E.pop) to solid red, the 'at step N' tag pops. 11.9-12.7 the first rule to fire (good enough, at step 7) gets a pulsing orange ring (chip-like ring: a dashed orange rounded rect around the tile, V.flash) to show that any one rule, here the first, would have ended the run. Hold to 14; the swarm sits on the food as one dot."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-bits.js",
+      "kicker": "BINARY PSO",
+      "title": [
+        "For bits, velocity",
+        "becomes a chance"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          1,
+          3,
+          "A bit is 0 or 1: adding 0.7 makes no sense."
+        ],
+        [
+          4.2,
+          5.7,
+          "Binary PSO keeps v between 0 and 1."
+        ],
+        [
+          5.8,
+          7.6,
+          "The two pulls add 0.2 and 0.1: v is now 0.8."
+        ],
+        [
+          7.8,
+          10,
+          "Draw rand(): 0.55 is below 0.8, so the bit is 1."
+        ],
+        [
+          10.4,
+          12.7,
+          "So v is the chance of a 1, drawn every step."
+        ],
+        [
+          12.9,
+          14.8,
+          "Here 16 of 20 draws come out as 1."
+        ]
+      ],
+      "spec": "IDEA: lesson 12.5 approach 1 (traditional binary PSO). A position made of bits cannot take a real velocity (1 + 0.7 is not a bit). Keep the same velocity rule, hold v between 0 and 1, and read it as the chance that the bit is 1: the bit becomes 1 if a random number rand() is below v. The lesson's one-bit example, then 20 draws with v = 0.8. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\n\nLAYOUT (stage px). PART A (top, y 20..120): chips L12.chip w 96 h 84 fs 44: a green solid '1' at x 200, an L12.mark('plus') at 336, a grey '0.7' at x 382 (w 120), an L12.mark('equals') at 548, a red ghost '?' at x 600 with a red L5.cross (size 60) over its corner; under them an L12.label 'a bit is 0 or 1' (y 120, x 200, w 500). PART B: the bit and its two bests in a row at y 150: grey chip '0' with label 'bit x' (x 120), purple-edged chip '1' (tone purple) with label 'own best p' (x 380), orange-edged chip '1' (tone orange) with label 'swarm best g' (x 640); labels under the chips (L12.label fs 28). The chance bar: const bar = L12.prob(stage, {x: 100, y: 330, w: 736, h: 60}) (0 at the left, 1 at the right, the 0 and 1 labels under the ends); segs: blue 0 -> 0.5 (the old v), purple 0.5 -> 0.7 (+0.2), orange 0.7 -> 0.8 (+0.1); tags above the bar ('v = 0.5' blue at bar.xOf(0.5), '+0.2' purple, '+0.1' orange, 'v = 0.8' blue solid) and a grey tag 'v stays between 0 and 1' at (100, 430). The draw: a grey L5.dice (size 64) at (870, 260) and the marker at 0.55 (markerTone grey) with a grey tag 'rand() = 0.55' above it. PART C (y 500..620): 20 bit chips L12.chip w 40 h 56 fs 30 radius 12 at x = 12 + 46 i, y 520 (ones green solid, zeros grey), and a green tag '16 of 20 are 1' at (12, 590) next to the blue tag 'v = 0.8'.\n\nDATA (asserted): L12.BIT = {x 0, v 0.5, p 1, g 1, c1 1, c2 1, z1 0.2, z2 0.1, cog 0.2, soc 0.1, nv 0.8, u 0.55, nx 1}; L12.bitV clamps to 0..1; L12.DRAWS = {v: 0.8, u: [20 draws], bits: '11111001111111101101' as an array, ones: 16}. Build labels from the fields with L12.fmt.\n\nTIMELINE. 0.4-1.6 part A pops left to right (0.2 s apart), the red cross draws on (L5.drawOn) at 1.8-2.4. 3.0-3.4 part A fades out. 3.4-4.2 the three chips of part B pop with their labels; 4.2-4.8 the bar pops with the blue 0 -> 0.5 segment, 'v = 0.5' and 'v stays between 0 and 1'. 4.8-5.5 the purple segment grows 0.5 -> 0.7 with '+0.2' (the purple chip pulses); 5.5-6.2 the orange segment 0.7 -> 0.8 with '+0.1' (the orange chip pulses); 6.2 'v = 0.8' pops. 7.4-8.0 the dice shakes and the marker drops onto the bar at 0.55 (markerK), 'rand() = 0.55' pops; 8.2-8.8 the bit chip flips (sx 1 -> 0 -> 1) from grey '0' to green solid '1' with a green L5.tick beside it. 10.2-12.6 part C: the 20 bit chips pop one after another (0.12 s apart, L12.seq), each with its bit from L12.DRAWS.bits, and the blue tag 'v = 0.8' with them; 12.8 the tag '16 of 20 are 1' pops. Hold to 15."
+    }
+  ],
+  "recap": {
+    "file": "scene-10-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "A particle is a guess\nplus a velocity",
+        "tone": "blue",
+        "pictogram": "A small scent patch (a 140 x 120 rounded rect, var(--teal-dim) fill, at x 10, y 10) on the left; a blue dot (r 13) at (60, 90) with a grey L12.arrow to (150, 50) (w 7, head 18). Pass: patch and dot pop (0.1-0.6), the arrow draws on (0.8-1.4), the dot slides along it to (150, 50) (1.6-2.4) leaving a dashed blue ring at its start, then a green tag 'odour' pops above the dot (2.6). Holds that picture."
+      },
+      {
+        "head": "Keep going, own best,\nswarm best",
+        "tone": "purple",
+        "pictogram": "Scene 4 in small: a blue dot at (40, 100), a purple ring (r 14) at (150, 120), an orange L12.star (size 30) at (300, 30). Three arrows head to tail: grey (40, 100) -> (110, 60), purple (110, 60) -> (190, 80), orange (190, 80) -> (250, 40), then the blue dashed sum (40, 100) -> (250, 40). Pass: dot, ring and star pop (0.1-0.6), the three arrows draw on one after another (0.8-2.6, 0.6 s each), the sum draws on (2.8-3.4). Holds."
+      },
+      {
+        "head": "For bits, v is the\nchance of a 1",
+        "tone": "green",
+        "pictogram": "An L12.prob bar (x 10, y 30, w 320, h 40, ends false) and, under its left end, a bit chip (L12.chip x 10, y 84, w 60, h 50, fs 32) with a grey label 'bit' next to it. Pass: the bar pops (0.1-0.6), its blue segment grows 0 -> 0.8 (0.8-1.8) with a small blue tag 'v = 0.8' above its end, the grey marker drops at 0.55 (2.0-2.6), the chip flips from grey '0' to green solid '1' (2.8-3.3). Holds that picture."
+      }
+    ],
+    "cta": "Next: Workshop 12.W",
+    "spec": "RECAP CARD (bare scene, no headline or caption). Copy the frame of videos/l8/scene-11-recap.js (and videos/l5/scene-10-recap.js): kicker 'RECAP' (a .v-kicker at its default place, x 72, y 74) and the headline 'Remember' (76 px, x 72, top 108), Sprout (V.mascot('sprout', {size: 168, mood: 'love'}), x 840, y 38) bobbing, three plain sticker rows (x 72, width 936, height 180, tops 240 / 444 / 648; V.h('div', {class: 'v-card plain c-<tone>'}) with edge colours blue / purple / green), in each row a 340 x 140 animated pictogram on the left (drawn 10 % larger: a div at left 16, top 10 with transform scale(1.1) and origin 0 0, SVG drawn into it with L5.svg(pic, 340, 140) in its own pixel coordinates; L12.tag / L12.chip / L12.prob / L12.arrow / L12.star all take that div or its svg as parent) and the bold label (36 px, up to 2 lines of at most 22 characters, starting at x 440, vertically centred) on the right. At the bottom, centred at y 904, one solid blue tag (34 px, class 'v-tag solid c-blue') with 'Next: Workshop 12.W'. Rows slide in at 0.8, 1.9 and 3.0 (0.5 s each, label 0.15 s later), the pictograms start 0.4 s after their row; EVERY PICTOGRAM PLAYS ONCE AND THEN HOLDS ITS FINISHED STATE (no loop, no blank or reset frame, no fade); all three are finished by 6.5. 5.6-6.2 the call-to-action tag pops (scale 0.8 -> 1 with E.pop). Nothing moves in the last 2.5 seconds but Sprout's bob: the video ends on a calm, complete frame. No captions. COLOURS (whole video): green = fitness / odour (the scent map: brighter green = stronger scent), good, a new best, a bit that is 1; blue = the particle (its dot, its position, its move and new velocity); grey = the current velocity (keep going), the dice (z1, z2, rand()) and neutral things; purple = the particle's own best p (pbest: a hollow purple ring) and the pull towards it; orange = the swarm's best g (gbest: an orange SVG star, L12.star) and the pull towards it; red = invalid or stop (a bit plus 0.7, a stopping rule that fires). Every label is 28 px or more; symbols (stars, arrows, ticks, crosses, dice, + - x =) are SVG (L12.star, L12.arrow, L12.mark, L5.tick / L5.cross / L5.dice), never glyphs. Draw functions are pure: pass everything every frame; motion comes from the precomputed logs in l12/common.js (L12.at(LOG, t) for fractional steps), never from a simulation run inside the scene. Const names in the spec: const V = window.VID, L12 = V.l12, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  "helpers": "FILES: videos/l12/common.js (pure data and algorithms, no DOM: the app's PSO ported line for line, the runs recorded once at load and every storyboard number asserted), common-2.js (stickers and SVG pieces: tag, chip, stat, disc, token, card, label, star, mark, arrow, seq, along), common-3.js (the figures: the scent map L12.field, the number line L12.numLine, the chance bar L12.prob). Everything hangs off window.VID.l12; scenes start with const V = window.VID, L12 = V.l12, L5 = V.l5 and const {ramp, flash, clamp, lerp, ease: E} = V (or take V from build(stage, V)). videos/lecture-12.html loads engine.js, cards.js, l5/common.js (for L5: tick, cross, dice, drawOn, svg, tone), then l12/common.js, common-2.js, common-3.js, then scene-01 ... scene-10, audio/lecture-12.js. Every helper file starts with a long API comment listing every signature, option and return value: READ THEM FIRST, they are the contract.\n\nA. DATA (common.js): L12.rng, L12.same / L12.close (throw clear Errors), L12.r2, L12.fmt(n, d = 2) ('0.8', '-2', '6.88'); the map: L12.BOX 10, L12.VMAX 3, L12.PK, L12.fit(x, y), L12.odour(f), L12.FOOD [7.4, 7.2], L12.DECOY; the swarm: L12.record(seed, n, {c1, c2, w, vs}, its) -> LOG {frames[k] = {x, v, p, pf, f, g, gf, best, mean, rad, stale}, moves[k][i] = {x0, v0, z, cog, soc, raw, v, x, p, g, capped, wall}}; L12.at(LOG, t) -> {x (positions at fractional step t), k, u, frame}; L12.trail(LOG, i, t, back); L12.alt(move, P, c1, c2, z) (landing with other dice). The runs: L12.RUN (scenes 2, 4, 6, 7), L12.FOCUS (scenes 4 and 6), L12.CLOUD (scene 6), L12.DRIFT and L12.POS (scene 3), L12.ONED (scene 5), L12.STOP + L12.RULES (scene 8), L12.BIT, L12.bitV, L12.DRAWS (scene 9).\n\nB. STICKERS AND SVG PIECES (common-2.js, the same API as videos/l8/common-3.js): L12.tag(parent, {x, y, text, tone, solid, fs, h}) -> {set({text, tone, solid, k, x, y, s, o}), el}; L12.chip(parent, {x, y, w, h, text, tone, fs, solid, radius}) -> {set({text, tone, solid, ghost, k, x, y, s, sx, o, ring, ringK}), el, tile}; L12.stat(parent, {x, y, w, h, label, tone}) -> set({text, tone, solid, bump, k, o, x, y}); L12.disc, L12.token, L12.card(parent, {x, y, w, h, text, tone, plain, fs}) -> set({text, tone, plain, k, x, y, s, o}); L12.label(parent, {x, y, w, text, tone, fs, align}) -> set({text, tone, k, x, y, o, bold}); SVG: L12.star(x, y, size, tone) (the swarm best), L12.mark(kind, x, y, size, tone) ('times' | 'plus' | 'minus' | 'equals'), const a = L12.arrow(svg, {tone, w, head}) -> a.set({a: [x, y], b: [x, y], k, tone, w, head, dash, o}) (a vector arrow re-aimed every frame; tip exactly on b); tools L12.seq(t, t0, step, dur, i), L12.along(a, b, f, inset), L12.tagW(text, fs).\n\nC. FIGURES (common-3.js): const map = L12.field(parent, {x, y, size: 600, cells: 25, view: [x0, y0, x1, y1], dots: 14, rings: 14, ghosts: 40, vecs: 6, tails: 14}); map.update({k, heat, grid, dots: [{x, tone, r, o, s, focus}], tails: [{pts, tone, o, w}], rings: [{x, tone, r, k, o, dash}], star: {x, k, o, size, tone}, ghosts: [{x, tone, r, o, k}], vecs: [{a, b, tone, k, w, head, dash, o}]}) (all positions in MAP UNITS, y up); map.pt([mx, my]) -> parent px; map.ps -> the map svg's own px; map.s px per unit; map.el, map.svg. const nl = L12.numLine(parent, {x, y, w, min, max, fs}); nl.px(v), nl.y, nl.set({k, o}). const bar = L12.prob(parent, {x, y, w, h}); bar.set({k, segs: [{from, to, tone, solid}], marker, markerK, markerTone, ends, o}); bar.xOf(v).\n\nD. TIPS FOR SCENE AUTHORS. Never step the swarm inside a scene: read positions from the logs (L12.at for the in-between frames; a straight-line blend is exact because a particle moves in a straight line each step) and the bests from LOG.frames[k]. Assert the numbers you print against the L12 fields again in your scene (L12.same). Tags, chips and stats set() every frame: pass k (0..1) to pop them in, o to fade; a tag that has not popped yet must be set({k: 0}) every frame. A ring radius in map.update is in px (multiply map units by map.s). The map's pools are sized by the options: ask for more vecs (default 6) or ghosts (default 40) when you need them. Put labels in the panel (x 648 to 924) or next to points with map.pt; keep text at 28 px or more and a 12 px margin inside the 936 x 640 stage. A throwaway test page is easiest: copy videos/lecture-12.html to videos/l12-test.html with only your scene, run node tools/video-still.js l12-test s1@4 <dir>, and delete it before you finish."
+}

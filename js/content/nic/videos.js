@@ -1,4 +1,4 @@
-/* Recap videos for Nature-Inspired lectures 1 to 8: one node after each lecture's boss quiz.
+/* Recap videos for Nature-Inspired lectures 1 to 8, 11 and 12: one node after each lecture's boss quiz.
    Each is a one-step lesson that plays videos/out/lecture-N.mp4 (made from videos/lecture-N.html, see videos/README.md).
    A video is a bonus (m.video): it never counts towards finishing a lecture or a course, and watching it keeps the
    streak alive and pays the review amount (5 XP) without adding to lesson counts. */
@@ -124,10 +124,41 @@
         "Any problem drawn as a path",
       ],
     },
+    {
+      n: 11,
+      blurb: "Lecture 11 in pictures: three local rules make a flock, and every boid is a tiny agent.",
+      chapters: [
+        "Many birds, one flock, and no leader",
+        "Not too close, not too far",
+        "A boid only senses its neighbours",
+        "Separation: don't crowd",
+        "Alignment: match your neighbours",
+        "Cohesion: stay with the group",
+        "Three rules together make a flock",
+        "Burst apart, then join up",
+        "A boid is a tiny agent",
+        "Many agents: keep it local",
+      ],
+    },
+    {
+      n: 12,
+      blurb:
+        "Lecture 12 in pictures: particles pulled by their own best and the swarm's best until the swarm finds the food.",
+      chapters: [
+        "Each dot is a guess on a scent map",
+        "New position = position + velocity",
+        "Three arrows make the new velocity",
+        "The same sum, in one dimension",
+        "Fresh dice each step: no two steps the same",
+        "Every particle, every step: the swarm finds the food",
+        "Four rules decide when the search ends",
+        "For bits, velocity becomes a chance",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4 };
+  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 11: 4, 12: 4 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

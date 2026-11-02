@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { root } from "./video-lib.js";
 
 const COURSES = [
-  ["lecture", "nic", 8],
+  ["lecture", "nic", 12],
   ["ds", "ds", 7],
   ["algo", "algo", 10],
 ];
