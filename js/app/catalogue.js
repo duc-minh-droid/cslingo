@@ -44,6 +44,8 @@
         7: "Lecture 7 — The Paxos consensus protocol",
         8: "Lecture 8 — Stream processing",
         9: "Lecture 9 — Batch and online machine learning",
+        10: "Lecture 10 — Concept drift detection",
+        11: "Lecture 11 — Distributed machine learning",
       },
     },
     algo: {

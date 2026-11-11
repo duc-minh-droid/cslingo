@@ -1,0 +1,85 @@
+/* Data Science Lecture 10 (concept drift detection): lesson figures, the detector demo and the 10.W workshop.
+   Classes prefixed ds10-. */
+
+/* detector status pills: stable, warning, drift */
+.ds10-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+.ds10-pill {
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-weight: 700;
+  font-size: 12.5px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+}
+.ds10-pill b {
+  color: var(--text);
+  font-weight: 900;
+  margin-right: 2px;
+}
+.ds10-pill.warning {
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 16%, var(--panel));
+  color: var(--amber-ink);
+}
+.ds10-pill.drift {
+  border-color: var(--rose);
+  background: color-mix(in srgb, var(--rose) 14%, var(--panel));
+  color: var(--rose-ink);
+}
+
+/* ADWIN's window as cells: older part W0, newer part W1, dropped records faded */
+.ds10-cells {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  width: 100%;
+  gap: 3px;
+  max-width: 480px;
+  margin: 4px auto 8px;
+}
+.ds10-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 2px solid var(--line-2);
+  background: var(--panel-2);
+  transition:
+    opacity var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out);
+}
+.ds10-cell.w0 {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 14%, var(--panel));
+}
+.ds10-cell.w1 {
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 14%, var(--panel));
+}
+.ds10-cell.err {
+  background: var(--rose);
+}
+.ds10-cell.gone {
+  opacity: 0.18;
+  transform: scale(0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds10-cell {
+    transition: opacity var(--dur-2) linear;
+  }
+  .ds10-cell.gone {
+    transform: none;
+  }
+}
+@media (max-width: 480px) {
+  .ds10-cells {
+    gap: 2px;
+  }
+  .ds10-cell {
+    border-width: 1px;
+  }
+}
