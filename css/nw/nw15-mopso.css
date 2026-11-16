@@ -1,0 +1,78 @@
+/* Lecture 15 (multi-objective particle swarm optimisation): lesson figures, demos and workshop styles (classes prefixed nw15-). Plots reuse the nw13- classes. */
+.nw15-ctls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 8px;
+}
+.nw15-ctl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.nw15-ctl small {
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.nw15-ctl .seg {
+  flex-wrap: wrap;
+}
+.nw13-k.violet {
+  background: var(--violet);
+}
+.nw13-k.amber {
+  background: var(--amber);
+}
+.nw15-bars {
+  display: flex;
+  min-height: 110px;
+  gap: 8px;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 8px;
+}
+.nw15-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 52px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.nw15-bar span {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  background: var(--blue);
+  transition: height var(--dur-3) var(--ease-out);
+}
+.nw15-bar.on span {
+  background: var(--teal);
+}
+.nw15-bar b {
+  color: var(--text);
+}
+.nw15-r {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 8px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--violet) 18%, var(--panel));
+  color: var(--violet-ink);
+}
+.nw15-pick tr[data-id] {
+  cursor: pointer;
+}
+.nw15-share {
+  margin-top: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nw15-bar span {
+    transition: none;
+  }
+}

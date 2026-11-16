@@ -1,0 +1,215 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lectures thirteen and fourteen. Multi-objective evolutionary algorithms. This is how to search for good trade-offs."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Two wind turbines stand in a row. The back one sits in the slow air behind the front one, its wake.",
+     "The back turbine sits in the front one's wake."
+    ],
+    [
+     "Now the back turbine moves further away. Its power climbs from seventy-seven to ninety-five per cent.",
+     "Moving it further back gives it more power."
+    ],
+    [
+     "But the longer cable costs more, from three million pounds to twelve.",
+     "But the longer cable costs more money."
+    ],
+    [
+     "We want low cost and high power, and one gets worse as the other improves. That is a trade-off.",
+     "Cost and power pull against each other: a trade-off."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now take a whole wind farm. Each layout gets two scores, cost and power.",
+     "Each layout gets two scores: its cost and its power."
+    ],
+    [
+     "Layout A costs twenty million and makes thirty megawatts. That pair is its objective vector, one point on the plot.",
+     "Layout A becomes one point, its objective vector: (20, 30)."
+    ],
+    [
+     "Layout E costs fifty-two million but makes seventy megawatts.",
+     "Layout E costs more but makes more power: (52, 70)."
+    ],
+    [
+     "Eleven layouts give eleven points. Up and to the left is better.",
+     "Eleven layouts, eleven points. Better is up and to the left."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Let us compare two layouts, D and G.",
+     "Compare two layouts, D and G."
+    ],
+    [
+     "D costs less than G, and it makes more power too.",
+     "D is cheaper and makes more power."
+    ],
+    [
+     "G sits in D's box, where everything is worse on both goals. So D dominates G.",
+     "So D dominates G: no worse on any goal, better on at least one."
+    ],
+    [
+     "Now D and K. D is cheaper, but K makes more power.",
+     "Now D and K: D is cheaper, but K makes more power."
+    ],
+    [
+     "Each wins on one goal, so neither dominates. They are mutually non-dominating.",
+     "Neither wins on both: they are mutually non-dominating."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Which layouts does no other layout dominate?",
+     "Which layouts does no other layout dominate?"
+    ],
+    [
+     "Five layouts turn red. Each one is beaten by a cheaper, stronger layout.",
+     "Five layouts are each beaten by another one: they turn red."
+    ],
+    [
+     "The six left over form the Pareto front.",
+     "The six left over form the Pareto front."
+    ],
+    [
+     "So there is no single best layout. The answer is a set of trade-offs.",
+     "So the answer is a whole set of layouts, not one best."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are twelve solutions. This time both goals are minimised, so better is down and to the left.",
+     "Twelve solutions, both goals minimised."
+    ],
+    [
+     "The five points that nobody dominates get rank zero.",
+     "Rank 0: the ones that nobody dominates."
+    ],
+    [
+     "Set them aside. The non-dominated points that are left form rank one.",
+     "Set them aside: the next front of what is left is rank 1."
+    ],
+    [
+     "Keep peeling, like an onion. Then come rank two and rank three.",
+     "Keep peeling, like an onion: rank 2, then rank 3."
+    ],
+    [
+     "Now every solution has a rank, and a lower rank is better.",
+     "Every solution now has a rank: lower is better."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A front can hold many points. Which ones should we keep?",
+     "Inside one front, which points should we keep?"
+    ],
+    [
+     "The two ends get a crowding distance of infinity, so they are always kept.",
+     "The two ends get infinity: they are always kept."
+    ],
+    [
+     "For Q, draw a box out to its neighbours, P and R. Its size works out at nought point seven five.",
+     "For Q, draw a box out to its neighbours P and R: 0.75."
+    ],
+    [
+     "R scores one, and S scores one point two five.",
+     "R and S get bigger boxes: 1.00 and 1.25."
+    ],
+    [
+     "Bigger boxes win. That keeps the front spread out.",
+     "Prefer the biggest box: it keeps the front spread out."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "NSGA-II starts with N parents. Here N is six.",
+     "NSGA-II starts with N = 6 parents."
+    ],
+    [
+     "The parents breed six children, shown in purple.",
+     "They breed six children."
+    ],
+    [
+     "Parents and children go into one pool of twelve.",
+     "Parents and children are merged: 12 in all."
+    ],
+    [
+     "Non-dominated sorting splits the twelve into ranks.",
+     "Non-dominated sorting splits the 12 into ranks."
+    ],
+    [
+     "Rank zero, A, B and C, fits into the six places whole.",
+     "Rank 0 fits whole: A, B and C are kept."
+    ],
+    [
+     "Rank one has four members for three places. Crowding decides, and E has the smallest box, so E is dropped.",
+     "Rank 1 has four for three places: crowding drops E."
+    ],
+    [
+     "The rest are discarded. Because parents compete with their children, the best are never lost. That is elitism.",
+     "The best always survive to the next generation: elitism."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2.0,
+    3.1
+   ],
+   "lines": [
+    "One solution dominates another when it is no worse on any goal and better on one.",
+    "Non-dominated sorting peels the population into fronts, like an onion.",
+    "NSGA-II merges parents and children, sorts them, and keeps the best N."
+   ]
+  }
+ ]
+}

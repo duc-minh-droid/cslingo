@@ -1,0 +1,293 @@
+{
+  "slug": "lecture-13",
+  "dir": "l13",
+  "title": "Multi-objective evolutionary algorithms",
+  "outline": "Lectures 13-14 video (Nature-Inspired Computation, ECM3412): 'Multi-objective evolutionary algorithms'. 9 scenes, 111 s: title (4), trade-off (13), objective space (12), dominance (15), Pareto front (13), non-dominated sorting (14), crowding distance (14), NSGA-II (17), recap (9). STORY (lessons' order). 13.1 (l13-pareto, js/content/nic/l13-01.js): real problems have several goals that conflict (the wake toy model: moving the back turbine from 2 to 8 rotor widths raises its power 77% -> 95% but the cable cost £3.0m -> £12.0m); each solution gets an objective vector, a point in objective space (the 11 wind farm layouts A..K, cost £m minimised, power MW maximised: A (20, 30), E (52, 70)); a dominates b if it is no worse on every objective and strictly better on at least one (D (40, 62) dominates G (45, 58)); D and K (46, 64) are mutually non-dominating; the non-dominated layouts A B C D K E (6 of 11) form the Pareto front, F G H I J are dominated by B D C A E. 13.2 (l13-sorting, l13-02.js): non-dominated sorting peels fronts like an onion (PEEL a..l: ranks a-e 0, f g h 1, i j k 2, l 3); crowding distance breaks ties inside a front (W: P inf, Q 0.75, R 1.00, S 1.25, T inf). 13.3 (l13-nsga, l13-03.js): NSGA-II merges N parents and N children, sorts the 2N, fills the next N by rank and breaks the last rank by crowding: elitism. Scene 8 uses the workshop's 12 candidates (l13-workshop.js SURV, N = 6) split into 6 parents A D E H I L and 6 children B C F G J K (the split is the video's own); survivors A B C D F G (rank 1: D inf, G inf, F 1.33 beat E 1.00). Recap and 'Next: Workshop 13.W' (l13-wlab). Boss: boss-nic-13.js. Not covered: weighted sums (K is on the front but no weighted sum finds it), niching radius, Pareto tournaments, SPEA2/MOEA-D, many objectives. ALL NUMBERS are computed in videos/l13/common.js by the app's own kernel (dom, ranks, crowd, crowdAll ported line for line) and asserted at load. COLOURS: green = good / non-dominated / Pareto front / kept; red = dominated / worse / discarded; blue = the solution looked at (first of a pair), parents, survivors; purple = second of a pair, children; orange = attention (crowding boxes, infinity, 'neither dominates'); grey = neutral. Rank colours (scenes 6, 8): 0 green, 1 blue, 2 purple, 3 orange, 4 grey. LAYOUT: L13.plot panel at x 12, y 12 (584 or 600 wide, 616 tall) with a right panel to x 924; scenes 3-5 share the wind farm plot (cost 15..60, power 20..75), scenes 6-8 a 0..10 minimise-both plot. Text >= 28 px, symbols drawn as SVG.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lectures 13–14",
+    "title": "Multi-objective evolutionary algorithms",
+    "sub": "How to search for the best trade-offs when goals pull apart",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lectures 13–14",
+      "title": [
+        "Multi-objective evolutionary algorithms"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Lecture 13 video: title card (finished)"
+    },
+    {
+      "n": 2,
+      "file": "scene-02-tradeoff.js",
+      "kicker": "A TRADE-OFF",
+      "title": [
+        "Two goals that",
+        "pull against each other"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.5,
+          3.4,
+          "The back turbine sits in the front one's wake."
+        ],
+        [
+          3.6,
+          6.4,
+          "Moving it further back gives it more power."
+        ],
+        [
+          6.6,
+          8.9,
+          "But the longer cable costs more money."
+        ],
+        [
+          9.2,
+          12.7,
+          "Cost and power pull against each other: a trade-off."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 02-tradeoff: lesson 13.1's wake toy model (L13.WAKE). Two turbines in a row: the back one sits in the front one's wake (red cone). The back turbine slides back from a gap of 2 to 8 rotor widths: its power climbs from 77% to 95% (green stat) while the cable cost climbs from £3.0m to £12.0m (red stat). Then two grey tags name the two goals. Layout (stage px): field panel x 12..924, y 12..352 (ground at y 300); front turbine x 140, back turbine x 140 + 80 g; stats y 384 (power x 12, cost x 486, 438 x 84); goal tags y 510. Story (local seconds): 0.3 panel, 0.6 turbines, 1.2 wake; 3.6-8.4 gap 2 -> 8 (stats follow, values at whole gaps); 9.2 / 9.6 the goal tags pop; hold to 13."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-points.js",
+      "kicker": "OBJECTIVE SPACE",
+      "title": [
+        "Every layout",
+        "becomes a point"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.5,
+          3.2,
+          "Each layout gets two scores: its cost and its power."
+        ],
+        [
+          3.4,
+          6,
+          "Layout A becomes one point, its objective vector: (20, 30)."
+        ],
+        [
+          6.2,
+          8.2,
+          "Layout E costs more but makes more power: (52, 70)."
+        ],
+        [
+          8.8,
+          11.8,
+          "Eleven layouts, eleven points. Better is up and to the left."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 03-points: lesson 13.1's objective vectors. Each wind farm layout (L13.FARM) is scored on cost (£m, lower is better) and power (MW, higher is better), so it becomes one point in objective space. Layout (stage px): plot x 12, y 12, 600 x 616 (cost 15..60 across, power 20..75 up); right panel x 640..924: a layout tag, a cost stat and a power stat (284 x 80), the label 'objective vector'. A green 'better' arrow in the empty lower right of the plot points up and to the left. Story (local seconds): 0.3 plot; 0.9 'layout A' with £20m and 30 MW; 3.4 guides and dot A (blue) with 'A (20, 30)' and 'objective vector'; 6.2 the panel switches to E (purple), dot E with 'E (52, 70)'; 8.4 the other nine layouts pop in (grey, letters only), 8.6 the 'better' arrow; hold to 12."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-dominance.js",
+      "kicker": "DOMINANCE",
+      "title": [
+        "When one layout",
+        "beats another"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          0.5,
+          3,
+          "Compare two layouts, D and G."
+        ],
+        [
+          3.2,
+          6.2,
+          "D is cheaper and makes more power."
+        ],
+        [
+          6.4,
+          9.2,
+          "So D dominates G: no worse on any goal, better on at least one."
+        ],
+        [
+          9.4,
+          12,
+          "Now D and K: D is cheaper, but K makes more power."
+        ],
+        [
+          12.2,
+          14.8,
+          "Neither wins on both: they are mutually non-dominating."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 04-dominance: lesson 13.1's Pareto dominance on the wind farm (L13.FARM, same plot as scene 3). D (40, 62) against G (45, 58): D is cheaper and makes more power, so D dominates G (G lies in D's box, the region that is worse on both goals, and turns red). D against K (46, 64): D is cheaper, K makes more power; K is outside D's box and D is outside K's box, so neither dominates: they are mutually non-dominating. Layout (stage px): plot x 12, y 12, 584 x 616; right panel x 616..924: two stats 'cheaper' and 'more power' (y 90, 190), the verdict tag (y 310) and, in part 2, the label 'mutually non-dominating' (y 380). Story (local seconds): 0.3 plot (all grey), 0.8 D blue + G purple; 3.4 / 4.4 the two stats; 6.4 D's box grows, 7.0 G red cross, 7.4 'D dominates G'; 9.4 part 2: G back to grey, K purple, stats again (9.8, 10.6), 11.0 K's box; 12.2 verdict 'neither dominates', 12.6 the label; hold to 15."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-front.js",
+      "kicker": "THE PARETO FRONT",
+      "title": [
+        "The layouts that",
+        "nobody beats"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.5,
+          3,
+          "Which layouts does no other layout dominate?"
+        ],
+        [
+          3.2,
+          6.2,
+          "Five layouts are each beaten by another one: they turn red."
+        ],
+        [
+          6.4,
+          9.2,
+          "The six left over form the Pareto front."
+        ],
+        [
+          9.4,
+          12.7,
+          "So the answer is a whole set of layouts, not one best."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 05-front: lesson 13.1's Pareto front of the wind farm (L13.FARM, same plot as scenes 3-4). Each dominated layout gets a grey dashed link from a layout that dominates it and turns red with a cross (F by B, G by D, H by C, I by A, J by E); the six left over (A B C D K E) turn green and a green line joins them in cost order: the Pareto front. The right panel counts them and then shows the answer as a set of six green chips. Layout (stage px): plot x 12, y 12, 584 x 616; right panel x 616..924: stats 'dominated' (y 90) and 'Pareto front' (y 190), the label 'the answer is a set' (y 330) and six chips (2 rows of 3, y 380 and 470). Story (local seconds): 0.3 plot (blue dots); 3.2 + 0.4 i the five dominated layouts (link then red), stat at 3.4; 6.4 front dots turn green, 6.6-7.8 the line draws, 7.6 stat '6'; 9.4 label and chips; hold to 13."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-sorting.js",
+      "kicker": "NON-DOMINATED SORTING",
+      "title": [
+        "Peel the fronts",
+        "like an onion"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.5,
+          2.2,
+          "Twelve solutions, both goals minimised."
+        ],
+        [
+          2.4,
+          4.6,
+          "Rank 0: the ones that nobody dominates."
+        ],
+        [
+          4.8,
+          7.2,
+          "Set them aside: the next front of what is left is rank 1."
+        ],
+        [
+          7.4,
+          10.6,
+          "Keep peeling, like an onion: rank 2, then rank 3."
+        ],
+        [
+          10.8,
+          13.7,
+          "Every solution now has a rank: lower is better."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 06-sorting: lesson 13.2's non-dominated sorting on its 12 points a..l (L13.PEEL, both goals minimised, so better is down and to the left). Rank 0 = the points nobody dominates (a b c d e, green line); set them aside (they fade back) and the next non-dominated set is rank 1 (f g h, blue); then rank 2 (k i j, purple) and rank 3 (l, orange). At the end every rank is shown at full strength: peeled like an onion. Layout (stage px): plot x 12, y 12, 600 x 616 (f1, f2 from 0 to 10); right panel x 636..924: four stats 'rank 0'..'rank 3' (288 x 80 at y 60, 160, 260, 360) with the count of each rank; a green 'better' arrow at the empty lower left. Story (local seconds): 0.3 plot + grey dots, 1.0 'better'; rank r lights at 2.4 / 4.8 / 7.4 / 9.0 (dots, then line, then its stat), earlier ranks fade to 0.3 while the next is found; 10.8 all ranks back to full; hold to 14."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-crowding.js",
+      "kicker": "CROWDING DISTANCE",
+      "title": [
+        "Prefer points with",
+        "room around them"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.5,
+          2.8,
+          "Inside one front, which points should we keep?"
+        ],
+        [
+          3,
+          5.2,
+          "The two ends get infinity: they are always kept."
+        ],
+        [
+          5.4,
+          8.4,
+          "For Q, draw a box out to its neighbours P and R: 0.75."
+        ],
+        [
+          8.6,
+          11,
+          "R and S get bigger boxes: 1.00 and 1.25."
+        ],
+        [
+          11.2,
+          13.8,
+          "Prefer the biggest box: it keeps the front spread out."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 07-crowding: lesson 13.2's crowding distance on its worked front P..T (L13.W, both minimised). The two ends (P and T) get infinity. Each inner point gets the box that reaches out to its two neighbours on the front; its crowding distance is the box's width plus height, each as a share of the front's range (Q: 2/8 + 4/8 = 0.75, R: 1.00, S: 1.25). Bigger is better: it keeps the front spread out. Layout (stage px): plot x 12, y 12, 600 x 616 (0..10 both); right panel x 636..924: the label 'crowding distance' (y 20) and five stats P..T (288 x 70, y 70 + 84 i), grey '?' until computed, then orange. Story (local seconds): 0.3 plot, green dots and line; 1.8 label and grey stats; 3.0 P and T ringed, 3.4 their '∞'; 5.4 Q's box grows (P..R), 6.4 '0.75'; 8.6 R's box (Q..S), 9.2 '1.00'; 9.6 S's box (R..T), 10.2 '1.25'; 11.2 S ringed, its stat pulses, the tag 'most room'; hold to 14."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-nsga.js",
+      "kicker": "NSGA-II",
+      "title": [
+        "Merge, sort,",
+        "keep the best"
+      ],
+      "dur": 17,
+      "caps": [
+        [
+          0.5,
+          2.2,
+          "NSGA-II starts with N = 6 parents."
+        ],
+        [
+          2.4,
+          4.4,
+          "They breed six children."
+        ],
+        [
+          4.6,
+          6.4,
+          "Parents and children are merged: 12 in all."
+        ],
+        [
+          6.6,
+          8.4,
+          "Non-dominated sorting splits the 12 into ranks."
+        ],
+        [
+          8.6,
+          10.4,
+          "Rank 0 fits whole: A, B and C are kept."
+        ],
+        [
+          10.6,
+          13,
+          "Rank 1 has four for three places: crowding drops E."
+        ],
+        [
+          13.2,
+          16.8,
+          "The best always survive to the next generation: elitism."
+        ]
+      ],
+      "spec": "Lecture 13 video, scene 08-nsga: lesson 13.3's NSGA-II generation on the workshop's 12 candidates (L13.SURV, both minimised), N = 6. Six parents (blue: A D E H I L) breed six children (purple: B C F G J K); the 12 are merged and non-dominated sorting gives ranks (scene 6's rank colours: 0 green A B C, 1 blue D E F G, 2 purple H J, 3 orange I K, 4 grey L). Rank 0 fits whole (3 places); rank 1 has 4 for the last 3 places, so crowding decides: D ∞, G ∞, F 1.33 beat E 1.00. The six survivors A B C D F G (two old parents, four children) become the next parents: the best are never lost (elitism). Layout (stage px): plot x 12, y 12, 600 x 616 (0..10 both); right panel x 636..924: label 'next N = 6' (y 16), six slots (2 x 3 chips 128 x 72 at y 64, 152, 240), status tags at y 350 and 420. Story (local seconds): 0.6 parents + '6 parents'; 2.4 children + '6 children'; 4.6 all turn grey, tags swap to '12 together'; 6.6 rank colours and lines; 8.6 rank 0 fills slots A B C; 10.6 crowding labels on rank 1, 11.6 E crossed, 12.0 D G F fill slots; 13.2 the other six crossed, 13.3 'elitism' tag, 14.0 they fade out, survivors turn blue; hold to 17."
+    }
+  ],
+  "recap": {
+    "file": "scene-09-recap.js",
+    "dur": 9,
+    "spec": "Lecture 13 · Multi-objective evolutionary algorithms, scene 09-recap: three rows, each a small animated pictogram and one bold line (bare scene). Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row, 5.6-6.2 the call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no reset): all are done by 6.5 s, so for the last 2.5 seconds only Sprout's bob moves. Row 1 (blue): dominance. Small axes (power up, cost across); a blue dot; its box (worse on both goals) grows to the lower right and the purple dot inside turns red with a cross. Row 2 (green): non-dominated sorting. Three fronts draw on one after another: green (rank 0), blue (rank 1), purple (rank 2). Row 3 (purple): NSGA-II. Three blue parents and three purple children slide together into one row, then the best three turn green and the other three turn red and fade."
+  },
+  "helpers": "videos/l13/common.js (data + the app's kernel, asserts: L13.same, fmtD, dom, ranks, crowd, crowdAll, WAKE, FARM, PEEL, W, SURV, PARENTS, KIDS, N, KEEP); common-2.js (l12's sticker kit renamed: tag, chip, stat, disc, token, card, label, star, mark, arrow, seq, along, tone); common-3.js (L13.plot: objective-space panel with dots, lines, boxes, links; pure update). See each file's header."
+}

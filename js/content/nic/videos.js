@@ -1,4 +1,4 @@
-/* Recap videos for Nature-Inspired lectures 1 to 8, 11 and 12: one node after each lecture's boss quiz.
+/* Recap videos for Nature-Inspired lectures 1 to 8, 11, 12, 13 and 15: one node after each lecture's boss quiz.
    Each is a one-step lesson that plays videos/out/lecture-N.mp4 (made from videos/lecture-N.html, see videos/README.md).
    A video is a bonus (m.video): it never counts towards finishing a lecture or a course, and watching it keeps the
    streak alive and pays the review amount (5 XP) without adding to lesson counts. */
@@ -155,10 +155,37 @@
         "For bits, velocity becomes a chance",
       ],
     },
+    {
+      n: 13,
+      blurb: "Lectures 13 and 14 in pictures: trade-offs, Pareto dominance, sorting into fronts and the NSGA-II loop.",
+      chapters: [
+        "Two goals that pull against each other",
+        "Every layout becomes a point",
+        "When one layout beats another",
+        "The layouts that nobody beats",
+        "Peel the fronts like an onion",
+        "Prefer points with room around them",
+        "Merge, sort, keep the best",
+      ],
+    },
+    {
+      n: 15,
+      blurb:
+        "Lecture 15 in pictures: personal bests, the archive of non-dominated solutions, pruning it, and choosing leaders.",
+      chapters: [
+        "No single best",
+        "Personal best",
+        "The archive",
+        "Pruning",
+        "Leaders",
+        "A MOPSO run",
+        "Many objectives",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 11: 4, 12: 4 };
+  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 11: 4, 12: 4, 13: 4, 15: 4 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

@@ -50,6 +50,8 @@
     "css/nw/nw8-aco.css",
     "css/nw/nw11-flock.css",
     "css/nw/nw12-pso.css",
+    "css/nw/nw13-moea.css",
+    "css/nw/nw15-mopso.css",
     ...CODELAB,
   ];
   const GROUPS = {
@@ -116,6 +118,16 @@
       "js/content/nic/pso-03.js",
       "js/content/nic/pso-workshop.js",
       "js/content/nic/boss-nic-12.js",
+      "js/content/nic/l13-01.js",
+      "js/content/nic/l13-02.js",
+      "js/content/nic/l13-03.js",
+      "js/content/nic/l13-workshop.js",
+      "js/content/nic/boss-nic-13.js",
+      "js/content/nic/l15-01.js",
+      "js/content/nic/l15-02.js",
+      "js/content/nic/l15-03.js",
+      "js/content/nic/l15-workshop.js",
+      "js/content/nic/boss-nic-15.js",
       "js/content/nic/videos.js",
     ],
     ds: [

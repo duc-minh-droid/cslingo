@@ -14,11 +14,13 @@ Animated explainers (square 1080 x 1080, on-screen captions; the narrated ones a
 | Lecture 8: The Ant System in detail | `lecture-8.html` | 4:11 | `out/lecture-8.mp4` |
 | Lecture 11: Flocking | `lecture-11.html` | 4:03 | `out/lecture-11.mp4` |
 | Lecture 12: Particle swarm optimisation | `lecture-12.html` | 4:10 | `out/lecture-12.mp4` |
+| Lectures 13-14: Multi-objective EAs | `lecture-13.html` | 3:42 | `out/lecture-13.mp4` |
+| Lecture 15: Multi-objective PSO | `lecture-15.html` | 4:14 | `out/lecture-15.mp4` |
 
 - **Preview:** `python serve.py 8651`, then open `http://localhost:8651/videos/lecture-5.html` (space plays and pauses, ← → jump 1 s, `[` `]` jump scenes, the slider scrubs).
 - **Look at a frame:** `node tools/video-still.js lecture-5 s3@4.5,s5@8 /tmp/stills` (scene number `@` seconds into it, or absolute seconds; `info` lists the scenes).
 - **Record:** `FFMPEG=/path/to/ffmpeg node tools/render-video.js lecture-5` (needs an ffmpeg with libx264; the Playwright one cannot encode H.264, `pip install imageio-ffmpeg` ships one).
-- **How it works:** `engine.js` is a deterministic timeline: every scene is a pure function of its local time, so any frame can be drawn in any order. Scenes live in `l1/` to `l8/`, `l11/` and `l12/` (one file per scene, shared drawing helpers in `common.js`), the title and recap cards in `cards.js`, the look in `video.css` (CSLingo colour roles, sticker look, Nunito). Add a scene by creating the file and listing it in the page.
+- **How it works:** `engine.js` is a deterministic timeline: every scene is a pure function of its local time, so any frame can be drawn in any order. Scenes live in `l1/` to `l8/`, `l11/`, `l12/`, `l13/` and `l15/` (one file per scene, shared drawing helpers in `common.js`), the title and recap cards in `cards.js`, the look in `video.css` (CSLingo colour roles, sticker look, Nunito). Add a scene by creating the file and listing it in the page.
 
 ## Narration (voice-over)
 
@@ -41,7 +43,7 @@ under it and the scene cuts on its downbeats. Nothing leaves the machine: no API
 
 ## Data Science videos (`ds-N`)
 
-One explainer per Data Science lecture, same engine and rules: page `videos/ds-N.html`, scenes and helpers in `videos/dN/`, storyboard `videos/_plan/ds-N.json`, output `videos/out/ds-N.mp4` plus `ds-N-poster.png` (a still of the title card, `node tools/video-still.js ds-N 2.2 <dir>`). Record with `FFMPEG=... node tools/render-video.js ds-N`; the lecture is wired into the app by adding `{n, blurb, chapters}` to `VIDEOS` in `js/content/ds/videos.js`. Lectures 1 to 9 are recorded and wired. The agent briefs used to build them are `videos/_plan/DS_*.md` (architect, scene, review, fix).
+One explainer per Data Science lecture, same engine and rules: page `videos/ds-N.html`, scenes and helpers in `videos/dN/`, storyboard `videos/_plan/ds-N.json`, output `videos/out/ds-N.mp4` plus `ds-N-poster.png` (a still of the title card, `node tools/video-still.js ds-N 2.2 <dir>`). Record with `FFMPEG=... node tools/render-video.js ds-N`; the lecture is wired into the app by adding `{n, blurb, chapters}` to `VIDEOS` in `js/content/ds/videos.js`. Lectures 1 to 11 are recorded and wired. The agent briefs used to build them are `videos/_plan/DS_*.md` (architect, scene, review, fix).
 
 ## Algorithms videos (`algo-N`)
 
