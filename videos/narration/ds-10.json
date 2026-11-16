@@ -1,0 +1,295 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture ten. Concept drift detection. How a model notices that the world has changed."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A grocery app suggests plant milk to its shoppers.",
+     "A grocery app suggests plant milk to its shoppers."
+    ],
+    [
+     "In week one, the model learns who tends to click.",
+     "The model learns who clicks in week 1."
+    ],
+    [
+     "Week by week, the same shoppers click more and more often.",
+     "Week by week, the same shoppers click more often."
+    ],
+    [
+     "Shoppers aged thirty to forty-four now click forty-six percent of the time. The model still says twenty.",
+     "Ages 30–44: 46% click now. The model still says 20%."
+    ],
+    [
+     "The inputs are the same, but the rule behind them has changed. That is concept drift.",
+     "Same inputs, new rule: that is concept drift."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each tick is one prediction. The tall red ticks are mistakes.",
+     "Each tick is one prediction. Tall red ticks are errors."
+    ],
+    [
+     "Abrupt drift is like a pandemic. Overnight, errors jump from ten to fifty percent.",
+     "Abrupt, like a pandemic: errors jump from 10% to 50%."
+    ],
+    [
+     "Gradual drift is like a slow economic change. The new rule creeps in bit by bit.",
+     "Gradual, like economic change: the new rule creeps in."
+    ],
+    [
+     "Recurring drift is like the seasons. The old rule comes back again and again.",
+     "Recurring, like the seasons: the old rule comes back."
+    ],
+    [
+     "The model never changed. The world did.",
+     "The model never changed. The world did."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are two models. One is frozen, and one retrains every four weeks.",
+     "One model is frozen; one retrains every 4 weeks."
+    ],
+    [
+     "In week six, the shoppers change their habits overnight.",
+     "Week 6: shoppers change habit overnight."
+    ],
+    [
+     "Retrained on weeks five to eight, the second model is still twenty percent wrong.",
+     "Retrained on weeks 5–8, it is still 20% wrong."
+    ],
+    [
+     "Only after week twelve is it back down to ten percent.",
+     "Only after week 12 is it back to 10%."
+    ],
+    [
+     "The frozen model stays stuck at fifty percent, because it never updates.",
+     "The frozen model stays at 50%: it never updates."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each prediction becomes a one if wrong, a zero if right.",
+     "Each prediction becomes a 1 if wrong, a 0 if right."
+    ],
+    [
+     "Average those errors over a window of recent records.",
+     "Average the errors over a window of recent records."
+    ],
+    [
+     "The last ten hits thirty percent before any drift. A false alarm.",
+     "Last 10 hits 30% before any drift: a false alarm."
+    ],
+    [
+     "After the drift at record one hundred, it reacts within six records.",
+     "After the drift at record 100, it reacts by 106."
+    ],
+    [
+     "The last hundred and fifty is steady, but slow to reach thirty percent.",
+     "Last 150 is steady, but reaches 30% only at 174."
+    ],
+    [
+     "Too short is jumpy. Too long is slow.",
+     "Too short is jumpy, too long is slow."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Ad-win keeps a window of the most recent records.",
+     "ADWIN keeps a window of the most recent records."
+    ],
+    [
+     "While nothing changes, the window grows.",
+     "Nothing changes, so the window keeps growing."
+    ],
+    [
+     "Then a drift starts, and errors bunch up.",
+     "A drift at record 250: errors bunch up."
+    ],
+    [
+     "Now the old and new parts disagree, so ad-win cuts the forty oldest records.",
+     "Record 296: its parts disagree. Cut the 40 oldest."
+    ],
+    [
+     "It keeps cutting, down to a hundred and twenty-five.",
+     "It keeps cutting: 125 records left at record 334."
+    ],
+    [
+     "Once things are calm, the window grows again.",
+     "Calm again, so the window grows again."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A window of eighty records, about ten percent errors.",
+     "A window of 80 records, about 10% errors."
+    ],
+    [
+     "Ad-win tries every split, into an older part and a newer part.",
+     "ADWIN tries splits: an older part and a newer part."
+    ],
+    [
+     "With few new records, the gap is below the threshold. No cut.",
+     "Few new records: gap 0.55, threshold 0.79. No cut."
+    ],
+    [
+     "As records arrive, the threshold falls.",
+     "More records, a lower threshold."
+    ],
+    [
+     "Now the gap beats the threshold.",
+     "111 records: gap 0.54 beats the threshold 0.52."
+    ],
+    [
+     "So ad-win drops the eight oldest records. After that, no split passes.",
+     "Cut: drop the 8 oldest records. No split passes the test now."
+    ],
+    [
+     "Small parts need a big gap, so noise rarely causes a cut.",
+     "Small parts need a big gap, so noise rarely cuts."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "D D M reads the errors. Ten of a hundred records are wrong.",
+     "DDM reads the errors: 100 records, 10 of them wrong."
+    ],
+    [
+     "So the error rate, p, is zero point one.",
+     "Error rate p = 10 ÷ 100 = 0.1."
+    ],
+    [
+     "The spread, s, is zero point zero three.",
+     "Spread s = √(0.1 × 0.9 ÷ 100) = 0.03."
+    ],
+    [
+     "With four times the records, the spread halves.",
+     "Four times the records: s halves to 0.015."
+    ],
+    [
+     "D D M watches p plus s.",
+     "DDM watches p + s: the error rate plus its spread."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "D D M plots p plus s as each record arrives.",
+     "DDM plots p + s as each record arrives."
+    ],
+    [
+     "The warning line is two spreads above the best moment. The change line is three.",
+     "Warning at p min + 2 s min, change at p min + 3 s min."
+    ],
+    [
+     "The best moment came at record one hundred and fourteen.",
+     "p min and s min: the best moment so far, record 114."
+    ],
+    [
+     "Soon after, every other prediction is wrong.",
+     "After record 121, every other prediction is wrong."
+    ],
+    [
+     "At record one hundred and twenty-eight, it crosses the warning line, and new records are stored.",
+     "Record 128: past the warning line. Store new records."
+    ],
+    [
+     "Ten records later, it crosses the change line. Drift detected.",
+     "Record 138: past the change line. Drift detected."
+    ],
+    [
+     "A new model is trained on the stored records.",
+     "Train a new model on records 128 to 138."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "E D D M watches the gaps between errors: nine, twelve, eight, eleven, ten.",
+     "EDDM measures the gaps between errors: 9, 12, 8, 11, 10."
+    ],
+    [
+     "Its best score so far is twelve point eight.",
+     "Mean gap plus 2 spreads: 12.8, the best so far."
+    ],
+    [
+     "After a drift, the gaps shrink to twos and threes.",
+     "After a drift the gaps shrink: 3, 2, 4, 2, 3, 2, 3."
+    ],
+    [
+     "Now the score is four point one, a ratio of zero point three two.",
+     "4.1 against the best 12.8: a ratio of 0.32."
+    ],
+    [
+     "Below zero point nine five is a warning. Below zero point nine is a drift.",
+     "Below 0.95 is a warning, below 0.90 a drift."
+    ],
+    [
+     "On a gradual drift, E D D M was thirty records faster than D D M.",
+     "Gradual drift: EDDM caught it after 108 records, DDM 138."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    1.9,
+    2.9
+   ],
+   "lines": [
+    "Drift can be abrupt, gradual or recurring, and it always shows up in the errors.",
+    "Ad-win grows its window while things are calm, and cuts it when the old and new parts disagree.",
+    "D D M warns, then signals a change, as p plus s climbs above its best."
+   ]
+  }
+ ]
+}

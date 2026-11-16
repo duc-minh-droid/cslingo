@@ -1,0 +1,211 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture fifteen. Multi-objective particle swarm optimisation. This is how a swarm keeps a whole front of good trade-offs."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Nine drone routes, each scored by delivery time and by energy. Lower is better for both.",
+     "Nine drone routes, each scored by time and energy. Lower is better."
+    ],
+    [
+     "Plain PSO follows two points. Its own best, the p best, and the swarm's best, the g best.",
+     "Plain PSO follows two points: its own pbest and the swarm's gbest."
+    ],
+    [
+     "Five routes turn green. No other route beats any of them on both goals.",
+     "Five routes are not dominated by any other route."
+    ],
+    [
+     "None of them beats the other four. So there is no single g best.",
+     "None beats the other four, so there is no single gbest."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now one particle. Its p best starts at five, five, and lower time and energy are better.",
+     "A particle's pbest starts at (5, 5). Lower time and energy are better."
+    ],
+    [
+     "It moves to four, six, a trade-off. Keep the oldest stays put. Keep the newest moves.",
+     "It moves to (4, 6), a trade-off. Keep oldest stays, keep newest moves."
+    ],
+    [
+     "Next it lands on six, seven. That is worse on both goals, so neither rule moves.",
+     "(6, 7) is worse on both goals, so neither rule moves."
+    ],
+    [
+     "Then three and a half, five and a half. Another trade-off, so only keep the newest moves again.",
+     "(3.5, 5.5) is another trade-off: only keep newest moves."
+    ],
+    [
+     "Last, four and a half, four. It dominates five, five, so now keep the oldest moves as well.",
+     "(4.5, 4) dominates (5, 5), so now keep oldest moves too."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "For the swarm's side, the archive keeps every route that nothing else dominates so far.",
+     "The archive keeps every non-dominated route found so far."
+    ],
+    [
+     "A newcomer arrives at two, four. It dominates the two members in its blue box, so they leave, and it joins.",
+     "Newcomer (2, 4) dominates two members: they leave and it joins."
+    ],
+    [
+     "The next one, five and four and a half, sits in the box of two, four. It is dominated, so it is turned away.",
+     "(5, 4.5) is dominated by (2, 4), so it is turned away."
+    ],
+    [
+     "Then seven, two. Its red box is empty, so nobody dominates it. It is a new trade-off, and it joins.",
+     "(7, 2) is a new trade-off: nobody dominates it, so it joins."
+    ],
+    [
+     "No member dominates another, so the archive is the front found so far.",
+     "No member dominates another: the archive is the front so far."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are twelve archive members, but the cap is six.",
+     "Twelve archive members, but the cap is six."
+    ],
+    [
+     "We prune by crowding distance. The two ends, a and l, score infinity, so they are always kept.",
+     "The two ends, a and l, get infinite crowding distance: always kept."
+    ],
+    [
+     "The most crowded goes first, j at zero point one three. Then the scores are worked out again, and f goes next.",
+     "Remove the most crowded, j at 0.13, then recompute: f goes next."
+    ],
+    [
+     "One at a time, c, k, g and b follow it out.",
+     "Then c, k, g and b, one at a time."
+    ],
+    [
+     "Six members are left, spread along the whole front, with both ends still there.",
+     "Six spread-out members are left, ends included."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Each particle needs a leader from the green archive.",
+     "Each particle (blue) needs a leader from the archive (green)."
+    ],
+    [
+     "The simplest way is to pick at random. Each of the five members has a one in five chance.",
+     "Simplest: pick a member at random, each with a 1 in 5 chance."
+    ],
+    [
+     "Another way counts the particles each member dominates. Member c dominates four of them, and e only one.",
+     "Or count the particles each member dominates: c dominates four, e one."
+    ],
+    [
+     "A member that dominates fewer is more likely to lead. Here e gets a weight of one half, and c only one fifth.",
+     "Fewer means more likely to lead: e's weight is 1/2, c's only 1/5."
+    ],
+    [
+     "Or use particle P as the reference point. Three members dominate it, b, c and d.",
+     "Or use particle P as the reference point: b, c and d dominate it."
+    ],
+    [
+     "Their own boxes cover one and a half, four, and one and a half. Member c covers most, so c leads.",
+     "Their own boxes: b 1.5, c 4, d 1.5. c covers most, so c leads."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now a real run. Ten drone routes fly, shown in blue, and their archive is shown in green.",
+     "A real run: ten drone routes (blue) and their archive (green)."
+    ],
+    [
+     "Each step the particles follow their leaders, and any better route they find enters the archive.",
+     "Each step the particles follow leaders, and better routes enter the archive."
+    ],
+    [
+     "Step by step, the archive creeps down towards the true front, the dashed line.",
+     "The archive creeps towards the true front, the dashed line."
+    ],
+    [
+     "It is capped at ten, so it stays spread out along the whole front.",
+     "Capped at ten, it stays spread along the whole front."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Around one point, a quarter of the space is better on both goals, and a quarter is worse on both.",
+     "Around a point, a quarter of space is better on both goals, a quarter worse."
+    ],
+    [
+     "The other half is neither. Points there cannot be compared by dominance.",
+     "The other half is neither: those points cannot be compared."
+    ],
+    [
+     "Each extra goal halves the share that can be compared. With six goals, it is only one in thirty-two.",
+     "Each extra goal halves the share you can compare: 1/32 with six."
+    ],
+    [
+     "So almost every pair is non-dominated, and dominance can no longer rank the swarm.",
+     "So almost every pair is non-dominated, and dominance stops ranking."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2.0,
+    3.1
+   ],
+   "lines": [
+    "The archive keeps every route that nothing dominates.",
+    "When it is too full, drop the most crowded member, and keep the ends.",
+    "Each particle picks its leader from the archive."
+   ]
+  }
+ ]
+}

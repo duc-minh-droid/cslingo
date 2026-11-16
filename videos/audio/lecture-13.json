@@ -1,0 +1,682 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.51,
+     "Lectures thirteen and fourteen. Multi-objective evolutionary algorithms. This is how to search for good trade-offs."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f3944d4e00be5f0b.wav",
+     "at": 0.5,
+     "len": 7.76
+    }
+   ]
+  },
+  {
+   "dur": 28.352,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.96,
+     3.6
+    ],
+    [
+     15.26,
+     6.6
+    ],
+    [
+     20.4,
+     9.2
+    ],
+    [
+     28.352,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.71,
+     "The back turbine sits in the front one's wake."
+    ],
+    [
+     7.96,
+     15.01,
+     "Moving it further back gives it more power."
+    ],
+    [
+     15.26,
+     20.15,
+     "But the longer cable costs more money."
+    ],
+    [
+     20.4,
+     27.21,
+     "Cost and power pull against each other: a trade-off."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3058d9c76960514e.wav",
+     "at": 0.5,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/4fcf89a959abfe5d.wav",
+     "at": 7.96,
+     "len": 6.8
+    },
+    {
+     "file": "videos/audio/clips/2ee6ebd472323511.wav",
+     "at": 15.26,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/5347dedc265f3f9e.wav",
+     "at": 20.4,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 25.1,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.52,
+     3.4
+    ],
+    [
+     14.38,
+     6.2
+    ],
+    [
+     19.28,
+     8.8
+    ],
+    [
+     25.1,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.27,
+     "Each layout gets two scores: its cost and its power."
+    ],
+    [
+     6.52,
+     14.13,
+     "Layout A becomes one point, its objective vector: (20, 30)."
+    ],
+    [
+     14.38,
+     19.03,
+     "Layout E costs more but makes more power: (52, 70)."
+    ],
+    [
+     19.28,
+     24.01,
+     "Eleven layouts, eleven points. Better is up and to the left."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3407996fd0e6f27d.wav",
+     "at": 0.5,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/196502ff3892a22c.wav",
+     "at": 6.52,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/3380e00937dba791.wav",
+     "at": 14.38,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/891cb9cf3f435d2c.wav",
+     "at": 19.28,
+     "len": 4.48
+    }
+   ]
+  },
+  {
+   "dur": 28.282,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.28,
+     3.2
+    ],
+    [
+     8.94,
+     6.4
+    ],
+    [
+     15.92,
+     9.4
+    ],
+    [
+     20.66,
+     12.2
+    ],
+    [
+     28.282,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.03,
+     "Compare two layouts, D and G."
+    ],
+    [
+     4.28,
+     8.69,
+     "D is cheaper and makes more power."
+    ],
+    [
+     8.94,
+     15.67,
+     "So D dominates G: no worse on any goal, better on at least one."
+    ],
+    [
+     15.92,
+     20.41,
+     "Now D and K: D is cheaper, but K makes more power."
+    ],
+    [
+     20.66,
+     26.27,
+     "Neither wins on both: they are mutually non-dominating."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/95ee3ad1a09e2d94.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/aed83edb324c38fb.wav",
+     "at": 4.28,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/fa24733b791182df.wav",
+     "at": 8.94,
+     "len": 6.48
+    },
+    {
+     "file": "videos/audio/clips/d0a166199378bac1.wav",
+     "at": 15.92,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/9120d3dc4eb9feb4.wav",
+     "at": 20.66,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 18.274,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     3.8,
+     3.2
+    ],
+    [
+     9.34,
+     6.4
+    ],
+    [
+     12.72,
+     9.4
+    ],
+    [
+     18.274,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.55,
+     "Which layouts does no other layout dominate?"
+    ],
+    [
+     3.8,
+     9.09,
+     "Five layouts are each beaten by another one: they turn red."
+    ],
+    [
+     9.34,
+     12.47,
+     "The six left over form the Pareto front."
+    ],
+    [
+     12.72,
+     17.69,
+     "So the answer is a whole set of layouts, not one best."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fa9a5caec1e769a4.wav",
+     "at": 0.5,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/bb0b35f0c1f2c903.wav",
+     "at": 3.8,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/1f80166b933f7a07.wav",
+     "at": 9.34,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/119152bc14fd8612.wav",
+     "at": 12.72,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 28.329,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.56,
+     2.4
+    ],
+    [
+     11.58,
+     4.8
+    ],
+    [
+     17.2,
+     7.4
+    ],
+    [
+     22.26,
+     10.8
+    ],
+    [
+     28.329,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.31,
+     "Twelve solutions, both goals minimised."
+    ],
+    [
+     7.56,
+     11.33,
+     "Rank 0: the ones that nobody dominates."
+    ],
+    [
+     11.58,
+     16.95,
+     "Set them aside: the next front of what is left is rank 1."
+    ],
+    [
+     17.2,
+     22.01,
+     "Keep peeling, like an onion: rank 2, then rank 3."
+    ],
+    [
+     22.26,
+     26.43,
+     "Every solution now has a rank: lower is better."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2f0bde1c7a1ea943.wav",
+     "at": 0.5,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/00e10f097f6b8fea.wav",
+     "at": 7.56,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/d58ef52187f4722b.wav",
+     "at": 11.58,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/bfe9cf2145fd00bf.wav",
+     "at": 17.2,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/1e05e0ea4fcc94fd.wav",
+     "at": 22.26,
+     "len": 3.92
+    }
+   ]
+  },
+  {
+   "dur": 26.679,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.76,
+     3
+    ],
+    [
+     10.14,
+     5.4
+    ],
+    [
+     17.28,
+     8.6
+    ],
+    [
+     21.54,
+     11.2
+    ],
+    [
+     26.679,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "Inside one front, which points should we keep?"
+    ],
+    [
+     4.76,
+     9.89,
+     "The two ends get infinity: they are always kept."
+    ],
+    [
+     10.14,
+     17.03,
+     "For Q, draw a box out to its neighbours P and R: 0.75."
+    ],
+    [
+     17.28,
+     21.29,
+     "R and S get bigger boxes: 1.00 and 1.25."
+    ],
+    [
+     21.54,
+     25.39,
+     "Prefer the biggest box: it keeps the front spread out."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d0e99b44b9749a88.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/ca70c1768e5221b5.wav",
+     "at": 4.76,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/88bfe0bb979a3cad.wav",
+     "at": 10.14,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/cfbd932ec7812e36.wav",
+     "at": 17.28,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/015f5627338ec341.wav",
+     "at": 21.54,
+     "len": 3.6
+    }
+   ]
+  },
+  {
+   "dur": 40.101,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     5.72,
+     2.4
+    ],
+    [
+     9.42,
+     4.6
+    ],
+    [
+     13.04,
+     6.6
+    ],
+    [
+     17.14,
+     8.6
+    ],
+    [
+     22.44,
+     10.6
+    ],
+    [
+     30.78,
+     13.2
+    ],
+    [
+     40.101,
+     17
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "NSGA-II starts with N = 6 parents."
+    ],
+    [
+     5.72,
+     9.17,
+     "They breed six children."
+    ],
+    [
+     9.42,
+     12.79,
+     "Parents and children are merged: 12 in all."
+    ],
+    [
+     13.04,
+     16.89,
+     "Non-dominated sorting splits the 12 into ranks."
+    ],
+    [
+     17.14,
+     22.19,
+     "Rank 0 fits whole: A, B and C are kept."
+    ],
+    [
+     22.44,
+     30.53,
+     "Rank 1 has four for three places: crowding drops E."
+    ],
+    [
+     30.78,
+     38.15,
+     "The best always survive to the next generation: elitism."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fb80e24997b1bd43.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/bea0763f13c6cc45.wav",
+     "at": 5.72,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/fcc1b07a507a36e7.wav",
+     "at": 9.42,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/91f90f5f49341124.wav",
+     "at": 13.04,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/74eb5e758a05cb0e.wav",
+     "at": 17.14,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/ca3510374ebc2263.wav",
+     "at": 22.44,
+     "len": 7.84
+    },
+    {
+     "file": "videos/audio/clips/398cae141366c192.wav",
+     "at": 30.78,
+     "len": 7.12
+    }
+   ]
+  },
+  {
+   "dur": 18.228,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.2,
+     2
+    ],
+    [
+     11.34,
+     3.1
+    ],
+    [
+     18.228,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6640115e385e5242.wav",
+     "at": 0.5,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/09b71d76facb90a1.wav",
+     "at": 6.2,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/a4890813bd3f8238.wav",
+     "at": 11.34,
+     "len": 5.04
+    }
+   ]
+  }
+ ]
+}

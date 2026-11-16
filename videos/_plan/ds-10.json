@@ -1,0 +1,417 @@
+{
+ "slug": "ds-10",
+ "dir": "d10",
+ "title": "Lecture 10 · Concept drift detection",
+ "outline": "Lecture 10 video (Data Science, COM3021): 'Concept drift detection'. 11 scenes, 119 s: title (4), concept drift (10), three kinds (13), batch models (11), watch the errors (12), adwin (12), adwin's test (13), ddm (10), ddm (13), eddm (12), recap (9).\nSTORY in the lessons' order. 10.1 ds10-drift (js/content/ds/ds-l10-01.js): concept drift is a change in the relationship between input and output (the third shift of Lecture 9.3); streaming data is dynamic, e.g. consumer preferences: Basketly's plant-milk clicks for ages 30–44 go 20% -> 46% from week 1 to 52 while the week-1 model still says 20% (scene 2); the three kinds, abrupt (a pandemic), gradual (cultural or economic change) and recurring (the seasons), shown on the lesson's own error stream (world(5), drift at record 100; the frozen model is wrong 10% of the time before, 50% after) (scene 3); a batch model trained once goes stale, a fixed retraining schedule lags (drift in week 6; the frozen model stays at 50%, a model retrained every 4 weeks on the last 4 weeks is 50% in weeks 6–8, 20% in 9–12, 10% from 13) (scene 4); a deployed model can only see its error stream (0 right, 1 wrong); a rolling window over it is jumpy when short (last 10 hits 30% at record 66 with no drift) and slow when long (last 150 reaches 30% only at record 174 for a drift at 100) (scene 5). 10.2 ds10-detect (ds-l10-02.js): ADWIN keeps a variable window that grows while calm and drops the oldest records when two parts disagree (growFig: world(5), drift at 250; window 295 -> cut 40 at record 296 -> 125 by record 334 -> grows again) (scene 6); the split test: |mean W0 − mean W1| ≥ ε_cut, ε_cut large for small parts (adwinRun: 80 records at 10%, then new records at 60%; at 90 records gap 0.55 < 0.79; at 111 gap 0.54 ≥ 0.52, cut 8 oldest) (scene 7); DDM's error rate p and spread s = √(p(1 − p)/n) (100 records, 10 errors: p 0.1, s 0.03; 400: s 0.015) (scene 8); DDM's warning (p + s ≥ p min + 2 s min) and change (≥ p min + 3 s min) lines, store from the warning, retrain on the stored records (ddmRun: best at record 114, warning at 128, change at 138) (scene 9); EDDM watches the gaps between errors (9, 12, 8, 11, 10 -> 12.8; after a drift 3, 2, 4, 2, 3, 2, 3 -> 4.1; ratio 0.32 < 0.90) and catches gradual drift earlier (race: EDDM 108, DDM 138 records) (scene 10). Recap and 'Next: Workshop 10.W' (ds10-lab, ds-l10-workshop.js: guard a spam filter). Boss quiz boss-ds-10.js (Glowgrid); bank js/bank/ds-47.js, ds-48.js. Vault: study-vault/Data Science/Topics/10 - Concept Drift Detection.md. Not covered (too much for one video): the three-shift recap figure, the 'after the alarm' zones figure as a separate step (folded into scene 9's last beat), EDDM's maths, the abrupt race numbers, the maths boxes.\nNUMBERS: every figure comes from videos/d10/common.js (VID.d10, D10), which ports the lessons' own code line for line (the ds9 rng, world, level, ddm, adwin with splits and epsCut, eddm, the workshop monitor; same seeds, same draws) and asserts the values quoted here and in the specs when the page loads.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nSHARED LOOK: error streams are always D10.strip (tall red tick = an error, short grey tick = a right answer), drawn at the top of a D9.plot panel (pad.t leaves room) or in a D4.svg layer; error-rate charts are in PER CENT (scenes 3-5), DDM's charts in decimals (scenes 8-9, as the lesson); the drift moment is always a purple dashed vertical mark with a purple 'drift' text; windows and parts are D10.span brackets (blue = the window, orange = stored since the warning, grey = an older part); text stickers are D4.tag / D4.label / D4.chips / D4.bar; pictograms are SVG (D10.basket, virus, coins, sun, snow, lens, L5.tick / cross / arrow). One stream family runs through the video: the lessons' world(5) (scenes 3, 5, 6), then the lessons' stepper streams (7, 8, 9) and gap examples (10).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 10",
+  "title": "Concept drift",
+  "sub": "When the world changes, and how to notice",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-rule.js",
+   "kicker": "CONCEPT DRIFT",
+   "title": [
+    "Same shoppers,",
+    "a new rule"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "A grocery app suggests plant milk to its shoppers."
+    ],
+    [
+     2.6,
+     4,
+     "The model learns who clicks in week 1."
+    ],
+    [
+     4.2,
+     6.6,
+     "Week by week, the same shoppers click more often."
+    ],
+    [
+     7,
+     8.2,
+     "Ages 30–44: 46% click now. The model still says 20%."
+    ],
+    [
+     8.4,
+     9.8,
+     "Same inputs, new rule: that is concept drift."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.1 steps 1-2, ds10-drift): concept drift is a change in the RELATIONSHIP between input and output. Basketly's shoppers are the same people with the same baskets, but they click the plant-milk suggestion more and more often; a model trained in week 1 keeps the week-1 click rates. DATA: D10.PREFS = {ages [\"18–29\",\"30–44\",\"45–59\",\"60+\"], w1 [30,20,12,8] (the model), w52 [54,46,36,28], now(week) -> the four real rates that week}.\nLAYOUT: left column x 12..300 (stickers), right a plot: const p = D9.plot(stage, {x: 312, y: 12, w: 612, h: 616, xr: [0, 4], yr: [0, 60], yticks: [0, 20, 40, 60], xticks: [], ylab: \"% who click\", pad: {l: 70, b: 64}, texts: 8}). Bars: const real = D10.bars(p, 4) made FIRST (purple solid, x i + 0.5, w 0.56), then const model = D10.bars(p, 4) (grey, hollow, dash, the same x and w, y1 = w1[i]) so the dashed outline lies on top. Age labels under the axis as p texts {at: [i + 0.5, 0], dy: 44, text: ages[i], tone: grey}. In a D4.svg(stage) layer: D10.basket(156, 110, 120). Left stickers: grey label 'suggests plant milk' (D4.label x 156, y 206, fs 28); grey tag 'model: week 1' with a small dashed outline swatch is not needed: the tag itself (x 156, y 300); purple tag 'week 1' (x 156, y 400, fs 34, the live week counter); red solid tag '26 points off' (x 156, y 520).\nTIMELINE. 0.3-0.8 the basket pops (E.pop) and its label fades in. 0.6-1.1 the plot pops (k, axes) with the age labels. 1.2-2.4 the four purple bars grow from 0 to w1 (D10.seq stagger 0.15, dur 0.5, E.out) and the purple week tag 'week 1' pops. 2.6-3.2 the grey dashed outlines pop at the same heights (k 0..1, they hug the purple bars) and the grey tag 'model: week 1' pops. 3.6-6.8 the week runs 1 -> 52 (week = Math.round(lerp(1, 52, E.inOut(ramp)))): the purple bars follow D10.PREFS.now(week), the week tag reads 'week ' + week, the grey outlines do not move; a purple p text above the 30–44 bar shows its live value (at [1.5, now[1]], dy -16, '46%' at the end) and a grey p text beside its outline top ('20%' at [1.5 + 0.34, 20], anchor start). 7.0-7.5 on the 30–44 bar a red seg (segs {a: [1.5, 20], b: [1.5, 46], tone: red, w: 8}, k draws it up) and the red tag pops; the purple bar flashes once (flash on its o or a bump). 8.4-8.8 a purple solid tag 'concept drift' pops at p.pt(2.6, 54). Hold to 10.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-kinds.js",
+   "kicker": "THREE KINDS",
+   "title": [
+    "Abrupt, gradual,",
+    "recurring"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2,
+     "Each tick is one prediction. Tall red ticks are errors."
+    ],
+    [
+     2.2,
+     4.2,
+     "Abrupt, like a pandemic: errors jump from 10% to 50%."
+    ],
+    [
+     5,
+     7.4,
+     "Gradual, like economic change: the new rule creeps in."
+    ],
+    [
+     8.4,
+     10.8,
+     "Recurring, like the seasons: the old rule comes back."
+    ],
+    [
+     11,
+     12.8,
+     "The model never changed. The world did."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.1 steps 3-5 and its live demo): the three kinds of concept drift, seen where a deployed model can see them: in its ERROR STREAM. Abrupt (a pandemic): the rule changes at one moment. Gradual (cultural or economic change): the new rule takes over little by little. Recurring (the seasons): old and new rules alternate. The frozen model is wrong 10% of the time under the old rule and 50% under the new one. DATA: D10.KINDS = {at 100, n 550, rows [abrupt, gradual, recurring], each {xs (0/1 per record, world(5) as in the lesson, the same first 100 records in every row), truth (per record, %: 10 before, 50 after; gradual ramps 10 -> 50 over records 100..400; recurring 50 on 100..249, 10 on 250..399, 50 on 400..549), errs 247 / 179 / 185}}.\nLAYOUT: three rows i = 0, 1, 2 at y0 = 12 + 210 i, each a plot: D9.plot(stage, {x: 168, y: y0, w: 756, h: 196, xr: [0, 550], yr: [0, 70], yticks: [10, 50], xticks: [], tickFmt: (v) => v + '%', pad: {l: 86, r: 16, t: 58, b: 12}, texts: 2}); in p.svg an error strip D10.strip(p.svg, {x0: p.lx(0), x1: p.lx(550), r0: 0, r1: 550, y: 12, h: 38}). Left column x 12..156: a pictogram in a D4.svg(stage) layer at (84, y0 + 72) size 84 (row 0 D10.virus red, row 1 D10.coins orange, row 2 D10.sun (64, y0 + 64, 60) and D10.snow (110, y0 + 92, 56)) and a purple D4.label at (84, y0 + 160, fs 28): 'abrupt', 'gradual', 'recurring'. A grey p text in each plot at [544, 64], anchor end: 'a pandemic', 'economic change', 'the seasons' (the lecture's examples).\nTIMELINE. 0.2-0.8 the three plots and labels pop (D10.seq stagger 0.12; pictograms with E.pop). ROW i plays from t0 = [1.0, 4.6, 8.2][i] for 2.6 s: playhead = 550 × ramp(t, t0, t0 + 2.6, E.lin); the strip shows records [0, playhead) (s.set({xs: row.xs, to: playhead})); the purple dashed TRUE ERROR line (curve pts [[i, truth[i]] for i < playhead], tone purple, dash, w 5) follows it; the purple drift mark {x: 100, tone: purple} rises (k over 0.3 s) when the playhead passes 100; the row's example text fades in at t0 + 2.0 and its pictogram bumps (s 1 + 0.15 flash) at the drift. Row 0 also shows a purple p text 'true error rate' at [544, 50], dy -14, anchor end, from t0 + 2.2 (only in row 0; rows 1-2 use the same purple dashes). 11.0-11.6 the three pictograms bump together (s 1 + 0.15 flash) and the three drift marks flash once (w 4 -> 8): the same model, three ways the world moved. Hold to 13.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-stale.js",
+   "kicker": "BATCH MODELS",
+   "title": [
+    "Trained once,",
+    "soon out of date"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "One model is frozen; one retrains every 4 weeks."
+    ],
+    [
+     3.2,
+     4.6,
+     "Week 6: shoppers change habit overnight."
+    ],
+    [
+     4.8,
+     6.6,
+     "Retrained on weeks 5–8, it is still 20% wrong."
+    ],
+    [
+     6.8,
+     8.4,
+     "Only after week 12 is it back to 10%."
+    ],
+    [
+     8.6,
+     10.8,
+     "The frozen model stays at 50%: it never updates."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.1 step 6): a BATCH model trained once becomes outdated as soon as the concept drifts; retraining on a fixed schedule helps but lags, because the schedule cannot see when the drift happened. Drift (abrupt) in week 6. DATA: D10.STALE = {weeks 1..16, frozen [10,10,10,10,10,50,50,50,50,50,50,50,50,50,50,50] (% error), monthly [10,10,10,10,10,50,50,50,20,20,20,20,10,10,10,10] (retrained after weeks 4, 8, 12, 16 on the last 4 weeks; shares of new-rule weeks in that data [0,0.75,1,1])}.\nLAYOUT: const p = D9.plot(stage, {x: 12, y: 96, w: 912, h: 532, xr: [0.3, 16.7], yr: [0, 60], xticks: [1, 4, 8, 12, 16], yticks: [0, 10, 20, 50], xlab: \"week\", ylab: \"error %\", marks: 6, texts: 6}); const bars = D10.bars(p, 32). Week w: grey bar (the frozen model) x w − 0.2, w 0.36, y1 frozen[w − 1]; blue bar (the retrained model) x w + 0.2, w 0.36, y1 monthly[w − 1]. Legend on top (y 44): a grey tag 'frozen: trained once' (D4.tag x 236, y 44) and a blue tag 'retrained every 4 weeks' (x 640, y 44).\nTIMELINE. 0.3-0.8 the plot pops; 0.5-1.0 the two legend tags pop. Week w (1..16) appears at tw = 1.0 + 0.42 (w − 1): both its bars grow from 0 (k over 0.3 s, E.out). At week 6 (t ≈ 3.1) a purple dashed mark {x: 5.5} rises and a purple p text 'drift' (at [5.5, 57], anchor start, dy 0) pops. After week 4, 8 and 12 (at tw + 0.3) a blue dashed mark {x: w + 0.5, tone: blue} rises and a blue p text 'retrain' sits at its top (at [w + 0.5, 57]); the blue bars of the next four weeks are the result. Week 9's blue bar (20%) at ≈ 4.4; week 13's (10%) at ≈ 6.0; week 16 at ≈ 7.3. 8.4-8.9 a red seg (a dashed red line at y 50 over weeks 5.5..16.5, w 5) flashes once over the grey bars and a red tag 'stuck at 50%' pops at p.pt(11, 50) + (0, -36); 8.8 a blue tag 'catches up, late' pops at p.pt(14.5, 10) + (0, -70). Hold to 11.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-window.js",
+   "kicker": "WATCH THE ERRORS",
+   "title": [
+    "Read the errors",
+    "through a window"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     1.8,
+     "Each prediction becomes a 1 if wrong, a 0 if right."
+    ],
+    [
+     2.2,
+     3.6,
+     "Average the errors over a window of recent records."
+    ],
+    [
+     3.8,
+     5,
+     "Last 10 hits 30% before any drift: a false alarm."
+    ],
+    [
+     5.1,
+     6.2,
+     "After the drift at record 100, it reacts by 106."
+    ],
+    [
+     6.3,
+     8.2,
+     "Last 150 is steady, but reaches 30% only at 174."
+    ],
+    [
+     8.6,
+     11.8,
+     "Too short is jumpy, too long is slow."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.1 step 7, rollFig): we cannot see the concept, but once the truth arrives every prediction is right (0) or wrong (1): the ERROR STREAM. A rolling error over the last k records is jumpy when k is small (chance alone looks like drift) and slow when k is large. Choosing k is the hard part, which ADWIN automates (next scene). DATA: D10.ROLL = {at 100, n 260, xs (world(5), abrupt drift at record 100), roll[10] and roll[150] (% per record, null before k records), pre[10] = {lo 0, hi 30}, falseAt 66 (last 10 first hits 30% here, before the drift), first[10] 106, first[150] 174}.\nLAYOUT: top band: one D4.chips row (x 60, y 34, n 16, w 46, h 56, gap 6, fs 28) with the first 16 records: '1' red solid for an error, '0' grey for a right one (xs[0..15]); a grey D4.label 'error stream' at (900, 62), anchor r, fs 28. Two plots: A = D9.plot(stage, {x: 12, y: 120, w: 912, h: 248, xr: [0, 260], yr: [0, 80], yticks: [0, 30], xticks: [], tickFmt: (v) => v + '%', pad: {l: 86, t: 64, b: 14}, marks: 4, texts: 2}) for k 10; B the same at y 380, h 248 for k 150. In each p.svg: D10.strip(p.svg, {x0: p.lx(0), x1: p.lx(260), r1: 260, y: 24, h: 30}) and a blue D10.span over the window (y 14, legs down 8). Each panel's name is a blue p text at [4, 72] anchor start, tone blue, text 'last 10' / 'last 150'. A grey dashed mark {y: 30} in both.\nTIMELINE. 0.3-1.6 the 16 chips pop left to right (D10.seq stagger 0.07). 1.8-2.2 both plots pop. 2.2-8.2 the playhead runs record 0 -> 260 (E.lin, 6 s): both strips draw records [0, playhead); each span covers [max(0, playhead − k), playhead); each blue rolling line (curve pts [[i + 1, roll[k][i]]] for non-null i < playhead, w 5) follows. At record 66 (t ≈ 3.72) a red hollow ring dot on A's line at [66, 30] pops and stays, with a red tag 'false alarm' at A.pt(66, 62). At record 100 (t ≈ 4.5) a purple dashed mark {x: 100} rises in BOTH plots with a purple p text 'drift' (at [103, 74], anchor start). At record 106 (≈ 4.65) a blue dot on A's line at [106, 30] and a blue tag 'record 106' (A.pt(146, 62)). At record 174 (≈ 6.22) a blue dot on B's line at [174, 30] and a blue tag 'record 174: slow' (B.pt(174, 62)). 8.6-9.2 a red tag 'jumpy' (D4.tag x 800, y 166) for A and an orange tag 'slow' (x 800, y 426) for B pop. Hold to 12.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-adwin.js",
+   "kicker": "ADWIN",
+   "title": [
+    "A window that grows,",
+    "then is cut"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "ADWIN keeps a window of the most recent records."
+    ],
+    [
+     2.6,
+     4.4,
+     "Nothing changes, so the window keeps growing."
+    ],
+    [
+     4.8,
+     6.4,
+     "A drift at record 250: errors bunch up."
+    ],
+    [
+     6.6,
+     8.2,
+     "Record 296: its parts disagree. Cut the 40 oldest."
+    ],
+    [
+     8.4,
+     9.8,
+     "It keeps cutting: 125 records left at record 334."
+    ],
+    [
+     10,
+     11.8,
+     "Calm again, so the window grows again."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.2 steps 2-3, growFig): ADWIN (ADaptive WINdowing) keeps a window of the most recent records, of VARIABLE size: it GROWS while no change is apparent and SHRINKS when the data changes, dropping the OLDEST records from the tail. DATA: D10.GROW = {at 250, n 450, xs, win (window size after each record: win[249] = 250, win[294] = 295), cuts [{n, drop, win}] (21 cuts: first {n 296, drop 40, win 256}, then {297, drop 82, win 175} ... ), low {n 334, win 125}, win at record 450 = 236}. The window's tail (first record kept) after record n is n − win[n − 1].\nLAYOUT: const p = D9.plot(stage, {x: 12, y: 12, w: 912, h: 616, xr: [0, 450], yr: [0, 320], xticks: [0, 250, 450], yticks: [0, 100, 200, 300], xlab: \"record\", ylab: \"window size\", pad: {t: 126}, marks: 2, dots: 4}); in p.svg an error strip D10.strip(p.svg, {x0: p.lx(0), x1: p.lx(450), r1: 450, y: 66, h: 40}) and the window bracket b = D10.span(p.svg) at y 50 (legs down 14, tone blue, w 6) from s.x(tail) to s.x(playhead). A blue tag 'window: ' + win (D4.tag x 300, y 220, fs 30) and later tags (red 'cut 40 oldest' x 300, y 300; green 'grows again' x 760, y 300).\nTIMELINE (playhead record n, a pure function of t, piecewise E.lin): 0.3-0.8 the plot pops. 0.8-4.6 n 0 -> 250; 4.6-6.4 n 250 -> 295 (slower); 6.4-6.6 hold; 6.6-7.6 the first cut: n = 296, the 40 oldest records (0..39) become a strip group {a: 0, b: 40, err: red, ok: red, dy: 34 k, o: 1 − k} that falls away, the bracket's left end slides from 0 to its new tail (E.inOut), the tag reads 'window: 256' with a red flash and the red tag pops; 7.6-9.6 n 296 -> 334: further cuts happen as the log says (window 175 at 297 ...); all records left of the current tail are drawn as a dim group {a: 0, b: tail, o: 0.25} (gone); 9.6-11.2 n 334 -> 450: no more big cuts, the window grows again (green tag at 10.6). The blue window-size line: curve pts [[i + 1, win[i]]] for i < n, w 6. The purple dashed drift mark {x: 250} rises at 4.6 with a purple p text 'drift' at [254, 300] anchor start. A red dot at [296, 256] on the line at 6.6. The tag always reads 'window: ' + win[n − 1]. Hold to 12.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-split.js",
+   "kicker": "ADWIN'S TEST",
+   "title": [
+    "Cut where the two parts",
+    "disagree"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     1.8,
+     "A window of 80 records, about 10% errors."
+    ],
+    [
+     1.9,
+     3.6,
+     "ADWIN tries splits: an older part and a newer part."
+    ],
+    [
+     3.8,
+     5.4,
+     "Few new records: gap 0.55, threshold 0.79. No cut."
+    ],
+    [
+     5.6,
+     7.2,
+     "More records, a lower threshold."
+    ],
+    [
+     7.4,
+     8.6,
+     "111 records: gap 0.54 beats the threshold 0.52."
+    ],
+    [
+     8.8,
+     10.2,
+     "Cut: drop the 8 oldest records. Now the parts agree."
+    ],
+    [
+     10.4,
+     12.6,
+     "Small parts need a big gap, so noise rarely cuts."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.2 step 3, adwinRun): after each record ADWIN tries every split of its window W into an older part W0 and a newer part W1; if for some split the two error rates differ by at least a threshold ε_cut, it drops records from the TAIL (the oldest) and checks again. ε_cut is large when a part is small, so a few odd records cannot trigger a cut. DATA: D10.SPLIT = {old 80 (every 10th wrong), then new records 1,0,1,0,1 (60%); frames[end] (end 80..111) = the best split {i (older part size), m0, m1, gap, eps, fire}: end 80: i 39, gap 0.045, eps 0.548; end 90: i 79 (older 8.9%, newer 63.6%), gap 0.548 < eps 0.792; end 111: i 79, older 8.9%, newer 62.5%, gap 0.536 ≥ eps 0.52 (fire); drop 8; after = {start 8, win 103, gap 0.526 < eps 0.527}; eps100 0.36, eps40 0.55}.\nLAYOUT: in a D4.svg(stage) layer a CELL strip: s = D10.strip(svg, {x0: 30, x1: 906, r0: 0, r1: 111, y: 150, h: 70, cells: true}) (bw ≈ 7.9 px): errors red, right records light grey cells. The window bracket (blue D10.span, y 132, legs down 12) over the cells kept. The SPLIT: a blue vertical line (an SVG line, w 5) at s.x(start + i) from y 124 to y 246; a grey bracket under W0 and a blue bracket under W1 (W1 = the NEWER records; both brackets are D10.span) (D10.span, y 262, up: true, legs 12); a grey tag 'older: ' + pc(m0, 1) (D4.tag at the middle of W0, y 312) and a blue tag 'newer: ' + pc(m1, 1) (at the middle of W1, x clamped to ≤ 800, y 312); pc = D10.pc. THE TEST (y 400..520): two horizontal bars (D4.bar, x 300, w 560, h 40): the blue 'gap' bar (y 410, k = gap) and the grey 'threshold' bar (y 480, k = eps); labels at their left (D4.label anchor r at x 286, fs 30, blue 'gap', grey 'threshold'); the numbers ride in those labels: 'gap ' + fm(gap, 2) and 'threshold ' + fm(eps, 2), and the left labels sit at x 286 anchor r.\nTIMELINE (end = number of records in the stream, a pure function of t): 0.3-1.2 cells 0..80 appear (end 0 -> 80), the bracket follows; a grey tag '80 records · 10% errors' (x 468, y 80) pops at 0.8. 1.6-2.0 the split line, the two part brackets, their tags and the two bars pop for frames[80]. 2.2-3.0 end 80 -> 90 (new records arrive, 0.08 s each), split, tags and bars follow frames[end] (the bar lengths snap to each frame's values); 3.0-5.4 hold end 90 with a grey tag 'not enough evidence yet' (x 468, y 570). 5.6-7.4 end 90 -> 111 (21 records, ≈ 0.085 s each): the threshold bar shrinks, the gap bar stays about the same. 7.4 at end 111 both bars flash, the gap bar turns red and a red solid tag 'gap ≥ threshold: cut' pops (x 468, y 570, replacing the grey one). 8.8-9.8 the CUT: cells 0..7 become a strip group {err: red, ok: red, dy: 40 k, o: 1 − k} and fall away, the bracket's tail slides to s.x(8), the parts and bars switch to the after state (gap 0.53 < 0.53, the gap bar back to blue) and a green tag 'parts agree: window 103' replaces the red one. 10.4-11.0 two grey tags pop at (300, 600) '100 + 100: threshold 0.36' and (680, 600) '40 + 40: threshold 0.55'. Hold to 13.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-spread.js",
+   "kicker": "DDM",
+   "title": [
+    "The error rate",
+    "and its spread"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     1.8,
+     "DDM reads the errors: 100 records, 10 of them wrong."
+    ],
+    [
+     2,
+     3.4,
+     "Error rate p = 10 ÷ 100 = 0.1."
+    ],
+    [
+     3.6,
+     5.2,
+     "Spread s = √(0.1 × 0.9 ÷ 100) = 0.03."
+    ],
+    [
+     5.4,
+     7.4,
+     "Four times the records: s halves to 0.015."
+    ],
+    [
+     7.6,
+     9.8,
+     "DDM watches p + s: the error rate plus its spread."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.2 step 4, spreadFig): DDM treats each prediction as a binary variable (wrong = 1). At record i it measures the error rate p_i (errors ÷ i) and its standard deviation s_i = √(p_i (1 − p_i) ÷ i): how sure that rate is. More records, narrower band. DATA: D10.SPREAD = {p 0.1, xs (400 records, every 10th wrong), rows [{n 100, e 10, s 0.03, ps 0.13}, {n 400, e 40, s 0.015, ps 0.115}]}; for any n: s(n) = √(0.09 ÷ n).\nLAYOUT: in a D4.svg(stage) layer an error strip D10.strip(svg, {x0: 40, x1: 896, r0: 0, r1: 400, y: 60, h: 50}) (first 100 records fill a quarter of the width, so the growth to 400 is visible). A grey tag (live) 'n records · e errors' (D4.tag x 468, y 160, fs 30). THE NUMBER LINE (y 380): an axis line x 120..840 for values 0..0.3 (px = 120 + 2400 v), ticks and grey 28 px labels at 0, 0.1, 0.2, 0.3 (y 424); the blue p mark: a vertical blue line at 0.1 from y 330 to 400 (w 6) with a blue label 'p = 0.1' above it (y 300); the band p ± s: a blue tinted rect (fill D4.tone('blue').dim, stroke blue c, w 3, rx 10) from 0.1 − s to 0.1 + s, y 346..392; a blue dot (r 12) at 0.1 + s, y 369, and a blue tag 'p + s = ' + fm(p + s, 3) under it (y 480). A blue tag 's = ' + fm(s, 3) (x 760, y 260).\nTIMELINE. 0.3-1.6 the strip draws records 0..100 (E.lin) and the grey tag counts up to '100 records · 10 errors'. 1.8-2.6 the axis and the p mark and its label pop. 3.0-3.8 the band opens from zero width to ±s(100) (E.out), the s tag pops ('s = 0.03'). 4.0-4.4 the p + s dot and its tag pop ('p + s = 0.13'). 5.0-7.2 the strip grows to 400 (n = lerp(100, 400, E.inOut)), the count tag reads n and n/10 (rounded down to whole records: n = Math.floor(...), e = errors in xs[0..n)), the band, the dot and both tags follow s(n) = √(0.09 ÷ n) live (fm 3 decimals); at 7.2 they read 's = 0.015', 'p + s = 0.115'. 7.6-8.2 the dot and the p + s tag get a blue ring / bump (DDM's statistic). Hold to 10.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-ddm.js",
+   "kicker": "DDM",
+   "title": [
+    "Warning first,",
+    "then change"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2,
+     "DDM plots p + s as each record arrives."
+    ],
+    [
+     2.2,
+     3.8,
+     "Warning at p min + 2 s min, change at p min + 3 s min."
+    ],
+    [
+     4,
+     5.4,
+     "p min and s min: the best moment so far, record 114."
+    ],
+    [
+     5.6,
+     7,
+     "From record 121, every other prediction is wrong."
+    ],
+    [
+     7.2,
+     8.9,
+     "Record 128: past the warning line. Store new records."
+    ],
+    [
+     9.2,
+     10.8,
+     "Record 138: past the change line. Drift detected."
+    ],
+    [
+     11,
+     12.8,
+     "Train a new model on records 128 to 138."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.2 steps 5-6, ddmRun + zonesFig): DDM remembers the best moment so far, p_min and s_min (where p + s was lowest). If p_i + s_i ≥ p_min + 2 s_min it is in the WARNING zone; if ≥ p_min + 3 s_min a CHANGE is detected. In the warning zone the system stores the new records; on a change a new model is trained on them and the detector restarts. DATA: D10.DDM = {xs (138 records: 120 with every 10th wrong, then every other one wrong from record 121), hist[n − 1] = {n, e, p, s, ps, w2, w3} (w2 / w3 null before record 30; at record 30 w2 0.21, w3 0.264; they settle once p_min is set), pmin 0.096, smin 0.028, pminAt 114, warn {n 128, ps 0.154, line 0.152}, change {n 138, ps 0.183, line 0.179}}.\nLAYOUT: const p = D9.plot(stage, {x: 12, y: 12, w: 912, h: 616, xr: [0, 140], yr: [0, 0.3], xticks: [30, 60, 90, 120], yticks: [0, 0.1, 0.2, 0.3], xlab: \"records\", pad: {t: 112}, marks: 2, dots: 6, segs: 4, texts: 4}); in p.svg an error strip D10.strip(p.svg, {x0: p.lx(0), x1: p.lx(140), r1: 140, y: 62, h: 36}) and an orange D10.span (y 48, legs down 12) for the stored records. Curves (hist from record 30, i.e. pts [[n, value]] for 30 ≤ n ≤ playhead): orange dashed w2 (w 5), red dashed w3 (w 5), blue p + s (w 7, drawn last). Line labels as p texts that ride the head of each line, anchor end (left of the playhead): orange 'p min + 2 s min' at [n, w2(n)], dy 34 (under its line), red 'p min + 3 s min' at [n, w3(n)], dy −14 (above its line).\nTIMELINE (playhead record n, pure in t, E.lin pieces): 0.3-0.8 the plot pops. 0.8-4.0 n 0 -> 120 (the strip, and the three curves from record 30, which the playhead reaches at ≈ 1.6; the labels fade in 2.2-2.6). 4.0-4.4 a green dot (r 12, ring) at [114, ps(114) = 0.124] pops with a green tag 'best: record 114' at p.pt(114, 0.07). 5.4-5.8 a purple dashed mark {x: 120.5} rises with a purple p text 'errors rise' at [118, 0.28], anchor end. 5.6-9.2 n 120 -> 138 (0.2 s per record). At n = 128 (≈ 7.2): an orange dot on the blue line at [128, 0.154], an orange solid tag 'warning: 0.154 ≥ 0.152' (anchor r at x p.px(128) − 16, y p.py(0.25)), and from then on records 128.. are an orange strip group (err red stays red, ok: orange) under the orange 'stored' bracket from s.x(127) to the playhead. At n = 138 (9.2): a red dot at [138, 0.183] and a red solid tag 'change: 0.183 ≥ 0.179' (y p.py(0.25) + 56, same anchoring), a short red vertical seg at x 138 over the plot. 10.9-11.6 the orange bracket lifts (y − 40) and an L5.arrow (blue, w 6) draws from it to a blue solid tag 'new model: records 128–138' centred at (440, 210) (the free top-left of the plot area). Hold to 13.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-eddm.js",
+   "kicker": "EDDM",
+   "title": [
+    "Watch the gaps",
+    "between errors"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "EDDM measures the gaps between errors: 9, 12, 8, 11, 10."
+    ],
+    [
+     2.6,
+     4.2,
+     "Mean gap plus 2 spreads: 12.8, the best so far."
+    ],
+    [
+     4.4,
+     6,
+     "After a drift the gaps shrink: 3, 2, 4, 2, 3, 2, 3."
+    ],
+    [
+     6.2,
+     7.8,
+     "4.1 against the best 12.8: a ratio of 0.32."
+    ],
+    [
+     8,
+     9.4,
+     "Below 0.95 is a warning, below 0.9 a drift."
+    ],
+    [
+     9.6,
+     11.8,
+     "Gradual drift: EDDM caught it after 108 records, DDM 138."
+    ]
+   ],
+   "spec": "IDEA (lesson 10.2 steps 7-8, gapsFig + raceFig): EDDM (Early Drift Detection Method) measures the DISTANCE BETWEEN ERRORS, not the error rate. While the model is good, errors are far apart; after a drift they bunch up and the gaps shrink. It tracks mean gap + 2 × spread against the best (largest) value seen: below 0.95 of it is a warning, below 0.90 a drift. It reacts earlier to GRADUAL drift. DATA: D10.GAPS = {before [9,12,8,11,10] -> mean 10, spread 1.41, v 12.83; after [3,2,4,2,3,2,3] -> mean 2.71, spread 0.7, v 4.11; ratio 0.32, warn 0.95, drift 0.9}; D10.RACE = {abrupt {ADWIN 33, DDM 29, EDDM 29}, gradual {ADWIN 275, DDM 138, EDDM 108}} (records after the drift).\nLAYOUT: in a D4.svg(stage) layer two record rows on one scale, 15 px per record from x 60: row 'before' (strip y 96, h 50: records 0..50 with an error at each cumulative gap (9, 21, 29, 40, 50 as 1-based record numbers), xs built from GAPS.before) and row 'after' (strip y 262, h 50, records 0..19). Above each pair of consecutive errors a blue arc (SVG path, quadratic, w 5, from the previous error (or record 0) to the next, peak 34 px above the strip) with the gap as a blue 28 px label at its top. Row labels: grey D4.label 'before' / 'after' at (60, 70) / (60, 236), anchor l. Stat tags: blue tag 'mean + 2 spreads = 12.8' at (640, 190) under row 1, blue tag 'mean + 2 spreads = 4.1' at (640, 356) under row 2 (row 2 ends at x ≈ 345, so it can also sit at (640, 286)). THE RATIO (y 470..560): an axis line x 120..840 for 0..1 (px = 120 + 720 v), grey 28 px tick labels 0, 0.5, 1 (y 600); an orange dashed vertical at 0.95 with orange label '0.95' above (y 450) and a red dashed vertical at 0.90 with a red label '0.90' above (keep the two labels apart: 0.95 anchor l, 0.90 anchor r); the blue ratio dot (r 16) on the axis.\nTIMELINE. 0.3-2.2 row 'before': records draw left to right (strip to = lerp), each error's arc draws on and its number pops as the strip reaches it. 2.6-3.0 the 'before' stat tag pops. 4.2-5.4 row 'after' draws the same way (short arcs). 5.6-6.0 its stat tag pops. 6.2-6.6 the ratio axis, its marks and labels pop; the blue dot pops at 1. 6.6-7.6 the dot slides from 1 to 0.32 (E.inOut) with a blue tag above it '4.1 ÷ 12.8 = 0.32' following it (y 430). 7.8 the dot turns red and a red solid tag 'drift' pops above the 0..0.5 part of the axis (centre (240, 410)). 9.2-9.6 the two record rows and their arcs, labels and stat tags fade to o 0 and the RACE appears in their place (y 60..300): a purple label 'gradual drift' (D4.label x 60, y 80, anchor l), two bars (D4.bar x 200, w 600, h 40, k = records / 300): blue EDDM bar (y 140, k 108/300) and blue DDM bar (y 210, k 138/300), grey labels 'EDDM' / 'DDM' at x 186 anchor r, and blue labels '108 records' / '138 records' just right of each bar's fill end (anchor l); the bars fill 9.6-10.4 (E.out) and the EDDM row gets a green ring / bump at 10.6 (it fired first). Hold to 12.\nCOLOURS (whole video, see the TONES block of videos/d10/common-2.js): red = an ERROR (a wrong prediction is a tall red tick), the error rate bars, a confirmed change / drift detected (DDM's change line p min + 3 s min, EDDM's 0.90, ADWIN's cut and the records it drops); orange = a WARNING (DDM's warning line p min + 2 s min, the records stored since the warning, EDDM's 0.95); purple = the WORLD and its DRIFT (the moment a drift starts is a purple dashed vertical mark, the true error rate is a purple dashed line, the real click rates now, the kind-of-drift labels); blue = what the DETECTOR measures and a model that keeps learning (the rolling error line, ADWIN's window bracket and window-size line, DDM's p + s line, EDDM's gap arcs and ratio dot, the model retrained every 4 weeks, the new model); green = stable / fine / the best (the 'stable' state, the best moment p min + s min, a window whose parts agree); grey = neutral (right predictions are short grey ticks, axes, plain labels, and the FROZEN model trained once: grey dashed outline or grey bars).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (D10 pictograms, L5.tick, L5.cross, L5.arrow, plot segs with head: true), never glyphs; update(t) pure: every record, window size, p + s value and cut comes from the precomputed logs in videos/d10/common.js (never run a detector inside a scene; index the logs by the playhead record n = Math.floor(...)); every number on screen and in captions comes from D10 (build caption strings with D10.fm / template strings from the D10 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D10 = V.d10, D9 = V.d9, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V; const fm = D10.fm."
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Drift: abrupt, gradual\nor recurring",
+    "tone": "purple",
+    "pictogram": "Three tiny purple line shapes side by side in the 340 x 140 box (each about 96 x 70, a grey baseline under each): a step (abrupt), a ramp (gradual), a square wave (recurring), drawn on one after the other (q 1.0-1.5, 1.6-2.1, 2.2-2.7, L5.drawOn or a k-sliced path); each gets a small red error tick row under its high part. Holds."
+   },
+   {
+    "head": "ADWIN: grow the window,\ncut when parts disagree",
+    "tone": "blue",
+    "pictogram": "A row of 24 small ticks (grey short, a few red tall; the last 8 mostly red). A blue bracket over them grows from the left as the ticks appear (q 0.8-2.0); at q 2.4 the 6 oldest ticks turn red and drop away (dy 20, fade) and the bracket's left end jumps right (q 2.4-2.9). Holds the cut window."
+   },
+   {
+    "head": "DDM: warning at 2 spreads,\nchange at 3",
+    "tone": "orange",
+    "pictogram": "A small plot box: an orange dashed line (warning) and a red dashed line (change) above a flat blue line; the blue line rises at its right end (q 1.0-2.4), an orange dot pops where it crosses the orange line (q 1.8) and a red dot where it crosses the red one (q 2.4). Holds."
+   }
+  ],
+  "cta": "Next: Workshop 10.W",
+  "spec": "RECAP (bare scene, full 1080 x 1080, no caption): build it like videos/d9/scene-12-recap.js and videos/l5/scene-10-recap.js (three cards with a small animated SVG pictogram at the left and the bold head line at the right, Pebble via V.mascot('pebble', {size: 150}) at the top with a title 'Remember', and the call-to-action sticker 'Next: Workshop 10.W' (workshop ds10-lab 10.W 'Guard the spam filter') at the bottom). Rows slide in at 0.8, 1.8, 2.8; each pictogram plays ONCE on its row's own clock (q = t − row time) and then HOLDS its finished state (no loop, nothing blank on the last frame); the CTA pops at 6.4. Pictograms are drawn with D4.svg / L5.svg / D10.strip / D10.span pieces in the video's tones."
+ },
+ "helpers": "videos/d10/common.js (D10 data, no DOM): ports of the lessons' rng, level, world, ddm, epsCut, splits, adwin, eddm and the workshop's monitor; D10.roll, D10.avg; D10.fm, D10.pc, D10.same, D10.close; the asserted examples D10.PREFS (s2), D10.KINDS (s3), D10.STALE (s4), D10.ROLL (s5), D10.GROW (s6), D10.SPLIT (s7), D10.SPREAD (s8), D10.DDM (s9), D10.GAPS and D10.RACE (s10) (fields listed in the file's header). videos/d10/common-2.js (drawing): D10.strip(svgParent, {x0, x1, r0, r1, y, h, cells}) -> s.set({xs, from, to, err, ok, o, dy, groups: [{a, b, err, ok, o, dy}]}), s.x(i) / s.mid(i) / s.bw; D10.span(svgParent) -> b.set({x1, x2, y, tone, h, w, up, o, k}) (a window bracket); D10.bars(plot, n) -> bars.set([{x, w, y0, y1, tone, hollow, dash, k, o}]); pictograms D10.basket, D10.virus, D10.coins, D10.sun, D10.snow, D10.lens; D10.seq. Charts are D9.plot from videos/d9/common-2.js (p.update({k, axes, curves, dots, segs, marks, texts}), p.lx / p.ly for children of p.svg, p.pt / p.px / p.py for stage stickers). Stickers come from videos/d4/common-2.js (D4.tag, D4.label, D4.disc, D4.card, D4.chips, D4.bar, D4.svg, D4.at, D4.seq) and videos/l5/common.js (L5.tick, L5.cross, L5.arrow). The page loads l5/common.js, d4/common.js, d4/common-2.js, d4/common-3.js, d9/common.js, d9/common-2.js, d10/common.js, d10/common-2.js."
+}

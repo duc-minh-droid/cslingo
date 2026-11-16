@@ -1,0 +1,385 @@
+{
+ "slug": "ds-11",
+ "dir": "d11",
+ "title": "Distributed machine learning",
+ "outline": "Lecture 11 video (Data Science, COM3021): 'Distributed machine learning' (title card 'Distributed ML'). 12 scenes, 124 s: title (4), push / pull / broadcast (11), reduce and all-reduce (12), wait and barrier (11), overlap (11), distributed SGD (14), the idle drawback (9), k-means (12), map (10), combine (11), reduce and the loop (10), recap (9).\nSTORY in the lessons' order. 11.1 ds11-patterns (js/content/ds/ds-l11-01.js; its pattern playground lives in ds-l11-workshop.js): the pattern of communication and avoiding idle machines decide how well a distributed algorithm runs. Push (A sends its 7 to B, 1 message) and pull (B asks, A replies, 2 messages); broadcast (A sends the same 50 MB model to 4 machines: 4 × 50 = 200 MB leaves A) (scene 2). Reduce (C1..C4 hold 3, 5, 2, 6; running sum 3, 8, 10, 16; only B gets 16; 4 messages) and all-reduce (16 lands on every machine; reduce then broadcast; 8 messages) (scene 3). Wait (B works 3 s, waits for A's signal at 9 s: 6 s idle) and barrier (C1..C4 arrive at 4, 6, 5, 9 s; all wait for 9: idle 5 + 3 + 4 + 0 = 12 s) (scene 4). Overlap computation and communication to hide latency: 4 rounds of 3 s computing + 2 s sending take 20 s stop-and-wait, 4 × 3 + 2 = 14 s overlapped (scene 5). 11.2 ds11-sgd (ds-l11-02.js): minibatch SGD on M machines, B = M · B', each worker averages the gradient of its own B' examples, an all-reduce sums them onto every worker, every copy updates w = w − (alpha / M) · G; Algorithm 1 on 3 workers: w = 10, alpha = 0.5, targets [4, 6] [5, 3] [8, 4], gradients (w − target average) 5, 6, 4, G = 15, w = 7.5 on every worker, exactly the one-machine minibatch update 10 − 0.5 × (10 − 5) = 7.5 (statistically equivalent to minibatch SGD, same hyperparameters, easy to implement) (scene 6); the drawback: workers are idle during the all-reduce: 3 s computing + 1 s all-reduce = 75% busy (scene 7). 11.3 ds11-kmeans (ds-l11-03.js; the demo kmLab and the cloud in boss-ds-11.js): k-means assign / update on the lesson's 45-point cloud (k = 3, badly placed start): 45 assigned, then 3, 7, 12, 2 switch, iteration 6 nothing switches, stop (scene 8). MapReduce k-means on the lesson's line example: mappers [1, 4, 8, 12] and [2, 3, 14], centres 2 and 9 broadcast; map emits ⟨closest centre, sample⟩, sample 8 is 6 from c0 and 1 from c1 -> ⟨1, 8⟩; 7 pairs (scene 9). Combine: per mapper and cluster a sum and a count: (5, 2), (20, 2) | (5, 2), (14, 1): 4 records instead of 7 (the cloud: 45 pairs against 7 to 9 records); cluster 1 = (20 + 14) ÷ (2 + 1) = 11.33, the true mean; local means would give (10 + 14) ÷ 2 = 12, wrong (scene 10). Reduce: (10, 4) -> 2.5, (34, 3) -> 11.33; the centres moved, so they go back to the mappers; round 2 no point changes cluster: converged, output 2.5 and 11.33 (scene 11). Recap and 'Next: Workshop 11.W' (ds11-lab, ds-l11-workshop.js). Boss quiz boss-ds-11.js; bank js/bank/ds-49.js, ds-50.js. Vault: study-vault/Data Science/Topics/11 - Distributed Machine Learning.md. Not covered (too much for one video): the uneven-split opener (12 s on 4 machines), epoch / batch definitions, the minibatch-update slider, the 4-machine gradient deal (2, 6, 4, 4, 5, 1, 3, 3), the cost-of-distances figure, the traffic slider (3,000,000 against 12 records), and all beyond-the-slides material (stragglers, parameter servers and asynchronous SGD, data against model parallelism, ring all-reduce, tree broadcast): the video has NO beyond-the-slides scene.\nNUMBERS: every figure comes from videos/d11/common.js (VID.d11, D11), which ports the lessons' own code (the seeded rng and gauss, the cloud, nearest / tally / centres, overlapPlan, the Algorithm 1 iteration, the 1-D MapReduce step) and asserts the values quoted here and in the specs when the page loads.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V.\nSHARED LAYOUT: machines are D4.node server cards (grey) with their value in the tone of what it is (blue own data, green a result); packets are purple D4.packet stickers flown with D11.fly along grey D4.wire lines drawn in a D4.svg layer made before the cards; time-based ideas (scenes 4, 5, 7) are D11.lanes timelines swept by a 'now' value with a thin cursor; k-means uses D11.plane (scene 8) and the 1-D D11.numline (scenes 9 to 11). The 3, 5, 2, 6 machines of scene 3 come back as the idea of the all-reduce in scene 6 (the purple + hub looks the same in both); the 1-D samples and centres stay in the same tones from scene 9 to 11.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 11",
+  "title": "Distributed ML",
+  "sub": "Many machines, one model: how they talk",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-pushpull.js",
+   "kicker": "PUSH, PULL, BROADCAST",
+   "title": [
+    "Who starts the talk,",
+    "and who gets the data"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Push: A sends its 7 to B. One message."
+    ],
+    [
+     3,
+     5.6,
+     "Pull: B asks first, then A replies. Two messages."
+    ],
+    [
+     6,
+     8.2,
+     "Broadcast: A sends the same 50 MB model to four machines."
+    ],
+    [
+     8.6,
+     10.7,
+     "Four copies leave A: 4 × 50 = 200 MB."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.1 steps 2-3, the pattern playground): the simplest patterns move data between machines. PUSH: A decides when and sends (1 message). PULL: B decides, so it costs a request plus the reply (2 messages). BROADCAST: A sends the SAME data to many machines, one copy each, so A's sending grows with the receivers. DATA: D11.PAT.A = 7, D11.PAT.msgs.push = 1, .pull = 2, .bcast = 4; D11.PAT.model = 50 (MB), .copies = 4, .sent = 200.\nLAYOUT: A = D4.node(stage, {x: 12, y: 230, w: 260, h: 180, name: \"A\", value: \"7\", icon: \"server\"}) (value tone blue: vtone \"blue\"). B = D4.node(stage, {x: 664, y: 230, w: 260, h: 180, name: \"B\", value: \"\", icon: \"server\"}). One grey D4.wire from A's right edge (272, 320) to B's left edge (664, 320), in a D4.svg layer made BEFORE the nodes. Under A: the pattern name, a grey solid D4.tag at (142, 470) fs 30 (\"Push\" / \"Pull\" / \"Broadcast\"), and the message counter, a purple D4.tag at (142, 540) (\"1 message\" / \"2 messages\" / \"4 copies\"). Packets are purple D4.packet made without x, y and moved with D11.fly (E.inOut on k).\nTIMELINE. 0.2-0.6 A and B pop (k); 0.6-1.0 the wire draws (k); 0.8 'Push' tag pops. 1.0-2.1 a purple packet '7' flies A -> B; 2.1 B's value becomes '7' (vtone green, bump flash 2.1-2.4); 1.0 the counter shows '1 message' as the packet leaves (the counter always shows the messages sent so far). 2.8 B's value clears, the name tag flips to 'Pull' (s bump), the counter fades. 3.1-4.1 a purple packet 'ask' flies B -> A (bow 50, so it rides above the wire); 4.3-5.3 a purple packet '7' flies A -> B; 5.3 B's value '7' (green, bump); the counter shows '1 message' as 'ask' leaves (3.1) and '2 messages' as the reply leaves (4.3). 5.8-6.3 B and the wire fade out (o), the name tag flips to 'Broadcast', A's value becomes '50 MB' (blue). 6.0-6.5 four receivers pop (stagger 0.1): D4.node {x: 664, w: 260, h: 130, y: 12 / 172 / 332 / 492, name: 'C1'..'C4', value: ''}, and four grey wires from (272, 320) to each receiver's left edge middle draw on. 6.6-7.9 four purple packets '50 MB' fly A -> C_i (D11.seq stagger 0.12, 0.9 s each); on arrival each C's value becomes '50 MB' (green, bump). 8.0 counter '4 copies'. 8.4 a purple solid tag '4 × 50 = 200 MB' pops at (142, 600) and A's card gets a purple ring (ringK). Hold to 11.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-reduce.js",
+   "kicker": "REDUCE AND ALL-REDUCE",
+   "title": [
+    "Sum onto one machine,",
+    "or onto all of them"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "C1 to C4 each hold a number: 3, 5, 2 and 6."
+    ],
+    [
+     2.6,
+     4.6,
+     "Reduce sums them: 3, 8, 10, 16."
+    ],
+    [
+     4.8,
+     6.4,
+     "Only B gets the total, 16. Four messages."
+    ],
+    [
+     6.8,
+     8.8,
+     "All-reduce sums the same four numbers."
+    ],
+    [
+     9.2,
+     11.7,
+     "Then 16 goes back to every machine. Eight messages."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.1 steps 4-5): a REDUCE combines (sums) values spread over C1..C4 and materialises the result on ONE machine, B; the senders keep only their own number. An ALL-REDUCE puts the same result on ALL the machines that took part: a reduce followed by a broadcast of the answer, 8 messages instead of 4. This is the pattern distributed SGD needs (scene 6). DATA: D11.PAT.vals = [3, 5, 2, 6], .running = [3, 8, 10, 16], .sum = 16, .msgs.reduce = 4, .msgs.all = 8.\nLAYOUT: C1..C4 = D4.node {x: 12, w: 230, h: 130, y: 12 / 172 / 332 / 492, name: 'C1'.., value: '3' / '5' / '2' / '6' (vtone blue)}. The hub: a purple D4.disc {x: 468, y: 320, size: 110, text: '+'}. The running sum: a purple D4.tag at (468, 220) fs 32. B = D4.node {x: 694, y: 245, w: 230, h: 150, name: 'B', value: ''}. Grey wires (a D4.svg layer made first): C_i right edge (242, 77 / 237 / 397 / 557) -> the hub's left (413, 320); hub right (523, 320) -> B's left edge (694, 320). Counter: purple D4.tag at (468, 440). Result tag: green D4.tag at (809, 450) 'result on B only', later 'result on all four' at (468, 600). Packets: purple D4.packet with D11.fly (E.inOut).\nTIMELINE. 0.2-0.7 C1..C4 pop (D11.seq stagger 0.12); 0.8 hub and B pop; 1.0-1.4 the wires draw. REDUCE: packet i ('3', '5', '2', '6') flies C_i -> hub from 1.4 + 0.55 i for 0.55 s; when it lands the running tag shows running[i] with a bump (3 at 1.95, 8 at 2.5, 10 at 3.05, 16 at 3.6). 3.9-4.5 a purple packet '16' flies hub -> B; 4.5 B's value '16' (vtone green, green ring pops). 4.7 counter '4 messages'; 4.9 the green 'result on B only' tag. The C cards still show 3, 5, 2, 6 (a grey ring flashes on C3 '2' at 5.2-5.8: it still holds only its own number). ALL-REDUCE: 6.2-6.7 B, its wire and the result tag fade out, the running tag and counter reset (fade). 6.8 the four numbers fly in again, faster (from 6.8 + 0.25 i, 0.5 s each), the running tag climbs 3, 8, 10, 16 again (lands at 7.55 last). 8.1-8.9 four purple packets '16' fly from the hub back to every C_i at once (the same wires, backwards); on arrival (8.9) each C's value becomes '16' (green, bump). 9.1 counter '8 messages: 4 in, 4 out' (it stays at (468, 440); D4.tagW fits). 9.4 green solid tag 'result on all four' at (468, 600). Hold to 12.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-barrier.js",
+   "kicker": "WAIT AND BARRIER",
+   "title": [
+    "A machine that waits",
+    "is a machine wasted"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     3,
+     "Wait: B stops until A's signal arrives."
+    ],
+    [
+     3.3,
+     4.7,
+     "B sat idle for 6 s."
+    ],
+    [
+     5,
+     7.8,
+     "Barrier: nobody goes on until all four arrive."
+    ],
+    [
+     8.3,
+     10.7,
+     "They all wait for the slowest: 12 s of idle machines."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.1 step 6): two patterns are about TIME, not data. WAIT: one machine pauses until a signal arrives from another. BARRIER: many machines wait until ALL of them reach the same point, then all go on. Waiting machines are idle, and idle machines are the thing to avoid. DATA: D11.WAIT = {a: 9, b: 3, idle: 6, T: 10, rows (A: work 0-9 'A works'; B: work 0-3 'B works', idle 3-9 'waiting', work 9-10)}; D11.BAR = {arrive: [4, 6, 5, 9], open: 9, idle: [5, 3, 4, 0], total: 12, T: 10, rows C1..C4 (work 0..arrive with text '4 s' ..., then idle to 9)}.\nLAYOUT: two timeline panels (D11.lanes). WAIT panel: a grey solid header tag 'Wait' (D4.tag x 80, y 36, fs 30); D11.lanes(stage, {x: 12, y: 80, w: 912, rows: ['A', 'B'], T: 10, ticks: [0, 2, 4, 6, 8, 10], rowH: 56, gap: 14}). BARRIER panel: header tag 'Barrier' (x 100, y 300); D11.lanes(stage, {x: 12, y: 340, w: 912, rows: ['C1', 'C2', 'C3', 'C4'], T: 10, ticks: [0, 2, 4, 6, 8, 10], rowH: 48, gap: 10}) (its tick labels end near y 614). Bars: D11.flat(D11.WAIT.rows) / D11.flat(D11.BAR.rows); give the B idle bar the text 'waiting 6 s' (from D11.WAIT.idle) and each C idle bar its idle seconds ('5 s', '3 s', '4 s' from D11.BAR.idle).\nTIMELINE. 0.2-0.6 the wait panel pops (k, then axes). 0.6-3.3 now sweeps 0 -> 10 (E.lin, cursor true): A's blue bar grows to 9, B's blue bar to 3, then B's red dashed idle bar grows from 3. When now passes 9 (t 3.0): an orange mark {t: 9, text: 'signal'} pops and a short orange L5.arrow from A's row to B's row at x ln.X(9) draws on (3.0-3.3); B's last blue bar 9-10 grows. 3.4 B's idle bar shows 'waiting 6 s' (it is complete; flash it). BARRIER: 4.4-4.8 the barrier panel pops; 4.8 an orange mark {t: 9, text: 'barrier'} pops (the line everyone waits at; its tag sits above the rows at about y 306, right of the header). 5.0-7.8 now sweeps 0 -> 9 (E.lin, cursor): C1 stops at 4, C3 at 5, C2 at 6, C4 at 9; each finished machine's red dashed idle bar grows towards the barrier line; when C4 reaches 9 (7.8) the barrier line flashes (s bump on the mark) and the idle bars show '5 s', '3 s', '4 s'. 8.3 a red tag 'idle 5 + 3 + 4 + 0 = 12 s' pops at (480, 300) (between the header tag and the barrier tag; the parts come from D11.BAR.idle). Hold to 11.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-overlap.js",
+   "kicker": "OVERLAP",
+   "title": [
+    "Keep computing",
+    "while you send"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "Four rounds: 3 s of computing, then 2 s of sending."
+    ],
+    [
+     2.6,
+     4.7,
+     "Stop and wait: the worker sits still while it sends. 20 s."
+    ],
+    [
+     5,
+     7.8,
+     "Overlap: start the next round while the last result is sent."
+    ],
+    [
+     8.2,
+     10.7,
+     "Done in 14 s: 6 s of waiting is hidden."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.1 step 7): the network is slow, so HIDE its latency: overlap computation and communication. The worker keeps computing the next round while the last result is still on the wire (this works when the next round does not need the result being sent). DATA: D11.OVER = {k: 4, c: 3, m: 2, T: 22, wait: {rows: [Compute: work 0-3, 5-8, 10-13, 15-18 texted '1'..'4' plus idle stalls 3-5, 8-10, 13-15; Network: send 3-5, 8-10, 13-15, 18-20], end: 20}, over: {rows: [Compute: 0-3, 3-6, 6-9, 9-12; Network: 3-5, 6-8, 9-11, 12-14], end: 14}, saved: 6}.\nLAYOUT: two D11.lanes panels with the same time scale. 'Stop and wait' header: grey solid D4.tag (x 130, y 36, fs 30); D11.lanes(stage, {x: 12, y: 80, w: 912, rows: ['Compute', 'Network'], T: D11.OVER.T (22), ticks: [0, 5, 10, 15, 20], rowH: 60, gap: 14}). 'Overlap' header: grey solid D4.tag (x 100, y 316); D11.lanes(stage, {x: 12, y: 360, same options}). Bars: D11.flat(D11.OVER.wait.rows), D11.flat(D11.OVER.over.rows) (compute blue with the round number, network purple 'send', stalls red dashed).\nTIMELINE. 0.2-0.6 the first panel pops. 0.6-4.2 now sweeps 0 -> 20 (E.lin, cursor): compute 3 s, then the network bar grows while the compute lane shows a red dashed stall, four times. 4.3 an end mark {t: 20, tone: 'red', text: '20 s'}. 4.6-5.0 the second panel pops. 5.0-7.5 now sweeps 0 -> 14 at the SAME speed (20 sim s per 3.6 s): the compute bars run back to back while each send runs under the next round. 7.6 an end mark {t: 14, tone: 'green', text: '14 s'}. 8.2 a green solid D4.tag '6 s saved' at (468, 590) pops (from D11.OVER.saved). Hold to 11.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-sgd.js",
+   "kicker": "DISTRIBUTED SGD",
+   "title": [
+    "Split the minibatch,",
+    "all-reduce the gradients"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "Three workers, each with the same model, w = 10."
+    ],
+    [
+     3,
+     4.7,
+     "The minibatch of 6 is split: 2 examples per worker."
+    ],
+    [
+     4.9,
+     6.7,
+     "Each worker computes its own gradient: 5, 6 and 4."
+    ],
+    [
+     7,
+     8.8,
+     "All-reduce: G = 15 lands on every worker."
+    ],
+    [
+     9,
+     11,
+     "Every copy updates the same way: w = 7.5."
+    ],
+    [
+     11.4,
+     13.7,
+     "Exactly what one machine gets from all 6: it is minibatch SGD."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.2 steps 3-5, the slides' Algorithm 1): data parallelism. M workers each keep a full copy of the model; the minibatch B = M · B' is split so each worker averages the gradient of its own B' examples; an ALL-REDUCE puts the sum G of the workers' gradients on EVERY worker; each updates its own copy w = w − (alpha / M) · G, so all copies stay identical, and the result is exactly minibatch SGD on all B examples (same algorithm, same hyperparameters). Each example's gradient is w minus its target. DATA: D11.SGD = {M: 3, alpha: 0.5, w0: 10, B: 6, Bp: 2, batch: [[4, 6], [5, 3], [8, 4]], means: [5, 4, 6], g: [5, 6, 4], G: 15, w1: 7.5, all: [4, 6, 5, 3, 8, 4], allMean: 5, gAll: 5, step: 2.5}.\nLAYOUT: the minibatch: D4.chips(stage, {x: 468 − (6 · 86 − 10) / 2, y: 12, n: 6, w: 76, h: 64, gap: 10, texts: D11.SGD.all, tone: 'grey'}) (centred, top strip, y 12..76) with a grey tag 'B = 6' to its left (x 110, y 44). Three worker cards: D4.card {x: 12 / 324 / 636, y: 110, w: 288, h: 320, plain: true} with a 30 px name label 'W1'..'W3' at the top (y 140); in each card: the two dealt chips (centre y 210), the gradient tag (blue, y 276: 'g = 10 − 5 = 5', 'g = 10 − 4 = 6', 'g = 10 − 6 = 4'), the all-reduce result (purple solid 'G = 15', y 334, from 6.8), the model tag (green, y 392: 'w = 10', later 'w = 7.5'). The all-reduce hub: purple D4.disc {x: 468, y: 520, size: 90, text: '+'} and its tag 'G = 15' (purple solid, x 600, y 520). Bottom line (y 600): a grey tag with the update 'w = 10 − (0.5 ÷ 3) × 15 = 7.5', later replaced by the one-machine check 'one machine, all 6: 10 − 0.5 × 5 = 7.5' with a green L5.tick at its right.\nTIMELINE. 0.2-0.7 the three cards pop (stagger 0.12) with 'W1'..'W3' and the green 'w = 10' tags. 1.0-1.4 the six grey minibatch chips pop (stagger 0.05) and 'B = 6'. 2.0-3.0 the chips are dealt: chips 0-1 slide into W1, 2-3 into W2, 4-5 into W3 (row.set(i, {x, y}) offsets to each card's chip slots, E.inOut, stagger 0.1), turning blue as they land; 3.0 a grey tag \"B' = 2 each\" replaces 'B = 6'. 3.3-4.5 the gradient tags pop in turn (stagger 0.4). ALL-REDUCE: 4.9-5.6 three purple packets '5', '6', '4' fly from each card's bottom middle (156 / 468 / 780, 430) to the hub; 5.7 'G = 15' pops (bump); 6.0-6.8 three purple packets '15' fly from the hub back up to each card; on landing (6.8) each card's purple solid 'G = 15' tag pops (y 334). 8.2 the bottom update tag pops; 8.4-8.8 every 'w = 10' flips to 'w = 7.5' (green, bump) at the same moment. 10.8 the bottom tag cross-fades to the one-machine check; 11.2 its tick draws (L5.drawOn); 11.4 the three 'w = 7.5' tags flash together and a green ring pops round each card (same model everywhere). Hold to 14.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-idle.js",
+   "kicker": "THE DRAWBACK",
+   "title": [
+    "Workers sit idle",
+    "during the all-reduce"
+   ],
+   "dur": 9,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Each iteration: 3 s of computing, then a 1 s all-reduce."
+    ],
+    [
+     2.8,
+     5.4,
+     "While the gradients travel, every worker waits."
+    ],
+    [
+     6,
+     8.7,
+     "So the workers compute only 75% of the time."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.2 step 6): the advantage of all-reduce SGD is that it IS minibatch SGD; its drawback is that the workers are IDLE while the all-reduce communication happens: computation and communication are not overlapped (scene 5's trick is not used). DATA: D11.IDLE = {c: 3, m: 1, k: 3, workers: 4, iter: 4, busy: 0.75, pct: 75, T: 12, rows: W1..W4 (work 0-3 '3 s', idle 3-4, work 4-7, idle 7-8, work 8-11, idle 11-12) and Network (comm 3-4, 7-8, 11-12)}.\nLAYOUT: D11.lanes(stage, {x: 12, y: 30, w: 912, rows: ['W1', 'W2', 'W3', 'W4', 'Network'], T: 12, ticks: [0, 4, 8, 12], rowH: 56, gap: 12}) (rows end near y 358, tick labels near y 410). Bars: D11.flat(D11.IDLE.rows): blue work, red dashed idle, purple network (text 'all-reduce' is too long for a 1 s bar: leave it empty). Below: a purple tag 'all-reduce' at (ln.X(3.5), 452) with a short purple L5.arrow from just above it up to the first network bar; a busy meter D4.bar(stage, {x: 180, y: 510, w: 576, h: 40, tone: 'blue'}) and a blue solid tag 'computing 75% of the time' at (468, 590) (the 75 from D11.IDLE.pct).\nTIMELINE. 0.2-0.6 the lanes pop. 0.6-5.4 now sweeps 0 -> 12 (E.lin, cursor): three iterations; each 1 s all-reduce shows as the purple network bar AND four red dashed idle bars at once. 3.0 the 'all-reduce' tag and arrow pop under the first network bar. 5.5-6.1 the meter fills to D11.IDLE.busy (k 0 -> 0.75); 5.7 the tag 'computing 75% of the time' pops (from D11.IDLE.pct). Hold to 9.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-kmeans.js",
+   "kicker": "K-MEANS",
+   "title": [
+    "Assign to the nearest,",
+    "move to the mean"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     1.9,
+     "45 points and 3 starting centres."
+    ],
+    [
+     2.1,
+     4.3,
+     "Assign each point to the nearest centre, then move each centre to its mean."
+    ],
+    [
+     4.5,
+     8,
+     "Repeat: points switch cluster and the centres follow."
+    ],
+    [
+     8.8,
+     11.7,
+     "Iteration 6: no point switches, so k-means stops."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.3 steps 1-2): k-means repeats an ASSIGNMENT step (every point joins the cluster of its nearest centre) and an UPDATE step (every centre moves to the mean of its points) until the partition no longer changes (or MAX iterations). The lesson's cloud: 45 points, k = 3, two starting centres badly placed close together. DATA: D11.KM = {pts (45 [x, y] in 0..1), start, iters[t = 1..6]: {asg, before, after, moved, sizes}, moved: [45, 3, 7, 12, 2, 0], converged: 6}; D11.KM.trail(k, i) -> centre k's path up to iteration i.\nLAYOUT: D11.plane(stage, {x: 12, y: 12, w: 616, h: 616, xr: [0.08, 0.9], yr: [0.22, 0.94], n: 45}). Points r 11: grey before the first assignment, then their cluster tone (0 blue, 1 orange, 2 purple). Centres: crosses in the cluster tones; trails: dashed paths of the centres so far. Right column (centre x 780): an 'iteration 1' grey tag (y 60, fs 30, solid when it changes), two step tags 'assign' (y 160) and 'update' (y 230) that turn solid grey while that step runs, the switch counter (y 330): 'all 45 assigned' for iteration 1, then '3 switched', '7 switched', '12 switched', '2 switched', '0 switched' (from D11.KM.moved; red tone for 0? no: grey, then green at the end), and at the end a green solid 'converged' tag (y 430) with an L5.tick (x 780, y 520).\nTIMELINE (iteration i = 1..6, a_i = assign time, u_i = update time): a = [1.4, 3.2, 4.5, 5.8, 7.1, 8.4], u = [2.0, 3.8, 5.1, 6.4, 7.7, none]. 0.2-0.6 the plane pops; 0.4-1.0 the grey points pop (D11.seq stagger 0.012, E.pop on s). 0.9-1.2 the three start crosses pop. At a_i: points take iters[i-1].asg tones (0.3 s cross-fade: show the old tone until a_i + 0.15, the new after; a point that SWITCHED gets a short s bump 1 -> 1.5 -> 1, flash a_i..a_i + 0.4), the counter shows iters[i-1].moved, the 'assign' tag is solid for 0.5 s, the iteration tag shows 'iteration i'. At u_i: the crosses glide from iters[i-1].before to iters[i-1].after (0.45 s, E.inOut) and the trails extend (pl.set trails: D11.KM.trail(k, i − 2) plus the moving end), the 'update' tag is solid for 0.5 s. Iteration 6 (8.4): nothing changes colour, counter '0 switched' turns green; 9.0 'converged' pops, 9.3 the tick draws, 9.4 the crosses get a bump. Hold to 12.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-map.js",
+   "kicker": "MAP",
+   "title": [
+    "Each mapper finds",
+    "the nearest centre"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     2,
+     "Two mappers get a copy of the centres, 2 and 9."
+    ],
+    [
+     2.2,
+     4.2,
+     "Each sample joins its nearest centre."
+    ],
+    [
+     4.4,
+     6.2,
+     "Sample 8: 6 from c0, 1 from c1, so it emits ⟨1, 8⟩."
+    ],
+    [
+     6.4,
+     9.7,
+     "7 pairs go out: the key is the cluster, the value the sample."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.3 steps 3-4): the assignment step needs only one point and the centres, so the points are split over machines (MAPPERS) that work at the same time; each gets a copy of the centres (a broadcast). MAP: for each sample, the distance to every centre, the closest wins, and the mapper emits the pair ⟨index of the closest centre, the sample⟩. The 1-D example used by scenes 9 to 11. DATA: D11.MR = {mappers: [[1, 4, 8, 12], [2, 3, 14]], centres: [2, 9], dist (sample 8: [6, 1]), emits: [[[0, 1], [0, 4], [1, 8], [1, 12]], [[0, 2], [0, 3], [1, 14]]], pairs: 7}. Cluster 0 is blue, cluster 1 orange.\nLAYOUT: header row (y 44): a grey label 'centres' (D4.label x 70) and two solid tags 'c0 = 2' (blue, x 220) and 'c1 = 9' (orange, x 370); the counter tag (purple, x 760, y 44) appears at the end. Two mapper panels: D4.card {x: 12, y: 96, w: 912, h: 250, plain: true} and {x: 12, y: 370, w: 912, h: 250}, each with a 30 px name 'Mapper 1' / 'Mapper 2' at its top-RIGHT part (D4.label x 660, y panelY + 40, anchor l: the centre labels of the number line need the top-left). In each: D11.numline(stage, {x: 30, y: panelY + 130, w: 600, lo: 0, hi: 15, ticks: [0, 5, 10, 15], labels: false}) (no tick labels: the values are inside the dots, and the distance spans use the room under the line) with the mapper's samples as dots r 19 (grey, then the cluster tone) and the two centres as triangles {v: 2, tone: 'blue', text: 'c0'}, {v: 9, tone: 'orange', text: 'c1'}; the emitted pairs as a 2 x 2 grid of solid chips under the name (x 660..900, y panelY + 90 .. panelY + 220, w 116, h 56, fs 28: '⟨0, 1⟩' in the cluster tone).\nTIMELINE. 0.2-0.6 both panels pop with their grey sample dots (stagger 0.05). 0.7 the header 'centres' + 'c0 = 2', 'c1 = 9'. 1.0-1.8 two purple packets '2, 9' fly from the header (x 300, y 70) down to each panel's number line (D11.fly, E.inOut); 1.8 the centre triangles pop on both lines. SAMPLES (both mappers AT THE SAME TIME, they run in parallel): sample i of each mapper at s_i = 2.2 + 0.8 i (i = 0..3; mapper 2 has i = 0..2): s_i .. s_i + 0.3 a span (D11.numline spans, dy 36, tone of the winner, text = the distance) from the sample to its nearest centre draws; s_i + 0.3 the dot takes the cluster tone (s bump); s_i + 0.45 its pair chip pops in the grid. Sample 8 (mapper 1, i = 2, s = 3.8): BOTH distances: a grey dashed span to c0 with '6' (dy 36) and an orange span to c1 with '1' (dy 76), held until 6.0; its chip '⟨1, 8⟩' gets an orange ring at 4.4. 5.6 the purple counter '7 pairs' pops at (760, 44). 6.4 all seven chips flash once. Hold to 10.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-combine.js",
+   "kicker": "COMBINE",
+   "title": [
+    "Send sums and counts,",
+    "not every point"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "The 7 pairs from the map step, grouped by cluster."
+    ],
+    [
+     2.6,
+     4.6,
+     "The combiner adds each group up: a sum and a count. 4 records instead of 7."
+    ],
+    [
+     4.8,
+     6.6,
+     "Cluster 1: (20 + 14) ÷ (2 + 1) = 11.33, the true mean."
+    ],
+    [
+     7,
+     10.7,
+     "Local means would give 12: a mean forgets how many points it had."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.3 step 5, and step 7's traffic point): the COMBINER runs on each mapper's own output and sends, per cluster, the local SUM of its samples and their COUNT, so far fewer records cross the network (7 pairs become 4 records; on the 45-point cloud it is 45 pairs against 7 to 9 records, D11.KM.iters[i].records). It must send sums and counts, never local means: averaging means treats mapper 2's single point like mapper 1's two. DATA: D11.MR = {emits, pairs: 7, comb: [[{k: 0, sum: 5, n: 2}, {k: 1, sum: 20, n: 2}], [{k: 0, sum: 5, n: 2}, {k: 1, sum: 14, n: 1}]], records: 4, red[1] = {sum: 34, n: 3, c: 11.333}, means: [[2.5, 10], [2.5, 14]], wrong: 12, truth: 11.333}.\nLAYOUT: two mapper cards D4.card {x: 12, y: 12, w: 912, h: 170, plain: true} and {x: 12, y: 200, w: 912, h: 170}, each with its name 'Mapper 1' / 'Mapper 2' (30 px, anchor l at x 36, card centre y). Each card holds its pairs as solid chips (w 120, h 56, fs 28, tone by cluster) in two groups: cluster 0 group centred at x 380, cluster 1 group at x 720 (chips 130 px apart). The combined record that replaces a group: a solid tag 'sum 5, count 2' (blue) / 'sum 20, count 2' (orange) etc. at the group centre. Counter: purple tag '4 records instead of 7' at (468, 420). The check rows: a green tag 'sums: (20 + 14) ÷ (2 + 1) = 11.33' at (420, 500) with an L5.tick at (720, 500); a red tag 'local means: (10 + 14) ÷ 2 = 12' at (420, 590) with an L5.cross at (720, 590). Build every string from D11.MR (sums, counts, D11.fm(D11.MR.truth), D11.MR.wrong, the means D11.fm(D11.MR.means[0][1]) and [1][1]).\nTIMELINE. 0.2-0.6 the cards pop; 0.5-1.4 the seven pair chips pop (stagger 0.1). 1.6-2.4 each group squeezes: its chips slide to the group centre and shrink (s -> 0.6, o -> 0) while the record tag pops at the centre (2.0-2.4, E.pop); mapper 1 and mapper 2 at the same time. 2.5 the counter pops. 4.2 the two cluster-1 records (orange) get an orange ring; 4.4 the green row pops; 4.7 its tick draws. 6.6 the red row pops; 7.0 its cross draws; 7.4 the 'sum 14, count 1' record flashes (the count the mean forgot). Hold to 11.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  },
+  {
+   "n": 11,
+   "file": "scene-11-reduce.js",
+   "kicker": "REDUCE",
+   "title": [
+    "Add up, move the centres,",
+    "test, repeat"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "The reducer adds up the 4 records."
+    ],
+    [
+     2.4,
+     4,
+     "New centres: 10 ÷ 4 = 2.5 and 34 ÷ 3 = 11.33."
+    ],
+    [
+     4.2,
+     5.8,
+     "The centres moved, so they go back to the mappers."
+    ],
+    [
+     6,
+     7.6,
+     "Next round: no point changes cluster."
+    ],
+    [
+     7.8,
+     9.7,
+     "The reducer's test says converged: done."
+    ]
+   ],
+   "spec": "IDEA (lesson 11.3 step 6): the REDUCER adds up the sums and counts of all the mappers, computes each cluster's new centre and TESTS CONVERGENCE: if the centres moved, they go back to the mappers (a broadcast) and the next iteration starts with Map; if the partition did not change, it outputs the centres. The loop is Map -> Combine -> Reduce -> Converged? DATA: D11.MR = {comb (the 4 records), red: [{k: 0, sum: 10, n: 4, c: 2.5}, {k: 1, sum: 34, n: 3, c: 11.333}], centres: [2, 9], next: [2.5, 11.333], iter2: {same: true, next: [2.5, 11.333]}, mappers (the 7 samples)}.\nLAYOUT: the loop strip (y 44): four grey tags 'Map' (x 110), 'Combine' (x 330), 'Reduce' (x 560), 'Converged?' (x 800), short grey L5.arrows between them, and a purple return arrow under the strip from 'Converged?' back to 'Map' (L5.arrow with bow, y about 90). The phase that runs is a solid tag (grey solid; 'Converged?' turns green solid at the end). Left: the 4 records as solid tags stacked at x 150, y 170 / 230 / 290 / 350 ('sum 5, count 2' blue, 'sum 5, count 2' blue, 'sum 20, count 2' orange, 'sum 14, count 1' orange). Middle: the reducer D4.node {x: 330, y: 140, w: 300, h: 250, name: 'Reducer', icon: 'server', layout: 'slots'} with two result tags in its body: blue '10 ÷ 4 = 2.5' and orange '34 ÷ 3 = 11.33'. Bottom: D11.numline(stage, {x: 40, y: 540, w: 856, lo: 0, hi: 15, ticks: [0, 5, 10, 15]}) with the 7 samples as dots (r 19) in their cluster tones and the centre triangles c0 (blue) and c1 (orange). Right of the reducer (x 780, y 260): a green tag 'converged' at the end, with the output 'centres 2.5 and 11.33'.\nTIMELINE. 0.2-0.6 strip, records, reducer and the number line (centres at 2 and 9) pop; 'Reduce' solid. 0.8-1.8 the four records fly into the reducer (D11.fly, stagger 0.2; they keep their cluster tone: they are data). 2.0 the result tags pop (2.0 cluster 0, 2.3 cluster 1). 2.6-3.4 the two triangles glide 2 -> 2.5 and 9 -> 11.333 on the line (E.inOut), with a faint dashed span from the old place to the new. 3.8 'Converged?' solid; 4.0 a grey tag 'centres moved' pops at (780, 200) (it fades at 5.4); 4.2-5.0 the purple return arrow draws (L5.drawOn) and 'Map' turns solid; two purple packets '2.5, 11.33' fly from the reducer to the left (the mappers) and fade. ROUND 2: 5.4 the samples flash once without changing colour ('Map': same clusters), 6.0 'Combine' solid, 6.4 'Reduce' solid and the result tags bump (same 2.5 and 11.33), 7.2 'Converged?' turns green solid, 7.4 the green 'converged' tag and 7.6 'centres 2.5 and 11.33' pop at the right, 7.8 an L5.tick draws next to them. Hold to 10.\nCOLOURS (whole video, VID.d11 tones): grey = the MACHINES (server cards, mappers, the reducer), wires, axes, plain labels; blue = a machine's OWN data and its own computing (the numbers it holds, compute bars, a worker's gradient g); purple = COMMUNICATION (packets on wires, network and all-reduce bars, the + hub, a pull request, centres being broadcast); green = the RESULT everyone wants (a total that has landed, G on every worker, the updated w, new centres, converged, ticks); red = WASTE and WRONG (dashed idle bars, the wrong answer 12, crosses); orange = the SYNC POINT (barrier line, A's signal). In the k-means scenes 8 to 11 the clusters are tones too: cluster 0 blue, cluster 1 orange, cluster 2 purple (scene 8 only, where nothing travels).\nRULES: text 28 px or more, never dim text below 0.8 opacity, 12 px margin inside the 936 x 640 stage; symbols are SVG (L5.tick, L5.cross, L5.arrow, D4.bolt, the D11 crosses and triangles), never glyphs (no ✓ ✗ → in on-screen text; the angle brackets ⟨ ⟩ of a pair are text and fine); update(t) pure (all motion from the precomputed values in d11/common.js; never run k-means or SGD inside a scene); every number on screen and in captions comes from D11 (build caption strings with D11.fm from the D11 values; the strings below show what they evaluate to). Captions describe what is already on screen, in order, and never run ahead of the picture (a voice-over will be timed to them later). Consts: const V = window.VID, D11 = V.d11, D4 = V.d4, L5 = V.l5; const {ramp, flash, clamp, lerp, ease: E} = V."
+  }
+ ],
+ "recap": {
+  "n": 12,
+  "file": "scene-12-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Patterns: who sends,\nwho gets the result",
+    "tone": "purple",
+    "pictogram": "Four small grey boxes in a column at the left holding blue dots; a purple + disc in the middle. 1.0-1.6 four purple dots fly from the boxes into the + (stagger 0.1); 1.9-2.5 four green dots fly back from the + to every box; 2.6 each box gets a green dot that stays (all-reduce). Holds that picture."
+   },
+   {
+    "head": "All-reduce SGD: same model,\nbut idle while it talks",
+    "tone": "blue",
+    "pictogram": "Three small worker boxes in a row, each with a green 'w' chip; under them a mini timeline of three lanes: a blue bar (1.0-1.8 grows), then a purple bar on a network lane with red dashed idle bars on the worker lanes (1.9-2.4); 2.6 the three w chips flash together and stay green. Holds."
+   },
+   {
+    "head": "k-means in MapReduce:\nmap, combine, reduce",
+    "tone": "green",
+    "pictogram": "A small framed plane with 10 grey dots in two loose groups and two crosses (blue, orange). 1.0 the dots take the tone of the nearest cross (assign); 1.6-2.2 the crosses glide to their groups' middles (update); 2.6 a green L5.tick pops at the right. Holds."
+   }
+  ],
+  "cta": "Next: Workshop 11.W",
+  "spec": "RECAP (bare scene, full 1080 x 1080, no caption): build it like videos/l5/scene-10-recap.js and videos/d9/scene-12-recap.js (three cards with a small animated SVG pictogram at the left and the bold head line at the right, Pebble via V.mascot('pebble', ...), a call-to-action sticker 'Next: Workshop 11.W' at the bottom). Cards pop at 0.3, 0.6, 0.9; pictograms play once from about 1.0 to 3.0 and then HOLD their finished state (no loop, no reset); CTA pops at 3.4; the video ends on a calm complete frame. Tones as in the rest of the video (purple communication, blue computing / cluster 0, green result, red idle, orange cluster 1). Text 28 px or more. Use D4.svg, L5.tick, D4 tags; positions are the bare 1080 x 1080 canvas."
+ },
+ "helpers": "videos/d11/common.js (D11 data, no DOM; header lists every field): D11.PAT (s2, s3), D11.WAIT and D11.BAR (s4), D11.OVER and D11.overlapPlan (s5), D11.SGD (s6), D11.IDLE (s7), D11.KM with KM.trail(k, i) (s8; KM.iters[i].records = combiner records on 3 mappers 7, 8, 9, 9, 9, 9), D11.MR (s9 to s11); tools D11.fm, D11.same, D11.close, D11.rng, D11.mean, D11.seq, D11.tone. videos/d11/common-2.js (drawing): D11.lanes(stage, {x, y, w, rows, T, ticks, rowH, gap, nameW, max}) -> ln.set({k, axes, names, now, cursor, bars: [{row, a, b, kind: work | comm | idle, text, tone, k, o}], marks: [{t, tone, text, k, top}]}), ln.X(t), ln.rowY(i), ln.top / bottom / axisY / h; D11.flat(rows) -> bars with row indices; D11.plane(stage, {x, y, w, h, xr, yr, n}) -> pl.set({k, pts: [{at, tone, r, s, o}], centres: [{at, tone, k, s}], trails: [{pts, tone, k, o}]}), pl.pt(vx, vy); D11.numline(stage, {x, y, w, lo, hi, ticks}) -> nl.set({k, axis, dots: [{v, tone, r, text, s, o, dy}], centres: [{v, tone, text, k, s}], spans: [{a, b, tone, dy, text, k, o, dash}]}), nl.X(v); D11.fly(packet, a, b, k, {bow, keep, s}) and D11.edge(f). Stickers come from videos/d4/common-2.js and common-3.js (D4.node, D4.tag, D4.packet, D4.label, D4.disc, D4.card, D4.chips, D4.bar, D4.wire, D4.svg, D4.at, D4.seq, D4.tagW) and videos/l5/common.js (L5.tick, L5.cross, L5.arrow, L5.drawOn). The page loads l5/common.js, d4/common.js, d4/common-2.js, d4/common-3.js, d11/common.js, d11/common-2.js."
+}

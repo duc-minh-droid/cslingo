@@ -1,0 +1,668 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 10.96,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     10.96,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.55,
+     "Lecture fifteen. Multi-objective particle swarm optimisation. This is how a swarm keeps a whole front of good trade-offs."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b3aafc20c16aa503.wav",
+     "at": 0.5,
+     "len": 8.8
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.4,
+     3.2
+    ],
+    [
+     15.26,
+     6
+    ],
+    [
+     20.96,
+     8.8
+    ],
+    [
+     26.68,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "Nine drone routes, each scored by time and energy. Lower is better."
+    ],
+    [
+     7.4,
+     15.01,
+     "Plain PSO follows two points: its own pbest and the swarm's gbest."
+    ],
+    [
+     15.26,
+     20.71,
+     "Five routes are not dominated by any other route."
+    ],
+    [
+     20.96,
+     25.77,
+     "None beats the other four, so there is no single gbest."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c700d889b186e6b5.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/af7d9d2b0243d8e8.wav",
+     "at": 7.4,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/2091c60f2cd53d6a.wav",
+     "at": 15.26,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/54a3b39fd99cb7a0.wav",
+     "at": 20.96,
+     "len": 4.56
+    }
+   ]
+  },
+  {
+   "dur": 36.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.64,
+     3.2
+    ],
+    [
+     14.54,
+     6.6
+    ],
+    [
+     21.6,
+     9.2
+    ],
+    [
+     28.18,
+     12
+    ],
+    [
+     36.757,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "A particle's pbest starts at (5, 5). Lower time and energy are better."
+    ],
+    [
+     7.64,
+     14.29,
+     "It moves to (4, 6), a trade-off. Keep oldest stays, keep newest moves."
+    ],
+    [
+     14.54,
+     21.35,
+     "(6, 7) is worse on both goals, so neither rule moves."
+    ],
+    [
+     21.6,
+     27.93,
+     "(3.5, 5.5) is another trade-off: only keep newest moves."
+    ],
+    [
+     28.18,
+     34.83,
+     "(4.5, 4) dominates (5, 5), so now keep oldest moves too."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/637ba45feddc411b.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/17028c114e1dc4a6.wav",
+     "at": 7.64,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/6ac8c2acc1cc63f9.wav",
+     "at": 14.54,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/1bcf513e9390b85f.wav",
+     "at": 21.6,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/e5e2e90c936de90b.wav",
+     "at": 28.18,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 36.571,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     6.6,
+     3.2
+    ],
+    [
+     14.46,
+     6.8
+    ],
+    [
+     22.08,
+     10.2
+    ],
+    [
+     30.02,
+     13.4
+    ],
+    [
+     36.571,
+     16
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "The archive keeps every non-dominated route found so far."
+    ],
+    [
+     6.6,
+     14.21,
+     "Newcomer (2, 4) dominates two members: they leave and it joins."
+    ],
+    [
+     14.46,
+     21.83,
+     "(5, 4.5) is dominated by (2, 4), so it is turned away."
+    ],
+    [
+     22.08,
+     29.77,
+     "(7, 2) is a new trade-off: nobody dominates it, so it joins."
+    ],
+    [
+     30.02,
+     35.15,
+     "No member dominates another: the archive is the front so far."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/490724117f07d355.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/e877e3cbb48701be.wav",
+     "at": 6.6,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/33f02023c3b8b414.wav",
+     "at": 14.46,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/f9b0ed416016442d.wav",
+     "at": 22.08,
+     "len": 7.44
+    },
+    {
+     "file": "videos/audio/clips/f8b45047e33dc10f.wav",
+     "at": 30.02,
+     "len": 4.88
+    }
+   ]
+  },
+  {
+   "dur": 31.649,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.76,
+     3.2
+    ],
+    [
+     12.62,
+     5.8
+    ],
+    [
+     21.12,
+     9.2
+    ],
+    [
+     25.38,
+     12.6
+    ],
+    [
+     31.649,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.51,
+     "Twelve archive members, but the cap is six."
+    ],
+    [
+     4.76,
+     12.37,
+     "The two ends, a and l, get infinite crowding distance: always kept."
+    ],
+    [
+     12.62,
+     20.87,
+     "Remove the most crowded, j at 0.13, then recompute: f goes next."
+    ],
+    [
+     21.12,
+     25.13,
+     "Then c, k, g and b, one at a time."
+    ],
+    [
+     25.38,
+     30.75,
+     "Six spread-out members are left, ends included."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/736d29436be131c2.wav",
+     "at": 0.5,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/b937dee32b86a9d4.wav",
+     "at": 4.76,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/fed1e0fa8f3cf04c.wav",
+     "at": 12.62,
+     "len": 8
+    },
+    {
+     "file": "videos/audio/clips/0e829908fd8e6823.wav",
+     "at": 21.12,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/8f7956ee52063acc.wav",
+     "at": 25.38,
+     "len": 5.12
+    }
+   ]
+  },
+  {
+   "dur": 43.352,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     4.12,
+     3.2
+    ],
+    [
+     10.86,
+     6.2
+    ],
+    [
+     18.64,
+     9.6
+    ],
+    [
+     26.74,
+     12.2
+    ],
+    [
+     33.64,
+     14.6
+    ],
+    [
+     43.352,
+     17
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.87,
+     "Each particle (blue) needs a leader from the archive (green)."
+    ],
+    [
+     4.12,
+     10.61,
+     "Simplest: pick a member at random, each with a 1 in 5 chance."
+    ],
+    [
+     10.86,
+     18.39,
+     "Or count the particles each member dominates: c dominates four, e one."
+    ],
+    [
+     18.64,
+     26.49,
+     "Fewer means more likely to lead: e's weight is 1/2, c's only 1/5."
+    ],
+    [
+     26.74,
+     33.39,
+     "Or use particle P as the reference point: b, c and d dominate it."
+    ],
+    [
+     33.64,
+     41.41,
+     "Their own boxes: b 1.5, c 4, d 1.5. c covers most, so c leads."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/69bd2a3a9062c1d6.wav",
+     "at": 0.5,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/afe9c010eecd984c.wav",
+     "at": 4.12,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/6cb814a1e1a6546b.wav",
+     "at": 10.86,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/f2b715915d88eec7.wav",
+     "at": 18.64,
+     "len": 7.6
+    },
+    {
+     "file": "videos/audio/clips/15356d01fbfde251.wav",
+     "at": 26.74,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/72941ef8c8547143.wav",
+     "at": 33.64,
+     "len": 7.52
+    }
+   ]
+  },
+  {
+   "dur": 26.726,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.88,
+     3.2
+    ],
+    [
+     14.14,
+     7
+    ],
+    [
+     20.4,
+     10.5
+    ],
+    [
+     26.726,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.63,
+     "A real run: ten drone routes (blue) and their archive (green)."
+    ],
+    [
+     7.88,
+     13.89,
+     "Each step the particles follow leaders, and better routes enter the archive."
+    ],
+    [
+     14.14,
+     20.15,
+     "The archive creeps towards the true front, the dashed line."
+    ],
+    [
+     20.4,
+     24.73,
+     "Capped at ten, it stays spread along the whole front."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/837577791e37bdb2.wav",
+     "at": 0.5,
+     "len": 6.88
+    },
+    {
+     "file": "videos/audio/clips/1113a41dc63b3c5d.wav",
+     "at": 7.88,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/c8836e9c33f7549e.wav",
+     "at": 14.14,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/ffbd6573bda7d3d2.wav",
+     "at": 20.4,
+     "len": 4.08
+    }
+   ]
+  },
+  {
+   "dur": 27.028,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     7.16,
+     3.4
+    ],
+    [
+     12.22,
+     6
+    ],
+    [
+     19.28,
+     9.6
+    ],
+    [
+     27.028,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.91,
+     "Around a point, a quarter of space is better on both goals, a quarter worse."
+    ],
+    [
+     7.16,
+     11.97,
+     "The other half is neither: those points cannot be compared."
+    ],
+    [
+     12.22,
+     19.03,
+     "Each extra goal halves the share you can compare: 1/32 with six."
+    ],
+    [
+     19.28,
+     25.45,
+     "So almost every pair is non-dominated, and dominance stops ranking."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/51d39f751741811a.wav",
+     "at": 0.5,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/ebafb29538a6d5d0.wav",
+     "at": 7.16,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/3b435bdd667cb577.wav",
+     "at": 12.22,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/7453afb53e100159.wav",
+     "at": 19.28,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 15,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.28,
+     2
+    ],
+    [
+     9.66,
+     3.1
+    ],
+    [
+     15,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fcf943a14e2b5127.wav",
+     "at": 0.5,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/eeb02332e3f8a73f.wav",
+     "at": 4.28,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/7f145c74c0608ff0.wav",
+     "at": 9.66,
+     "len": 2.96
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,968 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "Lecture ten. Concept drift detection. How a model notices that the world has changed."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/53c928e9ab71a5c1.wav",
+     "at": 0.5,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.44,
+     2.6
+    ],
+    [
+     7.9,
+     4.2
+    ],
+    [
+     12.16,
+     7
+    ],
+    [
+     19.3,
+     8.4
+    ],
+    [
+     26.68,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "A grocery app suggests plant milk to its shoppers."
+    ],
+    [
+     4.44,
+     7.65,
+     "The model learns who clicks in week 1."
+    ],
+    [
+     7.9,
+     11.91,
+     "Week by week, the same shoppers click more often."
+    ],
+    [
+     12.16,
+     19.05,
+     "Ages 30–44: 46% click now. The model still says 20%."
+    ],
+    [
+     19.3,
+     25.71,
+     "Same inputs, new rule: that is concept drift."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9048120639e5a1f2.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/39805066451e6b0f.wav",
+     "at": 4.44,
+     "len": 2.96
+    },
+    {
+     "file": "videos/audio/clips/ab73318006cf7308.wav",
+     "at": 7.9,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/f2bdd565159c8e9e.wav",
+     "at": 12.16,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/a215db030ac698cf.wav",
+     "at": 19.3,
+     "len": 6.16
+    }
+   ]
+  },
+  {
+   "dur": 28.444,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     2.2
+    ],
+    [
+     11.82,
+     5
+    ],
+    [
+     18.48,
+     8.4
+    ],
+    [
+     24.42,
+     11
+    ],
+    [
+     28.444,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "Each tick is one prediction. Tall red ticks are errors."
+    ],
+    [
+     5.24,
+     11.57,
+     "Abrupt, like a pandemic: errors jump from 10% to 50%."
+    ],
+    [
+     11.82,
+     18.23,
+     "Gradual, like economic change: the new rule creeps in."
+    ],
+    [
+     18.48,
+     24.17,
+     "Recurring, like the seasons: the old rule comes back."
+    ],
+    [
+     24.42,
+     27.87,
+     "The model never changed. The world did."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c143dd9f99b67745.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/f4bc620bfdd4fd3c.wav",
+     "at": 5.24,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/7042f17f5277c960.wav",
+     "at": 11.82,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/3d7b1b5ea394a9c3.wav",
+     "at": 18.48,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/956ad1d0af52eb67.wav",
+     "at": 24.42,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 26.61,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.6,
+     3.2
+    ],
+    [
+     10.54,
+     4.8
+    ],
+    [
+     16.64,
+     6.8
+    ],
+    [
+     20.98,
+     8.6
+    ],
+    [
+     26.61,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "One model is frozen; one retrains every 4 weeks."
+    ],
+    [
+     6.6,
+     10.29,
+     "Week 6: shoppers change habit overnight."
+    ],
+    [
+     10.54,
+     16.39,
+     "Retrained on weeks 5–8, it is still 20% wrong."
+    ],
+    [
+     16.64,
+     20.73,
+     "Only after week 12 is it back to 10%."
+    ],
+    [
+     20.98,
+     25.95,
+     "The frozen model stays at 50%: it never updates."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/580892d112e45a5a.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/562a657c8a19e6f2.wav",
+     "at": 6.6,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/131bb679b3baeef7.wav",
+     "at": 10.54,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/8f809618af51e16f.wav",
+     "at": 16.64,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/2d6d0eab6f6b7d71.wav",
+     "at": 20.98,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 29.954,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     2.2
+    ],
+    [
+     9.58,
+     3.8
+    ],
+    [
+     15.12,
+     5.1
+    ],
+    [
+     20.34,
+     6.3
+    ],
+    [
+     25.72,
+     8.6
+    ],
+    [
+     29.954,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Each prediction becomes a 1 if wrong, a 0 if right."
+    ],
+    [
+     5.32,
+     9.33,
+     "Average the errors over a window of recent records."
+    ],
+    [
+     9.58,
+     14.87,
+     "Last 10 hits 30% before any drift: a false alarm."
+    ],
+    [
+     15.12,
+     20.09,
+     "After the drift at record 100, it reacts by 106."
+    ],
+    [
+     20.34,
+     25.47,
+     "Last 150 is steady, but reaches 30% only at 174."
+    ],
+    [
+     25.72,
+     29.17,
+     "Too short is jumpy, too long is slow."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/21c6c56d69c38a6f.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/0f92bc5aa584f293.wav",
+     "at": 5.32,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/0358a51cbc5463fd.wav",
+     "at": 9.58,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/53c97fbc8d350088.wav",
+     "at": 15.12,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/1f880e809a964956.wav",
+     "at": 20.34,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/8fbd39344d68c3a0.wav",
+     "at": 25.72,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 26.54,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.52,
+     2.6
+    ],
+    [
+     7.82,
+     4.8
+    ],
+    [
+     11.68,
+     6.6
+    ],
+    [
+     17.78,
+     8.7
+    ],
+    [
+     21.56,
+     10
+    ],
+    [
+     26.54,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.27,
+     "ADWIN keeps a window of the most recent records."
+    ],
+    [
+     4.52,
+     7.57,
+     "Nothing changes, so the window keeps growing."
+    ],
+    [
+     7.82,
+     11.43,
+     "A drift at record 250: errors bunch up."
+    ],
+    [
+     11.68,
+     17.53,
+     "Record 296: its parts disagree. Cut the 40 oldest."
+    ],
+    [
+     17.78,
+     21.31,
+     "It keeps cutting: 125 records left at record 334."
+    ],
+    [
+     21.56,
+     25.17,
+     "Calm again, so the window grows again."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fe8278c1606047da.wav",
+     "at": 0.5,
+     "len": 3.52
+    },
+    {
+     "file": "videos/audio/clips/ee5140d2701bce57.wav",
+     "at": 4.52,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/d1da8104cea66255.wav",
+     "at": 7.82,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/beb10d958c732071.wav",
+     "at": 11.68,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/ccf623f4afc5f436.wav",
+     "at": 17.78,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/535a56ecf00d9418.wav",
+     "at": 21.56,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 33.46,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.44,
+     1.9
+    ],
+    [
+     9.66,
+     3.8
+    ],
+    [
+     14.72,
+     5.6
+    ],
+    [
+     18.02,
+     7.4
+    ],
+    [
+     20.6,
+     8.8
+    ],
+    [
+     26.86,
+     10.4
+    ],
+    [
+     33.46,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.19,
+     "A window of 80 records, about 10% errors."
+    ],
+    [
+     4.44,
+     9.41,
+     "ADWIN tries splits: an older part and a newer part."
+    ],
+    [
+     9.66,
+     14.47,
+     "Few new records: gap 0.55, threshold 0.79. No cut."
+    ],
+    [
+     14.72,
+     17.77,
+     "More records, a lower threshold."
+    ],
+    [
+     18.02,
+     20.35,
+     "111 records: gap 0.54 beats the threshold 0.52."
+    ],
+    [
+     20.6,
+     26.61,
+     "Cut: drop the 8 oldest records. No split passes the test now."
+    ],
+    [
+     26.86,
+     31.83,
+     "Small parts need a big gap, so noise rarely cuts."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/af0905032bd85da6.wav",
+     "at": 0.5,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/8498adc0faebbdbd.wav",
+     "at": 4.44,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/db80cf4059b4a6a3.wav",
+     "at": 9.66,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/ed9c5c7f62581868.wav",
+     "at": 14.72,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/021078b75af6903a.wav",
+     "at": 18.02,
+     "len": 2.08
+    },
+    {
+     "file": "videos/audio/clips/48b21e5a566e4a6b.wav",
+     "at": 20.6,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/0e6258b18961d0ed.wav",
+     "at": 26.86,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 21.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     2
+    ],
+    [
+     10.14,
+     3.6
+    ],
+    [
+     13.76,
+     6.2
+    ],
+    [
+     17.14,
+     7.6
+    ],
+    [
+     21.757,
+     10
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "DDM reads the errors: 100 records, 10 of them wrong."
+    ],
+    [
+     5.8,
+     9.89,
+     "Error rate p = 10 ÷ 100 = 0.1."
+    ],
+    [
+     10.14,
+     13.51,
+     "Spread s = √(0.1 × 0.9 ÷ 100) = 0.03."
+    ],
+    [
+     13.76,
+     16.89,
+     "Four times the records: s halves to 0.015."
+    ],
+    [
+     17.14,
+     19.95,
+     "DDM watches p + s: the error rate plus its spread."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/24320c7df46af840.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/d2f3f40f5a44117b.wav",
+     "at": 5.8,
+     "len": 3.84
+    },
+    {
+     "file": "videos/audio/clips/f19f1a4bc11838e8.wav",
+     "at": 10.14,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/c9384ee77ee2622f.wav",
+     "at": 13.76,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/c2d50900fff6f815.wav",
+     "at": 17.14,
+     "len": 2.56
+    }
+   ]
+  },
+  {
+   "dur": 33.46,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     2.2
+    ],
+    [
+     11.18,
+     4
+    ],
+    [
+     14.88,
+     5.6
+    ],
+    [
+     18.18,
+     7.2
+    ],
+    [
+     24.52,
+     9.2
+    ],
+    [
+     29.42,
+     11
+    ],
+    [
+     33.46,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "DDM plots p + s as each record arrives."
+    ],
+    [
+     5.24,
+     10.93,
+     "Warning at p min + 2 s min, change at p min + 3 s min."
+    ],
+    [
+     11.18,
+     14.63,
+     "p min and s min: the best moment so far, record 114."
+    ],
+    [
+     14.88,
+     17.93,
+     "After record 121, every other prediction is wrong."
+    ],
+    [
+     18.18,
+     24.27,
+     "Record 128: past the warning line. Store new records."
+    ],
+    [
+     24.52,
+     29.17,
+     "Record 138: past the change line. Drift detected."
+    ],
+    [
+     29.42,
+     32.63,
+     "Train a new model on records 128 to 138."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0678cafbc0193893.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/e8cb7c1c7002970f.wav",
+     "at": 5.24,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/16fa5cdc64a640f2.wav",
+     "at": 11.18,
+     "len": 3.2
+    },
+    {
+     "file": "videos/audio/clips/02fa698b8759a68e.wav",
+     "at": 14.88,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/231854293724e7b7.wav",
+     "at": 18.18,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/8bcdced21c7d215e.wav",
+     "at": 24.52,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/a23a2b177304207d.wav",
+     "at": 29.42,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 33.507,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.68,
+     2.6
+    ],
+    [
+     10.06,
+     4.4
+    ],
+    [
+     14.32,
+     6.2
+    ],
+    [
+     19.46,
+     8
+    ],
+    [
+     25.96,
+     9.6
+    ],
+    [
+     33.507,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.43,
+     "EDDM measures the gaps between errors: 9, 12, 8, 11, 10."
+    ],
+    [
+     6.68,
+     9.81,
+     "Mean gap plus 2 spreads: 12.8, the best so far."
+    ],
+    [
+     10.06,
+     14.07,
+     "After a drift the gaps shrink: 3, 2, 4, 2, 3, 2, 3."
+    ],
+    [
+     14.32,
+     19.21,
+     "4.1 against the best 12.8: a ratio of 0.32."
+    ],
+    [
+     19.46,
+     25.71,
+     "Below 0.95 is a warning, below 0.90 a drift."
+    ],
+    [
+     25.96,
+     31.49,
+     "Gradual drift: EDDM caught it after 108 records, DDM 138."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2c938033b893397c.wav",
+     "at": 0.5,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/5f960b50d6340abf.wav",
+     "at": 6.68,
+     "len": 2.88
+    },
+    {
+     "file": "videos/audio/clips/15d7885bfb6ccb2d.wav",
+     "at": 10.06,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/b5e971c5d498a297.wav",
+     "at": 14.32,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/5b3189eea5c6516f.wav",
+     "at": 19.46,
+     "len": 6
+    },
+    {
+     "file": "videos/audio/clips/b54e8cdd14c9f0df.wav",
+     "at": 25.96,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.76,
+     1.9
+    ],
+    [
+     13.58,
+     2.9
+    ],
+    [
+     21.687,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6ca8dc925f58827e.wav",
+     "at": 0.5,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/f99ef5cba84fc958.wav",
+     "at": 6.76,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/cdbdaa7d30f910e6.wav",
+     "at": 13.58,
+     "len": 6
+    }
+   ]
+  }
+ ]
+}

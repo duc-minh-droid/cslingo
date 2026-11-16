@@ -1,0 +1,305 @@
+{
+  "slug": "lecture-15",
+  "dir": "l15",
+  "title": "Multi-objective particle swarm optimisation",
+  "outline": "Lecture 15 video (Nature-Inspired Computation, ECM3412): Multi-objective particle swarm optimisation. 9 scenes, 115 s: title (4), no single best (12), pbest rules (15), the archive (16), pruning by crowding (15), leaders (17), a MOPSO run (13), many objectives (14), recap (9). STORY (lessons order). 15.1 (l15-archive, js/content/nic/l15-01.js): PSO follows pbest and gbest; with two objectives (drone routes: time and energy, both minimised) the best is a set: SWARM9 A..I, front A B C E G. pbest rules: keep oldest (replace only if new dominates old) vs keep newest (replace unless old dominates new): from (5,5) moves (4,6) (6,7) (3.5,5.5) (4.5,4) give oldest (5,5) (5,5) (5,5) (4.5,4) and newest (4,6) (4,6) (3.5,5.5) (4.5,4). Archive update: a newcomer removes every member it dominates and joins unless a member dominates it (ARCH a1..a5; (2,4) removes a2 a3 and joins; (5,4.5) is dominated by (2,4) and turned away; (7,2) joins; final 5). 15.2 (l15-bounded, l15-02.js): cap the archive; prune by crowding distance, ends infinity, remove smallest and recompute: P12 a..l to cap 6 removes j 0.13, f 0.17, c 0.19, k 0.34, g 0.46, b 0.50, keeps a d e h i l (clustering not shown). 15.3 (l15-leaders, l15-03.js): leaders from the archive: random (1 in 5), dominated-solution count (H a..e vs SW P..V: counts a1 b1 c4 d2 e1, weight 1/(1+n): c 1/5, e 1/2), hypervolume contribution with the particle as reference (P (7,7.5): b 1.5, c 4, d 1.5, total 12, c leads); many objectives: comparable share 2/2^M (1/2, 1/4, 1/8, 1/32). Scene 7 is a real run of the lessons drone MOPSO (l15-02.js engine, seed 4, cap 10, crowding prune, random leader, keep newest): archive 5 at iteration 0, 10 at 20. Workshop 15.W (l15-workshop.js drone route MOPSO lab). Not covered: clustering prune, sparse-leader tournament, average rank, distance ranking. ALL NUMBERS computed in videos/l15/common.js by the lessons kernel and asserted at load. COLOURS: green = archive / non-dominated / kept; red = dominated / removed / turned away; blue = the particle, new position, newcomer; purple = keep-oldest rule; orange = keep-newest rule and attention (infinity, crowding values, chosen leader); grey = neutral. LAYOUT: L15.plot (L13.plot preset) at x 12, y 12, 600 x 616 with axes time / energy 0..10, right panel x 636..924; scene 8 uses its own square and bars. Text >= 28 px, symbols as SVG.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 15",
+    "title": "Multi-objective particle swarm optimisation",
+    "sub": "How a swarm keeps a whole front of best trade-offs",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 15",
+      "title": [
+        "Multi-objective particle swarm optimisation"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Lecture 15 video: title card (finished)"
+    },
+    {
+      "n": 2,
+      "file": "scene-02-nobest.js",
+      "kicker": "NO SINGLE BEST",
+      "title": [
+        "Two goals, so",
+        "no single gbest"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.5,
+          3,
+          "Nine drone routes, each scored by time and energy. Lower is better."
+        ],
+        [
+          3.2,
+          5.8,
+          "Plain PSO follows two points: its own pbest and the swarm's gbest."
+        ],
+        [
+          6,
+          8.6,
+          "Five routes are not dominated by any other route."
+        ],
+        [
+          8.8,
+          11.7,
+          "None beats the other four, so there is no single gbest."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 02-nobest: lesson 15.1's nine drone routes A..I (L15.SWARM9; time and energy, both minimised). Plain PSO follows two remembered points, pbest and gbest. With two goals, five routes (A B C E G) are non-dominated and none beats the other four, so there is no single gbest to follow. Layout (stage px): L15.plot at x 12, y 12, 600 x 616; right panel x 636..924: card 'pbest' (y 12) and card 'gbest' (y 182). Story (local seconds): 0.3 plot, 0.6 nine grey routes pop in; 3.2 the two cards, F turns blue (the particle); 6.0 the five non-dominated routes turn green and the front line draws; 8.8 orange dashed arrows from F to all five, the gbest card turns orange: 'gbest: ?'; hold to 12."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-pbest.js",
+      "kicker": "PERSONAL BEST",
+      "title": [
+        "When should",
+        "pbest move?"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          0.5,
+          3,
+          "A particle's pbest starts at (5, 5). Lower time and energy are better."
+        ],
+        [
+          3.2,
+          6.4,
+          "It moves to (4, 6), a trade-off. Keep oldest stays, keep newest moves."
+        ],
+        [
+          6.6,
+          9,
+          "(6, 7) is worse on both goals, so neither rule moves."
+        ],
+        [
+          9.2,
+          11.8,
+          "(3.5, 5.5) is another trade-off: only keep newest moves."
+        ],
+        [
+          12,
+          14.7,
+          "(4.5, 4) dominates (5, 5), so now keep oldest moves too."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 03-pbest: lesson 15.1's two pbest rules on one particle's four moves from pbest (5, 5) (L15.MOVES, L15.PB). Keep oldest (purple): move only if the new position dominates pbest. Keep newest (orange): move unless pbest dominates the new position. Oldest: (5,5) (5,5) (5,5) (4.5,4); newest: (4,6) (4,6) (3.5,5.5) (4.5,4). Layout (stage px): L15.plot x 12, y 12, 600 x 616, axes 2..8; right panel x 636..924: purple rule card (y 12, h 136), orange rule card (y 160, h 136), then four move rows (y 320 + 76 i): the move's position, a purple and an orange mark (tick = that rule's pbest moves, grey minus = it stays). Story (local seconds): 0.3 plot, 0.6 both pbest markers on (5, 5) (purple big disc, orange small disc on top), 0.8 and 1.1 the rule cards; moves at 3.2 / 6.6 / 9.2 / 12.0: the new position pops in blue with its row, 1.0 s later the marks pop and the markers glide (0.6 s) to their new places; earlier moves stay as small grey dots; hold to 15."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-archive.js",
+      "kicker": "THE ARCHIVE",
+      "title": [
+        "Keep every route",
+        "nobody beats"
+      ],
+      "dur": 16,
+      "caps": [
+        [
+          0.5,
+          3,
+          "The archive keeps every non-dominated route found so far."
+        ],
+        [
+          3.2,
+          6.6,
+          "Newcomer (2, 4) dominates two members: they leave and it joins."
+        ],
+        [
+          6.8,
+          10,
+          "(5, 4.5) is dominated by (2, 4), so it is turned away."
+        ],
+        [
+          10.2,
+          13.2,
+          "(7, 2) is a new trade-off: nobody dominates it, so it joins."
+        ],
+        [
+          13.4,
+          15.7,
+          "No member dominates another: the archive is the front so far."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 04-archive: lesson 15.1's archive update (L15.ARCH a1..a5, L15.NEWS: three newcomers in turn). Each newcomer y gets two boxes: blue (up and right of y: the members y dominates, they leave) and red (down and left of y: a member there dominates y, so y is turned away). (2, 4) removes a2 and a3 and joins; (5, 4.5) is dominated by (2, 4) and is turned away; (7, 2) is a new trade-off and joins. Final archive a1 (2,4) a4 a5 (7,2): five members. Layout (stage px): L15.plot x 12, y 12, 600 x 616; right panel x 636..924: blue legend card (y 12, h 150), red legend card (y 176, h 150), stat 'archive' (y 360) with the member count. Story (local seconds): 0.3 plot, 0.6 five green members, 1.6 legend cards and stat; newcomers at 3.2 / 6.8 / 10.2: +0 y pops in blue, +0.5 both boxes grow, +1.4 crosses on removed members (or on y), +2.0 they fade, +2.2 a joining y turns green, +2.6 boxes fade; 13.4 the green front line draws through the final five; hold to 16."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-prune.js",
+      "kicker": "PRUNING",
+      "title": [
+        "Too many? Drop",
+        "the most crowded"
+      ],
+      "dur": 15,
+      "caps": [
+        [
+          0.5,
+          3,
+          "Twelve archive members, but the cap is six."
+        ],
+        [
+          3.2,
+          5.6,
+          "The two ends, a and l, get infinite crowding distance: always kept."
+        ],
+        [
+          5.8,
+          9,
+          "Remove the most crowded, j at 0.13, then recompute: f goes next."
+        ],
+        [
+          9.2,
+          12.4,
+          "Then c, k, g and b, one at a time."
+        ],
+        [
+          12.6,
+          14.8,
+          "Six spread-out members are left, ends included."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 05-prune: lesson 15.2's twelve archive members a..l (L15.P12) pruned to a cap of six by crowding distance (L15.PRUNE): the ends a and l get infinity; remove the smallest distance, recompute, repeat. Removed in order j 0.13, f 0.17, c 0.19, k 0.34, g 0.46, b 0.50; kept a d e h i l. Layout (stage px): L15.plot x 12, y 12, 600 x 616; right panel x 636..924: stats 'archive' (y 12) and 'cap' (y 104), the label 'removed' (y 210) and six grey chips (2 rows of 3, 88 x 70, from y 256) that fill in the removal order. Story (local seconds): 0.3 plot, 0.6 twelve green members; 1.4 the stats (12 and 6); 3.2 a and l ringed with orange '∞' tags (until 5.8); removals at 5.8 / 7.4 / 9.2 / 10.1 / 11.0 / 11.9: ring and orange value tag, +0.4 red cross, +0.6 count drops and the chip fills, +0.6..1.0 the member fades; 12.6 the green line through the six kept; hold to 15."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-leaders.js",
+      "kicker": "LEADERS",
+      "title": [
+        "Who should each",
+        "particle follow?"
+      ],
+      "dur": 17,
+      "caps": [
+        [
+          0.5,
+          3,
+          "Each particle (blue) needs a leader from the archive (green)."
+        ],
+        [
+          3.2,
+          6,
+          "Simplest: pick a member at random, each with a 1 in 5 chance."
+        ],
+        [
+          6.2,
+          9.4,
+          "Or count the particles each member dominates: c dominates four, e one."
+        ],
+        [
+          9.6,
+          12,
+          "Fewer means more likely to lead: e's weight is 1/2, c's only 1/5."
+        ],
+        [
+          12.2,
+          14.4,
+          "Or use particle P as the reference point: b, c and d dominate it."
+        ],
+        [
+          14.6,
+          16.8,
+          "Their own boxes: b 1.5, c 4, d 1.5. c covers most, so c leads."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 06-leaders: lesson 15.3's archive a..e (L15.H, green) and swarm particles P..V (L15.SW, blue). Three ways to pick a leader: (1) at random, 1 in 5 each; (2) dominated-solution count: c dominates four particles, e one (L15.COUNT), weight 1 / (1 + count): c 1/5, e 1/2, so e is likelier; (3) hypervolume with particle P (7, 7.5) as the reference point: b, c and d dominate it, their own boxes are 1.5, 4 and 1.5 (L15.HVP, L15.HVBOX), so c leads. Layout (stage px): L15.plot x 12, y 12, 600 x 616; right panel x 636..924: three method cards (y 12 / 172 / 332, h 144), grey until their turn, then orange. Story (local seconds): 0.3 plot, 0.6 archive a..e, 1.2 particles; 3.2 card 1, an orange ring hops a, b, c, d, e, a, b... every 0.2 s and stops on d at 5.0 with a '1 in 5' tag; 6.2 card 2, dashed links from each member to the particles it dominates (6.4..7.4), count tags at 7.4; 9.6 c's and e's tags become '1/5' (grey) and '1/2' (orange); 12.2 card 3, links and tags fade, P ringed, 12.8..13.8 the three boxes grow (green); 14.6 value tags 1.5 / 4 / 1.5, c's box and ring orange; hold to 17."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-run.js",
+      "kicker": "A MOPSO RUN",
+      "title": [
+        "Watch the front",
+        "fill out"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.5,
+          3,
+          "A real run: ten drone routes (blue) and their archive (green)."
+        ],
+        [
+          3.2,
+          6.8,
+          "Each step the particles follow leaders, and better routes enter the archive."
+        ],
+        [
+          7,
+          10.3,
+          "The archive creeps towards the true front, the dashed line."
+        ],
+        [
+          10.5,
+          12.8,
+          "Capped at ten, it stays spread along the whole front."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 07-run: a real run of the lessons' drone MOPSO (L15.RUN: 10 particles, archive cap 10, crowding prune, random leader, keep-newest pbest, seed 4), 21 snapshots, iteration 0..20. Particles (blue) glide from one snapshot to the next; the archive (green) is shown snapshot by snapshot; the true front is the dashed grey line (L15.TRUE). Energy above 12 is clipped to the top edge. The archive starts with 5 members and holds 10 (the cap) at the end. Layout (stage px): L15.plot x 12, y 12, 600 x 616, time 0..10, energy 0..12; right panel x 636..924: stats 'iteration' (y 12) and 'archive' (y 104), then legend tags 'swarm' (blue), 'archive' (green), 'true front' (grey) at y 230 / 300 / 370. Story (local seconds): 0.3 plot, 0.5 the dashed true front, 0.8 swarm and archive at iteration 0, stats and legend; iterations step every 0.45 s from 1.4 (iteration 20 at 10.4); 10.6 the archive line draws; hold to 13."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-many.js",
+      "kicker": "MANY OBJECTIVES",
+      "title": [
+        "When almost",
+        "nothing dominates"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.5,
+          3.2,
+          "Around a point, a quarter of space is better on both goals, a quarter worse."
+        ],
+        [
+          3.4,
+          5.8,
+          "The other half is neither: those points cannot be compared."
+        ],
+        [
+          6,
+          9.4,
+          "Each extra goal halves the share you can compare: 1/32 with six."
+        ],
+        [
+          9.6,
+          13.7,
+          "So almost every pair is non-dominated, and dominance stops ranking."
+        ]
+      ],
+      "spec": "Lecture 15 video, scene 08-many: lesson 15.3's many-objective trouble. Around one point (blue), with two objectives (both minimised) a quarter of the space is better on both (green, it dominates the point), a quarter worse on both (red), and the other half is neither (grey): mutually non-dominating. Only 2 / 2^M of the space is comparable (L15.SHARE): 1/2, 1/4, 1/8, 1/32 for 2, 3, 4 and 6 objectives, so with many objectives almost everything is non-dominated. Layout (stage px): left square 430 x 430 at (24, 60) split into four quadrants with 28 px labels; right: the label 'share you can compare' (x 488..924, y 40) and four bar rows (y 120 + 100 i): '2 goals' etc. (x 488, 130 wide), a grey track 190 wide at x 620 with a green part share x 190, and the fraction (x 828); a solid orange tag at the bottom. Story (local seconds): 0.3 square and point, 0.9 green quadrant, 1.7 red quadrant; 3.4 the two grey quadrants; 6.0 bar rows every 0.8 s (green parts grow 0.5 s); 9.6 the orange tag 'almost everything is non-dominated'; hold to 14."
+    }
+  ],
+  "recap": {
+    "file": "scene-09-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "The archive keeps the non-dominated",
+        "tone": "green",
+        "pictogram": "newcomer dominates a member: member red, cross, fades; newcomer green"
+      },
+      {
+        "head": "Too full? Drop the most crowded",
+        "tone": "orange",
+        "pictogram": "ends ringed orange, crowded member red, cross, fades"
+      },
+      {
+        "head": "Each particle picks a leader from it",
+        "tone": "blue",
+        "pictogram": "orange arrow from a blue particle to a green member, orange ring"
+      }
+    ],
+    "spec": "Lecture 15 · Multi-objective particle swarm optimisation, scene 09-recap: three rows, each a small animated pictogram and one bold line (bare scene). Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row, 5.6-6.2 the call to action. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no reset): all are done by 6.5 s, so for the last 2.5 seconds only Sprout's bob moves. Row 1 (green): the archive. Three green members on a front; a blue newcomer pops in, the member it dominates turns red with a cross and fades, the newcomer turns green. Row 2 (orange): pruning. Six green members; the two ends get orange rings, the most crowded one turns red, gets a cross and fades. Row 3 (blue): leaders. Four green members and a blue particle; an orange arrow grows from the particle to one member, which gets an orange ring."
+  },
+  "helpers": "Lecture 15 · Multi-objective particle swarm optimisation: pure data and algorithms (VID.l15, short name L15). NO DOM here. The app's own kernel (js/content/nic/l15-01.js archAdd / pruneCrowd / hv / contrib, l15-02.js the drone MOPSO, l13-01.js dom / crowd / mulberry) is ported line for line, run ONCE when the page loads, and every number the storyboard (videos/_plan/lecture-15.json) quotes is ASSERTED: a wrong figure throws a clear Error. Scenes only look values up. Both objectives are minimised everywhere (time across, energy up; lower is better). KERNEL L15.dom(a, b) a dominates b; L15.archAdd(A, y) -> {A, log (\"rm\" | \"beats\" | \"tie\" per member), added} L15.crowd(P, idx) -> {i: distance}; L15.pruneCrowd(P, cap) -> {keep, out: [[index, distance], ...]} L15.hv(P, r), L15.contrib(P, r) (each member's own share of the hypervolume with reference r) L15.boxes(P, r) -> [{i, a: [x, y], b: [x, y]}] each member's own (exclusive) hypervolume box, sorted by x DATA L15.SWARM9 {ids, P, at}: lesson 15.1's nine routes A..I; L15.FRONT9 = A B C E G (non-dominated), F is the particle. L15.MOVES: one particle's four moves from p best (5, 5); L15.PB = [{y, old, neu, mvOld, mvNew}] after each move (keep oldest: (5,5) (5,5) (5,5) (4.5,4); keep newest: (4,6) (4,6) (3.5,5.5) (4.5,4)). L15.ARCH a1..a5 and L15.NEWS = [{y, R, A}] the three newcomers (2, 4) (5, 4.5) (7, 2) added in turn ((2, 4) removes a2 a3; (5, 4.5) is turned away by (2, 4); (7, 2) joins; final size 5). L15.P12 lesson 15.2's twelve members a..l; L15.PRUNE = pruneCrowd to cap 6: out j f c k g b, keep a d e h i l. L15.H archive a..e and L15.SW particles P..V (lesson 15.3); L15.COUNT[i] = particles member i dominates (a 1, b 1, c 4, d 2, e 1); L15.HVP = contributions with particle P (7, 7.5) as reference: b 1.5, c 4, d 1.5. L15.RUN: 21 snapshots {P, A} (swarm and archive objective vectors) of the lesson's drone MOPSO, seed 4, cap 10, crowding prune, random leader, keep-newest p best; L15.TRUE = the true front (41 points). L15.SHARE(M) = 2 / 2^M, the share of space around a point that dominance can compare. || Lecture 15 · MOPSO: the few drawing helpers shared by the scenes (VID.l15, short name L15). Everything else is reused from Lecture 13 (the page loads l5/common.js and l13/common*.js): L13.plot, L13.tag, L13.stat, L13.card, L13.label, L13.arrow, L13.mark, L13.seq (see their header comments). All calls are pure. COLOUR ROLES of THIS video (videos/_plan/lecture-15.json): green = archive / non-dominated / kept; red = dominated / removed / turned away; blue = the particle, the new position or newcomer looked at; purple = the 'keep oldest' pbest rule; orange = the 'keep newest' rule and attention (infinity, the chosen leader, crowding values); grey = neutral. L15.fmt([x, y]) -> \"(4.5, 4)\" L15.plot(stage, o) -> L13.plot preset: x 12, y 12, 600 x 616, axes 0..10 (both minimised), xl \"time\", yl \"energy\"; any L13.plot option in o overrides (dots, lines, boxes, links counts too). L15.inset(a, b, da, db) -> [a', b']: the segment a..b (px pairs) pulled in by da at a and db at b (for arrows between dots) L15.card(parent, o) -> L13.card that keeps newline (backslash n) line breaks (same set API) L15.step(t, t0, dt, n) -> integer 0..n: which item of a timed sequence is showing (t0 + i * dt starts item i) || Reused: l13/common.js, common-2.js (tag, stat, card, label, chip, arrow, mark, seq), common-3.js (plot); l5/common.js (svg, tick, tone)."
+}

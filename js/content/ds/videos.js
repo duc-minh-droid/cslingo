@@ -152,10 +152,42 @@
         "Three shifts that make a model decay",
       ],
     },
+    {
+      n: 10,
+      blurb: "Lecture 10 in pictures: kinds of concept drift, and how ADWIN, DDM and EDDM spot it in the error stream.",
+      chapters: [
+        "Same shoppers, a new rule",
+        "Abrupt, gradual, recurring",
+        "Trained once, soon out of date",
+        "Read the errors through a window",
+        "A window that grows, then is cut",
+        "Cut where the two parts disagree",
+        "The error rate and its spread",
+        "Warning first, then change",
+        "Watch the gaps between errors",
+      ],
+    },
+    {
+      n: 11,
+      blurb:
+        "Lecture 11 in pictures: communication patterns, distributed gradient descent, and k-means with MapReduce.",
+      chapters: [
+        "Who starts the talk, and who gets the data",
+        "Sum onto one machine, or onto all of them",
+        "A machine that waits is a machine wasted",
+        "Keep computing while you send",
+        "Split the minibatch, all-reduce the gradients",
+        "Workers sit idle during the all-reduce",
+        "Assign to the nearest, move to the mean",
+        "Each mapper finds the nearest centre",
+        "Send sums and counts, not every point",
+        "Add up, move the centres, test, repeat",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 5, 2: 4, 3: 4, 4: 4, 5: 3, 6: 4, 7: 4, 8: 4, 9: 5 };
+  const NARRATED = { 1: 5, 2: 4, 3: 4, 4: 4, 5: 3, 6: 4, 7: 4, 8: 4, 9: 5, 10: 5, 11: 5 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

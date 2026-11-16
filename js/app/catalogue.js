@@ -25,6 +25,8 @@
         8: "Lecture 8 — Ant colony detail & applications",
         11: "Lecture 11 — Swarm intelligence: flocking",
         12: "Lecture 12 — Particle swarm optimisation",
+        13: "Lectures 13–14 — Multi-objective evolutionary algorithms",
+        15: "Lecture 15 — Multi-objective particle swarm optimisation",
       },
     },
     ds: {
