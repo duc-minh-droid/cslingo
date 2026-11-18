@@ -1,5 +1,5 @@
-/* Data Science Lecture 8, part 2: ds8-brokers (8.2, messaging systems: push to consumers, fast producers (drop, buffer,
-   backpressure), crashes, direct messaging, message brokers, databases against brokers, topics). */
+/* Data Science Lecture 8, part 2: ds8-brokers (8.3, messaging systems: push to consumers, fast producers (drop, buffer,
+   backpressure), crashes) and the figures for ds8-middle (8.4, in ds-l8-05.js: direct messaging, brokers, topics). */
 (function () {
   const S = NIC.shared.ds8;
   const { reg, mc, pr, st, P, maths, seg, log, svg, tx, box2, dot, chip, tape, laneRun } = S;
@@ -303,13 +303,15 @@
     draw();
   }
 
-  /* ============ 8.2 Messaging systems and brokers ============ */
+  Object.assign(S, { offlineRun, dbRun, topicFig });
+
+  /* ============ 8.3 Push, don't poll ============ */
   reg({
     id: "ds8-brokers",
-    order: 2,
-    num: "8.2",
-    title: "Messaging systems and brokers",
-    blurb: "Pushing events to consumers: fast producers, crashes, direct messaging and message brokers.",
+    order: 3,
+    num: "8.3",
+    title: "Push, don't poll",
+    blurb: "A messaging system delivers events for you. But what if producers are too fast, or something crashes?",
     render(root, life) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -319,47 +321,36 @@
       floodPanel(card.lastElementChild, life);
       root.appendChild(
         pr(
-          "ds8-brokers-1",
-          "Set the <b>Producer</b> to 6/s and the <b>Consumer</b> to 4/s, choose <b>Buffer</b> and press <b>Play 10 seconds</b>. How many messages are waiting at the end?",
-          ["20", "10", "60"],
-          "Each second 6 arrive and 4 are handled, so the queue grows by 2 a second: 2 × 10 = 20 after ten seconds. A buffer never refuses, so it just keeps growing.",
-        ),
-      );
-      root.appendChild(
-        pr(
           "ds8-brokers-2",
-          "Keep 6/s against 4/s and choose <b>Backpressure</b>. What happens over the 10 seconds?",
+          "You kept the producer faster than the consumer and chose <b>Backpressure</b>. What happened over the 10 seconds?",
           [
-            "The producer is held back, and nothing is dropped",
-            "Messages that do not fit in the queue are thrown away",
-            "The queue grows past its limit of 10",
+            "The producer was held back, and nothing was dropped",
+            "Messages that did not fit in the queue were thrown away",
+            "The queue grew past its limit of 10 messages",
           ],
-          "Backpressure is flow control: when the queue is full the producer is told to wait, so it sends only 46 of its 60 messages and none are lost. Dropping is a different policy.",
+          "Backpressure is flow control: when the queue is full the producer is told to wait, so it sends fewer messages and none are lost. Dropping is a different policy.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "A <b>messaging system</b> pushes each event from producers to consumers: the publish/subscribe model, with many producers and many consumers.",
-            "If producers are faster than consumers, a system can <b>drop</b> messages, <b>buffer</b> them in a queue, or apply <b>backpressure</b> (flow control) to slow the producer.",
+            "A <b>messaging system</b> pushes events from producers to consumers: the <b>publish/subscribe</b> model.",
+            "If producers are too fast, the system can <b>drop</b> messages, <b>buffer</b> them in a queue, or apply <b>backpressure</b> (flow control).",
             "If a node crashes, messages kept only in memory are lost; <b>writing them to disk</b> keeps them, at a cost.",
-            "<b>Direct messaging</b> (for example UDP multicast or TCP) is fast, but a consumer that is offline misses messages.",
-            "A <b>message broker</b> is a server, a kind of database optimised for message streams, that producers write to and consumers read from. It copes with clients that come and go. Unlike a database it deletes messages once delivered, keeps short queues and lets consumers subscribe to <b>topics</b>.",
           ],
-          "Push, don't poll; and put a broker in the middle so nobody has to be online at the same time.",
+          "Push, don't poll, and decide what happens when things go too fast or fall over.",
         ),
       );
     },
   });
 
   L["ds8-brokers"] = {
-    sum: "A <b>messaging system</b> pushes events from producers to consumers. It must handle fast producers (drop, buffer, backpressure) and crashes. <b>Direct messaging</b> loses messages for offline consumers; a <b>message broker</b> holds them, deletes them after delivery and offers topics.",
+    sum: "A <b>messaging system</b> pushes events from producers to consumers. It must handle fast producers (drop, buffer or backpressure) and crashes (memory against disk).",
     steps: [
       st(
-        "Messaging systems push",
+        "A postie for events",
         P(
-          "A common way to notify consumers is a <b>messaging system</b>: a producer sends a message containing the event, and the system <b>pushes</b> it to the consumers. Nobody has to keep asking.",
-          "Several producer nodes can send messages and several consumer nodes can receive them. This is the <b>publish/subscribe</b> model, and there are many ways to build it, as the rest of this lesson shows.",
+          "Instead of checking the doormat every few minutes, you let the postie push letters through the slot. A <b>messaging system</b> does that for events: a producer sends a message, and the system <b>pushes</b> it to the consumers. Several producers can send and several consumers can receive. This is the <b>publish/subscribe</b> model, and there are many ways to build it.",
         ),
         pubsubFig,
         mc(
@@ -375,8 +366,7 @@
       st(
         "When producers are too fast",
         P(
-          "What if producers send messages faster than consumers can process them? Say 6 a second arrive and the consumer manages 4: every second, 2 more are left over. There are three options.",
-          "<b>Drop</b> the extra messages. <b>Buffer</b> them in a queue, which then grows. Or apply <b>backpressure</b> (flow control): tell the producer to wait until there is room. Move the sliders to compare all three after 10 seconds.",
+          "Picture a conveyor belt bringing cakes faster than you can box them. You can let some <b>drop</b> on the floor, <b>buffer</b> them on a growing pile, or shout “slow down!” to the baker: <b>backpressure</b>, also called flow control. A messaging system has the same three options when producers send faster than consumers can process. Move the sliders to compare them.",
         ) +
           maths(
             "<p>With a producer at $p$ messages a second and a consumer at $c$, an unbounded buffer grows by $p-c$ each second:</p>$$\\text{queue after } t \\text{ s} = (p-c)\\,t$$<p>For $p=6$, $c=4$, $t=10$: $2\\times 10=20$. Dropping caps the queue and throws away about $p-c$ a second once it is full; backpressure caps it by slowing the producer to about $c$.</p>",
@@ -397,91 +387,17 @@
         },
       ),
       st(
-        "When nodes crash",
+        "When something crashes",
         P(
-          "What happens if a node crashes or goes offline for a while? Are messages lost? It depends on where they were kept.",
-          "If the broker holds waiting messages only <b>in memory</b>, a crash wipes them. If it also <b>writes them to disk</b>, it can reload them when it restarts. Disk is slower, so this is a trade-off between speed and safety. Step through both cases.",
+          "A note in your head is gone if you faint; a note on paper survives. Same for a messaging node that <b>crashes</b>. Messages held only <b>in memory</b> are wiped. Messages also <b>written to disk</b> can be reloaded after a restart. Disk is slower, so it's a trade-off between speed and safety. Step through both cases.",
         ),
         (box, life) => crashRun(box, life),
-        mc(
-          "A broker holds 300 waiting messages in memory only and then crashes. What happens to them?",
-          [
-            "They are lost: memory does not survive a crash",
-            "They are delivered as soon as the broker restarts again",
-            "The producers resend them automatically",
-          ],
-          "Memory is wiped by a crash. Only messages written to disk can be reloaded after the restart.",
-        ),
-      ),
-      st(
-        "Direct messaging",
-        P(
-          "The simplest approach has no middleman: producers send messages <b>directly</b> to consumers over the network, for example by <b>multicast over UDP</b> or over TCP. It is fast.",
-          "The catch: the <b>consumer might be offline</b>. Anything sent while it is away is simply lost to it, unless the producer itself keeps copies and retries. Watch consumer B in the picture.",
-        ),
-        offlineRun(false),
-        mc(
-          "With direct messaging, consumer B is offline while m2 and m3 are sent, then comes back before m4. Which messages does B have?",
-          ["m1 and m4", "m1, m2, m3 and m4", "Only m4"],
-          "B received m1 before it went offline and m4 after it returned. m2 and m3 were sent to nobody, so they are lost to B.",
-        ),
-      ),
-      st(
-        "Message brokers",
-        P(
-          "A <b>message broker</b> (or message queue) is essentially a kind of database optimised for message streams. It runs as a <b>server</b>; producers and consumers connect to it as <b>clients</b>. Producers write messages to the broker, and consumers receive them by reading from it.",
-          "Because the broker holds messages for a consumer that is away, it can more easily <b>tolerate clients that come and go</b>: connect, disconnect, crash. Same story as before, now with a broker.",
-        ),
-        offlineRun(true),
-        mc(
-          "Why does a consumer that disconnects for a minute still get every message when a broker is used?",
-          [
-            "The broker keeps its messages until it reconnects",
-            "The producer pauses and waits for that consumer to come back",
-            "Other consumers forward their copies to it later",
-          ],
-          "Producers write to the broker, not to the consumer. The broker holds the messages and delivers them when the consumer is back.",
-        ),
-      ),
-      st(
-        "Databases against brokers",
-        P(
-          "A broker is like a database for messages, but the two behave differently. A <b>database</b> keeps data until it is <b>explicitly deleted</b>, offers persistence and advanced search.",
-          "A <b>broker</b> automatically <b>deletes a message once it has been successfully delivered</b>, so its queues are short, and it offers a way to subscribe to topics rather than to search. Step through three reads from each.",
-        ),
-        (box, life) => dbRun(box, life),
-        {
-          type: "cat",
-          q: "Does each statement describe a database or a message broker?",
-          buckets: ["Database", "Message broker"],
-          items: [
-            ["Keeps data until someone explicitly deletes it", 0],
-            ["Deletes a message once it has been delivered", 1],
-            ["Answers rich search queries over everything stored", 0],
-            ["Usually holds only short queues", 1],
-            ["Lets clients subscribe to a subset of topics", 1],
-          ],
-          why: "Databases persist data and support searching it. Brokers are built for flow: short queues, delete on delivery and topic subscriptions.",
-        },
-      ),
-      st(
-        "Subscribing to topics",
-        P(
-          "Brokers offer some way of subscribing to a <b>subset of topics</b>, such as hashtags. A consumer only receives the messages on the topics it chose.",
-          "In the picture 8 messages arrive: 3 on #football, 3 on #weather and 2 on #traffic. Subscribed to #weather and #traffic you receive 3 + 2 = 5 of them. Tap the topics to change the subscription.",
-        ),
-        (box) => topicFig(box),
-        mc(
-          "Messages arrive on #football (3), #weather (3) and #traffic (2). A consumer subscribes to #football only. How many does it receive?",
-          ["3", "5", "8"],
-          "Only the #football messages match its subscription: 3 of the 8.",
-        ),
       ),
     ],
     guide: [
-      "Leave the <b>Producer</b> at 6/s and the <b>Consumer</b> at 4/s, choose <b>Buffer</b> and press <b>Play 10 seconds</b>.",
+      "Leave the <b>Producer</b> faster than the <b>Consumer</b>, choose <b>Buffer</b> and press <b>Play 10 seconds</b>.",
       "Choose <b>Drop</b>, then <b>Backpressure</b>, and press <b>Play 10 seconds</b> again. Compare <b>Waiting</b> and <b>Dropped</b>.",
-      "Press <b>+1 second</b> a few times to watch the queue fill, then answer the questions after the demo.",
+      "Press <b>+1 second</b> a few times to watch the queue fill, then answer the question after the demo.",
     ],
   };
 })();

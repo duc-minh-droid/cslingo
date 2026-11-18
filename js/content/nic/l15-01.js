@@ -1,8 +1,7 @@
-/* l15-01: Lecture 15 (multi-objective particle swarm optimisation): shared kernel (archive update, pruning, hypervolume, ranks) and 15.1 personal bests and the archive. Plot helpers come from Lecture 13 (NIC.shared.nicL13). */
+/* l15-01: Lecture 15 (multi-objective particle swarm optimisation): shared kernel (archive update, pruning, hypervolume, ranks) and the figures of 15.1 and 15.2 (personal bests and the archive). The lessons are in l15-04.js. Plot helpers come from Lecture 13 (NIC.shared.nicL13). */
 (function () {
   const N = NIC;
-  const { qs, takeaways, header } = N;
-  const L = N.LESSONS;
+  const { qs } = N;
   const sh = (NIC.shared.nicL15 = NIC.shared.nicL15 || {});
   const L13 = NIC.shared.nicL13;
   const { C, pr, mulberry, frame, dot, joinLine, box, crowd, fmtD } = L13;
@@ -292,106 +291,5 @@
     draw();
   }
 
-  N.register({
-    id: "l15-archive",
-    lecture: 15,
-    order: 1,
-    num: "15.1",
-    title: "Personal bests and the archive",
-    blurb:
-      "With two objectives there is no single best. MOPSO decides when a particle's own best changes and keeps an archive of the front.",
-    render(root, life) {
-      root.appendChild(
-        header(
-          this,
-          "A swarm of drone routes, scored by <b>delivery time</b> and <b>energy</b> (both lower is better). Step it, watch the archive fill, and switch the pbest rule or the <b>archive cap</b>.",
-        ),
-      );
-      sh.mopsoDemo(root, life, { ctl: ["rule", "cap"], title: "A swarm with an archive" });
-      root.appendChild(
-        pr(
-          "l15-archive-1",
-          "Set <b>Archive cap</b> to <b>No cap</b> and run for a while. What does <b>Archive size</b> do? | It keeps climbing, into the hundreds | It settles at the swarm size of 10 | It rises, then falls back to a handful | Every new non-dominated position joins, and on a smooth front there is always room for another. Nothing removes them, so the archive grows without limit.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "l15-archive-2",
-          "A particle moves to a position that an archive member dominates. What happens to the archive? | Nothing: the position is marked as dominated and not added | It joins, and the member that dominates it is removed | It replaces the archive member that is nearest to it | A dominated newcomer is turned away, and it removes nobody, because it dominates no archive member.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "With several objectives there is no single <b>global best</b>, so MOPSO needs new rules for pbest and for leaders.",
-            "<b>pbest rules</b>: replace only if the new position dominates pbest (keep the oldest), or replace unless pbest dominates it (keep the newest).",
-            "The <b>archive</b> $A_t$ holds the mutually non-dominated solutions found so far: the Pareto front approximation.",
-            "A newcomer removes every archive member it dominates, and joins unless some member dominates it.",
-          ],
-          "pbest remembers each particle's best; the archive remembers the swarm's front.",
-        ),
-      );
-    },
-  });
-
-  L["l15-archive"] = {
-    sum: "MOPSO keeps the PSO update but changes how bests are kept: a dominance rule for each particle's pbest, and an archive of non-dominated solutions that stands in for the global best.",
-    steps: [
-      {
-        t: "PSO in one breath",
-        b: `<p>Recap from <b>Lesson 12.3</b>: each particle keeps a <b>velocity</b>. Every step it adds three pulls: its old velocity, a pull towards its <b>own best</b> p, and a pull towards the <b>swarm best</b> g. Then it moves by that velocity.</p><p>Example: velocity 1, own best 3 ahead, swarm best 2 behind: with both random weights at 0.5 and c₁ = c₂ = 2 the particle moves 1 + 3 − 2 = 2. Roll the random weights and watch the arrows change.</p><details class="math-more"><summary>Show the maths</summary>$$v_{ij}(t+1)=v_{ij}(t)+c_1 z_1\\,(p_{ij}-x_{ij})+c_2 z_2\\,(g_j-x_{ij})$$$$x_{ij}(t+1)=x_{ij}(t)+v_{ij}(t+1)$$<p>$c_1 z_1 (p_{ij}-x_{ij})$ is the personal information and $c_2 z_2 (g_j-x_{ij})$ the global information.</p></details>`,
-        v: (b, life) => NIC.shared.nicL12.live({ show: ["v", "p", "g"], live: true })(b, life),
-        c: C(
-          "Which two remembered points does a basic PSO particle need? | Its own best p and the swarm best g | Its first position and its last position | The worst point found and the swarm centre | The update pulls towards p (personal information) and g (global information). Both are a single best, which is what breaks with two objectives.",
-        ),
-      },
-      {
-        t: "Two goals, no single best",
-        b: `<p>Now each drone route is scored twice: <b>delivery time</b> and <b>energy</b>, both lower is better. Recap from <b>Lesson 13.1</b>: one route beats another only if it <b>dominates</b> it.</p><p>Show the front below: five routes are non-dominated. Which one is the swarm best g? None of them beats the other four, so 'the best' is a set, not a point. MOPSO must <b>pick leaders</b> from that set.</p>`,
-        v: (b, life) => L13.explorer(b, life, { pts: SWARM9, s: S2, ...AX, front: true, names: ["time", "energy"] }),
-        c: C(
-          "Five routes are mutually non-dominating. Which is the swarm best g in plain PSO terms? | There is no single one: all five are equally good | The one with the lowest delivery time | The one with the smallest time plus energy | Dominance cannot separate them, so there is no single global best. MOPSO has to choose a leader among them.",
-        ),
-      },
-      {
-        t: "Updating a personal best",
-        b: `<p>A particle lands on a new position y. Should it replace its pbest p? With two objectives there are two common rules.</p><p><b>Keep the oldest</b>: replace only if y <b>dominates</b> p. <b>Keep the newest</b>: replace <b>unless p dominates</b> y. From pbest (5, 5), the move to (4, 6) is a trade-off: keep-oldest stays at (5, 5), keep-newest jumps to (4, 6). Step through four moves and compare.</p><details class="math-more"><summary>Show the maths</summary><p>With $\\mathbf{y}_i=(f_1(\\mathbf{x}_i),\\dots,f_M(\\mathbf{x}_i))$ and pbest $\\mathbf{p}_i$:</p>$$\\text{keep oldest: } \\mathbf{p}_i\\leftarrow\\mathbf{y}_i \\text{ only if } \\mathbf{y}_i\\prec\\mathbf{p}_i$$$$\\text{keep newest: } \\mathbf{p}_i\\leftarrow\\mathbf{y}_i \\text{ unless } \\mathbf{p}_i\\prec\\mathbf{y}_i$$</details>`,
-        v: (b) => pbestFig(b),
-        c: C(
-          "pbest is (3, 6). The particle moves to (5, 2), both minimised. Under 'keep the newest', what happens? | pbest becomes (5, 2): (3, 6) does not dominate it | pbest stays (3, 6): (5, 2) does not dominate it | pbest becomes the midpoint (4, 4) of the two | The two are mutually non-dominating. Keep-newest replaces unless the old pbest dominates, so it moves to (5, 2). Keep-oldest would stay.",
-        ),
-      },
-      {
-        t: "The archive",
-        b: `<p>For the global side, MOPSO keeps an <b>archive</b> $A_t$: every non-dominated solution found so far. Its members are <b>mutually non-dominated</b>, so it is the run's Pareto front approximation.</p><p>Slide through a real run. At t = 0 the archive holds the best few of the first swarm. As particles find better routes, dominated members drop out and new ones join, and the green set creeps towards the dashed true front.</p>`,
-        v: (b) => snapFig(b),
-        c: C(
-          "Which statement about the archive A_t is always true? | No member of A_t dominates another member | It holds exactly one solution per particle | Its members are the current swarm positions | The archive keeps only mutually non-dominated solutions, which is why it approximates the Pareto front.",
-        ),
-      },
-      {
-        t: "Updating the archive",
-        b: `<p>A new solution y arrives. Compare it with every archive member in turn: if y <b>dominates</b> a member, remove that member. If a member <b>dominates y</b>, mark y as dominated and carry on. At the end, add y only if it was <b>not marked</b>.</p><p>Example: archive (2.5, 5) and (4, 4), newcomer (2, 4). It beats both, so both go and (2, 4) joins. Try the three newcomers.</p><details class="math-more"><summary>Show the maths</summary><p>For a new solution $\\mathbf{y}$:</p>$$\\forall\\,\\mathbf{a}_i\\in A_t:\\ \\mathbf{y}\\prec\\mathbf{a}_i\\Rightarrow A_t\\leftarrow A_t\\setminus\\{\\mathbf{a}_i\\}$$$$\\nexists\\,\\mathbf{a}_i\\in A_t:\\ \\mathbf{a}_i\\prec\\mathbf{y}\\ \\Rightarrow\\ A_{t}\\leftarrow A_t\\cup\\{\\mathbf{y}\\}$$</details>`,
-        v: (b) => updFig(b),
-        c: C(
-          "Archive: (1, 7), (3, 4), (6, 2). Newcomer (3, 3), both minimised. What is the archive afterwards? | (1, 7), (6, 2), (3, 3) | (1, 7), (3, 4), (6, 2), (3, 3) | (1, 7), (3, 4), (6, 2) | (3, 3) dominates (3, 4): a tie on the first, better on the second. That member goes, nobody dominates the newcomer, so it joins.",
-        ),
-      },
-      {
-        t: "An archive with no limit",
-        b: `<p>Nothing so far ever shrinks the archive for good. On a smooth front almost every new trade-off is non-dominated, so the archive keeps growing. Every newcomer is compared with every member, and choosing a leader means searching all of them.</p><p>This run starts with a handful of members and passes 200 within 60 iterations. Lesson 15.2 caps it.</p>`,
-        v: (b) => growFig(b),
-        c: C(
-          "The archive holds 250 members. A new solution arrives. How many dominance comparisons does the update need, at most? | 250 | 1 | 10 | It is checked against every member in turn, so a big archive makes every update and every leader search slow.",
-        ),
-      },
-    ],
-    guide: [
-      "Press <b>Step</b> a few times and watch the green archive.",
-      "Press <b>Run</b> and watch <b>Archive size</b>.",
-      "Switch <b>Archive cap</b> to <b>No cap</b>, press <b>Reset</b> and run again.",
-      "Switch the pbest rule and compare.",
-      "Answer the questions after the demo.",
-    ],
-  };
+  Object.assign(sh, { SWARM9, pbestFig, snapFig, updFig, growFig });
 })();

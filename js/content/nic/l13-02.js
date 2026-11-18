@@ -1,11 +1,9 @@
-/* l13-02: Lectures 13-14: 13.2 ranking the population: non-dominated sorting, niching and crowding distance. */
+/* l13-02: Lectures 13-14: figures for 13.3 and 13.4 (non-dominated sorting, niching and crowding distance) and the sort-and-crowd demo. The lessons are in l13-04.js and l13-05.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS,
-    F = N.fig;
+  const { el, qs } = N;
   const sh = NIC.shared.nicL13;
-  const { C, pr, mulberry, pts, ranks, RC, frame, dot, joinLine } = sh;
+  const { mulberry, pts, ranks, RC, frame, dot, joinLine } = sh;
 
   /** NSGA-II crowding distance of each index in idx (one front): ends get Infinity, inner points add the normalised gap between their neighbours, per objective. */
   function crowd(P, idx) {
@@ -293,127 +291,5 @@
     draw();
   }
 
-  N.register({
-    id: "l13-sorting",
-    lecture: 13,
-    order: 2,
-    num: "13.2",
-    title: "Ranking: non-dominated sorting and crowding",
-    blurb: "Peel the population into fronts, then break ties inside a front by how crowded each point is.",
-    render(root, life) {
-      root.appendChild(
-        header(
-          this,
-          "Fourteen random solutions, both objectives minimised. Press <b>Peel next front</b> to rank them front by front, then <b>Show crowding</b> to see the tie-breaker NSGA-II uses inside a front.",
-        ),
-      );
-      sortDemo(root, life);
-      root.appendChild(
-        pr(
-          "l13-sorting-1",
-          "Peel two fronts. Pick any point in rank 1. What is always true of it? | At least one rank 0 point dominates it | It dominates every point of rank 2 | No rank 0 point dominates it | It was dominated before rank 0 was removed, and whoever beat it is either in rank 0 or is itself beaten by a rank 0 point. Dominance passes along, so some rank 0 point beats it.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "l13-sorting-2",
-          "Peel one front and press <b>Show crowding</b>. Which rank 0 points get ∞? | The two ends: lowest f₁ and lowest f₂ | The point nearest the middle of the front | Every point that has no close neighbour | The ends have a neighbour on one side only, so NSGA-II gives them an infinite distance. That keeps the extremes, which widens the front.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "<b>Non-dominated sorting</b>: rank 0 is the non-dominated set; remove it, and the next non-dominated set is rank 1, and so on.",
-            "Inside a rank, solutions are tied. Break ties to keep a good <b>spread</b>: prefer the solution in the emptier region.",
-            "<b>Niching</b> counts neighbours within a <b>niche radius</b>, a new parameter to tune.",
-            "<b>Crowding distance</b> adds the normalised gaps between each point's neighbours, objective by objective; the ends get ∞. No extra parameter.",
-          ],
-          "Rank first, then prefer the lonely.",
-        ),
-      );
-    },
-  });
-
-  L["l13-sorting"] = {
-    sum: "Non-dominated sorting peels the population into ranked fronts. Ties within a front are broken in favour of spread, by niching (needs a niche radius) or by NSGA-II's crowding distance (no parameter).",
-    steps: [
-      {
-        t: "Ranking everyone, not just the best",
-        b: `<p>Dominance finds the best solutions, but selection must also compare the rest. <b>Non-dominated sorting</b> ranks the whole population. Find the non-dominated set: that is <b>rank 0</b>. Set it aside and find the non-dominated set of what is left: <b>rank 1</b>. Repeat until everyone has a rank.</p><p>Here twelve points fall into four fronts. A lower rank is better, so rank plays the part fitness played in Lecture 3.</p>`,
-        v: rankedSVG(PEEL, 3, {
-          say: "Twelve points in four fronts: rank 0 green, rank 1 blue, rank 2 purple, rank 3 orange.",
-        }).svg,
-        c: C(
-          "Point Z is in rank 2. What does that tell you? | Rank 0 and rank 1 had to be removed before nobody dominated Z | Z is dominated by exactly two points of the population | Z is two units away from the front on the f₁ axis | A rank counts peeling rounds, not points or distances. Z only became non-dominated once ranks 0 and 1 were gone.",
-        ),
-      },
-      {
-        t: "Watch the fronts peel",
-        b: `<p>Press the button to peel one front at a time. Each round asks the same question of the points that are left: <b>who does nobody dominate?</b></p><p>Point <b>g</b> at $(5, 6)$ is beaten by $c = (4, 4)$, so it waits for round two. Once rank 0 is gone, nothing left beats it.</p><details class="math-more"><summary>Show the maths</summary><p>Peeling naively compares every pair in every round: up to $N$ rounds of $O(MN^2)$ checks, so $O(MN^3)$ for $N$ solutions and $M$ objectives. NSGA-II's <b>fast non-dominated sort</b> compares each pair once, storing for every solution $p$ a count $n_p$ of who dominates it and a list $S_p$ of whom it dominates:</p>$$\\text{rank 0}=\\{p: n_p=0\\},\\qquad \\text{then for } q\\in S_p:\\ n_q\\leftarrow n_q-1$$<p>Points whose count drops to 0 form the next front. The cost is $O(MN^2)$.</p></details>`,
-        v: (b) => peelFig(b),
-        c: C(
-          "Minimising both, the points are (1, 5), (2, 2), (3, 4) and (4, 1). Which are in rank 0? | (1, 5), (2, 2) and (4, 1) | (2, 2) and (4, 1) only | All four points | (3, 4) is beaten by (2, 2) on both objectives. The other three each win on one objective against every rival.",
-          "Check each point: is there another point that is lower on both?",
-        ),
-      },
-      {
-        t: "Ties inside a front",
-        b: `<p>A dominance tournament has a weak spot: two solutions from the same front are <b>mutually non-dominated</b>, whatever you compare them with. Something else must break the tie.</p><p>Look at the two candidates. Both are on the front, but the crowded one has two other front points close by, while the lonely one has none. Picking the <b>lonely</b> one fills the gap and spreads the front.</p>`,
-        v: tieFig(),
-        c: C(
-          "A tournament draws two non-dominated solutions. One sits in a dense cluster, the other in an empty stretch of the front. Which should win? | The one in the empty stretch, to keep the front spread out | The one in the dense cluster, since many solutions agree with it | Either one at random, since the tie cannot be broken | The aim is an evenly spread front. Choosing from sparse regions pushes the population to cover the gaps.",
-        ),
-      },
-      {
-        t: "Niching",
-        b: `<p><b>Niching</b> splits the space into niches and prefers individuals in a niche with <b>fewer</b> members. Draw a circle of the <b>niche radius</b> round each point and count who is inside, itself included. With radius 1.2, a point on its own scores 1 and a point in a tight cluster scores 3 or 4.</p><p>Slide the radius. Too small and everyone scores 1; at 12 every circle holds all nine points. Either way the tie-break goes blind, so the radius is a <b>new parameter</b> to tune.</p><details class="math-more"><summary>Show the maths</summary><p>With niche radius $\\sigma$ and distance $d_{ij}$ between solutions $i$ and $j$, the niche count is</p>$$m_i=\\sum_{j}\\,[\\,d_{ij}\\le\\sigma\\,]$$<p>where $[\\cdot]$ is 1 when true and 0 otherwise. Prefer the smaller $m_i$. Classic fitness sharing uses a smooth version that falls from 1 to 0 as $d_{ij}$ grows to $\\sigma$.</p></details>`,
-        v: (b, life) => nicheFig(b, life),
-        c: C(
-          "The niche radius is set so large that every circle holds the whole front. What happens to the tie-break? | Every niche count is equal, so it can no longer prefer anyone | It now always picks the end points of the front | It works better, because each count includes more points | When every count is the same the counts carry no information, so ties are back to random.",
-        ),
-      },
-      {
-        t: "Crowding distance",
-        b: `<p>NSGA-II uses <b>crowding distance</b> instead. For each point on a front, look at its two neighbours along each objective: they form a box (the cuboid) round it. Add up the box's sides, each divided by that objective's range. A big total means plenty of room.</p><p>For <b>Q</b> at $(2, 6)$: along $f_1$ its neighbours are P and R, gap $3 - 1 = 2$ out of a range of 8, so $0.25$. Along $f_2$ they are R and P again, gap $9 - 5 = 4$ out of 8, so $0.5$. Total $0.75$. Step through all of them.</p><details class="math-more"><summary>Show the maths</summary><p>Sort the front $Y$ of $N$ points by each objective $m$ in turn. The ends get $d_1=d_N=\\infty$; each inner point adds</p>$$d_i \\mathrel{+}= \\frac{Y^m_{i+1}-Y^m_{i-1}}{f^{\\max}_m-f^{\\min}_m},\\qquad i=2,\\dots,N-1$$<p>Dividing by the range puts objectives measured in different units on the same scale.</p></details>`,
-        v: (b) => crowdFig(b),
-        c: C(
-          "Along both objectives, a point's neighbours are 1 apart and the range of each objective is 4. What is its crowding distance? | 0.5 | 0.25 | 2 | Each objective adds 1 ÷ 4 = 0.25, and two objectives give 0.5.",
-          "Work out one objective: gap ÷ range. Then add the two.",
-        ),
-      },
-      {
-        t: "Rank first, crowding second",
-        b: `<p>NSGA-II's selection compares two solutions in two steps. First the <b>rank</b>: the lower rank wins outright. Only if the ranks are equal does it look at <b>crowding distance</b>: the larger distance wins.</p><p>So a rank 0 point with a small distance still beats a rank 1 point with ∞. Try the three duels.</p>`,
-        v: (b) => duelFig(b),
-        c: C(
-          "X is rank 1 with crowding distance 0.3. Y is rank 1 with crowding distance 1.1. Which does NSGA-II prefer? | Y, the larger distance in a tie on rank | X, the smaller distance in a tie on rank | Neither, so it tosses a coin | Equal ranks pass the decision to crowding distance, and a larger distance means a less crowded region.",
-        ),
-      },
-      {
-        t: "Crowding or niching?",
-        b: `<p>Both tie-breakers reward solutions in empty regions. The difference is the cost of setting them up: niching needs a <b>niche radius</b>, and a bad choice blinds it. Crowding distance measures the room between neighbours directly, so it has <b>no extra parameter</b>.</p>`,
-        v: F.compare(
-          {
-            title: "Niching",
-            c: "violet",
-            body: "count neighbours in a radius<br>prefer the smaller count<br>needs a niche radius",
-          },
-          {
-            title: "Crowding distance",
-            c: "teal",
-            body: "measure the gaps to neighbours<br>prefer the larger distance<br>no extra parameter",
-          },
-        ),
-        c: C(
-          "Why is crowding distance easier to set up than niching? | It has no niche radius to choose | It needs only one objective to work | It ignores how close points are to each other | Niching depends on a radius that must be tuned. Crowding distance uses the neighbours' gaps, which the front provides.",
-        ),
-      },
-    ],
-    guide: [
-      "Press <b>Peel next front</b> until every point has a rank, and watch the colours.",
-      "Press <b>Show crowding</b> to label each ranked point with its crowding distance.",
-      "Press <b>New population</b> and peel again: the number of fronts changes.",
-      "Answer the questions after the demo.",
-    ],
-  };
+  Object.assign(sh, { rankedSVG, PEEL, peelFig, tieFig, nicheFig, crowdFig, duelFig, sortDemo });
 })();

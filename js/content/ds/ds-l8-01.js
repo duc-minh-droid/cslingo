@@ -1,6 +1,6 @@
 /* Data Science (COM3021), Lecture 8: stream processing.
-   This part: helpers shared with the other Lecture 8 files (NIC.shared.ds8) and ds8-streams (8.1, from batch to streams:
-   bounded and unbounded data, events, producers and consumers, polling against notification). */
+   This part: helpers shared with the other Lecture 8 files (NIC.shared.ds8), the figures for 8.1 and 8.2, and
+   ds8-streams (8.1, bounded and unbounded data, shrinking the batch window). */
 (function () {
   const S = (NIC.shared.ds8 = NIC.shared.ds8 || {});
   const N = NIC;
@@ -313,13 +313,15 @@
     draw();
   }
 
-  /* ============ 8.1 From batch to streams ============ */
+  Object.assign(S, { eventFig, pcFig, pollFig });
+
+  /* ============ 8.1 Data that never stops ============ */
   reg({
     id: "ds8-streams",
     order: 1,
     num: "8.1",
-    title: "From batch to streams",
-    blurb: "Bounded files, unbounded data, events, producers and consumers, and why polling is not enough.",
+    title: "Data that never stops",
+    blurb: "Yesterday's files have an end. Today's posts don't: why that breaks batch jobs.",
     render(root, life) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -329,32 +331,22 @@
       dayPanel(card.lastElementChild, life);
       root.appendChild(
         pr(
-          "ds8-streams-1",
-          "Choose <b>Every 6 hours</b> and press <b>Play the day</b>. About how long does the average post wait before it is processed?",
-          ["About 3 hours", "About 6 hours", "About 14 hours"],
-          "Posts land at random points inside each 6-hour window, so on average they wait about half a window: the demo shows about 3 and a quarter hours. Daily runs give about 14 hours.",
-        ),
-      );
-      root.appendChild(
-        pr(
           "ds8-streams-2",
-          "Switch from <b>Every 6 hours</b> to <b>Hourly</b>. What happens to the <b>Worst wait</b>?",
+          "You switched from <b>Every 6 hours</b> to <b>Hourly</b>. What happened to the <b>Worst wait</b>?",
           [
-            "It drops below one hour",
-            "It stays near 6 hours, as the posts are the same",
-            "It rises, because there are more runs to wait for",
+            "It dropped below one hour",
+            "It stayed near 6 hours, as the posts were the same",
+            "It rose, because there were more runs to wait for",
           ],
-          "A post can never wait longer than one window. With hourly runs the worst case in the demo is 54 min, down from 5 h 42 min.",
+          "A post can never wait longer than one window. With hourly runs the worst case shrinks to under an hour.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "<b>Batch processing</b> reads a <b>bounded</b> set of input files and writes new output files: <b>derived data</b> that can be recreated by running the job again.",
-            "Many sources are <b>unbounded</b>: the data keeps arriving. Batches over fixed windows always look at the past, and shrinking the window until every event is handled on arrival gives <b>stream processing</b>.",
-            "An <b>event</b> is a small, self-contained, <b>immutable</b> record of something that happened, usually with a <b>timestamp</b>, encoded as text, JSON or binary.",
-            "A <b>producer</b> (publisher, sender) generates events; several <b>consumers</b> (subscribers, recipients) process them.",
-            "Polling a file or database every few seconds wastes work; consumers should be <b>notified</b> of new events.",
+            "<b>Batch processing</b> reads a <b>bounded</b> set of files and writes <b>derived data</b> you can recreate by rerunning the job.",
+            "Many sources are <b>unbounded</b>: the data keeps arriving and never ends.",
+            "Shrink the batch window until every event is handled as it arrives, and you have <b>stream processing</b>.",
           ],
           "Batch looks back at finished data; a stream handles each event as it happens.",
         ),
@@ -363,38 +355,36 @@
   });
 
   L["ds8-streams"] = {
-    sum: "Batch jobs read <b>bounded</b> input and write derived output. Unbounded data arrives forever, so we shrink the window until each <b>event</b> is processed as it arrives: <b>stream processing</b>, with producers, consumers and notification instead of polling.",
+    sum: "Batch jobs read <b>bounded</b> input and write derived output. Unbounded data never ends, so we shrink the window until each event is processed as it arrives: <b>stream processing</b>.",
     steps: [
       st(
-        "Batch processing: bounded input",
+        "Yesterday's pile of files",
         P(
-          "Until now the course has looked at <b>batch processing</b>: a job reads a set of input files and writes a <b>new set of output files</b>. Say yesterday's page views sit in three log files of 4,000, 2,500 and 3,500 lines. The job reads all 10,000 lines and writes one file of views per page.",
-          "The output is <b>derived data</b>: lose it and you can recreate it by running the job again. And because the input is <b>bounded</b>, the job knows when it has finished reading. Step through it in the picture.",
+          "Picture a librarian counting yesterday's visitors from three logbooks. She reads every page, writes a summary, and goes home: the books have a last page. That is <b>batch processing</b>. A job reads a <b>bounded</b> set of input files, knows when it has finished, and writes a <b>new</b> output file. The output is <b>derived data</b>: lose it and you just run the job again.",
         ),
         (box, life) => batchRun(box, life),
         mc(
           "A batch job's output file is deleted by mistake. Why is that not a disaster?",
           [
             "It is derived data: rerun the job on the same input",
-            "Batch jobs keep a hidden backup copy of every output",
-            "The input files are rewritten to contain the output",
+            "Batch jobs keep a hidden backup of every output",
+            "The input files are rewritten to hold the output",
           ],
           "Batch output is derived from the input, which the job leaves untouched. Running the job again produces the same output.",
         ),
       ),
       st(
-        "Unbounded data",
+        "The logbook with no last page",
         P(
-          "Many sources are <b>unbounded</b>: the data arrives gradually and never stops. Social media users posted yesterday, they are posting today, and they will post tomorrow.",
-          "A batch job needs the end of its input to know it has finished. On a source like this the end never comes, so the job would wait forever. The picture keeps adding posts while it waits.",
+          "Now picture a logbook that people keep writing in while you read it. You can never reach the end. Many real sources are like that: <b>unbounded</b>. Social media users posted yesterday, are posting today and will post tomorrow. A batch job waits for the end of its input to know it is done, so on data like this it would wait forever.",
         ),
         (box, life) => ticker(box, life),
         mc(
           "Which input is unbounded?",
           [
-            "Temperature readings from sensors that report every minute",
-            "Last year's archive of 2 million shop receipts, kept for audits",
-            "The 40 essays handed in for one module last term",
+            "Readings from sensors that report every minute",
+            "Last year's archive of shop receipts, kept for audits",
+            "The essays handed in for one module last term",
           ],
           "The sensors keep reporting, so their data never ends. The archive and the essays are fixed sets that a batch job can read to the end.",
         ),
@@ -402,84 +392,18 @@
       st(
         "Shrink the window",
         P(
-          "One fix is to run the batch job on fixed windows, say every 24 hours. But then we are always looking at the past. A post at 00:10 is not processed until the next midnight run, almost 24 hours later.",
-          "Make the window smaller and the wait shrinks: every hour, every minute… until we forget windows altogether and analyse <b>every event as it arrives</b>. That is <b>stream processing</b>. Pick a window in the picture.",
+          "One fix: run the batch job every 24 hours on that day's data. But then you're always reading old news, like a paper delivered once a day. A post at 00:10 waits until midnight. Run it hourly and the wait shrinks, then every minute… until you drop windows altogether and handle <b>every event as it arrives</b>. That is <b>stream processing</b>. Pick a window in the picture.",
         ) +
           maths(
             "<p>With runs every $W$ minutes, an event at time $t$ is processed at the next run:</p>$$t_{\\text{done}}=\\left\\lceil \\frac{t}{W}\\right\\rceil W$$<p>So its wait is less than $W$. For events spread evenly the average wait is about $W/2$. For the post at 00:10 with hourly runs: $\\lceil 10/60\\rceil\\cdot 60=60$, a wait of 50 minutes.</p>",
           ),
         (box) => windowFig(box),
-        mc(
-          "Batches run every hour, on the hour. An event arrives at 14:20. When is it processed?",
-          [
-            "At 15:00, after a 40-minute wait",
-            "At 14:20, as soon as it arrives",
-            "At midnight, with the rest of the day",
-          ],
-          "With hourly windows the event waits for the next run, at 15:00. Only stream processing would handle it at 14:20.",
-        ),
-      ),
-      st(
-        "Events",
-        P(
-          "In the stream world a data record is called an <b>event</b>: a small, self-contained, <b>immutable</b> object with the details of something that happened at some point in time. It usually carries a <b>timestamp</b>.",
-          "For example: user mo_17 liked post 4821 at 09:15:02. The same event can be encoded as a text string, as JSON or in a compact binary form. Switch encodings in the picture, then try to change the event.",
-        ),
-        (box) => eventFig(box),
-        mc(
-          "A user unlikes a post they liked an hour ago. How does an event stream record that?",
-          [
-            "A new unlike event is added; the like event stays",
-            "The like event is edited in place so it now says unlike",
-            "The like event is deleted from the stream",
-          ],
-          "Events are immutable records of what happened. A change of mind is a new event with its own timestamp.",
-        ),
-      ),
-      st(
-        "Producers and consumers",
-        P(
-          "An event is generated once by a <b>producer</b> (also called a publisher or sender) and processed by possibly <b>many consumers</b> (subscribers or recipients).",
-          "When mo_17 likes a post, the phone app produces one event. One consumer notifies the author, another counts likes, a third reranks the feed. Each does its own job with the same event.",
-        ),
-        pcFig,
-        {
-          type: "match",
-          q: "Match each stream term to its other name or meaning.",
-          pairs: [
-            ["Producer", "Publisher or sender"],
-            ["Consumer", "Subscriber or recipient"],
-            ["Event", "Immutable record of something that happened"],
-          ],
-          why: "Producers generate events and consumers process them. The lecture gives publisher and sender, subscriber and recipient as other names.",
-        },
-      ),
-      st(
-        "Polling or notification?",
-        P(
-          "A file or a database could sit between producers and consumers: the producer writes, the consumer reads. But then the consumer must check every few seconds, and each check is overhead even when nothing is new.",
-          "Say 12 events arrive an hour and the consumer polls every 5 seconds: 720 checks an hour, of which at least 708 find nothing, and a new event still waits about 2.5 s. It is better for consumers to be <b>notified</b> when a new event appears, and relational databases are not designed for that. Drag the slider.",
-        ) +
-          maths(
-            "<p>Polling every $x$ seconds costs $\\dfrac{3600}{x}$ checks an hour, whatever the traffic. An event arrives at a random moment between checks, so it waits about $x/2$ on average. Halving $x$ halves the wait and doubles the checks.</p>",
-          ),
-        (box) => pollFig(box),
-        mc(
-          "A consumer polls a database every 10 seconds. It switches to every 5 seconds. What happens?",
-          [
-            "Twice the checks an hour, about half the wait",
-            "Half the checks an hour, about twice the wait",
-            "The same checks an hour, about half the wait",
-          ],
-          "3600 / 5 = 720 checks against 3600 / 10 = 360: twice as many. The average wait drops from about 5 s to about 2.5 s.",
-          "Checks per hour = 3600 / interval.",
-        ),
       ),
     ],
     guide: [
       "Pick <b>Daily</b> and press <b>Play the day</b>: orange posts wait for a purple batch run.",
-      "Try <b>Every 6 hours</b> and <b>Hourly</b> and compare the <b>Average wait</b> and <b>Worst wait</b>.",
-      "Pick <b>Stream</b>, press <b>Jump to midnight</b>, then answer the questions after the demo.",
+      "Try <b>Every 6 hours</b> and <b>Hourly</b> and compare the waits.",
+      "Pick <b>Stream</b>, press <b>Jump to midnight</b>, then answer the question after the demo.",
     ],
   };
 })();

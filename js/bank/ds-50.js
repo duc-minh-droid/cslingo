@@ -1,4 +1,4 @@
-/* js/bank/ds-50.js: Data Science lecture 11 revision questions, part 2: ds11-kmeans. */
+/* js/bank/ds-50.js: Data Science lecture 11 revision questions, part 2: ds11-kmeans and ds11-mapreduce. */
 (function () {
   const B = NIC.bank;
   const { mc } = NIC.shared.ds11;
@@ -30,6 +30,45 @@
       why: "The update step moves the centre to the mean of its points: (2 + 5 + 11) ÷ 3 = 18 ÷ 3 = 6.",
     },
     {
+      type: "pick",
+      q: "The centres are at 2 and 8. Tap the point that joins the centre at <b>8</b> in the next assignment step.",
+      fig: chips([
+        ["p3", "3"],
+        ["p4", "4"],
+        ["p6", "6"],
+        ["p1", "1"],
+      ]),
+      a: "p6",
+      hint: "Compare each point's distance to 2 and to 8.",
+      why: "6 is 4 away from 2 but only 2 away from 8, so it joins 8. The points 1, 3 and 4 are all nearer to 2.",
+    },
+    mc(
+      "Why can the assignment of points be split across many machines?",
+      [
+        "Each point needs only itself and the centres",
+        "Points are already sorted by cluster on disk",
+        "Each machine computes a different centre",
+      ],
+      "A point's nearest centre depends only on that point and the K centres, never on other points, so the points can be shared out and assigned at the same time.",
+    ),
+    mc(
+      "Between iteration 4 and iteration 5 not a single point changes cluster. MAX is 50. What does k-means do?",
+      ["Stop: the partition is unchanged", "Carry on until iteration 50", "Pick new random centres and restart"],
+      "The algorithm returns as soon as the partition equals the previous one, or when t reaches MAX, whichever comes first.",
+    ),
+    mc(
+      "In parallel k-means, why does each machine need a copy of every centre?",
+      [
+        "To find which centre is nearest each point",
+        "To work out the new centres all on its own",
+        "To decide by itself whether k-means has finished",
+      ],
+      "Each machine assigns its own points, and that needs the distance from each point to every centre. New centres and the convergence test happen at the reducer.",
+    ),
+  ]);
+
+  B.add("ds11-mapreduce", [
+    {
       type: "cat",
       q: "Which MapReduce phase of parallel k-means does each job belong to?",
       buckets: ["Map", "Combine", "Reduce"],
@@ -52,19 +91,6 @@
       ],
       "To combine results from mappers with different numbers of points, the reducer needs totals: total sum ÷ total count. Averaging means would weigh a mapper with 1 point like one with 1,000.",
     ),
-    {
-      type: "pick",
-      q: "The centres are at 2 and 8. Tap the point that joins the centre at <b>8</b> in the next assignment step.",
-      fig: chips([
-        ["p3", "3"],
-        ["p4", "4"],
-        ["p6", "6"],
-        ["p1", "1"],
-      ]),
-      a: "p6",
-      hint: "Compare each point's distance to 2 and to 8.",
-      why: "6 is 4 away from 2 but only 2 away from 8, so it joins 8. The points 1, 3 and 4 are all nearer to 2.",
-    },
     mc(
       "In the map phase of parallel k-means, what is the value of each emitted pair?",
       ["The sample itself", "The distance to every centre", "The new centre of the cluster"],
@@ -95,15 +121,6 @@
       hint: "One (sum, count) record per mapper and cluster.",
       why: "Each of the 10 mappers sends one record per cluster: 10 × 6 = 60, however many points they hold.",
     },
-    mc(
-      "Why can the assignment of points be split across many machines?",
-      [
-        "Each point needs only itself and the centres",
-        "Points are already sorted by cluster on disk",
-        "Each machine computes a different centre",
-      ],
-      "A point's nearest centre depends only on that point and the K centres, never on other points, so the points can be shared out and assigned at the same time.",
-    ),
     {
       type: "bug",
       q: "This combiner should prepare correct input for the reducer. Tap the faulty line.",
@@ -117,11 +134,6 @@
       hint: "What does the reducer need to combine results from mappers of different sizes?",
       why: "Emitting the local mean throws away the count. The combiner must emit (s, n) so the reducer can compute total sum ÷ total count.",
     },
-    mc(
-      "Between iteration 4 and iteration 5 not a single point changes cluster. MAX is 50. What does k-means do?",
-      ["Stop: the partition is unchanged", "Carry on until iteration 50", "Pick new random centres and restart"],
-      "The algorithm returns as soon as the partition equals the previous one, or when t reaches MAX, whichever comes first.",
-    ),
     {
       type: "slider",
       q: "A reducer receives three (sum, count) records for one cluster: (40, 5), (30, 5) and (10, 10). What is the new centre?",

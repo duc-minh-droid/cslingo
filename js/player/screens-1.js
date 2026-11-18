@@ -16,8 +16,7 @@
   }
   pl.show = function show(dir = 1) {
     const sc = pl.S.screens[pl.S.i];
-    const oldSkip = pl.S.foot && qs(".pl-skip", pl.S.foot);
-    if (oldSkip) oldSkip.remove();
+    if (pl.S.foot) qsa(".pl-skip, .pl-skipall", pl.S.foot).forEach((b) => b.remove());
     if (!sc) return pl.finish();
     if (sc.kind === "bossResult" && pl.S.answered) {
       const r = N.bossResult(pl.S.boss.id),

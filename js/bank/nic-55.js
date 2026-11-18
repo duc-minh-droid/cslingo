@@ -1,4 +1,4 @@
-/* Revision bank, Nature-Inspired Lecture 15: 15.3 choosing leaders and many-objective PSO. */
+/* Revision bank, Nature-Inspired Lecture 15: 15.5 choosing leaders and 15.6 many-objective PSO. */
 (function () {
   const B = NIC.bank;
   const Qf = NIC.qfig;
@@ -67,6 +67,9 @@
       0,
       "Random choice treats crowded and isolated members alike. Preferring sparse members steers particles into the gaps.",
     ),
+  ]);
+
+  B.add("l15-many", [
     {
       type: "order",
       q: "Put leader selection by average rank in order.",

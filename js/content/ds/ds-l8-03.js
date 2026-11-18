@@ -1,5 +1,6 @@
-/* Data Science Lecture 8, part 3: ds8-consumers (8.3, several consumers on one topic: load balancing, fan-out,
-   acknowledgements, redelivery and reordering). The demo's broker panel lives in ds-l8-workshop.js (looked up at render time). */
+/* Data Science Lecture 8, part 3: ds8-consumers (8.5, several consumers on one topic: load balancing and fan-out) and
+   ds8-acks (8.6, acknowledgements, redelivery and reordering). The broker panel lives in ds-l8-workshop.js (looked up at
+   render time). */
 (function () {
   const S = NIC.shared.ds8;
   const { reg, mc, pr, st, P, maths, seg, chip, tape, laneRun } = S;
@@ -224,13 +225,75 @@
       },
     );
 
-  /* ============ 8.3 Many consumers ============ */
+  /* ============ 8.5 Sharing out the work ============ */
   reg({
     id: "ds8-consumers",
-    order: 3,
-    num: "8.3",
-    title: "Many consumers: sharing, fan-out and acks",
-    blurb: "Load balancing against fan-out, acknowledgements, redelivery after a crash, and what it does to the order.",
+    order: 5,
+    num: "8.5",
+    title: "Sharing out the work",
+    blurb: "Several consumers on one topic: split the messages between them, or send every message to all.",
+    render(root) {
+      root.appendChild(header(this, ""));
+      root.appendChild(
+        takeaways(
+          [
+            "With several consumers on one topic, <b>load balancing</b> gives each message to <b>one</b> consumer.",
+            "Load balancing lets consumers <b>share the work</b> when each message is expensive to process.",
+            "<b>Fan-out</b> gives each message to <b>all</b> consumers, so independent consumers can share one broadcast.",
+          ],
+          "One consumer each, or every consumer: pick the pattern that fits the job.",
+        ),
+      );
+    },
+  });
+
+  L["ds8-consumers"] = {
+    sum: "With several consumers on one topic, <b>load balancing</b> gives each message to one consumer and <b>fan-out</b> gives it to all of them.",
+    steps: [
+      st(
+        "Two ways to share a topic",
+        P(
+          "Picture a pile of letters and two helpers. You can deal the letters out, one helper per letter, or photocopy each letter so both helpers get every one. When several consumers read the <b>same topic</b>, a broker has the same choice. <b>Load balancing</b>: each message goes to <b>one</b> consumer. <b>Fan-out</b>: each message goes to <b>all</b> of them. Step through both.",
+        ),
+        (box, life) => patternsRun(box, life),
+        mc(
+          "Under fan-out, which consumers receive a given message?",
+          ["Every consumer on the topic", "One consumer, taking turns", "Whichever consumer asks first"],
+          "Fan-out copies every message to every consumer. Taking turns is load balancing.",
+        ),
+      ),
+      st(
+        "Many hands, light work",
+        P(
+          "Twelve parcels to wrap go faster with three people than with one. <b>Load balancing</b> lets consumers <b>share the work</b> the same way. It pays off when each message is expensive to process, like a big image to resize or an order to check. Each consumer handles only some of the messages, so the whole pile is done sooner. Drag the slider to add consumers.",
+        ) +
+          maths(
+            "<p>With $n$ messages of $t$ seconds each, shared round robin between $k$ consumers, the busiest consumer gets $\\lceil n/k\\rceil$ of them:</p>$$\\text{time} = \\left\\lceil \\frac{n}{k}\\right\\rceil t$$<p>For $n=12$, $t=3$: $k=1$ gives 36 s, $k=3$ gives 12 s, $k=5$ gives $\\lceil 2.4\\rceil\\cdot 3 = 9$ s.</p>",
+          ),
+        (box) => lbFig(box),
+      ),
+      st(
+        "Everyone gets a copy",
+        P(
+          "A newsletter goes to every subscriber, and each reads it for their own reasons. <b>Fan-out</b> lets <b>several independent consumers</b> subscribe to the <b>same broadcast</b>. An online shop publishes order events: Billing charges each one, Email sends each receipt, Analytics counts each sale. Every service sees every order. Drag the slider to add subscribers.",
+        ),
+        (box) => fanFig(box),
+        mc(
+          "Billing and Email both need every order event. Which delivery pattern fits?",
+          ["Fan-out", "Load balancing", "Neither: they must poll"],
+          "Each service must see every message, so the broker must copy each one to both. Load balancing would give each order to only one of them.",
+        ),
+      ),
+    ],
+  };
+
+  /* ============ 8.6 Done means acknowledged ============ */
+  reg({
+    id: "ds8-acks",
+    order: 6,
+    num: "8.6",
+    title: "Done means acknowledged",
+    blurb: "Consumers crash. Acks tell the broker what is really finished, and redelivery has side effects.",
     render(root) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -240,107 +303,52 @@
       S.brokerPanel(card.lastElementChild);
       root.appendChild(
         pr(
-          "ds8-consumers-1",
-          "In <b>Load balancing</b>, with all three consumers up, press <b>Publish</b> three times. How many consumers receive m1?",
-          ["Exactly one", "All three of them", "None until every consumer is idle"],
-          "Load balancing hands each message to one consumer: m1, m2 and m3 go to C1, C2 and C3, one each.",
-        ),
-      );
-      root.appendChild(
-        pr(
           "ds8-consumers-2",
-          "In <b>Load balancing</b>, publish four messages so that m4 is waiting, then press <b>Crash</b> on a consumer that is processing a message. What happens to that message?",
+          "You crashed a consumer while it was processing a message, before it sent an ack. What happened to that message?",
           [
-            "Another consumer gets it as soon as one is free",
-            "It is lost, since it was already delivered",
-            "It is deleted, because the consumer had received it",
+            "Another consumer got it as soon as one was free",
+            "It was lost, since it had already been delivered",
+            "It was deleted, because the consumer had received it",
           ],
-          "The broker never got an ack for it, so it is still in the queue and goes to the next consumer that frees up by acknowledging its own message.",
+          "The broker never got an ack for it, so it stays in the queue and goes to the next consumer that frees up.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "When several consumers read the same topic, <b>load balancing</b> delivers each message to <b>one</b> consumer, so they share the work.",
-            "<b>Fan-out</b> delivers each message to <b>all</b> consumers, so several independent consumers can subscribe to the same broadcast.",
-            "A client must <b>acknowledge</b> a message when it has finished processing it. Without the ack, the broker <b>redelivers</b> the message to another client.",
-            "With load balancing, redelivery can change the <b>order</b> in which messages are processed.",
+            "A client must <b>acknowledge</b> a message once it has finished processing it.",
+            "No ack means the broker <b>redelivers</b> the message to another client, which can change the <b>order</b> of processing.",
             "Beyond the slides: a crash after the work but before the ack means the message is processed <b>twice</b>.",
           ],
-          "One consumer each or every consumer; and nothing counts as done until it is acknowledged.",
+          "Nothing counts as done until it is acknowledged.",
         ),
       );
     },
   });
 
-  L["ds8-consumers"] = {
-    sum: "With several consumers on one topic, <b>load balancing</b> gives each message to one consumer and <b>fan-out</b> gives it to all. Consumers <b>acknowledge</b> finished messages; a missing ack makes the broker <b>redeliver</b>, which can reorder messages.",
+  L["ds8-acks"] = {
+    sum: "Consumers <b>acknowledge</b> finished messages. A missing ack makes the broker <b>redeliver</b>, which can reorder messages and, beyond the slides, process one twice.",
     steps: [
       st(
-        "Two ways to share a topic",
+        "Ticking off the job",
         P(
-          "When several consumers read messages in the <b>same topic</b>, the broker can do one of two things.",
-          "<b>Load balancing</b>: each message goes to <b>one</b> of the consumers. <b>Fan-out</b>: each message goes to <b>all</b> of them. Step through both with the same five messages.",
-        ),
-        (box, life) => patternsRun(box, life),
-        mc(
-          "Five messages, two consumers. Under fan-out, how many deliveries does the broker make?",
-          ["10", "5", "2"],
-          "Fan-out sends every message to every consumer: 5 × 2 = 10. Load balancing would make 5, one per message.",
-        ),
-      ),
-      st(
-        "Load balancing shares the work",
-        P(
-          "Load balancing lets consumers <b>share the work</b> of processing the messages. Useful when each message is expensive.",
-          "12 orders that take 3 s each keep one consumer busy for 36 s. Three consumers take 4 orders each and finish in 12 s. Drag the slider.",
-        ) +
-          maths(
-            "<p>With $n$ messages of $t$ seconds each, shared round robin between $k$ consumers, the busiest consumer gets $\\lceil n/k\\rceil$ of them:</p>$$\\text{time} = \\left\\lceil \\frac{n}{k}\\right\\rceil t$$<p>For $n=12$, $t=3$: $k=1$ gives 36 s, $k=3$ gives 12 s, $k=5$ gives $\\lceil 2.4\\rceil\\cdot 3 = 9$ s.</p>",
-          ),
-        (box) => lbFig(box),
-        mc(
-          "20 messages of 2 s each are load balanced over 4 consumers. About how long until all are done?",
-          ["10 s", "40 s", "5 s"],
-          "Each consumer gets 20 / 4 = 5 messages, and 5 × 2 s = 10 s.",
-          "Messages per consumer first, then times 2 s.",
-        ),
-      ),
-      st(
-        "Fan-out broadcasts",
-        P(
-          "Fan-out lets <b>several independent consumers</b> subscribe to the <b>same broadcast</b> of messages. Each one does its own job with every message.",
-          "An online shop publishes 6 order events. Billing charges each one, Email sends each receipt, Analytics counts each sale. With 3 subscribers that is 6 × 3 = 18 deliveries. Drag the slider.",
-        ),
-        (box) => fanFig(box),
-        mc(
-          "Billing and Email both need every order event. Which delivery pattern fits?",
-          ["Fan-out", "Load balancing", "Neither: they must poll"],
-          "Each service must see every message, so the broker must copy each one to both. Load balancing would give each order to only one of them.",
-        ),
-      ),
-      st(
-        "Acknowledgements and redelivery",
-        P(
-          "Consumers can crash. So a client must <b>explicitly tell the broker</b> when it has finished processing a message: an <b>acknowledgement</b> (ack).",
-          "If the broker does not receive the ack, it assumes the message was not processed and <b>delivers it to another client</b>. In the picture Consumer 2 crashes on m3, and m3 ends up with Consumer 1.",
+          "A kitchen keeps an order ticket on the rail until the chef calls “done!”. If the chef walks out halfway, someone else picks it up. Consumers can crash too, so a client must <b>explicitly tell the broker</b> when it has finished a message: an <b>acknowledgement</b> (ack). No ack, and the broker assumes the message wasn't processed and <b>delivers it to another client</b>.",
         ),
         (box, life) => ackRun(box, life),
         mc(
           "Why does a consumer send its ack after processing a message, not as soon as it arrives?",
           [
-            "So a crash mid-processing leads to a redelivery",
-            "So the broker can delete each message from its queue sooner",
-            "So the producer knows the consumer's name",
+            "So a crash mid-way leads to a redelivery",
+            "So the broker can delete each message sooner",
+            "So the producer learns the consumer's name",
           ],
           "An ack means 'done'. If the consumer acked on arrival and then crashed, the broker would delete a message that nobody finished.",
         ),
       ),
       st(
-        "Redelivery changes the order",
+        "Out of order",
         P(
-          "Combine redelivery with load balancing and the <b>order of messages can change</b>. In the slide's example Consumer 1 processed m2, m4, m3, m5: m3 was redelivered after m4.",
-          "If the order matters (a deposit before a withdrawal, say), that can cause trouble. Switch between the two cases.",
+          "If one chef drops a ticket and another picks it up late, the dishes come out in a different order. Combine redelivery with load balancing and the <b>order of messages can change</b>. In the slide's example Consumer 1 processed m2, m4, m3, m5: m3 came back after m4. If order matters, like a deposit before a withdrawal, that can cause trouble.",
         ),
         (box) => orderFig(box),
         {
@@ -351,27 +359,17 @@
         },
       ),
       st(
-        "Beyond the slides: processed twice",
+        "Done twice",
         P(
-          "<b>Not on the slides</b>, but it follows from the ack rule. If a consumer finishes the work and crashes <b>before</b> its ack arrives, the broker redelivers a message that was in fact processed.",
-          "So a message can be processed <b>more than once</b>. If m7 means 'charge £12', the card is charged twice. Systems guard against this by making the work safe to repeat, for example by remembering which message ids they have already handled.",
+          "<b>Not on the slides</b>, but it follows from the ack rule. Picture the chef plating the dish, then fainting before calling “done!”. Another chef cooks it again. If a consumer finishes the work and crashes <b>before</b> its ack, the broker redelivers it, so a message can be processed <b>more than once</b>. Systems guard against this by remembering which messages they have already handled.",
         ),
         (box, life) => dupRun(box, life),
-        mc(
-          "A consumer sends an email for m9, then crashes before acknowledging m9. What happens next?",
-          [
-            "m9 is redelivered, so the email may go twice",
-            "m9 is deleted, since its email has already gone out",
-            "m9 is lost, because its consumer crashed",
-          ],
-          "The broker only knows that no ack arrived, so it redelivers m9. The next consumer sends the email again.",
-        ),
       ),
     ],
     guide: [
       "In <b>Load balancing</b>, press <b>Publish</b> four times: three consumers get one message each and m4 waits.",
       "Press <b>Crash</b> on a busy consumer, then <b>Ack</b> on another and watch the message move.",
-      "Switch to <b>Fan-out</b>, publish, and ack a message on every consumer. Then answer the questions after the demo.",
+      "Switch to <b>Fan-out</b>, publish, and ack a message on every consumer. Then answer the question after the demo.",
     ],
   };
 })();

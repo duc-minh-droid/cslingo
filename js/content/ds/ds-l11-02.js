@@ -1,13 +1,12 @@
 /* Data Science (COM3021), Lecture 11: distributed machine learning.
-   This part: the SGD model shared with the workshop, and ds11-sgd (11.2, minibatch SGD run on M machines with an
-   all-reduce; its idle time; beyond the slides: stragglers, parameter servers, data and model parallelism). */
+   This part: the SGD model shared with the workshop, and the figures and cluster demo of 11.3 and 11.4 (minibatch
+   SGD run on M machines with an all-reduce, its idle time, stragglers). The lessons are in ds-l11-04.js and -05.js. */
 (function () {
   const S = NIC.shared.ds11;
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const F = N.fig,
-    L = N.LESSONS;
-  const { reg, mc, pr, st, mm, fm, seg, stats, setStats, svg, tx, tint, box, rng, gauss, gantt, figBox } = S;
+  const { qs } = N;
+  const F = N.fig;
+  const { fm, seg, stats, setStats, svg, tx, tint, box, rng, gauss, gantt, figBox } = S;
 
   /* ---------- the model: each example i has a target y; loss ½(w − y)², so its gradient is w − y ---------- */
   const POOL = (() => {
@@ -327,153 +326,5 @@
     draw("Each example takes 1 s to process. Press <b>Run 10 iterations</b>.");
   }
 
-  /* ============ 11.2 Distributed SGD with all-reduce ============ */
-  reg({
-    id: "ds11-sgd",
-    order: 2,
-    num: "11.2",
-    title: "Distributed SGD with all-reduce",
-    blurb:
-      "Split each minibatch across machines, all-reduce the gradients, and get exactly minibatch SGD, idle time included.",
-    render(root) {
-      root.appendChild(header(this, ""));
-      const card = el(
-        `<div class="card"><div class="card-head"><h2>Run a training cluster</h2><span class="tag">B = 8 per iteration</span></div><div></div></div>`,
-      );
-      root.appendChild(card);
-      cluster(card.lastElementChild);
-      root.appendChild(
-        pr(
-          "ds11-sgd-1",
-          "Run with <b>1 worker</b>, then pick <b>4 workers</b> and run again. How do the two weight paths compare?",
-          ["They are the same path", "The 4-worker path is noisier", "The 4-worker path ends higher"],
-          "Four workers with B′ = 2 average the same 8 examples as one worker with B = 8, and the all-reduce puts the full sum on every machine, so every update is identical.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds11-sgd-2",
-          "With <b>4 workers</b>, pick <b>One straggler</b> and run. What happens to <b>Wall time</b>?",
-          [
-            "It rises: each iteration waits for W1",
-            "Nothing: the other three cover for it",
-            "It falls: W1's gradient is skipped",
-          ],
-          "The all-reduce needs every worker's gradient, so each iteration lasts as long as the slowest worker: 4 s instead of 2 s.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "<b>Epoch</b>: one pass over the training set. <b>Batch</b>: all the data per gradient. <b>Minibatch</b>: a subset per iteration.",
-            "With <b>M</b> workers and <b>B = M · B′</b>, each worker averages the gradient of its own B′ examples.",
-            "An <b>all-reduce</b> sums the workers' gradients onto <b>every</b> machine, so each updates its own copy of the parameters in the same way.",
-            "It is <b>statistically equivalent to minibatch SGD</b>, uses the <b>same hyperparameters</b>, and is <b>easy to implement</b>: every worker has the same role.",
-            "Drawback: workers are <b>idle during the all-reduce</b>; computation and communication are not overlapped.",
-          ],
-          "Same algorithm, more machines: the price is the wait at every all-reduce.",
-        ),
-      );
-    },
-  });
-
-  L["ds11-sgd"] = {
-    sum: "Minibatch SGD runs on M machines by splitting each minibatch (B = M · B′), letting each worker compute its own gradient and summing them with an <b>all-reduce</b>. It is equivalent to minibatch SGD with the same hyperparameters, but workers are idle during the communication.",
-    steps: [
-      st(
-        "Epoch, batch, minibatch",
-        `<p>Three words to keep straight. An <b>epoch</b> is one pass over the full training set. <b>Batch</b> means using all your data to compute the gradient during one iteration. <b>Minibatch</b> means using only a subset of the data in each iteration.</p><p>Worked example: 12 training examples. As one batch, an epoch makes <b>1</b> update. With minibatches of 4 it makes 12 ÷ 4 = <b>3</b> updates; with minibatches of 2, <b>6</b>. Watch which examples feed each update.</p>`,
-        (b, life) => batchFig(b, life),
-        mc(
-          "A training set has 1,000 examples and the minibatch size is 50. How many updates make one epoch?",
-          ["20", "50", "1"],
-          "One epoch passes over all 1,000 examples, 50 per update: 1,000 ÷ 50 = 20 updates.",
-        ),
-      ),
-      st(
-        "The minibatch update",
-        `<p>Minibatch SGD averages the gradients of the B examples in the minibatch and steps the weights against that average, scaled by the learning rate α.</p><p>Worked example: one weight, w = 10, a minibatch of 4 examples whose gradients are 2, 6, 4 and 0. Their average is 12 ÷ 4 = 3. With α = 0.5 the step is 1.5, so w becomes <b>8.5</b>. Slide the learning rate.</p>${mm("<p>The update from the slides, for a minibatch of size $B$ at iteration $t$:</p>$$w_{t+1} = w_t - \\alpha_t \\cdot \\frac{1}{B} \\sum_{b=1}^{B} \\nabla f_{i_{b,t}}(w_t)$$<p>Here $10 - 0.5 \\times \\frac{2 + 6 + 4 + 0}{4} = 10 - 1.5 = 8.5$.</p>")}`,
-        (b) => updateFig(b),
-        mc(
-          "w = 6, learning rate 0.5, and a minibatch's four gradients are 1, 3, 5 and 7. Where does w go?",
-          ["4", "2", "5"],
-          "The average gradient is 16 ÷ 4 = 4. The step is 0.5 × 4 = 2, so w goes from 6 to 4.",
-          "Average first, then multiply by 0.5.",
-        ),
-      ),
-      st(
-        "Split the minibatch across machines",
-        `<p>Now use <b>M</b> worker machines, each taking an equal share: <b>B = M · B′</b>, where B′ is the per-machine minibatch. Worker 1 computes the average gradient of its B′ examples, worker 2 of its B′, and so on.</p><p>Worked example: B = 8 gradients 2, 6, 4, 4, 5, 1, 3, 3 (average 3.5). On 4 machines B′ = 2, and the local averages are 4, 4, 3 and 3. Their average is <b>3.5</b> again. Every machine keeps a full copy of the model and works on different data: this is <b>data parallelism</b>.</p>${mm("<p>Split the inner sum by machine. With $B = M B'$:</p>$$w_{t+1} = w_t - \\alpha_t \\cdot \\frac{1}{M} \\sum_{m=1}^{M} \\frac{1}{B'} \\sum_{b=1}^{B'} \\nabla f_{i_{m,b,t}}(w_t)$$<p>Worker $m$ computes the inner average; only the outer sum needs communication. Because every share has the same size $B'$, the average of the averages is the overall average.</p>")}`,
-        (b) => dealFig(b),
-        mc(
-          "A minibatch of B = 32 is shared by M = 4 machines. What is B′, the minibatch on each machine?",
-          ["8", "128", "4"],
-          "B = M · B′, so B′ = 32 ÷ 4 = 8 examples per machine.",
-        ),
-      ),
-      st(
-        "Watch one iteration",
-        `<p>The slides' Algorithm 1, on 3 machines: every machine loads the same w₀; in each iteration it selects its own minibatch, computes its gradient g<sub>m</sub>, joins an <b>all-reduce</b> that leaves G = g₁ + … + g<sub>M</sub> on every machine, and updates w ← w − (α / M) · G.</p><p>Worked example: w = 10, α = 0.5, and each example's gradient is w minus its target. The workers' gradients 5, 6 and 4 sum to G = 15, so every copy moves to 10 − (0.5 ÷ 3) × 15 = <b>7.5</b>. Step through two iterations.</p>${mm("<p>Algorithm 1, per machine $m$ and iteration $t$:</p>$$g_{m,t} = \\frac{1}{B'} \\sum_{b=1}^{B'} \\nabla f_{i_{m,b,t}}(w_{t-1}) \\qquad G_t = \\sum_{m=1}^{M} g_{m,t} \\qquad w_t = w_{t-1} - \\frac{\\alpha_t}{M} G_t$$<p>At the end the algorithm returns $w_T$ from any machine: they all hold the same value.</p>")}`,
-        (b, life) => iterRun(b, life),
-        mc(
-          "Why is the update w − (α / M) · G and not w − α · G?",
-          [
-            "G is a sum of M averages, so dividing by M averages them",
-            "Each worker only owns 1 / M of the weights",
-            "The step must shrink as more machines join in",
-          ],
-          "The all-reduce adds up M gradient averages. Dividing by M turns the sum into the average gradient of the whole minibatch, exactly as in minibatch SGD.",
-        ),
-      ),
-      st(
-        "Same algorithm, same hyperparameters",
-        `<p>Because the all-reduce rebuilds the full minibatch gradient, the algorithm is <b>statistically equivalent to minibatch SGD</b> with B = M · B′. So it is easy to reason about, and we can keep the <b>same hyperparameters</b> (learning rate, batch size). It is also <b>easy to implement</b>: all the worker machines have the same role, and it runs on top of standard distributed computing primitives.</p><p>Worked example: the same minibatches of 8 run on 1 machine and on 4 machines with B′ = 2 trace the identical weight path. Giving each of the 4 machines 8 examples instead (B = 32) is a different algorithm.</p>`,
-        (b) => sameFig(b),
-        mc(
-          "A model trains well on 1 machine with minibatch 64. You move to 8 machines. Which per-machine minibatch keeps the algorithm unchanged?",
-          ["8", "64", "512"],
-          "Keep B = M · B′ = 64, so B′ = 64 ÷ 8 = 8. With B′ = 64 the total minibatch would become 512, a different algorithm needing new hyperparameters.",
-        ),
-      ),
-      st(
-        "The drawback: idle during the all-reduce",
-        `<p>While the communication for the all-reduce is happening, the workers are <b>idle</b>: we are not overlapping computation and communication.</p><p>Worked example: 3 s of computing and a 1 s all-reduce per iteration means each worker computes only 3 of every 4 seconds: <b>75%</b> busy. And because the all-reduce needs everyone's gradient, a slow worker (<i>beyond the slides</i>, a <b>straggler</b>) holds the whole cluster back: if one worker needs 6 s, every iteration takes 6 + 1 = 7 s.</p>${mm("<p>With compute times $c_1, \\dots, c_M$ and all-reduce time $r$, a synchronous iteration takes</p>$$T_{\\text{iter}} = \\max_m c_m + r \\qquad \\text{busy} = \\frac{\\sum_m c_m}{M \\, T_{\\text{iter}}}$$<p>Equal workers: $\\frac{3}{3 + 1} = 75\\%$. With one straggler at 6 s: $\\frac{3 + 3 + 6 + 3}{4 \\times 7} \\approx 54\\%$.</p>")}`,
-        (b) => idleFig(b),
-        mc(
-          "Each iteration is 6 s of computing followed by a 2 s all-reduce. What fraction of the time are the workers computing?",
-          ["75%", "25%", "100%"],
-          "6 s of every 6 + 2 = 8 s: 6 ÷ 8 = 75%. The other 25% is idle waiting on the network.",
-        ),
-      ),
-      st(
-        "Beyond the slides: parameter servers and asynchrony",
-        `<p><i>This step goes beyond the slides.</i> A common alternative is a <b>parameter server</b>: workers <b>push</b> their gradients to a server that holds the parameters, and <b>pull</b> fresh parameters back. If the server waits for every worker each round, it is <b>synchronous</b> and suffers the same waiting. If each worker pushes and pulls whenever it finishes, it is <b>asynchronous</b>: nobody idles, but gradients can be <b>stale</b>, computed from parameters others have already changed.</p><p>Worked example: workers needing 2, 3 and 5 s. Synchronous rounds take 5 s, giving 9 gradients in 15 s. Asynchronous gives 7 + 5 + 3 = <b>15</b>, but W3's gradients are several updates out of date.</p>`,
-        (b) => S.asyncFig(b),
-        mc(
-          "What does asynchronous training give up in exchange for no idle workers?",
-          [
-            "Fresh gradients: some use outdated parameters",
-            "Accuracy of each worker's arithmetic",
-            "The ability to use more than two workers",
-          ],
-          "Without waiting, a slow worker's gradient may be computed from parameters that other workers' updates have already moved on from.",
-        ),
-      ),
-      st(
-        "Beyond the slides: data or model parallelism",
-        `<p><i>This step goes beyond the slides.</i> All-reduce SGD is <b>data parallelism</b>: every machine has the whole model and a share of the data. When the model itself is too big for one machine, <b>model parallelism</b> splits the model instead (for example, one group of layers per machine) and passes each minibatch from machine to machine.</p><p>Worked example: a 3-layer network on 3 machines. Data parallel: 3 full copies, each sees a third of the data, gradients are all-reduced. Model parallel: machine 1 runs layer 1 and hands its output to machine 2, and so on.</p>`,
-        (b) => S.parallelFig(b),
-        mc(
-          "A model's parameters do not fit in the memory of any single machine. Which approach can still train it?",
-          ["Model parallelism", "Data parallelism", "A larger minibatch per machine"],
-          "Data parallelism needs a full copy of the model on every machine. Splitting the model itself across machines is model parallelism.",
-        ),
-      ),
-    ],
-    guide: [
-      "Press <b>Run 10 iterations</b> with <b>1 worker</b>, then pick <b>4 workers</b> and run again: compare the paths and <b>Final weight</b>.",
-      "Raise <b>All-reduce time (s)</b> and run: watch <b>Busy</b> and <b>Wall time</b>.",
-      "Pick <b>One straggler</b> and run again. Then answer the questions after the demo.",
-    ],
-  };
+  Object.assign(S, { batchFig, updateFig, dealFig, iterRun, sameFig, idleFig, cluster });
 })();

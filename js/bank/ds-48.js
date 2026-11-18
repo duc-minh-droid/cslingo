@@ -1,4 +1,4 @@
-/* js/bank/ds-48.js: Data Science lecture 10 revision questions, part 2: ds10-detect. */
+/* js/bank/ds-48.js: Data Science lecture 10 revision questions, part 2: ds10-detect (ADWIN), ds10-ddm and ds10-eddm. */
 (function () {
   const B = NIC.bank;
   const { mc, svg, tx } = NIC.shared.ds10;
@@ -36,6 +36,30 @@
       ],
       "ADWIN adds records at the head and drops from the tail, so after a change the window keeps the recent data that reflects the new concept.",
     ),
+    {
+      type: "order",
+      q: "Put ADWIN's work for one new record in order.",
+      items: [
+        "Add the new record to the head of the window",
+        "Try every split of the window into an older and a newer part",
+        "Compare each split's gap in means with its ε_cut",
+        "While some split is too far apart, drop the oldest record",
+        "Output the mean of the window that is left",
+      ],
+      why: "This is the ADWIN algorithm from the lecture: add x_t to the head, drop from the tail until no split has |μ̂_W0 − μ̂_W1| ≥ ε_cut, then output μ̂_W.",
+    },
+    mc(
+      "Why does ADWIN need a bigger gap before cutting when the two parts of its window are small?",
+      [
+        "With few records, a big gap can happen by chance",
+        "Small windows are always cut, whatever the gap",
+        "The threshold only depends on the confidence δ",
+      ],
+      "ε_cut grows as the parts shrink: a mean from a handful of records is noisy, so ADWIN demands stronger evidence before deciding the data changed.",
+    ),
+  ]);
+
+  B.add("ds10-ddm", [
     {
       type: "slider",
       q: "A model has made 900 predictions with an error rate of p = 0.1. What is DDM's s = √(p(1 − p) / n)?",
@@ -77,16 +101,6 @@
       why: "Below 0.14 is stable; from 0.14 up to (not including) 0.16 is the warning zone; 0.16 and above is a change.",
     },
     {
-      type: "match",
-      q: "Match each detector to what makes it fire.",
-      pairs: [
-        ["ADWIN", "Two parts of its window differ by at least ε_cut"],
-        ["DDM", "p + s reaches p_min + 3 × s_min"],
-        ["EDDM", "Mean gap + 2 × spread falls below 90% of its best"],
-      ],
-      why: "ADWIN compares the means of two sub-windows; DDM compares the error rate plus spread with its best; EDDM compares the gap statistic with its best value.",
-    },
-    {
       type: "multi",
       q: "Select every statement about <b>DDM</b> that is true.",
       o: [
@@ -100,16 +114,34 @@
       why: "DDM reads a binary error stream alongside any learner, and warns at 2 spreads before signalling a change at 3. Windows and half-window comparisons are ADWIN's approach.",
     },
     {
-      type: "order",
-      q: "Put ADWIN's work for one new record in order.",
-      items: [
-        "Add the new record to the head of the window",
-        "Try every split of the window into an older and a newer part",
-        "Compare each split's gap in means with its ε_cut",
-        "While some split is too far apart, drop the oldest record",
-        "Output the mean of the window that is left",
+      type: "pick",
+      q: "DDM has p<sub>min</sub> = 0.10 and s<sub>min</sub> = 0.02. Tap the first day on which it signals a <b>change</b>.",
+      fig: days,
+      a: "d4",
+      hint: "Change line: 0.10 + 3 × 0.02.",
+      why: "The change line is 0.16. Day 3 (0.15) is only in the warning zone (at least 0.14); day 4 (0.165) is the first at or above 0.16.",
+    },
+    mc(
+      "DDM entered its warning zone at record 500 and detected a change at record 580. Which records should train the new model?",
+      [
+        "Records 500 to 580, stored since the warning",
+        "Every record since the stream began, old and new",
+        "Only the records that arrive after record 580",
       ],
-      why: "This is the ADWIN algorithm from the lecture: add x_t to the head, drop from the tail until no split has |μ̂_W0 − μ̂_W1| ≥ ε_cut, then output μ̂_W.",
+      "In the warning zone the system stores new records. They already follow the new concept, so on a change the new model trains on them.",
+    ),
+  ]);
+
+  B.add("ds10-eddm", [
+    {
+      type: "match",
+      q: "Match each detector to what makes it fire.",
+      pairs: [
+        ["ADWIN", "Two parts of its window differ by at least ε_cut"],
+        ["DDM", "p + s reaches p_min + 3 × s_min"],
+        ["EDDM", "Mean gap + 2 × spread falls below 90% of its best"],
+      ],
+      why: "ADWIN compares the means of two sub-windows; DDM compares the error rate plus spread with its best; EDDM compares the gap statistic with its best value.",
     },
     mc(
       "Why can EDDM catch a slow drift earlier than DDM?",
@@ -120,23 +152,6 @@
       ],
       "DDM's overall error rate averages over everything since its last reset, so it moves slowly. EDDM's gap statistic reacts as soon as errors come closer together.",
     ),
-    mc(
-      "Why does ADWIN need a bigger gap before cutting when the two parts of its window are small?",
-      [
-        "With few records, a big gap can happen by chance",
-        "Small windows are always cut, whatever the gap",
-        "The threshold only depends on the confidence δ",
-      ],
-      "ε_cut grows as the parts shrink: a mean from a handful of records is noisy, so ADWIN demands stronger evidence before deciding the data changed.",
-    ),
-    {
-      type: "pick",
-      q: "DDM has p<sub>min</sub> = 0.10 and s<sub>min</sub> = 0.02. Tap the first day on which it signals a <b>change</b>.",
-      fig: days,
-      a: "d4",
-      hint: "Change line: 0.10 + 3 × 0.02.",
-      why: "The change line is 0.16. Day 3 (0.15) is only in the warning zone (at least 0.14); day 4 (0.165) is the first at or above 0.16.",
-    },
     {
       type: "bug",
       q: "This EDDM step should signal a drift when the gap statistic falls well below its best. Tap the faulty line.",
@@ -152,5 +167,33 @@
       hint: "Do shrinking gaps make the ratio go up or down?",
       why: "Drift makes errors closer together, so the ratio falls. The test must be ratio < 0.90; with > it fires while things are fine.",
     },
+    mc(
+      "What does EDDM measure that DDM does not?",
+      [
+        "The distance between one error and the next",
+        "The error rate over every prediction so far",
+        "The mean of the input features in a window",
+      ],
+      "EDDM watches the gaps between errors. DDM tracks the overall error rate, and neither looks at the input features.",
+    ),
+    {
+      type: "cat",
+      q: "For EDDM, does each reading look calm or like a sign of drift?",
+      buckets: ["Looks calm", "Sign of drift"],
+      items: [
+        ["Errors keep arriving about 20 records apart", 0],
+        ["The gap between errors stays steady week after week", 0],
+        ["The gap score stays close to its best", 0],
+        ["Errors that came 15 records apart now come 3 apart", 1],
+        ["The gap score drops below 90% of its best", 1],
+        ["Errors start arriving in tight bunches", 1],
+      ],
+      why: "Steady, wide gaps mean a healthy model. Gaps that shrink, errors that bunch, or a score below 90% of its best point to a drift.",
+    },
+    mc(
+      "On a calm stream with no drift at all, what is a known downside of EDDM's early reactions?",
+      ["It raises more false alarms", "It cannot detect abrupt drift", "It needs the input features too"],
+      "Reacting early to bunches of errors also means reacting to bunches that happen by chance, so EDDM gives more false alarms than DDM on a stable stream.",
+    ),
   ]);
 })();

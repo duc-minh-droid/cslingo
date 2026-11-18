@@ -1,6 +1,6 @@
 /* Data Science (COM3021), Lecture 9: batch and online machine learning.
-   This part: ds9-online (9.3, streaming data, online learning / stochastic gradient descent, learning rate, bad data,
-   and the three data shifts: covariate, prior probability and concept drift). */
+   This part: ds9-online (9.5, streaming data, online learning / stochastic gradient descent, learning rate, bad data)
+   and ds9-shifts (9.6, the three data shifts: covariate, prior probability and concept drift). */
 (function () {
   const S = (NIC.shared.ds9 = NIC.shared.ds9 || {});
   const N = NIC;
@@ -345,14 +345,13 @@
     draw("Records arrive one at a time. Press <b>Play</b> or <b>+10 records</b>.");
   }
 
-  /* ============ 9.3 Online learning and data shifts ============ */
+  /* ============ 9.5 Learning on the fly ============ */
   reg({
     id: "ds9-online",
-    order: 3,
-    num: "9.3",
-    title: "Online learning and data shifts",
-    blurb:
-      "Learning from a stream one record at a time: how fast to adapt, what bad data does, and the three kinds of shift.",
+    order: 5,
+    num: "9.5",
+    title: "Learning on the fly",
+    blurb: "When data streams past once and is gone: update on every record, and live with the risks.",
     render(root, life) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -363,34 +362,21 @@
       root.appendChild(
         pr(
           "ds9-online-1",
-          "Press <b>Roadworks</b>, then <b>+10 records</b> a few times. Which model's error stays high?",
+          "You pressed <b>Roadworks</b> and kept adding records. Which model's error stayed high?",
           [
             "The frozen model: it never learns from new records",
-            "The online model: the change confuses its updates",
-            "Neither: both recover within a few records",
+            "The online model: the change confused its updates",
+            "Neither: both recovered within a few records",
           ],
-          "The frozen batch model keeps w = 4 whatever arrives, so its error stays at about 2 minutes per km times the distance. The online model updates on every record and catches up with 6.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds9-online-2",
-          "Pick <b>learning rate 0.05</b> and press <b>Glitch</b>. What happens to the online weight?",
-          [
-            "It leaps far off at once, then recovers over the next records",
-            "It barely moves: one record among many cannot matter",
-            "It moves a little, then stays wrong from then on",
-          ],
-          "Online learning updates on the bad record immediately. With 0.05 one 90-minute record pushes w up by about 16. Good records then pull it back, quickly at this rate.",
+          "The frozen batch model keeps its old weight whatever arrives, so its error stays high. The online model updates on every record and catches up.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "With <b>streaming data</b>, multiple passes are no longer possible: data is processed in <b>one pass</b>, and the stream may <b>evolve</b>, so a model can become outdated.",
-            "<b>Online learning</b> updates the parameters whenever a <b>new observation</b> arrives: one data point per update, <b>stochastic gradient descent</b>.",
-            "<b>How fast should it adapt?</b> The <b>learning rate</b> controls it: fast adapts quickly but is noisy, and <b>bad data has an immediate impact</b>. It needs <b>closer monitoring</b> and convergence is less stable.",
-            "Three shifts cause model decay: <b>covariate shift</b> (inputs change), <b>prior probability shift</b> (targets change), <b>concept drift</b> (the input-output relationship changes).",
+            "With <b>streaming data</b> each record is seen in <b>one pass</b>, and the stream may <b>evolve</b>.",
+            "<b>Online learning</b> updates on every <b>new observation</b>: one data point per update, <b>stochastic gradient descent</b>.",
+            "The <b>learning rate</b> sets how fast it adapts; <b>bad data has an immediate impact</b>, so it needs <b>closer monitoring</b>.",
           ],
           "Online learning never stops learning, which is its strength and its risk.",
         ),
@@ -399,64 +385,82 @@
   });
 
   L["ds9-online"] = {
-    sum: "<b>Online learning</b> updates the model on every new observation (stochastic gradient descent), so it keeps up with a stream. The <b>learning rate</b> sets how fast it adapts; bad data hits at once. Models decay through <b>covariate shift</b>, <b>prior probability shift</b> and <b>concept drift</b>.",
+    sum: "<b>Online learning</b> updates the model on every new observation (stochastic gradient descent), so it keeps up with a stream. The <b>learning rate</b> sets how fast it adapts; bad data hits at once.",
     steps: [
       st(
-        "The extreme case: streaming data",
-        `<p>With a <b>stream</b>, data never stops arriving and is not kept. <b>Multiple passes</b> over the data are <b>no longer possible</b>: each record must be processed in <b>one pass</b>. The stream may also <b>evolve over time</b>, so a model trained once can become <b>outdated</b>, and it has to keep up with the stream's <b>high speed</b>.</p><p>Worked example: the courier app logs a delivery about every second across the city. Storing them all to re-read every night is out; instead each record passes the model once, the model learns a little, and the record is gone. Watch <b>Records stored</b> stay at 0.</p>`,
+        "A river, not a lake",
+        `<p>A lake sits still; you can dip into it again and again. A river flows past once. With a <b>stream</b>, data never stops arriving and isn't kept, so <b>multiple passes</b> are <b>no longer possible</b>: each record is processed in <b>one pass</b>. The stream may also <b>evolve over time</b>, so a model trained once can become <b>outdated</b>, and it must keep up with the stream's <b>high speed</b>. Watch <b>Records stored</b> stay at 0.</p>`,
         (box, life) => belt(box, life),
         mc(
           "Why can't a streaming system simply run more epochs over its data?",
           [
-            "Each record is seen once: no stored data to go over again",
-            "Epochs only work for neural networks, not simple models",
+            "Each record is seen once: nothing is stored to reread",
+            "Epochs only work for neural networks, not small models",
             "More epochs would always make the learning rate too big",
           ],
           "An epoch is a pass over a stored training set. A stream is processed in one pass, so the model must learn from each record as it goes by.",
         ),
       ),
       st(
-        "Update on every observation",
-        `<p><b>Online learning</b> updates the model parameters <b>whenever a new observation arrives</b>, using that <b>single data point</b>. That is <b>stochastic gradient descent</b>: a mini-batch of size 1, so the model is <b>always adjusting</b> to changes in the data.</p><p>Worked example: w = 4 and a 3 km delivery took 15 minutes. Predict 12: 3 too few. The gradient is 2 × 3 × (12 − 15) = −18, so with learning rate 0.02, w = 4 + 0.36 = 4.36. Step through five records.</p>${mm("<p>The update for one record $(x, y)$ with learning rate $\\eta$:</p>$$w \\leftarrow w - \\eta \\cdot 2x\\,(wx - y)$$<p>For $x = 3$, $y = 15$, $w = 4$: $w = 4 - 0.02 \\times 2 \\times 3 \\times (12 - 15) = 4 + 0.36 = 4.36$.</p>")}`,
+        "Update on every record",
+        `<p>Picture a sat-nav that nudges its arrival estimate after every junction, not once a day. <b>Online learning</b> updates the model <b>whenever a new observation arrives</b>, using that <b>single data point</b>. That is <b>stochastic gradient descent</b>: a mini-batch of size 1, so the model is <b>always adjusting</b> to changes in the data. Step through five deliveries.</p>${mm("<p>The update for one record $(x, y)$ with learning rate $\\eta$:</p>$$w \\leftarrow w - \\eta \\cdot 2x\\,(wx - y)$$<p>For $x = 3$, $y = 15$, $w = 4$: $w = 4 - 0.02 \\times 2 \\times 3 \\times (12 - 15) = 4 + 0.36 = 4.36$.</p>")}`,
         (box, life) => sgdRun(box, life),
-        mc(
-          "w = 5 and a 2 km delivery took 8 minutes. The learning rate is 0.05. What is w after this online update?",
-          ["4.6", "5.4", "3"],
-          "Predict 10, which is 2 too many. Gradient 2 × 2 × 2 = 8, step 0.05 × 8 = 0.4 downwards: 5 − 0.4 = 4.6.",
-          "Error first (10 − 8), then 2 × km × error, then × 0.05.",
-        ),
       ),
       st(
         "How fast should it adapt?",
-        `<p>Because it is always adjusting, an online model raises a question: <b>how fast should it adapt</b>? That is <b>controlled by the learning rate</b>. A high rate reacts quickly to real change but also chases noise; a low rate is steady but slow to notice.</p><p>Worked example: roadworks change 4 minutes per km to 6 at record 40. With learning rate 0.004 the model needs about 23 records to get within 0.5 of 6; with 0.02, about 2. But with 0.05 it wobbles by about 1 minute per km even before anything changes, against 0.1 at 0.004.</p>${mm("<p>Ignoring noise, each update shrinks the gap to the true weight $w^*$ by a factor:</p>$$w - w^* \\leftarrow (1 - 2\\eta x^2)(w - w^*)$$<p>A bigger $\\eta$ shrinks the gap faster (quicker adaptation) but also moves $w$ further on every noisy record.</p>")}`,
+        `<p>A jumpy friend changes their mind with every rumour; a stubborn one never does. An always-adjusting model faces the same choice: <b>how fast should it adapt</b>? The <b>learning rate</b> controls it. A high rate reacts quickly to real change but also chases noise. A low rate is steady but slow to notice. Try the rates when roadworks change the speed.</p>${mm("<p>Ignoring noise, each update shrinks the gap to the true weight $w^*$ by a factor:</p>$$w - w^* \\leftarrow (1 - 2\\eta x^2)(w - w^*)$$<p>A bigger $\\eta$ shrinks the gap faster (quicker adaptation) but also moves $w$ further on every noisy record.</p>")}`,
         (box) => adaptFig(box),
         mc(
           "A team raises the learning rate of its online model. What do they gain and what do they lose?",
           [
             "Faster reaction to change, but a jumpier model",
             "A steadier model, but slower reaction to change",
-            "Faster reaction, and no cost at all",
+            "Faster reaction, and nothing lost at all",
           ],
           "A larger learning rate takes bigger steps on every record: real changes are tracked sooner, and noise moves the model more too.",
         ),
       ),
       st(
         "Bad data hits at once",
-        `<p>An online model learns from every record the moment it arrives, so <b>bad data has an immediate performance impact</b>. Online learning <b>requires closer monitoring</b>, and its <b>convergence is less stable</b> than batch training, where data can be checked before training.</p><p>Worked example: a glitch logs a 2 km trip as 90 minutes. With learning rate 0.02 the weight leaps from about 4 to about 10.6 on that one record, and predictions are badly wrong until good records pull it back. With 0.004 it only reaches about 5.3. Compare the rates.</p>`,
+        `<p>If that jumpy friend hears one silly rumour, they act on it straight away. An online model learns from every record the moment it arrives, so <b>bad data has an immediate performance impact</b>. Online learning <b>requires closer monitoring</b>, and its <b>convergence is less stable</b> than batch training, where data can be checked first. Watch one broken record hit.</p>`,
         (box) => glitchFig(box),
-        mc(
-          "Why does an online model need closer monitoring than one trained in batch before deployment?",
-          [
-            "It updates on each record at once, before anyone checks it",
-            "It uses more memory, so it crashes more often",
-            "Its learning rate grows a little with every record",
-          ],
-          "A batch model is trained, checked and then deployed. An online model changes live with every record, so a bad record changes predictions straight away.",
-        ),
       ),
+    ],
+    guide: [
+      "Press <b>+10 records</b> a few times and compare <b>Frozen model error</b> with <b>Online model error</b>.",
+      "Press <b>Roadworks</b> and keep adding records (or press <b>Play</b>). Watch both errors.",
+      "Pick <b>Learning rate 0.05</b> and press <b>Glitch</b>, then try <b>0.004</b>. Then answer the question after the demo.",
+    ],
+  };
+
+  /* ============ 9.6 Three ways a model goes stale ============ */
+  reg({
+    id: "ds9-shifts",
+    order: 6,
+    num: "9.6",
+    title: "Three ways a model goes stale",
+    blurb: "New inputs, a new mix of answers, or new rules: the three data shifts behind model decay.",
+    render(root) {
+      root.appendChild(header(this, ""));
+      root.appendChild(
+        takeaways(
+          [
+            "<b>Covariate shift</b>: the <b>inputs</b> change, the relationship stays (faces in masks).",
+            "<b>Prior probability shift</b>: the <b>target</b> mix changes, the inputs look the same (flu during COVID).",
+            "<b>Concept drift</b>: the <b>relationship between input and output</b> changes.",
+          ],
+          "Inputs, answers or the rule between them: any of the three can make a model decay.",
+        ),
+      );
+    },
+  });
+
+  L["ds9-shifts"] = {
+    sum: "Three data shifts cause <b>model decay</b>: <b>covariate shift</b> (inputs change), <b>prior probability shift</b> (targets change) and <b>concept drift</b> (the input-output relationship changes).",
+    steps: [
       st(
-        "Shift 1: covariate shift",
-        `<p>Three kinds of <b>data shift</b> cause <b>model decay</b>. The first is <b>covariate shift</b>: the <b>input</b> variables change from the training data to the test data, while the target relationship is unchanged.</p><p>Worked example: a face-recognition model trained on uncovered faces cannot identify people wearing <b>masks</b>. Who each person is has not changed; the inputs now look different from anything in training. In the picture, the model only ever saw the blue inputs.</p>`,
+        "New-looking inputs",
+        `<p>Three kinds of <b>data shift</b> cause <b>model decay</b>. The first: imagine recognising friends by their faces, then everyone starts wearing masks. Your friends are the same people; they just look different. That is <b>covariate shift</b>: the <b>input</b> variables change between training and use, while the link from input to answer stays the same. A face-recognition model trained on uncovered faces struggles with masks.</p>`,
         (box) => shiftFig(box, "cov"),
         mc(
           "A fruit-grading model was trained on photos taken in daylight. The packing house moves to LED lighting, and grades fall apart, though the fruit is just as good. Which shift is this?",
@@ -469,22 +473,13 @@
         ),
       ),
       st(
-        "Shift 2: prior probability shift",
-        `<p>A <b>prior probability shift</b> is a change in the <b>target</b> variable while the <b>input</b> variables are unchanged: how common each outcome is moves.</p><p>Worked example: a model estimates the probability that someone has <b>flu</b> from their symptoms. Before, 12 in 20 patients with fever and a cough had flu. During the <b>COVID pandemic</b> the same symptoms mostly meant something else: 4 in 20. The symptoms look the same; the answer behind them changed.</p>`,
+        "Same clues, different odds",
+        `<p>A <b>prior probability shift</b> changes the <b>target</b> while the <b>inputs</b> stay the same: how common each outcome is moves. A model estimates whether someone has <b>flu</b> from fever and a cough. Before, those symptoms usually meant flu. During the <b>COVID pandemic</b> the same symptoms mostly meant something else. The clues look identical; the odds behind them changed.</p>`,
         (box) => shiftFig(box, "prior"),
-        mc(
-          "A spam filter sees email that looks the same as before, but the share of spam in the inbox jumps from 10% to 50% after a leak. Which shift is this?",
-          [
-            "Prior shift: the target mix changed",
-            "Covariate shift: the emails look different",
-            "Concept drift: what spam means changed",
-          ],
-          "The emails (inputs) look as they did; what changed is how common the spam target is. That is a prior probability shift.",
-        ),
       ),
       st(
-        "Shift 3: concept drift",
-        `<p><b>Concept drift</b> is when the <b>relationship between input and output changes</b> over time in unforeseen ways. The inputs can look just the same; the right answer for them is different.</p><p>Worked example: roadworks across the city. Deliveries are the same distances as before, but each km now takes about 6 minutes instead of 4. A model that learned "4 per km" is wrong on every trip, and only new data can fix it.</p>`,
+        "The rules themselves change",
+        `<p><b>Concept drift</b> is when the <b>relationship between input and output changes</b> over time in unforeseen ways. The inputs can look just the same, but the right answer for them is different. Back to the courier app: roadworks mean the same distances now take longer per km. A model that learned the old rule is wrong on every trip, and only new data can fix it.</p>`,
         (box) => shiftFig(box, "concept"),
         {
           type: "cat",
@@ -498,11 +493,6 @@
           why: "Children's voices are new inputs (covariate). Fewer flu cases is a change in the target mix (prior). The same house fetching a different price is a changed input-output relationship (concept drift).",
         },
       ),
-    ],
-    guide: [
-      "Press <b>+10 records</b> a few times and compare <b>Frozen model error</b> with <b>Online model error</b>.",
-      "Press <b>Roadworks</b> and keep adding records (or press <b>Play</b>). Watch both errors.",
-      "Pick <b>Learning rate 0.05</b> and press <b>Glitch</b>, then try <b>0.004</b>. Then answer the questions after the demo.",
     ],
   };
 })();

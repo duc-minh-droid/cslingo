@@ -1,6 +1,6 @@
 /* Data Science (COM3021), Lecture 9: batch and online machine learning.
    This part: shared helpers (seeded data, the one-weight courier model, small SVG charts, the batching diagram) and
-   ds9-descent (9.1, gradient descent, epochs and full batch learning). */
+   ds9-descent (9.1, gradient descent and the learning rate). The epoch and estimate figures are used by 9.2 in ds-l9-04.js. */
 (function () {
   const S = (NIC.shared.ds9 = NIC.shared.ds9 || {});
   const N = NIC;
@@ -307,7 +307,7 @@
     seg(box.firstChild, "all:All 6 trips|0,1:Trips 1–2|2,3:Trips 3–4|4,5:Trips 5–6|3:Trip 4 alone", "all", draw);
     draw("all");
   }
-  Object.assign(S, { cost, bowl });
+  Object.assign(S, { cost, bowl, epochRun, estimateFig });
 
   /** 9.1 demo: walk down the bowl with a chosen learning rate. */
   function walker(box) {
@@ -365,14 +365,13 @@
     draw("Start at w = 10. Press <b>Step</b>.");
   }
 
-  /* ============ 9.1 Gradient descent, epochs and full batch learning ============ */
+  /* ============ 9.1 Rolling downhill: gradient descent and the learning rate ============ */
   reg({
     id: "ds9-descent",
     order: 1,
     num: "9.1",
-    title: "Gradient descent and full batch learning",
-    blurb:
-      "How a model learns by walking downhill, what an epoch is, and why full batch learning uses the true gradient.",
+    title: "Rolling downhill",
+    blurb: "How a model learns by feeling the slope and stepping downhill, and how big each step should be.",
     render(root) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -383,131 +382,66 @@
       root.appendChild(
         pr(
           "ds9-descent-1",
-          "Pick <b>learning rate 1.1</b> and press <b>Step</b> a few times. What happens to the cost?",
+          "You picked the biggest learning rate, <b>1.1</b>, and pressed <b>Step</b> a few times. What happened to the cost?",
           [
-            "It grows: each step overshoots further",
-            "It falls slowly but steadily towards 0",
-            "It drops to 0 in a single step and stays there",
+            "It grew: each step overshot further",
+            "It fell slowly but steadily towards 0",
+            "It dropped to 0 in one step and stayed",
           ],
-          "With 1.1 each step multiplies the distance to the bottom by 1 − 2 × 1.1 = −1.2: it flips side and grows by a fifth, so the cost rises and the weight diverges.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds9-descent-2",
-          "Pick <b>learning rate 0.75</b> and press <b>Step</b> repeatedly. How does the ball move?",
-          [
-            "It zigzags across the bottom, landing closer each time",
-            "It creeps down one side and never crosses the bottom",
-            "It jumps further away each time and leaves the chart",
-          ],
-          "Each step multiplies the distance by 1 − 2 × 0.75 = −0.5: the sign flips (other side) but the size halves, so it zigzags in and still settles at 4.",
+          "With a learning rate that big, every step jumps past the bottom and lands further away than it started, so the cost rises and the weight diverges.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "<b>Gradient descent</b> learns by repeatedly stepping the weights <b>downhill</b> on the cost: the <b>gradient</b> (slope) says which way is uphill.",
+            "<b>Gradient descent</b> learns by stepping the weights <b>downhill</b> on the cost.",
+            "The <b>gradient</b> (slope) says which way is uphill, so each step goes the other way.",
             "The <b>learning rate</b> sets the step size: too small is slow, too big overshoots and can <b>diverge</b>.",
-            "Neural networks train over <b>epochs</b>: each epoch is one <b>forward pass</b> and one <b>backpropagation</b> pass over the training data.",
-            "<b>Full batch learning</b> uses <b>all</b> the data to compute the <b>true gradient</b>: one update per epoch. Mini-batches compute an <b>approximation</b>.",
-            "Batch learning trains <b>before deployment</b>: simpler to reason about, with <b>smoother, more consistent convergence</b>.",
           ],
-          "Slope says which way, learning rate says how far, and the batch says how much data you trust per step.",
+          "Slope says which way, learning rate says how far.",
         ),
       );
     },
   });
 
   L["ds9-descent"] = {
-    sum: "<b>Gradient descent</b> steps the weights downhill on the cost, by the <b>learning rate</b> times the <b>gradient</b>. An <b>epoch</b> is one pass over the training data; <b>full batch learning</b> uses all of it to compute the <b>true gradient</b>.",
+    sum: "<b>Gradient descent</b> steps the weights downhill on the cost, by the <b>learning rate</b> times the <b>gradient</b>.",
     steps: [
       st(
         "Learning means lowering a cost",
-        `<p>A courier app predicts how long a delivery takes: <b>minutes = w × km</b>. Training means finding a good <b>weight w</b>. To judge a guess we need a <b>cost</b>: a number that is big when predictions are wrong.</p><p>Worked example: a 1 km test trip really took 4 minutes. Guess w = 7 and the model says 7 minutes, 3 off, so the cost (squared error) is 3² = 9. Guess w = 4 and the cost is 0. Drag the weight: the cost traces a <b>bowl</b>, and learning means getting to the bottom.</p>${mm("<p>For one trip of $x = 1$ km taking $y = 4$ minutes, the squared error is</p>$$C(w) = (w x - y)^2 = (w - 4)^2$$<p>a parabola with its minimum $C = 0$ at $w = 4$. With many trips the cost is the average of their squared errors, still a bowl in $w$.</p>")}`,
+        `<p>Meet the story for this lecture: a courier app guessing how long deliveries take, <b>minutes = w × km</b>. Training means finding a good <b>weight w</b>. To judge a guess we use a <b>cost</b>: a score that is big when predictions are wrong and zero when they're spot on. Try guesses for w: the cost traces a <b>bowl</b>, and learning means rolling to the bottom.</p>${mm("<p>For one trip of $x = 1$ km taking $y = 4$ minutes, the squared error is</p>$$C(w) = (w x - y)^2 = (w - 4)^2$$<p>a parabola with its minimum $C = 0$ at $w = 4$. Guess $w = 7$: the error is 3 and the cost $3^2 = 9$. With many trips the cost is the average of their squared errors, still a bowl in $w$.</p>")}`,
         (box) => weightFig(box, false),
-        mc(
-          "Guess w = 6 for the 1 km trip that took 4 minutes. What is the cost?",
-          ["4", "2", "36"],
-          "The prediction is 6 minutes, 2 too many, and the cost squares the error: 2² = 4.",
-          "Error first, then square it.",
-        ),
       ),
       st(
-        "The gradient points uphill",
-        `<p>We cannot see the whole bowl, only how steep it is where we stand. That steepness is the <b>gradient</b> (the slope). A positive slope means the cost rises to the right, so we should step <b>left</b>; a negative slope means step right.</p><p>Worked example: at w = 8 the slope is +8, so step left. At w = 1 the slope is −6, so step right. At w = 4 the slope is 0: we are at the bottom. Drag the weight and watch the dashed tangent and the green arrow.</p>${mm("<p>The gradient is the derivative of the cost:</p>$$\\frac{dC}{dw} = 2(w - 4)$$<p>At $w = 8$ it is $2 \\times 4 = 8$; at $w = 1$ it is $2 \\times (-3) = -6$. Gradient descent always moves in the direction of $-\\frac{dC}{dw}$.</p>")}`,
+        "Feeling the slope",
+        `<p>Picture standing on a hillside in thick fog. You can't see the valley, but you can feel which way the ground tilts under your feet. That tilt is the <b>gradient</b> (the slope). If the cost rises to the right, step <b>left</b>; if it rises to the left, step <b>right</b>. Where it's flat, you're at the bottom. Drag the weight and watch the arrow.</p>${mm("<p>The gradient is the derivative of the cost:</p>$$\\frac{dC}{dw} = 2(w - 4)$$<p>At $w = 8$ it is $2 \\times 4 = 8$; at $w = 1$ it is $2 \\times (-3) = -6$. Gradient descent always moves in the direction of $-\\frac{dC}{dw}$.</p>")}`,
         (box) => weightFig(box, true),
         mc(
-          "At the current weight the gradient is −5. Which way should gradient descent move w?",
-          ["Up: increase w", "Down: decrease w", "Nowhere: a negative slope means it is at the bottom"],
-          "A negative slope means the cost falls as w grows, so downhill is towards larger w. Gradient descent moves against the gradient.",
+          "Where you stand, the cost goes down as w gets bigger. Which way should gradient descent move w?",
+          ["Up: increase w", "Down: decrease w", "Nowhere: it must be at the bottom"],
+          "Downhill is towards larger w, so the step increases w. Gradient descent always moves against the slope.",
         ),
       ),
       st(
-        "One step: learning rate × gradient",
-        `<p>Each step moves the weight <b>against</b> the gradient, scaled by the <b>learning rate</b>: new w = w − learning rate × gradient.</p><p>Worked example with learning rate 0.25, starting at w = 10. The slope is 2 × (10 − 4) = 12, so move 0.25 × 12 = 3: w = 7. Next the slope is 6, move 1.5: w = 5.5. Then 4.75, then 4.375. Each step halves the distance to 4. Press play to watch the incremental steps.</p>${mm("<p>The update rule, with learning rate $\\eta$:</p>$$w_{t+1} = w_t - \\eta \\frac{dC}{dw}(w_t)$$<p>Here $w_{t+1} - 4 = (w_t - 4)(1 - 2\\eta)$. With $\\eta = 0.25$ that factor is $0.5$, so the distance halves every step: 6, 3, 1.5, 0.75 …</p>")}`,
+        "One step at a time",
+        `<p>Each step moves the weight <b>against</b> the gradient, scaled by the <b>learning rate</b>: think of it as your stride length. Steep ground means a big step, gentle ground a small one, so the steps naturally shrink as you near the bottom. Repeat, step after step, and the weight settles where the cost is lowest. Press play to watch.</p>${mm("<p>The update rule, with learning rate $\\eta$:</p>$$w_{t+1} = w_t - \\eta \\frac{dC}{dw}(w_t)$$<p>From $w = 10$ with $\\eta = 0.25$: the slope is $2 \\times 6 = 12$, so move $0.25 \\times 12 = 3$ to $w = 7$. Here $w_{t+1} - 4 = (w_t - 4)(1 - 2\\eta)$, so the distance halves every step: 6, 3, 1.5, 0.75 …</p>")}`,
         (box, life) => descentRun(box, life),
-        mc(
-          "Learning rate 0.25, current w = 6. Where is w after one step?",
-          ["5", "4", "5.5"],
-          "The slope is 2 × (6 − 4) = 4. The step is 0.25 × 4 = 1, so w goes from 6 to 5.",
-          "Slope first: 2 × (6 − 4).",
-        ),
       ),
       st(
         "Too small, too big",
-        `<p>The learning rate is a trade-off. Too small and the ball creeps: lots of steps for little progress. Too big and every step jumps <b>past</b> the bottom. A bit too big still settles, zigzagging in; much too big lands further away each time and the weights <b>diverge</b>.</p><p>Worked example from w = 10: with 0.1 the distance to 4 shrinks by a fifth each step (6, 4.8, 3.84 …). With 1.1 it goes 6, then 7.2 on the other side, then 8.64: it grows. Try each rate.</p>${mm("<p>Each step multiplies the distance by $(1 - 2\\eta)$:</p>$$|w_{t} - 4| = |1 - 2\\eta|^{t}\\,|w_0 - 4|$$<p>It shrinks when $|1 - 2\\eta| < 1$, that is $0 < \\eta < 1$ for this bowl. For $\\eta = 1.1$ the factor is $-1.2$: it flips side and grows.</p>")}`,
+        `<p>Stride length is a trade-off. Tiny shuffles get there, but take ages. Giant leaps jump <b>past</b> the bottom of the valley. A bit too big still settles, zigzagging in. Much too big lands further away each time, and the weights <b>diverge</b>: the cost climbs instead of falling. Try each learning rate.</p>${mm("<p>Each step multiplies the distance to the bottom by $(1 - 2\\eta)$:</p>$$|w_{t} - 4| = |1 - 2\\eta|^{t}\\,|w_0 - 4|$$<p>It shrinks when $|1 - 2\\eta| < 1$, that is $0 < \\eta < 1$ for this bowl. For $\\eta = 1.1$ the factor is $-1.2$: it flips side and grows.</p>")}`,
         (box) => ratesFig(box),
         mc(
           "The cost goes up after every step. What is the most likely fix?",
-          ["Lower the learning rate", "Raise the learning rate", "Train for more epochs at the same learning rate"],
-          "A rising cost means the steps overshoot the bottom by more each time. Smaller steps stop the overshoot; more epochs would just diverge further.",
-        ),
-      ),
-      st(
-        "Epochs: forward pass, backward pass",
-        `<p>Neural networks are trained over a series of <b>epochs</b>. Each epoch is one <b>forward pass</b> (predict every training example and measure the errors) and one <b>backpropagation</b> pass (turn those errors into gradients for the weights).</p><p>Worked example: 4 trips that took exactly 4 minutes per km, starting at w = 6. Forward: predictions 6, 12, 18, 12, errors 2, 4, 6, 4. Backward: gradient 18. Update with learning rate 0.05: w = 6 − 0.9 = 5.1. Epoch 2 starts from 5.1. Step through three epochs.</p>${mm("<p>For mean squared error over $n$ trips, the gradient is</p>$$\\frac{dC}{dw} = \\frac{2}{n}\\sum_{i=1}^{n} x_i\\,(w x_i - y_i)$$<p>At $w = 6$: $\\frac{2}{4}(1\\cdot2 + 2\\cdot4 + 3\\cdot6 + 2\\cdot4) = \\frac{2}{4}\\cdot 36 = 18$. A network does the same through many layers: backpropagation is the chain rule applied layer by layer.</p>")}`,
-        (box, life) => epochRun(box, life),
-        mc(
-          "What does one epoch of training involve?",
-          [
-            "A forward and a backward pass over all the training data",
-            "A forward pass over one randomly chosen training example",
-            "Training repeatedly until the cost reaches its minimum",
-          ],
-          "An epoch is one full pass over the training data: forward to get predictions and errors, backward to get the gradients.",
-        ),
-      ),
-      st(
-        "True gradient or an estimate",
-        `<p>In each epoch we can either compute the <b>true gradient</b> using <b>all</b> the available data, or compute an <b>approximation</b> of it from part of the data.</p><p>Worked example: six trips give gradients 4, 18, 10, 30, 2 and 14. Their average, 13, is the true gradient. Trips 1–2 alone average 11; trips 3–4 average 20; trip 4 on its own says 30. Each part gives a different estimate. Pick a batch and compare the red line with the green one.</p>${mm("<p>True gradient over all $n$ examples, and the estimate from a batch $B$:</p>$$g = \\frac{1}{n}\\sum_{i=1}^{n} g_i \\qquad \\hat g = \\frac{1}{|B|}\\sum_{i \\in B} g_i$$<p>Here $g = 78/6 = 13$. A random batch gives the right answer <b>on average</b>, but any single batch can be off.</p>")}`,
-        (box) => estimateFig(box),
-        mc(
-          "Trips give gradients 6, 2, 10 and 6. A batch uses only the first two trips. What does it estimate, against the true gradient?",
-          ["4, against a true 6", "6, against a true 4", "8, against a true 6"],
-          "The batch averages 6 and 2 to get 4. The true gradient averages all four: 24 ÷ 4 = 6.",
-          "Average two numbers, then all four.",
-        ),
-      ),
-      st(
-        "Full batch learning",
-        `<p><b>Full batch learning</b> uses <b>all the data</b> and computes the <b>true gradient</b>, so there is exactly <b>one update per epoch</b>. The model is trained <b>before deployment</b> and then used as it is.</p><p>Worked example: 8 trips all feed iteration 1, the gradient is computed once, the weight is updated once, and epoch 2 starts. It is the usual way models are trained because it is <b>simpler to reason about</b> and gives <b>smoother, more consistent convergence</b>: the same data gives the same step every time.</p>${mm("<p>With $n$ examples and batch size $b$, an epoch makes $n / b$ updates. Full batch is $b = n$:</p>$$\\text{updates per epoch} = \\frac{n}{n} = 1$$")}`,
-        (box, life) => S.pipes(box, life, 8, false),
-        mc(
-          "Why does full batch learning converge so smoothly?",
-          [
-            "Every step uses the true gradient, not a sampled one",
-            "It uses a larger learning rate than the other methods",
-            "It updates the weight after every single example",
-          ],
-          "With all the data in every step there is no sampling noise: the step is the same each time you run it.",
+          ["Lower the learning rate", "Raise the learning rate", "Train for longer at the same rate"],
+          "A rising cost means the steps overshoot the bottom by more each time. Smaller steps stop the overshoot; training longer would just diverge further.",
         ),
       ),
     ],
     guide: [
       "Press <b>Step</b> a few times with <b>Learning rate 0.1</b>, then <b>Reset</b> and try <b>0.25</b>. Compare <b>Steps taken</b>.",
       "Try <b>0.75</b> and watch the ball zigzag across the bottom.",
-      "Try <b>1.1</b> and press <b>Run 10 steps</b>: watch the <b>Cost</b>. Then answer the questions after the demo.",
+      "Try <b>1.1</b> and press <b>Run 10 steps</b>: watch the <b>Cost</b>. Then answer the question after the demo.",
     ],
   };
 })();

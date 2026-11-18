@@ -1,4 +1,4 @@
-/* js/bank/ds-43.js: Data Science lecture 8 revision questions, part 1: ds8-streams and ds8-brokers. */
+/* js/bank/ds-43.js: Data Science lecture 8 revision questions, part 1: ds8-streams, ds8-events, ds8-brokers and ds8-middle. */
 (function () {
   const B = NIC.bank;
   const { mc, pk } = NIC.shared.ds8;
@@ -49,6 +49,24 @@
       "Batch processing assumes bounded input: once every input file has been read, the job is done.",
     ),
     {
+      type: "order",
+      q: "Put these approaches in order from the most out-of-date results to the freshest.",
+      items: [
+        "A batch run once a day",
+        "A batch run every hour",
+        "A batch run every minute",
+        "Each event processed as it arrives",
+      ],
+      why: "The longer the window, the longer an event can wait for the next run. Shrinking the window to nothing is stream processing.",
+    },
+    mc(
+      "Events arrive evenly through the day and a batch job runs every 2 hours. About how long does a typical event wait?",
+      ["About 1 hour", "About 2 hours", "About 10 minutes"],
+      "An event can land anywhere in a 2-hour window, so on average it waits about half the window, 1 hour. The worst case is just under 2 hours.",
+    ),
+  ]);
+  B.add("ds8-events", [
+    {
       type: "multi",
       q: "Select every property the lecture gives for an <b>event</b>.",
       o: [
@@ -66,22 +84,6 @@
       ["120", "30", "1,800"],
       "3,600 seconds in an hour divided by 30 gives 120 polls, whether or not anything new has arrived.",
       "3,600 / 30: think 360 / 3.",
-    ),
-    {
-      type: "order",
-      q: "Put these approaches in order from the most out-of-date results to the freshest.",
-      items: [
-        "A batch run once a day",
-        "A batch run every hour",
-        "A batch run every minute",
-        "Each event processed as it arrives",
-      ],
-      why: "The longer the window, the longer an event can wait for the next run. Shrinking the window to nothing is stream processing.",
-    },
-    mc(
-      "Events arrive evenly through the day and a batch job runs every 2 hours. About how long does a typical event wait?",
-      ["About 1 hour", "About 2 hours", "About 10 minutes"],
-      "An event can land anywhere in a 2-hour window, so on average it waits about half the window, 1 hour. The worst case is just under 2 hours.",
     ),
     {
       type: "match",
@@ -116,8 +118,17 @@
       hint: "Which line changes an event that already exists?",
       why: 'Line 4 edits a past event. Events record what happened and never change; the code should append a new event instead: stream.append(Event(user, "unlike", post, now)).',
     },
+    mc(
+      "Which of these is an <b>event</b> in the stream processing sense?",
+      [
+        "ana_4 shared post 77 at 14:02",
+        "The current number of likes on post 77",
+        "The list of every user of the app",
+        "A rule saying posts need a title",
+      ],
+      "An event is a small, immutable record of something that happened at a point in time. A running total, a user list or a rule is state, not an event.",
+    ),
   ]);
-
   B.add("ds8-brokers", [
     {
       type: "cat",
@@ -145,15 +156,6 @@
       why: "3 extra messages a second for 20 seconds is 3 × 20 = 60 waiting.",
     },
     mc(
-      "What is the main weakness of sending events directly from producers to consumers, for example by UDP multicast?",
-      [
-        "A consumer that is offline misses the messages",
-        "Messages are always delivered far too slowly",
-        "Only one consumer can ever receive each message",
-      ],
-      "Direct messaging is fast, but with nothing in the middle to hold messages, anything sent while a consumer is away is lost to it.",
-    ),
-    mc(
       "A broker writes every message to disk as well as keeping it in memory. What does it gain, and at what cost?",
       [
         "Messages survive a crash, but each one needs a disk write",
@@ -161,6 +163,44 @@
         "Consumers may search old messages, but topics are lost",
       ],
       "Memory is wiped by a crash; disk is not. The price is the slower disk write for each message.",
+    ),
+    mc(
+      "What is another name the lecture gives for backpressure?",
+      ["Flow control", "Fan-out", "Load balancing", "Multicast"],
+      "Backpressure is flow control: the receiver makes the sender slow down instead of dropping or buffering messages.",
+    ),
+    mc(
+      "A broker keeps its waiting messages only in memory, and the machine loses power. What happens to those messages?",
+      [
+        "They are lost when the power goes",
+        "They come back from memory on restart",
+        "The producers resend them by themselves",
+        "The consumers already hold copies of them",
+      ],
+      "Memory does not survive a crash or power cut. Only messages also written to disk can be reloaded after a restart.",
+    ),
+    {
+      type: "cat",
+      q: "Is each consumer being <b>pushed</b> new messages, or <b>polling</b> for them?",
+      buckets: ["Pushed (notified)", "Polling"],
+      items: [
+        ["A phone shows a notification when a parcel ships", 0],
+        ["A script checks a folder every minute for new files", 1],
+        ["A messaging system delivers each new message to its subscribers", 0],
+        ["A dashboard reruns a database query every 10 seconds", 1],
+      ],
+      why: "A messaging system pushes messages to consumers as they arrive. Checking again and again on a timer is polling, which costs work even when nothing is new.",
+    },
+  ]);
+  B.add("ds8-middle", [
+    mc(
+      "What is the main weakness of sending events directly from producers to consumers, for example by UDP multicast?",
+      [
+        "A consumer that is offline misses the messages",
+        "Messages are always delivered far too slowly",
+        "Only one consumer can ever receive each message",
+      ],
+      "Direct messaging is fast, but with nothing in the middle to hold messages, anything sent while a consumer is away is lost to it.",
     ),
     {
       type: "multi",
@@ -216,11 +256,6 @@
       ],
       why: "Producers write to the broker, the broker queues the message, consumers read it, and once delivery has succeeded the broker deletes it.",
     },
-    mc(
-      "What is another name the lecture gives for backpressure?",
-      ["Flow control", "Fan-out", "Load balancing", "Multicast"],
-      "Backpressure is flow control: the receiver makes the sender slow down instead of dropping or buffering messages.",
-    ),
     mc(
       "Why are the queues in a message broker usually short?",
       [

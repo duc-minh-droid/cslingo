@@ -1,4 +1,4 @@
-/* js/bank/ds-46.js: Data Science lecture 9 revision questions, part 2: ds9-online. */
+/* js/bank/ds-46.js: Data Science lecture 9 revision questions, part 2: ds9-online and ds9-shifts. */
 (function () {
   const B = NIC.bank;
   const { mc } = NIC.shared.ds9;
@@ -23,20 +23,6 @@
       unit: " min per km",
       hint: "Predict 6, error 6 − 4 = 2, gradient 2 × 1 × 2 = 4, then w − 0.1 × 4.",
       why: "The prediction is 2 too high. Gradient 4, step 0.1 × 4 = 0.4 downwards: w = 5.6.",
-    },
-    {
-      type: "cat",
-      q: "Which kind of data shift is each case?",
-      buckets: ["Covariate shift", "Prior probability shift", "Concept drift"],
-      items: [
-        ["A crop model trained in one region is used on another region's soils", 0],
-        ["A camera model meets photos from a new, much darker sensor", 0],
-        ["Symptoms look the same, but a disease becomes far rarer", 1],
-        ["Shoppers browse as before, but the share who buy doubles on a sale day", 1],
-        ["After a law change the same CV now leads to a different hiring outcome", 2],
-        ["The same route now takes far longer because of new traffic rules", 2],
-      ],
-      why: "New kinds of input are covariate shift. A change in how common each target is, with inputs unchanged, is prior probability shift. A changed input-output relationship is concept drift.",
     },
     {
       type: "multi",
@@ -125,6 +111,68 @@
       a: 1,
       hint: "How many times can a stream be read?",
       why: "Epochs re-read the same data. A live stream is processed in one pass and is not stored, so the loop over 5 epochs has nothing to re-read.",
+    },
+  ]);
+  B.add("ds9-shifts", [
+    {
+      type: "cat",
+      q: "Which kind of data shift is each case?",
+      buckets: ["Covariate shift", "Prior probability shift", "Concept drift"],
+      items: [
+        ["A crop model trained in one region is used on another region's soils", 0],
+        ["A camera model meets photos from a new, much darker sensor", 0],
+        ["Symptoms look the same, but a disease becomes far rarer", 1],
+        ["Shoppers browse as before, but the share who buy doubles on a sale day", 1],
+        ["After a law change the same CV now leads to a different hiring outcome", 2],
+        ["The same route now takes far longer because of new traffic rules", 2],
+      ],
+      why: "New kinds of input are covariate shift. A change in how common each target is, with inputs unchanged, is prior probability shift. A changed input-output relationship is concept drift.",
+    },
+    mc(
+      "In a covariate shift, what changes?",
+      ["The input variables", "How common each answer is", "The rule linking input to output", "The learning rate"],
+      "Covariate shift is a change in the inputs, while the relationship from input to output stays the same.",
+    ),
+    mc(
+      "A bank's fraud model sees card payments that look just like before, but a new scam makes fraud far more common. Which shift is this?",
+      [
+        "Prior shift: the target mix changed",
+        "Covariate shift: the payments look different",
+        "Concept drift: the meaning of fraud changed",
+      ],
+      "The inputs look the same; what changed is how often the fraud target occurs. That is a prior probability shift.",
+    ),
+    mc(
+      "A taxi app learned how long rides of each distance take. A new bus lane opens and the same rides now take much less time. Which shift is this?",
+      [
+        "Concept drift: the input-output link changed",
+        "Covariate shift: riders now take new routes",
+        "Prior shift: there are more short rides now",
+      ],
+      "The distances (inputs) are the same, but the time they map to has changed. A changed relationship is concept drift.",
+    ),
+    {
+      type: "match",
+      q: "Match each data shift to what changes.",
+      pairs: [
+        ["Covariate shift", "The inputs"],
+        ["Prior probability shift", "How common each target is"],
+        ["Concept drift", "The link between input and output"],
+      ],
+      why: "Covariate shift moves the inputs, prior shift moves the target mix, and concept drift changes the relationship itself.",
+    },
+    {
+      type: "multi",
+      q: "Select every statement that is <b>true</b> about data shifts.",
+      o: [
+        "All three kinds can cause model decay",
+        "In a prior shift the inputs can look unchanged",
+        "Concept drift changes the input-output relationship",
+        "Covariate shift means the same inputs now need new answers",
+        "Data shifts only ever affect online models",
+      ],
+      a: [0, 1, 2],
+      why: "Covariate shift changes the inputs, not the answers for them. Any deployed model, batch or online, can decay through a data shift.",
     },
   ]);
 })();
