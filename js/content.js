@@ -181,6 +181,7 @@
       "js/content/ds/boss-ds-8.js",
       "js/content/ds/ds-l9-01.js",
       "js/content/ds/ds-l9-02.js",
+      "js/content/ds/ds-l9-04.js",
       "js/content/ds/ds-l9-03.js",
       "js/content/ds/ds-l9-workshop.js",
       "js/content/ds/boss-ds-9.js",

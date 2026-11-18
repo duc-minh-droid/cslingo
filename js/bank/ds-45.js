@@ -1,4 +1,4 @@
-/* js/bank/ds-45.js: Data Science lecture 9 revision questions, part 1: ds9-descent and ds9-batches. */
+/* js/bank/ds-45.js: Data Science lecture 9 revision questions, part 1: ds9-descent, ds9-epochs, ds9-batches and ds9-mini. */
 (function () {
   const B = NIC.bank;
   const { mc, svg, tx } = NIC.shared.ds9;
@@ -65,6 +65,25 @@
       ],
       why: "Gradient descent starts somewhere, measures the slope, steps downhill by a scaled amount, and repeats.",
     },
+    {
+      type: "pick",
+      q: "Tap the point on the cost curve where the gradient is <b>zero</b>.",
+      fig: bowlPick,
+      a: "b",
+      why: "The gradient is the slope. At the bottom of the bowl (B) the curve is flat, so the gradient is zero and gradient descent stops moving.",
+    },
+    mc(
+      "What does the gradient tell gradient descent?",
+      [
+        "Which way is uphill, so it steps the other way",
+        "The best weight, so it can jump straight to it",
+        "How many more epochs it still has to run",
+        "How much of the data fits in memory",
+      ],
+      "The gradient is the slope of the cost at the current weight. It points uphill, so each step goes against it.",
+    ),
+  ]);
+  B.add("ds9-epochs", [
     mc(
       "A network is trained full batch for 5 epochs on 10,000 images. How many times is each image used in a forward pass?",
       ["5", "1", "10,000"],
@@ -93,13 +112,6 @@
         ["Backpropagation", "Turns the errors into gradients"],
       ],
       why: "The gradient says which way is uphill, the learning rate scales the step, an epoch is a pass over the data, and backpropagation computes the gradients from the errors.",
-    },
-    {
-      type: "pick",
-      q: "Tap the point on the cost curve where the gradient is <b>zero</b>.",
-      fig: bowlPick,
-      a: "b",
-      why: "The gradient is the slope. At the bottom of the bowl (B) the curve is flat, so the gradient is zero and gradient descent stops moving.",
     },
     mc(
       "Five examples give gradients 2, 4, 6, 8 and 10. A mini-batch of the last two is used. What does it estimate, against the true gradient?",
@@ -130,7 +142,6 @@
       why: "all_trips[:32] uses only the first 32 trips, so the gradient is an estimate from a mini-batch. Full batch needs gradient(w, all_trips).",
     },
   ]);
-
   B.add("ds9-batches", [
     mc(
       "A clothing shop's recommender was trained on last winter's sales. In spring it keeps pushing coats and sales drop. What is the best description?",
@@ -155,20 +166,6 @@
       why: "Week 25 reads 125 GB, which fits. Week 26 reads 130 GB, which does not.",
     },
     {
-      type: "cat",
-      q: "Is each point an advantage of <b>full batch</b> learning or of training on <b>recent data</b> in mini-batches?",
-      buckets: ["Full batch", "Recent data / mini-batch"],
-      items: [
-        ["Smoother, more consistent convergence", 0],
-        ["Simpler to reason about", 0],
-        ["Less computationally intensive", 1],
-        ["Older data affects the model less", 1],
-        ["Every step uses the true gradient", 0],
-        ["Does not need all the data in memory", 1],
-      ],
-      why: "Full batch is smooth, exact and easy to reason about. Recent data in batches is cheaper, needs less memory and lets old data fade.",
-    },
-    {
       type: "multi",
       q: "A team switches to retraining on recent data. Select every decision they now have to make.",
       o: [
@@ -181,18 +178,6 @@
       a: [0, 1, 2],
       why: "The slides list how often (daily, weekly, monthly), how much data (week, month, year) and the batch size. Training on recent data avoids holding all the history and gives up the true gradient.",
     },
-    {
-      type: "order",
-      q: "Order these from the <b>noisiest</b> gradient to the <b>smoothest</b>.",
-      items: ["Online (batch of 1)", "Mini-batch of 16", "Mini-batch of 256", "Full batch"],
-      why: "The smaller the batch, the greater the randomness. One example is the noisiest estimate, and all the data gives the true gradient.",
-    },
-    mc(
-      "A data set has 6,000 rows. Switching from full batch to a batch of 60 changes the updates per epoch from 1 to how many?",
-      ["100", "60", "6,000"],
-      "Updates per epoch = rows ÷ batch size = 6,000 ÷ 60 = 100.",
-      "6,000 ÷ 60 = 600 ÷ 6.",
-    ),
     {
       type: "pick",
       q: "It is now week 8 and the model retrains on the <b>last 4 weeks</b>. Tap the <b>oldest</b> week it uses.",
@@ -231,6 +216,34 @@
       unit: " GB",
       why: "A fixed window always reads 6 weeks × 2 GB = 12 GB, in week 8 or week 80.",
     },
+  ]);
+  B.add("ds9-mini", [
+    {
+      type: "cat",
+      q: "Is each point an advantage of <b>full batch</b> learning or of training on <b>recent data</b> in mini-batches?",
+      buckets: ["Full batch", "Recent data / mini-batch"],
+      items: [
+        ["Smoother, more consistent convergence", 0],
+        ["Simpler to reason about", 0],
+        ["Less computationally intensive", 1],
+        ["Older data affects the model less", 1],
+        ["Every step uses the true gradient", 0],
+        ["Does not need all the data in memory", 1],
+      ],
+      why: "Full batch is smooth, exact and easy to reason about. Recent data in batches is cheaper, needs less memory and lets old data fade.",
+    },
+    {
+      type: "order",
+      q: "Order these from the <b>noisiest</b> gradient to the <b>smoothest</b>.",
+      items: ["Online (batch of 1)", "Mini-batch of 16", "Mini-batch of 256", "Full batch"],
+      why: "The smaller the batch, the greater the randomness. One example is the noisiest estimate, and all the data gives the true gradient.",
+    },
+    mc(
+      "A data set has 6,000 rows. Switching from full batch to a batch of 60 changes the updates per epoch from 1 to how many?",
+      ["100", "60", "6,000"],
+      "Updates per epoch = rows ÷ batch size = 6,000 ÷ 60 = 100.",
+      "6,000 ÷ 60 = 600 ÷ 6.",
+    ),
     mc(
       "On a loss-against-learning-rate plot, the batch-of-4 curve reaches its lowest loss at a smaller learning rate than batch 64, then shoots up sooner. What does that suggest?",
       [
@@ -251,5 +264,15 @@
       ],
       why: "Incremental learning keeps updating a model with newer data, often in mini-batches, because of concept drift. Full batch uses everything each step.",
     },
+    mc(
+      "Why does a mini-batch give only an estimate of the gradient?",
+      [
+        "It averages over just part of the data",
+        "It uses a smaller learning rate than full batch",
+        "It skips the backpropagation pass",
+        "It only ever looks at the newest record",
+      ],
+      "The true gradient needs every example. A mini-batch averages the gradients of only the examples it holds, so it can be off.",
+    ),
   ]);
 })();

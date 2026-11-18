@@ -4,11 +4,10 @@
 (function () {
   const S = (NIC.shared.ds9 = NIC.shared.ds9 || {});
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
+  const { qs, takeaways, header } = N;
   const F = N.fig,
     L = N.LESSONS;
-  const { reg, mc, pr, st, mm, fm, seg, stats, setStats, svg, tx, rng, gauss, trips, loss, grad, epoch, chart, curve } =
-    S;
+  const { reg, mc, st, mm, fm, seg, stats, setStats, svg, tx, rng, gauss, trips, loss, grad, epoch, chart, curve } = S;
 
   /** The batching diagram (slides 4, 8 and 12): 8 samples feed iterations of B samples; one update per iteration. */
   function pipes(box, life, B0 = 8, choose = true) {
