@@ -277,6 +277,20 @@
     acts.insertBefore(b, pl.S.go);
   };
 
+  /** "Skip all" in the mistakes round (its intro screen and every redo question): drop the redo questions that are left and
+      go straight to the recap / finish. The skipped questions stay in Practice's mistakes list. */
+  pl.addSkipAll = function addSkipAll() {
+    const acts = qs(".pl-actions", pl.S.foot);
+    if (!acts || qs(".pl-skipall", acts)) return;
+    const b = el(`<button class="btn big ghost pl-skipall">Skip all</button>`);
+    b.onclick = () => {
+      sound("tap");
+      pl.S.screens.splice(pl.S.i + 1); // only the redo questions sit after the mistakes round
+      pl.finish();
+    };
+    acts.insertBefore(b, qs(".pl-skip", acts) || pl.S.go);
+  };
+
   function queueMistake(sc) {
     // mistakes wait at the end of the main run, behind a "Let's fix your mistakes" interstitial
     if (!pl.S.screens.some((x) => x.kind === "mistakes")) pl.S.screens.push({ kind: "mistakes" });

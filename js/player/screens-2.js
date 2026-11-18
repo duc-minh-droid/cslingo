@@ -64,7 +64,10 @@
       node.innerHTML = `<div class="pl-in pl-quiz">${sc.retry ? `<div class="pl-tag orange pl-prev">${IC.retry}Previous mistake</div>` : sc.revTag ? (sc.revId && pl.studyTarget(sc.mod) ? `<button class="pl-tag blue pl-tag-study" data-study title="Study this lesson, then come back">${IC.book}<span>${sc.revTag}</span></button>` : `<div class="pl-tag blue">${sc.revTag}</div>`) : sc.practice ? `<div class="pl-tag violet">Practice</div>` : sc.pred ? `<div class="pl-tag violet">Now predict</div>` : sc.check ? `<div class="pl-tag green">Quick check</div>` : pl.S.kind === "boss" ? `<div class="pl-tag orange">Question ${sc.bossIdx + 1} of ${pl.S.boss.qs.length}</div>` : ""}<div class="pl-qwrap"></div></div>`;
       contextCard(node, sc);
       pl.askQ(qs(".pl-qwrap", node), sc, {});
-      if (sc.retry) pl.addSkip();
+      if (sc.retry) {
+        pl.addSkip();
+        pl.addSkipAll();
+      }
       const study = qs("[data-study]", node);
       if (study) study.onclick = () => pl.studyThenReturn(sc);
     },
@@ -152,7 +155,8 @@
       const n = pl.S.screens.filter((x) => x.retry).length;
       node.innerHTML = `<div class="pl-in pl-center">${N.mascot({ who: "berry", size: 150, mood: "determined", acc: ["detective", "monocle"] })}<h1>Let's fix your mistakes</h1><p class="lede"><b>${n} to redo.</b> A second go makes it stick.</p></div>`;
       sound("pop");
-      foot("continue", { onGo: pl.next });
+      foot("continue", { label: "Let's go", onGo: pl.next });
+      pl.addSkipAll();
     },
     bossIntro(node) {
       const B = pl.S.boss,
