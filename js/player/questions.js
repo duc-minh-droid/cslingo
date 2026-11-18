@@ -286,7 +286,7 @@
     b.onclick = () => {
       sound("tap");
       pl.S.screens.splice(pl.S.i + 1); // only the redo questions sit after the mistakes round
-      pl.finish();
+      pl.next(); // nothing left: on to the recap / finish
     };
     acts.insertBefore(b, qs(".pl-skip", acts) || pl.S.go);
   };
