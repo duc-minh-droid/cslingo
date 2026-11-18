@@ -1,5 +1,5 @@
 /* Data Science (COM3021), Lecture 7: the Paxos consensus protocol.
-   This part: shared helpers (figures, the Paxos simulation) and ds7-roles (7.1, roles, proposal numbers and quorums). */
+   This part: shared helpers (figures, the Paxos simulation), ds7-roles (7.1, the three roles) and ds7-quorum (7.2, quorums). */
 (function () {
   const S = (NIC.shared.dsL7 = NIC.shared.dsL7 || {});
   const N = NIC;
@@ -296,60 +296,34 @@ button.ds7-node h4{justify-content:center}
     draw();
   }
 
-  /* ============ 7.1 Paxos: roles, proposal numbers and quorums ============ */
+  /* ============ 7.1 Agreeing without a boss: Paxos and its three roles ============ */
   reg({
     id: "ds7-roles",
     order: 1,
     num: "7.1",
-    title: "Paxos: roles, proposals and quorums",
-    blurb: "Agreement without waiting for everyone: who plays which part, and why a majority is enough.",
+    title: "Agreeing without a boss",
+    blurb: "Five friends, one takeaway order and nobody in charge: meet Paxos and its three roles.",
     render(root) {
       root.appendChild(header(this, ""));
-      const card = el(
-        `<div class="card"><div class="card-head"><h2>Who can still decide?</h2><span class="tag">tap acceptors to crash them</span></div><div></div></div>`,
-      );
-      root.appendChild(card);
-      quorumPanel(card.lastElementChild);
-      root.appendChild(
-        pr(
-          "ds7-roles-1",
-          "Choose <b>4 acceptors</b>, then tap two acceptors to crash them. Can a proposer still reach a quorum?",
-          [
-            "No: a quorum of 4 is 3, but only 2 are up",
-            "Yes: 2 of 4 is exactly half, which is enough",
-            "Yes: whichever two are up always form a quorum",
-          ],
-          "A quorum is <b>more than half</b>. Half of 4 is 2, so a majority is 3. With two crashed only 2 are up, which is not enough.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds7-roles-2",
-          "With <b>5 acceptors</b>, press <b>Pick two majorities</b> several times. At least how many acceptors do the two majorities share?",
-          ["At least one, every time", "None: two majorities can be completely separate", "Exactly two, every time"],
-          "Two groups of 3 taken from 5 acceptors need 6 places but there are only 5, so at least one acceptor is in both. Sometimes they share two or three.",
-        ),
-      );
       root.appendChild(
         takeaways(
           [
-            "<b>Paxos</b> is a consensus algorithm for distributed systems, proposed by Lamport in 1989. It has three roles: <b>proposers</b> suggest, <b>acceptors</b> decide, <b>learners</b> are told.",
-            "Every proposal has a <b>unique proposal number</b>. Numbers only go up, so newer proposals supersede older ones.",
-            "A <b>quorum</b> is <b>more than half</b> of the acceptors, needed to propose and to accept. When a majority agree on a value it is <b>chosen</b>.",
-            "Beyond the slides: any two majorities share an acceptor, which is why a majority is enough.",
+            "<b>Paxos</b> (Lamport, 1989) is a consensus algorithm that needs a <b>majority</b>, not everyone.",
+            "<b>Proposers</b> suggest, <b>acceptors</b> decide, <b>learners</b> are told the result.",
+            "Every proposal has a <b>unique proposal number</b> that only goes up, so newer proposals supersede older ones.",
           ],
-          "No boss, no waiting for everyone: just more than half of the acceptors.",
+          "Suggest, decide, tell: three jobs, and no single boss.",
         ),
       );
     },
   });
 
   L["ds7-roles"] = {
-    sum: "<b>Paxos</b> is a consensus algorithm with proposers, acceptors and learners. Proposals carry unique increasing numbers and a <b>quorum</b> is more than half of the acceptors.",
+    sum: "<b>Paxos</b> is a consensus algorithm with proposers, acceptors and learners. Every proposal carries a unique, increasing number.",
     steps: [
       st(
-        "Agreeing without waiting for everyone",
-        "Lecture 6 introduced <b>consensus</b> and two-phase commit, where a coordinator needs a <b>yes from every node</b>. <b>Paxos</b> is a <b>consensus algorithm for distributed systems</b>, proposed in <b>1989 by Leslie Lamport</b>. It needs only a <b>majority</b> to agree.",
+        "Five friends, one order",
+        "Picture five friends choosing tonight's takeaway in a group chat. If you wait for <b>everyone</b> to reply, one dead phone stalls the whole order. That was the weak spot of two-phase commit in Lecture 6. <b>Paxos</b> is a <b>consensus algorithm for distributed systems</b>, proposed by <b>Leslie Lamport in 1989</b>. It only needs a <b>majority</b> to agree, so a few crashed nodes can't hold everyone up.",
         F.compare(
           {
             title: "Two-phase commit (Lecture 6)",
@@ -361,17 +335,16 @@ button.ds7-node h4{justify-content:center}
         mc(
           "What is Paxos?",
           [
-            "A consensus algorithm for distributed systems, proposed in 1989",
-            "A replication scheme where one leader copies writes to followers",
-            "A way to split one table across several nodes by key range",
-            "A test for whether a history of reads and writes is linearizable",
+            "A consensus algorithm for distributed systems",
+            "A way of copying writes from one leader to its followers",
+            "A way to split one big table across several nodes",
           ],
-          "Paxos is a consensus algorithm: it lets several nodes agree on a value even if some of them fail.",
+          "Paxos is a consensus algorithm: it lets several nodes agree on a value even when some of them fail.",
         ),
       ),
       st(
-        "Three roles",
-        "A node can play three roles. A <b>proposer</b> suggests a value to be chosen (an update to make). <b>Acceptors</b> decide which value is chosen. <b>Learners</b> are told which value was chosen: they take no part in the decision.",
+        "Three jobs in the chat",
+        "In the chat, someone says “Noodles?”, a few friends vote, and the rest just want to know what's coming. Paxos gives nodes the same three <b>roles</b>. A <b>proposer</b> suggests a value (an update to make). <b>Acceptors</b> decide which value is chosen. <b>Learners</b> are told the result and take no part in the vote.",
         rolesFig,
         {
           type: "match",
@@ -385,59 +358,93 @@ button.ds7-node h4{justify-content:center}
         },
       ),
       st(
-        "Proposal numbers",
-        "Each value is proposed with a <b>unique proposal number</b>. The number must be greater than any this proposer used before, so proposals are <b>ordered</b> and an old one can be <b>superseded</b> by a newer one. (One simple way to keep numbers unique is to share them out, as in the figure.)",
+        "Every suggestion gets a ticket",
+        "Picture the ticket machine at a deli counter: numbers only go up, so everyone can tell who came later. In Paxos every proposal carries a <b>unique proposal number</b>, bigger than any its proposer used before. That puts proposals in <b>order</b>, so a newer one can <b>supersede</b> an older one. Proposers can share the numbers out, as in the figure, so no two ever clash.",
         numbersFig,
-        mc(
-          "A proposer has already used numbers 4 and 9. Which number may it use next?",
-          ["12", "9", "6"],
-          "The next number must be greater than every number it has used. Only 12 is above 9.",
-        ),
       ),
+    ],
+  };
+
+  /* ============ 7.2 More than half is enough: quorums and chosen values ============ */
+  reg({
+    id: "ds7-quorum",
+    order: 2,
+    num: "7.2",
+    title: "More than half is enough",
+    blurb: "Why Paxos never waits for everyone: quorums, chosen values and the overlap trick.",
+    render(root) {
+      root.appendChild(header(this, ""));
+      const card = el(
+        `<div class="card"><div class="card-head"><h2>Who can still decide?</h2><span class="tag">tap acceptors to crash them</span></div><div></div></div>`,
+      );
+      root.appendChild(card);
+      quorumPanel(card.lastElementChild);
+      root.appendChild(
+        pr(
+          "ds7-roles-2",
+          "You pressed <b>Pick two majorities</b> several times. What did you notice about the two groups each time?",
+          [
+            "They always had at least one acceptor in common",
+            "They were sometimes two completely separate groups",
+            "They were always exactly the same group of acceptors",
+          ],
+          "Two groups that are each more than half of the same acceptors can't fit side by side, so at least one acceptor is in both. Sometimes they share more.",
+        ),
+      );
+      root.appendChild(
+        takeaways(
+          [
+            "A <b>quorum</b> is <b>more than half</b> of the acceptors, needed to propose and to accept.",
+            "When a majority of acceptors agree on the same value, it is <b>chosen</b>.",
+            "Beyond the slides: any two majorities share an acceptor, which is why a majority is enough.",
+          ],
+          "No waiting for everyone: just more than half of the acceptors.",
+        ),
+      );
+    },
+  });
+
+  L["ds7-quorum"] = {
+    sum: "A <b>quorum</b> is more than half of the acceptors. A value is <b>chosen</b> when a majority of acceptors agree on it.",
+    steps: [
       st(
-        "A quorum is a majority",
-        "A <b>quorum</b> is a <b>majority of the acceptors</b>: <b>more than half</b>. It is needed to <b>propose</b> a value and to <b>accept</b> one. With 5 acceptors a quorum is 3, so 2 acceptors may crash.",
+        "A quorum: more than half",
+        "Picture a club that can only make decisions when more than half its members are in the room. Paxos works the same way. A <b>quorum</b> is a <b>majority of the acceptors</b>: more than half of them. A proposer needs a quorum to <b>propose</b> a value and again to get it <b>accepted</b>. With 5 acceptors a quorum is 3, so 2 can crash and the rest carry on.",
         quorumFig,
         mc(
-          "A cluster has 6 acceptors. How many make a quorum?",
-          ["4", "3", "6"],
-          "More than half of 6 means more than 3, so 4. Exactly half (3) is not a majority.",
-          "Half of 6 is 3, so you need one more.",
+          "Exactly half of the acceptors have replied to a proposer. Is that a quorum?",
+          [
+            "No: a quorum needs more than half",
+            "Yes: half the acceptors is a fair share of the vote",
+            "Yes, as long as the proposer itself is one of them",
+          ],
+          "A quorum is a majority, which means more than half. Exactly half could be matched by the other half, so it is not enough.",
         ),
       ),
       st(
-        "Consensus: a majority agree",
-        "The system reaches <b>consensus</b> when a <b>majority of acceptors agree on the same value</b>. Once they do, that value is considered <b>chosen</b>.",
+        "When is a value chosen?",
+        "Back in the chat: once most friends have said “Noodles”, the order is settled, even if one phone is off. In Paxos, <b>consensus</b> is reached when a <b>majority of acceptors agree on the same value</b>. From then on that value is <b>chosen</b>. A split vote, two for one dish and two for another, chooses nothing yet.",
         valuesFig,
         mc(
           "Five acceptors hold Tea, Tea, Coffee, Coffee and nothing. Has a value been chosen?",
           [
-            "No: neither value is held by 3 of the 5",
+            "No: neither value is held by a majority",
             "Yes: Tea, because it is listed first",
             "Yes: any two matching acceptors are enough",
           ],
-          "Chosen needs a majority of the 5, which is 3 acceptors holding the same value. Two and two is not enough.",
+          "Chosen needs a majority of the five acceptors holding the same value. Two and two is a split, not a majority.",
         ),
       ),
       st(
-        "Beyond the slides: why a majority is enough",
-        "<b>Not on the slides</b>, but it explains the rule: <b>any two majorities share at least one acceptor</b>. If 3 of 5 agreed on a value, any later group of 3 includes someone who knows about it.",
+        "The overlap trick",
+        "<b>Not on the slides</b>, but it shows why a majority is enough. Picture two committees, each made of more than half of the same club. They can't both fit without sharing at least one person. In the same way <b>any two majorities share an acceptor</b>, so a later majority always includes someone who remembers what an earlier one agreed.",
         overlapFig,
-        mc(
-          "Two groups of 3 are picked from 5 acceptors. Which must be true?",
-          [
-            "At least one acceptor is in both groups",
-            "Exactly one acceptor is in both of the groups",
-            "The groups can be entirely separate from each other",
-          ],
-          "Together the groups need 6 places and there are only 5 acceptors, so someone is in both. They may share one, two or three.",
-        ),
       ),
     ],
     guide: [
-      "Pick <b>5 acceptors</b>, then tap an acceptor to crash it, and tap again to restart it. Watch <b>Acceptors up</b> against <b>Quorum needed</b>.",
+      "Tap an acceptor to crash it, and tap again to restart it. Watch <b>Acceptors up</b> against <b>Quorum needed</b>.",
       "Press <b>Pick two majorities</b> a few times and see which acceptor they share.",
-      "Try <b>4 acceptors</b> and <b>3 acceptors</b>, then answer the questions after the demo.",
+      "Try <b>4 acceptors</b> and <b>7 acceptors</b>, then answer the question after the demo.",
     ],
   };
 })();
