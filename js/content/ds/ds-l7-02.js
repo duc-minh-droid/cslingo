@@ -1,4 +1,4 @@
-/* Data Science (COM3021), Lecture 7, part 2: the Paxos sandbox panel, the step-through round and ds7-rounds (7.2, the two phases). */
+/* Data Science (COM3021), Lecture 7, part 2: the Paxos sandbox panel, the step-through round, ds7-rounds (7.3, phase 1) and ds7-accept (7.4, phase 2). */
 (function () {
   const S = NIC.shared.dsL7;
   const { reg, mc, pr, st, seg, log, svg, tx, grid, makeSim } = S;
@@ -254,14 +254,68 @@
     });
   }
 
-  /* ============ 7.2 The two phases: prepare and accept ============ */
+  Object.assign(S, { logFig, forcedFig });
+
+  /* ============ 7.3 Phase 1: asking for promises ============ */
   reg({
     id: "ds7-rounds",
-    order: 2,
-    num: "7.2",
-    title: "Prepare, promise, accept",
-    blurb:
-      "One Paxos round, message by message: PREPARE, PROMISE, ACCEPT, ACCEPTED, and what happens when proposers collide.",
+    order: 3,
+    num: "7.3",
+    title: "Phase 1: asking for promises",
+    blurb: "Before it names a value, a proposer asks the acceptors to promise to listen.",
+    render(root) {
+      root.appendChild(header(this, ""));
+      root.appendChild(
+        takeaways(
+          [
+            "<b>Phase 1:</b> the proposer sends <b>PREPARE(n)</b> with a new, higher number.",
+            "Acceptors answer <b>PROMISE(n)</b>: they will ignore proposals numbered n or lower.",
+            "When two proposers collide, the higher number wins and the other retries with a bigger one.",
+          ],
+          "Ask for promises first: a majority must agree to listen.",
+        ),
+      );
+    },
+  });
+
+  L["ds7-rounds"] = {
+    sum: "Phase 1 of a Paxos round: the proposer sends <b>PREPARE(n)</b> and acceptors reply <b>PROMISE(n)</b>, promising to ignore older proposals.",
+    steps: [
+      st(
+        "Raising your hand: PREPARE",
+        "Picture raising your hand with your ticket before you speak: “Number 4 here, may I suggest something?” That is <b>PREPARE(n)</b>. A proposer starts a round by sending it to the acceptors, with a number n that is <b>unique</b> and <b>bigger than any PREPARE it sent before</b>. No value travels yet: phase 1 is only about numbers.",
+        seqFig(1),
+        mc(
+          "What does a proposer send first in a round?",
+          ["PREPARE with a new number", "ACCEPT carrying the value it wants", "PROMISE sent to every acceptor"],
+          "A round opens with PREPARE(n). The value only travels later, in phase 2.",
+        ),
+      ),
+      st(
+        "The promise: PROMISE",
+        "Each acceptor that agrees replies <b>PROMISE(n)</b>: “From now on I'll ignore any proposal numbered n or lower.” It's like a shop saying it now only serves ticket 4 and up. Because numbers only go up, this is how a <b>newer proposal supersedes older ones</b>. Once a <b>majority</b> has promised, phase 1 is done.",
+        seqFig(2),
+        mc(
+          "An acceptor has already promised a number. A PREPARE with a smaller number turns up. What does the acceptor do?",
+          ["Ignores it", "Promises the smaller number as well", "Cancels its first promise and starts over"],
+          "A promise means ignoring proposals numbered at or below it. Only a higher number can win a new PROMISE.",
+        ),
+      ),
+      st(
+        "Two proposers at once",
+        "Two friends can both say “I'll sort the order!” at the same moment. In Paxos, acceptors that have promised a <b>higher number ignore the older proposal</b>. So once PREPARE 2 has won promises, the first proposer's late <b>ACCEPT(1, v)</b> is simply ignored. No harm done: the loser <b>tries again with a higher number</b>.",
+        duelFig,
+      ),
+    ],
+  };
+
+  /* ============ 7.4 Phase 2: getting the value accepted ============ */
+  reg({
+    id: "ds7-accept",
+    order: 4,
+    num: "7.4",
+    title: "Phase 2: making it official",
+    blurb: "With promises in hand, the proposer names its value and a majority makes it official.",
     render(root) {
       root.appendChild(header(this, ""));
       const card = el(
@@ -277,86 +331,45 @@
       });
       root.appendChild(
         pr(
-          "ds7-rounds-1",
-          "All three acceptors are up and <b>P1 (Noodles)</b> is selected. You press <b>Send PREPARE</b> and then <b>Send ACCEPT</b>. How many acceptors end up holding Noodles?",
-          [
-            "All 3: every acceptor promises and accepts",
-            "2 of 3: only a quorum is told by the proposer",
-            "1 of 3: only the first acceptor to reply to it",
-          ],
-          "The proposer sends its messages to every acceptor. All three are up, so all promise and all accept. Two would already be enough to choose the value.",
-        ),
-      );
-      root.appendChild(
-        pr(
           "ds7-rounds-2",
-          "<b>Crash</b> acceptor C, then with <b>P1 (Noodles)</b> press <b>Send PREPARE</b> and <b>Send ACCEPT</b>. What does the demo report?",
+          "You crashed acceptor C and still ran PREPARE and ACCEPT for <b>P1 (Noodles)</b>. What did the demo report?",
           [
-            "Noodles is chosen: A and B are a quorum of 2",
-            "Nothing is chosen: all three acceptors must reply",
-            "P1 cannot send ACCEPT because C's promise is missing",
+            "Noodles was chosen: A and B are a majority",
+            "Nothing was chosen: every acceptor must reply",
+            "P1 could not send ACCEPT without C's promise",
           ],
-          "A quorum is more than half of 3, which is 2. A and B promise and accept, so a majority holds Noodles even though C is crashed.",
+          "A quorum is more than half of the three acceptors. A and B promise and accept, so a majority holds Noodles even though C is crashed.",
         ),
       );
       root.appendChild(
         takeaways(
           [
-            "<b>Phase 1:</b> the proposer sends <b>PREPARE(n)</b>; acceptors answer <b>PROMISE(n)</b> and ignore proposals numbered n or lower.",
-            "<b>Phase 2:</b> once a quorum has promised, the proposer sends <b>ACCEPT(n, v)</b>; acceptors answer <b>ACCEPTED(n, v)</b>. Learners learn the value only after a majority has accepted it.",
-            "A replicated log runs <b>one round per position</b>, each with a higher PREPARE number.",
-            "Beyond the slides: a PROMISE reports any value already accepted, and the proposer must re-propose it.",
+            "<b>Phase 2:</b> after a quorum of promises, the proposer sends <b>ACCEPT(n, v)</b>.",
+            "Acceptors reply <b>ACCEPTED(n, v)</b>.",
+            "Learners learn the value only after <b>ACCEPTED from a majority</b>.",
           ],
-          "Ask for promises, then ask for acceptances: a majority at each step.",
+          "Promises first, then the value: a majority at each step.",
         ),
       );
     },
   });
 
-  L["ds7-rounds"] = {
-    sum: "A Paxos round has two phases: <b>PREPARE and PROMISE</b>, then <b>ACCEPT and ACCEPTED</b>. Learners learn the value only after a majority accepted it.",
+  L["ds7-accept"] = {
+    sum: "Phase 2 of a Paxos round: after a quorum of promises the proposer sends <b>ACCEPT(n, v)</b>, acceptors reply <b>ACCEPTED</b>, and learners learn the value from a majority.",
     steps: [
       st(
-        "Phase 1: PREPARE",
-        "A proposer starts a round by creating a <b>PREPARE</b> message with a number n. The number must be <b>unique</b> and <b>greater than any previous PREPARE</b> this proposer created. It sends it to the acceptors.",
-        seqFig(1),
-        mc(
-          "What does a proposer send first in a round?",
-          ["PREPARE with a new number", "ACCEPT carrying the value it wants", "PROMISE sent to every acceptor"],
-          "A round opens with PREPARE(n). The value only travels later, in phase 2.",
-        ),
-      ),
-      st(
-        "Phase 1: PROMISE",
-        "Each acceptor answers with a <b>PROMISE</b>: it will <b>ignore any proposals with an ID less than or equal to n</b>. That is how a newer proposal supersedes older ones.",
-        seqFig(2),
-        mc(
-          "An acceptor has promised number 5. A PREPARE numbered 3 arrives from another proposer. What does it do?",
-          [
-            "Ignores it: 3 is not above its promise of 5",
-            "Promises 3 as well, since it is a new proposer",
-            "Replies and cancels its promise to 5",
-          ],
-          "A promise to 5 means ignoring proposals numbered 5 or lower. Only a higher number can get a new PROMISE.",
-        ),
-      ),
-      st(
-        "Phase 2: ACCEPT",
-        "If the proposer receives a <b>PROMISE from a majority</b> (a quorum), it sends the acceptors an <b>ACCEPT(n, v)</b> message with its number and a value v. (An acceptor still accepts the ACCEPT numbered n that follows its own PROMISE(n).)",
+        "Now name the value: ACCEPT",
+        "Once most of the room has promised to listen, you can finally speak. If the proposer receives <b>PROMISE from a majority</b> (a quorum), it sends <b>ACCEPT(n, v)</b>: its number n and the value v it wants. Without a quorum it may not go on. An acceptor accepts unless it has since promised a higher number.",
         seqFig(3),
         mc(
-          "Five acceptors, and a proposer holds PROMISE from only two of them. What must it do?",
-          [
-            "Wait for a third promise",
-            "Send ACCEPT now, as two is nearly half",
-            "Send ACCEPT to the two that promised only",
-          ],
-          "A quorum of 5 is 3. With two promises the proposer is one short, so it cannot go on to phase 2.",
+          "A proposer holds promises from fewer than half of the acceptors. What must it do?",
+          ["Wait for more promises", "Send ACCEPT anyway to save time", "Send ACCEPT only to those that promised"],
+          "ACCEPT may only go out after a quorum, more than half, has promised. Until then the proposer is stuck in phase 1.",
         ),
       ),
       st(
         "ACCEPTED and the learners",
-        "An acceptor that accepts replies <b>ACCEPTED(n, v)</b>. The <b>learners</b> learn the decided value only after receiving <b>ACCEPTED from a majority</b> of the acceptors.",
+        "Think of a waiter who only sends the order to the kitchen once most of the table has confirmed it. Each acceptor that accepts replies <b>ACCEPTED(n, v)</b>. The <b>learners</b> learn the decided value only after receiving <b>ACCEPTED from a majority</b> of the acceptors. A few acceptors that never heard a thing don't change that.",
         seqFig(4),
         {
           type: "order",
@@ -370,47 +383,11 @@
         "Press play or step with the arrows. One acceptor has crashed, and the round still succeeds.",
         (box, life) => roundRun(box, life),
       ),
-      st(
-        "A log, one round per entry",
-        "In the lecture's example three replicas keep a <b>log</b>, starting from a balance of £100. A first proposer runs a round for <b>+£50</b> (PREPARE 1). Learners learn it after ACCEPTED from a majority, and every replica appends it. A second round, <b>PREPARE 2</b>, settles <b>−£20</b> at the next position. The balance is 100 + 50 − 20 = 130.",
-        logFig,
-        mc(
-          "Replicas hold a log whose last entry is 'add milk'. A client wants 'add eggs'. What does Paxos run?",
-          [
-            "A new round for the next position with a higher number",
-            "Another round for the same position with the same number",
-            "No round: replicas append the entry and sync it later",
-          ],
-          "Each log position is settled by its own round. A new proposal uses a number above the earlier ones.",
-        ),
-      ),
-      st(
-        "Beyond the slides: PROMISE reports a value",
-        "<b>Not on the slides</b>, but it keeps the protocol safe: a PROMISE also reports any value that acceptor <b>has already accepted</b>, with its number. If a promise reports one, the proposer must <b>re-propose the value with the highest number</b> instead of its own, so a value that may already be chosen is never overwritten.",
-        forcedFig,
-        mc(
-          "PROMISEs for PREPARE(4) report 'Tacos' accepted at number 2 and 'Noodles' accepted at number 3. The proposer wanted Burritos. What does it send?",
-          ["ACCEPT(4, Noodles)", "ACCEPT(4, Burritos)", "ACCEPT(4, Tacos)"],
-          "It must re-propose the reported value with the highest number. Noodles (3) beats Tacos (2), and its own Burritos is dropped.",
-        ),
-      ),
-      st(
-        "Two proposers collide",
-        "Two proposers can start together. Acceptors that have promised a higher number <b>ignore</b> the older proposal: once PREPARE 2 has promises, the first proposer's <b>ACCEPT(1, v)</b> is ignored. It can retry with a higher number.",
-        duelFig,
-        {
-          type: "multi",
-          q: "An acceptor has promised number 5. Which messages does it ignore?",
-          o: ["PREPARE(3)", "PREPARE(5)", "ACCEPT(3, v)", "PREPARE(6)", "ACCEPT(5, v)"],
-          a: [0, 1, 2],
-          why: "It ignores PREPARE messages numbered 5 or lower and ACCEPTs below 5. PREPARE(6) earns a new promise and ACCEPT(5, v) follows its own PROMISE(5).",
-        },
-      ),
     ],
     guide: [
       "Press <b>Send PREPARE</b>, then <b>Send ACCEPT</b>, and watch the acceptors fill in.",
-      "Tap <b>Crash</b> on an acceptor and run another round. Then <b>Next log position</b> starts a fresh one.",
-      "Switch between <b>P1 (Noodles)</b> and <b>P2 (Tacos)</b> to make proposers collide, then answer the questions after the demo.",
+      "Press <b>Reset</b>, tap <b>Crash</b> on acceptor C and run the round again.",
+      "Switch to <b>P2 (Tacos)</b> and run a round too, then answer the question after the demo.",
     ],
   };
 })();

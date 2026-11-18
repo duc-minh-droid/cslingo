@@ -1,8 +1,7 @@
-/* l15-01: Lecture 15 (multi-objective particle swarm optimisation): shared kernel (archive update, pruning, hypervolume, ranks) and 15.1 personal bests and the archive. Plot helpers come from Lecture 13 (NIC.shared.nicL13). */
+/* l15-01: Lecture 15 (multi-objective particle swarm optimisation): shared kernel (archive update, pruning, hypervolume, ranks) and the figures of 15.1 and 15.2 (personal bests and the archive). The lessons are in l15-04.js. Plot helpers come from Lecture 13 (NIC.shared.nicL13). */
 (function () {
   const N = NIC;
-  const { qs, takeaways, header } = N;
-  const L = N.LESSONS;
+  const { qs } = N;
   const sh = (NIC.shared.nicL15 = NIC.shared.nicL15 || {});
   const L13 = NIC.shared.nicL13;
   const { C, pr, mulberry, frame, dot, joinLine, box, crowd, fmtD } = L13;

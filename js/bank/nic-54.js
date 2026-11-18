@@ -1,4 +1,4 @@
-/* Revision bank, Nature-Inspired Lecture 15: 15.1 personal bests and the archive, 15.2 keeping the archive small and spread. */
+/* Revision bank, Nature-Inspired Lecture 15: 15.1 personal bests, 15.2 the archive, 15.3 capping and clustering, 15.4 pruning by crowding distance. */
 (function () {
   const B = NIC.bank;
   const Qf = NIC.qfig;
@@ -32,42 +32,11 @@
       ],
       why: "The leader replaces PSO's global best in the velocity update. After moving, the particle updates its own best and its new solution meets the archive.",
     },
-    M(
-      "The archive is (1, 6), (3, 3) and (6, 1), both minimised. A new solution (2, 2) arrives. How many members does the archive hold afterwards?",
-      ["2", "3", "4"],
-      1,
-      "(2, 2) dominates (3, 3), which is removed, and nobody dominates (2, 2), so it joins: (1, 6), (6, 1) and (2, 2).",
-    ),
-    {
-      type: "pick",
-      q: "The archive is A (1, 6), B (3, 3) and C (6, 1), both minimised. Click every newcomer, X, Y or Z, that would be turned away.",
-      fig: Qf.points({ A: [1, 6], B: [3, 3], C: [6, 1], X: [2, 4], Y: [4, 4], Z: [7, 2] }),
-      a: ["Y", "Z"],
-      why: "Y (4, 4) is dominated by B (3, 3) and Z (7, 2) by C (6, 1). X (2, 4) trades off with both A and B, so it would join.",
-    },
     TF(
       "Under 'keep the newest', pbest moves to a new position that is mutually non-dominating with the old pbest.",
       true,
       "Keep the newest replaces pbest unless the old pbest dominates the new position. A trade-off is not dominated, so it replaces.",
     ),
-    TF(
-      "Every archive member must dominate at least one particle in the current swarm.",
-      false,
-      "Archive members only have to be mutually non-dominated. A member far from the swarm may dominate none of the particles.",
-    ),
-    {
-      type: "multi",
-      q: "Which statements about a MOPSO archive are true?",
-      o: [
-        "Its members are mutually non-dominated",
-        "It is the run's Pareto front approximation",
-        "Without a cap it can keep growing",
-        "It always holds the swarm's current positions",
-        "Members are ordered by the sum of their objectives",
-      ],
-      a: [0, 1, 2],
-      why: "The archive keeps the non-dominated solutions found so far, which approximates the front, and nothing limits it unless it is capped. Current positions are often dominated, and objectives are never summed.",
-    },
     {
       type: "bug",
       q: "This pseudocode should apply the 'keep the oldest' pbest rule. Click the faulty line.",
@@ -92,6 +61,54 @@
       0,
       "With several objectives the best is a set of trade-offs. MOPSO keeps that set in an archive and picks leaders from it.",
     ),
+    {
+      type: "cat",
+      q: "Which pbest rule does each line describe?",
+      buckets: ["Keep the oldest", "Keep the newest"],
+      items: [
+        ["Replaces pbest only when the new position dominates it", 0],
+        ["Stays put when the new position is a trade-off", 0],
+        ["Changes pbest the least often of the two", 0],
+        ["Replaces pbest unless the old pbest dominates the new position", 1],
+        ["Moves pbest to a trade-off position", 1],
+        ["Follows the particle's latest unbeaten move", 1],
+      ],
+      why: "Keep the oldest needs a strict improvement (domination) to move. Keep the newest moves to any position the old pbest does not dominate, trade-offs included, so it changes more often.",
+    },
+  ]);
+
+  B.add("l15-store", [
+    M(
+      "The archive is (1, 6), (3, 3) and (6, 1), both minimised. A new solution (2, 2) arrives. How many members does the archive hold afterwards?",
+      ["2", "3", "4"],
+      1,
+      "(2, 2) dominates (3, 3), which is removed, and nobody dominates (2, 2), so it joins: (1, 6), (6, 1) and (2, 2).",
+    ),
+    {
+      type: "pick",
+      q: "The archive is A (1, 6), B (3, 3) and C (6, 1), both minimised. Click every newcomer, X, Y or Z, that would be turned away.",
+      fig: Qf.points({ A: [1, 6], B: [3, 3], C: [6, 1], X: [2, 4], Y: [4, 4], Z: [7, 2] }),
+      a: ["Y", "Z"],
+      why: "Y (4, 4) is dominated by B (3, 3) and Z (7, 2) by C (6, 1). X (2, 4) trades off with both A and B, so it would join.",
+    },
+    TF(
+      "Every archive member must dominate at least one particle in the current swarm.",
+      false,
+      "Archive members only have to be mutually non-dominated. A member far from the swarm may dominate none of the particles.",
+    ),
+    {
+      type: "multi",
+      q: "Which statements about a MOPSO archive are true?",
+      o: [
+        "Its members are mutually non-dominated",
+        "It is the run's Pareto front approximation",
+        "Without a cap it can keep growing",
+        "It always holds the swarm's current positions",
+        "Members are ordered by the sum of their objectives",
+      ],
+      a: [0, 1, 2],
+      why: "The archive keeps the non-dominated solutions found so far, which approximates the front, and nothing limits it unless it is capped. Current positions are often dominated, and objectives are never summed.",
+    },
     M(
       "A swarm of 25 particles feeds an archive of 40 members. About how many dominance comparisons can one iteration's archive updates need?",
       ["65", "1,000", "40"],
@@ -124,6 +141,49 @@
       ],
       why: "Clustering builds a representative subset: the closest clusters merge until the cap is reached, then one central member stands for each cluster.",
     },
+    TF(
+      "Pruning by clustering always keeps both extremes of the archive.",
+      false,
+      "Clustering keeps the member nearest each cluster's centre. An extreme that merges into a cluster can be represented by a more central member and lost.",
+    ),
+    M(
+      "A cluster holds (1, 9), (2, 8) and (6, 7). Which member does clustering keep?",
+      ["(2, 8)", "(1, 9)", "(6, 7)"],
+      0,
+      "The centre is the mean: ((1 + 2 + 6) ÷ 3, (9 + 8 + 7) ÷ 3) = (3, 8). (2, 8) is 1 away, (1, 9) about 2.2 and (6, 7) about 3.2, so (2, 8) is kept.",
+      { hint: "Centre: 9 ÷ 3 = 3 across and 24 ÷ 3 = 8 up." },
+    ),
+    {
+      type: "multi",
+      q: "An archive is over its cap. Which of these are diversity-preserving ways to decide who leaves?",
+      o: [
+        "Remove the member with the smallest crowding distance",
+        "Cluster the members and keep one per cluster",
+        "Remove the oldest member",
+        "Remove a member at random",
+      ],
+      a: [0, 1],
+      why: "Crowding distance and clustering both look at where members sit, so the survivors stay spread. Age or chance can empty a whole stretch of the front.",
+    },
+    M(
+      "What does a 'diversity-preserving mechanism' protect in a capped archive?",
+      [
+        "An even spread of members along the whole front",
+        "The members that were found earliest in the run",
+        "The members with the smallest sum of objectives",
+        "The members closest to the swarm's current centre",
+      ],
+      0,
+      "When members must go, the mechanism removes those in crowded regions so the archive still covers the front evenly.",
+    ),
+    TF(
+      "Capping the archive makes each archive update and each leader search cheaper.",
+      true,
+      "With fewer members there are fewer dominance comparisons for each newcomer and fewer candidates to search when choosing a leader.",
+    ),
+  ]);
+
+  B.add("l15-prune", [
     {
       type: "cat",
       q: "Clustering or crowding distance?",
@@ -161,30 +221,6 @@
       false,
       "The two ends of the front get a crowding distance of ∞, so they are always the last to go.",
     ),
-    TF(
-      "Pruning by clustering always keeps both extremes of the archive.",
-      false,
-      "Clustering keeps the member nearest each cluster's centre. An extreme that merges into a cluster can be represented by a more central member and lost.",
-    ),
-    M(
-      "A cluster holds (1, 9), (2, 8) and (6, 7). Which member does clustering keep?",
-      ["(2, 8)", "(1, 9)", "(6, 7)"],
-      0,
-      "The centre is the mean: ((1 + 2 + 6) ÷ 3, (9 + 8 + 7) ÷ 3) = (3, 8). (2, 8) is 1 away, (1, 9) about 2.2 and (6, 7) about 3.2, so (2, 8) is kept.",
-      { hint: "Centre: 9 ÷ 3 = 3 across and 24 ÷ 3 = 8 up." },
-    ),
-    {
-      type: "multi",
-      q: "An archive is over its cap. Which of these are diversity-preserving ways to decide who leaves?",
-      o: [
-        "Remove the member with the smallest crowding distance",
-        "Cluster the members and keep one per cluster",
-        "Remove the oldest member",
-        "Remove a member at random",
-      ],
-      a: [0, 1],
-      why: "Crowding distance and clustering both look at where members sit, so the survivors stay spread. Age or chance can empty a whole stretch of the front.",
-    },
     M(
       "Two neighbouring archive members both have the lowest crowding distance. Why remove only one before recomputing?",
       [
@@ -195,17 +231,6 @@
       ],
       0,
       "Each one is the other's neighbour. Once one goes, the survivor's gaps grow and its distance rises, so dropping both would leave a hole.",
-    ),
-    M(
-      "What does a 'diversity-preserving mechanism' protect in a capped archive?",
-      [
-        "An even spread of members along the whole front",
-        "The members that were found earliest in the run",
-        "The members with the smallest sum of objectives",
-        "The members closest to the swarm's current centre",
-      ],
-      0,
-      "When members must go, the mechanism removes those in crowded regions so the archive still covers the front evenly.",
     ),
     {
       type: "pick",

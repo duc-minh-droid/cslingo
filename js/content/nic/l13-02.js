@@ -1,11 +1,9 @@
-/* l13-02: Lectures 13-14: 13.2 ranking the population: non-dominated sorting, niching and crowding distance. */
+/* l13-02: Lectures 13-14: figures for 13.3 and 13.4 (non-dominated sorting, niching and crowding distance) and the sort-and-crowd demo. The lessons are in l13-04.js and l13-05.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS,
-    F = N.fig;
+  const { el, qs } = N;
   const sh = NIC.shared.nicL13;
-  const { C, pr, mulberry, pts, ranks, RC, frame, dot, joinLine } = sh;
+  const { mulberry, pts, ranks, RC, frame, dot, joinLine } = sh;
 
   /** NSGA-II crowding distance of each index in idx (one front): ends get Infinity, inner points add the normalised gap between their neighbours, per objective. */
   function crowd(P, idx) {

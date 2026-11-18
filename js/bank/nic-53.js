@@ -1,4 +1,4 @@
-/* Revision bank, Nature-Inspired Lectures 13-14: 13.3 NSGA-II and beyond. */
+/* Revision bank, Nature-Inspired Lectures 13-14: 13.5 NSGA-II and 13.6 weighted sums, hypervolume and many objectives. */
 (function () {
   const B = NIC.bank;
   const M = (q, o, a, why, x = {}) => ({ type: "mcq", q, o, a, why, ...x });
@@ -52,6 +52,20 @@
       a: [0, 1, 2],
       why: "NSGA-II merges parents and children, sorts them into fronts and uses crowding distance, which has no niche radius.",
     },
+    M(
+      "In a non-elitist multi-objective GA, what can happen to a rank 0 parent?",
+      [
+        "It can be lost when the children replace the parents",
+        "It is copied unchanged into every later generation",
+        "It is forced to mutate until it becomes rank 1",
+        "It becomes the comparison set for every tournament",
+      ],
+      0,
+      "Without elitism only children make the next generation, so even the best parent can disappear. Elitist MOGAs let parents compete for places.",
+    ),
+  ]);
+
+  B.add("l13-beyond", [
     M(
       "You want 7 points on a front using a single-objective GA on weighted sums. How many GA runs do you need, at least?",
       ["1", "2", "7", "49"],
@@ -107,17 +121,6 @@
       "Hypervolume rewards a front that is both close to the ideal and well spread.",
       true,
       "The dominated area grows if points move towards the ideal corner and if they cover more of the front, so both closeness and spread raise it.",
-    ),
-    M(
-      "In a non-elitist multi-objective GA, what can happen to a rank 0 parent?",
-      [
-        "It can be lost when the children replace the parents",
-        "It is copied unchanged into every later generation",
-        "It is forced to mutate until it becomes rank 1",
-        "It becomes the comparison set for every tournament",
-      ],
-      0,
-      "Without elitism only children make the next generation, so even the best parent can disappear. Elitist MOGAs let parents compete for places.",
     ),
     {
       type: "slider",

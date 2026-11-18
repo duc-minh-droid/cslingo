@@ -1,12 +1,11 @@
 /* Data Science (COM3021), Lecture 11: distributed machine learning.
-   This part: ds11-kmeans (11.3, the k-means algorithm and its MapReduce version: map, combine, reduce). */
+   This part: the figures of 11.5 and 11.6 (k-means and its MapReduce version: map, combine, reduce). The lessons
+   are in ds-l11-05.js. */
 (function () {
   const S = NIC.shared.ds11;
   const N = NIC;
-  const { el, takeaways, header } = N;
-  const F = N.fig,
-    L = N.LESSONS;
-  const { reg, mc, pr, st, mm, fm, seg, svg, tx, rng, gauss, figBox } = S;
+  const F = N.fig;
+  const { fm, seg, svg, tx, rng, gauss, figBox } = S;
 
   /* ---------- k-means on 2-D points ---------- */
   const COLS = ["blue", "rose", "amber"];
@@ -355,143 +354,5 @@
     draw();
   }
 
-  /* ============ 11.3 Parallel k-means with MapReduce ============ */
-  reg({
-    id: "ds11-kmeans",
-    order: 3,
-    num: "11.3",
-    title: "Parallel k-means with MapReduce",
-    blurb: "k-means clustering, then the same algorithm split into map, combine and reduce across many machines.",
-    render(root) {
-      root.appendChild(header(this, ""));
-      const card = el(
-        `<div class="card"><div class="card-head"><h2>Parallel k-means on three mappers</h2><span class="tag">k = 3</span></div><div></div></div>`,
-      );
-      root.appendChild(card);
-      S.kmLab(card.lastElementChild);
-      root.appendChild(
-        pr(
-          "ds11-kmeans-1",
-          "Pick <b>Combiner off</b>, then press <b>Map</b> and <b>Reduce</b>. How many records reach the reducer?",
-          ["45: one per point", "At most 9: one per mapper and cluster", "3: one per cluster"],
-          "Without a combiner every ⟨cluster, point⟩ pair the mappers emit goes over the network: 45 of them. A combiner would shrink that to one (sum, count) per mapper and cluster.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds11-kmeans-2",
-          "Press <b>Run to convergence</b> with the combiner on, note the result, then <b>Reset</b>, pick <b>Combiner off</b> and run again. How do the final centres compare?",
-          [
-            "They are exactly the same",
-            "Without the combiner they are more accurate",
-            "Without the combiner it never converges",
-          ],
-          "Sums and counts add up to exactly the same totals as the raw points, so the centres and the number of iterations are identical. The combiner only saves network traffic.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "<b>k-means</b> repeats two steps: <b>assign</b> every point to its nearest centre, then <b>update</b> each centre to the mean of its points.",
-            "It stops when the partition no longer changes, or after a <b>MAX</b> number of iterations.",
-            "<b>Map</b>: compute distances to the K centres, assign each point, emit ⟨cluster, point⟩.",
-            "<b>Combine</b>: per cluster, send the local <b>sum</b> of the values in each dimension and the <b>number of samples</b>, never a local mean.",
-            "<b>Reduce</b>: add the sums and counts, compute the new centres, <b>test convergence</b>, and loop back if needed.",
-          ],
-          "Mappers assign, combiners shrink, the reducer averages and decides whether to go round again.",
-        ),
-      );
-    },
-  });
-
-  L["ds11-kmeans"] = {
-    sum: "<b>k-means</b> alternates an assignment step and an update step until the clusters stop changing. In <b>MapReduce</b> the mappers assign points, a <b>combiner</b> sends local sums and counts per cluster, and the <b>reducer</b> computes new centres and tests convergence.",
-    steps: [
-      st(
-        "k-means: assign, then update",
-        `<p><b>k-means</b> splits data into k clusters. Start with k centres. The <b>assignment step</b> puts every point in the cluster with the nearest centre; the <b>update step</b> moves every centre to the mean of its points. Repeat.</p><p>Worked example on a line: points 1, 2, 4, 8, 9, 12 and centres 0 and 6. First assignment: {1, 2} and {4, 8, 9, 12}, so the centres move to 1.5 and 8.25. Now 4 is nearer 1.5, so it switches: {1, 2, 4} and {8, 9, 12}, centres 2.33 and 9.67. Step through it.</p>${mm("<p>Assignment, with distance $d$:</p>$$C_i^{(t)} = \\{\\, x_j : d(x_j, \\mu_i) \\le d(x_j, \\mu_h) \\text{ for all } h = 1, \\dots, K \\,\\}$$<p>Update:</p>$$\\mu_i^{(t+1)} = \\frac{1}{|C_i^{(t)}|} \\sum_{x_j \\in C_i^{(t)}} x_j$$<p>For $\\{1, 2, 4\\}$: $7 / 3 \\approx 2.33$.</p>")}`,
-        (b, life) => lineRun(b, life),
-        mc(
-          "Centres are at 3 and 10. Which cluster does the point 6 join in the assignment step?",
-          ["The centre at 3", "The centre at 10", "Neither: it waits for the update step"],
-          "6 is 3 away from the centre at 3 and 4 away from the centre at 10, so it joins the nearer one, 3.",
-        ),
-      ),
-      st(
-        "Watch it converge",
-        `<p>The slides follow k-means through many pictures of the same data. The boundaries between clusters swing about at first, then settle. The loop stops when <b>the partition no longer changes</b> (no point switches cluster) or after a <b>MAX</b> number of iterations.</p><p>Worked example: 45 points, k = 3, with two starting centres badly placed close together. Every point is assigned in iteration 1; 3, 7, 12 and then 2 points switch in the next ones; in iteration 6 none do, so k-means stops. Press play and watch the dashed trails of the centres.</p>${mm("<p>The stopping rule from the algorithm:</p>$$\\text{stop if } t \\ge \\text{MAX} \\ \\text{ or } \\ \\mathcal{P}^{t} = \\mathcal{P}^{t-1}$$<p>Each iteration can only lower the total squared distance from points to their centres, which is why the partition settles.</p>")}`,
-        (b, life) => cloudRun(b, life),
-        mc(
-          "When does k-means stop?",
-          [
-            "When no point changes cluster, or after MAX iterations",
-            "When every cluster holds the same number of points",
-            "After one assignment step and one update step",
-          ],
-          "The loop ends when the partition is unchanged since the last iteration, or when the iteration limit MAX is reached.",
-        ),
-      ),
-      st(
-        "Why spread it over machines",
-        `<p>Every iteration measures the distance from <b>every</b> point to <b>every</b> centre. But each point's assignment needs only that point and the centres, never the other points, so the points can be split across machines and handled at the same time. Each machine just needs a copy of the centres: a <b>broadcast</b>.</p><p>Worked example: 1,200,000 points and 5 centres make 6 million distances per iteration. On 4 machines that is 1.5 million each.</p>`,
-        (b) => costFig(b),
-        mc(
-          "2,000,000 points, k = 3, spread evenly over 4 machines. How many distances does each machine compute per iteration?",
-          ["1,500,000", "6,000,000", "500,000"],
-          "2,000,000 × 3 = 6,000,000 distances in all, shared by 4 machines: 1,500,000 each.",
-          "Points times centres, then divide by the machines.",
-        ),
-      ),
-      st(
-        "Map: find the nearest centre",
-        `<p>The MapReduce version has three phases. In <b>Map</b>, each mapper takes its share of the samples, computes the distance from each to the K centres, assigns it to the closest, and sends the intermediate data on: a pair ⟨index of the closest centre, the sample⟩.</p><p>Worked example: mapper 1 holds 1, 4, 8 and 12; the centres are c0 = 2 and c1 = 9. Sample 8 is 6 from c0 and 1 from c1, so it emits ⟨1, 8⟩. Step through all four.</p>`,
-        (b, life) => mapRun(b, life),
-        mc(
-          "In the map phase, what is the key of each emitted pair?",
-          [
-            "The index of the closest centre",
-            "The position of the sample in the file",
-            "The distance to the closest centre",
-          ],
-          "The key is the cluster index, so everything for one cluster can be grouped together. The value is the sample itself.",
-        ),
-      ),
-      st(
-        "Combine: sums and counts",
-        `<p>The <b>combiner</b> runs on each mapper's own output. For every cluster it adds up the values of its samples in each dimension and counts them, then sends just those local sums and the number of samples.</p><p>Worked example: mapper 1 has 8 and 12 in cluster 1 (sum 20, count 2); mapper 2 has 14 (sum 14, count 1). The reducer gets (20 + 14) ÷ 3 = <b>11.33</b>, the true mean. Sending local means instead gives (10 + 14) ÷ 2 = 12: wrong, because a mean forgets how many points it came from.</p>${mm("<p>Mapper $m$ sends $(S_{m,i}, n_{m,i})$ with $S_{m,i} = \\sum x_j$ over its points in cluster $i$. The reducer computes</p>$$\\mu_i = \\frac{\\sum_m S_{m,i}}{\\sum_m n_{m,i}} = \\frac{20 + 14}{2 + 1} = \\frac{34}{3}$$<p>whereas $\\frac{1}{2}\\big(\\frac{20}{2} + \\frac{14}{1}\\big) = 12$ gives one point the weight of two.</p>")}`,
-        (b) => combineFig(b),
-        mc(
-          "Mapper A sends a cluster's sum 30 from 3 points; mapper B sends sum 20 from 1 point. What is the cluster's new centre?",
-          ["12.5", "15", "50"],
-          "Add the sums and the counts: (30 + 20) ÷ (3 + 1) = 50 ÷ 4 = 12.5. Averaging the local means (10 and 20) would wrongly give 15.",
-          "Total sum over total count.",
-        ),
-      ),
-      st(
-        "Reduce, test, repeat",
-        `<p>The <b>reducer</b> aggregates the local results of all the mappers, computes the new centre of each cluster, and <b>tests convergence</b>. If the criterion is not met, the new centres go back to the mappers and the next iteration starts with Map again; if it is, it outputs the final result.</p><p>Worked example (both mappers together): iteration 1 turns centres 2 and 9 into 2.5 and 11.33, so they moved and the loop goes round. In iteration 2 no point changes cluster, the centres stay at 2.5 and 11.33, and the job is done.</p>`,
-        (b) => loopFig(b),
-        mc(
-          "Which phase of parallel k-means decides whether to run another iteration?",
-          ["Reduce", "Map", "Combine"],
-          "The reducer has every cluster's totals, so it computes the new centres and tests convergence. Mappers and combiners only see their own share.",
-        ),
-      ),
-      st(
-        "What the combiner saves",
-        `<p>The combiner does not change the answer; it changes the <b>traffic</b>. Without it, every point crosses the network to the reducer every iteration. With it, each mapper sends one record per cluster. In the patterns of lesson 11.1: the centres are <b>broadcast</b> to the mappers, combine-then-reduce is a <b>reduce</b>, and the reducer waits for every mapper, like a <b>barrier</b>.</p><p>Worked example: 3 mappers with 1,000,000 points each and k = 4. No combiner: 3,000,000 records per iteration. With one: 3 × 4 = <b>12</b>.</p>`,
-        (b) => trafficFig(b),
-        mc(
-          "4 mappers hold 250,000 points each and k = 5. With a combiner, how many records reach the reducer per iteration?",
-          ["20", "1,000,000", "5"],
-          "Each mapper sends one (sum, count) record per cluster: 4 × 5 = 20, instead of 1,000,000 raw points.",
-        ),
-      ),
-    ],
-    guide: [
-      "Press <b>Map</b>, <b>Combine</b> and <b>Reduce</b> in turn and watch <b>Records to reducer</b> and <b>Centre shift</b>.",
-      "Press <b>Run to convergence</b> and read <b>Status</b> and <b>Iteration</b>.",
-      "Press <b>Reset</b>, pick <b>Combiner off</b>, and run again. Then answer the questions after the demo.",
-    ],
-  };
+  Object.assign(S, { lineRun, cloudRun, costFig, mapRun, combineFig, loopFig, trafficFig });
 })();

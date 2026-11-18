@@ -1,9 +1,7 @@
-/* l13-01: Lectures 13-14 (multi-objective evolutionary algorithms): shared kernel (dominance, sorting, crowding, plots) and 13.1 trade-offs and Pareto dominance. */
+/* l13-01: Lectures 13-14 (multi-objective evolutionary algorithms): shared kernel (dominance, sorting, crowding, plots) and the figures of 13.1 and 13.2 (trade-offs, dominance, the Pareto front). The lessons are in l13-04.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS,
-    F = N.fig;
+  const { el, qs } = N;
   const sh = (NIC.shared.nicL13 = NIC.shared.nicL13 || {});
 
   const mulberry = (a) => () => {

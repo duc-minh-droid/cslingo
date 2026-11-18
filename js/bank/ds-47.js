@@ -1,4 +1,4 @@
-/* js/bank/ds-47.js: Data Science lecture 10 revision questions, part 1: ds10-drift. */
+/* js/bank/ds-47.js: Data Science lecture 10 revision questions, part 1: ds10-drift, ds10-kinds and ds10-detect. */
 (function () {
   const B = NIC.bank;
   const { mc, svg, tx } = NIC.shared.ds10;
@@ -24,20 +24,6 @@
   })();
 
   B.add("ds10-drift", [
-    {
-      type: "cat",
-      q: "Which kind of concept drift is each case?",
-      buckets: ["Abrupt", "Gradual", "Recurring"],
-      items: [
-        ["A payment method is banned overnight and checkouts change at once", 0],
-        ["A product recall flips its reviews within a day", 0],
-        ["Younger customers adopt a new app over two years", 1],
-        ["Wages creep up, slowly shifting what people can afford", 1],
-        ["Ice-cream orders peak every summer", 2],
-        ["Commuter traffic changes every weekend and back on Monday", 2],
-      ],
-      why: "A change at one moment is abrupt; a slow change over months or years is gradual; a pattern that returns on a cycle is recurring.",
-    },
     mc(
       "A loan model sees the same kinds of applicants as last year, but after an interest-rate rise the same profile now defaults far more often. Which shift is this?",
       ["Concept drift", "Covariate shift", "Prior probability shift"],
@@ -52,6 +38,68 @@
       ],
       "A batch model is trained before deployment and stays fixed. Streaming data changes over time, so its learned rule stops matching reality.",
     ),
+    mc(
+      "A model retrains on the first day of every month. An abrupt drift hits on the 3rd. Roughly how long is the model stale?",
+      [
+        "About four weeks, until the next retrain",
+        "About a day, the drift fixes itself",
+        "For ever, retraining cannot help",
+      ],
+      "A fixed schedule cannot see the drift. The model keeps the old rule until the next scheduled retrain, nearly a month later.",
+    ),
+    {
+      type: "bug",
+      q: "This loop should retrain every 4 weeks on the <b>last 4 weeks</b> of data only. Tap the faulty line.",
+      code: [
+        "for week in range(1, 53):",
+        "    report(evaluate(model, data[week]))",
+        "    if week % 4 == 0:",
+        "        model = train(data[1:week + 1])",
+      ],
+      a: 3,
+      hint: "Which weeks does the slice cover?",
+      why: "data[1:week + 1] trains on every week so far, not the last 4. It should be data[week - 3:week + 1], so old weeks stop pulling the model back.",
+    },
+    {
+      type: "cat",
+      q: "Which shift is each case?",
+      buckets: ["Concept drift", "Covariate shift", "Prior probability shift"],
+      items: [
+        ["The same house now sells for far more than its features used to suggest", 0],
+        ["The same symptoms now point to a different illness", 0],
+        ["A photo app suddenly receives far more pictures taken at night", 1],
+        ["A shop's customers are now much younger on average", 1],
+        ["Fraud becomes far rarer among all the payments", 2],
+        ["Far more of the incoming emails are spam than last year", 2],
+      ],
+      why: "Concept drift: the same input now leads to a different outcome. Covariate shift: the inputs themselves move. Prior probability shift: the mix of answers moves.",
+    },
+    mc(
+      "Which description fits a batch learner?",
+      [
+        "Trained once on past data, then used as it is",
+        "Updated a little after every new record",
+        "Retrained automatically whenever drift is found",
+      ],
+      "A batch learner is fitted once before deployment and stays fixed, which is why it goes stale when the concept drifts.",
+    ),
+  ]);
+
+  B.add("ds10-kinds", [
+    {
+      type: "cat",
+      q: "Which kind of concept drift is each case?",
+      buckets: ["Abrupt", "Gradual", "Recurring"],
+      items: [
+        ["A payment method is banned overnight and checkouts change at once", 0],
+        ["A product recall flips its reviews within a day", 0],
+        ["Younger customers adopt a new app over two years", 1],
+        ["Wages creep up, slowly shifting what people can afford", 1],
+        ["Ice-cream orders peak every summer", 2],
+        ["Commuter traffic changes every weekend and back on Monday", 2],
+      ],
+      why: "A change at one moment is abrupt; a slow change over months or years is gradual; a pattern that returns on a cycle is recurring.",
+    },
     {
       type: "pick",
       q: "Each panel shows a frozen model's error over time. Tap the one caused by <b>recurring</b> drift.",
@@ -86,6 +134,28 @@
       a: [0, 1, 2],
       why: "Gradual drift: cultural or economic changes. Abrupt: a pandemic. Recurring: seasons. Masks are the covariate shift example and flu during COVID the prior probability shift example.",
     },
+    mc(
+      "A heating-demand model is retrained at the end of every winter, on winter data only. What happens each summer?",
+      [
+        "Its error rises, because it learned winter's pattern",
+        "Its error falls, because summer demand is easier",
+        "Nothing changes, because retraining fixes all drift",
+      ],
+      "Seasons are recurring drift. A model fitted to winter is wrong in summer, and the cycle repeats every year.",
+    ),
+    {
+      type: "match",
+      q: "Match each kind of drift to a music app's listeners.",
+      pairs: [
+        ["Abrupt", "A viral video makes one song everyone's favourite overnight"],
+        ["Gradual", "Tastes move from one genre to another over several years"],
+        ["Recurring", "Christmas songs return to the top every December"],
+      ],
+      why: "Overnight is abrupt, a slow move is gradual, and a pattern that returns each year is recurring.",
+    },
+  ]);
+
+  B.add("ds10-detect", [
     {
       type: "order",
       q: "Put the steps of noticing drift through a model's errors in order.",
@@ -107,46 +177,5 @@
       ],
       "A long window is smooth but slow: after a drift it takes thousands of new records to move the average. A very short window has the opposite problem.",
     ),
-    mc(
-      "A model retrains on the first day of every month. An abrupt drift hits on the 3rd. Roughly how long is the model stale?",
-      [
-        "About four weeks, until the next retrain",
-        "About a day, the drift fixes itself",
-        "For ever, retraining cannot help",
-      ],
-      "A fixed schedule cannot see the drift. The model keeps the old rule until the next scheduled retrain, nearly a month later.",
-    ),
-    mc(
-      "A heating-demand model is retrained at the end of every winter, on winter data only. What happens each summer?",
-      [
-        "Its error rises, because it learned winter's pattern",
-        "Its error falls, because summer demand is easier",
-        "Nothing changes, because retraining fixes all drift",
-      ],
-      "Seasons are recurring drift. A model fitted to winter is wrong in summer, and the cycle repeats every year.",
-    ),
-    {
-      type: "bug",
-      q: "This loop should retrain every 4 weeks on the <b>last 4 weeks</b> of data only. Tap the faulty line.",
-      code: [
-        "for week in range(1, 53):",
-        "    report(evaluate(model, data[week]))",
-        "    if week % 4 == 0:",
-        "        model = train(data[1:week + 1])",
-      ],
-      a: 3,
-      hint: "Which weeks does the slice cover?",
-      why: "data[1:week + 1] trains on every week so far, not the last 4. It should be data[week - 3:week + 1], so old weeks stop pulling the model back.",
-    },
-    {
-      type: "match",
-      q: "Match each kind of drift to a music app's listeners.",
-      pairs: [
-        ["Abrupt", "A viral video makes one song everyone's favourite overnight"],
-        ["Gradual", "Tastes move from one genre to another over several years"],
-        ["Recurring", "Christmas songs return to the top every December"],
-      ],
-      why: "Overnight is abrupt, a slow move is gradual, and a pattern that returns each year is recurring.",
-    },
   ]);
 })();

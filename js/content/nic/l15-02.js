@@ -1,11 +1,9 @@
-/* l15-02: Lecture 15: the MOPSO engine (15.1 figures and the sandbox in l15-workshop.js use it) and 15.2 limiting the archive: why cap it, pruning by clustering and by crowding distance. */
+/* l15-02: Lecture 15: the MOPSO engine (15.1 figures and the sandbox in l15-workshop.js use it) and the figures of 15.3 and 15.4 (capping the archive, pruning by clustering and by crowding distance). The lessons are in l15-04.js and l15-05.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS;
+  const { qs } = N;
   const sh = NIC.shared.nicL15;
-  const { C, pr, mulberry, frame, dot, joinLine, crowd, fmtD, dom, contrib, pruneCrowd, cluster, cen, dist, AX, pts } =
-    sh;
+  const { mulberry, frame, dot, joinLine, crowd, fmtD, dom, contrib, pruneCrowd, cluster, cen, dist, AX, pts } = sh;
 
   // ---------- a small MOPSO on a two-objective drone problem: time f1 and energy f2, both minimised ----------
   const evalX = (x) => {

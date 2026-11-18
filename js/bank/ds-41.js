@@ -1,4 +1,4 @@
-/* js/bank/ds-41.js: Data Science lecture 7 revision questions, part 1: ds7-roles. */
+/* js/bank/ds-41.js: Data Science lecture 7 revision questions, part 1: ds7-roles and ds7-quorum. */
 (function () {
   const B = NIC.bank;
   const { mc, pk } = NIC.shared.dsL7;
@@ -22,6 +22,43 @@
       ["A learner", "A proposer", "An acceptor", "The coordinator"],
       "Learners need to know the outcome but do not take part in the decision. Proposers suggest values and acceptors choose.",
     ),
+    mc(
+      "Two proposers each use proposal number 7 for different values. What is wrong?",
+      [
+        "Numbers must be unique so they can be ordered",
+        "Nothing is wrong: acceptors will choose the larger value",
+        "The numbers should be identical across all proposers",
+        "Only learners are allowed to pick proposal numbers",
+      ],
+      "Unique proposal numbers order the proposals so newer ones can supersede older ones. Two equal numbers cannot be ranked.",
+    ),
+    mc(
+      "Five nodes take part and one of them has crashed. Two-phase commit needs yes from every node. What does Paxos need?",
+      [
+        "A majority of the acceptors, so it carries on",
+        "Every acceptor, so it also stops",
+        "At least one acceptor, whichever answers first",
+        "A coordinator that never fails",
+      ],
+      "Paxos needs a majority, which is 3 of 5. One crashed acceptor does not stop it, unlike two-phase commit.",
+    ),
+    mc(
+      "Who proposed Paxos, and when?",
+      ["Leslie Lamport, in 1989", "Eric Brewer, in 2000", "Barbara Liskov, in 1974"],
+      "Paxos was proposed by Leslie Lamport in 1989 as a consensus algorithm for distributed systems.",
+    ),
+    mc(
+      "A proposer wants to make a new proposal. What must be true of its proposal number?",
+      [
+        "It is higher than any number it used before",
+        "It is the same number it used last time",
+        "It is lower, so older proposals go first",
+        "It is chosen at random for each proposal",
+      ],
+      "Proposal numbers are unique and only go up, so proposals are ordered and a newer one supersedes an older one.",
+    ),
+  ]);
+  B.add("ds7-quorum", [
     {
       type: "slider",
       q: "A cluster has 9 acceptors. How many of them make a quorum?",
@@ -82,16 +119,6 @@
       ],
       why: "Consensus is reached when a majority of acceptors agree. Only then is the value chosen and told to the learners.",
     },
-    mc(
-      "Two proposers each use proposal number 7 for different values. What is wrong?",
-      [
-        "Numbers must be unique so they can be ordered",
-        "Nothing is wrong: acceptors will choose the larger value",
-        "The numbers should be identical across all proposers",
-        "Only learners are allowed to pick proposal numbers",
-      ],
-      "Unique proposal numbers order the proposals so newer ones can supersede older ones. Two equal numbers cannot be ranked.",
-    ),
     {
       type: "match",
       q: "Match each Paxos term to its meaning.",
@@ -111,16 +138,6 @@
       hint: "With n = 4, is 2 holders more than half?",
       why: "With 4 acceptors two holders is exactly half, which is not a majority. The test must be best > n / 2.",
     },
-    mc(
-      "Five nodes take part and one of them has crashed. Two-phase commit needs yes from every node. What does Paxos need?",
-      [
-        "A majority of the acceptors, so it carries on",
-        "Every acceptor, so it also stops",
-        "At least one acceptor, whichever answers first",
-        "A coordinator that never fails",
-      ],
-      "Paxos needs a majority, which is 3 of 5. One crashed acceptor does not stop it, unlike two-phase commit.",
-    ),
     mc(
       "A value was agreed by one majority of acceptors. Why will a later, different majority still notice it? (Beyond the slides.)",
       [

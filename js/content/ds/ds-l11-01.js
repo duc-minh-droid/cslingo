@@ -1,12 +1,11 @@
 /* Data Science (COM3021), Lecture 11: distributed machine learning.
-   This part: shared helpers (machine boxes, travelling messages, the timeline chart) and ds11-patterns (11.1, the
-   communication patterns, idle machines and overlapping computation with communication). */
+   This part: shared helpers (machine boxes, travelling messages, the timeline chart) and the figures of 11.1 and
+   11.2 (communication patterns, idle machines, overlap). The lessons are in ds-l11-04.js. */
 (function () {
   const S = (NIC.shared.ds11 = NIC.shared.ds11 || {});
   const N = NIC;
-  const { el, takeaways, header, predict } = N;
-  const F = N.fig,
-    L = N.LESSONS;
+  const { predict } = N;
+  const F = N.fig;
   const reg = (m) => N.register({ subject: "ds", lecture: 11, ...m });
 
   /* ---------- helpers shared with the other Lecture 11 files (the right answer goes first: the engine shuffles) ---------- */
@@ -370,131 +369,5 @@
 
   S.VALS = VALS;
 
-  /* ============ 11.1 Communication patterns ============ */
-  reg({
-    id: "ds11-patterns",
-    order: 1,
-    num: "11.1",
-    title: "Communication patterns",
-    blurb:
-      "Push, pull, broadcast, reduce, all-reduce, wait and barrier: how machines talk, and why idle machines waste money.",
-    render(root) {
-      root.appendChild(header(this, ""));
-      const card = el(
-        `<div class="card"><div class="card-head"><h2>Pattern playground</h2><span class="tag">six patterns</span></div><div></div></div>`,
-      );
-      root.appendChild(card);
-      S.playground(card.lastElementChild);
-      root.appendChild(
-        pr(
-          "ds11-patterns-1",
-          "Pick <b>Reduce</b> and press <b>Run</b>. Afterwards, what does C3 hold?",
-          ["Its own 2, unchanged", "The total, 16", "Nothing: it handed its number over"],
-          "A reduce materialises the result on one machine, B. The senders keep their own numbers and never see the total; that is what all-reduce adds.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds11-patterns-2",
-          "Run <b>Reduce</b>, then <b>All-reduce</b>, and compare <b>Messages</b>. What does all-reduce cost here?",
-          ["Twice as many: 8 against 4", "The same: 4 each", "One more: 5 against 4"],
-          "Done through a summing point as in the playground, all-reduce is a reduce (4 numbers in) followed by a broadcast (4 copies out): 8 messages.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "The <b>pattern of communication</b> is one of the most important choices in a distributed algorithm.",
-            "<b>Push</b>: A sends to B. <b>Pull</b>: B requests from A. <b>Broadcast</b>: A sends to many.",
-            "<b>Reduce</b>: combine (usually sum) values from C1…Cn onto <b>one</b> machine. <b>All-reduce</b>: the result lands on <b>all</b> of them.",
-            "<b>Wait</b>: one machine pauses for another's signal. <b>Barrier</b>: everyone waits until all reach the same point.",
-            "Avoid machines <b>waiting idle</b>; <b>overlap computation and communication</b> to hide network latency.",
-          ],
-          "Who sends, who receives, and who is left waiting: that is the whole design.",
-        ),
-      );
-    },
-  });
-
-  L["ds11-patterns"] = {
-    sum: "Machines in a distributed algorithm talk in a few standard <b>communication patterns</b>: push, pull, broadcast, reduce, all-reduce, wait and barrier. The goal is to keep every machine busy and <b>overlap computation with communication</b>.",
-    steps: [
-      st(
-        "Many machines, one job",
-        `<p>A job that takes one machine 12 seconds can be split across 4 machines. If each gets 3 seconds of work and combining the answers takes 1 second, the job is done in <b>4 s</b> instead of 12.</p><p>But if the split is uneven, say 2, 2, 2 and 6 seconds, everyone waits for the slow one: the job takes 7 s, and three machines sit <b>idle</b> for 4 s each. Two things decide how well a distributed algorithm runs: its <b>pattern of communication</b>, and avoiding a machine <b>waiting idle</b> for another.</p>${mm("<p>With work $w_1, \\dots, w_n$ and combine time $c$, the job ends at</p>$$T = \\max_i w_i + c \\qquad \\text{idle} = \\sum_i \\big(\\max_j w_j - w_i\\big)$$<p>Uneven split: $T = 6 + 1 = 7$ and idle $= 4 + 4 + 4 + 0 = 12$ s.</p>")}`,
-        (b) => splitFig(b),
-        mc(
-          "12 s of work is split evenly across 3 machines, and combining takes 1 s. When is the job done?",
-          ["After 5 s", "After 4 s", "After 13 s"],
-          "Each machine does 12 ÷ 3 = 4 s of work, then 1 s to combine: 5 s.",
-        ),
-      ),
-      st(
-        "Push and pull",
-        `<p>The simplest patterns move data between two machines. In a <b>push</b>, machine A sends data to machine B: A decides when. In a <b>pull</b>, machine B requests data from machine A: B decides when, and it costs a request plus the reply.</p><p>Worked example: a training server that sends its newest model to a phone app every time it improves is <b>pushing</b>. An app that asks the server “anything new?” each time it opens is <b>pulling</b>. Switch between them and watch who starts the conversation.</p>`,
-        (b) => pushPullFig(b),
-        mc(
-          "A monitoring dashboard asks the training cluster for its latest accuracy once a minute. Which pattern is that?",
-          ["Pull", "Push", "Broadcast"],
-          "The dashboard (the receiver) requests the data each time: that is a pull. In a push the cluster would send it unasked.",
-        ),
-      ),
-      st(
-        "Broadcast",
-        `<p>In a <b>broadcast</b>, machine A sends the same data to many machines. It is how every worker gets the same starting model, or the same settings.</p><p>Worked example: A holds a 50 MB model and broadcasts it to 4 workers. Each receives 50 MB, and if A sends each copy itself, 4 × 50 = <b>200 MB</b> leaves A. Double the workers and A's sending doubles too.</p>${mm("<p>Sending every copy from A costs A $n \\times s$ for $n$ receivers and data size $s$. <i>Beyond the slides:</i> real systems relay through a tree (each receiver forwards to others), which needs only about $\\lceil \\log_2 n \\rceil$ rounds: 3 rounds for 8 machines.</p>")}`,
-        (b) => broadcastFig(b),
-        mc(
-          "A broadcasts 30 MB of parameters to 5 workers, sending each copy itself. How much data leaves A?",
-          ["150 MB", "30 MB", "6 MB"],
-          "Every worker needs its own copy of the same 30 MB: 5 × 30 = 150 MB.",
-        ),
-      ),
-      st(
-        "Reduce",
-        `<p>A <b>reduce</b> computes some reduction, usually a <b>sum</b>, of data spread over machines C1, C2, …, Cn, and materialises the result on <b>one</b> machine, B.</p><p>Worked example: C1 to C4 hold 3, 5, 2 and 6. They send their numbers in, the sum grows 3, 8, 10, 16, and B ends up with <b>16</b>. The four senders still know only their own number. Press play.</p>${mm("<p>A reduce with the sum as its operation:</p>$$B \\leftarrow \\sum_{i=1}^{n} x_i = 3 + 5 + 2 + 6 = 16$$<p>Any operation that can be applied in any order and grouping works the same way (a maximum, a minimum, a count).</p>")}`,
-        (b, life) => reduceRun(b, life),
-        mc(
-          "Five workers each count the words in their share of a book. You want the total on one coordinator only. Which pattern fits?",
-          ["Reduce", "Broadcast", "All-reduce"],
-          "Combining values from many machines onto one machine is a reduce. All-reduce would also copy the total back to every worker, which nobody needs here.",
-        ),
-      ),
-      st(
-        "All-reduce",
-        `<p>An <b>all-reduce</b> computes the same reduction, but materialises the result on <b>all</b> the machines that took part. You can picture it as a reduce followed by a broadcast of the answer.</p><p>Worked example: with 3, 5, 2 and 6 on C1 to C4, a reduce leaves 16 on B only; an all-reduce leaves <b>16 on every C</b>. That matters when every machine needs the total to carry on, which is exactly what distributed training needs in the next lesson.</p>${mm("<p>After an all-reduce every machine $i$ holds</p>$$y_i = \\sum_{j=1}^{n} x_j$$<p><i>Beyond the slides:</i> the <b>ring all-reduce</b> passes chunks around a ring of $n$ machines. Each machine sends about $2\\frac{n-1}{n}$ times the data size, almost independent of $n$, so no single machine becomes a bottleneck.</p>")}`,
-        (b) => allReduceFig(b),
-        mc(
-          "Four machines hold 2, 4, 6 and 8 and run an all-reduce (sum). Which machines hold 20 afterwards?",
-          ["All four", "Only the first machine", "None: each keeps its own number"],
-          "All-reduce materialises the result on every participating machine: all four hold 2 + 4 + 6 + 8 = 20.",
-        ),
-      ),
-      st(
-        "Wait and barrier",
-        `<p>Two patterns are about time, not data. In a <b>wait</b>, one machine pauses its computation until a signal arrives from another. A <b>barrier</b> makes many machines wait until <b>all</b> of them reach the same point in their execution, then all continue from there.</p><p>Worked example: C1 to C4 reach the barrier after 4, 6, 5 and 9 s. Nobody moves on until 9 s, so the idle time is 5 + 3 + 4 + 0 = <b>12 s</b>. Drag the slowest machine and watch the dashed idle bars.</p>${mm("<p>For arrival times $t_1, \\dots, t_n$ the barrier opens at $\\max_i t_i$ and wastes</p>$$\\text{idle} = \\sum_{i=1}^{n} \\big(\\max_j t_j - t_i\\big) = n \\max_j t_j - \\sum_i t_i$$<p>Here $4 \\times 9 - 24 = 12$ s.</p>")}`,
-        (b) => barrierFig(b),
-        mc(
-          "Four machines reach a barrier after 2, 3, 3 and 8 s. How much idle time does the barrier cause in total?",
-          ["16 s", "8 s", "0 s"],
-          "Everyone waits until 8 s: 6 + 5 + 5 + 0 = 16 s of idle machines.",
-          "Each machine waits 8 minus its own time.",
-        ),
-      ),
-      st(
-        "Overlap computation and communication",
-        `<p>Communication over the network can be slow, so we want to <b>hide this latency</b>. An important principle of distributed computing is to <b>overlap computation and communication</b>: workers keep doing useful work while results are being sent, instead of stopping to wait for the network.</p><p>Worked example: 4 rounds, each 3 s of computing and 2 s of sending. Stop and wait takes 4 × 5 = 20 s. If round 2 starts while round 1's result is still on the wire, the job takes 4 × 3 + 2 = <b>14 s</b>. This works whenever the next piece of work does not need the result being sent.</p>${mm("<p>With $k$ rounds of computing $c$ and sending $m$:</p>$$T_{\\text{wait}} = k(c + m) \\qquad T_{\\text{overlap}} = k\\max(c, m) + \\min(c, m)$$<p>$4(3 + 2) = 20$ against $4 \\times 3 + 2 = 14$. Once sending is slower than computing ($m > c$), the network sets the pace.</p>")}`,
-        (b) => overlapFig(b),
-        mc(
-          "Three rounds of 4 s computing and 1 s sending. With computation and communication overlapped, how long does the job take?",
-          ["13 s", "15 s", "12 s"],
-          "Computing runs back to back for 3 × 4 = 12 s; only the last send (1 s) is left over: 13 s. Stop and wait would take 3 × 5 = 15 s.",
-        ),
-      ),
-    ],
-    guide: [
-      "Pick <b>Push</b> and press <b>Run</b>, then try <b>Pull</b> and compare <b>Messages</b>.",
-      "Try <b>Broadcast</b>, <b>Reduce</b> and <b>All-reduce</b>: watch <b>Holding the result</b>.",
-      "Pick <b>Barrier</b> and press <b>Run</b>: read <b>Idle seconds</b>. Then answer the questions after the demo.",
-    ],
-  };
+  Object.assign(S, { splitFig, pushPullFig, broadcastFig, reduceRun, allReduceFig, barrierFig, overlapFig });
 })();

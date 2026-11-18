@@ -442,7 +442,7 @@ button.ds7-node h4{justify-content:center}
       ),
     ],
     guide: [
-      "Tap an acceptor to crash it, and tap again to restart it. Watch <b>Acceptors up</b> against <b>Quorum needed</b>.",
+      "Tap an acceptor to crash it, and tap again to restart it. Watch how many are up against the quorum needed.",
       "Press <b>Pick two majorities</b> a few times and see which acceptor they share.",
       "Try <b>4 acceptors</b> and <b>7 acceptors</b>, then answer the question after the demo.",
     ],

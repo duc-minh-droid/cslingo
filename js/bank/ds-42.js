@@ -1,9 +1,77 @@
-/* js/bank/ds-42.js: Data Science lecture 7 revision questions, part 2: ds7-rounds. */
+/* js/bank/ds-42.js: Data Science lecture 7 revision questions, part 2: ds7-rounds, ds7-accept and ds7-log. */
 (function () {
   const B = NIC.bank;
   const { mc, pk } = NIC.shared.dsL7;
 
   B.add("ds7-rounds", [
+    {
+      type: "pick",
+      q: "ACCEPT(6, Park) is sent to three acceptors. Tap the acceptor that will <b>ignore</b> it.",
+      fig: pk([
+        ["a", "Acceptor A", "promised 4"],
+        ["b", "Acceptor B", "promised 6"],
+        ["c", "Acceptor C", "promised 8"],
+      ]),
+      a: "c",
+      hint: "An acceptor ignores proposals numbered below its promise.",
+      why: "C promised 8, a newer proposal, so it ignores number 6. B promised exactly 6 for this proposer and A promised less, so both accept.",
+    },
+    mc(
+      "An acceptor sends PROMISE(9). What exactly has it promised?",
+      [
+        "To ignore proposals numbered 9 or lower",
+        "To accept the next value it is sent",
+        "To tell the learners the value at once",
+        "To reply to every message numbered 9 or higher",
+      ],
+      "A PROMISE(n) means ignoring any proposal with an ID less than or equal to n. That is how newer proposals supersede older ones.",
+    ),
+    {
+      type: "bug",
+      q: "An acceptor should reply PROMISE only if the PREPARE number is above everything it has promised. Click the faulty line.",
+      code: [
+        "def on_prepare(n):",
+        "    global promised",
+        "    if n >= promised:",
+        "        promised = n",
+        '        reply("PROMISE", n)',
+      ],
+      a: 2,
+      hint: "What should happen when n equals the number already promised?",
+      why: "Proposals with an ID less than or equal to the promised number must be ignored, so the test is n > promised. With >= an equal number gets a second promise.",
+    },
+    mc(
+      "Proposer P1 got promises for number 3, then P2's PREPARE(4) won promises, so P1's ACCEPT was ignored. What can P1 do now?",
+      [
+        "Send PREPARE with a number above 4 and try again",
+        "Resend ACCEPT(3, v) until it eventually gets through",
+        "Wait until P2 gives up the number it is using",
+        "Change the number that P2's proposal carries",
+      ],
+      "The acceptors will ignore anything numbered 4 or lower. P1 starts a new round with a higher number.",
+    ),
+    mc(
+      "Why does a proposer run the PREPARE and PROMISE phase before it sends a value?",
+      [
+        "To win promises that older proposals will be ignored",
+        "To let the learners vote first on which value is sent",
+        "To make sure every acceptor already holds the same log",
+        "To avoid ever having to use a proposal number at all",
+      ],
+      "Phase 1 secures promises from a majority that older proposals will be ignored. (Beyond the slides: the promises also reveal any value already accepted.)",
+    ),
+    mc(
+      "An acceptor has promised number 7. Then PREPARE(9) arrives from another proposer. What happens?",
+      [
+        "It promises 9 and now ignores 9 or lower",
+        "It ignores 9 because it already promised",
+        "It promises both numbers and waits to see",
+        "It passes the message on to the learners",
+      ],
+      "A higher number earns a new PROMISE. From then on the acceptor ignores proposals numbered 9 or lower, so the older proposal is superseded.",
+    ),
+  ]);
+  B.add("ds7-accept", [
     {
       type: "order",
       q: "A class vote runs Paxos. Put the events of one successful round in order.",
@@ -30,18 +98,6 @@
       ],
       why: "Phase 1 is PREPARE and PROMISE, about numbers. Phase 2 is ACCEPT and ACCEPTED, about the value.",
     },
-    {
-      type: "pick",
-      q: "ACCEPT(6, Park) is sent to three acceptors. Tap the acceptor that will <b>ignore</b> it.",
-      fig: pk([
-        ["a", "Acceptor A", "promised 4"],
-        ["b", "Acceptor B", "promised 6"],
-        ["c", "Acceptor C", "promised 8"],
-      ]),
-      a: "c",
-      hint: "An acceptor ignores proposals numbered below its promise.",
-      why: "C promised 8, a newer proposal, so it ignores number 6. B promised exactly 6 for this proposer and A promised less, so both accept.",
-    },
     mc(
       "Seven acceptors, and a proposer holds PROMISE from four of them while the other three stay silent. What can it do?",
       [
@@ -65,62 +121,6 @@
       a: [0, 1, 2],
       why: "The value only travels in ACCEPT, after a quorum has promised. The learners wait for a majority of ACCEPTED.",
     },
-    mc(
-      "An acceptor sends PROMISE(9). What exactly has it promised?",
-      [
-        "To ignore proposals numbered 9 or lower",
-        "To accept the next value it is sent",
-        "To tell the learners the value at once",
-        "To reply to every message numbered 9 or higher",
-      ],
-      "A PROMISE(n) means ignoring any proposal with an ID less than or equal to n. That is how newer proposals supersede older ones.",
-    ),
-    {
-      type: "bug",
-      q: "An acceptor should reply PROMISE only if the PREPARE number is above everything it has promised. Click the faulty line.",
-      code: [
-        "def on_prepare(n):",
-        "    global promised",
-        "    if n >= promised:",
-        "        promised = n",
-        '        reply("PROMISE", n)',
-      ],
-      a: 2,
-      hint: "What should happen when n equals the number already promised?",
-      why: "Proposals with an ID less than or equal to the promised number must be ignored, so the test is n > promised. With >= an equal number gets a second promise.",
-    },
-    {
-      type: "slider",
-      q: "A replicated log has had positions 0 to 5 decided, one Paxos round each. Which position does the next round decide?",
-      min: 0,
-      max: 10,
-      step: 1,
-      start: 3,
-      ans: 6,
-      tol: 0.5,
-      hint: "Positions 0 to 5 are six entries.",
-      why: "Each round settles one entry. After positions 0 to 5 the next free position is 6.",
-    },
-    mc(
-      "Proposer P1 got promises for number 3, then P2's PREPARE(4) won promises, so P1's ACCEPT was ignored. What can P1 do now?",
-      [
-        "Send PREPARE with a number above 4 and try again",
-        "Resend ACCEPT(3, v) until it eventually gets through",
-        "Wait until P2 gives up the number it is using",
-        "Change the number that P2's proposal carries",
-      ],
-      "The acceptors will ignore anything numbered 4 or lower. P1 starts a new round with a higher number.",
-    ),
-    mc(
-      "A PROMISE reports that Park was already accepted at number 3, but the proposer wanted Zoo. Why must it propose Park? (Beyond the slides.)",
-      [
-        "Park may already be chosen, so replacing it is unsafe",
-        "Acceptors only ever accept the first value they were sent",
-        "The proposer is not allowed to suggest values of its own at all",
-        "Zoo can never be chosen by any later round of Paxos",
-      ],
-      "A value accepted by some acceptors may already have reached a majority. Re-proposing it keeps a chosen value from being overwritten.",
-    ),
     {
       type: "match",
       q: "Match each role to the messages it handles in a round.",
@@ -144,15 +144,73 @@
       hint: "A quorum of 5 is 3.",
       why: "Three live acceptors are a majority. With only two or one up, no quorum of promises or acceptances is possible.",
     },
+  ]);
+  B.add("ds7-log", [
+    {
+      type: "slider",
+      q: "A replicated log has had positions 0 to 5 decided, one Paxos round each. Which position does the next round decide?",
+      min: 0,
+      max: 10,
+      step: 1,
+      start: 3,
+      ans: 6,
+      tol: 0.5,
+      hint: "Positions 0 to 5 are six entries.",
+      why: "Each round settles one entry. After positions 0 to 5 the next free position is 6.",
+    },
     mc(
-      "Why does a proposer run the PREPARE and PROMISE phase before it sends a value?",
+      "A PROMISE reports that Park was already accepted at number 3, but the proposer wanted Zoo. Why must it propose Park? (Beyond the slides.)",
       [
-        "To win promises that older proposals will be ignored",
-        "To let the learners vote first on which value is sent",
-        "To make sure every acceptor already holds the same log",
-        "To avoid ever having to use a proposal number at all",
+        "Park may already be chosen, so replacing it is unsafe",
+        "Acceptors only ever accept the first value they were sent",
+        "The proposer is not allowed to suggest values of its own at all",
+        "Zoo can never be chosen by any later round of Paxos",
       ],
-      "Phase 1 secures promises from a majority that older proposals will be ignored. (Beyond the slides: the promises also reveal any value already accepted.)",
+      "A value accepted by some acceptors may already have reached a majority. Re-proposing it keeps a chosen value from being overwritten.",
     ),
+    mc(
+      "How does Paxos fill a replicated log?",
+      [
+        "One round for each log position",
+        "One round for the whole log at once",
+        "One round for each replica in turn",
+        "One round each time a learner asks",
+      ],
+      "One Paxos round decides one value, so each position of the log gets its own round.",
+    ),
+    mc(
+      "In the lecture's bank log, the second entry is settled by PREPARE 2, not PREPARE 1 again. Why?",
+      [
+        "A new round needs a higher proposal number",
+        "PREPARE 1 can only be sent by the first replica",
+        "Even positions always use even numbers",
+        "The learners asked for a different number",
+      ],
+      "Proposal numbers only go up, so each new round uses a number above the earlier ones.",
+    ),
+    {
+      type: "pick",
+      q: "A proposer wanted Curry. Its PROMISEs report Tacos accepted at number 2 and Noodles accepted at number 5. Tap the value it must send in ACCEPT. (Beyond the slides.)",
+      fig: pk([
+        ["a", "Tacos", "accepted at 2"],
+        ["b", "Noodles", "accepted at 5"],
+        ["c", "Curry", "its own wish"],
+      ]),
+      a: "b",
+      why: "It must re-propose a reported value, and when several are reported it takes the one with the highest number: Noodles. Its own Curry is dropped.",
+    },
+    {
+      type: "multi",
+      q: "Select every statement that is <b>true</b> about a PROMISE that reports a value. (Beyond the slides.)",
+      o: [
+        "It tells the proposer a value the acceptor already accepted",
+        "The proposer then re-proposes that value",
+        "It stops a chosen value from being overwritten",
+        "The proposer can still send its own value",
+        "The learners pick which reported value wins",
+      ],
+      a: [0, 1, 2],
+      why: "A reported value may already be chosen, so the proposer must carry it forward instead of its own. Learners never decide anything.",
+    },
   ]);
 })();

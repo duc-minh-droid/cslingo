@@ -1,11 +1,9 @@
-/* l15-03: Lecture 15: 15.3 choosing leaders (random, sparse, dominated solution count, hypervolume) and many-objective PSO (average rank, distance ranking). */
+/* l15-03: Lecture 15: figures for 15.5 choosing leaders (random, sparse, dominated solution count, hypervolume, the leader lab) and 15.6 many-objective PSO (average rank, distance ranking). The lessons are in l15-05.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS;
+  const { el, qs } = N;
   const sh = NIC.shared.nicL15;
-  const { C, pr, mulberry, frame, dot, crowd, dom, hv, contrib, ranksPer, avgRank, distRank, AX, pts, hvBox, star } =
-    sh;
+  const { mulberry, frame, dot, crowd, dom, hv, contrib, ranksPer, avgRank, distRank, AX, pts, hvBox, star } = sh;
 
   /** Archive (blue, as on the slides) and swarm particles (red squares). */
   const H = pts("a 1 8, b 2.5 6.5, c 4 4.5, d 6 3, e 7.5 1.5");

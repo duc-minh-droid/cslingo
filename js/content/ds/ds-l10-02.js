@@ -1,12 +1,11 @@
 /* Data Science (COM3021), Lecture 10: concept drift detection.
-   This part: ds10-detect (10.2, ADWIN, DDM and EDDM). */
+   This part: the figures and the detector-race demo of 10.3 to 10.5 (ADWIN, DDM and EDDM). Lessons: ds-l10-04.js. */
 (function () {
   const S = NIC.shared.ds10;
   const N = NIC;
-  const { qs, takeaways, header } = N;
-  const F = N.fig,
-    L = N.LESSONS;
-  const { reg, mc, pr, st, mm, fm, seg, stats, setStats, svg, tx, chart, avg, card, KIND } = S;
+  const { qs } = N;
+  const F = N.fig;
+  const { fm, seg, stats, setStats, svg, tx, chart, avg, KIND } = S;
   const { world, ddm, adwin, splits, strip } = S;
 
   /* ---------- 10.2 figures ---------- */
@@ -219,7 +218,7 @@
   }
 
   /** EDDM: the gaps between errors, before and after a drift. */
-  function gapsFig(box) {
+  function gapsFig(box, start = "before") {
     const G = { before: [9, 12, 8, 11, 10], after: [3, 2, 4, 2, 3, 2, 3] };
     const stat = (g) => {
       const m = avg(g),
@@ -249,8 +248,8 @@
       );
       box.lastChild.innerHTML = `Gaps ${g.join(", ")}: mean <b>${fm(q.m)}</b>, spread ${fm(q.s)}, mean + 2 × spread = <b>${fm(q.v)}</b>. ${k === "before" ? "This is the best (largest) value so far." : `Against the best ${fm(ref.v)}: ratio <b>${fm(q.v / ref.v)}</b>, below 0.90, so EDDM signals drift.`}`;
     };
-    seg(box.firstChild, "before:Before the drift|after:After the drift", "before", draw);
-    draw("before");
+    seg(box.firstChild, "before:Before the drift|after:After the drift", start, draw);
+    draw(start);
   }
 
   /** One stream, drift injected at record 300: how long each detector takes. */
@@ -284,10 +283,10 @@
   }
 
   /** 10.2 demo: the detector race on a stream you can drift. */
-  function race(box, life) {
+  function race(box, life, view = "ddm") {
     const m = S.monitor(5);
     let kind = "abrupt",
-      v = "ddm",
+      v = view,
       playing = false;
     box.innerHTML = `<div class="controls" data-k></div><div class="controls" data-w></div><div data-f></div><div class="ds10-pills" data-s></div><div class="controls"><button class="btn primary" data-p>Play</button><button class="btn" data-t>+50 records</button><button class="btn" data-i>Inject drift</button><button class="btn ghost" data-z>Reset</button></div>${stats(
       [
@@ -343,169 +342,5 @@
     );
   }
 
-  /* ============ 10.2 Drift detectors: ADWIN, DDM and EDDM ============ */
-  reg({
-    id: "ds10-detect",
-    order: 2,
-    num: "10.2",
-    title: "Drift detectors: ADWIN, DDM, EDDM",
-    blurb:
-      "An adaptive window that cuts itself, an error rate with warning and change lines, and the gaps between errors.",
-    render(root, life) {
-      root.appendChild(header(this, ""));
-      const c = card("Detector race", "inject a drift");
-      root.appendChild(c);
-      race(c.lastElementChild, life);
-      root.appendChild(
-        pr(
-          "ds10-detect-1",
-          "Pick <b>DDM</b>, press <b>Inject drift</b> with <b>Abrupt</b>, then <b>+50 records</b>. Which dashed line does the blue p + s line reach first?",
-          [
-            "The orange warning line, then the red change line",
-            "The red change line, then the orange warning line",
-            "Neither: p + s stays below both lines",
-          ],
-          "The warning line is p<sub>min</sub> + 2s<sub>min</sub> and the change line p<sub>min</sub> + 3s<sub>min</sub>, so the warning line is lower: a rising p + s always crosses it first.",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds10-detect-2",
-          "Press <b>Reset</b>, pick <b>ADWIN</b>, inject an <b>Abrupt</b> drift and run until ADWIN catches it. What does the window size do?",
-          [
-            "It drops sharply, then grows again from there",
-            "It keeps growing at the same steady rate",
-            "It drops to zero and stays empty",
-          ],
-          "When two parts of the window disagree, ADWIN drops old records from the tail, so the size falls. Then the stream is stable again and the window grows once more.",
-        ),
-      );
-      root.appendChild(
-        takeaways(
-          [
-            "Drift detectors watch the model's <b>error stream</b>; they are used <b>with</b> other learning algorithms, and trigger a retrain.",
-            "<b>ADWIN</b> keeps a window of variable size: it <b>grows</b> while nothing changes and <b>shrinks</b> (drops the oldest records) when two parts of it disagree by at least ε<sub>cut</sub>.",
-            "<b>DDM</b> tracks the error rate p<sub>i</sub> and its spread s<sub>i</sub>. Warning when p<sub>i</sub> + s<sub>i</sub> ≥ p<sub>min</sub> + 2s<sub>min</sub>; change when ≥ p<sub>min</sub> + 3s<sub>min</sub>.",
-            "<b>EDDM</b> watches the <b>distance between errors</b>: shrinking gaps mean rising errors. It reacts earlier to <b>gradual</b> drift.",
-          ],
-          "Grow while calm, cut when the halves disagree, and warn before you shout.",
-        ),
-      );
-    },
-  });
-
-  L["ds10-detect"] = {
-    sum: "Drift detectors watch a model's error stream. <b>ADWIN</b> keeps an adaptive window that grows when stable and is cut when its parts disagree. <b>DDM</b> raises a warning at p + s ≥ p<sub>min</sub> + 2s<sub>min</sub> and a change at p<sub>min</sub> + 3s<sub>min</sub>. <b>EDDM</b> watches the gaps between errors.",
-    steps: [
-      st(
-        "A detector watches the errors",
-        `<p>There are many algorithms for drift detection; the lecture names three: <b>ADWIN</b>, <b>DDM</b> and <b>EDDM</b>. They do not replace the model. They are used <b>with</b> another learning algorithm and watch its <b>errors</b>.</p><p>Worked example: Basketly's model predicts a click; a moment later the shopper clicks or not. Each prediction becomes a 0 (right) or a 1 (wrong). The detector reads that stream and answers one question: still stable, a warning, or a change? On a change, the model is retrained on recent data.</p>`,
-        F.flow([
-          { t: "Model", s: "predicts", c: "blue" },
-          { t: "Truth arrives", s: "right or wrong", c: "teal" },
-          { t: "Error stream", s: "0 0 1 0 1 1", c: "rose" },
-          { t: "Detector", s: "stable, warning, change", c: "violet" },
-          { t: "Retrain", s: "on recent data", c: "amber" },
-        ]),
-        mc(
-          "What does a drift detector such as DDM read?",
-          [
-            "Whether each of the model's predictions was right or wrong",
-            "The raw input features of every record in the stream",
-            "The model's weights after each training epoch",
-          ],
-          "DDM works with any learning algorithm because it only needs a binary error signal: was this prediction right (0) or wrong (1)?",
-        ),
-      ),
-      st(
-        "ADWIN: a window that adapts",
-        `<p><b>ADWIN</b> (ADaptive WINdowing) keeps a window of the most recent records, of <b>variable size</b>. It <b>grows</b> the window when no change is apparent, and <b>shrinks</b> it when the data changes, discarding the older records.</p><p>Worked example: for 250 records the error rate stays near 10%, and the window holds all 250 of them. Then a drift starts. Within a few dozen records the old part of the window no longer matches the new part, and ADWIN drops old records. Watch the bracket and the window-size line.</p>`,
-        (box, life) => growFig(box, life),
-        mc(
-          "A stream has not changed for 5,000 records. What does ADWIN's window hold?",
-          [
-            "All 5,000 records: it grows while nothing changes",
-            "The last 100 records: the window has a fixed size",
-            "Nothing: ADWIN empties the window when it is stable",
-          ],
-          "ADWIN only shrinks the window when its parts disagree. With no change it keeps every record, which gives the most precise estimate of the current mean.",
-        ),
-      ),
-      st(
-        "ADWIN: cut where the halves disagree",
-        `<p>How does ADWIN decide? After each new record it tries <b>every split</b> of the window into an older part W<sub>0</sub> and a newer part W<sub>1</sub>. If, for some split, the two means differ by at least a threshold <b>ε<sub>cut</sub></b>, it drops records from the tail (the oldest) and checks again.</p><p>Worked example: a window of 200 with the older 100 at 10% errors and the newer 100 at 60%. The gap is 0.5 and ε<sub>cut</sub> for 100 + 100 is about 0.36, so ADWIN cuts. With only 40 + 40 records ε<sub>cut</sub> is about 0.55, so the same gap is not enough yet: small samples need bigger gaps. Step through the cut.</p>${mm("<p>For a split into $n_0$ older and $n_1$ newer records with means $\\hat\\mu_{W_0}$ and $\\hat\\mu_{W_1}$, ADWIN drops from the tail while</p>$$|\\hat\\mu_{W_0} - \\hat\\mu_{W_1}| \\ge \\epsilon_{cut}, \\qquad \\epsilon_{cut} = \\sqrt{\\frac{1}{2m}\\ln\\frac{4n}{\\delta}}, \\quad m = \\frac{1}{1/n_0 + 1/n_1}$$<p>with $n = n_0 + n_1$ and confidence $\\delta$ (here $0.002$). For $n_0 = n_1 = 100$: $m = 50$, $\\ln(4 \\times 200 / 0.002) \\approx 12.9$, so $\\epsilon_{cut} \\approx \\sqrt{12.9/100} \\approx 0.36$. Beyond the slides: the published ADWIN stores the window in compressed buckets, so it checks only a few splits per record.</p>")}`,
-        (box, life) => adwinRun(box, life),
-        mc(
-          "One split of ADWIN's window has the older part at 20% errors and the newer part at 35%. Its ε<sub>cut</sub> is 0.25. What does ADWIN do for this split?",
-          [
-            "Nothing: the gap of 0.15 is below ε<sub>cut</sub>",
-            "Cut: any difference between the parts is a drift",
-            "Cut: the newer part has the higher error rate",
-          ],
-          "The gap is 0.35 − 0.20 = 0.15, which is less than 0.25. The difference could be chance, so this split does not trigger a cut.",
-        ),
-      ),
-      st(
-        "DDM: the error rate and its spread",
-        `<p><b>DDM</b> (Drift Detection Method) treats each prediction as a binary variable: True for an error, False for a correct prediction. At instant <i>i</i> it measures the <b>error rate p<sub>i</sub></b> (the share of incorrect predictions so far) and its <b>standard deviation s<sub>i</sub></b>.</p><p>Worked example: after 100 predictions with 10 errors, p = 0.10 and s = √(0.10 × 0.90 ÷ 100) = 0.03. After 400 predictions at the same rate, s halves to 0.015: more data, more certainty. Slide the number of records.</p>${mm("<p>The errors are Bernoulli trials, so after $i$ predictions</p>$$p_i = \\frac{\\text{errors}}{i}, \\qquad s_i = \\sqrt{\\frac{p_i(1 - p_i)}{i}}$$<p>Four times the records halves $s_i$, because of the square root.</p>")}`,
-        (box) => spreadFig(box),
-        mc(
-          "A model has made 400 predictions with 40 errors. What are DDM's p and s?",
-          ["p = 0.10, s = 0.015", "p = 0.10, s = 0.03", "p = 0.40, s = 0.015"],
-          "p = 40 ÷ 400 = 0.10. s = √(0.10 × 0.90 ÷ 400) = √0.09 ÷ 20 = 0.3 ÷ 20 = 0.015.",
-          "0.1 × 0.9 = 0.09, √0.09 = 0.3, and √400 = 20.",
-        ),
-      ),
-      st(
-        "DDM: warning and change",
-        `<p>DDM remembers the best moment so far: <b>p<sub>min</sub></b>, the minimum recorded error rate, and <b>s<sub>min</sub></b>, the minimum recorded standard deviation (both taken where p + s was lowest). Then:</p><p>• if p<sub>i</sub> + s<sub>i</sub> ≥ p<sub>min</sub> + 2s<sub>min</sub>: <b>warning zone</b><br>• if p<sub>i</sub> + s<sub>i</sub> ≥ p<sub>min</sub> + 3s<sub>min</sub>: <b>change detected</b></p><p>Worked example: p<sub>min</sub> = 0.10 and s<sub>min</sub> = 0.03, so the warning line is 0.16 and the change line 0.19. A reading of p + s = 0.17 is a warning; 0.21 is a change. Step through 120 records at 10% errors followed by 50%.</p>${mm("<p>$$p_i + s_i \\ge p_{min} + 2\\,s_{min} \\Rightarrow \\text{warning}, \\qquad p_i + s_i \\ge p_{min} + 3\\,s_{min} \\Rightarrow \\text{change}$$</p><p>From the original paper (Gama et al., 2004), beyond the slides: checks start after 30 predictions, and $p_{min}, s_{min}$ are updated whenever $p_i + s_i < p_{min} + s_{min}$. For a normal approximation, 2 and 3 standard deviations are roughly 95% and 99% confidence levels.</p>")}`,
-        (box, life) => ddmRun(box, life),
-        mc(
-          "DDM has p<sub>min</sub> = 0.08 and s<sub>min</sub> = 0.02. Now p + s = 0.13. Which zone is it in?",
-          ["Warning: between 0.12 and 0.14", "Change: above 0.12", "Stable: below 0.14"],
-          "Warning line 0.08 + 2 × 0.02 = 0.12; change line 0.08 + 3 × 0.02 = 0.14. 0.13 is at least 0.12 but below 0.14: warning zone.",
-          "Work out both lines first: + 0.04 and + 0.06.",
-        ),
-      ),
-      st(
-        "After the alarm",
-        `<p>The two levels have two jobs. In the <b>warning zone</b> the system starts storing the new records, in case a change follows. If it does, a new model is trained on the records stored since the warning, and the detector starts again from scratch. If the readings fall back, the warning is dropped and the stored records are discarded.</p><p>Worked example: the warning starts at record 900 and a change is detected at 960. The new model learns from records 900 to 960, which already follow the new rule. Pick each zone. (This retraining policy is from the DDM paper, beyond the slides.)</p>`,
-        (box) => zonesFig(box),
-        mc(
-          "DDM entered the warning zone at record 900 and detected a change at record 960. Which records train the new model?",
-          ["Records 900 to 960", "Records 1 to 960", "Records 960 onwards only"],
-          "The records stored since the warning reflect the new concept, so the new model trains on 900–960. Older records follow the old rule.",
-        ),
-      ),
-      st(
-        "EDDM: watch the gaps between errors",
-        `<p><b>EDDM</b> (Early Drift Detection Method) changes what it measures: not the error rate, but the <b>distance between two errors</b>. While the model is good, errors are far apart. When the concept drifts, errors bunch up and the gaps shrink.</p><p>Worked example: before the drift errors come about 10 records apart; afterwards about 2 or 3 apart. EDDM tracks the mean gap plus twice its spread and compares it with the best value seen. Below 95% of the best is a warning; below 90% is a drift. Switch between the two strips.</p>${mm("<p>Beyond the slides (Baena-García et al., 2006): with $p'_i$ the mean distance between errors and $s'_i$ its standard deviation, keep the maximum $p'_{max} + 2s'_{max}$ and test</p>$$\\frac{p'_i + 2s'_i}{p'_{max} + 2s'_{max}} < \\alpha = 0.95 \\Rightarrow \\text{warning}, \\qquad < \\beta = 0.90 \\Rightarrow \\text{drift}$$<p>Checks start after 30 errors.</p>")}`,
-        (box) => gapsFig(box),
-        mc(
-          "A model's errors used to arrive about 12 records apart. Now they arrive about 4 apart. What does that tell EDDM?",
-          [
-            "The error rate has risen: a sign of drift",
-            "The error rate has fallen: the model improved",
-            "Nothing: EDDM only reads the error rate",
-          ],
-          "Shorter gaps between errors mean errors are more frequent. EDDM's ratio falls, and below 0.90 it signals a drift.",
-        ),
-      ),
-      st(
-        "Which detector when?",
-        `<p>All three catch an abrupt drift quickly. They differ on <b>gradual</b> drift, where the error creeps up: <b>EDDM</b> was designed to react earlier, <b>DDM</b> waits for the overall error rate to rise, and <b>ADWIN</b> needs enough evidence that the window's parts really differ. ADWIN works on any numeric stream, not just errors, and needs no settings except its confidence δ.</p><p>Worked example: the bars come from running the three detectors on one stream with a drift at record 300. The quicker detector is not always better: in the long run EDDM also gives more false alarms on a stable stream.</p>`,
-        (box) => raceFig(box),
-        mc(
-          "A churn model's error creeps up slowly over months. Which of the lecture's detectors was designed to flag this kind of drift earlier than DDM?",
-          ["EDDM", "ADWIN", "None of them can see gradual drift"],
-          "EDDM watches the distance between errors, which shrinks as soon as errors start bunching, so it reacts to slow drift earlier than DDM's overall error rate.",
-        ),
-      ),
-    ],
-    guide: [
-      "Pick <b>DDM</b>, press <b>Inject drift</b> and then <b>+50 records</b> until DDM says it caught the drift.",
-      "Switch to <b>ADWIN</b> and <b>EDDM</b> to see the same stream through the other detectors.",
-      "Press <b>Reset</b>, pick <b>Gradual</b>, inject and <b>Play</b>: which detector catches it first? Then answer the questions after the demo.",
-    ],
-  };
+  Object.assign(S, { growFig, adwinRun, spreadFig, ddmRun, zonesFig, gapsFig, raceFig, race });
 })();

@@ -1,4 +1,4 @@
-/* js/bank/ds-44.js: Data Science lecture 8 revision questions, part 2: ds8-consumers. */
+/* js/bank/ds-44.js: Data Science lecture 8 revision questions, part 2: ds8-consumers and ds8-acks. */
 (function () {
   const B = NIC.bank;
   const { mc, pk } = NIC.shared.ds8;
@@ -35,6 +35,36 @@
       ["28", "7", "11"],
       "Fan-out gives every subscriber every message: 7 × 4 = 28.",
     ),
+    mc(
+      "A shop has 4 identical workers that resize uploaded photos. Each photo only needs resizing once. Which pattern fits?",
+      ["Load balancing", "Fan-out", "Neither: each worker should poll"],
+      "Each photo should be handled by one worker, and the workers share the pile. Fan-out would resize every photo four times.",
+    ),
+    {
+      type: "multi",
+      q: "Select every statement that is <b>true</b> about load balancing.",
+      o: [
+        "Each message goes to one consumer",
+        "The consumers share the work",
+        "More consumers can clear a backlog sooner",
+        "Every consumer sees every message",
+        "It only works with a single consumer",
+      ],
+      a: [0, 1, 2],
+      why: "Load balancing hands each message to one of the consumers, so they split the work. Every consumer seeing every message is fan-out.",
+    },
+    mc(
+      "Why does fan-out suit a billing service and an email service reading the same order topic?",
+      [
+        "Each service needs to see every order",
+        "It splits the orders so each is quicker",
+        "It makes the broker delete orders sooner",
+        "It lets one service skip some orders",
+      ],
+      "Billing must charge every order and Email must send every receipt, so both need every message: that is fan-out.",
+    ),
+  ]);
+  B.add("ds8-acks", [
     {
       type: "pick",
       q: "Three load-balanced consumers report the order they processed messages in. Tap the one whose order was changed by a redelivery.",

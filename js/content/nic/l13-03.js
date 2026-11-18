@@ -1,11 +1,9 @@
-/* l13-03: Lectures 13-14: 13.3 NSGA-II and beyond (tournaments, elitism, weighted sums, hypervolume, many objectives). The NSGA-II engine and its demo are in l13-workshop.js (sh.nsgaDemo, looked up at call time). */
+/* l13-03: Lectures 13-14: figures for 13.5 and 13.6 (tournaments, NSGA-II, elitism, weighted sums, hypervolume, many objectives). The lessons are in l13-05.js. */
 (function () {
   const N = NIC;
-  const { el, qs, takeaways, header } = N;
-  const L = N.LESSONS,
-    F = N.fig;
+  const { el, qs } = N;
   const sh = NIC.shared.nicL13;
-  const { C, pr, mulberry, pts, dom, ranks, RC, frame, dot } = sh;
+  const { mulberry, pts, dom, ranks, RC, frame, dot } = sh;
   const S2 = [1, 1];
 
   // ---------- 13.3 figures ----------
