@@ -1,5 +1,6 @@
 /* Data Science (COM3021), Lecture 9: batch and online machine learning.
-   This part: the batching diagram (shared) and ds9-batches (9.2, concept drift, retraining cost, mini-batches, batch size). */
+   This part: the batching diagram (shared), the mini-batch figures and demo (used by 9.4 in ds-l9-04.js) and ds9-batches
+   (9.3, concept drift, retraining cost, recent data). */
 (function () {
   const S = (NIC.shared.ds9 = NIC.shared.ds9 || {});
   const N = NIC;
@@ -335,65 +336,36 @@
     draw("Every batch size starts at w = 10 (the best weight is about 4). Press <b>Run 1 epoch</b>.");
   }
 
-  /* ============ 9.2 Mini-batches, drift and retraining ============ */
+  Object.assign(S, { noiseFig, tradeFig, race });
+
+  /* ============ 9.3 When the world moves on: drift and retraining ============ */
   reg({
     id: "ds9-batches",
-    order: 2,
-    num: "9.2",
-    title: "Mini-batches, drift and retraining",
-    blurb: "Why a model goes stale, why retraining on everything gets expensive, and what the batch size changes.",
+    order: 3,
+    num: "9.3",
+    title: "When the world moves on",
+    blurb: "Tastes change after training. Retrain on everything, or only on what is fresh?",
     render(root) {
       root.appendChild(header(this, ""));
-      const card = el(
-        `<div class="card"><div class="card-head"><h2>Batch size race</h2><span class="tag">24 trips, learning rate 0.02</span></div><div></div></div>`,
-      );
-      root.appendChild(card);
-      race(card.lastElementChild);
-      root.appendChild(
-        pr(
-          "ds9-batches-1",
-          "Run <b>one epoch</b> with each batch size, all from w = 10. Which ends its first epoch with the lowest loss?",
-          [
-            "One at a time: 24 small steps beat one big one",
-            "Full batch (24): it follows the true gradient",
-            "Batch of 8: a middle size always does best",
-          ],
-          "With the same learning rate, one-at-a-time makes 24 updates per epoch while full batch makes 1. Each update is noisier, but 24 of them get much closer to w ≈ 4 (loss about 1.7 against about 133).",
-        ),
-      );
-      root.appendChild(
-        pr(
-          "ds9-batches-2",
-          "Look at the <b>One at a time</b> curve. Does the loss fall at every single update?",
-          [
-            "No: now and then one trip pushes it back up",
-            "Yes: every update lowers the loss a little",
-            "No: it only falls at the end of each epoch",
-          ],
-          "Each update follows one trip's gradient, which is only an estimate. A trip that disagrees with the rest can raise the overall loss for a step, so the curve is jagged.",
-        ),
-      );
       root.appendChild(
         takeaways(
           [
-            "Data and problems are not static: preferences change over time (<b>concept drift</b>), so the model must be <b>updated</b>.",
-            "Always retraining on <b>all</b> the data gets <b>increasingly costly</b>, and the data has to <b>fit in memory</b>.",
-            "Training on <b>recent</b> data (mini-batch, <b>incremental learning</b>) is cheaper and lets old data matter less. You must choose <b>how often</b> to retrain and <b>how much</b> data to use.",
-            "A <b>mini-batch</b> gives an <b>estimate</b> of the gradient: <b>the smaller the batch, the greater the randomness</b>, and convergence is less stable.",
-            "Full batch is <b>rarely used in production</b>: it only suits very small datasets. The <b>batch size</b> is an important decision.",
+            "Preferences change over time (<b>concept drift</b>), so a deployed model must be <b>updated</b>.",
+            "Retraining on <b>all</b> the data gets <b>increasingly costly</b>, and the data has to <b>fit in memory</b>.",
+            "Training on <b>recent</b> data (<b>incremental learning</b>) is cheaper; you choose <b>how often</b> and <b>how much</b>.",
           ],
-          "All the data is accurate but slow and heavy; a little data is cheap and fresh but noisy.",
+          "Fresh data keeps a model honest, and you don't have to reread the whole past to get it.",
         ),
       );
     },
   });
 
   L["ds9-batches"] = {
-    sum: "Data changes over time (<b>concept drift</b>), and retraining on everything gets costly and must fit in memory. <b>Mini-batch</b> learning trains on recent data and estimates the gradient: cheaper, but noisier as the batch shrinks.",
+    sum: "Data changes over time (<b>concept drift</b>), and retraining on everything gets costly and must fit in memory. Training on <b>recent</b> data is cheaper: you pick how often and how much.",
     steps: [
       st(
         "The world keeps moving",
-        `<p>A model trained once and deployed assumes the world stays as it was. Often it does not: in a <b>recommendation system</b>, what people like <b>changes over time</b>. This is <b>concept drift</b>, and the model has to be <b>updated</b> to keep up.</p><p>Worked example: a film site trains its model when 70% of clicks go to dramas. Twenty-six weeks later only 30% do, but the model still recommends as if it were 70%. Halfway, at week 13, the gap is already 20 points. Drag the weeks.</p>`,
+        `<p>Picture a café that learned its regulars all want hot chocolate, then summer arrives and everyone orders iced coffee. A model trained once assumes the world stays put. Often it doesn't: in a <b>recommendation system</b>, what people like <b>changes over time</b>. This is <b>concept drift</b>, and the model has to be <b>updated</b> to keep up. Drag the weeks and watch the gap open.</p>`,
         (box) => driftFig(box),
         mc(
           "A music app's model was trained two years ago. Since then listeners have moved towards podcasts and its suggestions keep getting worse. What is going on?",
@@ -406,24 +378,18 @@
         ),
       ),
       st(
-        "Retraining on everything gets heavy",
-        `<p>The simplest fix is to retrain regularly on <b>all the available data</b>. But the data keeps growing, so <b>retraining becomes increasingly costly</b>, and full batch training needs the data to <b>fit in memory</b>.</p><p>Worked example: 2 GB of new data arrives each week and the model is retrained weekly on everything. In week 10 a retrain reads 20 GB; by week 33 it reads 66 GB, more than the machine's 64 GB of memory. Over 10 weeks the retrains have read 2 + 4 + … + 20 = 110 GB.</p>${mm("<p>With $a$ GB per week, the retrain in week $k$ reads $ak$ GB, and all retrains up to week $k$ read</p>$$a(1 + 2 + \\dots + k) = a\\,\\frac{k(k+1)}{2}$$<p>so the total work grows with the <b>square</b> of the number of weeks. For $a = 2$, $k = 10$: $2 \\times 55 = 110$ GB.</p>")}`,
+        "Rereading the whole diary",
+        `<p>Imagine that every Sunday you reread your entire diary from the first page before writing a new entry. Fine in week one, hopeless after a few years. The simplest fix for drift is to retrain regularly on <b>all the data</b>, but the data keeps growing, so <b>retraining becomes increasingly costly</b>. And full batch training needs all of it to <b>fit in memory</b>. Drag the weeks.</p>${mm("<p>With $a$ GB per week, the retrain in week $k$ reads $ak$ GB, and all retrains up to week $k$ read</p>$$a(1 + 2 + \\dots + k) = a\\,\\frac{k(k+1)}{2}$$<p>so the total work grows with the <b>square</b> of the number of weeks. For $a = 2$, $k = 10$: $2 \\times 55 = 110$ GB.</p>")}`,
         (box) => growFig(box),
-        mc(
-          "3 GB of new data arrives every week and the model is retrained weekly on all of it. How much does the retrain in week 20 read?",
-          ["60 GB", "3 GB", "23 GB"],
-          "Twenty weeks of 3 GB each: 20 × 3 = 60 GB, and it keeps growing every week.",
-          "Weeks times GB per week.",
-        ),
       ),
       st(
-        "Train on recent data",
-        `<p>Alternatively, train on <b>more recent data</b> only. It is <b>less computationally intensive</b>, and <b>older data won't affect the model as much</b>. Updating a model bit by bit from newer data like this is <b>incremental learning</b>.</p><p>Worked example: keep only the last 4 weeks. Each retrain reads 4 × 2 = 8 GB, in week 10 or in week 100, and data older than 4 weeks no longer pulls the model back towards old tastes. Change the window and press <b>Next week</b>.</p>`,
+        "Just read the last few pages",
+        `<p>Instead, read only the last few pages of the diary. Training on <b>more recent data</b> is <b>less computationally intensive</b>, and <b>older data won't affect the model as much</b>, so old tastes stop dragging it back. Updating a model bit by bit from newer data like this is <b>incremental learning</b>. Change the window and press <b>Next week</b>: each retrain reads the same amount.</p>`,
         (box) => windowFig(box),
         mc(
-          "A model is retrained every week on just the last 6 weeks of data. What happens to the cost of each retrain as the months go by?",
+          "A model is retrained every week on just the last few weeks of data. What happens to the cost of each retrain as the months go by?",
           [
-            "It stays the same: always 6 weeks of data",
+            "It stays the same: always the same window",
             "It grows: more data piles up every week",
             "It shrinks: each week replaces older data",
           ],
@@ -432,62 +398,9 @@
       ),
       st(
         "How often, and how much?",
-        `<p>Training on recent data raises two questions. <b>How often</b> should the model be retrained: daily, weekly, monthly? And <b>how much data</b> should it use: a week, a month, a year?</p><p>Worked example: drama clicks fall steadily from 70% to 30% over 120 days. Retrained weekly on the last month, the model is on average about 5.6 points behind. Daily on the last week: about 1.3 points, but 120 retrains instead of 18. A year of data: about 18 points, because old tastes swamp the new. Try the combinations.</p>`,
+        `<p>Reading recent pages raises two questions. <b>How often</b> should you retrain: daily, weekly, monthly? And <b>how much data</b> should each retrain use: a week, a month, a year? Retrain often on a short window and the model follows changing tastes closely, but you pay for many retrains. Use a long window and old tastes swamp the new. Try the combinations.</p>`,
         (box) => cadenceFig(box),
-        mc(
-          "Tastes drift steadily. Which change brings the model closest to the real preference?",
-          [
-            "Retrain more often, on a shorter window",
-            "Retrain less often, on a longer window",
-            "Retrain more often, on a longer window",
-          ],
-          "More frequent retraining reacts sooner, and a short window stops old data dragging the model back. Both cost: more retrains, and noisier data.",
-        ),
       ),
-      st(
-        "Mini-batch: part of the data per update",
-        `<p><b>Mini-batch learning</b> uses <b>part</b> of the data for each update, so it computes an <b>estimate of the gradient</b>. An epoch becomes several updates: data set size ÷ batch size.</p><p>Worked example: 8 trips with a batch of 2 gives 4 updates per epoch (iteration 1 uses trips 1–2, iteration 2 uses 3–4, …). With a batch of 1 there are 8 updates, one per trip. Switch between the batch sizes and watch which trips feed each update.</p>${mm("<p>With $n$ examples and batch size $b$:</p>$$\\text{updates per epoch} = \\frac{n}{b}, \\qquad \\hat g_j = \\frac{1}{b}\\sum_{i \\in \\text{batch } j} g_i$$<p>$n = 8$, $b = 2$: $4$ updates, each from its own estimate $\\hat g_j$.</p>")}`,
-        (box, life) => S.pipes(box, life, 2, true),
-        mc(
-          "A training set has 1,200 rows and the batch size is 100. How many weight updates are there per epoch?",
-          ["12", "1", "100"],
-          "Each update uses 100 rows, so one pass over 1,200 rows makes 1,200 ÷ 100 = 12 updates.",
-          "Rows ÷ batch size.",
-        ),
-      ),
-      st(
-        "Smaller batch, more randomness",
-        `<p>A smaller batch averages fewer examples, so its gradient estimate depends more on <b>which</b> examples it happened to get. <b>The smaller the batch size, the greater the randomness</b>, and <b>convergence is less stable</b>, depending on the data fluctuations in the batch.</p><p>Worked example: 48 trips, true gradient about 31 at w = 6. Thirty random batches of 1 give estimates from about 2 to 80; batches of 12 stay between about 22 and 42; the whole set gives 31 every time. Pick a batch size.</p>${mm("<p>For a batch of $b$ examples drawn at random, the estimate is right on average and its spread (standard deviation) shrinks like</p>$$\\operatorname{sd}(\\hat g) \\approx \\frac{\\sigma}{\\sqrt{b}}$$<p>where $\\sigma$ is the spread of single-example gradients. Four times the batch halves the noise.</p>")}`,
-        (box) => noiseFig(box),
-        mc(
-          "A team halves its batch size from 32 to 16. What happens to the gradient estimates?",
-          [
-            "They get noisier: each averages fewer examples",
-            "They get more accurate: smaller batches are fresher",
-            "Nothing changes: the true gradient is the same",
-          ],
-          "The true gradient is unchanged, but each estimate now averages 16 examples instead of 32, so it wanders more from batch to batch.",
-        ),
-      ),
-      st(
-        "Trade-offs",
-        `<p><b>Full batch</b> is <b>rarely used in production</b>, since it is only suitable for <b>very small datasets</b>: every step must read all the data. That makes the choice of a <b>batch size</b> an important decision, and it interacts with the learning rate.</p><p>Worked example on our 24 trips, three epochs each: one-at-a-time already reaches the lowest loss at a learning rate of 0.004, but is clearly worse by 0.09, where full batch is still fine. Full batch needs about 0.06 to get as low. Small batches like small learning rates.</p>`,
-        (box) => tradeFig(box),
-        mc(
-          "Why is full batch learning rarely used in production?",
-          [
-            "It only suits small datasets: every step reads all the data",
-            "It cannot compute the true gradient on large datasets",
-            "It updates the weights after every single example",
-          ],
-          "Full batch computes the true gradient, but each step needs the whole data set (and enough memory). For big data that is far too slow.",
-        ),
-      ),
-    ],
-    guide: [
-      "With <b>Full batch (24)</b> selected, press <b>Run 1 epoch</b> and note the <b>Loss</b>.",
-      "Switch to <b>Batch of 8</b>, <b>Batch of 4</b> and <b>One at a time</b>, running one epoch each. Compare <b>Updates in that epoch</b>.",
-      "Run more epochs and compare how smooth each curve is, then answer the questions after the demo.",
     ],
   };
 })();

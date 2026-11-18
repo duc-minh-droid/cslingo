@@ -60,7 +60,7 @@
       ),
       st(
         "Same algorithm, same settings",
-        `<p>A recipe cooked by four chefs sharing the work still tastes like the recipe. Because the all-reduce rebuilds the full minibatch gradient, the method is <b>statistically equivalent to minibatch SGD</b> with B = M · B′.</p><p>So it is easy to reason about, keeps the <b>same hyperparameters</b> (learning rate, batch size), and is <b>easy to implement</b>: every worker has the same role, on top of standard distributed computing primitives. Compare the paths.</p>`,
+        `<p>A recipe cooked by four chefs sharing the work still tastes like the recipe. Because the all-reduce rebuilds the full minibatch gradient, the method is <b>statistically equivalent to minibatch SGD</b> with B = M · B′.</p><p>So it is easy to reason about, keeps the <b>same hyperparameters</b> (learning rate, batch size), and is <b>easy to implement</b>: every worker has the same role, on top of standard distributed building blocks (primitives). Compare the paths.</p>`,
         (b) => S.sameFig(b),
       ),
       st(

@@ -182,7 +182,7 @@
       ),
       st(
         "One small step",
-        `<p>Imagine asking four friends which way to walk, and heading in their average direction.</p><p>Minibatch SGD does just that. It takes the gradients of the examples in the minibatch, <b>averages</b> them, and moves the weights a little against that average. The <b>learning rate α</b> sets how big each step is. Slide it and watch w move.</p>${mm("<p>The update from the slides, for a minibatch of size $B$ at iteration $t$:</p>$$w_{t+1} = w_t - \\alpha_t \\cdot \\frac{1}{B} \\sum_{b=1}^{B} \\nabla f_{i_{b,t}}(w_t)$$<p>Here $10 - 0.5 \\times \\frac{2 + 6 + 4 + 0}{4} = 10 - 1.5 = 8.5$.</p>")}`,
+        `<p>Imagine asking four friends which way to walk, and heading in their average direction.</p><p>Minibatch SGD does just that. It takes the <b>gradient</b> of each example in the minibatch (that example's hint about which way to nudge the weights), <b>averages</b> them, and moves the weights a little against that average. The <b>learning rate α</b> sets how big each step is. Slide it and watch w move.</p>${mm("<p>The update from the slides, for a minibatch of size $B$ at iteration $t$:</p>$$w_{t+1} = w_t - \\alpha_t \\cdot \\frac{1}{B} \\sum_{b=1}^{B} \\nabla f_{i_{b,t}}(w_t)$$<p>Here $10 - 0.5 \\times \\frac{2 + 6 + 4 + 0}{4} = 10 - 1.5 = 8.5$.</p>")}`,
         (b) => S.updateFig(b),
       ),
       st(
