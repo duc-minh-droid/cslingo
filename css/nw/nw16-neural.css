@@ -1,0 +1,158 @@
+/* Lecture 16 (neural networks): lesson figures, demos and workshop cards (classes prefixed nw16-). */
+.nw16-svg {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin: 0 auto;
+}
+.nw16-lab {
+  font:
+    800 12px Nunito,
+    sans-serif;
+  fill: var(--text);
+}
+.nw16-lab.s {
+  font-size: 11px;
+  fill: var(--text-dim);
+}
+.nw16-lab.b {
+  font-size: 14px;
+}
+.nw16-ctls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 8px;
+}
+.nw16-ctls .seg {
+  flex-wrap: wrap;
+}
+.nw16-tbl {
+  margin: 8px auto 0;
+}
+.nw16-tbl tr[data-r] {
+  cursor: pointer;
+}
+.nw16-tbl tr.on td {
+  background: var(--blue-soft, var(--bg-2));
+  color: var(--blue-ink);
+}
+.nw16-note {
+  margin: 8px 0 0;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.nw16-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin: 4px 0;
+}
+.nw16-k {
+  display: inline-block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--blue);
+}
+.nw16-k.dash {
+  background: repeating-linear-gradient(90deg, var(--line-2) 0 5px, transparent 5px 8px);
+}
+.nw16-row {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0;
+}
+.nw16-cell {
+  padding: 6px 0;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text-dim);
+  font:
+    800 13px Nunito,
+    sans-serif;
+  box-shadow: 0 3px 0 var(--line);
+  cursor: pointer;
+}
+.nw16-cell.on {
+  background: var(--violet);
+  border-color: var(--violet-lip);
+  box-shadow: 0 3px 0 var(--violet-lip);
+  color: var(--violet-on);
+}
+.nw16-cell:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+.nw16-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.nw16-wts small {
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.nw16-wts > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 48px;
+  margin-top: 4px;
+}
+.nw16-w {
+  flex: 1;
+  height: var(--h);
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  background: var(--teal);
+}
+.nw16-w.neg {
+  background: var(--rose);
+}
+.nw16-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.nw16-two h3 {
+  margin: 0 0 6px;
+}
+.nw16-two ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+.nw16-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.nw16-chip.blue {
+  color: var(--blue-ink);
+}
+.nw16-chip.teal {
+  color: var(--teal-ink);
+}
+.nw16-chip.big {
+  font-size: 28px;
+  min-width: 52px;
+  justify-content: center;
+}
+@media (max-width: 520px) {
+  .nw16-two {
+    grid-template-columns: 1fr;
+  }
+  .nw16-row {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

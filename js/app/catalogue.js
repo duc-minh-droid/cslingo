@@ -27,6 +27,9 @@
         12: "Lecture 12 — Particle swarm optimisation",
         13: "Lectures 13–14 — Multi-objective evolutionary algorithms",
         15: "Lecture 15 — Multi-objective particle swarm optimisation",
+        16: "Lecture 16 — Neural networks",
+        17: "Lecture 17 — Spiking neural networks",
+        18: "Lecture 18 — Neuromorphic computing",
       },
     },
     ds: {
@@ -48,6 +51,11 @@
         9: "Lecture 9 — Batch and online machine learning",
         10: "Lecture 10 — Concept drift detection",
         11: "Lecture 11 — Distributed machine learning",
+        12: "Lecture 12 — Virtualisation and containers",
+        13: "Lecture 13 — Thread-level parallelism",
+        14: "Lecture 14 — Tensors",
+        15: "Lecture 15 — High-performance computing",
+        16: "Lecture 16 — Hardware–software co-design",
       },
     },
     algo: {

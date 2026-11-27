@@ -1,0 +1,151 @@
+/* Lecture 18 (neuromorphic computing): lesson figures, demos and workshop styles (classes prefixed nw18-). */
+.nw18-svg {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  margin: 0 auto;
+}
+.nw18-t {
+  font-weight: 900;
+  font-size: 15px;
+  fill: var(--text);
+}
+.nw18-s {
+  font-weight: 700;
+  font-size: 12px;
+  fill: var(--text-dim);
+}
+.nw18-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.nw18-k {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  margin-right: -6px;
+}
+.nw18-k.amber {
+  background: var(--amber);
+}
+.nw18-k.teal {
+  background: var(--teal);
+}
+.nw18-k.violet {
+  background: var(--violet);
+}
+.nw18-k.blue {
+  background: var(--blue);
+}
+.nw18-note {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+.nw18-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.nw18-stat {
+  flex: 1 1 110px;
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 6px 12px;
+}
+.nw18-stat small {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.nw18-stat b {
+  font-size: 18px;
+  font-weight: 900;
+}
+.nw18-stat.amber b {
+  color: var(--amber-ink);
+}
+.nw18-stat.teal b {
+  color: var(--teal-ink);
+}
+.nw18-stat.violet b {
+  color: var(--violet-ink);
+}
+.nw18-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+  max-width: 420px;
+  margin: 8px auto 0;
+}
+.nw18-px {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--panel-2);
+  border: 2px solid var(--line);
+}
+.nw18-px.hog {
+  background: var(--amber);
+}
+.nw18-px.sent {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--blue) 45%, transparent);
+}
+.nw18-tbl td,
+.nw18-tbl th {
+  padding: 4px 8px;
+}
+.nw18-bar {
+  display: inline-block;
+  width: 70px;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--line);
+  overflow: hidden;
+  vertical-align: middle;
+}
+.nw18-bar i {
+  display: block;
+  height: 100%;
+  background: var(--violet);
+}
+.nw18-tag {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+.nw18-tag.violet {
+  background: color-mix(in srgb, var(--violet) 18%, transparent);
+  color: var(--violet-ink);
+}
+.nw18-tag.blue {
+  background: color-mix(in srgb, var(--blue) 18%, transparent);
+  color: var(--blue-ink);
+}
+.nw18-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.nw18-chip.ok {
+  opacity: 0.6;
+}
+.nw18-chip small {
+  font-weight: 700;
+}

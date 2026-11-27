@@ -1,0 +1,15 @@
+/* Data Science Lecture 13 (thread-level parallelism): lesson figures and the 13.W workshop. Classes prefixed ds13-. */
+.ds13-proc {
+  cursor: pointer;
+}
+.ds13-proc:hover rect {
+  stroke-width: 3;
+}
+.ds13-lab {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 12px;
+}
+.ds13-wcard .controls {
+  flex-wrap: wrap;
+}

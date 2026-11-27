@@ -1,0 +1,129 @@
+/* Lecture 17 (spiking neural networks): lesson figures, demos and workshop styles (classes prefixed nw17-). */
+.nw17-svg {
+  width: 100%;
+  height: auto;
+}
+.nw17-lab {
+  font:
+    700 12px Nunito,
+    sans-serif;
+  fill: var(--text-dim);
+}
+.nw17-node {
+  font:
+    900 12px Nunito,
+    sans-serif;
+  text-anchor: middle;
+}
+.nw17-note {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.nw17-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.nw17-stat {
+  flex: 1 1 120px;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.nw17-stat small {
+  display: block;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.nw17-stat b {
+  font-size: 18px;
+  font-weight: 900;
+}
+.nw17-stat.blue b {
+  color: var(--blue-ink);
+}
+.nw17-stat.amber b {
+  color: var(--amber-ink);
+}
+.nw17-stat.teal b {
+  color: var(--teal-ink);
+}
+.nw17-stat.rose b {
+  color: var(--rose-ink);
+}
+.nw17-stat.violet b {
+  color: var(--violet-ink);
+}
+.nw17-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+  overflow-x: auto;
+}
+.nw17-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nw17-rl {
+  flex: 0 0 52px;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.nw17-cell,
+.nw17-d {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 34px;
+  height: 30px;
+  padding: 0;
+  font:
+    800 11px Nunito,
+    sans-serif;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 26px;
+}
+.nw17-cell {
+  border: 2px solid var(--line-2);
+  background: var(--panel);
+  color: var(--text-dim);
+  box-shadow: 0 2px 0 var(--line-2);
+  cursor: pointer;
+}
+.nw17-cell.on {
+  background: var(--amber);
+  border-color: var(--amber-ink);
+  color: var(--amber-on);
+}
+.nw17-d {
+  border: 2px solid transparent;
+}
+.nw17-d.up {
+  color: var(--teal-ink);
+}
+.nw17-d.down {
+  color: var(--rose-ink);
+}
+@media (max-width: 480px) {
+  .nw17-row {
+    gap: 2px;
+  }
+  .nw17-cell,
+  .nw17-d {
+    height: 26px;
+    line-height: 22px;
+    font-size: 10px;
+    border-radius: 6px;
+  }
+  .nw17-rl {
+    flex-basis: 40px;
+    font-size: 12px;
+  }
+}
