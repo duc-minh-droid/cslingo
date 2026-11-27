@@ -1,0 +1,41 @@
+/* Data Science Lecture 16 (hardware–software co-design): the 16.4 partition board, the timeline bars and the 16.W
+   workshop. Classes prefixed ds16-. */
+.ds16-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.ds16-job {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  white-space: normal;
+}
+.ds16-job small {
+  font-size: 11px;
+  color: var(--blue-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ds16-job.hw {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 18%, var(--panel));
+}
+.ds16-job.hw small {
+  color: var(--violet-ink);
+}
+.ds16-bar {
+  cursor: pointer;
+}
+.ds16-pick {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px 14px;
+  margin-bottom: 8px;
+}
+.ds16-pick b {
+  font-size: 13px;
+}

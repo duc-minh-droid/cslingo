@@ -1,0 +1,111 @@
+/* Data Science Lecture 14 (tensors and sparse tensors): array chips, grid and array side by side, the 14.W swap sheet.
+   Classes prefixed ds14-. */
+.ds14-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+.ds14-pair > svg {
+  flex: 0 0 auto;
+}
+.ds14-arr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  flex-wrap: wrap;
+}
+.ds14-arr > b {
+  min-width: 92px;
+  font-size: 12.5px;
+  font-family: var(--mono, monospace);
+}
+.ds14-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ds14-chip {
+  position: relative;
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  padding: 10px 5px 3px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-weight: 800;
+  font-size: 12.5px;
+}
+.ds14-chip i {
+  position: absolute;
+  top: 1px;
+  left: 0;
+  right: 0;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+.ds14-chip.on.teal {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 24%, var(--panel));
+}
+.ds14-chip.on.violet {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 24%, var(--panel));
+}
+.ds14-chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.ds14-pick {
+  cursor: pointer;
+  padding: 6px 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  font-weight: 800;
+}
+.ds14-sheet {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 44px));
+  gap: 5px;
+  justify-content: center;
+  margin: 8px auto;
+}
+.ds14-cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text-faint);
+  font: 800 14px var(--sans);
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out);
+}
+.ds14-cell.on {
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 20%, var(--panel));
+  color: var(--text);
+}
+.ds14-cell.row {
+  outline: 2px dashed var(--violet);
+  outline-offset: 1px;
+}
+.ds14-out {
+  margin: 8px 0;
+}
+.ds14-code {
+  font-family: var(--mono, monospace);
+  font-size: 13px;
+  line-height: 1.7;
+  word-break: break-word;
+}
