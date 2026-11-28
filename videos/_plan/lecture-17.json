@@ -1,0 +1,351 @@
+{
+  "slug": "lecture-17",
+  "dir": "l17",
+  "title": "Spiking neural networks",
+  "outline": "Lecture 17 video (Nature-Inspired Computation, ECM3412): Spiking neural networks. 11 scenes, 127 s: title (4), Pip needs a brain (12), rate coding (12), timing and population coding (13), the leaky neuron (14), spikes through a network (13), STDP (14), where backprop gets stuck (12), surrogate slopes (12), evolving an SNN (12), recap (9). Running example: Pip, a palm-sized garden rover on one coin battery. Lessons 17.1-17.6 (js/content/nic/l17-01.js kernel encode / popCode / lif / propagate / stdp / slope, l17-02.js, l17-03.js); workshop 17.W. ALL NUMBERS computed in videos/l17/common.js by the lessons kernel and asserted at load. COLOURS: orange = a spike; blue = input and charge, the pre-synaptic neuron; green = what Pip needs / works, potentiation; red = threshold, the costly ANN, depression, no gradient; purple = the surrogate curve and the structure (upper level); grey = neutral. Text >= 28 px, symbols as SVG.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 17",
+    "title": "Spiking neural networks",
+    "sub": "Neurons that speak only when there is news",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 17",
+      "title": [
+        "Spiking neural networks"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Lecture 17 video: title card"
+    },
+    {
+      "n": 2,
+      "file": "scene-02-pip.js",
+      "kicker": "A BRAIN FOR A TINY ROBOT",
+      "title": [
+        "Pip needs a brain",
+        "that sips power"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Pip patrols a garden on one coin battery."
+        ],
+        [
+          3.2,
+          5.8,
+          "A conventional ANN computes every neuron, every step."
+        ],
+        [
+          6,
+          8.6,
+          "Pip needs quick reactions, low power and learning on the go."
+        ],
+        [
+          8.8,
+          11.7,
+          "An SNN sends discrete spikes only when needed."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 02-pip: Pip, a palm-sized garden rover on one coin battery, needs a brain. A conventional ANN computes every neuron every step (all twelve glow on every tick, the battery drains); Pip needs quick reactions, low power and learning on the go; a spiking network stays quiet and sends one spike when a whisker touches a leaf. Layout (stage px): flow strip of three tags (y 12); left card x 12..452, y 100..470 with a 4 x 3 grid of neurons and its title; tags under it (y 484); right panel x 472..924: 'coin battery' and the battery gauge (y 110..190), the green card 'What Pip needs' (y 220..470); Pip drives along the ground line (y 626) towards a leaf at x 850. Story (local seconds): 0.4 strip, Pip starts to drive, 0.6 the battery; 3.2 the ANN card, its neurons pulse red on every tick (0.5 s) and the battery drains (3.4..8.8), 4.0 three red tags; 6.0 the green card and its three lines; 8.8 the card becomes 'Spiking neural network', the neurons go grey, a green tag 'discrete spikes over time' replaces the red tags, the battery holds; 9.6 Pip's whisker touches the leaf: one neuron fires orange with a spike tick and Pip stops; hold to 12."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-rate.js",
+      "kicker": "SPIKE TRAINS",
+      "title": [
+        "Count the spikes:",
+        "rate coding"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A neuron's run of spikes over time is a spike train."
+        ],
+        [
+          3.2,
+          5.8,
+          "Rate coding: a stronger signal sends more spikes."
+        ],
+        [
+          6,
+          8.6,
+          "Dim 2, medium 5, bright 9 spikes in 20 steps."
+        ],
+        [
+          8.8,
+          11.7,
+          "Only how many count, not their size."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 03-rate: spike trains and rate coding (lesson 17.2, L17.ARCH, L17.RATE, L17.encode). Every spike is the same short blip; a neuron's run of spikes over time is a spike train. Rate coding: strength s (out of 10) gives s evenly spaced spikes in 20 steps: dim 2, medium 5, bright 9. Layout (stage px): raster rows x 12..924 (labels 200 px, counts in the last 70 px), 20 steps. Part 1: Pip's three sensor rows (whisker 3, light 5, sound 2; orange) at y 12 / 76 / 140, a grey bracket from them down into a blue neuron at (44, 262), and its own row (blue ticks at steps 8, 14, 20) at y 230. Part 2: rows 'dim (2)', 'medium (5)', 'bright (9)' at the same three places, counts at the right. Part 3: a demo row (y 300) and a slider (track y 430) 'light strength'. Story (local seconds): 0.4 sensor rows and the neuron row draw under a playhead (0.4..2.8); 3.0 they fade; 3.4..5.8 the three rate rows draw; 6.0 the counts 2, 5, 9 (orange); 8.8 the slider knob steps from 2 to 9 (8.9..11.0) and the demo row redraws with that many spikes, with the note 'strength s out of 10 gives s spikes in 20 steps'; hold to 12."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-timing.js",
+      "kicker": "TIMING AND TEAMS",
+      "title": [
+        "When it fires,",
+        "or who fires"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Temporal coding: a strong input fires early, a weak one late."
+        ],
+        [
+          3.2,
+          5.8,
+          "Bright fires at step 4, dim at step 16. One spike can be enough."
+        ],
+        [
+          6,
+          9.4,
+          "Population coding: five neurons, each liking a range."
+        ],
+        [
+          9.6,
+          12.7,
+          "Strength 7 wakes the neurons that like 5, 7.5 and 10."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 04-timing: temporal and population coding (lesson 17.2, L17.TIME, L17.POP7). Temporal: one spike each, earlier when stronger: bright (9) at step 4, medium (5) at 11, dim (2) at 16. Population: five neurons liking 0, 2.5, 5, 7.5 and 10; strength 7 gives 0, 0, 3, 5 and 1 spikes, so the busy ones (likes 5, 7.5, 10) carry the value. Layout (stage px): top raster rows y 12 / 76 / 140 (rh 64, labels 200 px, badges in the last 110 px), a 'step n' label beside each spike; a blue tag 'input: strength 7' and an orange tag 'who is busy says 7' at y 214; the population raster rows y 284 + 68 i (rh 68, x 24..924) with counts at the right; an orange dashed box round the three busy rows. Story (local seconds): 0.4 the playhead sweeps 20 steps (0.4..3.4); each spike pops as it is reached, with its finish badge 1st / 2nd / 3rd; 3.2 the 'step 4 / 11 / 16' labels; 6.0 the strength tag and the five population rows; 6.6..8.6 their spikes draw; 8.6 counts appear, busy labels turn orange; 9.6 the dashed box and the 'who is busy says 7' tag; hold to 13."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-leaky.js",
+      "kicker": "A LEAKY BUCKET THAT FIRES",
+      "title": [
+        "Fill up, tip over,",
+        "or leak away"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3.4,
+          "Charge accumulates from inputs, like drops in a bucket."
+        ],
+        [
+          3.6,
+          7.8,
+          "At the threshold it fires a spike, resets, and fills again."
+        ],
+        [
+          8,
+          10.8,
+          "Below-threshold charge leaks away over time."
+        ],
+        [
+          11,
+          13.7,
+          "With this leak the charge levels off near 0.67: no spike."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 05-leaky: the leaky neuron (lesson 17.3, L17.LIF = the kernel's lif, threshold 1). A bucket whose water is the charge, beside the charge trace (blue staircase) under the red dashed threshold. (1) 0.12 a step, no leak, 8 steps: 0.96, not yet. (2) 0.25 a step, no leak, 20 steps: fires (orange spike) and resets at steps 4, 8, 12, 16, 20: 5 spikes. (3) 0.2 a step with leak 0.3: the charge levels off near 0.67 (0.2 / 0.3) and never fires: 0 spikes. Layout (stage px): tags 'drop ...' (x 12, y 12) and 'leak 0.3' (x 186, y 12); bucket x 40..240, brim y 170 (= threshold), bottom y 430, a tap at x 140 above it; stat 'spikes' x 12..272, y 480; chart axes from (320, 470) to (900, 120): step t at x 320 + 28.5 t, charge v at y 470 - 330 v; threshold line y 140, spikes rise to y 44. Story (local seconds): 0.4 bucket, chart and tag; trace 1 draws 0.6..3.0, tag '0.96: not yet' at 3.0; 3.6 trace 1 fades, trace 2 draws 3.8..7.4 with a spike (and an orange flash of the bucket) at each fire, the stat counts 1..5; 8.0 trace 2 fades, the bucket gets a hole that drips, the 'leak 0.3' tag, trace 3 draws 8.2..10.6, stat 0; 11.0 a blue dashed level line at 0.67 with the tag 'levels off at 0.2 / 0.3, about 0.67'; hold to 14."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-ripple.js",
+      "kicker": "RIPPLES THROUGH THE NETWORK",
+      "title": [
+        "Spikes travel",
+        "one step at a time"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          2.2,
+          "t = 1: input A fires."
+        ],
+        [
+          2.4,
+          4.2,
+          "t = 2: one step later, both of A's neighbours fire."
+        ],
+        [
+          4.4,
+          6.4,
+          "O needs 3 spikes at once. Two is not enough."
+        ],
+        [
+          6.6,
+          8.6,
+          "t = 4: A's and B's neighbours fire together."
+        ],
+        [
+          8.8,
+          12.7,
+          "t = 5: O gets 4 spikes, crosses its threshold and fires."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 06-ripple: spikes travel one step at a time (lesson 17.3's propagation figure, L17.PROP). Inputs A (fires at steps 1 and 3) and B (2 and 3); A feeds A1, A2 and B feeds B1, B2 one step later; all four feed O (threshold 3) one step later. O receives 0, 0, 2, 2, 4 spikes at steps 1..5 and fires only at step 5. Layout (stage px): nodes A (90, 170), B (90, 450), A1 (340, 80), A2 (340, 240), B1 (340, 380), B2 (340, 540), O (600, 310), r 42; tag 'threshold 3' under O (x 510, y 372); right panel x 636..924: stat 'step' (y 12) and stat 'O gets' (y 110, text 'n of 3') with a green tick beside it once O fires. Story (local seconds): 0.1..0.4 the network draws (grey); steps start at 0.4 / 2.4 / 4.4 / 6.6 / 8.8: the neurons firing at that step turn orange (pop), their outgoing wires turn orange and a spike dot runs along each (+0.3..+1.3); the stats show the step and what O receives now; at step 5 O fires orange and the tick draws; hold to 13."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-stdp.js",
+      "kicker": "FIRE FIRST, GET CLOSER",
+      "title": [
+        "Spike order",
+        "sets the strength"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A synapse links a pre-synaptic sender to a post-synaptic receiver."
+        ],
+        [
+          3.2,
+          7.2,
+          "Pre fires just before post: strengthen. Potentiation."
+        ],
+        [
+          7.4,
+          10.4,
+          "Post fires before pre: weaken. Depression."
+        ],
+        [
+          10.6,
+          13.7,
+          "No labels needed: STDP is unsupervised learning."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 07-stdp: spike-timing-dependent plasticity (lesson 17.4, L17.STDP = the kernel's stdp rule over 8 steps). Pre fires one step before post: +1 (potentiation); post fires one step before pre: -1 (depression). Run 1: pre at 2 and 5, post at 3 and 6: w 0 -> 1 -> 2. Run 2: pre at 3 and 6, post at 2 and 5: w 0 -> -1 -> -2. Layout (stage px): pre neuron (blue, 130, 96) and post neuron (orange, 620, 96), r 46, with 'sender (whisker)' and 'receiver (stop!)' under them; the synapse arrow between them (thickness and colour follow w), the 'synapse' label under it and the weight tag 'w = n' above it; the tag 'potentiation' / 'depression' at x 700, y 70. Rasters (8 steps, x 12..924, labels 150 px): 'pre' at y 196 (blue ticks), 'post' at y 316 (orange ticks); between them a curved arrow per pair (green +1 or red -1). Bottom (y 450..628): a green card 'STDP' and a grey card 'Backprop (Lecture 16)'. Story (local seconds): 0.4 neurons, synapse and labels; 3.2..5.6 run 1 draws under a playhead, each pair's arrow and +1 appear as its second spike lands, w steps up, the synapse thickens and turns green, 5.8 'potentiation'; 7.4 run 1 clears, 7.6..10.0 run 2 the same way with red -1 arrows, the synapse thins and turns red, 'depression'; 10.6 the two cards; hold to 14."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-cliff.js",
+      "kicker": "WHERE BACKPROP GETS STUCK",
+      "title": [
+        "No slope,",
+        "no direction"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Backpropagation walks back from the error, using each neuron's slope."
+        ],
+        [
+          3.2,
+          5.8,
+          "A spiking neuron is 0 below the threshold, then jumps."
+        ],
+        [
+          6,
+          8.6,
+          "Its slope is the Dirac delta: zero everywhere but one point."
+        ],
+        [
+          8.8,
+          11.7,
+          "No gradient information, so plain backprop can't be used."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 08-cliff: why plain backpropagation gets stuck (lesson 17.5). Backprop walks back from the output error using each neuron's slope; a sigmoid has the slope f(a)(1 - f(a)). A spiking neuron is a step: 0 below the threshold, then a jump; its slope is the Dirac delta (zero everywhere but one infinitely thin spike), so there is no gradient information. Layout (stage px): part 1: tags 'Output error' (red), 'Hidden layer', 'Input weights' (y 12) with grey arrows pointing right (the backward walk); a sigmoid hill (grey) over a = -6..6 at x 470 + 55 a, y 470 - 300 f, Pip (s 0.45) on it at a = -1.4 with a green tangent arrow pointing downhill and the green tag 'slope f(a)(1 − f(a))' (x 120, y 150). Part 2: left plot x 12..452 (axes from (50, 470), blue step at the threshold x 250), title 'spike output'; right plot x 484..924 (axes from (520, 470), red flat slope with a thin spike at x 715 up to y 120), title 'its slope', label 'Dirac delta'; Pip on the left plot's flat part (x 130) with a red tag 'slope 0'; the red stamp 'no gradient information' over the right plot. Story (local seconds): 0.4 strip, hill, Pip, slope arrow and tag; 3.0 part 1 fades; 3.2 the left plot draws (step); 6.0 the right plot, its spike, 'Dirac delta', Pip and 'slope 0'; 8.8 the stamp; hold to 12."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-surrogate.js",
+      "kicker": "BORROW A SMOOTH STAND-IN",
+      "title": [
+        "A surrogate slope",
+        "for the backward pass"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Keep real spikes forward; pretend a smooth sigmoid backward."
+        ],
+        [
+          3.2,
+          5.8,
+          "Its slope is a bell centred on the threshold. k = 1: peak 0.25."
+        ],
+        [
+          6,
+          8.6,
+          "k = 5: peak 1.25, narrower."
+        ],
+        [
+          8.8,
+          11.7,
+          "k = 20: peak 5. As k grows, the bell becomes the delta."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 09-surrogate: the surrogate slope (lesson 17.5, L17.slope = k s (1 - s), s the sigmoid of k a). Real spikes go forward; the backward pass pretends the neuron is a smooth sigmoid. Its slope is a bell centred on the threshold with peak k / 4: k 1 -> 0.25 (at a = 2: 0.10), k 5 -> 1.25 (almost 0 at a = 2), k 20 -> 5; as k grows the bell becomes the Dirac delta. Layout (stage px): tags 'forward: real spikes' (orange) and 'backward: smooth surrogate' (purple) at y 12; plot axes from (100, 540): a = -10..10 at x 500 + 40 a, slope 0..5.2 at y 540 - 82.7 s; ticks -10 / 0 / 10 and 0 / 5; titles 'slope' (top left) and 'a (charge minus threshold)' (bottom right); a faint red dashed Dirac line at a = 0. Peak tags 'k = n: peak p' sit left of the centre (right edge x 480) at the height of each peak; a dot at a = 2 on the newest curve with its value tag to the right (x 600). Story (local seconds): 0.4 the two tags; 1.0 axes; 3.2 k = 1 draws (purple), its peak tag and the a = 2 dot '0.10'; 6.0 k = 1 turns grey, k = 5 draws, tag 'peak 1.25', dot 'almost 0'; 8.8 k = 5 turns grey, k = 20 draws, tag 'peak 5', the red Dirac outline and 'as k grows: the Dirac delta'; hold to 12."
+    },
+    {
+      "n": 10,
+      "file": "scene-10-evolve.js",
+      "kicker": "LET EVOLUTION DESIGN THE BRAIN",
+      "title": [
+        "Evolve the structure,",
+        "then the weights"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "An EA can tune weights, delays, thresholds and structure."
+        ],
+        [
+          3.2,
+          5.8,
+          "Often bi-level: structure upper, weights lower."
+        ],
+        [
+          6,
+          8.6,
+          "30 networks a generation, 100 generations: 3000 tests."
+        ],
+        [
+          8.8,
+          11.7,
+          "Costly, and co-evolving everything at once is still open."
+        ]
+      ],
+      "spec": "Lecture 17 video, scene 10-evolve: evolving a spiking network (lesson 17.6, L17.EVO). An evolutionary algorithm can tune an SNN's weights, delays, thresholds and structure (neural architecture search); it is often bi-level: structure is the upper problem, weights the lower one, and the search switches between them. Cost: 30 networks a generation for 100 generations is 3000 tests, each already costly; optimising several aspects together is still an open challenge. Layout (stage px): left card x 12..452, y 12..312: a small SNN (3-3-2) with the tags 'weights', 'delays', 'thresholds', 'structure' in its corners; below (y 330..470) three candidate brains with green fitness bars under the label 'how well Pip drives' (y 360), later replaced by a grey card (y 330..470). Right: purple box 'Upper: structure' (x 472..924, y 12..172) and blue box 'Lower: weights' (y 232..392), each with a mini network (2-3-1) at x 720..900; between them the tag 'periodically switch' with a down arrow (x 500) and an up arrow (x 896). Cost rows (x 472..924, y 420 + 70 i): a label, then a bar of width 452 * n / 3000 (at least 8 px): green 1, orange 30, red 3000; tag 'expensive' (red). Story (local seconds): 0.4 the SNN and its four tags, 1.6 the three candidates and their fitness bars; 3.2 the two boxes; upper active 3.6..4.4 (a neuron pops in, a link fades), lower active 4.4..5.2 (link widths change), upper again 5.2..6.0; 6.0 cost rows every 0.6 s; 8.8 'expensive' and the grey card 'Co-evolving several aspects together: still an open challenge' replaces the candidates; hold to 12."
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "Spikes code by rate, timing or team",
+        "tone": "orange",
+        "pictogram": "three short spike-train rows whose ticks pop in"
+      },
+      {
+        "head": "Leaky neurons fill, fire and reset",
+        "tone": "blue",
+        "pictogram": "sawtooth charge trace under a red dashed threshold, orange spikes at the peaks"
+      },
+      {
+        "head": "STDP, surrogates or evolution to learn",
+        "tone": "green",
+        "pictogram": "blue pre neuron, green arrow +1 to an orange post neuron, a purple bell curve"
+      }
+    ],
+    "spec": "Lecture 17 · Spiking neural networks, scene 11-recap: three rows, each a small animated pictogram and one bold line (bare scene). Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row, 4.2-4.8 the call to action 'Next: Workshop 17.W'. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no reset): all are done by 6.5 s, so afterwards only Sprout's bob moves. Row 1 (orange): coding. Three short spike-train rows; their orange ticks pop in left to right (rate, timing, team). Row 2 (blue): the leaky neuron. A blue sawtooth charge trace draws under a red dashed threshold; an orange spike rises at each peak. Row 3 (green): learning. A blue pre neuron, a green arrow to an orange post neuron with a green '+1', and a small purple bell curve beside them."
+  },
+  "helpers": "Lecture 17 · Spiking neural networks: pure data and algorithms (VID.l17, short name L17). NO DOM here. The app's own kernel (js/content/nic/l17-01.js encode / popCode / lif / propagate / stdp / slope, 20 time steps, threshold 1) is ported line for line, run ONCE when the page loads, and every number the storyboard (videos/_plan/lecture-17.json) quotes is ASSERTED: a wrong figure throws a clear Error. Scenes only look values up. Steps are counted from 1 on screen. KERNEL L17.encode(s, \"rate\" | \"time\") -> [bool] x 20; L17.popCode(s) -> five trains (neurons liking 0, 2.5, 5, 7.5, 10) L17.lif(I, leak, th = 1, n = 20) -> {V, S, n}; L17.propagate(A, B, steps = 6) -> [{A, B, A1, A2, B1, B2, O, got}] L17.stdp(pre, post) -> {w, log}; L17.slope(a, k) = k s (1 - s) with s the sigmoid of k a (peak k / 4 at a = 0) L17.on(train) -> the 1-based steps where a train spikes DATA L17.ARCH: lesson 17.1's sensor raster (whisker 3, light 5, sound 2 spikes) and the neuron's answer (steps 8, 14, 20) L17.RATE: dim 2, medium 5, bright 9 (rate code); L17.TIME: bright at step 4, medium 11, dim 16 (temporal code) L17.POP7 = popCode(7): spikes 0, 0, 3, 5, 1 L17.LIF: fill (0.12, no leak, 8 steps: 0.96, no spike), fire (0.25, no leak: steps 4 8 12 16 20), leak (0.2, leak 0.3: levels off near 0.67, no spike) L17.PROP: A fires at steps 1 and 3, B at 2 and 3; O receives 0 0 2 2 4 0 and fires at step 5 only L17.STDP: pre 2 5 / post 3 6 (w = +2, potentiation) and pre 3 6 / post 2 5 (w = -2, depression), 8 steps L17.SURR: k 1, 5, 20 -> peaks 0.25, 1.25, 5; slope at a = 2: 0.10, almost 0, almost 0 L17.EVO: 30 networks a generation x 100 generations = 3000 tests || Lecture 17 · Spiking neural networks: the drawing helpers shared by the scenes (VID.l17, short name L17). Reuses videos/l5/common.js (svg, tick) and videos/l13/common-2.js (tag, stat, card, label, arrow, seq, tone). Every call is pure: call set() each frame with everything you want to see. COLOUR ROLES of THIS video (videos/_plan/lecture-17.json): orange = a spike (ticks, firing neurons, lit wires); blue = input and charge (sensor trains, the charge trace, the pre-synaptic neuron); green = what Pip needs / what works (the SNN side, potentiation, a usable slope); red = the threshold line, the costly ANN side, depression, \"no gradient\"; purple = the surrogate curve and the structure (upper level); grey = neutral (silent neurons, axes, idle steps). L17.svg(stage) -> a full-stage <svg> (936 x 640) L17.text(svg, {x, y, text, fs: 28, tone, anchor: \"start\", weight: 800}) -> {el, set({text, tone, o, dx, dy})} tone undefined = ink, \"grey\" = the dim text colour, any other tone = its -ink shade L17.raster(svg, {x: 12, y, w: 912, labW: 180, cntW: 0, n: 20, rows: 1, rh: 60, labs: [], time: false}) -> {x0, x1, dx, colX(step 1..n), rowY(i), set(i, {train, upto: n, tone: \"orange\", lab, labTone, cnt, cntTone}), head({upto, o}), o(k)} ticks pop in as the playhead (upto, in steps) passes their centre L17.node(svg, {x, y, r: 34, lab, fs}) -> {set({tone: \"grey\", solid, k, s, o})} a neuron with a lip L17.wire(svg) -> {set({a, b, tone: \"grey\", w: 5, o})} L17.pip(svg) -> {set({x, y, s, o, roll})} Pip the rover, facing right; x, y = the middle of its ground line L17.battery(svg, {x, y, w, h}) -> {set({level, o})} green above half, red below L17.card(parent, o) -> L13.card that keeps newline line breaks (same set API) L17.dot(svg, r, tone) -> a filled circle with a lip-coloured stroke; L17.path(svg) -> {set({d, tone, w, dash, o, k})}"
+}

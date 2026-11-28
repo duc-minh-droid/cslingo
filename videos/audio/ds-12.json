@@ -1,0 +1,786 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "Lecture twelve. Virtualisation and containers. How to ship the whole kitchen along with the recipe."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cc0b218887181a94.wav",
+     "at": 0.5,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 28.352,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.52,
+     3.2
+    ],
+    [
+     14.86,
+     5.2
+    ],
+    [
+     18.8,
+     7.8
+    ],
+    [
+     28.352,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.27,
+     "Mo's forecaster: forecast.py, the same file on both machines."
+    ],
+    [
+     6.52,
+     14.61,
+     "But Windows 11 against Ubuntu, Python 3.12 against 3.8."
+    ],
+    [
+     14.86,
+     18.55,
+     "It runs on the laptop and crashes on the server."
+    ],
+    [
+     18.8,
+     26.89,
+     "The environment differs: OS, libraries, dependencies, settings."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5067a4728a828e66.wav",
+     "at": 0.5,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/40bb90079eed3712.wav",
+     "at": 6.52,
+     "len": 7.84
+    },
+    {
+     "file": "videos/audio/clips/d16e2d97c99714bd.wav",
+     "at": 14.86,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/fc909d081cc237cf.wav",
+     "at": 18.8,
+     "len": 7.84
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.52,
+     3
+    ],
+    [
+     10.14,
+     5.4
+    ],
+    [
+     15.28,
+     7.8
+    ],
+    [
+     21.664,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.27,
+     "Development, test, production: three machines that start out alike."
+    ],
+    [
+     6.52,
+     9.89,
+     "Each gets its own updates and tweaks."
+    ],
+    [
+     10.14,
+     15.03,
+     "They drift apart, so deploying across them is fragile."
+    ],
+    [
+     15.28,
+     20.33,
+     "The big idea: pack the environment along with the code."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3ffb324b6db081db.wav",
+     "at": 0.5,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/96c87a0766c76fc8.wav",
+     "at": 6.52,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/9060eb7fb7fa3e53.wav",
+     "at": 10.14,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/ff1e374012650fa3.wav",
+     "at": 15.28,
+     "len": 4.8
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.36,
+     2.4
+    ],
+    [
+     11.02,
+     5.6
+    ],
+    [
+     17.68,
+     9.2
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.11,
+     "The real computer is the host."
+    ],
+    [
+     4.36,
+     10.77,
+     "Each virtual machine is a guest with its own OS."
+    ],
+    [
+     11.02,
+     17.43,
+     "The hypervisor shares the host's CPU, memory and disk between them."
+    ],
+    [
+     17.68,
+     23.61,
+     "For example VMware Workstation, VirtualBox and Hyper-V."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ef1fd1ea59441e0f.wav",
+     "at": 0.5,
+     "len": 3.36
+    },
+    {
+     "file": "videos/audio/clips/1a6fba2fd92362f1.wav",
+     "at": 4.36,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/88f71e3d53a1a206.wav",
+     "at": 11.02,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/cca5acd72b18d178.wav",
+     "at": 17.68,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 21.78,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     2.4
+    ],
+    [
+     11.42,
+     5.4
+    ],
+    [
+     17.28,
+     9
+    ],
+    [
+     21.78,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "An emulator mimics other hardware, like an old console."
+    ],
+    [
+     5.8,
+     11.17,
+     "Every instruction is translated; the game never touches the real hardware."
+    ],
+    [
+     11.42,
+     17.03,
+     "A virtual machine does use the host hardware."
+    ],
+    [
+     17.28,
+     20.41,
+     "The hypervisor keeps the guests apart."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0cd7a4c520b9708d.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/abb30feef535ef1d.wav",
+     "at": 5.8,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/84ca6479260484be.wav",
+     "at": 11.42,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/11cef16bc46b6a08.wav",
+     "at": 17.28,
+     "len": 2.88
+    }
+   ]
+  },
+  {
+   "dur": 19.876,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.64,
+     3.4
+    ],
+    [
+     9.9,
+     6.8
+    ],
+    [
+     14.48,
+     9
+    ],
+    [
+     19.876,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.39,
+     "A snapshot saves the VM's state at one exact moment."
+    ],
+    [
+     5.64,
+     9.65,
+     "Then an update is installed, and the forecaster breaks."
+    ],
+    [
+     9.9,
+     14.23,
+     "Restore the snapshot: every later change is undone."
+    ],
+    [
+     14.48,
+     18.17,
+     "Snapshots can also be copied to another host."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/674f549987f60194.wav",
+     "at": 0.5,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/8da7002a06d911a0.wav",
+     "at": 5.64,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/47514862806dff16.wav",
+     "at": 9.9,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/6ee904dce3942f3f.wav",
+     "at": 14.48,
+     "len": 3.44
+    }
+   ]
+  },
+  {
+   "dur": 30,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.96,
+     2.4
+    ],
+    [
+     11.82,
+     5.2
+    ],
+    [
+     18.4,
+     7.4
+    ],
+    [
+     23.14,
+     10.6
+    ],
+    [
+     30,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.71,
+     "Three services, three virtual machines."
+    ],
+    [
+     5.96,
+     11.57,
+     "Every VM repeats a whole OS: lots of overhead."
+    ],
+    [
+     11.82,
+     18.15,
+     "Containers share the host's OS kernel instead."
+    ],
+    [
+     18.4,
+     22.89,
+     "Rough numbers: 4 operating systems against 1."
+    ],
+    [
+     23.14,
+     29.07,
+     "A container starts in milliseconds, a VM in about a minute."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1c0bb53fdf8b5087.wav",
+     "at": 0.5,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/03e6e51a2324483e.wav",
+     "at": 5.96,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/5c9e04e5ab4c6b5e.wav",
+     "at": 11.82,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/2138180400401f90.wav",
+     "at": 18.4,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/cf2c55299e600935.wav",
+     "at": 23.14,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 30.001,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.16,
+     3.2
+    ],
+    [
+     14.7,
+     6.4
+    ],
+    [
+     20.4,
+     9.6
+    ],
+    [
+     30.001,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.91,
+     "Docker packs the app with all its dependencies."
+    ],
+    [
+     7.16,
+     14.45,
+     "Namespaces: each container sees its own files, network and processes."
+    ],
+    [
+     14.7,
+     20.15,
+     "Cgroups: limits on CPU, memory and IO."
+    ],
+    [
+     20.4,
+     28.41,
+     "On Windows, Docker Desktop runs a small Linux VM via WSL2 or Hyper-V."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fdb6b431421e7547.wav",
+     "at": 0.5,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/3b3c86adae2a6221.wav",
+     "at": 7.16,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/5ec0305de99394bd.wav",
+     "at": 14.7,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/b2e175e09f43e0b1.wav",
+     "at": 20.4,
+     "len": 7.76
+    }
+   ]
+  },
+  {
+   "dur": 31.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.84,
+     3
+    ],
+    [
+     14.06,
+     5.6
+    ],
+    [
+     18.32,
+     7.8
+    ],
+    [
+     25.14,
+     10.8
+    ],
+    [
+     31.672,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.59,
+     "One image, three running containers."
+    ],
+    [
+     6.84,
+     13.81,
+     "A Dockerfile builds the image line by line, one layer each."
+    ],
+    [
+     14.06,
+     18.07,
+     "First build: every layer is made and cached."
+    ],
+    [
+     18.32,
+     24.89,
+     "Change only your code: 1 layer rebuilt, 3 from cache."
+    ],
+    [
+     25.14,
+     29.79,
+     "Change the library list: rebuilt from that line down."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fed2a2479b5bf859.wav",
+     "at": 0.5,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/5973e6eebd37b71b.wav",
+     "at": 6.84,
+     "len": 6.72
+    },
+    {
+     "file": "videos/audio/clips/cb0e3abb729e4eaf.wav",
+     "at": 14.06,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/2f4ed4f1695f2089.wav",
+     "at": 18.32,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/cb9214d816b04275.wav",
+     "at": 25.14,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 30.418,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.16,
+     2.6
+    ],
+    [
+     13.34,
+     6
+    ],
+    [
+     16.48,
+     8.8
+    ],
+    [
+     22.5,
+     12
+    ],
+    [
+     30.418,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.91,
+     "A cluster: a control plane and worker nodes."
+    ],
+    [
+     7.16,
+     13.09,
+     "A Deployment wants 3 pods; a Service gives them one address."
+    ],
+    [
+     13.34,
+     16.23,
+     "A pod crashes: it is restarted."
+    ],
+    [
+     16.48,
+     22.25,
+     "Node 2 goes down: its pod is rescheduled. Still 3 running."
+    ],
+    [
+     22.5,
+     28.83,
+     "Scaling, self-healing, declarative, cloud-native."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d652c4701d2190ab.wav",
+     "at": 0.5,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/bee48c671b6e736c.wav",
+     "at": 7.16,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/3b941d8d90502e1b.wav",
+     "at": 13.34,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/fa5f2f4e56758c20.wav",
+     "at": 16.48,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/941b013e0470e239.wav",
+     "at": 22.5,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 18.32,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.28,
+     2
+    ],
+    [
+     11.34,
+     3.1
+    ],
+    [
+     18.32,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/74a51ccb5b7005bf.wav",
+     "at": 0.5,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/5aa78f0fe88565a8.wav",
+     "at": 6.28,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/50284790689f4569.wav",
+     "at": 11.34,
+     "len": 5.68
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,227 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture fourteen. Tensors, and how to store the ones that are mostly empty."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Meet Sprout, a seed-swap app. Its thermometer shows eighteen degrees. One number is a scalar.",
+     "Sprout's thermometer: 18°. One number is a scalar."
+    ],
+    [
+     "One member rates four packets: three, five, one and four. That row is a vector.",
+     "One member's ratings, 3, 5, 1, 4: a vector."
+    ],
+    [
+     "Rows under rows make a matrix. Now you need a row and a column.",
+     "Rows under rows: a matrix. Two indices find a value."
+    ],
+    [
+     "A pile of grids is a tensor of order three. The order counts the indices you need.",
+     "A pile of grids is a 3-order tensor: three indices."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A seed packet has four features. A list like this is a vector.",
+     "A packet's features: one vector."
+    ],
+    [
+     "The soil sensor logs moisture and temperature over time: features by timestamps.",
+     "Sensor readings: features × timestamps, a matrix."
+    ],
+    [
+     "A photo is three grids, one per colour: width by height by channels.",
+     "A photo: width × height × channels (RGB)."
+    ],
+    [
+     "A video is a row of photos, so frames by width by height by channels. That is order four.",
+     "A video: frames × width × height × channels."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Sprout's swap sheet has sixty-four cells, and only six are not zero. Its sparsity is ninety-one percent.",
+     "Sprout's swap sheet: 6 non-zeros of 64. Sparsity 91%."
+    ],
+    [
+     "Listing just the non-zeros, with row, column and value, takes eighteen numbers, not sixty-four.",
+     "Listing only the non-zeros: 18 numbers instead of 64."
+    ],
+    [
+     "Fill the sheet to fifty-two values. Now it is dense, with sparsity nineteen percent.",
+     "Fill it to 52: dense, sparsity 19%."
+    ],
+    [
+     "The list grows to one hundred and fifty-six numbers, more than the grid itself.",
+     "Now the list, 156 numbers, is bigger than the grid."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Real data is often sparse. Six members share only five of fifteen possible links.",
+     "A social graph: 5 links out of 15 possible."
+    ],
+    [
+     "Fault sensors report zero almost all of the time.",
+     "Fault sensors report 0 almost all the time."
+    ],
+    [
+     "With a million rows and columns, the grid has a million million cells. Far too big to store.",
+     "n ≈ a million: a million million cells. Too big to store."
+    ],
+    [
+     "So we keep only the non-zeros.",
+     "Keep only the non-zeros instead."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Store each non-zero with its position. Anything missing is zero.",
+     "Store only the non-zeros, each with its position."
+    ],
+    [
+     "A dictionary of keys maps each row and column pair to its value.",
+     "Dictionary of keys: each (row, column) key maps to its value."
+    ],
+    [
+     "Key three, one gives six. Key three, two is missing, so that cell is zero.",
+     "Look up key (3, 1): 6. A missing key means 0."
+    ],
+    [
+     "A coordinate list keeps the same facts as triples: row, column and value.",
+     "Coordinate list: a list of (row, column, value) tuples."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "CSR reads the matrix row by row. V gets five, eight, three and six. Column index gets zero, one, two and one.",
+     "Read row by row: V = 5, 8, 3, 6; COL_INDEX = 0, 1, 2, 1."
+    ],
+    [
+     "Row index holds bookmarks: where each row starts in V. Zero, one, two, three and four.",
+     "ROW_INDEX marks where each row starts in V: 0, 1, 2, 3, 4."
+    ],
+    [
+     "Four rows need five bookmarks. The last one marks the end.",
+     "m rows need m + 1 bookmarks: the last marks the end."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now read row two of this four by six matrix back.",
+     "Read row 2 of the slides' 4 × 6 matrix."
+    ],
+    [
+     "Its bookmarks say start at four and end at seven.",
+     "Start = ROW_INDEX[2] = 4, end = ROW_INDEX[3] = 7."
+    ],
+    [
+     "That slice holds fifty, sixty and seventy, in columns two, three and four.",
+     "Slice V: 50, 60, 70 at columns 2, 3, 4."
+    ],
+    [
+     "So row two is zero, zero, fifty, sixty, seventy, zero.",
+     "Row 2 is 0, 0, 50, 60, 70, 0."
+    ],
+    [
+     "When two bookmarks are equal, the slice is empty and the row is all zeros.",
+     "Equal bookmarks, 2 and 2: an empty slice, an all-zero row."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "CSC does the same, column by column. The values are ten, two, five, seven and nine.",
+     "CSC reads column by column: VALUES = 10, 2, 5, 7, 9."
+    ],
+    [
+     "Column pointer marks where each column starts: zero, two, three, four and five.",
+     "COL_PTR marks where each column starts: 0, 2, 3, 4, 5."
+    ],
+    [
+     "Column zero runs from zero to two: ten in row zero, and two in row three.",
+     "Column 0: from 0 to 2, so 10 at row 0 and 2 at row 3."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "CSR makes rows fast. Ada's row lists her neighbours: Ben, Cy and Dot.",
+     "CSR: fast row operations. A graph row is one node's neighbours."
+    ],
+    [
+     "It suits row slicing and many matrix times vector products.",
+     "Good for row slicing and many A × x products."
+    ],
+    [
+     "CSC makes columns fast, like asking who swapped tomato.",
+     "CSC: fast column operations, like 'who swapped tomato?'"
+    ],
+    [
+     "It suits huge datasets with many categorical features.",
+     "Good for huge datasets with many categorical features."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A tensor's order is how many indices find one value.",
+    "A sparse tensor is mostly zeros, so keep only the non-zeros.",
+    "CSR works by rows, and CSC by columns."
+   ]
+  }
+ ]
+}

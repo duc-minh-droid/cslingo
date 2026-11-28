@@ -1,0 +1,231 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture sixteen. Hardware software co-design: chips and code made for each other."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Meet Leafly. Snap a photo of a leaf, and it names the plant.",
+     "Leafly: snap a leaf, get the plant's name."
+    ],
+    [
+     "Today the photo goes to a server. The answer takes seconds, and with no signal there is none.",
+     "Today the photo goes to the cloud. Answer: a few seconds."
+    ],
+    [
+     "AI pushes general chips to their limits. A Swiss army knife does everything, a garlic press does one job far better.",
+     "AI pushes general hardware to its limits."
+    ],
+    [
+     "And chips no longer get faster on their own. Moore's law is slowing.",
+     "Moore's law is slowing: waiting won't do it."
+    ],
+    [
+     "A new chip is very expensive, so it needs a large demand. AI has one.",
+     "A new chip is very expensive, so it needs large demand."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Hardware first. A chip is designed around the software it will run.",
+     "Hardware designed around the software it will run."
+    ],
+    [
+     "Then software. A model or a library is tuned to use that chip, sometimes before it even exists.",
+     "Software tuned to make full use of that hardware."
+    ],
+    [
+     "Each shapes the other. That is hardware software co-design.",
+     "Both shaped by each other: hardware–software co-design."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "AI models run on tensor operations, big grids of numbers.",
+     "AI models run on tensor operations."
+    ],
+    [
+     "Images fill the grid, so they use dense tensors. Recommendations are mostly empty, so they use sparse ones.",
+     "Images: dense tensors. Recommendations: sparse ones."
+    ],
+    [
+     "Most AI still runs in the cloud, far from the user.",
+     "AI usually runs in the cloud."
+    ],
+    [
+     "As models get personal, the work moves onto the phone. That is edge computing.",
+     "Personal models move it onto the phone: edge computing."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "In cars, driver assistance chips turn camera images into braking within milliseconds.",
+     "Cars: ADAS chips see the road and brake in milliseconds."
+    ],
+    [
+     "In data centres, D P Us and I P Us sit beside the server's CPU.",
+     "Data centres: DPUs and IPUs sit beside the CPU."
+    ],
+    [
+     "They take networking, storage and security, so the CPU can run the customer's work.",
+     "They take networking, storage and security off its hands."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Bottom-up: the hardware comes first, the software later. Early GPU computing worked like that.",
+     "Bottom-up: hardware first, software later. Early GPU computing."
+    ],
+    [
+     "Top-down: the workload drives a new chip. Volta tensor cores were built for AI.",
+     "Top-down: the workload drives the chip. Volta tensor cores."
+    ],
+    [
+     "Co-design: both are designed together, as in Snapdragon Ride Flex and Ride Vision.",
+     "Co-design: both together. Snapdragon Ride Flex and Ride Vision."
+    ],
+    [
+     "Demand drives software, software drives hardware, and the loop goes round again.",
+     "Demand, software, hardware, round again: an iterative loop."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Partitioning decides which jobs go into hardware. Leafly has six.",
+     "Six Leafly jobs. Which go into hardware?"
+    ],
+    [
+     "The heavy, stable ones move over, and gain speed and parallelism.",
+     "Heavy, stable jobs to hardware: speed and parallelism."
+    ],
+    [
+     "Pet safety rules change often. In silicon they would need a new chip, so they stay in software.",
+     "Rules that change stay in software, easy to update."
+    ],
+    [
+     "Engineers simulate a model of the chip together with the real code, before building anything.",
+     "Simulate chip and code together before building anything."
+    ],
+    [
+     "With high level synthesis, they describe the behaviour and a tool produces the hardware design.",
+     "High-level synthesis: describe the behaviour, get an HDL design."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Profile first. On the phone's CPU, one photo takes a hundred and thirty-two milliseconds.",
+     "One photo on the phone's CPU: 132 ms."
+    ],
+    [
+     "The network alone takes a hundred and twenty.",
+     "The network takes 120 of them."
+    ],
+    [
+     "On the GPU the photo takes forty milliseconds, but thirteen of those are copying.",
+     "Network on the GPU: 40 ms, but 13 ms of it is copying."
+    ],
+    [
+     "A GPU twice as fast only shrinks the network bar. Thirty-two and a half.",
+     "A GPU twice as fast: only 32.5 ms."
+    ],
+    [
+     "With a photo four times as big, the copies take fifty-two milliseconds. Moving data can cost more than computing.",
+     "A photo 4 times as big: copies take 52 ms."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A CPU suits varied tasks, a GPU parallel maths, and a specialised chip stable, frequent work.",
+     "CPU: varied tasks. GPU: maths in parallel. Specialised: stable work."
+    ],
+    [
+     "The photo is passed on like a baton: CPU, then GPU, then CPU again.",
+     "CPU prepares, GPU runs the network, CPU shows the answer."
+    ],
+    [
+     "The framework, the compiler and the runtime map the model onto the chip.",
+     "Framework, compiler, runtime: the stack maps the model to the chip."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Measure latency, throughput, energy per result and cost.",
+     "Measure latency, throughput, energy per result and cost."
+    ],
+    [
+     "Prototype, measure the whole pipeline, and revisit the partition.",
+     "Prototype, measure end to end, revisit the partition."
+    ],
+    [
+     "Speed one part up, and the bottleneck moves, often to copying.",
+     "Speed one part up and the bottleneck moves."
+    ],
+    [
+     "Co-design trades power, performance, cost and development time, in phones, cars and five G.",
+     "Co-design trades power, performance, cost and time."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "The chip is shaped by the software, and the software by the chip.",
+    "Heavy, stable jobs go into hardware. Anything that changes stays in software.",
+    "Profile, watch the copies, and measure the whole pipeline."
+   ]
+  }
+ ]
+}

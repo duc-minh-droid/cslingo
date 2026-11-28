@@ -1,0 +1,332 @@
+{
+ "slug": "ds-13",
+ "dir": "d13",
+ "title": "Thread-level parallelism",
+ "outline": "Lecture 13 video (Data Science, COM3021): Thread-level parallelism. 11 scenes, 125 s, built from videos/_plan/ds-13-script.md. Running example Crumb & Co (lessons ds-l13-*.js). Numbers from videos/d13/common.js (D13), asserted at load. COLOURS: grey hardware, wires, axes; blue threads and parallel work; purple processes, master, instruction streams, communicators; orange memory and data; green done, delivered, fork/join lines; red cost, idle, unmatched.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 13",
+  "title": "Thread-level parallelism",
+  "sub": "One process, many threads, every core busy",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-levels.js",
+   "kicker": "LEVELS OF PARALLELISM",
+   "title": [
+    "A mountain of receipts,",
+    "many places to split it"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "Crumb & Co must tally a year of receipts before 7."
+    ],
+    [
+     2.6,
+     4.2,
+     "One worker, one by one, is too slow."
+    ],
+    [
+     4.4,
+     7.4,
+     "Parallelism works at the process, thread, instruction and data level."
+    ],
+    [
+     7.6,
+     10.7,
+     "This lecture: threads inside one machine."
+    ]
+   ]
+  },
+  {
+   "n": 3,
+   "file": "scene-03-threads.js",
+   "kicker": "PROCESSES OR THREADS",
+   "title": [
+    "Separate kitchens,",
+    "or one kitchen with many cooks"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "Process-level: each process has its own memory."
+    ],
+    [
+     2.6,
+     5.2,
+     "Spawning a new process every time is expensive."
+    ],
+    [
+     5.4,
+     7.2,
+     "Thread-level: one process starts several threads."
+    ],
+    [
+     7.4,
+     9.8,
+     "Each runs on its own core; all share one memory."
+    ],
+    [
+     10,
+     12.7,
+     "The model built for multi-core processors."
+    ]
+   ]
+  },
+  {
+   "n": 4,
+   "file": "scene-04-flynn.js",
+   "kicker": "SISD, SIMD, MIMD",
+   "title": [
+    "Count the instruction streams,",
+    "then count the data streams"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "SISD: one instruction stream, one data stream."
+    ],
+    [
+     3.6,
+     7.6,
+     "SIMD: the same instruction on many processors, each with its own data."
+    ],
+    [
+     7.8,
+     10.8,
+     "MIMD: each processor has its own instructions and its own data."
+    ],
+    [
+     11,
+     13.7,
+     "Cores running separate threads work this way."
+    ]
+   ]
+  },
+  {
+   "n": 5,
+   "file": "scene-05-shared.js",
+   "kicker": "SHARED MEMORY",
+   "title": [
+    "Threads share the worktop",
+    "of their process"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "A thread: a stream of execution spawned by a process."
+    ],
+    [
+     3.4,
+     6.2,
+     "Threads share memory: global variables and open files."
+    ],
+    [
+     6.4,
+     8.4,
+     "Every thread can see the parent process's data."
+    ],
+    [
+     8.6,
+     10.7,
+     "Nothing has to be copied or sent first."
+    ]
+   ]
+  },
+  {
+   "n": 6,
+   "file": "scene-06-split.js",
+   "kicker": "SPLIT THE PILE",
+   "title": [
+    "Each thread takes its own part,",
+    "but only on one node"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "1 thread does all 12 blocks: 12 minutes, 3 cores idle."
+    ],
+    [
+     3.6,
+     6,
+     "2 threads, 6 blocks each: 6 minutes."
+    ],
+    [
+     6.2,
+     9.2,
+     "4 threads on 4 cores, 3 blocks each: 3 minutes."
+    ],
+    [
+     9.4,
+     13.7,
+     "Threads need a shared memory, so they stay on one node."
+    ]
+   ]
+  },
+  {
+   "n": 7,
+   "file": "scene-07-forkjoin.js",
+   "kicker": "OPENMP: FORK AND JOIN",
+   "title": [
+    "Mark the slow part,",
+    "the master calls in helpers"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "OpenMP: mark what to parallelise; the compiler adds the threads."
+    ],
+    [
+     3,
+     6.4,
+     "Fork: the master thread spawns worker threads."
+    ],
+    [
+     6.6,
+     8.2,
+     "Faster threads wait for the slowest."
+    ],
+    [
+     8.4,
+     11.7,
+     "Join: a sync point. Then the master carries on alone."
+    ]
+   ]
+  },
+  {
+   "n": 8,
+   "file": "scene-08-rhythm.js",
+   "kicker": "THE RHYTHM OF A PROGRAM",
+   "title": [
+    "Only the parallel parts",
+    "get faster"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.6,
+     "1 thread: load, tally, sort, tally, report: 16 minutes."
+    ],
+    [
+     3.8,
+     6.8,
+     "2 threads: each tally is forked and joined: 10 minutes."
+    ],
+    [
+     7,
+     9.8,
+     "4 threads: 7 minutes."
+    ],
+    [
+     10,
+     12.7,
+     "The 4 sequential minutes never shrink."
+    ]
+   ]
+  },
+  {
+   "n": 9,
+   "file": "scene-09-messages.js",
+   "kicker": "DISTRIBUTED MEMORY AND MPI",
+   "title": [
+    "No shared worktop,",
+    "so send messages"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.6,
+     "Distributed memory: each process sees only its own data."
+    ],
+    [
+     3.8,
+     7.2,
+     "A message needs a send and a matching receive."
+    ],
+    [
+     7.4,
+     10,
+     "Receive from the wrong sender: no match."
+    ],
+    [
+     10.2,
+     12.7,
+     "MPI is the standard library for this."
+    ]
+   ]
+  },
+  {
+   "n": 10,
+   "file": "scene-10-ranks.js",
+   "kicker": "COMMUNICATORS AND RANKS",
+   "title": [
+    "One process,",
+    "a different number in each club"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "MPI_COMM_WORLD holds every process: ranks 0 to 11."
+    ],
+    [
+     3.4,
+     6.2,
+     "Split into groups of 3: each numbers its members 0, 1, 2."
+    ],
+    [
+     6.4,
+     8.6,
+     "Process 7: rank 7 in the world, rank 1 in group C."
+    ],
+    [
+     8.8,
+     10.7,
+     "A communicator has a context, a group, a size and ranks."
+    ]
+   ]
+  }
+ ],
+ "recap": {
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "rows": [
+   [
+    "blue",
+    "Threads share one memory on one node"
+   ],
+   [
+    "green",
+    "Fork, work, join: only parallel parts speed up"
+   ],
+   [
+    "orange",
+    "Separate memories talk by MPI messages"
+   ]
+  ],
+  "rowTimes": [
+   0.8,
+   1.9,
+   3
+  ],
+  "cta": "Next: Workshop 13.W"
+ }
+}

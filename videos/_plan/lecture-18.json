@@ -1,0 +1,361 @@
+{
+  "slug": "lecture-18",
+  "dir": "l18",
+  "title": "Neuromorphic computing",
+  "outline": "Lecture 18 video (Nature-Inspired Computation, ECM3412): Neuromorphic computing. 11 scenes, 126 s, built from videos/_plan/lecture-18-script.md. Running example: Priya's Hoglet, a battery hedgehog camera. Sources js/content/nic/l18-01.js (eventDemo seed 7, cameraDemo 12 x 6, unitsDemo seed 11 target 7.2, spikeFig, netFig), l18-02.js (18.1 to 18.3), l18-03.js (18.4 to 18.6), l18-workshop.js (18.W). ALL demo numbers are recomputed and asserted in videos/l18/common.js. COLOURS: orange = conventional side (von Neumann chip, clocked chip, frame camera); green = neuromorphic side (synapses, event-driven chip, event camera, best setting); purple = spikes; blue = data, memory, TrueNorth, deep learning; red = problems and costs; grey = neutral. Helpers: l5/common.js, l13/common*.js (tags, cards, stats, arrows) and l18/common-2.js (pictograms).",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 18",
+    "title": "Neuromorphic computing",
+    "sub": "Computers built like brains, that work only when a spike arrives",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 18",
+      "title": [
+        "Neuromorphic computing"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Lecture 18 video: title card"
+    },
+    {
+      "n": 2,
+      "file": "scene-02-vonneumann.js",
+      "kicker": "A COMPUTER SHAPED LIKE A BRAIN",
+      "title": [
+        "Hoglet's chip",
+        "keeps making trips"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Hoglet watches the garden for hedgehogs all night."
+        ],
+        [
+          3.2,
+          5.8,
+          "Inside: a von Neumann computer, processor and memory apart."
+        ],
+        [
+          6,
+          8.6,
+          "A program runs step by step, in binary."
+        ],
+        [
+          8.8,
+          11.7,
+          "Data shuttles back and forth, and every trip costs energy."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 02-vonneumann: Hoglet, a hedgehog camera whose battery dies by Tuesday, holds an ordinary von Neumann computer: a processor (orange) and a separate memory (blue). A program runs step by step, in binary; data packets shuttle along the bus, faster and faster, each trip ticks a red counter and takes a sliver off the battery. Layout (stage px): left x 12..612: the garden (Hoglet on its post, a hedgehog, grass), later the 'inside Hoglet' panel with Processor (x 30..200) and Memory (x 420..590) boxes at y 330..450, the bus between them, the Program scroll above the processor. Right panel x 636..924: battery (y 24), 'dies by Tuesday' tag, 'trips' stat (y 250). Story (local seconds): 0.4 garden and Hoglet, 1.0 battery, 1.6 tag; 3.2 the garden fades, the panel and the two boxes pop; 6.0 the program scroll (step 1..3 light in turn) and the first packets; trips speed up to 11.6; 8.8 red label 'every trip costs time and energy'; hold to 12."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-neuromorphic.js",
+      "kicker": "A CHIP MADE OF NEURONS",
+      "title": [
+        "Synapses store",
+        "and compute"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3,
+          "In a neuromorphic computer, synapses store data and process it."
+        ],
+        [
+          3.2,
+          5.8,
+          "No program as such: the synapse structure sets what it does."
+        ],
+        [
+          6,
+          9.4,
+          "Inputs are spikes; their timing and magnitude carry information."
+        ],
+        [
+          9.6,
+          12.7,
+          "The term began in the 1980s; today it covers many brain-inspired ideas."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 03-neuromorphic: in a neuromorphic computer the synapses both store and compute (each green synapse carries a tiny memory cell); there is no program as such, the synapse structure sets what it does; inputs are spikes whose timing and magnitude carry information (lesson 18.1's spike trains, L18.RASTER); the term began in the 1980s. Layout (stage px): ghost von Neumann (grey Processor / Memory boxes, 'Program' tag) at x 12..232, y 12..250; the network (two inputs, two middle neurons, one output, six green synapses with memory cells) at x 300..880, y 30..230; structure tag at y 262; raster rows at y 380 / 450 / 520 (time 0..13 across x 200..876) with its tag at y 560; at 9.6 the raster fades and the 1980s -> today timeline takes its place (cards at y 360..540). Story (local seconds): 0.4 ghost, network neurons pop, synapses draw, memory cells pop; 3.2 'Program' fades, structure tag, a-c and d-e thicken, b-c thins; 6.0 a playhead sweeps the raster (6.2..8.2) and drops the purple spikes, 8.4 its tag; 9.6 the timeline (two cards and an arrow); hold to 13."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-superpowers.js",
+      "kicker": "FOUR SUPERPOWERS",
+      "title": [
+        "Parallel, collocated,",
+        "scalable"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Parallel: all neurons work at once, each doing something simple."
+        ],
+        [
+          3.2,
+          5.8,
+          "Processing and memory together: faster and less energy."
+        ],
+        [
+          6,
+          8.6,
+          "Scalable: need a bigger network? Add more chips."
+        ],
+        [
+          8.8,
+          11.7,
+          "And the fourth: it is event driven."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 04-superpowers: three of the four strengths of a neuromorphic chip, one row each (lesson 18.1): parallel, processing and memory collocated, scalable; a fourth empty slot announces 'event driven' (next scene). Layout (stage px): rows at y 12 / 168 / 324 / 480, 140 high. Each row: pictogram panel x 12..452, card x 468..924. Row 1: a 4 x 4 grid of green neurons that pulse together, beside one orange worker and a queue of 16 jobs lit one by one. Row 2: orange processor and blue memory boxes far apart with a blue packet running across the gap, beside two green neurons joined by a synapse with its memory cell (no gap). Row 3: chip tiles snap on one by one, joined by wires; a counter (times mark + number) shows 1..4. Row 4: a dashed slot with a doorbell and 'Event driven: next'. Story (local seconds): rows at 0.4 / 3.2 / 6.0 / 8.8 (panel, then card 0.3 s later), each animation starts with its row; chips snap at 6.4 / 6.9 / 7.4 / 7.9; hold to 12."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-events.js",
+      "kicker": "ONLY WAKE WHEN SOMETHING HAPPENS",
+      "title": [
+        "Clocked chip against",
+        "event-driven chip"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A quiet night: a spike at only 4 of 24 moments."
+        ],
+        [
+          3.2,
+          5.8,
+          "The clocked chip works 24 times; the event-driven chip 4."
+        ],
+        [
+          6,
+          8.6,
+          "A busier garden: 11 spikes, 11 bursts of work."
+        ],
+        [
+          8.8,
+          12.7,
+          "No spikes, no work: it computes only when a spike arrives."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 05-events: lesson 18.1's event demo (L18.NIGHT, seed 7, 24 moments). A playhead sweeps the night: purple spikes where something moved; the clocked chip (orange) works at every moment, the event-driven chip (green) only where a spike arrived. Activity 10 %: spikes at moments 5 8 9 23 (4 of 24); 50 %: 11; 0 %: none. Layout (stage px): row labels x 12..196; 24 cells across x 210..918 (pitch 29.5): spike row baseline y 100, clocked cells y 130..174, event cells y 206..250, moment labels '1' / '24' at y 258; activity slider y 330 (label, track x 210..918, knob, value, the label \"activity\" above the value); a doorbell at x 66, y 376 rings with each spike under the playhead; three stat tiles at y 420..570. Story (local seconds): 0.4 rows and tiles; sweep 0.6..3.1 at 10 %; 6.0 the slider glides to 50 %, rows clear, sweep 6.6..8.2; 8.8 the slider drops to 0 %, sweep 9.3..11.0 with no spikes, a 'silent' tag by the bell at 11.0; hold to 13."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-jobs.js",
+      "kicker": "JOBS THAT LOOK LIKE NETWORKS",
+      "title": [
+        "Graphs, optimisation,",
+        "walkers and signals"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Graph algorithms: routing messages through a network."
+        ],
+        [
+          3.2,
+          5.8,
+          "Optimisation: constraint satisfaction, QUBO, optimal control."
+        ],
+        [
+          6,
+          8.6,
+          "Random walkers hop between neurons that stand for states."
+        ],
+        [
+          8.8,
+          11.7,
+          "Signal processing: steering vehicles, detecting seizures."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 06-jobs: what neuromorphic chips are good for (lesson 18.2), four quadrants filling in turn. Top left: graph algorithms, lesson 18.1's six-node network (L18.NET) with the route A B D E lighting blue hop by hop. Top right: optimisation, four tags (constraint satisfaction, QUBO, optimal control, Bayesian optimisation) and a note on LASSO. Bottom left: Markov chain random walkers, a hedgehog hops between four flower beds (each bed a neuron that spikes purple when the walker arrives; the hops come from L18.rng(5)). Bottom right: signal processing, a wave becomes purple spikes, then a green car and alarm bell: 'steer, or raise an alarm'. Layout (stage px): quadrants 450 x 306 at (12, 12), (474, 12), (12, 322), (474, 322), each a grey panel with a bold title. Story (local seconds): quadrants at 0.4 / 3.2 / 6.0 / 8.8; route hops at 1.2 + 0.5 i; optimisation tags 3.5 + 0.35 i, note 5.0; hops every 0.55 s from 6.6; signal: wave 9.1, spikes 9.7, icons 10.3, tag 10.8; hold to 12."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-chips.js",
+      "kicker": "REAL CHIPS, REAL JOBS",
+      "title": [
+        "SpiNNaker, TrueNorth",
+        "and NorthPole"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3,
+          "SpiNNaker: 18 ARM cores per chip, built for exploring."
+        ],
+        [
+          3.2,
+          6.4,
+          "About 16,000 neurons in real time on 1 W per chip."
+        ],
+        [
+          6.6,
+          8.6,
+          "SpiNNaker 2, in 2019, is ten times bigger."
+        ],
+        [
+          8.8,
+          11,
+          "IBM TrueNorth: 1 million neurons per chip, set up in Corelet."
+        ],
+        [
+          11.2,
+          13.7,
+          "NorthPole, 2023: easier, faster, efficient AI."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 07-chips: the real machines of lesson 18.2 (facts from l18-02.js, L18.SPIN checks 1 + 17 = 18). Three cards, each a chip pictogram and stat lines that tick in. SpiNNaker (green): a chip with 18 core squares (6 x 3), one orange 'monitor' (runs the operating system), 17 green 'fascicle' cores (each models a group of neurons); lines 18 ARM cores, 128 MB shared, about 16,000 neurons, 8 million synapses, real time on 1 W; a tag 'SpiNNaker 2 (2019): ten times bigger'. TrueNorth (blue, IBM): 1 million neurons, 256 million synapses, programmed in Corelet. NorthPole (2023, green): usable in AI pipelines, low latency, efficient without losing accuracy. Layout (stage px): SpiNNaker card x 12..452, y 12..628: title, chip 150 px at (40, 80), legend right of it (x 216..440), stat lines from y 270, SpiNNaker 2 tag at y 532. TrueNorth card x 468..924, y 12..312; NorthPole card x 468..924, y 328..628: title, chip 110 px at the left, stat lines (28 px, may wrap) at x 620..910. Story (local seconds): 0.4 SpiNNaker card, cores pop 0.8..1.9, legend 2.0; lines 3.2 + 0.6 i; 6.6 the tag; 8.8 TrueNorth, lines 9.4 + 0.5 i; 11.2 NorthPole, lines 11.6 + 0.5 i; hold to 14."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-whynot.js",
+      "kicker": "SO WHY ISN'T HOGLET NEUROMORPHIC YET?",
+      "title": [
+        "Promising,",
+        "but not there yet"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Deep learning still wins on results; neuromorphic wins on energy."
+        ],
+        [
+          3.2,
+          5.8,
+          "Little hardware and software to use, and long training times."
+        ],
+        [
+          6,
+          9.2,
+          "No benchmark suite that tests the time aspect."
+        ],
+        [
+          9.4,
+          12.7,
+          "Networks are wired neuron by neuron, which is error prone."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 08-whynot: why neuromorphic computing is not mainstream yet (lesson 18.3). Deep learning (blue) still wins on results, neuromorphic (green) wins on energy against edge GPUs; few machines, special-purpose simulators and long training (red strip); no shared benchmark that uses timing (a race track: the deep-learning lane has its ImageNet stopwatch, the neuromorphic lane has none); networks wired by hand, neuron by neuron (a cursor draws the nine arrows of a six-neuron network a, b -> c, d, e -> f), which is error prone, so examples lean on graph problems. Layout (stage px): top band y 12..200: Deep learning card x 12..300, Neuromorphic card x 636..924, middle x 312..624 two rows 'results' (y 40) and 'energy' (y 120) with a tick on the winning side. Red strip y 222 (three tags and arrows). Left half x 12..452, y 320..628: two race lanes and the red 'no shared benchmark' card. Right half x 468..924: the network (y 330..480) and two tags at y 500 / 562. Story (local seconds): 0.4 cards, 1.2 results row, 2.0 energy row; 3.2 strip tags 3.4 + 0.6 i; 6.0 lanes, 6.3 the stopwatch and ImageNet (it pulses at 7.8), 6.5 an empty dashed slot in the neuromorphic lane, 8.2 the red card; 9.4 neurons, arrows 9.8 + 0.2 i with the cursor, tags 11.6 / 12.0; hold."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-camera.js",
+      "kicker": "A CAMERA THAT ONLY REPORTS CHANGE",
+      "title": [
+        "Send only",
+        "what changed"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A frame camera sends all 72 pixels, every moment."
+        ],
+        [
+          3.2,
+          5.8,
+          "An event camera's pixels spike only when brightness changes: 2."
+        ],
+        [
+          6,
+          8.6,
+          "Hedgehog sits still: the event camera sends nothing."
+        ],
+        [
+          8.8,
+          11.7,
+          "Sensor fusion: wake the frame camera when events appear."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 09-camera: lesson 18.3's camera demo (L18.CAM): a 12 x 6 pixel garden, a hedgehog 2 pixels wide in row 4. The frame camera (orange) sends all 72 pixels every moment; the event camera (green) sends only the pixels whose brightness changed: 2 per moment while the hedgehog walks, none while it sits still. Totals: frame 216 / event 6 after three walking moments, frame 360 / event 6 after two still ones. Sensor fusion: events wake the frame camera for a photo. Layout (stage px): mode tag at y 12; grid x 12..612, y 70..370 (pitch 50, cells 46); note at y 386; right panel tiles x 636..924 at y 12 / 154 / 296 (130 high): Moments, Frame camera pixels sent, Event camera pixels sent; at 8.8 a flow strip at y 452 and a small photo frame at x 12..212, y 516..628. Story (local seconds): frame mode moments at 0.8 / 1.5 / 2.2 (all 72 pixels flash orange); 3.2 event mode, fresh count, the hedgehog starts again: moments 3.6 / 4.3 / 5.0 (the 2 changed pixels flash green); 6.0 the hedgehog sits still: moments 6.4 / 7.1, frame adds 72 each, event nothing, 7.3 the note; 8.8 the strip tags 9.0 + 0.5 i, the photo 10.4; hold to 12."
+    },
+    {
+      "n": 10,
+      "file": "scene-10-units.js",
+      "kicker": "EVOLUTION ON A SPIKING CHIP",
+      "title": [
+        "Spike, jump;",
+        "no spike, step"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "GAs and PSO are parallel but energy hungry on normal hardware."
+        ],
+        [
+          3.2,
+          5.8,
+          "Neuromorphic heuristic units evolve candidates asynchronously."
+        ],
+        [
+          6,
+          7.8,
+          "No spike: a heuristic step, towards the best so far."
+        ],
+        [
+          8,
+          9.6,
+          "A spike: the neuron's own dynamics make a jump."
+        ],
+        [
+          9.8,
+          11.7,
+          "Promising, but still highly experimental."
+        ]
+      ],
+      "spec": "Lecture 18 video, scene 10-units: lesson 18.3's spiking heuristic units (L18.UNITS, unitsDemo seed 11, a toy). GAs and PSO are parallel but energy hungry on ordinary hardware. Five units U1..U5 each hold a candidate setting (0..10) and a charge; a manager and selector coordinate. No spike: a heuristic step towards the best so far (7.2). Spike: the neuron's own dynamics make a jump. U1: 2.8 -> 5.2 -> 6.3 -> spike 1.3 -> 4.0. Layout (stage px): header y 12..100 (GA and PSO chips, a draining battery, 'parallel, but energy hungry'), replaced at 9.8 by the orange banner; manager card y 118..172 (from 6.0 the move legend instead); five lanes at y 190 + 76 i (h 70): 'U1'.. at x 12, axis x 100..760 (0..10), charge bar x 790..924; the green 'best 7.2' line at x 575 with its label at y 586. Story (local seconds): 0.4 header, battery drains 0.8..2.8; 3.2 manager, lanes 3.4 + 0.15 i, the best line 4.0; the lanes pulse out of step from 4.2; 6.0 the other lanes fade, U1 ticks at 6.3 / 7.0 (steps, grey arrows), 8.2 (spike: charge full, purple flash and arrow), 9.0 (step); 9.8 the banner; hold to 12."
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "rows": [
+      0.8,
+      1.9,
+      3
+    ],
+    "points": [
+      {
+        "head": "Synapses store and compute",
+        "tone": "green",
+        "pictogram": "two neurons, a synapse draws, its memory cell pops on it"
+      },
+      {
+        "head": "Event driven: work only on spikes",
+        "tone": "purple",
+        "pictogram": "eight grey cells, two purple spikes drop, only those two cells light green"
+      },
+      {
+        "head": "Thrifty, but still experimental",
+        "tone": "orange",
+        "pictogram": "a battery fills and stays nearly full, a flask pops in"
+      }
+    ],
+    "cta": "Next: Workshop 18.W",
+    "spec": "Lecture 18 · Neuromorphic computing, scene 11-recap: three rows, each a small animated pictogram and one bold line (bare scene). Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row, 4.2-4.8 the call to action 'Next: Workshop 18.W'. EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no reset): all are done by 6.5 s, so for the rest only Sprout's bob moves. Row 1 (green): two neurons joined by a synapse; the synapse draws, then its memory cell pops on it (no separate memory). Row 2 (purple): a row of eight grey cells; two purple spikes drop and only the two cells under them light green. Row 3 (orange): a battery fills and stays nearly full, a flask pops in beside it (still experimental)."
+  }
+}

@@ -1,0 +1,758 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "Lecture thirteen. Thread-level parallelism. How one computer does many jobs at once."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/defbe64e15549cf8.wav",
+     "at": 0.5,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.08,
+     2.6
+    ],
+    [
+     11.26,
+     4.4
+    ],
+    [
+     19.04,
+     7.6
+    ],
+    [
+     25.008,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.83,
+     "Crumb & Co must tally a year of receipts before 7."
+    ],
+    [
+     7.08,
+     11.01,
+     "One worker, one by one, is too slow."
+    ],
+    [
+     11.26,
+     18.79,
+     "Parallelism works at the process, thread, instruction and data level."
+    ],
+    [
+     19.04,
+     22.89,
+     "This lecture: threads inside one machine."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4739cedcab2f9d71.wav",
+     "at": 0.5,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/446c679a6e8186f1.wav",
+     "at": 7.08,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/33dddf48c0d0cf05.wav",
+     "at": 11.26,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/d673e796925b67fb.wav",
+     "at": 19.04,
+     "len": 3.6
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.16,
+     2.6
+    ],
+    [
+     11.1,
+     5.4
+    ],
+    [
+     14.88,
+     7.4
+    ],
+    [
+     21.3,
+     10
+    ],
+    [
+     26.68,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.91,
+     "Process-level: each process has its own memory."
+    ],
+    [
+     5.16,
+     10.85,
+     "Spawning a new process every time is expensive."
+    ],
+    [
+     11.1,
+     14.63,
+     "Thread-level: one process starts several threads."
+    ],
+    [
+     14.88,
+     21.05,
+     "Each runs on its own core; all share one memory."
+    ],
+    [
+     21.3,
+     24.91,
+     "The model built for multi-core processors."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0fa53c57a35f3762.wav",
+     "at": 0.5,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/420e6e317e09142f.wav",
+     "at": 5.16,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/75b0913f380f64dc.wav",
+     "at": 11.1,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/2d9387729a3f217a.wav",
+     "at": 14.88,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/e75830c3160aa7fc.wav",
+     "at": 21.3,
+     "len": 3.36
+    }
+   ]
+  },
+  {
+   "dur": 28.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.28,
+     3.6
+    ],
+    [
+     17.66,
+     7.8
+    ],
+    [
+     23.04,
+     11
+    ],
+    [
+     28.328,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.03,
+     "SISD: one instruction stream, one data stream."
+    ],
+    [
+     8.28,
+     17.41,
+     "SIMD: the same instruction on many processors, each with its own data."
+    ],
+    [
+     17.66,
+     22.79,
+     "MIMD: each processor has its own instructions and its own data."
+    ],
+    [
+     23.04,
+     26.25,
+     "Cores running separate threads work this way."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f979a2ede0f5f7a1.wav",
+     "at": 0.5,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/9fc12dde96ed9095.wav",
+     "at": 8.28,
+     "len": 8.88
+    },
+    {
+     "file": "videos/audio/clips/428d79fff45b21d7.wav",
+     "at": 17.66,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/50791d5de3727b17.wav",
+     "at": 23.04,
+     "len": 2.96
+    }
+   ]
+  },
+  {
+   "dur": 20.039,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5,
+     3.4
+    ],
+    [
+     10.54,
+     6.4
+    ],
+    [
+     16.4,
+     8.6
+    ],
+    [
+     20.039,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.75,
+     "A thread: a stream of execution spawned by a process."
+    ],
+    [
+     5,
+     10.29,
+     "Threads share memory: global variables and open files."
+    ],
+    [
+     10.54,
+     16.15,
+     "Every thread can see the parent process's data."
+    ],
+    [
+     16.4,
+     19.21,
+     "Nothing has to be copied or sent first."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ed0b3709bd85de90.wav",
+     "at": 0.5,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/f1b40194feea7390.wav",
+     "at": 5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/b812f8e5084c06b8.wav",
+     "at": 10.54,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/1004b3614ea3b8e2.wav",
+     "at": 16.4,
+     "len": 2.56
+    }
+   ]
+  },
+  {
+   "dur": 26.61,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.2,
+     3.6
+    ],
+    [
+     12.14,
+     6.2
+    ],
+    [
+     18.48,
+     9.4
+    ],
+    [
+     26.61,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.95,
+     "1 thread does all 12 blocks: 12 minutes, 3 cores idle."
+    ],
+    [
+     8.2,
+     11.89,
+     "2 threads, 6 blocks each: 6 minutes."
+    ],
+    [
+     12.14,
+     18.23,
+     "4 threads on 4 cores, 3 blocks each: 3 minutes."
+    ],
+    [
+     18.48,
+     25.05,
+     "Threads need a shared memory, so they stay on one node."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8471b8e847a466f5.wav",
+     "at": 0.5,
+     "len": 7.2
+    },
+    {
+     "file": "videos/audio/clips/33868a433923316e.wav",
+     "at": 8.2,
+     "len": 3.44
+    },
+    {
+     "file": "videos/audio/clips/b6a3984006734dc5.wav",
+     "at": 12.14,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/68878550709a9cd9.wav",
+     "at": 18.48,
+     "len": 6.32
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.2,
+     3
+    ],
+    [
+     12.3,
+     6.6
+    ],
+    [
+     15.44,
+     8.4
+    ],
+    [
+     21.687,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.95,
+     "OpenMP: mark what to parallelise; the compiler adds the threads."
+    ],
+    [
+     6.2,
+     12.05,
+     "Fork: the master thread spawns worker threads."
+    ],
+    [
+     12.3,
+     15.19,
+     "Faster threads wait for the slowest."
+    ],
+    [
+     15.44,
+     20.01,
+     "Join: a sync point. Then the master carries on alone."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/971b3afdece25723.wav",
+     "at": 0.5,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/9bf93ab1c1c98879.wav",
+     "at": 6.2,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/30f18cda5a2a7211.wav",
+     "at": 12.3,
+     "len": 2.64
+    },
+    {
+     "file": "videos/audio/clips/1fb380cf76b35eb8.wav",
+     "at": 15.44,
+     "len": 4.32
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.88,
+     3.8
+    ],
+    [
+     12.7,
+     7
+    ],
+    [
+     15.68,
+     10
+    ],
+    [
+     23.336,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.63,
+     "1 thread: load, tally, sort, tally, report: 16 minutes."
+    ],
+    [
+     7.88,
+     12.45,
+     "2 threads: each tally is forked and joined: 10 minutes."
+    ],
+    [
+     12.7,
+     15.43,
+     "4 threads: 7 minutes."
+    ],
+    [
+     15.68,
+     21.45,
+     "The 4 sequential minutes never shrink."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/d2bf5ca3b9fc7efd.wav",
+     "at": 0.5,
+     "len": 6.88
+    },
+    {
+     "file": "videos/audio/clips/1bd5dd7847192670.wav",
+     "at": 7.88,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/0bb8c4b563da7838.wav",
+     "at": 12.7,
+     "len": 2.48
+    },
+    {
+     "file": "videos/audio/clips/a25872493b62a953.wav",
+     "at": 15.68,
+     "len": 5.52
+    }
+   ]
+  },
+  {
+   "dur": 26.773,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     3.8
+    ],
+    [
+     12.94,
+     7.4
+    ],
+    [
+     19.68,
+     10.2
+    ],
+    [
+     26.773,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "Distributed memory: each process sees only its own data."
+    ],
+    [
+     5.8,
+     12.69,
+     "A message needs a send and a matching receive."
+    ],
+    [
+     12.94,
+     19.43,
+     "Receive from the wrong sender: no match."
+    ],
+    [
+     19.68,
+     25.13,
+     "MPI is the standard library for this."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5ae3be7595b183d2.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/3572dc406b4d94fd.wav",
+     "at": 5.8,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/b6236fa98e6fac3f.wav",
+     "at": 12.94,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/87e33458ff489d31.wav",
+     "at": 19.68,
+     "len": 5.2
+    }
+   ]
+  },
+  {
+   "dur": 26.773,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.32,
+     3.4
+    ],
+    [
+     13.66,
+     6.4
+    ],
+    [
+     19.52,
+     8.8
+    ],
+    [
+     26.773,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.07,
+     "MPI_COMM_WORLD holds every process: ranks 0 to 11."
+    ],
+    [
+     7.32,
+     13.41,
+     "Split into groups of 3: each numbers its members 0, 1, 2."
+    ],
+    [
+     13.66,
+     19.27,
+     "Process 7: rank 7 in the world, rank 1 in group C."
+    ],
+    [
+     19.52,
+     26.01,
+     "A communicator has a context, a group, a size and ranks."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/460e44def17b074c.wav",
+     "at": 0.5,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/33a9ec61d9abe402.wav",
+     "at": 7.32,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/7f5db6027c52250f.wav",
+     "at": 13.66,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/c1f483d3025c3cc6.wav",
+     "at": 19.52,
+     "len": 6.24
+    }
+   ]
+  },
+  {
+   "dur": 18.529,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.48,
+     2
+    ],
+    [
+     11.58,
+     3.1
+    ],
+    [
+     18.529,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a9dfe0f064f83e55.wav",
+     "at": 0.5,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/e608a283b5e95de4.wav",
+     "at": 5.48,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/04954e1ff61528a8.wav",
+     "at": 11.58,
+     "len": 5.68
+    }
+   ]
+  }
+ ]
+}

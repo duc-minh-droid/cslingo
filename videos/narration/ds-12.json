@@ -1,0 +1,243 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture twelve. Virtualisation and containers. How to ship the whole kitchen along with the recipe."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Mo's forecaster, forecast dot py, is the same file on both machines.",
+     "Mo's forecaster: forecast.py, the same file on both machines."
+    ],
+    [
+     "But the laptop runs Windows eleven and Python three point twelve. The server runs Ubuntu and Python three point eight.",
+     "But Windows 11 against Ubuntu, Python 3.12 against 3.8."
+    ],
+    [
+     "So it works on the laptop and crashes on the server.",
+     "It runs on the laptop and crashes on the server."
+    ],
+    [
+     "The code is fine. The environment differs: the operating system, the libraries, the dependencies and the settings.",
+     "The environment differs: OS, libraries, dependencies, settings."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Code moves from development, to a test box, to the live production server.",
+     "Development, test, production: three machines that start out alike."
+    ],
+    [
+     "Each machine gets its own updates and tweaks.",
+     "Each gets its own updates and tweaks."
+    ],
+    [
+     "Slowly they drift apart, and moving code between them becomes fragile.",
+     "They drift apart, so deploying across them is fragile."
+    ],
+    [
+     "So here is the big idea. Pack the whole environment along with the code.",
+     "The big idea: pack the environment along with the code."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The real, physical computer is called the host.",
+     "The real computer is the host."
+    ],
+    [
+     "On it run virtual machines, called guests. Each has its own operating system and apps.",
+     "Each virtual machine is a guest with its own OS."
+    ],
+    [
+     "Underneath sits the hypervisor. It shares out the host's processor, memory and disk.",
+     "The hypervisor shares the host's CPU, memory and disk between them."
+    ],
+    [
+     "Popular hypervisors are VMware Workstation, VirtualBox and Hyper-V.",
+     "For example VMware Workstation, VirtualBox and Hyper-V."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "An emulator pretends to be other hardware, like an old games console.",
+     "An emulator mimics other hardware, like an old console."
+    ],
+    [
+     "Every instruction is translated, so the game never touches the real hardware.",
+     "Every instruction is translated; the game never touches the real hardware."
+    ],
+    [
+     "A virtual machine is different. Its guest runs on the host's real hardware.",
+     "A virtual machine does use the host hardware."
+    ],
+    [
+     "The hypervisor just keeps the guests apart.",
+     "The hypervisor keeps the guests apart."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A snapshot saves the virtual machine's state at one exact moment.",
+     "A snapshot saves the VM's state at one exact moment."
+    ],
+    [
+     "Then an update is installed, and the forecaster breaks.",
+     "Then an update is installed, and the forecaster breaks."
+    ],
+    [
+     "Restoring the snapshot undoes every change made since.",
+     "Restore the snapshot: every later change is undone."
+    ],
+    [
+     "A snapshot can also be copied to another host.",
+     "Snapshots can also be copied to another host."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Here are three of Loafly's services, each in its own virtual machine.",
+     "Three services, three virtual machines."
+    ],
+    [
+     "Every virtual machine repeats a whole operating system. That is a lot of overhead.",
+     "Every VM repeats a whole OS: lots of overhead."
+    ],
+    [
+     "Containers share the host's kernel instead, and each brings only its libraries and its app.",
+     "Containers share the host's OS kernel instead."
+    ],
+    [
+     "In rough numbers, four operating systems against just one.",
+     "Rough numbers: 4 operating systems against 1."
+    ],
+    [
+     "So a container starts in milliseconds, while a virtual machine needs about a minute to boot.",
+     "A container starts in milliseconds, a VM in about a minute."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Docker packs the app with everything it needs: its Python, its libraries and its settings.",
+     "Docker packs the app with all its dependencies."
+    ],
+    [
+     "A container is an isolated process. Namespaces give it its own files, network and process list.",
+     "Namespaces: each container sees its own files, network and processes."
+    ],
+    [
+     "Cgroups set its budget: how much processor, memory and input and output it may use.",
+     "Cgroups: limits on CPU, memory and IO."
+    ],
+    [
+     "On a Windows laptop, Docker Desktop runs a small Linux virtual machine, through WSL two or Hyper-V.",
+     "On Windows, Docker Desktop runs a small Linux VM via WSL2 or Hyper-V."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "An image is a read-only template. One image can start three identical containers.",
+     "One image, three running containers."
+    ],
+    [
+     "A Dockerfile is the written recipe. Docker build runs it line by line, one layer per line.",
+     "A Dockerfile builds the image line by line, one layer each."
+    ],
+    [
+     "On the first build, every layer is made and cached.",
+     "First build: every layer is made and cached."
+    ],
+    [
+     "Change only your code, and just the last layer is rebuilt. Three come from the cache.",
+     "Change only your code: 1 layer rebuilt, 3 from cache."
+    ],
+    [
+     "Change the library list, and Docker rebuilds from that line down.",
+     "Change the library list: rebuilt from that line down."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Kubernetes runs a cluster: a control plane, the brain, above the worker nodes.",
+     "A cluster: a control plane and worker nodes."
+    ],
+    [
+     "A Deployment asks for three pods. A Service gives them one stable address.",
+     "A Deployment wants 3 pods; a Service gives them one address."
+    ],
+    [
+     "When a pod crashes, it is restarted.",
+     "A pod crashes: it is restarted."
+    ],
+    [
+     "When node two goes down, its pod is rescheduled. Three are running again, as desired.",
+     "Node 2 goes down: its pod is rescheduled. Still 3 running."
+    ],
+    [
+     "So you get scaling, self-healing, a declarative set-up, and support on every cloud.",
+     "Scaling, self-healing, declarative, cloud-native."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2.0,
+    3.1
+   ],
+   "lines": [
+    "A virtual machine is a whole computer in software, run by a hypervisor.",
+    "A container shares the host's kernel, so it is light and quick to start.",
+    "A Dockerfile builds the image, and Kubernetes keeps the containers running as you asked."
+   ]
+  }
+ ]
+}

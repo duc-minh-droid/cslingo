@@ -184,10 +184,107 @@
         "Add up, move the centres, test, repeat",
       ],
     },
+    {
+      n: 12,
+      blurb:
+        "Lecture 12 in pictures: why code breaks on other machines, virtual machines, containers, Docker images and Kubernetes.",
+      chapters: [
+        "It works on my machine",
+        "Drift on the road to production",
+        "Virtual machines and the hypervisor",
+        "Emulation or virtualisation",
+        "Snapshots",
+        "Containers share one kernel",
+        "Docker: namespaces and cgroups",
+        "Images, layers and the Dockerfile",
+        "Kubernetes keeps the desired state",
+      ],
+    },
+    {
+      n: 13,
+      blurb:
+        "Lecture 13 in pictures: levels of parallelism, threads and shared memory, OpenMP fork and join, and MPI messages.",
+      chapters: [
+        "Levels of parallelism",
+        "Processes or threads",
+        "SISD, SIMD and MIMD",
+        "Threads share memory",
+        "Splitting the receipts",
+        "OpenMP: fork and join",
+        "Sequential parts stay the same",
+        "Distributed memory and MPI messages",
+        "Communicators and ranks",
+      ],
+    },
+    {
+      n: 14,
+      blurb:
+        "Lecture 14 in pictures: tensors and their shapes, sparse data, and storing it as keys, coordinates, CSR or CSC.",
+      chapters: [
+        "Scalars, vectors, matrices, tensors",
+        "The shapes of real data",
+        "Sparse or dense",
+        "Real data is full of gaps",
+        "Dictionary of keys and coordinate list",
+        "Compressed sparse row",
+        "Reading a row back",
+        "Compressed sparse column",
+        "CSR or CSC?",
+      ],
+    },
+    {
+      n: 15,
+      blurb:
+        "Lecture 15 in pictures: what makes a cluster fast, FLOPS, Moore's and Amdahl's laws, and sharing the machine with Slurm.",
+      chapters: [
+        "What makes a system fast",
+        "FLOPS and the ladder",
+        "The network matters",
+        "Moore's law and its limits",
+        "Amdahl's law",
+        "The speedup ceiling",
+        "Resource managers and queues",
+        "Slurm partitions and priority",
+        "Four Slurm commands",
+      ],
+    },
+    {
+      n: 16,
+      blurb:
+        "Lecture 16 in pictures: why AI needs special chips, co-design flows, partitioning, profiling and the software stack.",
+      chapters: [
+        "Why one chip can't do it all",
+        "What co-design means",
+        "Dense, sparse and the edge",
+        "Chips for cars and data centres",
+        "Bottom-up, top-down, co-design",
+        "Partitioning and design tools",
+        "Profile and the cost of copies",
+        "The right chip and the software stack",
+        "Measure and iterate",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 5, 2: 4, 3: 4, 4: 4, 5: 3, 6: 4, 7: 4, 8: 4, 9: 5, 10: 5, 11: 5 };
+  const NARRATED = {
+    1: 5,
+    2: 4,
+    3: 4,
+    4: 4,
+    5: 3,
+    6: 4,
+    7: 4,
+    8: 4,
+    9: 5,
+    10: 5,
+    11: 5,
+    12: 4,
+    13: 4,
+    14: 4,
+    15: 5,
+    16: 4,
+  };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

@@ -1,0 +1,772 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.27,
+     "Lecture eighteen. Neuromorphic computing. How a chip shaped like a brain spends energy only when something happens."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cb0c014c789da231.wav",
+     "at": 0.5,
+     "len": 7.52
+    }
+   ]
+  },
+  {
+   "dur": 28.352,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.96,
+     3.2
+    ],
+    [
+     14.86,
+     6
+    ],
+    [
+     20,
+     8.8
+    ],
+    [
+     28.352,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.71,
+     "Hoglet watches the garden for hedgehogs all night."
+    ],
+    [
+     7.96,
+     14.61,
+     "Inside: a von Neumann computer, processor and memory apart."
+    ],
+    [
+     14.86,
+     19.75,
+     "A program runs step by step, in binary."
+    ],
+    [
+     20,
+     26.65,
+     "Data shuttles back and forth, and every trip costs energy."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3dc90f50d56a2d6b.wav",
+     "at": 0.5,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/74c692674957d700.wav",
+     "at": 7.96,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/cf8102b497b60d57.wav",
+     "at": 14.86,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/ef2752e64ab1f0c4.wav",
+     "at": 20,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 25.1,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.24,
+     3.2
+    ],
+    [
+     13.02,
+     6
+    ],
+    [
+     18.8,
+     9.6
+    ],
+    [
+     25.1,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.99,
+     "In a neuromorphic computer, synapses store data and process it."
+    ],
+    [
+     7.24,
+     12.77,
+     "No program as such: the synapse structure sets what it does."
+    ],
+    [
+     13.02,
+     18.55,
+     "Inputs are spikes; their timing and magnitude carry information."
+    ],
+    [
+     18.8,
+     24.41,
+     "The term began in the 1980s; today it covers many brain-inspired ideas."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3e340d7671b7ec5a.wav",
+     "at": 0.5,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/f44bf01b2d4dc027.wav",
+     "at": 7.24,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/c8049af91ee23269.wav",
+     "at": 13.02,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/362864a0c964e116.wav",
+     "at": 18.8,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 28.282,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.6,
+     3.2
+    ],
+    [
+     14.46,
+     6
+    ],
+    [
+     20.32,
+     8.8
+    ],
+    [
+     28.282,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "Parallel: all neurons work at once, each doing something simple."
+    ],
+    [
+     6.6,
+     14.21,
+     "Processing and memory together: faster and less energy."
+    ],
+    [
+     14.46,
+     20.07,
+     "Scalable: need a bigger network? Add more chips."
+    ],
+    [
+     20.32,
+     26.49,
+     "And the fourth: it is event driven."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8686f0253a805688.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/8cd44c1819b2fb29.wav",
+     "at": 6.6,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/20d2c7a42084ed8c.wav",
+     "at": 14.46,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/8080975567187317.wav",
+     "at": 20.32,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 26.61,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.88,
+     3.2
+    ],
+    [
+     12.7,
+     6
+    ],
+    [
+     18.88,
+     8.8
+    ],
+    [
+     26.61,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.63,
+     "A quiet night: a spike at only 4 of 24 moments."
+    ],
+    [
+     5.88,
+     12.45,
+     "The clocked chip works 24 times; the event-driven chip 4."
+    ],
+    [
+     12.7,
+     18.63,
+     "A busier garden: 11 spikes, 11 bursts of work."
+    ],
+    [
+     18.88,
+     24.57,
+     "No spikes, no work: it computes only when a spike arrives."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e49c50f63359dda9.wav",
+     "at": 0.5,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/d1a0f1b69abf9f8e.wav",
+     "at": 5.88,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/c39f2f0214f4cf1e.wav",
+     "at": 12.7,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/93bc178448521f12.wav",
+     "at": 18.88,
+     "len": 5.44
+    }
+   ]
+  },
+  {
+   "dur": 28.259,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.44,
+     3.2
+    ],
+    [
+     15.5,
+     6
+    ],
+    [
+     22.4,
+     8.8
+    ],
+    [
+     28.259,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.19,
+     "Graph algorithms: routing messages through a network."
+    ],
+    [
+     8.44,
+     15.25,
+     "Optimisation: constraint satisfaction, QUBO, optimal control."
+    ],
+    [
+     15.5,
+     22.15,
+     "Random walkers hop between neurons that stand for states."
+    ],
+    [
+     22.4,
+     27.53,
+     "Signal processing: steering vehicles, detecting seizures."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a3527e36366dcaf4.wav",
+     "at": 0.5,
+     "len": 7.44
+    },
+    {
+     "file": "videos/audio/clips/1903a052e47f9e80.wav",
+     "at": 8.44,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/364e5765d9a6d84f.wav",
+     "at": 15.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/0ec9f499372e6381.wav",
+     "at": 22.4,
+     "len": 4.88
+    }
+   ]
+  },
+  {
+   "dur": 33.413,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.36,
+     3.2
+    ],
+    [
+     14.3,
+     6.6
+    ],
+    [
+     18.96,
+     8.8
+    ],
+    [
+     25.54,
+     11.2
+    ],
+    [
+     33.413,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.11,
+     "SpiNNaker: 18 ARM cores per chip, built for exploring."
+    ],
+    [
+     8.36,
+     14.05,
+     "About 16,000 neurons in real time on 1 W per chip."
+    ],
+    [
+     14.3,
+     18.71,
+     "SpiNNaker 2, in 2019, is ten times bigger."
+    ],
+    [
+     18.96,
+     25.29,
+     "IBM TrueNorth: 1 million neurons per chip, set up in Corelet."
+    ],
+    [
+     25.54,
+     32.43,
+     "NorthPole, 2023: easier, faster, efficient AI."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1c0eb1e3c5b43e78.wav",
+     "at": 0.5,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/132ad755328a1248.wav",
+     "at": 8.36,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/bf91ed368b8ac417.wav",
+     "at": 14.3,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/b3ffb48d51edad08.wav",
+     "at": 18.96,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/8a13a30d385add63.wav",
+     "at": 25.54,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 28.445,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.12,
+     3.2
+    ],
+    [
+     13.34,
+     6
+    ],
+    [
+     20.72,
+     9.4
+    ],
+    [
+     28.445,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.87,
+     "Deep learning still wins on results; neuromorphic wins on energy."
+    ],
+    [
+     8.12,
+     13.09,
+     "Little hardware and software to use, and long training times."
+    ],
+    [
+     13.34,
+     20.47,
+     "No benchmark suite that tests the time aspect."
+    ],
+    [
+     20.72,
+     26.25,
+     "Networks are wired neuron by neuron, which is error prone."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/11d32660047c70d0.wav",
+     "at": 0.5,
+     "len": 7.12
+    },
+    {
+     "file": "videos/audio/clips/ccd46fe7a8960f25.wav",
+     "at": 8.12,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/4d00c5d0a183d48c.wav",
+     "at": 13.34,
+     "len": 6.88
+    },
+    {
+     "file": "videos/audio/clips/3f4df756aa5f8fdc.wav",
+     "at": 20.72,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 26.773,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.64,
+     3.2
+    ],
+    [
+     15.42,
+     6
+    ],
+    [
+     20.16,
+     8.8
+    ],
+    [
+     26.773,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "A frame camera sends all 72 pixels, every moment."
+    ],
+    [
+     7.64,
+     15.17,
+     "An event camera's pixels spike only when brightness changes: 2."
+    ],
+    [
+     15.42,
+     19.91,
+     "Hedgehog sits still: the event camera sends nothing."
+    ],
+    [
+     20.16,
+     25.61,
+     "Sensor fusion: wake the frame camera when events appear."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/28474e0eb4e410b5.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/da8d8efae1bbc19b.wav",
+     "at": 7.64,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/65a7b9a7521c5603.wav",
+     "at": 15.42,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/74397ebce46239bb.wav",
+     "at": 20.16,
+     "len": 5.2
+    }
+   ]
+  },
+  {
+   "dur": 30.185,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.64,
+     3.2
+    ],
+    [
+     14.54,
+     6
+    ],
+    [
+     21.76,
+     8
+    ],
+    [
+     25.38,
+     9.8
+    ],
+    [
+     30.185,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "GAs and PSO are parallel but energy hungry on normal hardware."
+    ],
+    [
+     7.64,
+     14.29,
+     "Neuromorphic heuristic units evolve candidates asynchronously."
+    ],
+    [
+     14.54,
+     21.51,
+     "No spike: a heuristic step, towards the best so far."
+    ],
+    [
+     21.76,
+     25.13,
+     "A spike: the neuron's own dynamics make a jump."
+    ],
+    [
+     25.38,
+     28.83,
+     "Promising, but still highly experimental."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/0363beaac389c712.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/0113475ca7656cff.wav",
+     "at": 7.64,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/0fe807fdde1ab0ca.wav",
+     "at": 14.54,
+     "len": 6.72
+    },
+    {
+     "file": "videos/audio/clips/98cf919195b28998.wav",
+     "at": 21.76,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/e6809fd8ef3322e6.wav",
+     "at": 25.38,
+     "len": 3.2
+    }
+   ]
+  },
+  {
+   "dur": 15.001,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     6.04,
+     2
+    ],
+    [
+     10.54,
+     3.1
+    ],
+    [
+     15.001,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c58f5886a49f93bc.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/4079087b2c3c19ee.wav",
+     "at": 6.04,
+     "len": 4
+    },
+    {
+     "file": "videos/audio/clips/79ce25e799cc76f3.wav",
+     "at": 10.54,
+     "len": 3.36
+    }
+   ]
+  }
+ ]
+}

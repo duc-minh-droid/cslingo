@@ -1,0 +1,744 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.11,
+     "Lecture sixteen. Hardware software co-design: chips and code made for each other."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c31a455f685a87d6.wav",
+     "at": 0.5,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 33.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.32,
+     2.8
+    ],
+    [
+     12.06,
+     5.8
+    ],
+    [
+     20.64,
+     8.8
+    ],
+    [
+     26.26,
+     11.4
+    ],
+    [
+     33.344,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.07,
+     "Leafly: snap a leaf, get the plant's name."
+    ],
+    [
+     5.32,
+     11.81,
+     "Today the photo goes to the cloud. Answer: a few seconds."
+    ],
+    [
+     12.06,
+     20.39,
+     "AI pushes general hardware to its limits."
+    ],
+    [
+     20.64,
+     26.01,
+     "Moore's law is slowing: waiting won't do it."
+    ],
+    [
+     26.26,
+     32.51,
+     "A new chip is very expensive, so it needs large demand."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/95649d77f84bc0a3.wav",
+     "at": 0.5,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/f161d33d3688473a.wav",
+     "at": 5.32,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/882a8b988ab7c0db.wav",
+     "at": 12.06,
+     "len": 8.08
+    },
+    {
+     "file": "videos/audio/clips/f0d7cef80dd8c0c9.wav",
+     "at": 20.64,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/3a8a7f64b9db057d.wav",
+     "at": 26.26,
+     "len": 6
+    }
+   ]
+  },
+  {
+   "dur": 18.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.8,
+     3.6
+    ],
+    [
+     13.1,
+     6.8
+    ],
+    [
+     18.344,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.55,
+     "Hardware designed around the software it will run."
+    ],
+    [
+     5.8,
+     12.85,
+     "Software tuned to make full use of that hardware."
+    ],
+    [
+     13.1,
+     17.75,
+     "Both shaped by each other: hardware–software co-design."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/40c88b04a38066c0.wav",
+     "at": 0.5,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/adf30b1c5db3737e.wav",
+     "at": 5.8,
+     "len": 6.8
+    },
+    {
+     "file": "videos/audio/clips/e17f58e74f7e3fbd.wav",
+     "at": 13.1,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3.2
+    ],
+    [
+     12.94,
+     6
+    ],
+    [
+     17.36,
+     9
+    ],
+    [
+     25.008,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "AI models run on tensor operations."
+    ],
+    [
+     5.4,
+     12.69,
+     "Images: dense tensors. Recommendations: sparse ones."
+    ],
+    [
+     12.94,
+     17.11,
+     "AI usually runs in the cloud."
+    ],
+    [
+     17.36,
+     23.45,
+     "Personal models move it onto the phone: edge computing."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f98e309ff05c7b77.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/56072e6609191dc1.wav",
+     "at": 5.4,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/7172adee6ce1df3b.wav",
+     "at": 12.94,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/65d54a950c6b8cb6.wav",
+     "at": 17.36,
+     "len": 5.84
+    }
+   ]
+  },
+  {
+   "dur": 20.201,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.92,
+     3.6
+    ],
+    [
+     12.86,
+     7.6
+    ],
+    [
+     20.201,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "Cars: ADAS chips see the road and brake in milliseconds."
+    ],
+    [
+     6.92,
+     12.61,
+     "Data centres: DPUs and IPUs sit beside the CPU."
+    ],
+    [
+     12.86,
+     18.79,
+     "They take networking, storage and security off its hands."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/525501d3bea2e00e.wav",
+     "at": 0.5,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/57b0b3ff26adf493.wav",
+     "at": 6.92,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/4c0d5a113c88515d.wav",
+     "at": 12.86,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 28.119,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.64,
+     3.8
+    ],
+    [
+     14.46,
+     7.2
+    ],
+    [
+     20.64,
+     10.6
+    ],
+    [
+     28.119,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "Bottom-up: hardware first, software later. Early GPU computing."
+    ],
+    [
+     7.64,
+     14.21,
+     "Top-down: the workload drives the chip. Volta tensor cores."
+    ],
+    [
+     14.46,
+     20.39,
+     "Co-design: both together. Snapdragon Ride Flex and Ride Vision."
+    ],
+    [
+     20.64,
+     26.65,
+     "Demand, software, hardware, round again: an iterative loop."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/da6391ad3a1c301f.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/377462e1e8e36319.wav",
+     "at": 7.64,
+     "len": 6.32
+    },
+    {
+     "file": "videos/audio/clips/86af80eafea3d90b.wav",
+     "at": 14.46,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/a86f4f93bf611ac9.wav",
+     "at": 20.64,
+     "len": 5.76
+    }
+   ]
+  },
+  {
+   "dur": 33.344,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.2,
+     2.8
+    ],
+    [
+     11.66,
+     5
+    ],
+    [
+     18.56,
+     8
+    ],
+    [
+     24.98,
+     11
+    ],
+    [
+     33.344,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.95,
+     "Six Leafly jobs. Which go into hardware?"
+    ],
+    [
+     6.2,
+     11.41,
+     "Heavy, stable jobs to hardware: speed and parallelism."
+    ],
+    [
+     11.66,
+     18.31,
+     "Rules that change stay in software, easy to update."
+    ],
+    [
+     18.56,
+     24.73,
+     "Simulate chip and code together before building anything."
+    ],
+    [
+     24.98,
+     31.31,
+     "High-level synthesis: describe the behaviour, get an HDL design."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cfc5c0e8b455ec63.wav",
+     "at": 0.5,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/356d57bb05957baa.wav",
+     "at": 6.2,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/0bf90186d1323b07.wav",
+     "at": 11.66,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/a95d0c39ca068a55.wav",
+     "at": 18.56,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/be76524a80ffd38b.wav",
+     "at": 24.98,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 31.765,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.64,
+     2.8
+    ],
+    [
+     10.94,
+     5
+    ],
+    [
+     16.96,
+     9
+    ],
+    [
+     23.22,
+     11.4
+    ],
+    [
+     31.765,
+     15
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.39,
+     "One photo on the phone's CPU: 132 ms."
+    ],
+    [
+     7.64,
+     10.69,
+     "The network takes 120 of them."
+    ],
+    [
+     10.94,
+     16.71,
+     "Network on the GPU: 40 ms, but 13 ms of it is copying."
+    ],
+    [
+     16.96,
+     22.97,
+     "A GPU twice as fast: only 32.5 ms."
+    ],
+    [
+     23.22,
+     30.99,
+     "A photo 4 times as big: copies take 52 ms."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/e87355b44c0de8d2.wav",
+     "at": 0.5,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/e61a3c6d265be957.wav",
+     "at": 7.64,
+     "len": 2.8
+    },
+    {
+     "file": "videos/audio/clips/977d317298c9f515.wav",
+     "at": 10.94,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/61015fb3393de54f.wav",
+     "at": 16.96,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/f5bcedb6d587d9d2.wav",
+     "at": 23.22,
+     "len": 7.52
+    }
+   ]
+  },
+  {
+   "dur": 21.571,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.28,
+     4.8
+    ],
+    [
+     15.18,
+     8.4
+    ],
+    [
+     21.571,
+     12.5
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.03,
+     "CPU: varied tasks. GPU: maths in parallel. Specialised: stable work."
+    ],
+    [
+     8.28,
+     14.93,
+     "CPU prepares, GPU runs the network, CPU shows the answer."
+    ],
+    [
+     15.18,
+     20.55,
+     "Framework, compiler, runtime: the stack maps the model to the chip."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/530e875e73df19ba.wav",
+     "at": 0.5,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/e1dcb7a13b4bdee7.wav",
+     "at": 8.28,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/a7b9a7af83af44e6.wav",
+     "at": 15.18,
+     "len": 5.12
+    }
+   ]
+  },
+  {
+   "dur": 23.731,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.4,
+     3.6
+    ],
+    [
+     10.78,
+     7
+    ],
+    [
+     15.44,
+     9.8
+    ],
+    [
+     23.731,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Measure latency, throughput, energy per result and cost."
+    ],
+    [
+     5.4,
+     10.53,
+     "Prototype, measure end to end, revisit the partition."
+    ],
+    [
+     10.78,
+     15.19,
+     "Speed one part up and the bottleneck moves."
+    ],
+    [
+     15.44,
+     22.17,
+     "Co-design trades power, performance, cost and time."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/48bf41c2f186442b.wav",
+     "at": 0.5,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/6712782a2607eb6f.wav",
+     "at": 5.4,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/26b1a3a34f30a95b.wav",
+     "at": 10.78,
+     "len": 4.16
+    },
+    {
+     "file": "videos/audio/clips/71ac60bb8014f4f9.wav",
+     "at": 15.44,
+     "len": 6.48
+    }
+   ]
+  },
+  {
+   "dur": 16.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.24,
+     2
+    ],
+    [
+     11.42,
+     3.1
+    ],
+    [
+     16.672,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/74d9c625cdcf9696.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/4fefddceab27afc8.wav",
+     "at": 5.24,
+     "len": 5.68
+    },
+    {
+     "file": "videos/audio/clips/f24b6b80ef682b86.wav",
+     "at": 11.42,
+     "len": 3.68
+    }
+   ]
+  }
+ ]
+}

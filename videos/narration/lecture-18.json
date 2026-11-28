@@ -1,0 +1,239 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture eighteen. Neuromorphic computing. How a chip shaped like a brain spends energy only when something happens."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Priya's camera, Hoglet, watches her garden for hedgehogs all night. Its battery dies by Tuesday.",
+     "Hoglet watches the garden for hedgehogs all night."
+    ],
+    [
+     "Inside is an ordinary von Neumann computer: a processor here, a separate memory there.",
+     "Inside: a von Neumann computer, processor and memory apart."
+    ],
+    [
+     "A program tells it what to do, one step at a time, in binary.",
+     "A program runs step by step, in binary."
+    ],
+    [
+     "So data shuttles back and forth all night, and every trip costs time and energy.",
+     "Data shuttles back and forth, and every trip costs energy."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A neuromorphic computer works like a brain. Each synapse both stores data and computes.",
+     "In a neuromorphic computer, synapses store data and process it."
+    ],
+    [
+     "There is no program as such. Who connects to whom, and how strongly, sets what it does.",
+     "No program as such: the synapse structure sets what it does."
+    ],
+    [
+     "Its inputs are spikes. When they arrive, and how big they are, carry the information.",
+     "Inputs are spikes; their timing and magnitude carry information."
+    ],
+    [
+     "The word began in the nineteen eighties. Today it covers many brain-inspired techniques.",
+     "The term began in the 1980s; today it covers many brain-inspired ideas."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "First, it is parallel. All its neurons work at once, each doing something simple.",
+     "Parallel: all neurons work at once, each doing something simple."
+    ],
+    [
+     "Second, memory and processing sit together, so there are no trips. It is faster and uses less energy.",
+     "Processing and memory together: faster and less energy."
+    ],
+    [
+     "Third, it scales. For a bigger network, add more chips and connect them.",
+     "Scalable: need a bigger network? Add more chips."
+    ],
+    [
+     "The fourth superpower is the one Hoglet needs most. It is event driven.",
+     "And the fourth: it is event driven."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "On this quiet night, something happens at only four of twenty-four moments.",
+     "A quiet night: a spike at only 4 of 24 moments."
+    ],
+    [
+     "A clocked chip works all twenty-four times. The event-driven chip works just four times.",
+     "The clocked chip works 24 times; the event-driven chip 4."
+    ],
+    [
+     "On a busier night, eleven moments bring a spike, so it works eleven times.",
+     "A busier garden: 11 spikes, 11 bursts of work."
+    ],
+    [
+     "With no spikes at all, it does no work. It computes only when a spike arrives.",
+     "No spikes, no work: it computes only when a spike arrives."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Problems shaped like networks fit a spiking chip. Graph algorithms route a message from A through B and D to E.",
+     "Graph algorithms: routing messages through a network."
+    ],
+    [
+     "Optimisation fits too, from constraint satisfaction and QUBO to optimal control.",
+     "Optimisation: constraint satisfaction, QUBO, optimal control."
+    ],
+    [
+     "Random walkers hop between neurons that stand for states, like a hedgehog roaming flower beds.",
+     "Random walkers hop between neurons that stand for states."
+    ],
+    [
+     "And signal processing, such as steering vehicles or detecting seizures.",
+     "Signal processing: steering vehicles, detecting seizures."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "SpiNNaker has eighteen ARM cores per chip. One runs the system; the rest each model a group of neurons.",
+     "SpiNNaker: 18 ARM cores per chip, built for exploring."
+    ],
+    [
+     "One chip runs about sixteen thousand neurons in real time, on one watt.",
+     "About 16,000 neurons in real time on 1 W per chip."
+    ],
+    [
+     "SpiNNaker two, from twenty nineteen, is ten times bigger.",
+     "SpiNNaker 2, in 2019, is ten times bigger."
+    ],
+    [
+     "IBM's TrueNorth holds a million neurons per chip, set up in a language called Corelet.",
+     "IBM TrueNorth: 1 million neurons per chip, set up in Corelet."
+    ],
+    [
+     "NorthPole, from twenty twenty-three, aims to be easy to use, quick, and efficient for AI.",
+     "NorthPole, 2023: easier, faster, efficient AI."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Deep learning still gives better results. Neuromorphic chips win on energy, against edge GPUs.",
+     "Deep learning still wins on results; neuromorphic wins on energy."
+    ],
+    [
+     "There are few machines and simulators, and training takes a long time.",
+     "Little hardware and software to use, and long training times."
+    ],
+    [
+     "Deep learning had shared races such as ImageNet. Neuromorphic computing has no benchmark that uses timing.",
+     "No benchmark suite that tests the time aspect."
+    ],
+    [
+     "And networks are wired by hand, neuron by neuron, which is error prone.",
+     "Networks are wired neuron by neuron, which is error prone."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A frame camera sends every pixel, every moment. Here that is seventy-two pixels each time.",
+     "A frame camera sends all 72 pixels, every moment."
+    ],
+    [
+     "An event camera's pixel spikes only when its brightness changes. A walking hedgehog costs two pixels a moment.",
+     "An event camera's pixels spike only when brightness changes: 2."
+    ],
+    [
+     "When the hedgehog sits still, nothing changes, so nothing is sent.",
+     "Hedgehog sits still: the event camera sends nothing."
+    ],
+    [
+     "Sensor fusion uses the events to wake the frame camera for a proper photo.",
+     "Sensor fusion: wake the frame camera when events appear."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A GA or PSO could tune Hoglet. Both are parallel, but energy hungry on ordinary hardware.",
+     "GAs and PSO are parallel but energy hungry on normal hardware."
+    ],
+    [
+     "Neuromorphic units evolve candidates on their own clocks, while a manager keeps the search on track.",
+     "Neuromorphic heuristic units evolve candidates asynchronously."
+    ],
+    [
+     "With no spike, unit one steps towards the best: from two point eight to five point two, then six point three.",
+     "No spike: a heuristic step, towards the best so far."
+    ],
+    [
+     "A spike makes it jump, to one point three.",
+     "A spike: the neuron's own dynamics make a jump."
+    ],
+    [
+     "Promising, but still highly experimental.",
+     "Promising, but still highly experimental."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "Synapses store data and compute, so there are no trips to memory.",
+    "It is event driven: it works only when a spike arrives.",
+    "It saves energy, but it is still experimental."
+   ]
+  }
+ ]
+}
