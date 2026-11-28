@@ -1,0 +1,329 @@
+{
+ "slug": "ds-16",
+ "dir": "d16",
+ "title": "Hardware–software co-design",
+ "outline": "Lecture 16 video (Data Science, COM3021): 'Hardware–software co-design' (title card 'Co-design'). 11 scenes, 132 s. Script: videos/_plan/ds-16-script.md. Running example Leafly (lesson ds-l16-01.js STAGES / COPY / plan(): 132, 40, 32.5, 79 ms). COLOURS: blue CPU and software; purple GPU and hardware; green specialised chip and wins; orange data on the move and demand; red problems; grey frames and labels. Numbers from videos/d16/common.js (D16.P, D16.PART), asserted at load.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 16",
+  "title": "Co-design",
+  "sub": "Hardware and software, made for each other",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-leafly.js",
+   "kicker": "WHY CO-DESIGN",
+   "title": [
+    "One chip can't do it all",
+    "for every job"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Leafly: snap a leaf, get the plant's name."
+    ],
+    [
+     2.8,
+     5.6,
+     "Today the photo goes to the cloud. Answer: a few seconds."
+    ],
+    [
+     5.8,
+     8.6,
+     "AI pushes general hardware to its limits."
+    ],
+    [
+     8.8,
+     11.2,
+     "Moore's law is slowing: waiting won't do it."
+    ],
+    [
+     11.4,
+     13.7,
+     "A new chip is very expensive, so it needs large demand."
+    ]
+   ]
+  },
+  {
+   "n": 3,
+   "file": "scene-03-codesign.js",
+   "kicker": "CO-DESIGN",
+   "title": [
+    "Hardware and software,",
+    "made for each other"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "Hardware designed around the software it will run."
+    ],
+    [
+     3.6,
+     6.6,
+     "Software tuned to make full use of that hardware."
+    ],
+    [
+     6.8,
+     10.6,
+     "Both shaped by each other: hardware–software co-design."
+    ]
+   ]
+  },
+  {
+   "n": 4,
+   "file": "scene-04-tensors-edge.js",
+   "kicker": "WHAT AI ASKS",
+   "title": [
+    "Full grids, empty grids,",
+    "and the move to the edge"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.4,
+     3,
+     "AI models run on tensor operations."
+    ],
+    [
+     3.2,
+     5.8,
+     "Images: dense tensors. Recommendations: sparse ones."
+    ],
+    [
+     6,
+     8.8,
+     "AI usually runs in the cloud."
+    ],
+    [
+     9,
+     12.2,
+     "Personal models move it onto the phone: edge computing."
+    ]
+   ]
+  },
+  {
+   "n": 5,
+   "file": "scene-05-cars-datacentres.js",
+   "kicker": "BEYOND AI",
+   "title": [
+    "New chips in cars",
+    "and data centres"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "Cars: ADAS chips see the road and brake in milliseconds."
+    ],
+    [
+     3.6,
+     7.4,
+     "Data centres: DPUs and IPUs sit beside the CPU."
+    ],
+    [
+     7.6,
+     11.6,
+     "They take networking, storage and security off its hands."
+    ]
+   ]
+  },
+  {
+   "n": 6,
+   "file": "scene-06-flows.js",
+   "kicker": "FOUR FLOWS",
+   "title": [
+    "Chip first, code first,",
+    "or both at once"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     3.5,
+     "Bottom-up: hardware first, software later. Early GPU computing."
+    ],
+    [
+     3.8,
+     6.9,
+     "Top-down: the workload drives the chip. Volta tensor cores."
+    ],
+    [
+     7.2,
+     10.3,
+     "Co-design: both together. Snapdragon Ride Flex and Ride Vision."
+    ],
+    [
+     10.6,
+     13.7,
+     "Demand, software, hardware, round again: an iterative loop."
+    ]
+   ]
+  },
+  {
+   "n": 7,
+   "file": "scene-07-partition.js",
+   "kicker": "PARTITIONING",
+   "title": [
+    "Fast and fixed,",
+    "or flexible and slower"
+   ],
+   "dur": 15,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "Six Leafly jobs. Which go into hardware?"
+    ],
+    [
+     2.8,
+     4.8,
+     "Heavy, stable jobs to hardware: speed and parallelism."
+    ],
+    [
+     5,
+     7.6,
+     "Rules that change stay in software, easy to update."
+    ],
+    [
+     8,
+     10.8,
+     "Simulate chip and code together before building anything."
+    ],
+    [
+     11,
+     14.6,
+     "High-level synthesis: describe the behaviour, get an HDL design."
+    ]
+   ]
+  },
+  {
+   "n": 8,
+   "file": "scene-08-profile.js",
+   "kicker": "FOLLOW THE TIME",
+   "title": [
+    "Profile first,",
+    "then watch the copies"
+   ],
+   "dur": 15,
+   "caps": [
+    [
+     0.4,
+     2.6,
+     "One photo on the phone's CPU: 132 ms."
+    ],
+    [
+     2.8,
+     4.8,
+     "The network takes 120 of them."
+    ],
+    [
+     5,
+     8.8,
+     "Network on the GPU: 40 ms, but 13 ms of it is copying."
+    ],
+    [
+     9,
+     11.2,
+     "A GPU twice as fast: only 32.5 ms."
+    ],
+    [
+     11.4,
+     14.6,
+     "A photo 4 times as big: copies take 52 ms."
+    ]
+   ]
+  },
+  {
+   "n": 9,
+   "file": "scene-09-chips-stack.js",
+   "kicker": "RIGHT JOB, RIGHT CHIP",
+   "title": [
+    "Match the work to the chip,",
+    "let the stack translate"
+   ],
+   "dur": 12.5,
+   "caps": [
+    [
+     0.4,
+     4.6,
+     "CPU: varied tasks. GPU: maths in parallel. Specialised: stable work."
+    ],
+    [
+     4.8,
+     8.2,
+     "CPU prepares, GPU runs the network, CPU shows the answer."
+    ],
+    [
+     8.4,
+     12.2,
+     "Framework, compiler, runtime: the stack maps the model to the chip."
+    ]
+   ]
+  },
+  {
+   "n": 10,
+   "file": "scene-10-measure.js",
+   "kicker": "MEASURE AND REPEAT",
+   "title": [
+    "Measure the whole pipeline,",
+    "then go round again"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "Measure latency, throughput, energy per result and cost."
+    ],
+    [
+     3.6,
+     6.8,
+     "Prototype, measure end to end, revisit the partition."
+    ],
+    [
+     7,
+     9.6,
+     "Speed one part up and the bottleneck moves."
+    ],
+    [
+     9.8,
+     12.6,
+     "Co-design trades power, performance, cost and time."
+    ]
+   ]
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "rowsAt": [
+   0.8,
+   1.9,
+   3
+  ],
+  "points": [
+   {
+    "head": "Co-design: hardware and\nsoftware, shaped for\neach other",
+    "tone": "purple"
+   },
+   {
+    "head": "Partition: heavy, stable jobs\nin hardware, changing ones\nin software",
+    "tone": "blue"
+   },
+   {
+    "head": "Profile, count the copies,\nmeasure the whole pipeline",
+    "tone": "orange"
+   }
+  ],
+  "cta": "Next: Workshop 16.W"
+ },
+ "helpers": "videos/d16/common.js (D16.STAGES, COPY, plan, bars, P, JOBS, score, PART), videos/d16/common-2.js (D16.box, arrow, chip, code, cloud, leaf, phone, signal, knife, press, along); also VID.d4 stickers and VID.d11.lanes."
+}

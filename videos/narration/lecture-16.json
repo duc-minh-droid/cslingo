@@ -1,0 +1,247 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture sixteen. Neural networks. Simple neurons, joined by adjustable weights, that learn instead of following rules."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Meet Nell, the flood warden of Mossbrook. Her calculator multiplies two four-digit numbers in a flash.",
+     "A calculator multiplies huge numbers in a flash."
+    ],
+    [
+     "It also recalls an exact time from years ago, and keeps it for ever.",
+     "It also recalls exact facts for ever."
+    ],
+    [
+     "But catching a ball, or spotting a face in a blurry image, defeats it. Nell does both without thinking.",
+     "But catching a ball or spotting a face? You win."
+    ],
+    [
+     "A computer works step by step. A brain is distributed. It learns, generalises, and forgets.",
+     "Brains are distributed: they learn, generalise and forget."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The brain has about a hundred billion neurons.",
+     "Your brain holds about 100 billion neurons."
+    ],
+    [
+     "Each one is connected to around ten thousand others.",
+     "Each one links to around 10,000 others."
+    ],
+    [
+     "They meet at synapses. Like a volume knob, a synapse can turn the next neuron up, which is excite, or down, which is inhibit.",
+     "A synapse can excite or inhibit, like a volume knob."
+    ],
+    [
+     "A synapse can also be strengthened. That change is thought to be where learning happens.",
+     "Synapses can be strengthened: that is where learning lives."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Nell's rulebook says, if rain is over twenty millimetres and the ground is wet, warn. That is symbolic AI.",
+     "Symbolic AI: an expert types in IF-THEN rules."
+    ],
+    [
+     "It is easy to read. But a storm of nineteen millimetres on soaked ground slips straight past it.",
+     "Easy to read, but fragile outside its scope."
+    ],
+    [
+     "Connectionism instead learns numbers, called weights, in a network of simple units.",
+     "Connectionism learns numbers, called weights, in a network."
+    ],
+    [
+     "It generalises and fails gracefully, but it is a black box. It is hard to say why it answered.",
+     "It generalises and fails gracefully, but is a black box."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "A real neuron receives through its dendrites, decides in the cell body, and transmits along its axon.",
+     "A neuron listens, decides, and passes it on."
+    ],
+    [
+     "McCulloch and Pitts, in nineteen forty-three, multiply each input by a weight and add them up.",
+     "McCulloch and Pitts, 1943: inputs times weights, then add."
+    ],
+    [
+     "Two clears a threshold of one point five, so it fires. Only both inputs together do that. This is AND.",
+     "1 + 1 = 2 clears a threshold of 1.5, so it fires. That is AND."
+    ],
+    [
+     "Drop the threshold to nought point five, and one input is enough. Now it is OR.",
+     "Lower the threshold to 0.5: one input is enough. OR."
+    ],
+    [
+     "With weights of minus one and a threshold of minus one point five, the inputs inhibit. This is NAND.",
+     "Negative weights inhibit: weights −1, threshold −1.5 give NAND."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Nell's canal lock has two gates. Its lamp should glow when exactly one gate is open.",
+     "Nell's lock lamp should glow when exactly one gate is open."
+    ],
+    [
+     "That rule is XOR, exclusive or. Its on cases sit in opposite corners.",
+     "That rule is XOR. Its 'on' cases sit in opposite corners."
+    ],
+    [
+     "One neuron can only split the square with one straight line.",
+     "One neuron draws one straight line."
+    ],
+    [
+     "Wherever the line goes, a corner lands on the wrong side. One neuron cannot compute XOR.",
+     "No straight line separates XOR. One neuron can't do it."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "The fix is a hidden layer. An OR neuron and a NAND neuron both feed an AND neuron.",
+     "Add a hidden layer: OR and NAND feed an AND."
+    ],
+    [
+     "With both gates shut, OR stays silent. With both open, NAND stays silent. So the output stays dark.",
+     "0 0 and 1 1: the hidden pair disagree, so no light."
+    ],
+    [
+     "With exactly one gate open, both fire, so the output fires.",
+     "0 1 and 1 0: both agree, so the output fires."
+    ],
+    [
+     "Three neurons, two layers, and XOR is solved.",
+     "That is XOR from three neurons."
+    ],
+    [
+     "This is the multi-layer perceptron, made famous by Rumelhart and McClelland in nineteen eighty-six.",
+     "The multi-layer perceptron: Rumelhart and McClelland, 1986."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Nell's rain brain has twenty hidden neurons. Its fit score is nought point nine nine.",
+     "Nell's rain brain: 20 hidden neurons, fit score 0.99."
+    ],
+    [
+     "Lightning knocks out neuron seven. The curve dips, and the score falls to nought point eight three.",
+     "Lightning knocks out neuron 7. Fit score 0.83."
+    ],
+    [
+     "Pull one wire from a rule system, and it usually stops working altogether.",
+     "Pull one wire from a rule system and it usually fails."
+    ],
+    [
+     "The network only loses some performance. That is graceful degradation.",
+     "That is graceful degradation."
+    ],
+    [
+     "Because it learned patterns, it also copes with new cases and noise.",
+     "Learned patterns also generalise to new cases and noise."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Now the case study. The network takes rainfall and air temperature, and predicts sewer flow.",
+     "The case study: rainfall and temperature in, sewer flow out."
+    ],
+    [
+     "The data cover fifteen rainfall events, from January twenty ten to October twenty twelve.",
+     "15 rainfall events, January 2010 to October 2012."
+    ],
+    [
+     "Each split holds one storm back for testing. That is cross-validation.",
+     "Cross-validation: each split holds one storm back for testing."
+    ],
+    [
+     "An evolutionary algorithm trains it. Each individual is one complete set of weights.",
+     "Train with an EA: each solution is a complete set of weights."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Fitness is the mean absolute error. The best starts at nought point four zero seven.",
+     "Fitness is the mean absolute error, MAE. Start: 0.407."
+    ],
+    [
+     "Crossover mixes two parents, and mutation nudges one weight by a little Gaussian noise.",
+     "Mutation adds small Gaussian noise to one weight."
+    ],
+    [
+     "At generation twenty, the error is nought point nought seven two, and the Nash-Sutcliffe score nought point nine two.",
+     "Generation 20: MAE 0.072, Nash-Sutcliffe 0.92."
+    ],
+    [
+     "By generation fifty it reaches nought point nine nine. The error fell fast at first, then slowly.",
+     "Generation 50: NSE 0.99. Fast at first, then slow."
+    ],
+    [
+     "On that scale, one is perfect, guessing the average scores nought, and there is no lower limit.",
+     "NSE: best 1, guessing the average scores 0, no lower limit."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A neuron weighs its inputs and fires at its threshold.",
+    "One hidden layer can compute XOR, which one neuron cannot.",
+    "Networks degrade gracefully, and evolution can tune their weights."
+   ]
+  }
+ ]
+}

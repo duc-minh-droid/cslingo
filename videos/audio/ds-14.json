@@ -1,0 +1,730 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 7.616,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     7.616,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.15,
+     "Lecture fourteen. Tensors, and how to store the ones that are mostly empty."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c6ac892b95c67556.wav",
+     "at": 0.5,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.8,
+     3
+    ],
+    [
+     14.46,
+     5.8
+    ],
+    [
+     19.68,
+     8.8
+    ],
+    [
+     26.68,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.55,
+     "Sprout's thermometer: 18°. One number is a scalar."
+    ],
+    [
+     7.8,
+     14.21,
+     "One member's ratings, 3, 5, 1, 4: a vector."
+    ],
+    [
+     14.46,
+     19.43,
+     "Rows under rows: a matrix. Two indices find a value."
+    ],
+    [
+     19.68,
+     26.01,
+     "A pile of grids is a 3-order tensor: three indices."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/5fe0fea0211d79bc.wav",
+     "at": 0.5,
+     "len": 6.8
+    },
+    {
+     "file": "videos/audio/clips/1c800a87e29e269e.wav",
+     "at": 7.8,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/895bcbaad8974344.wav",
+     "at": 14.46,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/b1e90d07c3d9128d.wav",
+     "at": 19.68,
+     "len": 6.08
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.24,
+     3.4
+    ],
+    [
+     11.34,
+     6.6
+    ],
+    [
+     16.64,
+     9.6
+    ],
+    [
+     25.008,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.99,
+     "A packet's features: one vector."
+    ],
+    [
+     5.24,
+     11.09,
+     "Sensor readings: features × timestamps, a matrix."
+    ],
+    [
+     11.34,
+     16.39,
+     "A photo: width × height × channels (RGB)."
+    ],
+    [
+     16.64,
+     23.45,
+     "A video: frames × width × height × channels."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2f08a4993e11ee09.wav",
+     "at": 0.5,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/da6dcf76e073ba67.wav",
+     "at": 5.24,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/0025dc6c7acbb9c6.wav",
+     "at": 11.34,
+     "len": 4.8
+    },
+    {
+     "file": "videos/audio/clips/5e32ad2711c03b83.wav",
+     "at": 16.64,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 28.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.36,
+     4.2
+    ],
+    [
+     15.9,
+     7.6
+    ],
+    [
+     22,
+     10.4
+    ],
+    [
+     28.328,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.11,
+     "Sprout's swap sheet: 6 non-zeros of 64. Sparsity 91%."
+    ],
+    [
+     8.36,
+     15.65,
+     "Listing only the non-zeros: 18 numbers instead of 64."
+    ],
+    [
+     15.9,
+     21.75,
+     "Fill it to 52: dense, sparsity 19%."
+    ],
+    [
+     22,
+     27.53,
+     "Now the list, 156 numbers, is bigger than the grid."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/dcc92589b150b535.wav",
+     "at": 0.5,
+     "len": 7.36
+    },
+    {
+     "file": "videos/audio/clips/8c91e4a9c8dea15b.wav",
+     "at": 8.36,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/7756007f3264fa53.wav",
+     "at": 15.9,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/be0439226b77c4b9.wav",
+     "at": 22,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 21.664,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.48,
+     3.4
+    ],
+    [
+     11.66,
+     5.8
+    ],
+    [
+     18.32,
+     8
+    ],
+    [
+     21.664,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.23,
+     "A social graph: 5 links out of 15 possible."
+    ],
+    [
+     7.48,
+     11.41,
+     "Fault sensors report 0 almost all the time."
+    ],
+    [
+     11.66,
+     18.07,
+     "n ≈ a million: a million million cells. Too big to store."
+    ],
+    [
+     18.32,
+     21.05,
+     "Keep only the non-zeros instead."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3628b289e9cbd71f.wav",
+     "at": 0.5,
+     "len": 6.48
+    },
+    {
+     "file": "videos/audio/clips/ff8d4d12d757338e.wav",
+     "at": 7.48,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/51cbe0968e88404d.wav",
+     "at": 11.66,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/7c0720e163fa2d58.wav",
+     "at": 18.32,
+     "len": 2.48
+    }
+   ]
+  },
+  {
+   "dur": 24.985,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.12,
+     3.2
+    ],
+    [
+     11.34,
+     6
+    ],
+    [
+     18.24,
+     8.8
+    ],
+    [
+     24.985,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.87,
+     "Store only the non-zeros, each with its position."
+    ],
+    [
+     6.12,
+     11.09,
+     "Dictionary of keys: each (row, column) key maps to its value."
+    ],
+    [
+     11.34,
+     17.99,
+     "Look up key (3, 1): 6. A missing key means 0."
+    ],
+    [
+     18.24,
+     23.85,
+     "Coordinate list: a list of (row, column, value) tuples."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c94bd1250c584f37.wav",
+     "at": 0.5,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/ea7d9dc3596530d7.wav",
+     "at": 6.12,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/978f83cc5776ac22.wav",
+     "at": 11.34,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/5365b438d852ea29.wav",
+     "at": 18.24,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 21.687,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     9.8,
+     4.8
+    ],
+    [
+     16.46,
+     8.4
+    ],
+    [
+     21.687,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     9.55,
+     "Read row by row: V = 5, 8, 3, 6; COL_INDEX = 0, 1, 2, 1."
+    ],
+    [
+     9.8,
+     16.21,
+     "ROW_INDEX marks where each row starts in V: 0, 1, 2, 3, 4."
+    ],
+    [
+     16.46,
+     21.11,
+     "m rows need m + 1 bookmarks: the last marks the end."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/f722338eaf5016e7.wav",
+     "at": 0.5,
+     "len": 8.8
+    },
+    {
+     "file": "videos/audio/clips/d7fa872ea9240bd2.wav",
+     "at": 9.8,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/23217016400e97ae.wav",
+     "at": 16.46,
+     "len": 4.4
+    }
+   ]
+  },
+  {
+   "dur": 26.68,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.68,
+     2.4
+    ],
+    [
+     8.46,
+     4.8
+    ],
+    [
+     14.48,
+     7
+    ],
+    [
+     20.18,
+     9.6
+    ],
+    [
+     26.68,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     4.43,
+     "Read row 2 of the slides' 4 × 6 matrix."
+    ],
+    [
+     4.68,
+     8.21,
+     "Start = ROW_INDEX[2] = 4, end = ROW_INDEX[3] = 7."
+    ],
+    [
+     8.46,
+     14.23,
+     "Slice V: 50, 60, 70 at columns 2, 3, 4."
+    ],
+    [
+     14.48,
+     19.93,
+     "Row 2 is 0, 0, 50, 60, 70, 0."
+    ],
+    [
+     20.18,
+     25.71,
+     "Equal bookmarks, 2 and 2: an empty slice, an all-zero row."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/8bd3dde0acdde884.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/d8820d9b4746b794.wav",
+     "at": 4.68,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/dc447794f54b257a.wav",
+     "at": 8.46,
+     "len": 5.52
+    },
+    {
+     "file": "videos/audio/clips/4d4df9448edb364d.wav",
+     "at": 14.48,
+     "len": 5.2
+    },
+    {
+     "file": "videos/audio/clips/5bb28eea2c8ef446.wav",
+     "at": 20.18,
+     "len": 5.28
+    }
+   ]
+  },
+  {
+   "dur": 21.757,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.96,
+     4.6
+    ],
+    [
+     14.3,
+     7
+    ],
+    [
+     21.757,
+     11
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.71,
+     "CSC reads column by column: VALUES = 10, 2, 5, 7, 9."
+    ],
+    [
+     7.96,
+     14.05,
+     "COL_PTR marks where each column starts: 0, 2, 3, 4, 5."
+    ],
+    [
+     14.3,
+     20.23,
+     "Column 0: from 0 to 2, so 10 at row 0 and 2 at row 3."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/88767d2d5ee7ad88.wav",
+     "at": 0.5,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/63f90652e5785cf2.wav",
+     "at": 7.96,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/96454d2b633068ed.wav",
+     "at": 14.3,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 21.572,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.08,
+     3.6
+    ],
+    [
+     11.82,
+     6.2
+    ],
+    [
+     16.72,
+     9.4
+    ],
+    [
+     21.572,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.83,
+     "CSR: fast row operations. A graph row is one node's neighbours."
+    ],
+    [
+     7.08,
+     11.57,
+     "Good for row slicing and many A × x products."
+    ],
+    [
+     11.82,
+     16.47,
+     "CSC: fast column operations, like 'who swapped tomato?'"
+    ],
+    [
+     16.72,
+     20.73,
+     "Good for huge datasets with many categorical features."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/780f3eca91ad8661.wav",
+     "at": 0.5,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/c057ba205187c662.wav",
+     "at": 7.08,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/4e4234128635b59c.wav",
+     "at": 11.82,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/be7015dd6b787bc0.wav",
+     "at": 16.72,
+     "len": 3.76
+    }
+   ]
+  },
+  {
+   "dur": 15.418,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     4.68,
+     2
+    ],
+    [
+     9.9,
+     3.1
+    ],
+    [
+     15.418,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ba31843ede236391.wav",
+     "at": 0.5,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/728ef7fa95c94f05.wav",
+     "at": 4.68,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/6799f7580f84e63c.wav",
+     "at": 9.9,
+     "len": 4.16
+    }
+   ]
+  }
+ ]
+}

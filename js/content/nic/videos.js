@@ -1,4 +1,4 @@
-/* Recap videos for Nature-Inspired lectures 1 to 8, 11, 12, 13 and 15: one node after each lecture's boss quiz.
+/* Recap videos for Nature-Inspired lectures 1 to 8 and 11 to 18: one node after each lecture's boss quiz.
    Each is a one-step lesson that plays videos/out/lecture-N.mp4 (made from videos/lecture-N.html, see videos/README.md).
    A video is a bonus (m.video): it never counts towards finishing a lecture or a course, and watching it keeps the
    streak alive and pays the review amount (5 XP) without adding to lesson counts. */
@@ -182,10 +182,58 @@
         "Many objectives",
       ],
     },
+    {
+      n: 16,
+      blurb:
+        "Lecture 16 in pictures: from single neurons and logic gates to hidden layers, graceful degradation and evolved weights.",
+      chapters: [
+        "Easy for whom?",
+        "The brain's design",
+        "Rules or learning",
+        "One neuron, three gates",
+        "The XOR problem",
+        "A hidden layer",
+        "Graceful degradation",
+        "Mossbrook's rain brain",
+        "Evolving the weights",
+      ],
+    },
+    {
+      n: 17,
+      blurb:
+        "Lecture 17 in pictures: spike codes, the leaky neuron, STDP, surrogate slopes and evolving spiking networks.",
+      chapters: [
+        "A brain for a tiny robot",
+        "Rate coding",
+        "Timing and population coding",
+        "The leaky neuron",
+        "Spikes through a network",
+        "STDP",
+        "Where backprop gets stuck",
+        "Surrogate slopes",
+        "Evolving a spiking network",
+      ],
+    },
+    {
+      n: 18,
+      blurb:
+        "Lecture 18 in pictures: brain-shaped chips, event-driven computing, SpiNNaker, TrueNorth, NorthPole and the event camera.",
+      chapters: [
+        "Hoglet's von Neumann chip",
+        "A chip made of neurons",
+        "Parallel, collocated, scalable",
+        "Event driven",
+        "Jobs that look like networks",
+        "SpiNNaker, TrueNorth, NorthPole",
+        "Why not yet?",
+        "The event camera",
+        "Spiking heuristic units",
+      ],
+    },
   ];
 
   // videos that have the voice-over, with their length in whole minutes; the others are still the silent versions
-  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 11: 4, 12: 4, 13: 4, 15: 4 };
+  const NARRATED = { 1: 4, 2: 4, 3: 4, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 11: 4, 12: 4, 13: 4, 15: 4, 16: 5, 17: 4, 18: 5 };
 
   VIDEOS.forEach(({ n, blurb, chapters }) => {
     const mins = NARRATED[n] || 2,

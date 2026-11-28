@@ -1,0 +1,235 @@
+{
+  "engine": "qwen",
+  "voices": {
+    "qwen": {
+      "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+      "language": "English",
+      "ref": "videos/voice-ref/narrator.wav",
+      "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+    }
+  },
+  "pace": {
+    "pause": 0.5,
+    "lead": 0.5,
+    "tail": 0.8,
+    "speed": 1,
+    "warp": true,
+    "minStretch": 0.55
+  },
+  "music": {
+    "file": "videos/music/theme.mp3",
+    "beats": "videos/music/theme.beats.json",
+    "snap": "downbeats",
+    "start": 0,
+    "volume": 0.22
+  },
+  "look": {
+    "bar": false
+  },
+  "scenes": [
+    {
+      "at": [
+        0.9
+      ],
+      "lines": [
+        "Lecture seventeen. Spiking neural networks, which talk in brief spikes and stay quiet when nothing happens."
+      ]
+    },
+    {
+      "lines": [
+        [
+          "Meet Pip, a tiny garden rover on one coin battery.",
+          "Pip patrols a garden on one coin battery."
+        ],
+        [
+          "A conventional network updates every neuron on every step, so the battery drains fast.",
+          "A conventional ANN computes every neuron, every step."
+        ],
+        [
+          "Pip needs quick reactions, low power, and learning on the go.",
+          "Pip needs quick reactions, low power and learning on the go."
+        ],
+        [
+          "A spiking network stays quiet. When a whisker touches a leaf, one neuron spikes, and Pip stops.",
+          "An SNN sends discrete spikes only when needed."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "Each sensor sends a spike train, and one neuron answers with a train of its own.",
+          "A neuron's run of spikes over time is a spike train."
+        ],
+        [
+          "In rate coding, a stronger signal sends more spikes.",
+          "Rate coding: a stronger signal sends more spikes."
+        ],
+        [
+          "Dim light gives two spikes in twenty steps, medium five, and bright nine.",
+          "Dim 2, medium 5, bright 9 spikes in 20 steps."
+        ],
+        [
+          "Every spike is the same size. Only how many there are carries the message.",
+          "Only how many count, not their size."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "In temporal coding, a strong input fires early and a weak one late.",
+          "Temporal coding: a strong input fires early, a weak one late."
+        ],
+        [
+          "Bright fires at step four, dim at step sixteen. One well-timed spike can be enough.",
+          "Bright fires at step 4, dim at step 16. One spike can be enough."
+        ],
+        [
+          "In population coding, five neurons each prefer a range of strengths.",
+          "Population coding: five neurons, each liking a range."
+        ],
+        [
+          "A strength of seven wakes the neurons that like five, seven and a half, and ten.",
+          "Strength 7 wakes the neurons that like 5, 7.5 and 10."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "Charge builds up like drops in a bucket. Eight drops of nought point one two reach nought point nine six, just short of the line.",
+          "Charge accumulates from inputs, like drops in a bucket."
+        ],
+        [
+          "With drops of a quarter, it hits the threshold every fourth step, fires, resets and fills again. Five spikes.",
+          "At the threshold it fires a spike, resets, and fills again."
+        ],
+        [
+          "Now drill a hole. Charge below the threshold leaks away.",
+          "Below-threshold charge leaks away over time."
+        ],
+        [
+          "With drops of nought point two, the level settles near two thirds and never fires.",
+          "With this leak the charge levels off near 0.67: no spike."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "Spikes spread like ripples. At step one, input A fires.",
+          "t = 1: input A fires."
+        ],
+        [
+          "One step later, both of A's neighbours fire.",
+          "t = 2: one step later, both of A's neighbours fire."
+        ],
+        [
+          "Neuron O needs three spikes at once. At step three it gets only two.",
+          "O needs 3 spikes at once. Two is not enough."
+        ],
+        [
+          "At step four, all four middle neurons fire together.",
+          "t = 4: A's and B's neighbours fire together."
+        ],
+        [
+          "So at step five, O receives four spikes, crosses its threshold and fires.",
+          "t = 5: O gets 4 spikes, crosses its threshold and fires."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "A synapse links a sender, the pre-synaptic neuron, to a receiver, the post-synaptic neuron.",
+          "A synapse links a pre-synaptic sender to a post-synaptic receiver."
+        ],
+        [
+          "When pre fires just before post, the link grows by one each time. That is potentiation.",
+          "Pre fires just before post: strengthen. Potentiation."
+        ],
+        [
+          "When post fires first, the link weakens. That is depression.",
+          "Post fires before pre: weaken. Depression."
+        ],
+        [
+          "No right answers are needed, only spike timing. That is unsupervised learning.",
+          "No labels needed: STDP is unsupervised learning."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "Backpropagation works back from the error, using the slope of each neuron.",
+          "Backpropagation walks back from the error, using each neuron's slope."
+        ],
+        [
+          "A spiking neuron outputs nought below its threshold, then jumps.",
+          "A spiking neuron is 0 below the threshold, then jumps."
+        ],
+        [
+          "Its slope is the Dirac delta, zero everywhere except one thin spike.",
+          "Its slope is the Dirac delta: zero everywhere but one point."
+        ],
+        [
+          "The ground is flat everywhere, so plain backpropagation has no gradient to follow.",
+          "No gradient information, so plain backprop can't be used."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "The fix: real spikes go forward, but the backward pass pretends the neuron is a smooth sigmoid.",
+          "Keep real spikes forward; pretend a smooth sigmoid backward."
+        ],
+        [
+          "Its slope is a bell on the threshold. With k of one, the peak is nought point two five.",
+          "Its slope is a bell centred on the threshold. k = 1: peak 0.25."
+        ],
+        [
+          "With k of five, the peak is one point two five, and the bell is narrower.",
+          "k = 5: peak 1.25, narrower."
+        ],
+        [
+          "With k of twenty, the peak is five. As k grows, the bell becomes the delta.",
+          "k = 20: peak 5. As k grows, the bell becomes the delta."
+        ]
+      ]
+    },
+    {
+      "lines": [
+        [
+          "An evolutionary algorithm can tune weights, delays, thresholds, and even the structure.",
+          "An EA can tune weights, delays, thresholds and structure."
+        ],
+        [
+          "It is often bi-level: structure on the upper level, weights on the lower one.",
+          "Often bi-level: structure upper, weights lower."
+        ],
+        [
+          "Thirty networks a generation for a hundred generations is three thousand tests.",
+          "30 networks a generation, 100 generations: 3000 tests."
+        ],
+        [
+          "That is costly, and evolving everything together is still an open challenge.",
+          "Costly, and co-evolving everything at once is still open."
+        ]
+      ]
+    },
+    {
+      "at": [
+        0.9,
+        2,
+        3.1
+      ],
+      "lines": [
+        "Spikes carry information by rate, timing, or which neurons fire.",
+        "A leaky neuron fills, fires at its threshold and resets.",
+        "They learn by spike order, surrogate slopes, or evolution."
+      ]
+    }
+  ]
+}

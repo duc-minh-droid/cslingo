@@ -1,0 +1,366 @@
+{
+  "slug": "lecture-16",
+  "dir": "l16",
+  "title": "Neural networks",
+  "outline": "Lecture 16 video (Nature-Inspired Computation, ECM3412): Neural networks. 11 scenes, 128 s: nature-inspired · lecture 16 (4), easy for whom? (12), the brain's design (12), rules or learning? (12), one neuron (14), the gate one neuron can't make (12), one more layer (14), bend, don't break (13), mossbrook's rain brain (12), evolving the weights (14), recap (9). STORY (lessons order, js/content/nic/l16-02.js, l16-03.js; kernel l16-01.js): easy for whom (calculator vs brain), the brain's design (100 billion neurons, 10,000 links, synapses excite or inhibit and can be strengthened), symbolic AI vs connectionism, the McCulloch-Pitts threshold neuron (AND 1 1 / 1.5, OR 0.5, NAND -1 -1 / -1.5), XOR on Nell's canal lock (no single line), XOR = AND(OR, NAND) and the multi-layer perceptron, graceful degradation (20-neuron rain brain NSE 0.99, neuron 7 off NSE 0.83), the runoff case study (rainfall and temperature in, sewer flow out, 15 events 2010-2012, cross-validation, one genome = one weight set), evolving the weights (lesson GA seed 1: MAE 0.407 / NSE -1.95 at 0, 0.072 / 0.92 at 20, 0.023 / 0.99 at 50). Workshop 16.W. ALL NUMBERS computed in videos/l16/common.js by the lessons kernel and asserted at load. COLOURS: green = fires / output 1 / correct / brain side / fit score; blue = inputs, the network's guess, computer side; purple = the neuron and the hidden layer; orange = attention (held-out storm, mutated weight, MAE, lightning, the XOR lamp); red = inhibit / negative weight / switched-off neuron / broken rule; grey = neutral (silent neuron, dashed real flow). LAYOUT: big figure left (x 12..612), right panel x 636..924; text >= 28 px, symbols as SVG.",
+  "titleCard": {
+    "kicker": "Nature-Inspired · Lecture 16",
+    "title": "Neural networks",
+    "sub": "Simple neurons, joined by weights, that learn instead of follow rules",
+    "who": "sprout",
+    "dur": 4
+  },
+  "scenes": [
+    {
+      "n": 1,
+      "file": "scene-01-title.js",
+      "kicker": "Nature-Inspired · Lecture 16",
+      "title": [
+        "Neural networks"
+      ],
+      "dur": 4,
+      "caps": [],
+      "spec": "Lecture 16 video: title card"
+    },
+    {
+      "n": 2,
+      "file": "scene-02-easy.js",
+      "kicker": "EASY FOR WHOM?",
+      "title": [
+        "A calculator wins sums,",
+        "you win faces"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A calculator multiplies huge numbers in a flash."
+        ],
+        [
+          3.2,
+          5.8,
+          "It also recalls exact facts for ever."
+        ],
+        [
+          6,
+          8.6,
+          "But catching a ball or spotting a face? You win."
+        ],
+        [
+          8.8,
+          11.7,
+          "Brains are distributed: they learn, generalise and forget."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 02-easy: lesson 16.1's \"easy for whom?\". A calculator wins sums (6,783 x 4,592 = 31,147,536, L16.MUL) and exact recall; people win catching, faces and finding things in pictures. Then the lesson's comparison table: computer (blue) four rows, human brain (green) five rows, \"Learns\" and \"Generalises\" tinted green. Layout (stage px): two columns, left x 12..452 (Computer, blue), right x 484..924 (You, green); header tags at y 12. Phase 1: sum card (y 84, h 150: the product row with an SVG times sign, the answer and a tick), recall card (y 252, h 96); three task rows at y 372 / 462 / 552 (h 76): green on the right with a tick, grey on the left with a red cross. Phase 2 (8.8): phase 1 fades, comparison cards y 84 + 104 i (h 88), the header tags become \"Computer\" / \"Human brain\". Story (local seconds): 0.1 headers; 0.4 sum card, 1.2 the answer and tick; 3.2 recall card; 6.0 / 6.4 / 6.8 the three task rows (green right, grey left plus cross 0.3 s later); 8.8 the comparison table, rows every 0.15 s; 10.2 \"Learns\" and \"Generalises\" tint green; hold to 12."
+    },
+    {
+      "n": 3,
+      "file": "scene-03-brain.js",
+      "kicker": "THE BRAIN'S DESIGN",
+      "title": [
+        "Many neurons,",
+        "adjustable links"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Your brain holds about 100 billion neurons."
+        ],
+        [
+          3.2,
+          5.8,
+          "Each one links to around 10,000 others."
+        ],
+        [
+          6,
+          8.6,
+          "A synapse can excite or inhibit, like a volume knob."
+        ],
+        [
+          8.8,
+          11.7,
+          "Synapses can be strengthened: that is where learning lives."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 03-brain: lesson 16.1's brain design. About 100 billion neurons, each linked to about 10,000 others through synapses; a synapse is like a volume knob (excite or inhibit) and can be strengthened, which is where learning is thought to happen. Layout (stage px): left x 12..612: a field of 132 small grey dots (12 x 11 grid with a fixed jitter); right panel x 636..924: card \"about 100 billion neurons\" (y 12, h 150, the number counts up) and card \"about 10,000 connections each\" (purple, y 180, h 150). Synapse close-up (6.0, left): purple cell (130, 300), grey cell (500, 300), the link in two halves with a knob (r 34) on the gap at (320, 300), label \"synapse\" above, an \"excite\" / \"inhibit\" tag below, and a green card \"strengthened\" (y 430). Story (local seconds): 0.4..2.6 dots pop in, card 1 counts 0..100; 3.2 one dot grows into a purple neuron and twelve purple links fan out (3.4..4.6), card 2; 6.0 the field fades, the close-up appears (neutral knob, grey link); 6.6..7.2 knob up: thick green link, \"excite\"; 7.4..8.0 knob down: thin red link, \"inhibit\"; 8.8..9.4 knob up again and stays, the \"strengthened\" card; hold to 12."
+    },
+    {
+      "n": 4,
+      "file": "scene-04-rules.js",
+      "kicker": "RULES OR LEARNING?",
+      "title": [
+        "Write the rules,",
+        "or learn the weights"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Symbolic AI: an expert types in IF-THEN rules."
+        ],
+        [
+          3.2,
+          5.8,
+          "Easy to read, but fragile outside its scope."
+        ],
+        [
+          6,
+          8.6,
+          "Connectionism learns numbers, called weights, in a network."
+        ],
+        [
+          8.8,
+          11.7,
+          "It generalises and fails gracefully, but is a black box."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 04-rules: lesson 16.1's symbolic AI against connectionism. Nell's rulebook line (IF rain over 20 mm AND ground wet THEN warn) misses a storm it never imagined (19 mm on soaked ground) and cracks; a network learns numbers (weights) instead. Then the trade-offs: symbolic is easy to read but fragile; connectionism handles perception, generalises and fails gracefully, but is a black box. Layout (stage px): two plain cards x 12..452 and x 484..924, y 12..400, titles at y 26. Left: the rule (blue, y 76, h 130), the storm row (y 222..318: cloud icon at (90, 266), labels \"rain 19 mm\" / \"ground soaked\"), the red tag \"outside its scope\" (y 330). Right: a 3-4-1 network (inputs x 560, hidden x 700, output x 850) with three weight labels. Tags y 420 / 484 / 548 under the cards. Story (local seconds): 0.3 left card, the rule types in 0.6..2.4; 3.2 the storm row; 4.2 the rule does not fire: red crack, the rule card turns red, the tag; 6.0 right card and grey network, 6.6..7.4 wire widths change and the weight labels pop, 7.8 inputs blue and the output green; 8.8 tags every 0.25 s; hold to 12."
+    },
+    {
+      "n": 5,
+      "file": "scene-05-neuron.js",
+      "kicker": "ONE NEURON",
+      "title": [
+        "Weigh the inputs,",
+        "fire at the threshold"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3,
+          "A neuron listens, decides, and passes it on."
+        ],
+        [
+          3.2,
+          5.8,
+          "McCulloch and Pitts, 1943: inputs times weights, then add."
+        ],
+        [
+          6,
+          9,
+          "1 + 1 = 2 clears a threshold of 1.5, so it fires. That is AND."
+        ],
+        [
+          9.2,
+          11.6,
+          "Lower the threshold to 0.5: one input is enough. OR."
+        ],
+        [
+          11.8,
+          13.7,
+          "Negative weights inhibit: weights −1, threshold −1.5 give NAND."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 05-neuron: lesson 16.2's neuron. A real neuron (dendrites receive, cell body processes, axon transmits), then the McCulloch-Pitts threshold neuron (L16.fire) on inputs 1 and 1: weights 1 and 1, threshold 1.5 is AND; threshold 0.5 is OR; weights -1 and -1, threshold -1.5 is NAND (truth tables from L16.fire, asserted against L16.TRUTH). Layout (stage px): top strip y 12..200 (dendrites x 30..200, body (230, 80), axon to 540, two-line labels at y 160 / 192); the neuron below: inputs (70, 300) and (70, 500), weight labels on the wires, body (330, 400) r 80 with an SVG sigma and greater-or-equal sign, output (540, 400); a sum bar y 548..580 (x 120..560, scale -2..2, filled from -2 up to the sum: green once it reaches the purple threshold mark). Right panel x 636..924: gate tag (y 12), truth table (heads y 84, rows from y 132, 72 apart), rule card (y 446, h 110). Story (local seconds): 0.4 strip parts, labels at 0.8 / 1.4 / 2.0; 3.2 inputs, 3.5 wires, 3.8 weights, 4.0 body, 4.4 symbols, 4.8 output; 6.0 the sum bar fills to 2 (6.0..6.8), 6.9 output green 1, AND tag and rows 6.4 / 6.9 / 7.4 / 7.9, card 6.2; 9.2..9.8 threshold slides to 0.5, 9.8 OR, changed rows flash; 11.8..12.3 weights flip to -1 (red wires), threshold -1.5, sum -2, 12.4 output grey 0, NAND, changed rows flash; hold to 14."
+    },
+    {
+      "n": 6,
+      "file": "scene-06-xor.js",
+      "kicker": "THE GATE ONE NEURON CAN'T MAKE",
+      "title": [
+        "Exactly one gate open:",
+        "XOR"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Nell's lock lamp should glow when exactly one gate is open."
+        ],
+        [
+          3.2,
+          5.8,
+          "That rule is XOR. Its 'on' cases sit in opposite corners."
+        ],
+        [
+          6,
+          8.6,
+          "One neuron draws one straight line."
+        ],
+        [
+          8.8,
+          11.7,
+          "No straight line separates XOR. One neuron can't do it."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 06-xor: lesson 16.2's XOR problem on Nell's canal lock (two gates, a warning lamp that glows when exactly one gate is open; L16.TRUTH.XOR). The on cases sit in opposite corners of the square, and no straight line (one neuron) splits them: three tries, each leaves a corner on the wrong side. Layout (stage px): left x 12..612: the lock (water y 300..420, gates at x 220 and 400 that lift when open, lamp (310, 150) on a post, gate labels and state tags at y 456); later L13.plot (x 12, y 12, 600 x 616, both axes -0.4..1.4, ticks 0 and 1, \"gate 1\" across, \"gate 2\" up). Right panel x 636..924: tag \"XOR\" (y 12), table (heads y 84, rows from y 132, 70 apart), purple card \"one neuron: one straight line\" (y 420, h 88), red card \"no single straight line works\" (y 528, h 88). Story (local seconds): 0.3 the lock; cases (shut shut), (open shut), (shut open), (open open) at 0.4 / 1.05 / 1.7 / 2.35, each fills its table row; 3.2 lock fades, the plot and its four corners (01 and 10 green, 00 and 11 grey), XOR tag; 6.0 / 6.87 / 7.74 a dashed purple line tries x + y = 0.5, x + y = 1.5 and x = 0.5, a red cross 0.4 s later on the corner on the wrong side; 8.8 all three lines faint, all crosses, red card; hold to 12."
+    },
+    {
+      "n": 7,
+      "file": "scene-07-hidden.js",
+      "kicker": "ONE MORE LAYER",
+      "title": [
+        "Two hidden neurons",
+        "make XOR"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Add a hidden layer: OR and NAND feed an AND."
+        ],
+        [
+          3.2,
+          6.4,
+          "0 0 and 1 1: the hidden pair disagree, so no light."
+        ],
+        [
+          6.6,
+          9.4,
+          "0 1 and 1 0: both agree, so the output fires."
+        ],
+        [
+          9.6,
+          11.2,
+          "That is XOR from three neurons."
+        ],
+        [
+          11.4,
+          13.7,
+          "The multi-layer perceptron: Rumelhart and McClelland, 1986."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 07-hidden: lesson 16.2's fix. Two hidden neurons, OR and NAND, feed an AND output: XOR = AND(OR, NAND) (L16.xorNet, asserted). The four input rows play in the order 00, 11, 01, 10; then the generic multi-layer perceptron (Rumelhart and McClelland, 1986): input, hidden and output layers, car attributes in and fuel use out. Layout (stage px): network x 12..470: inputs (60, 170) / (60, 470) r 40 (blue), hidden OR (240, 170) and NAND (240, 470) r 56 (purple ring, green when firing, grey when silent), output AND (410, 320) r 54; layer tags at y 566. Right: table x 490..896 (heads y 12, rows from y 60, 70 apart: in 1, in 2, OR, NAND, out), a green outline round the out column and the tag \"XOR\" (y 350); purple tag \"multi-layer perceptron\" (y 430) and card \"car attributes in, fuel use out\" (y 500). Story (local seconds): 0.4..1.6 the network draws left to right, heads; rows at 3.2 (00), 4.8 (11), 6.6 (01), 8.0 (10): inputs light at +0, hidden at +0.4, output at +0.8, the row's cells fill at the same moments; 9.6 the outline and \"XOR\"; 11.4 layer tags, the MLP tag and the example card; hold to 14."
+    },
+    {
+      "n": 8,
+      "file": "scene-08-degrade.js",
+      "kicker": "BEND, DON'T BREAK",
+      "title": [
+        "Lose a neuron,",
+        "keep going"
+      ],
+      "dur": 13,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Nell's rain brain: 20 hidden neurons, fit score 0.99."
+        ],
+        [
+          3.2,
+          5.8,
+          "Lightning knocks out neuron 7. Fit score 0.83."
+        ],
+        [
+          6,
+          8.6,
+          "Pull one wire from a rule system and it usually fails."
+        ],
+        [
+          8.8,
+          10.4,
+          "That is graceful degradation."
+        ],
+        [
+          10.6,
+          12.7,
+          "Learned patterns also generalise to new cases and noise."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 08-degrade: lesson 16.4's graceful degradation. Nell's rain brain with 20 hidden neurons (L16.BIG, guess L16.BIGP, fit score NSE 0.99); lightning switches off neuron 7 (index 6, centred at time 0.32, near the peak) and the guess dips there (L16.KOP, NSE 0.83). A rule system that loses one wire fails outright. Learned patterns also generalise (letter A written five ways). Layout (stage px): L16.plot x 12, y 12, 600 x 476 (real flow dashed grey, guess blue); 20 numbered cells in two rows of ten under it (y 504 / 568, 54 x 56, 60 apart from x 12). Right panel x 636..924: card \"neurons working\" (y 12, h 100), stat \"fit score\" (y 124); calculator icon (x 680..800, y 222..382) with a wire to a plug, label \"rule system\" (y 396) and red tag \"fails\" / \"total failure\" (y 230); orange tag \"performance drops\" inside the plot (top right); 10.6 the calculator fades and five A chips (y 236) plus a green card \"learned patterns generalise\" (y 316) take its place. Story (local seconds): 0.4 plot and real flow, 0.8 the guess, cells, card and stat; 3.2 a lightning bolt hits cell 7 (3.2..3.6), the cell turns red, 3.6..4.4 the curve dips, 3.8 card \"19 of 20\", stat 0.83 with an orange flash; 6.0 calculator, 6.6 its wire drops, 6.9 the screen turns red and \"fails\"; 8.8 \"performance drops\" and \"total failure\"; 10.6 the letter A chips and the card; hold to 13."
+    },
+    {
+      "n": 9,
+      "file": "scene-09-runoff.js",
+      "kicker": "MOSSBROOK'S RAIN BRAIN",
+      "title": [
+        "Rain in,",
+        "sewer flow out"
+      ],
+      "dur": 12,
+      "caps": [
+        [
+          0.4,
+          3,
+          "The case study: rainfall and temperature in, sewer flow out."
+        ],
+        [
+          3.2,
+          5.8,
+          "15 rainfall events, January 2010 to October 2012."
+        ],
+        [
+          6,
+          8.6,
+          "Cross-validation: each split holds one storm back for testing."
+        ],
+        [
+          8.8,
+          11.7,
+          "Train with an EA: each solution is a complete set of weights."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 09-runoff: lesson 16.5's case study (Walker et al., 2014). Rainfall and air temperature go into a network with one hidden layer of 10 neurons and one output, which predicts sewer flow; 15 rainfall events from January 2010 to October 2012; cross-validation holds one storm back per split; an EA trains it, and one individual is one complete set of weights (shown: the 10 weights of the best genome of the lesson's GA at generation 0, L16.GA[0].w). Layout (stage px): flow strip y 12..160: blue card \"Rainfall, air temperature\" (x 12, w 250), arrow, purple card with a mini 2-10-1 network (x 330..610), arrow, green card \"Sewer flow\" (x 686, w 238). Fifteen storm bars (x 12 + 61 i, 52 wide, base y 350, height 13 px per unit of L16.STORMS), label (y 362); tags \"test\" (orange) and \"train\" (blue) at y 416, stat \"split\" (x 636, y 410); label (y 488) and ten weight chips (y 532, 84 x 60, 92 apart; negative ones red). Story (local seconds): 0.4 / 1.0 / 1.6 the three strip cards and arrows; 3.2..4.6 the bars rise one by one, 3.6 label; 6.0 the test bar steps 1, 2, 3, 4 (0.6 s each) with \"split n of 15\", tags; 8.8 label and weight chips (0.08 s apart); hold to 12."
+    },
+    {
+      "n": 10,
+      "file": "scene-10-evolve.js",
+      "kicker": "EVOLVING THE WEIGHTS",
+      "title": [
+        "Mutate, keep the best,",
+        "watch the error fall"
+      ],
+      "dur": 14,
+      "caps": [
+        [
+          0.4,
+          3,
+          "Fitness is the mean absolute error, MAE. Start: 0.407."
+        ],
+        [
+          3.2,
+          5.8,
+          "Mutation adds small Gaussian noise to one weight."
+        ],
+        [
+          6,
+          8.6,
+          "Generation 20: MAE 0.072, Nash-Sutcliffe 0.92."
+        ],
+        [
+          8.8,
+          10.8,
+          "Generation 50: NSE 0.99. Fast at first, then slow."
+        ],
+        [
+          11,
+          13.7,
+          "NSE: best 1, guessing the average scores 0, no lower limit."
+        ]
+      ],
+      "spec": "Lecture 16 video, scene 10-evolve: lesson 16.5's EA on the 10-hidden-neuron network (L16.GA: the lesson demo, seed 1, population 12, tournament of two, uniform crossover, Gaussian mutation of one weight, best kept). Best of generation 0: MAE 0.407, NSE -1.95; generation 10: 0.157 / 0.59; generation 20: 0.072 / 0.92; generation 50: 0.023 / 0.99 (asserted). Nash-Sutcliffe: 1 is perfect, guessing the average scores 0, no lower limit. Layout (stage px): L16.plot x 12, y 12, 600 x 616 (real flow dashed grey, best guess blue). Right panel x 636..924: stats \"generation\" (y 12, blue), \"MAE\" (y 100, orange), \"NSE\" (y 188, grey, green from 0.9); label \"best genome\" (y 268) and ten weight bars (x 652 + 27 i, 20 wide, zero line y 410, 100 px per unit; negative red); 3.2: the mutated bar (L16.MUT) flashes orange and nudges, SVG plus and epsilon above it, cards \"small Gaussian noise\" (orange, y 452) and \"crossover mixes two parents\" (purple, y 540); 8.8: sparkline card (y 452..620) of the best MAE by generation, drawn up to the current one; 11.0: the weight bars give way to a darts card (y 276..440): a target and \"best: 1\", \"the average: 0\", \"no lower limit\". Story (local seconds): 0.4 plot, real flow, generation 0 guess and stats; 3.2..5.8 mutation close-up (nudge 3.6..4.2), crossover card 4.4; 6.0..8.6 generations 0..20; 8.8..10.4 generations 20..50, sparkline; 11.0 darts card; hold to 14."
+    }
+  ],
+  "recap": {
+    "file": "scene-11-recap.js",
+    "dur": 9,
+    "points": [
+      {
+        "head": "Neuron = weighted sum + threshold",
+        "tone": "purple",
+        "pictogram": "two inputs into a circle with a greater-or-equal sign, output lights green"
+      },
+      {
+        "head": "A hidden layer solves XOR",
+        "tone": "green",
+        "pictogram": "2-2-1 network draws, hidden pair then output light green"
+      },
+      {
+        "head": "Bend, don't break; evolve the weights",
+        "tone": "orange",
+        "pictogram": "curve with a small dip beside the dashed real flow, a weight bar grows with plus epsilon"
+      }
+    ],
+    "spec": "Lecture 16 · Neural networks, scene 11-recap: three rows, each a small animated pictogram and one bold line (bare scene). Story (local seconds): 0.1 title and Sprout, rows slide in at 0.8 / 1.9 / 3.0, each pictogram starts 0.4 s after its row, 4.2-4.8 the call to action \"Next: Workshop 16.W\". EVERY PICTOGRAM PLAYS ONCE AND HOLDS ITS FINISHED FRAME (no loop, no reset): all are done by 6.5 s, so for the last seconds only Sprout's bob moves. Row 1 (purple): a neuron. Two blue inputs wire into a purple circle with a greater-or-equal sign; the output wire and dot light green. Row 2 (green): a hidden layer. A 2-2-1 network draws left to right; the hidden pair and then the output light green. Row 3 (orange): bend and evolve. A blue curve with a small dip beside the dashed real flow; then a weight bar grows a little with an orange plus and epsilon above it."
+  },
+  "helpers": "Lecture 16 · Neural networks: pure data and algorithms (VID.l16, short name L16). NO DOM here. The app's own kernel (js/content/nic/l16-01.js fire / GATES / xorNet / flow / net / mae / nse / gaInit / gaStep, with mulberry from l13-01.js) is ported line for line, run ONCE when the page loads, and every number the storyboard (videos/_plan/lecture-16.json) quotes is ASSERTED: a wrong figure throws a clear Error. Scenes only look values up. KERNEL L16.fire(x, w, th) -> 0 | 1 (fires when the weighted sum reaches th); L16.GATES {AND, OR, NAND, NOR}: [w, th] L16.IN4 the four input pairs 00 01 10 11; L16.TRUTH[gate] -> four outputs; L16.xorNet(x) -> {h: [OR, NAND], y} L16.sum(x, w) the weighted sum STORM L16.XS (41 times 0..1), L16.T the real flow (peak 1 at time 0.3); L16.BIG (20 hidden neurons, width 0.06), L16.SMALL (10 hidden, width 0.09): {H, cen, pred(w, alive), w0}; L16.mae(P), L16.nse(P) L16.BIGP the 20-neuron guess (NSE 0.99); L16.KOP the guess with neuron 7 switched off (NSE 0.83) GA L16.GA[g] for g = 0..50: {gen, mae, nse, w (best genome, 10 weights), P (its guess)}, seed 1 (the lesson demo): MAE 0.407 / NSE -1.95 at 0, 0.157 / 0.59 at 10, 0.072 / 0.92 at 20, 0.023 / 0.99 at 50. L16.MUT = {i, from, to}: the weight of the best genome that changed most from generation 0 to 1 (scene 10's close-up) OTHER L16.MUL = {a: 6783, b: 4592, p: 31147536}; L16.STORMS = fifteen storm-bar heights (picture only, no figures) || Lecture 16 · Neural networks: the drawing helpers the scenes share (VID.l16, short name L16). Everything else is reused from Lecture 13 (the page loads l5/common.js and l13/common*.js): L13.plot, L13.tag, L13.stat, L13.card, L13.label, L13.chip, L13.arrow, L13.mark (see their header comments). EVERY CALL IS PURE: call set() each frame with everything you want to see. COLOUR ROLES of THIS video (videos/_plan/lecture-16.json): green = fires / output 1 / correct / the brain side / the fit score; blue = inputs, the network's guess, the computer side; purple = the neuron itself and the hidden layer; orange = attention (the held-out storm, the mutated weight, the error MAE, lightning); red = inhibit / negative weight / a switched-off neuron / a rule that breaks; grey = neutral (silent neuron, the dashed real flow, unused items). L16.card(parent, o) L13.card that keeps \"\\n\" line breaks (same set API) L16.step(t, t0, dt, n) integer 0..n: which item of a timed sequence is showing L16.text(svg, {x, y, text, fs: 28, anchor: \"middle\", tone: \"grey\", weight: 800, halo}) -> <text>; t.set({text, tone, o}) L16.node(svg, {x, y, r: 40, fs: 30}) -> {set({tone, solid, text, k, o, s})} a neuron circle with a centred label L16.wire(svg) -> {set({a: [x, y], b: [x, y], tone, w: 6, k: 1, o: 1, dash})} a straight connection L16.sigma(svg, x, y, size, tone), L16.geq(...), L16.eps(...) -> <path> the symbols Σ, ≥ and ε drawn as strokes L16.bolt(svg, x, y, h, tone = \"orange\") -> <path> a lightning bolt, tip at (x, y + h) L16.plot(stage, o) L13.plot preset for the storm: x 12, y 12, 600 x 616, time 0..1, flow -0.2..1.2 L16.pts(P) storm curve values -> plot points [[time, flow]], clipped to the plot L16.grid(parent, {x, y, cols: [{w, head}], rows, rowH: 70, gap: 8, cellH: 58, fs: 30}) -> {heads, cells[r][c]} a table of L13 chips with L13 labels as column heads"
+}

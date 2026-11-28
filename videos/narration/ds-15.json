@@ -1,0 +1,235 @@
+{
+ "engine": "qwen",
+ "voices": {
+  "qwen": {
+   "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+   "language": "English",
+   "ref": "videos/voice-ref/narrator.wav",
+   "ref_text": "On the battlefield, four players with monster-like strength appeared. Each of the players had already destroyed their colonies. These players were so equally strong, they created a four-way deadlock."
+  }
+ },
+ "pace": {
+  "pause": 0.5,
+  "lead": 0.5,
+  "tail": 0.8,
+  "speed": 1,
+  "warp": true,
+  "minStretch": 0.55
+ },
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "look": {
+  "bar": false
+ },
+ "scenes": [
+  {
+   "at": [
+    0.9
+   ],
+   "lines": [
+    "Lecture fifteen. High-performance computing. Many small workers, wired together, run one big job."
+   ]
+  },
+  {
+   "lines": [
+    [
+     "On Priya’s laptop, the storm model takes three days. The regatta is on Saturday.",
+     "On a laptop, the storm model takes 3 days."
+    ],
+    [
+     "Three things make a system fast. Processing does the sums, communication moves data, and I O reads and writes.",
+     "Three things make a system fast: processing, communication, I/O."
+    ],
+    [
+     "A supercomputer is one huge machine, or many computers on a network. Kestrel, the university cluster, is the second kind.",
+     "One giant machine, or many computers on a network."
+    ],
+    [
+     "A cluster holds nodes, each node holds processors, and each processor holds cores.",
+     "A cluster has nodes; nodes hold processors; processors hold cores."
+    ],
+    [
+     "Four nodes, times two processors, times eight cores. Sixty-four cores at once.",
+     "4 × 2 × 8 = 64 cores working at once."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "One sum or product on decimal numbers is one floating-point operation.",
+     "One sum on decimal numbers is a floating-point operation."
+    ],
+    [
+     "FLOPS counts how many of them a machine does in one second.",
+     "FLOPS: how many of them a machine does per second."
+    ],
+    [
+     "Giga, tera, peta, exa. Each rung is a thousand times the one below.",
+     "Giga, tera, peta, exa: each rung is 1000 times the last."
+    ],
+    [
+     "A server processor reaches one to two teraFLOPS. A data-centre GPU such as the H one hundred goes past a thousand.",
+     "A server CPU: 1 to 2 TFLOPS. A data-centre GPU: over 1000."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Kestrel’s nodes are joined by a local area network, a LAN.",
+     "Nodes are joined by a LAN, a local-area network."
+    ],
+    [
+     "At every step, each node swaps the weather at its border with its neighbours.",
+     "Each step, every node swaps border weather with its neighbours."
+    ],
+    [
+     "On a slow network, the fast cores finish their sums and sit waiting for data.",
+     "A slow network leaves fast cores waiting for data."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Moore’s law says the transistors on a chip double about every two years.",
+     "Moore's law: transistors on a chip double about every two years."
+    ],
+    [
+     "One, two, four, eight, sixteen. After ten years, thirty-two times as many.",
+     "1, 2, 4, 8, 16. Ten years: 32 times as many."
+    ],
+    [
+     "Now chips are hitting their limits and falling behind that line.",
+     "Now chips are hitting limits and falling behind."
+    ],
+    [
+     "So extra speed comes from more cores and more nodes.",
+     "So new speed comes from more cores and more nodes."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Take a small job. Ten sums must run in order, and a hundred more can be shared out.",
+     "10 sums must run in order. 100 more can be shared."
+    ],
+    [
+     "On one processor, that is a hundred and ten sums in a row.",
+     "On 1 processor: 110 sums in a row."
+    ],
+    [
+     "On ten processors, the hundred split ten ways. The ten in order still go one by one.",
+     "On 10 processors the 100 split ten ways. The 10 do not."
+    ],
+    [
+     "The job takes the time of twenty sums. A speedup of five and a half, not ten.",
+     "Time of 20 sums: a speedup of 5.5, not 10."
+    ],
+    [
+     "This is Amdahl’s law. The sequential part sets the limit.",
+     "The sequential part sets the limit."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "p is the share of the time that can be shared out. s is how much faster that part gets.",
+     "p: the share of time that can be shared. s: its speedup."
+    ],
+    [
+     "With ninety per cent shareable, eight processors give four point seven, and sixty-four give eight point eight.",
+     "90% shareable: 8 processors give 4.7×, 64 give 8.8×."
+    ],
+    [
+     "The ten per cent in order never shrinks, so the speedup can never beat ten.",
+     "It can never beat 1 ÷ 0.1 = 10×."
+    ],
+    [
+     "With only half shareable, even thirty-two processors stay below two.",
+     "50% shareable: even 32 processors stay below 2×."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Owning a supercomputer means paying for staff, support, power and cooling. Electricity alone can reach eight hundred million dollars a year.",
+     "Owning it costs admins, support, power and cooling."
+    ],
+    [
+     "So a resource manager shares it out. It decides which hardware each job gets, and who runs when.",
+     "A resource manager allocates hardware and schedules the work."
+    ],
+    [
+     "It also starts the work on many nodes, and watches it while it runs.",
+     "It starts the work on many nodes and monitors it."
+    ],
+    [
+     "Jobs wait in a queue that sets the order. When one finishes, the next one runs.",
+     "Each job waits in a queue that sets the order."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Kestrel’s resource manager is Slurm. It is open source, modular, extensible and scalable.",
+     "Slurm: Kestrel's resource manager and scheduler."
+    ],
+    [
+     "Slurm splits the nodes into partitions. The cpu partition has six, the gpu partition two, and each is a queue.",
+     "Partitions: cpu has 6 nodes, gpu has 2. Each is a queue."
+    ],
+    [
+     "The highest priority job goes first and takes four nodes. The next one takes the last two.",
+     "The high-priority job takes 4 nodes, the next takes 2."
+    ],
+    [
+     "No nodes are left, so the third job waits.",
+     "No nodes left: the third job waits."
+    ]
+   ]
+  },
+  {
+   "lines": [
+    [
+     "Priya submits job four zero two one with sbatch. Three nodes are busy with an older job, so it waits.",
+     "sbatch submits job 4021. Nodes are busy, so it waits."
+    ],
+    [
+     "squeue shows it pending. When the older job finishes, it gets n one to n four.",
+     "squeue shows it pending, PD. Then it gets n1 to n4."
+    ],
+    [
+     "srun launches a job step of four tasks, one on each node.",
+     "srun launches a job step: 4 tasks, one per node."
+    ],
+    [
+     "Afterwards, sacct shows the record. The job completed in about five hours and twelve minutes.",
+     "sacct shows the record: completed in 5 h 12 min."
+    ]
+   ]
+  },
+  {
+   "at": [
+    0.9,
+    2,
+    3.1
+   ],
+   "lines": [
+    "A cluster’s power is nodes times processors times cores, counted in FLOPS.",
+    "Amdahl’s law says the part that must run in order caps the speedup.",
+    "Slurm shares the machine through partitions and priority, with four commands from submit to record."
+   ]
+  }
+ ]
+}

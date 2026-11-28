@@ -1,0 +1,758 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 9.288,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     9.288,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.87,
+     "Lecture seventeen. Spiking neural networks, which talk in brief spikes and stay quiet when nothing happens."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/4bb57fd83b03797b.wav",
+     "at": 0.5,
+     "len": 7.12
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.48,
+     3.2
+    ],
+    [
+     11.74,
+     6
+    ],
+    [
+     16.56,
+     8.8
+    ],
+    [
+     25.008,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.23,
+     "Pip patrols a garden on one coin battery."
+    ],
+    [
+     5.48,
+     11.49,
+     "A conventional ANN computes every neuron, every step."
+    ],
+    [
+     11.74,
+     16.31,
+     "Pip needs quick reactions, low power and learning on the go."
+    ],
+    [
+     16.56,
+     24.17,
+     "An SNN sends discrete spikes only when needed."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9d20d44bcb63771f.wav",
+     "at": 0.5,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/a820d488fa718d63.wav",
+     "at": 5.48,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/2899156efb7143cd.wav",
+     "at": 11.74,
+     "len": 4.32
+    },
+    {
+     "file": "videos/audio/clips/dd174c1b6431e006.wav",
+     "at": 16.56,
+     "len": 7.36
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.28,
+     3.2
+    ],
+    [
+     10.38,
+     6
+    ],
+    [
+     16.96,
+     8.8
+    ],
+    [
+     23.336,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.03,
+     "A neuron's run of spikes over time is a spike train."
+    ],
+    [
+     6.28,
+     10.13,
+     "Rate coding: a stronger signal sends more spikes."
+    ],
+    [
+     10.38,
+     16.71,
+     "Dim 2, medium 5, bright 9 spikes in 20 steps."
+    ],
+    [
+     16.96,
+     21.93,
+     "Only how many count, not their size."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3a2374391b32abad.wav",
+     "at": 0.5,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/a328ea0af126557a.wav",
+     "at": 6.28,
+     "len": 3.6
+    },
+    {
+     "file": "videos/audio/clips/6fb48a1951f9010f.wav",
+     "at": 10.38,
+     "len": 6.08
+    },
+    {
+     "file": "videos/audio/clips/609559d61849ad24.wav",
+     "at": 16.96,
+     "len": 4.72
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.56,
+     3.2
+    ],
+    [
+     12.62,
+     6
+    ],
+    [
+     18.08,
+     9.6
+    ],
+    [
+     25.008,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.31,
+     "Temporal coding: a strong input fires early, a weak one late."
+    ],
+    [
+     5.56,
+     12.37,
+     "Bright fires at step 4, dim at step 16. One spike can be enough."
+    ],
+    [
+     12.62,
+     17.83,
+     "Population coding: five neurons, each liking a range."
+    ],
+    [
+     18.08,
+     23.37,
+     "Strength 7 wakes the neurons that like 5, 7.5 and 10."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/cf16bada0b3b6212.wav",
+     "at": 0.5,
+     "len": 4.56
+    },
+    {
+     "file": "videos/audio/clips/2a245d1c1cd571d0.wav",
+     "at": 5.56,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/96f551624ea6e42a.wav",
+     "at": 12.62,
+     "len": 4.96
+    },
+    {
+     "file": "videos/audio/clips/b9b75c5bcf14860c.wav",
+     "at": 18.08,
+     "len": 5.04
+    }
+   ]
+  },
+  {
+   "dur": 28.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     9,
+     3.6
+    ],
+    [
+     17.02,
+     8
+    ],
+    [
+     21.76,
+     11
+    ],
+    [
+     28.328,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.75,
+     "Charge accumulates from inputs, like drops in a bucket."
+    ],
+    [
+     9,
+     16.77,
+     "At the threshold it fires a spike, resets, and fills again."
+    ],
+    [
+     17.02,
+     21.51,
+     "Below-threshold charge leaks away over time."
+    ],
+    [
+     21.76,
+     27.37,
+     "With this leak the charge levels off near 0.67: no spike."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/2db618222c172c14.wav",
+     "at": 0.5,
+     "len": 8
+    },
+    {
+     "file": "videos/audio/clips/ce28b961852c2ac4.wav",
+     "at": 9,
+     "len": 7.52
+    },
+    {
+     "file": "videos/audio/clips/ad2dfc8155f4d96b.wav",
+     "at": 17.02,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/e5f328c40c5ad4b1.wav",
+     "at": 21.76,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 26.657,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     5.72,
+     2.4
+    ],
+    [
+     9.5,
+     4.4
+    ],
+    [
+     15.12,
+     6.6
+    ],
+    [
+     19.54,
+     8.8
+    ],
+    [
+     26.657,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.47,
+     "t = 1: input A fires."
+    ],
+    [
+     5.72,
+     9.25,
+     "t = 2: one step later, both of A's neighbours fire."
+    ],
+    [
+     9.5,
+     14.87,
+     "O needs 3 spikes at once. Two is not enough."
+    ],
+    [
+     15.12,
+     19.29,
+     "t = 4: A's and B's neighbours fire together."
+    ],
+    [
+     19.54,
+     25.71,
+     "t = 5: O gets 4 spikes, crosses its threshold and fires."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/ff4559e08e6af0a5.wav",
+     "at": 0.5,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/13cff5e42d8c684d.wav",
+     "at": 5.72,
+     "len": 3.28
+    },
+    {
+     "file": "videos/audio/clips/840e2628698dcae9.wav",
+     "at": 9.5,
+     "len": 5.12
+    },
+    {
+     "file": "videos/audio/clips/f3692f6cd1088af1.wav",
+     "at": 15.12,
+     "len": 3.92
+    },
+    {
+     "file": "videos/audio/clips/f389574a9e0c95d5.wav",
+     "at": 19.54,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 26.679,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.48,
+     3.2
+    ],
+    [
+     14.7,
+     7.4
+    ],
+    [
+     19.6,
+     10.6
+    ],
+    [
+     26.679,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.23,
+     "A synapse links a pre-synaptic sender to a post-synaptic receiver."
+    ],
+    [
+     7.48,
+     14.45,
+     "Pre fires just before post: strengthen. Potentiation."
+    ],
+    [
+     14.7,
+     19.35,
+     "Post fires before pre: weaken. Depression."
+    ],
+    [
+     19.6,
+     25.21,
+     "No labels needed: STDP is unsupervised learning."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/96c20ccdee33513a.wav",
+     "at": 0.5,
+     "len": 6.48
+    },
+    {
+     "file": "videos/audio/clips/ff01747adc8755e3.wav",
+     "at": 7.48,
+     "len": 6.72
+    },
+    {
+     "file": "videos/audio/clips/0461d2cf0fb69d55.wav",
+     "at": 14.7,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/3402bee21249a1ca.wav",
+     "at": 19.6,
+     "len": 5.36
+    }
+   ]
+  },
+  {
+   "dur": 23.336,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.04,
+     3.2
+    ],
+    [
+     10.78,
+     6
+    ],
+    [
+     16.56,
+     8.8
+    ],
+    [
+     23.336,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     5.79,
+     "Backpropagation walks back from the error, using each neuron's slope."
+    ],
+    [
+     6.04,
+     10.53,
+     "A spiking neuron is 0 below the threshold, then jumps."
+    ],
+    [
+     10.78,
+     16.31,
+     "Its slope is the Dirac delta: zero everywhere but one point."
+    ],
+    [
+     16.56,
+     22.49,
+     "No gradient information, so plain backprop can't be used."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/02d8ae611b80c6b3.wav",
+     "at": 0.5,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/08965433e1feaf12.wav",
+     "at": 6.04,
+     "len": 4.24
+    },
+    {
+     "file": "videos/audio/clips/d1bb715223ae68a6.wav",
+     "at": 10.78,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/b72e93f75da2897d.wav",
+     "at": 16.56,
+     "len": 5.68
+    }
+   ]
+  },
+  {
+   "dur": 28.329,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.72,
+     3.2
+    ],
+    [
+     14.46,
+     6
+    ],
+    [
+     20,
+     8.8
+    ],
+    [
+     28.329,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.47,
+     "Keep real spikes forward; pretend a smooth sigmoid backward."
+    ],
+    [
+     7.72,
+     14.21,
+     "Its slope is a bell centred on the threshold. k = 1: peak 0.25."
+    ],
+    [
+     14.46,
+     19.75,
+     "k = 5: peak 1.25, narrower."
+    ],
+    [
+     20,
+     26.17,
+     "k = 20: peak 5. As k grows, the bell becomes the delta."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/027fd267b6494730.wav",
+     "at": 0.5,
+     "len": 6.72
+    },
+    {
+     "file": "videos/audio/clips/738a312b49390586.wav",
+     "at": 7.72,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/eacfdaf906b7060c.wav",
+     "at": 14.46,
+     "len": 5.04
+    },
+    {
+     "file": "videos/audio/clips/b0e12cab17b3af52.wav",
+     "at": 20,
+     "len": 5.92
+    }
+   ]
+  },
+  {
+   "dur": 23.754,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.44,
+     3.2
+    ],
+    [
+     12.3,
+     6
+    ],
+    [
+     18.16,
+     8.8
+    ],
+    [
+     23.754,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.19,
+     "An EA can tune weights, delays, thresholds and structure."
+    ],
+    [
+     6.44,
+     12.05,
+     "Often bi-level: structure upper, weights lower."
+    ],
+    [
+     12.3,
+     17.91,
+     "30 networks a generation, 100 generations: 3000 tests."
+    ],
+    [
+     18.16,
+     22.97,
+     "Costly, and co-evolving everything at once is still open."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9c3eda378e82cd20.wav",
+     "at": 0.5,
+     "len": 5.44
+    },
+    {
+     "file": "videos/audio/clips/500df2d57dd1aded.wav",
+     "at": 6.44,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/b1485d566f18e5fa.wav",
+     "at": 12.3,
+     "len": 5.36
+    },
+    {
+     "file": "videos/audio/clips/9ccbe40d7b34d40d.wav",
+     "at": 18.16,
+     "len": 4.56
+    }
+   ]
+  },
+  {
+   "dur": 16.649,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.48,
+     2
+    ],
+    [
+     10.38,
+     3.1
+    ],
+    [
+     16.649,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/fb5b6746eeaab01b.wav",
+     "at": 0.5,
+     "len": 4.48
+    },
+    {
+     "file": "videos/audio/clips/478e34e9965900e5.wav",
+     "at": 5.48,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/810bea6417bdc021.wav",
+     "at": 10.38,
+     "len": 4.64
+    }
+   ]
+  }
+ ]
+}

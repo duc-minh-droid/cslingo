@@ -1,0 +1,356 @@
+{
+ "slug": "ds-12",
+ "dir": "d12",
+ "title": "Virtualisation and containers",
+ "outline": "Lecture 12 video (Data Science, COM3021): 'Virtualisation and containers' (title card 'VMs and containers'). 11 scenes, 129 s: title (4), it works on my machine (12), drift (12), virtual machines (13), emulation or virtualisation (11), snapshots (11), containers (14), Docker (14), images and the Dockerfile (14), Kubernetes (15), recap (9). STORY in the lessons' order with Loafly (a bakery app; Mo's forecast.py): 12.1 ds12-works (scenes 2, 3), 12.2 ds12-vm (scenes 4 to 6), 12.3 ds12-light (scene 7: 4 OSes and 9.5 GB against 1 and 3.5 GB, the demo's rough numbers), 12.4 ds12-docker (scene 8), 12.5 ds12-images (scene 9: layer cache 4 built; code change 1 rebuilt 3 cached; library list 3 rebuilt 1 cached), 12.6 ds12-k8s (scene 10), recap and 'Next: Workshop 12.W'. COLOURS: grey hardware, wires, plain labels; blue operating systems (and namespaces); purple the managing layer (hypervisor, container engine, WSL2 / Hyper-V, control plane, Deployment, Service, a snapshot); orange the environment around the code; green the app running fine and good outcomes; red what breaks or is wasted. NUMBERS: videos/d12/common.js ports the lessons' usage() and build() and asserts every figure at load.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 12",
+  "title": "VMs and containers",
+  "sub": "Ship the whole kitchen, not just the recipe",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-works.js",
+   "kicker": "IT WORKS ON MY MACHINE",
+   "title": [
+    "Same code,",
+    "different environment"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     3.0,
+     "Mo's forecaster: forecast.py, the same file on both machines."
+    ],
+    [
+     3.2,
+     5.0,
+     "But Windows 11 against Ubuntu, Python 3.12 against 3.8."
+    ],
+    [
+     5.2,
+     7.6,
+     "It runs on the laptop and crashes on the server."
+    ],
+    [
+     7.8,
+     11.7,
+     "The environment differs: OS, libraries, dependencies, settings."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 2 (IT WORKS ON MY MACHINE): the same forecast.py on two machines whose environments differ (lesson 12.1, D12.ENV). Two grey machine cards, \"Mo's laptop\" and \"Loafly's server\"; four rows build in pairs (0.6, 1.1, 1.6, 2.1); between each pair a sign pops 0.3 s later: a red not-equal for the three environment rows (laptop cell orange, server cell red), a grey equals for forecast.py (both cells grey). 5.0 a green tick and \"runs\" under the laptop; 6.0 a red cross, a red bolt and \"crashes\" under the server. 8.0 the five words of the lesson's list fly in as orange chips."
+  },
+  {
+   "n": 3,
+   "file": "scene-03-drift.js",
+   "kicker": "DRIFT",
+   "title": [
+    "Environments drift apart",
+    "on the road to production"
+   ],
+   "dur": 12,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "Development, test, production: three machines that start out alike."
+    ],
+    [
+     3.0,
+     5.2,
+     "Each gets its own updates and tweaks."
+    ],
+    [
+     5.4,
+     7.6,
+     "They drift apart, so deploying across them is fragile."
+    ],
+    [
+     7.8,
+     11.7,
+     "The big idea: pack the environment along with the code."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 3 (DRIFT): development, test and production start out alike and drift apart; the big idea is to pack the whole environment with the code (lesson 12.1). Story (local seconds): 0.3 three grey boxes (Development, Test, Production) with the same three orange chips (OS, Python, libraries), grey arrows between them; 3.0 a clock appears and its hand turns; one chip changes in each box (3.4 Development \"OS update\", 4.0 Test \"new Python\", 4.6 Production \"new libraries\", all red); 5.4 a red wavy line \"drift\" draws under them. 7.8 everything fades; a stack builds bottom-up (8.0 grey Hardware, 8.4 blue Operating system, 8.8 orange Libraries and settings, 9.2 green Mo's forecaster); 9.6 a purple dashed outline closes round it, \"pack it all: virtualisation or containers\"."
+  },
+  {
+   "n": 4,
+   "file": "scene-04-vm.js",
+   "kicker": "VIRTUAL MACHINES",
+   "title": [
+    "A computer inside a computer,",
+    "run by a hypervisor"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "The real computer is the host."
+    ],
+    [
+     2.4,
+     5.4,
+     "Each virtual machine is a guest with its own OS."
+    ],
+    [
+     5.6,
+     9.0,
+     "The hypervisor shares the host's CPU, memory and disk between them."
+    ],
+    [
+     9.2,
+     12.7,
+     "For example VMware Workstation, VirtualBox and Hyper-V."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 4 (VIRTUAL MACHINES): host and guests, and the hypervisor that shares out the hardware (lesson 12.2). Story (local seconds): 0.5 grey \"Hardware (CPU, memory, disk)\", 1.1 blue \"Host operating system\", the label \"host\"; 2.4 two guest columns rise on the host (blue Guest OS, orange Libraries, green App 1 / App 2), each in a dashed blue outline labelled \"VM 1 (guest)\" / \"VM 2 (guest)\"; 5.6 the purple \"Hypervisor\" slides in between the host OS and the guests, which move up; 6.4 three purple chips (CPU, memory, disk) rise out of it into each guest; 9.2 three purple name tags at the top: VMware Workstation, VirtualBox, Hyper-V."
+  },
+  {
+   "n": 5,
+   "file": "scene-05-emulator.js",
+   "kicker": "EMULATION OR VIRTUALISATION",
+   "title": [
+    "Pretend to be other hardware,",
+    "or share the real one"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "An emulator mimics other hardware, like an old console."
+    ],
+    [
+     2.4,
+     5.2,
+     "Every instruction is translated; the game never touches the real hardware."
+    ],
+    [
+     5.4,
+     8.8,
+     "A virtual machine does use the host hardware."
+    ],
+    [
+     9.0,
+     10.7,
+     "The hypervisor keeps the guests apart."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 5 (EMULATION OR VIRTUALISATION): an emulator pretends to be other hardware and translates every instruction; a hypervisor lets the guest run on the real hardware and only keeps guests apart (lesson 12.2). Story (local seconds): 0.6 the left column builds (green Guest software \"a retro game\", orange Emulator \"mimics the old console\", grey Host hardware); from 2.4 four grey instruction dots fall from the guest, stop in the emulator, turn into orange squares (translated) and only then go down; 3.4 the tag \"each instruction translated\". 5.4 the right column builds (green Guest software \"a full OS and apps\", purple Hypervisor \"shares the real hardware\", grey Host hardware); from 6.6 green dots ride a green curved bypass straight to the host hardware, tag \"runs on the real CPU\"; 9.0 a green tick beside it and a purple tag \"keeps guests apart\" by the hypervisor."
+  },
+  {
+   "n": 6,
+   "file": "scene-06-snapshot.js",
+   "kicker": "SNAPSHOTS",
+   "title": [
+    "An undo button",
+    "for a whole machine"
+   ],
+   "dur": 11,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "A snapshot saves the VM's state at one exact moment."
+    ],
+    [
+     3.4,
+     6.6,
+     "Then an update is installed, and the forecaster breaks."
+    ],
+    [
+     6.8,
+     8.8,
+     "Restore the snapshot: every later change is undone."
+    ],
+    [
+     9.0,
+     10.7,
+     "Snapshots can also be copied to another host."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 6 (SNAPSHOTS): a snapshot saves a VM's state at one moment; restoring it undoes every later change; a snapshot can be copied or moved to another host (lesson 12.2). Story (local seconds): a grey timeline; dots pop left to right: 0.5 blue \"VM running\" (with a blue server icon), 1.6 purple \"Snapshot taken\" (a purple camera pops and flashes), 3.4 orange \"Update installed\", 5.0 red \"Forecaster breaks\" (the green forecast.py card turns red and a red cross draws). 6.8 a green arc sweeps back from the break to the snapshot, tag \"roll back: later changes are undone\"; 7.4 the update and break dots and labels turn grey and the card fades; 8.2 a green \"Restored\" dot with a tick. 9.0 a purple \"snapshot\" chip slides from the camera onto a grey \"Another host\" box (\"copy or migrate\")."
+  },
+  {
+   "n": 7,
+   "file": "scene-07-containers.js",
+   "kicker": "CONTAINERS",
+   "title": [
+    "One shared kernel,",
+    "many sealed boxes"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     2.2,
+     "Three services, three virtual machines."
+    ],
+    [
+     2.4,
+     5.0,
+     "Every VM repeats a whole OS: lots of overhead."
+    ],
+    [
+     5.2,
+     7.2,
+     "Containers share the host's OS kernel instead."
+    ],
+    [
+     7.4,
+     10.4,
+     "Rough numbers: 4 operating systems against 1."
+    ],
+    [
+     10.6,
+     13.7,
+     "A container starts in milliseconds, a VM in about a minute."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 7 (CONTAINERS): three services in three VMs against three containers on one shared kernel (lesson 12.3; the rough numbers come from the lesson's demo, D12.usage: 4 OSes and 9.5 GB against 1 OS and 3.5 GB). Story (local seconds): 0.4 the left stack builds (grey Hardware, blue Host OS, purple Hypervisor, then three columns of blue Guest OS, orange Libraries, green App); 2.4 the three guest OSes get red rings and pulse (the repeats). 5.2 the right stack builds (grey Hardware, blue \"Host OS (one shared kernel)\", purple \"Container engine (Docker)\", three dashed green boxes with only orange Libraries and green App). 7.4 a stat card under each side: operating systems, memory, start-up; the grey note \"rough numbers, for illustration\". 10.6 a start-up race: the container's green bar fills at once (tick), the VM's orange bar fills slowly until 13.6 (tick)."
+  },
+  {
+   "n": 8,
+   "file": "scene-08-docker.js",
+   "kicker": "DOCKER",
+   "title": [
+    "A packaged app,",
+    "running in isolation"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     3.0,
+     "Docker packs the app with all its dependencies."
+    ],
+    [
+     3.2,
+     6.2,
+     "Namespaces: each container sees its own files, network and processes."
+    ],
+    [
+     6.4,
+     9.4,
+     "Cgroups: limits on CPU, memory and IO."
+    ],
+    [
+     9.6,
+     13.7,
+     "On Windows, Docker Desktop runs a small Linux VM via WSL2 or Hyper-V."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 8 (DOCKER): a container packs the app with its dependencies and runs as an isolated process: namespaces give it its own view, cgroups cap what it may use; on Windows, Docker Desktop runs a small Linux VM (lesson 12.4). Story (local seconds): 0.5 a dashed green box \"One container\" opens in the middle and fills top to bottom (green \"forecast.py (the app)\", orange \"Python 3.12 + pandas 2.2\", orange \"settings and config\"). 3.2 it slides left and becomes \"Forecaster\"; a second box \"Shop\" appears on the right; 3.6 three blue chips under each (\"Own files\", \"Own network\", \"Own processes\") and the blue tag \"namespaces\". 6.4 the chips give way to three orange bars per box (CPU, Memory, IO) that fill to different levels under red cap lines (the forecaster's memory reaches its cap and the cap flashes); tag \"cgroups (limits)\". 9.6 the bars fade, a stack builds below (grey \"Laptop hardware\", blue \"Windows\", purple \"WSL2 (modern) or Hyper-V (older)\", blue \"Small Linux VM\") and the two containers drop onto it."
+  },
+  {
+   "n": 9,
+   "file": "scene-09-images.js",
+   "kicker": "IMAGES AND THE DOCKERFILE",
+   "title": [
+    "The image is the recipe,",
+    "the container is the dish"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "One image, three running containers."
+    ],
+    [
+     3.0,
+     5.4,
+     "A Dockerfile builds the image line by line, one layer each."
+    ],
+    [
+     5.6,
+     7.6,
+     "First build: every layer is made and cached."
+    ],
+    [
+     7.8,
+     10.6,
+     "Change only your code: 1 layer rebuilt, 3 from cache."
+    ],
+    [
+     10.8,
+     13.7,
+     "Change the library list: rebuilt from that line down."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 9 (IMAGES AND THE DOCKERFILE): an image is a read-only template, a container a running instance; a Dockerfile builds the image one layer per line and the layer cache redoes only the first changed layer and everything after it (lesson 12.5; D12.DF and D12.build, the lesson's own code: rebuilt / cached 4 / 0, 1 / 3, 3 / 1). Story (local seconds): 0.5 a purple \"Forecaster image\" card; 1.2 / 1.5 / 1.8 three green \"Container N\" cards, joined by grey lines. 3.0 they slide away; \"docker build\" and Mo's four Dockerfile lines appear as orange rows (code + what it adds). 5.6 first build: a red \"rebuilt\" chip on each row in turn (0.3 s apart), counter \"4 built, now in the cache\". 7.8 tag \"changed: your code\" (row 4 gets an orange ring); 8.2 second pass: green \"from cache\" x 3, red \"rebuilt\" on row 4; 9.6 counter \"1 rebuilt, 3 from cache\". 10.8 tag \"changed: the library list\" (ring on row 2); 11.2 third pass: row 1 green, rows 2 to 4 red; 12.6 counter \"3 rebuilt, 1 from cache\"."
+  },
+  {
+   "n": 10,
+   "file": "scene-10-kubernetes.js",
+   "kicker": "KUBERNETES",
+   "title": [
+    "Say what you want,",
+    "the cluster keeps it that way"
+   ],
+   "dur": 15,
+   "caps": [
+    [
+     0.4,
+     2.4,
+     "A cluster: a control plane and worker nodes."
+    ],
+    [
+     2.6,
+     5.8,
+     "A Deployment wants 3 pods; a Service gives them one address."
+    ],
+    [
+     6.0,
+     8.6,
+     "A pod crashes: it is restarted."
+    ],
+    [
+     8.8,
+     11.8,
+     "Node 2 goes down: its pod is rescheduled. Still 3 running."
+    ],
+    [
+     12.0,
+     14.7,
+     "Scaling, self-healing, declarative, cloud-native."
+    ]
+   ],
+   "spec": "Lecture 12 (ds-12) · scene 10 (KUBERNETES): a control plane and worker nodes keep the desired state: a crashed pod is restarted, the pod of a failed node is rescheduled (lesson 12.6; D12.K8S: desired 3, running 3, 2, 3, 2, 3 over the story). Story (local seconds): 0.5 the purple \"Control plane\" (the brain: schedules, heals, scales); 1.0 three grey worker nodes. 2.6 the purple tag \"Deployment: replicas 3\", the counter \"Desired 3 · Running 3\" and three green pods P1, P2, P3, one per node; 3.6 the purple \"Service: one stable address\" bar; grey request dots flow from it to the running pods. 6.0 P2 flashes red and vanishes (Running 2, the counter turns red); 6.8 a new P2 pops on node 2 with a purple ring, tag \"restarted\". 8.8 node 2 turns red and dashed, tag \"down\" under it (Running 2); 9.6-10.4 its pod slides along a purple arrow to node 3, lands green, tag \"rescheduled\" (Running 3). 12.0 four purple chips: Horizontal scaling, Self-healing, Declarative (YAML), Cloud-native."
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "rows": [
+   0.8,
+   1.9,
+   3.0
+  ],
+  "next": "Next: Workshop 12.W",
+  "points": [
+   {
+    "head": "Virtual machine: a whole\ncomputer in software",
+    "tone": "blue",
+    "pictogram": "Grey hardware bar, purple hypervisor bar, two guest columns (blue guest OS, green app) rise onto them. Holds."
+   },
+   {
+    "head": "Container: a sealed box\non one shared kernel",
+    "tone": "green",
+    "pictogram": "One blue kernel bar; three dashed green boxes drop onto it, a green app pops in each. Holds."
+   },
+   {
+    "head": "Image builds the box,\nKubernetes keeps it running",
+    "tone": "purple",
+    "pictogram": "A purple recipe card, a grey arrow, three green pod dots pop and stay."
+   }
+  ]
+ },
+ "helpers": "videos/d12/common.js (VID.d12): D12.ENV, D12.usage, D12.DF / D12.build / D12.PASSES, D12.K8S; D12.box, D12.eq, D12.clock, D12.wave, D12.drawOn. Stickers from videos/d4/common-2.js, common-3.js and videos/l5/common.js."
+}

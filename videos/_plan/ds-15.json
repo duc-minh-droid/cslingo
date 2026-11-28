@@ -1,0 +1,337 @@
+{
+ "slug": "ds-15",
+ "dir": "d15",
+ "title": "High-performance computing",
+ "outline": "Lecture 15 video (Data Science, COM3021): High-performance computing (title card \"HPC clusters\"). 11 scenes, 132 s, from videos/_plan/ds-15-script.md. Running example: Priya (Gullhaven Sailing Club) borrows the university cluster Kestrel (8 nodes: cpu n1-n6, gpu n7-n8) for her storm model; job 4021. Colour roles: blue compute, purple communication, orange I/O and waiting, red limits, green results, grey machines and frames.",
+ "titleCard": {
+  "kicker": "Data Science · Lecture 15",
+  "title": "HPC clusters",
+  "sub": "Many small workers, wired together",
+  "who": "pebble",
+  "dur": 4
+ },
+ "scenes": [
+  {
+   "n": 2,
+   "file": "scene-02-three-days.js",
+   "kicker": "WHAT MAKES IT FAST",
+   "title": [
+    "Three days on a laptop,",
+    "so borrow a cluster"
+   ],
+   "dur": 15,
+   "caps": [
+    [
+     0.4,
+     2.8,
+     "On a laptop, the storm model takes 3 days."
+    ],
+    [
+     3,
+     6.2,
+     "Three things make a system fast: processing, communication, I/O."
+    ],
+    [
+     6.5,
+     9.6,
+     "One giant machine, or many computers on a network."
+    ],
+    [
+     9.9,
+     12.4,
+     "A cluster has nodes; nodes hold processors; processors hold cores."
+    ],
+    [
+     12.6,
+     14.7,
+     "4 × 2 × 8 = 64 cores working at once."
+    ]
+   ]
+  },
+  {
+   "n": 3,
+   "file": "scene-03-flops.js",
+   "kicker": "COUNTING SUMS",
+   "title": [
+    "Speed is counted",
+    "in sums per second"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3,
+     "One sum on decimal numbers is a floating-point operation."
+    ],
+    [
+     3.2,
+     5.6,
+     "FLOPS: how many of them a machine does per second."
+    ],
+    [
+     5.8,
+     8.6,
+     "Giga, tera, peta, exa: each rung is 1000 times the last."
+    ],
+    [
+     8.9,
+     12.7,
+     "A server CPU: 1 to 2 TFLOPS. A data-centre GPU: over 1000."
+    ]
+   ]
+  },
+  {
+   "n": 4,
+   "file": "scene-04-network.js",
+   "kicker": "DON'T FORGET THE ROADS",
+   "title": [
+    "Fast nodes still wait",
+    "for a slow network"
+   ],
+   "dur": 10,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "Nodes are joined by a LAN, a local-area network."
+    ],
+    [
+     3.4,
+     6.2,
+     "Each step, every node swaps border weather with its neighbours."
+    ],
+    [
+     6.5,
+     9.6,
+     "A slow network leaves fast cores waiting for data."
+    ]
+   ]
+  },
+  {
+   "n": 5,
+   "file": "scene-05-moore.js",
+   "kicker": "MOORE'S LAW",
+   "title": [
+    "Twice the transistors,",
+    "about every two years"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "Moore's law: transistors on a chip double about every two years."
+    ],
+    [
+     3.6,
+     5.8,
+     "1, 2, 4, 8, 16. Ten years: 32 times as many."
+    ],
+    [
+     6.1,
+     9,
+     "Now chips are hitting limits and falling behind."
+    ],
+    [
+     9.3,
+     12.6,
+     "So new speed comes from more cores and more nodes."
+    ]
+   ]
+  },
+  {
+   "n": 6,
+   "file": "scene-06-amdahl.js",
+   "kicker": "AMDAHL'S LAW",
+   "title": [
+    "The part that must run",
+    "in order stays put"
+   ],
+   "dur": 14,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "10 sums must run in order. 100 more can be shared."
+    ],
+    [
+     3.4,
+     5.8,
+     "On 1 processor: 110 sums in a row."
+    ],
+    [
+     6,
+     9.2,
+     "On 10 processors the 100 split ten ways. The 10 do not."
+    ],
+    [
+     9.4,
+     11.6,
+     "Time of 20 sums: a speedup of 5.5, not 10."
+    ],
+    [
+     11.8,
+     13.7,
+     "The sequential part sets the limit."
+    ]
+   ]
+  },
+  {
+   "n": 7,
+   "file": "scene-07-ceiling.js",
+   "kicker": "THE CEILING",
+   "title": [
+    "More processors help,",
+    "up to a limit"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "p: the share of time that can be shared. s: its speedup."
+    ],
+    [
+     3.4,
+     6.4,
+     "90% shareable: 8 processors give 4.7×, 64 give 8.8×."
+    ],
+    [
+     6.6,
+     9,
+     "It can never beat 1 ÷ 0.1 = 10×."
+    ],
+    [
+     9.2,
+     12.6,
+     "50% shareable: even 32 processors stay below 2×."
+    ]
+   ]
+  },
+  {
+   "n": 8,
+   "file": "scene-08-resources.js",
+   "kicker": "WHO GETS THE MACHINE",
+   "title": [
+    "A costly machine",
+    "must never sit idle"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3.2,
+     "Owning it costs admins, support, power and cooling."
+    ],
+    [
+     3.4,
+     6.6,
+     "A resource manager allocates hardware and schedules the work."
+    ],
+    [
+     6.8,
+     9.4,
+     "It starts the work on many nodes and monitors it."
+    ],
+    [
+     9.6,
+     12.6,
+     "Each job waits in a queue that sets the order."
+    ]
+   ]
+  },
+  {
+   "n": 9,
+   "file": "scene-09-partitions.js",
+   "kicker": "SLURM",
+   "title": [
+    "Partitions are queues,",
+    "most important first"
+   ],
+   "dur": 13,
+   "caps": [
+    [
+     0.4,
+     3,
+     "Slurm: Kestrel's resource manager and scheduler."
+    ],
+    [
+     3.2,
+     6.2,
+     "Partitions: cpu has 6 nodes, gpu has 2. Each is a queue."
+    ],
+    [
+     6.4,
+     9.4,
+     "The high-priority job takes 4 nodes, the next takes 2."
+    ],
+    [
+     9.6,
+     12.6,
+     "No nodes left: the third job waits."
+    ]
+   ]
+  },
+  {
+   "n": 10,
+   "file": "scene-10-commands.js",
+   "kicker": "FOUR COMMANDS",
+   "title": [
+    "Submit, check,",
+    "run, read the record"
+   ],
+   "dur": 15,
+   "caps": [
+    [
+     0.4,
+     3.4,
+     "sbatch submits job 4021. Nodes are busy, so it waits."
+    ],
+    [
+     3.6,
+     7.3,
+     "squeue shows it pending, PD. Then it gets n1 to n4."
+    ],
+    [
+     7.6,
+     10.7,
+     "srun launches a job step: 4 tasks, one per node."
+    ],
+    [
+     11,
+     14.6,
+     "sacct shows the record: completed in 5 h 12 min."
+    ]
+   ]
+  }
+ ],
+ "recap": {
+  "n": 11,
+  "file": "scene-11-recap.js",
+  "dur": 9,
+  "points": [
+   {
+    "head": "Nodes × processors × cores,\ncounted in FLOPS",
+    "tone": "blue",
+    "pictogram": "One grey node box splits into two blue processor boxes; each fills with 8 small blue core squares; a green 64 disc pops. Holds."
+   },
+   {
+    "head": "Amdahl: the part that won't share\nsets the ceiling",
+    "tone": "red",
+    "pictogram": "Two time bars, red block plus blue block; in the lower bar the blue block shrinks to a tenth while the red stays; a green dashed ceiling line draws above. Holds."
+   },
+   {
+    "head": "Slurm: partitions, priority,\nsbatch, squeue, srun, sacct",
+    "tone": "orange",
+    "pictogram": "Three orange job chips in a queue; the first slides into a grey dashed node frame, turns blue, then green with a tick. Holds."
+   }
+  ],
+  "cta": "Next: Workshop 15.W",
+  "rows": [
+   0.8,
+   1.9,
+   3
+  ]
+ },
+ "helpers": "videos/d15/common.js (D15 data, asserted: CL, LAD, DEV, NET, MOORE, AM, CEIL, COST, PART, SCHED, JOB); videos/d15/common-2.js (D15.box, D15.frame, D15.term, D15.cells); stickers from VID.d4, charts from VID.d9.plot, ticks and arrows from VID.l5."
+}

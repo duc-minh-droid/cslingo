@@ -1,0 +1,800 @@
+{
+ "engine": "qwen",
+ "fake": false,
+ "music": {
+  "file": "videos/music/theme.mp3",
+  "beats": "videos/music/theme.beats.json",
+  "snap": "downbeats",
+  "start": 0,
+  "volume": 0.22
+ },
+ "scenes": [
+  {
+   "dur": 10.96,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     10.96,
+     4
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.99,
+     "Lecture sixteen. Neural networks. Simple neurons, joined by adjustable weights, that learn instead of following rules."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/95fa60d0177bdfe6.wav",
+     "at": 0.5,
+     "len": 8.24
+    }
+   ]
+  },
+  {
+   "dur": 28.328,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.28,
+     3.2
+    ],
+    [
+     13.42,
+     6
+    ],
+    [
+     20.56,
+     8.8
+    ],
+    [
+     28.328,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.03,
+     "A calculator multiplies huge numbers in a flash."
+    ],
+    [
+     8.28,
+     13.17,
+     "It also recalls exact facts for ever."
+    ],
+    [
+     13.42,
+     20.31,
+     "But catching a ball or spotting a face? You win."
+    ],
+    [
+     20.56,
+     27.37,
+     "Brains are distributed: they learn, generalise and forget."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9d14d614b378cd9d.wav",
+     "at": 0.5,
+     "len": 7.28
+    },
+    {
+     "file": "videos/audio/clips/043f385092a209ab.wav",
+     "at": 8.28,
+     "len": 4.64
+    },
+    {
+     "file": "videos/audio/clips/35a53a612bf9d837.wav",
+     "at": 13.42,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/e45fcf61711fcf35.wav",
+     "at": 20.56,
+     "len": 6.56
+    }
+   ]
+  },
+  {
+   "dur": 25.124,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     4.12,
+     3.2
+    ],
+    [
+     8.3,
+     6
+    ],
+    [
+     16.88,
+     8.8
+    ],
+    [
+     25.124,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     3.87,
+     "Your brain holds about 100 billion neurons."
+    ],
+    [
+     4.12,
+     8.05,
+     "Each one links to around 10,000 others."
+    ],
+    [
+     8.3,
+     16.63,
+     "A synapse can excite or inhibit, like a volume knob."
+    ],
+    [
+     16.88,
+     23.13,
+     "Synapses can be strengthened: that is where learning lives."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6dec7d323bfe6ede.wav",
+     "at": 0.5,
+     "len": 3.12
+    },
+    {
+     "file": "videos/audio/clips/db39b5e1862032d4.wav",
+     "at": 4.12,
+     "len": 3.68
+    },
+    {
+     "file": "videos/audio/clips/c6f63936b19bec96.wav",
+     "at": 8.3,
+     "len": 8.08
+    },
+    {
+     "file": "videos/audio/clips/0dccbc0488d812d6.wav",
+     "at": 16.88,
+     "len": 6
+    }
+   ]
+  },
+  {
+   "dur": 30.047,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.52,
+     3.2
+    ],
+    [
+     15.42,
+     6
+    ],
+    [
+     21.52,
+     8.8
+    ],
+    [
+     30.047,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     8.27,
+     "Symbolic AI: an expert types in IF-THEN rules."
+    ],
+    [
+     8.52,
+     15.17,
+     "Easy to read, but fragile outside its scope."
+    ],
+    [
+     15.42,
+     21.27,
+     "Connectionism learns numbers, called weights, in a network."
+    ],
+    [
+     21.52,
+     28.41,
+     "It generalises and fails gracefully, but is a black box."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/c0dbc7faaf23fbdf.wav",
+     "at": 0.5,
+     "len": 7.52
+    },
+    {
+     "file": "videos/audio/clips/d51281336019dc85.wav",
+     "at": 8.52,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/1a096d0c9aabcb1d.wav",
+     "at": 15.42,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/2cb681e5662a4124.wav",
+     "at": 21.52,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 39.822,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     8.04,
+     3.2
+    ],
+    [
+     15.26,
+     6
+    ],
+    [
+     24.32,
+     9.2
+    ],
+    [
+     31.46,
+     11.8
+    ],
+    [
+     39.822,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.79,
+     "A neuron listens, decides, and passes it on."
+    ],
+    [
+     8.04,
+     15.01,
+     "McCulloch and Pitts, 1943: inputs times weights, then add."
+    ],
+    [
+     15.26,
+     24.07,
+     "1 + 1 = 2 clears a threshold of 1.5, so it fires. That is AND."
+    ],
+    [
+     24.32,
+     31.21,
+     "Lower the threshold to 0.5: one input is enough. OR."
+    ],
+    [
+     31.46,
+     38.35,
+     "Negative weights inhibit: weights −1, threshold −1.5 give NAND."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6d9953b34fb6724b.wav",
+     "at": 0.5,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/231e81eb9b59396e.wav",
+     "at": 8.04,
+     "len": 6.72
+    },
+    {
+     "file": "videos/audio/clips/f79d78171e9d1d2a.wav",
+     "at": 15.26,
+     "len": 8.56
+    },
+    {
+     "file": "videos/audio/clips/b4fd58b853365997.wav",
+     "at": 24.32,
+     "len": 6.64
+    },
+    {
+     "file": "videos/audio/clips/233fd76b251690a0.wav",
+     "at": 31.46,
+     "len": 6.64
+    }
+   ]
+  },
+  {
+   "dur": 25.008,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.92,
+     3.2
+    ],
+    [
+     12.7,
+     6
+    ],
+    [
+     16.96,
+     8.8
+    ],
+    [
+     25.008,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.67,
+     "Nell's lock lamp should glow when exactly one gate is open."
+    ],
+    [
+     6.92,
+     12.45,
+     "That rule is XOR. Its 'on' cases sit in opposite corners."
+    ],
+    [
+     12.7,
+     16.71,
+     "One neuron draws one straight line."
+    ],
+    [
+     16.96,
+     24.01,
+     "No straight line separates XOR. One neuron can't do it."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/6a710e55cbaf87b5.wav",
+     "at": 0.5,
+     "len": 5.92
+    },
+    {
+     "file": "videos/audio/clips/3ffa2964032daf6f.wav",
+     "at": 6.92,
+     "len": 5.28
+    },
+    {
+     "file": "videos/audio/clips/fc615d4f63cc20fb.wav",
+     "at": 12.7,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/6649affa2f2e8ac9.wav",
+     "at": 16.96,
+     "len": 6.8
+    }
+   ]
+  },
+  {
+   "dur": 31.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.16,
+     3.2
+    ],
+    [
+     14.7,
+     6.6
+    ],
+    [
+     20.08,
+     9.6
+    ],
+    [
+     24.34,
+     11.4
+    ],
+    [
+     31.672,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.91,
+     "Add a hidden layer: OR and NAND feed an AND."
+    ],
+    [
+     7.16,
+     14.45,
+     "0 0 and 1 1: the hidden pair disagree, so no light."
+    ],
+    [
+     14.7,
+     19.83,
+     "0 1 and 1 0: both agree, so the output fires."
+    ],
+    [
+     20.08,
+     24.09,
+     "That is XOR from three neurons."
+    ],
+    [
+     24.34,
+     31.07,
+     "The multi-layer perceptron: Rumelhart and McClelland, 1986."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/a571c68056fe571a.wav",
+     "at": 0.5,
+     "len": 6.16
+    },
+    {
+     "file": "videos/audio/clips/08aef49bf51c97a4.wav",
+     "at": 7.16,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/2a9c7a9a1d78ab14.wav",
+     "at": 14.7,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/d20b7b2ee85613b6.wav",
+     "at": 20.08,
+     "len": 3.76
+    },
+    {
+     "file": "videos/audio/clips/3f8e27abaa3c036b.wav",
+     "at": 24.34,
+     "len": 6.48
+    }
+   ]
+  },
+  {
+   "dur": 31.672,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     6.6,
+     3.2
+    ],
+    [
+     14.06,
+     6
+    ],
+    [
+     19.28,
+     8.8
+    ],
+    [
+     24.66,
+     10.6
+    ],
+    [
+     31.672,
+     13
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.35,
+     "Nell's rain brain: 20 hidden neurons, fit score 0.99."
+    ],
+    [
+     6.6,
+     13.81,
+     "Lightning knocks out neuron 7. Fit score 0.83."
+    ],
+    [
+     14.06,
+     19.03,
+     "Pull one wire from a rule system and it usually fails."
+    ],
+    [
+     19.28,
+     24.41,
+     "That is graceful degradation."
+    ],
+    [
+     24.66,
+     29.55,
+     "Learned patterns also generalise to new cases and noise."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/1f5a70d43bdc5912.wav",
+     "at": 0.5,
+     "len": 5.6
+    },
+    {
+     "file": "videos/audio/clips/b49abfadaf8ce9a1.wav",
+     "at": 6.6,
+     "len": 6.96
+    },
+    {
+     "file": "videos/audio/clips/79ef10787f5d7c37.wav",
+     "at": 14.06,
+     "len": 4.72
+    },
+    {
+     "file": "videos/audio/clips/fe816ca3862fdce8.wav",
+     "at": 19.28,
+     "len": 4.88
+    },
+    {
+     "file": "videos/audio/clips/89dddde8c442559b.wav",
+     "at": 24.66,
+     "len": 4.64
+    }
+   ]
+  },
+  {
+   "dur": 28.746,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.4,
+     3.2
+    ],
+    [
+     13.74,
+     6
+    ],
+    [
+     20,
+     8.8
+    ],
+    [
+     28.746,
+     12
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     7.15,
+     "The case study: rainfall and temperature in, sewer flow out."
+    ],
+    [
+     7.4,
+     13.49,
+     "15 rainfall events, January 2010 to October 2012."
+    ],
+    [
+     13.74,
+     19.75,
+     "Cross-validation: each split holds one storm back for testing."
+    ],
+    [
+     20,
+     26.65,
+     "Train with an EA: each solution is a complete set of weights."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/b1ac72126856b6ea.wav",
+     "at": 0.5,
+     "len": 6.4
+    },
+    {
+     "file": "videos/audio/clips/b1275884c96039f9.wav",
+     "at": 7.4,
+     "len": 5.84
+    },
+    {
+     "file": "videos/audio/clips/d86c54d4b1a54962.wav",
+     "at": 13.74,
+     "len": 5.76
+    },
+    {
+     "file": "videos/audio/clips/93b0e270253e6137.wav",
+     "at": 20,
+     "len": 6.4
+    }
+   ]
+  },
+  {
+   "dur": 36.665,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.4
+    ],
+    [
+     7.24,
+     3.2
+    ],
+    [
+     14.3,
+     6
+    ],
+    [
+     22.32,
+     8.8
+    ],
+    [
+     29.86,
+     11
+    ],
+    [
+     36.665,
+     14
+    ]
+   ],
+   "caps": [
+    [
+     0.5,
+     6.99,
+     "Fitness is the mean absolute error, MAE. Start: 0.407."
+    ],
+    [
+     7.24,
+     14.05,
+     "Mutation adds small Gaussian noise to one weight."
+    ],
+    [
+     14.3,
+     22.07,
+     "Generation 20: MAE 0.072, Nash-Sutcliffe 0.92."
+    ],
+    [
+     22.32,
+     29.61,
+     "Generation 50: NSE 0.99. Fast at first, then slow."
+    ],
+    [
+     29.86,
+     36.11,
+     "NSE: best 1, guessing the average scores 0, no lower limit."
+    ]
+   ],
+   "clips": [
+    {
+     "file": "videos/audio/clips/3248163f1e40d795.wav",
+     "at": 0.5,
+     "len": 6.24
+    },
+    {
+     "file": "videos/audio/clips/c4630198c3b4176b.wav",
+     "at": 7.24,
+     "len": 6.56
+    },
+    {
+     "file": "videos/audio/clips/7de4e11ad0a4814b.wav",
+     "at": 14.3,
+     "len": 7.52
+    },
+    {
+     "file": "videos/audio/clips/3199058da4de306b.wav",
+     "at": 22.32,
+     "len": 7.04
+    },
+    {
+     "file": "videos/audio/clips/c12b4f776889475b.wav",
+     "at": 29.86,
+     "len": 6
+    }
+   ]
+  },
+  {
+   "dur": 15.34,
+   "warp": [
+    [
+     0,
+     0
+    ],
+    [
+     0.5,
+     0.9
+    ],
+    [
+     5.08,
+     2
+    ],
+    [
+     9.98,
+     3.1
+    ],
+    [
+     15.34,
+     9
+    ]
+   ],
+   "caps": [],
+   "clips": [
+    {
+     "file": "videos/audio/clips/9473bf37508ad457.wav",
+     "at": 0.5,
+     "len": 4.08
+    },
+    {
+     "file": "videos/audio/clips/0e3eff6d3a3451d2.wav",
+     "at": 5.08,
+     "len": 4.4
+    },
+    {
+     "file": "videos/audio/clips/83231f11b7a76cbd.wav",
+     "at": 9.98,
+     "len": 4.56
+    }
+   ]
+  }
+ ]
+}

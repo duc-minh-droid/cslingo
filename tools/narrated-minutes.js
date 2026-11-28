@@ -8,8 +8,8 @@ import { join } from "node:path";
 import { root } from "./video-lib.js";
 
 const COURSES = [
-  ["lecture", "nic", 15],
-  ["ds", "ds", 11],
+  ["lecture", "nic", 18],
+  ["ds", "ds", 16],
   ["algo", "algo", 10],
 ];
 const write = process.argv.includes("--write");
